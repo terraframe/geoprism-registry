@@ -1,5 +1,5 @@
 ## About
-The Geospatial Registry encompasses a collaborative framework for defining, accessing, and maintaining locations across countries and programs. 
+The Geospatial Registry encompasses a collaborative framework for defining, accessing, and maintaining locations across countries and disease health programs. 
 
 The Geospatial Registry will focus on the following high level functionality:
 * Defining and enforcing a specification for locations in the Geospatial Registry system.
