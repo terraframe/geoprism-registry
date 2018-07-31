@@ -11,6 +11,9 @@ The Geospatial Registry will focus on the following high level functionality:
 
 This effort is a part of the Digital Solutions For Malaria program who manages the project publicly <a href="https://github.com/ds4me/ds4me-wiki/wiki" target="_blank">here</a>.
 
+## References
+The <a href="https://github.com/terraframe/common-geospatial-registry-specification" target="_blank">Common Geospatial Registry specification </a> which this project implements.
+
 ## High Level Development Requirements
 1. New development must be conducted in a new branch.
 2. Pull requests must be requested to merge a new branch into the dev branch. 
