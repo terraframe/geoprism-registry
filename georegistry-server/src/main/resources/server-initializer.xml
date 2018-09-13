@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<server-context-listeners>
+  <server-context-listener class="net.geoprism.context.PatchingContextListener" />
+  <server-context-listener class="net.geoprism.context.RMIContextListener" />
+  <server-context-listener class="net.geoprism.ontology.StrategyContextListener" /> 
+  <server-context-listener class="net.geoprism.account.SchedulerContextListener" /> 
+  <server-context-listener class="net.geoprism.gis.geoserver.GeoserverContextListener" /> 
+  <server-context-listener class="net.geoprism.report.CacheDocumentManagerContextListener" /> 
+</server-context-listeners>

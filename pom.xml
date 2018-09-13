@@ -1,0 +1,170 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>net.geoprism</groupId>
+  <artifactId>georegistry</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>GeoRegistry</name>
+  <description>Geoprism's Geo-ontological hierarchy registry</description>
+
+  <modules>
+    <module>../geoprism</module>
+    <module>georegistry-server</module>
+    <module>georegistry-common</module>
+    <module>georegistry-client</module>
+    <module>georegistry-web</module>
+  </modules>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <aspectj.version>1.8.6</aspectj.version>
+    <aspectj.plugin.version>1.7</aspectj.plugin.version>
+
+    <runway.version>2.0.41</runway.version>
+    <geoprism.version>1.01.0031-SNAPSHOT</geoprism.version>
+    <geotools.version>16.1</geotools.version>    
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>terraframe</id>
+      <name>terraframe</name>
+      <url>http://nexus.terraframe.com/content/groups/allrepos</url>
+      <layout>default</layout>
+    </repository>
+    <repository>
+      <id>terraframe-private</id>
+      <name>terraframe-private</name>
+      <url>http://nexus.terraframe.com/content/groups/private</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>terraframe-private-releases</id>
+      <name>terraframe-private-releases</name>
+      <url>http://nexus.terraframe.com/content/repositories/terraframe-private-releases/</url>
+      <layout>default</layout>
+    </repository>
+    <snapshotRepository>
+      <id>terraframe-private-snapshots</id>
+      <name>terraframe-private-snapshots</name>
+      <url>http://nexus.terraframe.com/content/repositories/terraframe-private-snapshots/</url>
+      <layout>default</layout>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <id>enforce-property</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>geoprism.basedir</property>
+                  <message>You must set the geoprism.basedir property to the root of your geoprism project.</message>
+                </requireProperty>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Add generated source directories -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/main/java-gen/base</source>
+                <source>src/main/java-gen/stub</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- This plugin sets maven.compile.classpath. -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.8</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>build-classpath</goal>
+            </goals>
+            <configuration>
+              <outputProperty>maven.compile.classpath</outputProperty>
+              <pathSeparator>;</pathSeparator>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+    <pluginManagement>
+    	<plugins>
+    		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+    		<plugin>
+    			<groupId>org.eclipse.m2e</groupId>
+    			<artifactId>lifecycle-mapping</artifactId>
+    			<version>1.0.0</version>
+    			<configuration>
+    				<lifecycleMappingMetadata>
+    					<pluginExecutions>
+    						<pluginExecution>
+    							<pluginExecutionFilter>
+    								<groupId>
+    									org.apache.maven.plugins
+    								</groupId>
+    								<artifactId>
+    									maven-dependency-plugin
+    								</artifactId>
+    								<versionRange>[2.8,)</versionRange>
+    								<goals>
+    									<goal>build-classpath</goal>
+    								</goals>
+    							</pluginExecutionFilter>
+    							<action>
+    								<ignore></ignore>
+    							</action>
+    						</pluginExecution>
+    					</pluginExecutions>
+    				</lifecycleMappingMetadata>
+    			</configuration>
+    		</plugin>
+    	</plugins>
+    </pluginManagement>
+  </build>
+</project>
