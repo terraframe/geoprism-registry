@@ -44,7 +44,7 @@ public enum GeoregistryConfigGroup implements ConfigGroupIF {
     return this.path;
   }
 
-  public String getIdentifier() {
+  public String getOidentifier() {
     return identifier;
   }
 }

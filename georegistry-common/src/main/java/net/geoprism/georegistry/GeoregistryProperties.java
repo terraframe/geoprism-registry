@@ -2,7 +2,6 @@ package net.geoprism.georegistry;
 
 import com.runwaysdk.configuration.ConfigurationManager;
 import com.runwaysdk.configuration.ConfigurationReaderIF;
-import com.runwaysdk.generation.loader.Reloadable;
 
 public class GeoregistryProperties
 {
@@ -16,7 +15,7 @@ public class GeoregistryProperties
     this.props = ConfigurationManager.getReader(GeoregistryConfigGroup.COMMON, "georegistry.properties");
   }
 
-  private static class Singleton implements Reloadable
+  private static class Singleton
   {
     private static GeoregistryProperties INSTANCE = new GeoregistryProperties();
 

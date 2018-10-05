@@ -4,44 +4,12 @@
   <!-- Geo prism URLs -->  
   <package name="net.geoprism"/>  
 
-  <map uri="DashboardViewer" controller="net.geoprism.dashboard.DashboardMapController">
-    <action method="createMapForSession" uri=""/>
-  </map>
-
   <map uri="loginRedirect" forward="/loginRedirect.jsp"/>
   <map uri="account" controller="net.geoprism.AdminController">
-  	<action method="account" uri=""/> 
+    <action method="account" uri=""/>
   </map>
 
-  <map uri="menu" controller="net.geoprism.UserMenuController">
-    <action method="menu" uri=""/>    
-  </map>
-  
-  <map uri="management" controller="net.geoprism.UserMenuController">
-    <action method="dataManagement" uri=""/>    
-  </map>
-  
-  <map uri="kaleidoscopes" controller="net.geoprism.UserMenuController">
-    <action method="dashboards" uri=""/>    
-  </map>
-  
-  <map uri="mapthumb" controller="net.geoprism.UserMenuController">
-  	<action method=".*" uri="${method}" />
-  </map>
-
-  <map uri="session" controller="net.geoprism.SessionController">
-    <action method=".*" uri="${method}"/>
-  </map>
-  
   <map uri="app" forward="/index.jsp"/>
-  
-  <map uri="admin" controller="net.geoprism.AdminController">
-    <action method=".*" uri="${method}"/>    
-  </map>  
-  
-  <map uri="report" controller="net.geoprism.report.ReportItemController">
-    <action method=".*" uri="${method}"/>    
-  </map>
   
   <!-- GeoRegistry URLs -->  
   <package name="net.geoprism.georegistry"/>  
