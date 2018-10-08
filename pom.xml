@@ -45,25 +45,19 @@
       <url>http://nexus.terraframe.com/content/groups/allrepos</url>
       <layout>default</layout>
     </repository>
-    <repository>
-      <id>terraframe-private</id>
-      <name>terraframe-private</name>
-      <url>http://nexus.terraframe.com/content/groups/private</url>
-      <layout>default</layout>
-    </repository>
   </repositories>
-
+  
   <distributionManagement>
     <repository>
-      <id>terraframe-private-releases</id>
-      <name>terraframe-private-releases</name>
-      <url>http://nexus.terraframe.com/content/repositories/terraframe-private-releases/</url>
+      <id>terraframe-releases</id>
+      <name>terraframe-releases</name>
+      <url>http://nexus.terraframe.com/content/repositories/releases/</url>
       <layout>default</layout>
     </repository>
     <snapshotRepository>
-      <id>terraframe-private-snapshots</id>
-      <name>terraframe-private-snapshots</name>
-      <url>http://nexus.terraframe.com/content/repositories/terraframe-private-snapshots/</url>
+      <id>terraframe-snapshots</id>
+      <name>terraframe-snapshots</name>
+      <url>http://nexus.terraframe.com/content/repositories/snapshots/</url>
       <layout>default</layout>
     </snapshotRepository>
   </distributionManagement>
