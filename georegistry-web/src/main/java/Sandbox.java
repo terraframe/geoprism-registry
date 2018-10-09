@@ -1,8 +1,8 @@
-import net.geoprism.georegistry.GeoregistryPatcher;
+import net.geoprism.GeoprismPatcher;
 
 public class Sandbox
 {
   public static void main(String[] args) {
-    GeoregistryPatcher.main(args);
+    GeoprismPatcher.main(args);
   }
 }
