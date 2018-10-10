@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Specify your development root database credentials here. -->
-    <root.db>template_postgis</root.db>
+    <root.db>postgres</root.db>
     <root.user>postgres</root.user>
     <root.pass>postgres</root.pass>
 
