@@ -1,5 +1,9 @@
 {
   "countries":[
+    {
+      "key":"cambodia",
+      "version":"1.0",
+      "format":"xml"
+    }  
   ]
 }
-
