@@ -17,10 +17,6 @@
     <root.db>postgres</root.db>
     <root.user>postgres</root.user>
     <root.pass>postgres</root.pass>
-
-    <database.name>georegistry</database.name>
-    <database.user>georegistry</database.user>
-    <database.pass>georegistry</database.pass>
   </properties>
 
 
@@ -80,20 +76,6 @@
                   <arguments>
                     <argument>${project.basedir}/src/main/working</argument>
                   </arguments>
-                  <systemProperties>
-                    <systemProperty>
-                      <key>database.user</key>
-                      <value>${database.user}</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.password</key>
-                      <value>${database.pass}</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.name</key>
-                      <value>${database.name}</value>
-                    </systemProperty>
-                  </systemProperties>
                 </configuration>
               </execution>
             </executions>
@@ -153,18 +135,6 @@
                     <systemProperty>
                       <key>client.classpath.append</key>
                       <value>../geoprism/geoprism-common/target/classes;../geoprism/geoprism-client/target/classes</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.user</key>
-                      <value>${database.user}</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.password</key>
-                      <value>${database.pass}</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.name</key>
-                      <value>${database.name}</value>
                     </systemProperty>
                   </systemProperties>
                 </configuration>
@@ -226,18 +196,6 @@
                     <systemProperty>
                       <key>client.classpath.append</key>
                       <value>../geoprism/geoprism-common/target/classes;../geoprism/geoprism-client/target/classes</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.user</key>
-                      <value>${database.user}</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.password</key>
-                      <value>${database.pass}</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>database.name</key>
-                      <value>${database.name}</value>
                     </systemProperty>
                   </systemProperties>
                 </configuration>
