@@ -9,8 +9,8 @@ import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.runwaysdk.system.gis.geo.GeoEntityDTO;
-import com.runwaysdk.system.gis.geo.UniversalDTO;
+import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.Universal;
 
 public class AdapterConverter
 {
@@ -33,7 +33,7 @@ public class AdapterConverter
     return instance;
   }
   
-  public GeoObjectType convertGeoObjectType(UniversalDTO uni)
+  public GeoObjectType convertGeoObjectType(Universal uni)
   {
     // TODO : GeometryType is hardcoded
     GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), GeometryType.POLYGON, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), registry);
@@ -41,7 +41,7 @@ public class AdapterConverter
     return geoObjType;
   }
   
-  public GeoObject convertGeoObject(GeoEntityDTO geoEntity)
+  public GeoObject convertGeoObject(GeoEntity geoEntity)
   {
     GeoObjectType got = convertGeoObjectType(geoEntity.getUniversal());
     

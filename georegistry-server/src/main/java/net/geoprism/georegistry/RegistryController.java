@@ -48,9 +48,7 @@ public class RegistryController
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
    public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = "uid") String uid) throws JSONException
    {
-     GeoEntityDTO geo = GeoEntityDTO.get(request, uid);
-     
-     GeoObject geoObject = AdapterConverter.getInstance().convertGeoObject(geo);
+     GeoObject geoObject = GeoObjectService.getGeoObject(request.getSessionId(), uid);
      
      return new RestBodyResponse(geoObject.toJSON());
    }
