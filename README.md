@@ -1,7 +1,7 @@
 ## About This Project
 
 ## Documentation
-* [Official Docs](https://terraframe.github.io/geoprism-registry/mydoc_dev_setup.html)
+* [Developer Documentation](https://terraframe.github.io/geoprism-registry/mydoc_dev_setup.html)
 
 
 ## References
