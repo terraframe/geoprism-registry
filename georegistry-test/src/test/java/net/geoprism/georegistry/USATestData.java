@@ -35,12 +35,24 @@ public class USATestData
   public static final String STATE_CODE = "RegistryTest-StateCode";
 
   public static final String STATE_DISPLAY_LABEL = "RegistryTest State Display Label";
+  
+  public static final String STATE_DESCRIPTION = "RegistryTest State Description";
+  
+  public static final String DISTRICT_CODE = "RegistryTest-DistrictCode";
+
+  public static final String DISTRICT_DISPLAY_LABEL = "RegistryTest District Display Label";
+  
+  public static final String DISTRICT_DESCRIPTION = "RegistryTest District Description";
 
   public static String COLORADO_UID = null;
   
   public static String STATE_UID = null;
+  
+  public static String DISTRICT_UID = null;
 
-  public Universal state;
+  public Universal state; 
+  
+  public Universal district;
   
   public GeoEntity colorado;
   
@@ -61,8 +73,16 @@ public class USATestData
     state = new Universal();
     state.setUniversalId(STATE_CODE);
     state.getDisplayLabel().setValue(STATE_DISPLAY_LABEL);
+    state.getDescription().setValue(STATE_DESCRIPTION);
     state.apply();
     STATE_UID = state.getOid();
+    
+    district = new Universal();
+    district.setUniversalId(DISTRICT_CODE);
+    district.getDisplayLabel().setValue(DISTRICT_DISPLAY_LABEL);
+    district.getDescription().setValue(DISTRICT_DESCRIPTION);
+    district.apply();
+    DISTRICT_UID = state.getOid();
     
     colorado = new GeoEntity();
     colorado.setGeoId(COLORADO_GEOID);
@@ -82,6 +102,7 @@ public class USATestData
     deleteGeoEntity(COLORADO_GEOID);
     deleteGeoEntity(WASHINGTON_GEOID);
     deleteUniversal(STATE_CODE);
+    deleteUniversal(DISTRICT_CODE);
     
     if (systemSession != null)
     {

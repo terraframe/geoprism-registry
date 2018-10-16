@@ -2,6 +2,7 @@ package net.geoprism.georegistry;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,7 +74,6 @@ public class RegistryServiceTest
   }
   
   @Test
-  @Request
   public void testGetUIDS()
   {
     String[] ids = data.registryService.getUIDS(data.systemSession.getSessionId(), 100);
@@ -84,5 +84,27 @@ public class RegistryServiceTest
     {
       Assert.assertTrue(IdService.getInstance(data.systemSession.getSessionId()).isIssuedId(id));
     }
+  }
+  
+  @Test
+  public void testGetGeoObjectTypes()
+  {
+    String[] codes = new String[]{ USATestData.STATE_CODE, USATestData.DISTRICT_CODE };
+    
+    GeoObjectType[] gots = data.registryService.getGeoObjectTypes(data.systemSession.getSessionId(), codes);
+    
+    Assert.assertEquals(2, gots.length);
+    
+    GeoObjectType state = gots[0];
+//    Assert.assertEquals(USATestData.STATE_UID, state.get); // TODO : GeoOBjectTypes don't have a uid?
+    Assert.assertEquals(USATestData.STATE_CODE, state.getCode());
+    Assert.assertEquals(USATestData.STATE_DISPLAY_LABEL, state.getLocalizedLabel());
+    Assert.assertEquals(USATestData.STATE_DESCRIPTION, state.getLocalizedDescription());
+    
+    GeoObjectType district = gots[1];
+//  Assert.assertEquals(USATestData.DISTRICT_UID, district.get); // TODO : GeoOBjectTypes don't have a uid?
+    Assert.assertEquals(USATestData.DISTRICT_CODE, district.getCode());
+    Assert.assertEquals(USATestData.DISTRICT_DISPLAY_LABEL, district.getLocalizedLabel());
+    Assert.assertEquals(USATestData.DISTRICT_DESCRIPTION, district.getLocalizedDescription());
   }
 }

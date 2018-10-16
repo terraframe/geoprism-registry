@@ -19,6 +19,7 @@
 package net.geoprism.georegistry;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
@@ -138,10 +139,22 @@ public class RegistryController
    * @pre 
    * @post 
    *
-   * @param types An array of GeoObjectType names. If blank then all GeoObjectType objects are returned.
+   * @param types An array of GeoObjectType codes. If blank then all GeoObjectType objects are returned.
    *
    * @returns
    * @throws
    **/
-//   GeoObjectType[] getGeoObjectTypes(String[] types);
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   {
+     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), types);
+     
+     JsonArray jarray = new JsonArray();
+     for (int i = 0; i < gots.length; ++i)
+     {
+       jarray.add(gots[i].toJSON());
+     }
+     
+     return new RestBodyResponse(jarray);
+   }
 }

@@ -179,4 +179,17 @@ public class RegistryService
   {
     return IdService.getInstance(sessionId).getUIDS(amount);
   }
+
+  @Request(RequestType.SESSION)
+  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes)
+  {
+    GeoObjectType[] gots = new GeoObjectType[codes.length];
+    
+    for (int i = 0; i < codes.length; ++i)
+    {
+      gots[i] = registry.getMetadataCache().getGeoObjectType(codes[i]).get();
+    }
+    
+    return gots;
+  }
 }
