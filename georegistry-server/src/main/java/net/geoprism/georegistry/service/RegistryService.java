@@ -1,10 +1,11 @@
 package net.geoprism.georegistry.service;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.RegistryAdapterServer;
+import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.google.inject.Inject;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -13,6 +14,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -20,14 +22,54 @@ public class RegistryService
 {
   private ConversionService conversionService;
   
-  public RegistryService(ConversionService conversionService)
+  private RegistryAdapter registry;
+  
+  public RegistryService(ConversionService conversionService, RegistryAdapter registry)
   {
     this.conversionService = conversionService;
+    this.registry = registry;
   }
   
   public RegistryService()
   {
-    this.conversionService = ConversionService.getInstance();
+    this.registry = new RegistryAdapterServer();
+    this.conversionService = new ConversionService(registry);
+    
+    refreshMetadataCache();
+  }
+  
+  public RegistryAdapter getRegistryAdapter()
+  {
+    return this.registry;
+  }
+  
+  public void refreshMetadataCache()
+  {
+    this.registry.getMetadataCache().clear();
+    
+    DefaultTerms.buildGeoObjectStatusTree(this.registry);
+    
+    QueryFactory qf = new QueryFactory();
+    UniversalQuery uq = new UniversalQuery(qf);
+    OIterator<? extends Universal> it = uq.getIterator();
+    
+    try
+    {
+      while (it.hasNext())
+      {
+        Universal uni = it.next();
+        
+        GeoObjectType got = this.conversionService.universalToGeoObjectType(uni);
+        
+        this.registry.getMetadataCache().addGeoObjectType(got);
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+    
+    // TODO : HierarchyType and Terms
   }
   
   @Request(RequestType.SESSION)
@@ -47,26 +89,33 @@ public class RegistryService
     
     GeoObject geoObject = GeoObject.fromJSON(registry, jGeoObj);
     
-    GeoEntityQuery geq = new GeoEntityQuery(new QueryFactory());
-    geq.WHERE(geq.getOid().EQ(geoObject.getUid()));
-
     GeoEntity ge;
-    OIterator<? extends GeoEntity> it = geq.getIterator();
-    try
+    if (geoObject.getUid() != null && geoObject.getUid().length() > 0)
     {
-      if (it.hasNext())
+      GeoEntityQuery geq = new GeoEntityQuery(new QueryFactory());
+      geq.WHERE(geq.getOid().EQ(geoObject.getUid()));
+  
+      OIterator<? extends GeoEntity> it = geq.getIterator();
+      try
       {
-        ge = it.next();
-        ge.appLock();
+        if (it.hasNext())
+        {
+          ge = it.next();
+          ge.appLock();
+        }
+        else
+        {
+          ge = new GeoEntity();
+        }
       }
-      else
+      finally
       {
-        ge = new GeoEntity();
+        it.close();
       }
     }
-    finally
+    else
     {
-      it.close();
+      ge = new GeoEntity();
     }
     
     if (geoObject.getCode() != null)

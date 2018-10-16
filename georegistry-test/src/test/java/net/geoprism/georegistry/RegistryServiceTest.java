@@ -1,154 +1,71 @@
 package net.geoprism.georegistry;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.runwaysdk.ClasspathResource;
-import com.runwaysdk.ClientSession;
-import com.runwaysdk.constants.CommonProperties;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.GeoEntityQuery;
-import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.gis.geo.UniversalQuery;
-import com.vividsolutions.jts.util.Assert;
-
-import net.geoprism.georegistry.service.ConversionService;
-import net.geoprism.georegistry.service.RegistryService;
 
 public class RegistryServiceTest
 {
-  private static final String COLORADO_GEOID = "RegistryTest-ColoradoCode";
-
-  private static final String COLORADO_DISPLAY_LABEL = "RegistryTest Colorado Display Label";
-
-  private static final String COLORADO_WKT = "POLYGON ((10000 10000, 12300 40000, 16800 50000, 12354 60000, 13354 60000, 17800 50000, 13300 40000, 11000 10000, 10000 10000))";
-
-  private static final String STATE_CODE = "RegistryTest-StateCode";
-
-  private static final String STATE_DISPLAY_LABEL = "RegistryTest State Display Label";
+  protected static USATestData data;
   
-  private static String COLORADO_UID = null;
-  
-  private static String STATE_UID = null;
-
-  private static Universal state;
-  
-  private static GeoEntity colorado;
-  
-  private static RegistryService registryService;
-  
-  private static ClientSession systemSession   = null;
-  
-  public static void checkDuplicateClasspathResources()
+  @Before
+  public void setUp()
   {
-    Set<ClasspathResource> existingResources = new HashSet<ClasspathResource>();
+    data = new USATestData();
     
-    List<ClasspathResource> resources = ClasspathResource.getResourcesInPackage("runwaysdk");
-    for (ClasspathResource resource : resources)
-    {
-      ClasspathResource existingRes = null;
-      
-      for (ClasspathResource existingResource : existingResources)
-      {
-        if (existingResource.getAbsolutePath().equals(resource.getAbsolutePath()))
-        {
-          existingRes = existingResource;
-          break;
-        }
-      }
-      
-      if (existingRes != null)
-      {
-        System.out.println("WARNING : resource path [" + resource.getAbsolutePath() + "] is overloaded.  [" + resource.getPackageURL() + "] conflicts with existing resource [" + existingRes.getPackageURL() + "].");
-      }
-      
-      existingResources.add(resource);
-    }
+    data.setUp();
   }
   
-  @BeforeClass
-  @Request
-  public static void classSetUp()
+  @After
+  public void tearDown()
   {
-    checkDuplicateClasspathResources();
-    
-    systemSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
-    
-    registryService = new RegistryService(ConversionService.getInstance());
-    
-    UniversalQuery uq = new UniversalQuery(new QueryFactory());
-    uq.WHERE(uq.getKeyName().EQ("RegistryTest-StateCode"));
-    OIterator<? extends Universal> it = uq.getIterator();
-    try
-    {
-      while(it.hasNext())
-      {
-        it.next().delete();
-      }
-    }
-    finally
-    {
-      it.close();
-    }
-    
-    GeoEntityQuery geq = new GeoEntityQuery(new QueryFactory());
-    uq.WHERE(uq.getKeyName().EQ("RegistryTest-ColoradoCode"));
-    OIterator<? extends GeoEntity> git = geq.getIterator();
-    try
-    {
-      while(it.hasNext())
-      {
-        git.next().delete();
-      }
-    }
-    finally
-    {
-      it.close();
-    }
-    
-    state = new Universal();
-    state.setUniversalId(STATE_CODE);
-    state.getDisplayLabel().setValue(STATE_DISPLAY_LABEL);
-    state.apply();
-    STATE_UID = state.getOid();
-    
-    colorado = new GeoEntity();
-    colorado.setGeoId(COLORADO_GEOID);
-    colorado.getDisplayLabel().setValue(COLORADO_DISPLAY_LABEL);
-    colorado.setWkt(COLORADO_WKT);
-    colorado.setUniversal(state);
-    colorado.apply();
-    COLORADO_UID = colorado.getOid();
-  }
-  
-  @AfterClass
-  @Request
-  public static void classTearDown()
-  {
-    colorado.delete();
-    state.delete();
-    systemSession.logout();
+    data.cleanUp();
   }
   
   @Test
   public void testGetGeoObject()
   {
-    GeoObject geoObj = registryService.getGeoObject(systemSession.getSessionId(), COLORADO_UID);
+    GeoObject geoObj = data.registryService.getGeoObject(data.systemSession.getSessionId(), USATestData.COLORADO_UID);
     
-    Assert.equals(COLORADO_UID, geoObj.getUid());
-    Assert.equals(COLORADO_GEOID, geoObj.getCode());
-    Assert.equals(COLORADO_WKT, geoObj.getGeometry().toText());
-    Assert.equals(COLORADO_DISPLAY_LABEL, geoObj.getLocalizedDisplayLabel());
-    Assert.equals(STATE_CODE, geoObj.getType().getCode());
+    Assert.assertEquals(USATestData.COLORADO_UID, geoObj.getUid());
+    Assert.assertEquals(USATestData.COLORADO_GEOID, geoObj.getCode());
+    Assert.assertEquals(USATestData.COLORADO_WKT, geoObj.getGeometry().toText());
+    Assert.assertEquals(USATestData.COLORADO_DISPLAY_LABEL, geoObj.getLocalizedDisplayLabel());
+    Assert.assertEquals(USATestData.STATE_CODE, geoObj.getType().getCode());
+  }
+  
+  @Test
+  @Request
+  public void testUpdateGeoObject()
+  {
+    // 1. Test creating a new one
+    GeoObject geoObj = data.registryService.getRegistryAdapter().newGeoObjectInstance(USATestData.STATE_CODE);
+    geoObj.setWKTGeometry(USATestData.WASHINGTON_WKT);
+    geoObj.setCode(USATestData.WASHINGTON_GEOID);
+//    geoObj.setUid(USATestData.WASHINGTON_GEOID); // TODO : This should be set by the API
+    geoObj.setLocalizedDisplayLabel(USATestData.WASHINGTON_DISPLAY_LABEL);
+    data.registryService.updateGeoObject(data.systemSession.getSessionId(), geoObj.toJSON().toString());
+    
+    GeoEntity waGeo = GeoEntity.getByKey(USATestData.WASHINGTON_GEOID);
+    Assert.assertEquals(StringUtils.deleteWhitespace(USATestData.WASHINGTON_WKT), StringUtils.deleteWhitespace(waGeo.getWkt()));
+    Assert.assertEquals(USATestData.WASHINGTON_GEOID, waGeo.getGeoId());
+//    Assert.assertEquals(USATestData.WASHINGTON_GEOID, waGeo.getOid()); // TODO : check the uid?
+    Assert.assertEquals(USATestData.WASHINGTON_DISPLAY_LABEL, waGeo.getDisplayLabel().getValue());
+    
+    // 2. Test updating the one we created earlier
+    GeoObject waGeoObj = data.registryService.getGeoObject(data.systemSession.getSessionId(), waGeo.getOid());
+    waGeoObj.setWKTGeometry(USATestData.COLORADO_WKT);
+    waGeoObj.setLocalizedDisplayLabel(USATestData.COLORADO_DISPLAY_LABEL);
+    data.registryService.updateGeoObject(data.systemSession.getSessionId(), waGeoObj.toJSON().toString());
+    
+    GeoEntity waGeo2 = GeoEntity.getByKey(USATestData.WASHINGTON_GEOID);
+    Assert.assertEquals(StringUtils.deleteWhitespace(USATestData.COLORADO_WKT), StringUtils.deleteWhitespace(waGeo2.getWkt()));
+    Assert.assertEquals(USATestData.COLORADO_DISPLAY_LABEL, waGeo2.getDisplayLabel().getValue());
   }
 }

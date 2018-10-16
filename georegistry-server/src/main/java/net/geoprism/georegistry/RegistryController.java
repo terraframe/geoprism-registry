@@ -40,7 +40,7 @@ public class RegistryController
   
   public RegistryController()
   {
-    this.registryService = new RegistryService(ConversionService.getInstance());
+    this.registryService = new RegistryService();
   }
   
   /**

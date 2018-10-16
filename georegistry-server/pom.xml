@@ -59,6 +59,16 @@
       <version>2.2.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+     <groupId>com.fasterxml.jackson.core</groupId>
+     <artifactId>jackson-core</artifactId>
+     <version>2.9.5</version>
+    </dependency>
   </dependencies>
 
   <!-- These profiles allow for Maven execution of Runway-SDK's Java Tools, like rebuilding the database and importing schemas. -->

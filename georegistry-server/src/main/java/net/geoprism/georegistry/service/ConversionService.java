@@ -16,26 +16,19 @@ public class ConversionService
 {
   private RegistryAdapter registry;
   
-  private static ConversionService instance;
-  
-  public ConversionService()
+  public ConversionService(RegistryAdapter registry)
   {
-    registry = new RegistryAdapterServer();
-  }
-  
-  public static synchronized ConversionService getInstance()
-  {
-    if(instance == null)
-    {
-      instance = new ConversionService();
-    }
-    
-    return instance;
+    this.registry = registry;
   }
   
   public RegistryAdapter getRegistry()
   {
     return this.registry;
+  }
+  
+  public void setRegistry(RegistryAdapter registry)
+  {
+    this.registry = registry;
   }
   
   public Universal geoObjectTypeToUniversal(GeoObjectType got)
