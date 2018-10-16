@@ -21,6 +21,7 @@ package net.geoprism.georegistry;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.json.JSONException;
 
+import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -30,7 +31,6 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
-import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
 
 @Controller(url = "registry")
@@ -113,18 +113,23 @@ public class RegistryController
    
    
    /**
-   * Get list of valid UIDs for use in creating new GeoObjec The Common Geo-Registry will only accept newly created GeoObjects with a UID that was issued from the Common GeoRegistry.
+   * Get list of valid UIDs for use in creating new GeoObjects. The Common Geo-Registry will only accept newly created GeoObjects with a UID that was issued from the Common GeoRegistry.
    *
    * @pre 
    * @post 
    *
-   * @param numberOfUIDs NumberofUIDs that the Common Geo-Registry will issue to the mobile device.
+   * @param amount Number of globally unique ids that the Common Geo-Registry will issue to the mobile device.
    *
    * @returns
    * @throws
    **/
-//   String[] getUIDs(Integer : numberOfUIDs);
-   
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = "amount") Integer amount)
+   {
+     String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);
+     
+     return new RestBodyResponse(ids);
+   }
    
    
    /**

@@ -10,6 +10,9 @@ import org.junit.Test;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 
+import net.geoprism.georegistry.service.IdService;
+import net.geoprism.georegistry.service.RegistryService;
+
 public class RegistryServiceTest
 {
   protected static USATestData data;
@@ -45,7 +48,7 @@ public class RegistryServiceTest
   public void testUpdateGeoObject()
   {
     // 1. Test creating a new one
-    GeoObject geoObj = data.registryService.getRegistryAdapter().newGeoObjectInstance(USATestData.STATE_CODE);
+    GeoObject geoObj = RegistryService.getRegistryAdapter().newGeoObjectInstance(USATestData.STATE_CODE);
     geoObj.setWKTGeometry(USATestData.WASHINGTON_WKT);
     geoObj.setCode(USATestData.WASHINGTON_GEOID);
 //    geoObj.setUid(USATestData.WASHINGTON_GEOID); // TODO : This should be set by the API
@@ -67,5 +70,19 @@ public class RegistryServiceTest
     GeoEntity waGeo2 = GeoEntity.getByKey(USATestData.WASHINGTON_GEOID);
     Assert.assertEquals(StringUtils.deleteWhitespace(USATestData.COLORADO_WKT), StringUtils.deleteWhitespace(waGeo2.getWkt()));
     Assert.assertEquals(USATestData.COLORADO_DISPLAY_LABEL, waGeo2.getDisplayLabel().getValue());
+  }
+  
+  @Test
+  @Request
+  public void testGetUIDS()
+  {
+    String[] ids = data.registryService.getUIDS(data.systemSession.getSessionId(), 100);
+    
+    Assert.assertEquals(100, ids.length);
+    
+    for (String id : ids)
+    {
+      Assert.assertTrue(IdService.getInstance(data.systemSession.getSessionId()).isIssuedId(id));
+    }
   }
 }

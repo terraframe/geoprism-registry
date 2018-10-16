@@ -20,34 +20,37 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class RegistryService
 {
-  private ConversionService conversionService;
+  private static ConversionService conversionService;
   
-  private RegistryAdapter registry;
-  
-  public RegistryService(ConversionService conversionService, RegistryAdapter registry)
-  {
-    this.conversionService = conversionService;
-    this.registry = registry;
-  }
+  private static RegistryAdapter registry;
   
   public RegistryService()
   {
-    this.registry = new RegistryAdapterServer();
-    this.conversionService = new ConversionService(registry);
-    
-    refreshMetadataCache();
+    initialize();
   }
   
-  public RegistryAdapter getRegistryAdapter()
+  private synchronized void initialize()
   {
-    return this.registry;
+    if (RegistryService.registry == null)
+    {
+      RegistryService.registry = new RegistryAdapterServer();
+      
+      conversionService = new ConversionService(registry);
+      
+      refreshMetadataCache();
+    }
+  }
+  
+  public static RegistryAdapter getRegistryAdapter()
+  {
+    return registry;
   }
   
   public void refreshMetadataCache()
   {
-    this.registry.getMetadataCache().clear();
+    registry.getMetadataCache().clear();
     
-    DefaultTerms.buildGeoObjectStatusTree(this.registry);
+    DefaultTerms.buildGeoObjectStatusTree(registry);
     
     QueryFactory qf = new QueryFactory();
     UniversalQuery uq = new UniversalQuery(qf);
@@ -59,9 +62,9 @@ public class RegistryService
       {
         Universal uni = it.next();
         
-        GeoObjectType got = this.conversionService.universalToGeoObjectType(uni);
+        GeoObjectType got = conversionService.universalToGeoObjectType(uni);
         
-        this.registry.getMetadataCache().addGeoObjectType(got);
+        registry.getMetadataCache().addGeoObjectType(got);
       }
     }
     finally
@@ -77,7 +80,7 @@ public class RegistryService
   {
     GeoEntity geo = GeoEntity.get(uid);
     
-    GeoObject geoObject = this.conversionService.geoEntityToGeoObject(geo);
+    GeoObject geoObject = conversionService.geoEntityToGeoObject(geo);
     
     return geoObject;
   }
@@ -85,8 +88,6 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject updateGeoObject(String sessionId, String jGeoObj)
   {
-    RegistryAdapter registry = this.conversionService.getRegistry();
-    
     GeoObject geoObject = GeoObject.fromJSON(registry, jGeoObj);
     
     GeoEntity ge;
@@ -132,7 +133,7 @@ public class RegistryService
     {
       GeoObjectType got = geoObject.getType();
       
-      Universal inputUni = this.conversionService.geoObjectTypeToUniversal(got);
+      Universal inputUni = conversionService.geoObjectTypeToUniversal(got);
       
       if (inputUni != ge.getUniversal())
       {
@@ -171,5 +172,11 @@ public class RegistryService
     ge.apply();
     
     return geoObject;
+  }
+
+  @Request(RequestType.SESSION)
+  public String[] getUIDS(String sessionId, Integer amount)
+  {
+    return IdService.getInstance(sessionId).getUIDS(amount);
   }
 }
