@@ -1,9 +1,9 @@
-package net.geoprism.georegistry;
+package net.geoprism.georegistry.service;
 
 import java.util.Map;
 
-import org.commongeoregistry.adapter.RegistryInterface;
-import org.commongeoregistry.adapter.RegistryServerInterface;
+import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -12,28 +12,40 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 
-public class AdapterConverter
+public class ConversionService
 {
-  private static AdapterConverter instance;
+  private RegistryAdapter registry;
   
-  private static RegistryInterface registry;
+  private static ConversionService instance;
   
-  private AdapterConverter()
+  public ConversionService()
   {
-    registry = new RegistryServerInterface();
+    registry = new RegistryAdapterServer();
   }
   
-  public static synchronized AdapterConverter getInstance()
+  public static synchronized ConversionService getInstance()
   {
     if(instance == null)
     {
-      instance = new AdapterConverter();
+      instance = new ConversionService();
     }
     
     return instance;
   }
   
-  public GeoObjectType convertGeoObjectType(Universal uni)
+  public RegistryAdapter getRegistry()
+  {
+    return this.registry;
+  }
+  
+  public Universal geoObjectTypeToUniversal(GeoObjectType got)
+  {
+    Universal uni = Universal.getByKey(got.getCode());
+    
+    return uni;
+  }
+  
+  public GeoObjectType universalToGeoObjectType(Universal uni)
   {
     // TODO : GeometryType is hardcoded
     GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), GeometryType.POLYGON, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), registry);
@@ -41,9 +53,9 @@ public class AdapterConverter
     return geoObjType;
   }
   
-  public GeoObject convertGeoObject(GeoEntity geoEntity)
+  public GeoObject geoEntityToGeoObject(GeoEntity geoEntity)
   {
-    GeoObjectType got = convertGeoObjectType(geoEntity.getUniversal());
+    GeoObjectType got = universalToGeoObjectType(geoEntity.getUniversal());
     
     Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(got);
     
@@ -53,6 +65,7 @@ public class AdapterConverter
     geoObj.setUid(geoEntity.getOid());
     geoObj.setCode(geoEntity.getGeoId());
     geoObj.setWKTGeometry(geoEntity.getWkt());
+    geoObj.setLocalizedDisplayLabel(geoEntity.getDisplayLabel().getValue());
     // TODO : Status term?
     // TODO : Type attribute?
     

@@ -29,11 +29,20 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.system.gis.geo.GeoEntityDTO;
+
+import net.geoprism.georegistry.service.ConversionService;
+import net.geoprism.georegistry.service.RegistryService;
 
 @Controller(url = "registry")
 public class RegistryController
 {
+  private RegistryService registryService;
+  
+  public RegistryController()
+  {
+    this.registryService = new RegistryService(ConversionService.getInstance());
+  }
+  
   /**
    * Returns a GeoObject with the given uid.
    *
@@ -48,23 +57,10 @@ public class RegistryController
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
    public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = "uid") String uid) throws JSONException
    {
-     GeoObject geoObject = GeoObjectService.getGeoObject(request.getSessionId(), uid);
+     GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), uid);
      
      return new RestBodyResponse(geoObject.toJSON());
    }
-   
-   /**
-   * Create a new GeoObject in the Common Geo-Registry
-   *
-   * @pre UID of the GeoObject needs to have been issued by the Common Geo-Registry
-   * @post geoObject is persisted in the Common Geo-Registry
-   *
-   * @param geoObject in GeoJSON format of the newly created.
-   *
-   * @returns 
-   * @throws //TODO
-   **/
-//   public void createGeoObject(GeoJSON geoObject);
    
    /**
    * Update a new GeoObject in the Common Geo-Registry
@@ -77,7 +73,13 @@ public class RegistryController
    * @returns 
    * @throws //TODO
    **/
-//   public void updateGeoObject(GeoJSON geoObject);  
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+   public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = "geoObject") String jGeoObj)
+   {
+     GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj);
+     
+     return new RestBodyResponse(geoObject.toJSON());
+   }
    
    /**
    * Get children of the given GeoObject

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="GeoRegistry Web" default="deploy_presentation_files">
+  
+  <!-- IMPORTANT: This ant script should be run with a base directory set to the root of the project! -->
+
+  <property name="tomcat" value="tomcat8x" /> 
+  <property name="projectName" value="dsedp" />  
+  <property name="project.webapp.root" value="${basedir}/src/main/webapp" />
+
+  <target name="deploy_presentation_files">
+
+    <!-- Copy from Geoprism Web -->
+    <echo message="Copying from ${geoprism.webapp.root} to ${basedir}/target/cargo/configurations/${tomcat}/webapps/${projectName}" />
+    <copy todir="${basedir}/target/cargo/configurations/${tomcat}/webapps/${projectName}" verbose="false" overwrite="true">
+      <fileset dir="${geoprism.webapp.root}" includes="**/*.jsp" excludes="**/prism.jsp" />
+      <fileset dir="${geoprism.webapp.root}" includes="**/*.js" >
+        <exclude name="**/node_modules/**" />
+      </fileset>
+      <fileset dir="${geoprism.webapp.root}" includes="**/*.css" />
+    </copy>
+    
+    <!-- Copy From GeoRegistry Web -->
+    <echo message="Copying from ${project.webapp.root} to ${basedir}/target/cargo/configurations/${tomcat}/webapps/${projectName}" />
+    <copy todir="${basedir}/target/cargo/configurations/${tomcat}/webapps/${projectName}" overwrite="true">
+      <fileset dir="${project.webapp.root}" includes="**/*.jsp" excludes="**/prism.jsp" />
+      <fileset dir="${project.webapp.root}" includes="**/*.js" />
+      <fileset dir="${project.webapp.root}" includes="**/*.css" />
+    </copy>
+
+    <echo message="Finished" />
+
+  </target>
+
+</project>
