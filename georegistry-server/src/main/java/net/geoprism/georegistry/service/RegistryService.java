@@ -1,11 +1,20 @@
 package net.geoprism.georegistry.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -16,6 +25,8 @@ import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
+import com.runwaysdk.system.metadata.MdRelationship;
+import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class RegistryService
@@ -191,5 +202,95 @@ public class RegistryService
     }
     
     return gots;
+  }
+  
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String[] childrenTypes, Boolean recursive)
+  {
+    String[] relationshipTypes = TermUtil.getAllParentRelationships(parentUid);
+    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
+    GeoEntity parent = GeoEntity.get(parentUid);
+    
+    GeoObject goRoot = conversionService.geoEntityToGeoObject(parent);
+    ChildTreeNode tnRoot = new ChildTreeNode(goRoot, null); // TODO : Not sure what to put here for hierarchy type
+    
+    TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(parentUid, relationshipTypes);
+    for (TermAndRel tnrChild : tnrChildren)
+    {
+      GeoEntity geChild = (GeoEntity) tnrChild.getTerm();
+      Universal uni = geChild.getUniversal();
+      
+      if (ArrayUtils.contains(childrenTypes, uni.getKey()))
+      {
+        GeoObject goChild = conversionService.geoEntityToGeoObject(geChild);
+        HierarchyType ht = htMap.get(tnrChild.getRelationshipType());
+        
+        ChildTreeNode tnChild;
+        if (recursive)
+        {
+          tnChild = this.getChildGeoObjects(sessionId, geChild.getOid(), childrenTypes, recursive);
+        }
+        else
+        {
+          tnChild = new ChildTreeNode(goChild, ht);
+        }
+        
+        tnRoot.addChild(tnChild);
+      }
+    }
+    
+    return tnRoot;
+  }
+  
+  private Map<String, HierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
+  {
+    Map<String, HierarchyType> map = new HashMap<String, HierarchyType>();
+    
+    for (String relationshipType : relationshipTypes)
+    {
+      MdRelationship mdRel = MdRelationship.getMdRelationship(relationshipType);
+      
+      HierarchyType ht = conversionService.mdRelationshipToHierarchyType(mdRel);
+      
+      map.put(relationshipType, ht);
+    }
+    
+    return map;
+  }
+
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String[] parentTypes, boolean recursive)
+  {
+    String[] relationshipTypes = TermUtil.getAllChildRelationships(childId);
+    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
+    GeoEntity child = GeoEntity.get(childId);
+    
+    GeoObject goRoot = conversionService.geoEntityToGeoObject(child);
+    ParentTreeNode tnRoot = new ParentTreeNode(goRoot, null); // TODO : Not sure what to put here for hierarchy type
+    
+    TermAndRel[] tnrParents = TermUtil.getDirectAncestors(childId, relationshipTypes);
+    for (TermAndRel tnrParent : tnrParents)
+    {
+      GeoEntity geParent = (GeoEntity) tnrParent.getTerm();
+      Universal uni = geParent.getUniversal();
+      
+      if (ArrayUtils.contains(parentTypes, uni.getKey()))
+      {
+        GeoObject goParent = conversionService.geoEntityToGeoObject(geParent);
+        HierarchyType ht = htMap.get(tnrParent.getRelationshipType());
+        
+        ParentTreeNode tnParent;
+        if (recursive)
+        {
+          tnParent = this.getParentGeoObjects(sessionId, geParent.getOid(), parentTypes, recursive);
+        }
+        else
+        {
+          tnParent = new ParentTreeNode(goParent, ht);
+        }
+        
+        tnRoot.addParent(tnParent);
+      }
+    }
+    
+    return tnRoot;
   }
 }

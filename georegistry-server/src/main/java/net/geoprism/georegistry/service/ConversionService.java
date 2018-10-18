@@ -3,14 +3,15 @@ package net.geoprism.georegistry.service;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.MdRelationship;
 
 public class ConversionService
 {
@@ -29,6 +30,13 @@ public class ConversionService
   public void setRegistry(RegistryAdapter registry)
   {
     this.registry = registry;
+  }
+  
+  public HierarchyType mdRelationshipToHierarchyType(MdRelationship mdRel)
+  {
+    HierarchyType ht = new HierarchyType(mdRel.getKey(), mdRel.getDisplayLabel().getValue(), mdRel.getDescription().getValue());
+    
+    return ht;
   }
   
   public Universal geoObjectTypeToUniversal(GeoObjectType got)

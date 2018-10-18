@@ -19,6 +19,7 @@
 package net.geoprism.georegistry;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
 
@@ -95,7 +96,13 @@ public class RegistryController
    * @returns
    * @throws
    **/
-//   public TreeNode getChildGeoObjects(String parentUid, String[] childrenTypes, Boolean recursive);
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = "parentUid") String parentUid, @RequestParamter(name = "childrenTypes") String[] childrenTypes, @RequestParamter(name = "recursive") Boolean recursive)
+   {
+     TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentUid, childrenTypes, recursive);
+     
+     return new RestBodyResponse(tn.toJSON());
+   }
     
    /**
    * Get parents of the given GeoObject
@@ -110,7 +117,13 @@ public class RegistryController
    * @returns
    * @throws
    **/   
-//   public TreeNode getParentGeoObjects(String childUid, String[] parentTypes, Boolean recursive);
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = "childUid") String childUid, @RequestParamter(name = "parentTypes") String[] parentTypes, @RequestParamter(name = "recursive") Boolean recursive)
+   {
+     TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childUid, parentTypes, recursive);
+     
+     return new RestBodyResponse(tn.toJSON());
+   }
    
    
    /**
