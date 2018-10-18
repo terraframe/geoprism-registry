@@ -301,7 +301,7 @@
         <version>1.4.0</version>
         <executions>
           <execution>
-            <id>geoprism.project.filemerge</id>
+            <id>geoprism.project.filemerge-server</id>
             <phase>process-resources</phase>
             <goals>
               <goal>java</goal>
@@ -310,6 +310,36 @@
               <mainClass>net.geoprism.configuration.MergeUtility</mainClass>
               <arguments>
                 <argument>--base=${geoprism.basedir}/geoprism-server/target/classes</argument>
+                <argument>--override=${project.build.directory}/classes</argument>
+                <argument>--export=${project.build.directory}/classes</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>geoprism.project.filemerge-common</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>net.geoprism.configuration.MergeUtility</mainClass>
+              <arguments>
+                <argument>--base=${geoprism.basedir}/geoprism-common/target/classes</argument>
+                <argument>--override=${project.build.directory}/classes</argument>
+                <argument>--export=${project.build.directory}/classes</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>geoprism.project.filemerge-client</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>net.geoprism.configuration.MergeUtility</mainClass>
+              <arguments>
+                <argument>--base=${geoprism.basedir}/geoprism-client/target/classes</argument>
                 <argument>--override=${project.build.directory}/classes</argument>
                 <argument>--export=${project.build.directory}/classes</argument>
               </arguments>
