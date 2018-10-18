@@ -10,7 +10,6 @@ import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
@@ -26,6 +25,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.metadata.MdRelationship;
+import com.runwaysdk.system.metadata.MdRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -40,6 +40,7 @@ public class RegistryService
     initialize();
   }
   
+  @Request
   private synchronized void initialize()
   {
     if (RegistryService.registry == null)
@@ -83,7 +84,26 @@ public class RegistryService
       it.close();
     }
     
-    // TODO : HierarchyType and Terms
+    MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
+    OIterator<? extends MdRelationship> relit = mrq.getIterator();
+    
+    try
+    {
+      while (relit.hasNext())
+      {
+        MdRelationship mdRel = relit.next();
+        
+        HierarchyType ht = conversionService.mdRelationshipToHierarchyType(mdRel);
+        
+        registry.getMetadataCache().addHierarchyType(ht);
+      }
+    }
+    finally
+    {
+      relit.close();
+    }
+    
+    // TODO : Terms
   }
   
   @Request(RequestType.SESSION)
@@ -204,6 +224,7 @@ public class RegistryService
     return gots;
   }
   
+  @Request(RequestType.SESSION)
   public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String[] childrenTypes, Boolean recursive)
   {
     String[] relationshipTypes = TermUtil.getAllParentRelationships(parentUid);
@@ -211,7 +232,7 @@ public class RegistryService
     GeoEntity parent = GeoEntity.get(parentUid);
     
     GeoObject goRoot = conversionService.geoEntityToGeoObject(parent);
-    ChildTreeNode tnRoot = new ChildTreeNode(goRoot, null); // TODO : Not sure what to put here for hierarchy type
+    ChildTreeNode tnRoot = new ChildTreeNode(goRoot, null);
     
     TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(parentUid, relationshipTypes);
     for (TermAndRel tnrChild : tnrChildren)
@@ -257,6 +278,7 @@ public class RegistryService
     return map;
   }
 
+  @Request(RequestType.SESSION)
   public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String[] parentTypes, boolean recursive)
   {
     String[] relationshipTypes = TermUtil.getAllChildRelationships(childId);
@@ -264,7 +286,7 @@ public class RegistryService
     GeoEntity child = GeoEntity.get(childId);
     
     GeoObject goRoot = conversionService.geoEntityToGeoObject(child);
-    ParentTreeNode tnRoot = new ParentTreeNode(goRoot, null); // TODO : Not sure what to put here for hierarchy type
+    ParentTreeNode tnRoot = new ParentTreeNode(goRoot, null);
     
     TermAndRel[] tnrParents = TermUtil.getDirectAncestors(childId, relationshipTypes);
     for (TermAndRel tnrParent : tnrParents)

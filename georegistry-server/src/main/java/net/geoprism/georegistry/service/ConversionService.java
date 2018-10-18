@@ -67,7 +67,10 @@ public class ConversionService
     geoObj.setCode(geoEntity.getGeoId());
     geoObj.setWKTGeometry(geoEntity.getWkt());
     geoObj.setLocalizedDisplayLabel(geoEntity.getDisplayLabel().getValue());
-    // TODO : Status term?
+    
+    // TODO : Status term
+//    geoObj.setStatus(this.registry.getMetadataCache().getTerm());
+    
     // TODO : Type attribute?
     
     return geoObj;

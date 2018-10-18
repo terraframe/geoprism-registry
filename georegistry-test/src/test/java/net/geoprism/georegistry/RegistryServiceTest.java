@@ -39,6 +39,7 @@ public class RegistryServiceTest
   {
     GeoObject geoObj = data.registryService.getGeoObject(data.systemSession.getSessionId(), USATestData.COLORADO.getUid());
     
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(RegistryService.getRegistryAdapter(), geoObj.toJSON().toString()).toJSON().toString());
     USATestData.COLORADO.assertEquals(geoObj);
   }
   
@@ -96,12 +97,14 @@ public class RegistryServiceTest
     Assert.assertEquals(codes.length, gots.length);
     
     GeoObjectType state = gots[0];
+    Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
 //    Assert.assertEquals(USATestData.STATE_UID, state.get); // TODO : GeoOBjectTypes don't have a uid?
     Assert.assertEquals(USATestData.STATE.getCode(), state.getCode());
     Assert.assertEquals(USATestData.STATE.getDisplayLabel(), state.getLocalizedLabel());
     Assert.assertEquals(USATestData.STATE.getDescription(), state.getLocalizedDescription());
     
     GeoObjectType district = gots[1];
+    Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
 //  Assert.assertEquals(USATestData.DISTRICT_UID, district.get); // TODO : GeoOBjectTypes don't have a uid?
     Assert.assertEquals(USATestData.DISTRICT.getCode(), district.getCode());
     Assert.assertEquals(USATestData.DISTRICT.getDisplayLabel(), district.getLocalizedLabel());
@@ -118,15 +121,18 @@ public class RegistryServiceTest
     // Recursive
     ChildTreeNode tn = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), parentId, childrenTypes, true);
     USATestData.USA.assertEquals(tn, childrenTypes, true);
+    Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
     
     // Not recursive
     ChildTreeNode tn2 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), parentId, childrenTypes, false);
     USATestData.USA.assertEquals(tn2, childrenTypes, false);
+    Assert.assertEquals(tn2.toJSON().toString(), ChildTreeNode.fromJSON(tn2.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
     
     // Test only getting districts
     String[] distArr = new String[]{USATestData.DISTRICT.getCode()};
     ChildTreeNode tn3 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), parentId, distArr, true);
     USATestData.USA.assertEquals(tn3, distArr, true);
+    Assert.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
   }
   
   @Test
@@ -139,14 +145,17 @@ public class RegistryServiceTest
     // Recursive
     ParentTreeNode tn = data.registryService.getParentGeoObjects(data.systemSession.getSessionId(), childId, childrenTypes, true);
     USATestData.CO_D_TWO.assertEquals(tn, childrenTypes, true);
+    Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
     
     // Not recursive
     ParentTreeNode tn2 = data.registryService.getParentGeoObjects(data.systemSession.getSessionId(), childId, childrenTypes, false);
     USATestData.CO_D_TWO.assertEquals(tn2, childrenTypes, false);
+    Assert.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
     
     // Test only getting countries
     String[] countryArr = new String[]{USATestData.COUNTRY.getCode()};
-    ChildTreeNode tn3 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), childId, countryArr, true);
+    ParentTreeNode tn3 = data.registryService.getParentGeoObjects(data.systemSession.getSessionId(), childId, countryArr, true);
     USATestData.CO_D_TWO.assertEquals(tn3, countryArr, true);
+    Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
   }
 }
