@@ -22,16 +22,6 @@
   <dependencies>
     <dependency>
       <groupId>net.geoprism</groupId>
-      <artifactId>georegistry-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>georegistry-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
       <artifactId>georegistry-server</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -152,13 +142,6 @@
             <version>2.4</version>
             <configuration>
               <packagingExcludes>
-                <!-- Source/class project jars must be excluded for reloaded to work -->
-                **/georegistry-common*.jar,
-                **/georegistry-client*.jar,
-                **/georegistry-server*.jar,
-                **/geoprism-common*.jar,
-                **/geoprism-client*.jar,
-                **/geoprism-server*.jar,
                 <!-- Exclude all jars provided by tomcat -->
                 **/catalina*.jar,
                 **/servlet-api*.jar,
@@ -234,13 +217,6 @@
         <version>2.4</version>
         <configuration>
           <packagingExcludes>
-            <!-- Source/class project jars must be excluded for reloaded to work -->
-            **/georegistry-common*.jar,
-            **/georegistry-client*.jar,
-            **/georegistry-server*.jar,
-            **/geoprism-common*.jar,
-            **/geoprism-client*.jar,
-            **/geoprism-server*.jar,
             <!-- Exclude all jars provided by tomcat -->
             **/catalina*.jar,
             **/servlet-api*.jar,
@@ -260,77 +236,6 @@
               </excludes>
             </overlay>
           </overlays>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.8</version>
-        <executions>
-          <execution>
-            <id>unpack</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>net.geoprism</groupId>
-                  <artifactId>georegistry-common</artifactId>
-                  <excludes>**/*.java</excludes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>net.geoprism</groupId>
-                  <artifactId>georegistry-client</artifactId>
-                  <excludes>**/*.java</excludes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>net.geoprism</groupId>
-                  <artifactId>georegistry-server</artifactId>
-                  <excludes>**/*.java</excludes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>net.geoprism</groupId>
-                  <artifactId>georegistry-common</artifactId>
-                  <outputDirectory>src/main/webapp/WEB-INF/</outputDirectory>
-                  <includes>**/*.java</includes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>net.geoprism</groupId>
-                  <artifactId>georegistry-client</artifactId>
-                  <outputDirectory>src/main/webapp/WEB-INF/</outputDirectory>
-                  <includes>**/*.java</includes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>net.geoprism</groupId>
-                  <artifactId>georegistry-server</artifactId>
-                  <outputDirectory>src/main/webapp/WEB-INF/</outputDirectory>
-                  <includes>**/*.java</includes>
-                </artifactItem>
-              </artifactItems>
-              <includes>**/*</includes>
-              <excludes></excludes>
-              <outputDirectory>${project.build.directory}/classes</outputDirectory>
-              <overWriteReleases>true</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>src/main/webapp/WEB-INF/source</directory>
-              <includes>
-                <include>**/*</include>
-              </includes>
-              <followSymlinks>false</followSymlinks>
-            </fileset>
-          </filesets>
         </configuration>
       </plugin>
     </plugins>

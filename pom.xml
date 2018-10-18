@@ -12,8 +12,6 @@
   <modules>
     <module>../geoprism</module>
     <module>georegistry-server</module>
-    <module>georegistry-common</module>
-    <module>georegistry-client</module>
     <module>georegistry-web</module>
   </modules>
 

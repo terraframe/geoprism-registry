@@ -34,18 +34,41 @@
     </dependency>
     <dependency>
       <groupId>net.geoprism</groupId>
-      <artifactId>georegistry-common</artifactId>
-      <version>${project.version}</version>
+      <artifactId>geoprism-client</artifactId>
+      <version>${geoprism.version}</version>
     </dependency>
-
-    <!-- Need to have a dependency on the client jar for code generation and compiling. -->
     <dependency>
       <groupId>net.geoprism</groupId>
-      <artifactId>georegistry-client</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
+      <artifactId>geoprism-common</artifactId>
+      <version>${geoprism.version}</version>
     </dependency>
-    
+    <dependency>
+      <groupId>com.cgr.adapter</groupId>
+      <artifactId>cgradapter-common</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
+      <version>2.2.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+     <groupId>com.fasterxml.jackson.core</groupId>
+     <artifactId>jackson-core</artifactId>
+     <version>2.9.5</version>
+    </dependency>
   </dependencies>
 
   <!-- These profiles allow for Maven execution of Runway-SDK's Java Tools, like rebuilding the database and importing schemas. -->
