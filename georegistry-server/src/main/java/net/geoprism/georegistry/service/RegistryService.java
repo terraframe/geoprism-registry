@@ -60,7 +60,7 @@ public class RegistryService
   
   public void refreshMetadataCache()
   {
-    registry.getMetadataCache().clear();
+    registry.getMetadataCache().rebuild();
     
     DefaultTerms.buildGeoObjectStatusTree(registry);
     
