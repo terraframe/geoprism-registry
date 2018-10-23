@@ -62,8 +62,6 @@ public class RegistryService
   {
     registry.getMetadataCache().rebuild();
     
-    DefaultTerms.buildGeoObjectStatusTree(registry);
-    
     QueryFactory qf = new QueryFactory();
     UniversalQuery uq = new UniversalQuery(qf);
     OIterator<? extends Universal> it = uq.getIterator();
