@@ -18,7 +18,10 @@
  */
 package net.geoprism.georegistry;
 
+import net.geoprism.georegistry.service.RegistryService;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -33,8 +36,6 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-
-import net.geoprism.georegistry.service.RegistryService;
 
 @Controller(url = "registry")
 public class RegistryController
@@ -187,5 +188,21 @@ public class RegistryController
      }
      
      return new RestBodyResponse(jarray);
+   }
+   
+   /**
+    * Creates a relationship between @parentCode and @childCode.
+    *
+    * @pre Both parentCode and childCode have already been persisted / applied
+    * @post A relationship will exist between @parentCode and @childCode
+    *
+    * @returns ParentTreeNode The new node which was created with the provided parent.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+   public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = "parent") String parentRef, @RequestParamter(name = "child") String childRef, @RequestParamter(name = "hierarchy") String hierarchyRef)
+   {
+     ParentTreeNode pn = this.registryService.addChild(request.getSessionId(), parentRef, childRef, hierarchyRef);
+     
+     return new RestBodyResponse(pn.toJSON());
    }
 }

@@ -16,6 +16,7 @@ import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.georegistry.USATestData.TestGeoEntityInfo;
 import net.geoprism.georegistry.service.IdService;
 import net.geoprism.georegistry.service.RegistryService;
 
@@ -192,5 +193,40 @@ public class RegistryServiceTest
     
     HierarchyType[] hts3 = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), null);
     Assert.assertTrue(hts3.length > 0);
+  }
+  
+  @Test
+  @Request
+  public void testAddChild()
+  {
+    TestGeoEntityInfo testAddChild = new TestGeoEntityInfo("TEST_ADD_CHILD", USATestData.STATE);
+    testAddChild.apply();
+    
+    ParentTreeNode ptnTestState = data.registryService.addChild(data.systemSession.getSessionId(), USATestData.USA.getGeoId(), testAddChild.getGeoId(), LocatedIn.CLASS);
+    
+    boolean found = false;
+    for (ParentTreeNode ptnUSA : ptnTestState.getParents())
+    {
+      if (ptnUSA.getGeoObject().getCode().equals(USATestData.USA.getGeoId()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    testAddChild.assertEquals(ptnTestState.getGeoObject());
+    
+    ChildTreeNode ctnUSA2 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), USATestData.USA.getUid(), new String[]{USATestData.STATE.getCode()}, false);
+    
+    found = false;
+    for (ChildTreeNode ctnState : ctnUSA2.getChildren())
+    {
+      if (ctnState.getGeoObject().getCode().equals(testAddChild.getGeoId()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
   }
 }

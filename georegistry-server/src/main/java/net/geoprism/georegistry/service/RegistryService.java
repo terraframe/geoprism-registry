@@ -2,8 +2,9 @@ package net.geoprism.georegistry.service;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import net.geoprism.georegistry.AdapterUtilities;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -14,6 +15,7 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
@@ -36,6 +38,8 @@ public class RegistryService
   
   private static RegistryAdapter registry;
   
+  private static AdapterUtilities util;
+  
   public RegistryService()
   {
     initialize();
@@ -49,6 +53,8 @@ public class RegistryService
       RegistryService.registry = new RegistryAdapterServer();
       
       conversionService = new ConversionService(registry);
+      
+      util = new AdapterUtilities(registry, conversionService);
       
       refreshMetadataCache();
     }
@@ -363,5 +369,34 @@ public class RegistryService
     }
     
     return tnRoot;
+  }
+
+  @Request(RequestType.SESSION)
+  public ParentTreeNode addChild(String sessionId, String parentRef, String childRef, String hierarchyRef)
+  {
+    GeoObject goParent = util.getGeoObject(parentRef);
+    GeoObject goChild = util.getGeoObject(childRef);
+    HierarchyType hierarchy = util.getHierarchyType(hierarchyRef);
+    
+    if (util.isVirtual(goParent))
+    {
+      throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
+    }
+    else if (util.isVirtual(goChild))
+    {
+      throw new UnsupportedOperationException("Virtual leaf nodes are not yet supported."); // TODO
+    }
+    else
+    {
+      GeoEntity geParent = GeoEntity.get(goParent.getUid());
+      GeoEntity geChild = GeoEntity.get(goChild.getUid());
+      
+      Relationship rel = geChild.addLink(geParent, hierarchy.getCode());
+      
+      ParentTreeNode node = new ParentTreeNode(goChild, hierarchy);
+      node.addParent(new ParentTreeNode(goParent, hierarchy));
+      
+      return node;
+    }
   }
 }

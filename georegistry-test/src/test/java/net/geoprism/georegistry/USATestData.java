@@ -288,6 +288,15 @@ public class USATestData
       return this.geoEntity;
     }
     
+    public GeoObject newGeoObject()
+    {
+      GeoObject geoObj = RegistryService.getRegistryAdapter().newGeoObjectInstance(this.universal.getCode());
+      geoObj.setWKTGeometry(this.getWkt());
+      geoObj.setCode(this.getGeoId());
+      geoObj.setLocalizedDisplayLabel(this.getDisplayLabel());
+      return geoObj;
+    }
+    
     public List<TestGeoEntityInfo> getChildren()
     {
       return this.children;
