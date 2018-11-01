@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<mappings>
+
+  <!-- Geo prism URLs -->  
+  <package name="net.geoprism"/>  
+
+  <map uri="loginRedirect" forward="/loginRedirect.jsp"/>
+  <map uri="account" controller="net.geoprism.AdminController">
+    <action method="account" uri=""/>
+  </map>
+
+  <map uri="app" forward="/index.jsp"/>
+  
+  <!-- UASDM URLs -->  
+  <package name="gov.osmre.uasdm"/>  
+  
+</mappings>

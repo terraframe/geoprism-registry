@@ -21,6 +21,7 @@ package net.geoprism.georegistry;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
@@ -166,6 +167,23 @@ public class RegistryController
      for (int i = 0; i < gots.length; ++i)
      {
        jarray.add(gots[i].toJSON());
+     }
+     
+     return new RestBodyResponse(jarray);
+   }
+   
+   /**
+    * Returns HierarchyTypes that define the given list of types. If no types are provided then all will be returned.
+    */
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   {
+     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), types);
+     
+     JsonArray jarray = new JsonArray();
+     for (int i = 0; i < hts.length; ++i)
+     {
+       jarray.add(hts[i].toJSON());
      }
      
      return new RestBodyResponse(jarray);

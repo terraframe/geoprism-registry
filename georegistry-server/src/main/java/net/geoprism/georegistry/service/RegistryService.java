@@ -1,12 +1,13 @@
 package net.geoprism.georegistry.service;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -212,6 +213,11 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes)
   {
+    if (codes == null || codes.length == 0)
+    {
+      return registry.getMetadataCache().getAllGeoObjectTypes();
+    }
+    
     GeoObjectType[] gots = new GeoObjectType[codes.length];
     
     for (int i = 0; i < codes.length; ++i)
@@ -260,6 +266,46 @@ public class RegistryService
     return tnRoot;
   }
   
+  @Request(RequestType.SESSION)
+  public HierarchyType[] getHierarchyTypes(String sessionId, String[] relationshipTypes)
+  {
+    if (relationshipTypes == null || relationshipTypes.length == 0)
+    {
+//      MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
+//      List<? extends MdRelationship> mdRels = mrq.getIterator().getAll();
+//      relationshipTypes = new String[mdRels.size()];
+//      for (int i = 0; i < mdRels.size(); ++i)
+//      {
+//        // TODO : Maybe we want to filter out system types
+//        MdRelationship mdRel = mdRels.get(i);
+//        relationshipTypes[i] = mdRel.definesType();
+//      }
+      
+      return registry.getMetadataCache().getAllHierarchyTypes();
+    }
+    
+    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
+    
+    // Sort them based on the array we were given
+    Collection<HierarchyType> htVals = htMap.values();
+    HierarchyType[] out = new HierarchyType[htVals.size()];
+    
+    for (int i = 0; i < relationshipTypes.length; ++i)
+    {
+      String relType = relationshipTypes[i];
+      
+      for (HierarchyType ht : htVals)
+      {
+        if (ht.getCode().equals(relType))
+        {
+          out[i] = ht;
+        }
+      }
+    }
+    
+    return out;
+  }
+  
   private Map<String, HierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
     Map<String, HierarchyType> map = new HashMap<String, HierarchyType>();
@@ -274,6 +320,11 @@ public class RegistryService
     }
     
     return map;
+  }
+  
+  private void addGeoObjectRoots(HierarchyType ht)
+  {
+    // TODO : I'm not sure how this is supposed to work.
   }
 
   @Request(RequestType.SESSION)
