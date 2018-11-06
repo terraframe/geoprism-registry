@@ -37,7 +37,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
-@Controller(url = "registry")
+@Controller(url = "api")
 public class RegistryController
 {
   private RegistryService registryService;
@@ -58,7 +58,7 @@ public class RegistryController
    * @returns a GeoObject in GeoJSON format with the given uid.
    * @throws
    **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobject/get")
    public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = "uid") String uid) throws JSONException
    {
      GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), uid);
@@ -77,7 +77,7 @@ public class RegistryController
    * @returns 
    * @throws //TODO
    **/
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="geoobject/update")
    public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = "geoObject") String jGeoObj)
    {
      GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj);
@@ -98,7 +98,7 @@ public class RegistryController
    * @returns
    * @throws
    **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobject/getchildren")
    public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = "parentUid") String parentUid, @RequestParamter(name = "childrenTypes") String[] childrenTypes, @RequestParamter(name = "recursive") Boolean recursive)
    {
      TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentUid, childrenTypes, recursive);
@@ -139,7 +139,7 @@ public class RegistryController
    * @returns
    * @throws
    **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="")
    public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = "amount") Integer amount)
    {
      String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);

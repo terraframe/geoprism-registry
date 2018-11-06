@@ -66,9 +66,4 @@ public class AdapterUtilities
     
     return ht;
   }
-  
-  public boolean isVirtual(GeoObject gobj)
-  {
-    return false; // TODO
-  }
 }

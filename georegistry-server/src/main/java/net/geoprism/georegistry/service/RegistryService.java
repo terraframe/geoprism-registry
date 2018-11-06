@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.geoprism.georegistry.AdapterUtilities;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
+import org.commongeoregistry.adapter.action.AbstractAction;
+import org.commongeoregistry.adapter.action.UpdateAction;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -17,6 +17,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.ontology.TermAndRel;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -31,6 +32,9 @@ import com.runwaysdk.system.metadata.MdRelationship;
 import com.runwaysdk.system.metadata.MdRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
+
+import net.geoprism.georegistry.AdapterUtilities;
+import net.geoprism.georegistry.action.RegistryAction;
 
 public class RegistryService
 {
@@ -378,11 +382,11 @@ public class RegistryService
     GeoObject goChild = util.getGeoObject(childRef);
     HierarchyType hierarchy = util.getHierarchyType(hierarchyRef);
     
-    if (util.isVirtual(goParent))
+    if (goParent.getType().isLeaf())
     {
       throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
     }
-    else if (util.isVirtual(goChild))
+    else if (goChild.getType().isLeaf())
     {
       throw new UnsupportedOperationException("Virtual leaf nodes are not yet supported."); // TODO
     }
@@ -397,6 +401,28 @@ public class RegistryService
       node.addParent(new ParentTreeNode(goParent, hierarchy));
       
       return node;
+    }
+  }
+  
+  @Request(RequestType.SESSION)
+  public void executeActions(String sessionId, String sJson)
+  {
+    executeActionsInTransaction(sessionId, sJson);
+  }
+  
+  @Transaction
+  private void executeActionsInTransaction(String sessionId, String sJson)
+  {
+    AbstractAction[] actions = AbstractAction.parseActions(sJson);
+    
+    for (AbstractAction action : actions)
+    {
+      if (action instanceof UpdateAction)
+      {
+        RegistryAction ra = RegistryAction.convert(action);
+        
+        ra.execute(this, registry, conversionService);
+      }
     }
   }
 }
