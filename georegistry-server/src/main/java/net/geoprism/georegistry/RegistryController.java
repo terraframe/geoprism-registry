@@ -37,7 +37,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
-@Controller(url = "api")
+@Controller(url = "cgr")
 public class RegistryController
 {
   private RegistryService registryService;
