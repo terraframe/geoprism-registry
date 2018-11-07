@@ -1,29 +1,27 @@
 package net.geoprism.georegistry.action;
 
-import org.commongeoregistry.adapter.RegistryAdapter;
+import net.geoprism.georegistry.service.RegistryService;
+
 import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.action.AddChildAction;
 import org.commongeoregistry.adapter.action.DeleteAction;
 import org.commongeoregistry.adapter.action.UpdateAction;
 
-import net.geoprism.georegistry.service.ConversionService;
-import net.geoprism.georegistry.service.RegistryService;
-
 abstract public class RegistryAction
 {
-    public static RegistryAction convert(AbstractAction action)
+    public static RegistryAction convert(AbstractAction action, RegistryService registry, String sessionId)
     {
       if (action instanceof UpdateAction)
       {
-        return new RegistryUpdateAction((UpdateAction) action);
+        return new RegistryUpdateAction((UpdateAction) action, registry, sessionId);
       }
       else if (action instanceof AddChildAction)
       {
-        return new RegistryAddChildAction((AddChildAction) action);
+        return new RegistryAddChildAction((AddChildAction) action, registry, sessionId);
       }
       else if (action instanceof DeleteAction)
       {
-        return new RegistryDeleteAction((DeleteAction) action);
+        return new RegistryDeleteAction((DeleteAction) action, registry, sessionId);
       }
       else
       {
@@ -31,5 +29,5 @@ abstract public class RegistryAction
       }
     }
 
-    abstract public void execute(RegistryService registry, RegistryAdapter adapter, ConversionService conversionService);
+    abstract public void execute();
 }

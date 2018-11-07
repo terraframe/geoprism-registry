@@ -1,10 +1,13 @@
 package net.geoprism.georegistry;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import net.geoprism.georegistry.service.RegistryService;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -30,8 +33,6 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
-
-import net.geoprism.georegistry.service.RegistryService;
 
 public class USATestData
 {
@@ -66,6 +67,10 @@ public class USATestData
   public RegistryService registryService;
   
   public ClientSession systemSession   = null;
+  
+  private ArrayList<TestGeoEntityInfo> customGeoInfos = new ArrayList<TestGeoEntityInfo>();
+
+  private ArrayList<TestUniversalInfo> customUniInfos = new ArrayList<TestUniversalInfo>();
   
   static
   {
@@ -127,6 +132,8 @@ public class USATestData
 //    compare.getRootGeoObjectTypes() // TODO
   }
   
+  
+  
   public static class TestUniversalInfo
   {
     private Universal universal;
@@ -141,7 +148,7 @@ public class USATestData
     
     private List<TestUniversalInfo> children;
     
-    public TestUniversalInfo(String genKey)
+    private TestUniversalInfo(String genKey)
     {
       this.code = TEST_DATA_KEY + "-" + genKey + "Code";
       this.displayLabel = TEST_DATA_KEY + " " + genKey + " Display Label";
@@ -222,6 +229,45 @@ public class USATestData
       deleteUniversal(this.getCode());
       this.children.clear();
     }
+
+    public GeoObjectType newGeoObjectType()
+    {
+//      return RegistryService.getRegistryAdapter().getMetadataCache().getGeoObjectType(this.getUniversal().getKey()).get();
+      return RegistryService.getConversionService().universalToGeoObjectType(this.getUniversal());
+    }
+  }
+  
+  public TestGeoEntityInfo newTestGeoEntityInfo(String genKey, TestUniversalInfo testUni)
+  {
+    TestGeoEntityInfo info = new TestGeoEntityInfo(genKey, testUni);
+    
+    info.delete();
+    
+    this.customGeoInfos.add(info);
+    
+    return info;
+  }
+  
+  public TestGeoEntityInfo newTestGeoEntityInfo(String genKey, TestUniversalInfo testUni, String wkt)
+  {
+    TestGeoEntityInfo info = new TestGeoEntityInfo(genKey, testUni, wkt);
+    
+    info.delete();
+    
+    this.customGeoInfos.add(info);
+    
+    return info;
+  }
+  
+  public TestUniversalInfo newTestUniversalInfo(String genKey)
+  {
+    TestUniversalInfo info = new TestUniversalInfo(genKey);
+    
+    info.delete();
+    
+    this.customUniInfos.add(info);
+    
+    return info;
   }
   
   public static class TestGeoEntityInfo
@@ -232,7 +278,7 @@ public class USATestData
     
     private String wkt;
     
-    private String uid;
+    private String uid = null;
     
     private GeoEntity geoEntity;
     
@@ -242,13 +288,13 @@ public class USATestData
     
     private List<TestGeoEntityInfo> parents;
     
-    public TestGeoEntityInfo(String genKey, TestUniversalInfo testUni, String wkt)
+    private TestGeoEntityInfo(String genKey, TestUniversalInfo testUni, String wkt)
     {
       initialize(genKey, testUni);
       this.wkt = wkt;
     }
     
-    public TestGeoEntityInfo(String genKey, TestUniversalInfo testUni)
+    private TestGeoEntityInfo(String genKey, TestUniversalInfo testUni)
     {
       initialize(genKey, testUni);
     }
@@ -291,9 +337,16 @@ public class USATestData
     public GeoObject newGeoObject()
     {
       GeoObject geoObj = RegistryService.getRegistryAdapter().newGeoObjectInstance(this.universal.getCode());
+      
       geoObj.setWKTGeometry(this.getWkt());
       geoObj.setCode(this.getGeoId());
       geoObj.setLocalizedDisplayLabel(this.getDisplayLabel());
+      
+      if (uid != null)
+      {
+        geoObj.setUid(uid);
+      }
+      
       return geoObj;
     }
     
@@ -498,6 +551,16 @@ public class USATestData
   @Transaction
   public void cleanUpInTrans()
   {
+    for (TestGeoEntityInfo geo : customGeoInfos)
+    {
+      geo.delete();
+    }
+    
+    for (TestUniversalInfo uni : customUniInfos )
+    {
+      uni.delete();
+    }
+    
     for (TestUniversalInfo uni : UNIVERSALS)
     {
       uni.delete();
