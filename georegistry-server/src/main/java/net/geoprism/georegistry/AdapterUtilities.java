@@ -4,9 +4,11 @@ import net.geoprism.georegistry.service.ConversionService;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdRelationship;
 
 public class AdapterUtilities
@@ -26,44 +28,30 @@ public class AdapterUtilities
    * 
    * @return
    */
-  public GeoObject getGeoObject(String ref)
+  public GeoObject getGeoObjectById(String oid)
   {
-    // TODO : Add support for virtual leaf nodes.
-    GeoEntity ge = null;
+    // TODO : virtual leaf nodes
     
-    if (ref.startsWith("uid:"))
-    {
-      String uid = ref.replaceFirst("uid:", "");
-      
-      ge = GeoEntity.get(uid);
-    }
-    else
-    {
-      ge = GeoEntity.getByKey(ref);
-    }
+    GeoEntity ge = GeoEntity.get(oid);
     
     GeoObject gobj = this.conversionService.geoEntityToGeoObject(ge);
     
     return gobj;
   }
 
-  public HierarchyType getHierarchyType(String ref)
+  public HierarchyType getHierarchyTypeById(String oid)
   {
-    MdRelationship mdRel = null;
-    
-    if (ref.startsWith("uid:"))
-    {
-      String uid = ref.replaceFirst("uid:", "");
-      
-      mdRel = MdRelationship.get(uid);
-    }
-    else
-    {
-      mdRel = MdRelationship.getByKey(ref);
-    }
+    MdRelationship mdRel = MdRelationship.get(oid);
     
     HierarchyType ht = this.conversionService.mdRelationshipToHierarchyType(mdRel);
     
     return ht;
+  }
+
+  public GeoObjectType getGeoObjectTypeById(String id)
+  {
+    Universal uni = Universal.get(id);
+    
+    return this.adapter.getMetadataCache().getGeoObjectType(uni.getKey()).get();
   }
 }

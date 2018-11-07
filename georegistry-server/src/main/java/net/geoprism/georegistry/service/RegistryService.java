@@ -15,6 +15,7 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory.Adapter;
 import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -40,7 +41,7 @@ public class RegistryService
 {
   private static ConversionService conversionService;
   
-  private static RegistryAdapter registry;
+  private static RegistryAdapter adapter;
   
   private static AdapterUtilities util;
   
@@ -52,26 +53,31 @@ public class RegistryService
   @Request
   private synchronized void initialize()
   {
-    if (RegistryService.registry == null)
+    if (RegistryService.adapter == null)
     {
-      RegistryService.registry = new RegistryAdapterServer();
+      RegistryService.adapter = new RegistryAdapterServer();
       
-      conversionService = new ConversionService(registry);
+      conversionService = new ConversionService(adapter);
       
-      util = new AdapterUtilities(registry, conversionService);
+      util = new AdapterUtilities(adapter, conversionService);
       
       refreshMetadataCache();
     }
   }
   
+  public static ConversionService getConversionService()
+  {
+    return conversionService;
+  }
+  
   public static RegistryAdapter getRegistryAdapter()
   {
-    return registry;
+    return adapter;
   }
   
   public void refreshMetadataCache()
   {
-    registry.getMetadataCache().rebuild();
+    adapter.getMetadataCache().rebuild();
     
     QueryFactory qf = new QueryFactory();
     UniversalQuery uq = new UniversalQuery(qf);
@@ -85,7 +91,7 @@ public class RegistryService
         
         GeoObjectType got = conversionService.universalToGeoObjectType(uni);
         
-        registry.getMetadataCache().addGeoObjectType(got);
+        adapter.getMetadataCache().addGeoObjectType(got);
       }
     }
     finally
@@ -104,7 +110,7 @@ public class RegistryService
         
         HierarchyType ht = conversionService.mdRelationshipToHierarchyType(mdRel);
         
-        registry.getMetadataCache().addHierarchyType(ht);
+        adapter.getMetadataCache().addHierarchyType(ht);
       }
     }
     finally
@@ -128,7 +134,13 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject updateGeoObject(String sessionId, String jGeoObj)
   {
-    GeoObject geoObject = GeoObject.fromJSON(registry, jGeoObj);
+    return updateGeoObjectInTransaction(sessionId, jGeoObj);
+  }
+  
+  @Transaction
+  private GeoObject updateGeoObjectInTransaction(String sessionId, String jGeoObj)
+  {
+    GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
     
     GeoEntity ge;
     if (geoObject.getUid() != null && geoObject.getUid().length() > 0)
@@ -225,14 +237,14 @@ public class RegistryService
   {
     if (codes == null || codes.length == 0)
     {
-      return registry.getMetadataCache().getAllGeoObjectTypes();
+      return adapter.getMetadataCache().getAllGeoObjectTypes();
     }
     
     GeoObjectType[] gots = new GeoObjectType[codes.length];
     
     for (int i = 0; i < codes.length; ++i)
     {
-      gots[i] = registry.getMetadataCache().getGeoObjectType(codes[i]).get();
+      gots[i] = adapter.getMetadataCache().getGeoObjectType(codes[i]).get();
     }
     
     return gots;
@@ -291,7 +303,7 @@ public class RegistryService
 //        relationshipTypes[i] = mdRel.definesType();
 //      }
       
-      return registry.getMetadataCache().getAllHierarchyTypes();
+      return adapter.getMetadataCache().getAllHierarchyTypes();
     }
     
     Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
@@ -376,11 +388,17 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode addChild(String sessionId, String parentRef, String childRef, String hierarchyRef)
+  public ParentTreeNode addChild(String sessionId, String parentId, String childId, String hierarchyCode)
   {
-    GeoObject goParent = util.getGeoObject(parentRef);
-    GeoObject goChild = util.getGeoObject(childRef);
-    HierarchyType hierarchy = util.getHierarchyType(hierarchyRef);
+    return addChildInTransaction(sessionId, parentId, childId, hierarchyCode);
+  }
+  
+  @Transaction
+  public ParentTreeNode addChildInTransaction(String sessionId, String parentId, String childId, String hierarchyCode)
+  {
+    GeoObject goParent = util.getGeoObjectById(parentId);
+    GeoObject goChild = util.getGeoObjectById(childId);
+    HierarchyType hierarchy = adapter.getMetadataCache().getHierachyType(hierarchyCode).get();
     
     if (goParent.getType().isLeaf())
     {
@@ -417,12 +435,44 @@ public class RegistryService
     
     for (AbstractAction action : actions)
     {
-      if (action instanceof UpdateAction)
-      {
-        RegistryAction ra = RegistryAction.convert(action);
-        
-        ra.execute(this, registry, conversionService);
-      }
+      RegistryAction ra = RegistryAction.convert(action, this, sessionId);
+      
+      ra.execute();
     }
+  }
+
+  @Request(RequestType.SESSION)
+  public void deleteGeoObject(String sessionId, String uid)
+  {
+    deleteGeoObjectInTransaction(sessionId, uid);
+  }
+  
+  @Transaction
+  private void deleteGeoObjectInTransaction(String sessionId, String uid)
+  {
+    GeoObject geoObject = util.getGeoObjectById(uid);
+    
+    if (geoObject.getType().isLeaf())
+    {
+      throw new UnsupportedOperationException("Not implemented yet.");
+    }
+    else
+    {
+      GeoEntity.get(geoObject.getUid()).delete();
+    }
+  }
+  
+  @Request(RequestType.SESSION)
+  public void deleteGeoObjectType(String sessionId, String code)
+  {
+    deleteGeoObjectTypeInTransaction(sessionId, code);
+  }
+  
+  @Transaction
+  private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
+  {
+    Universal uni = Universal.getByKey(code);
+    
+    uni.delete();
   }
 }
