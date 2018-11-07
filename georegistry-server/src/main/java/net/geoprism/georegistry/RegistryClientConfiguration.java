@@ -15,30 +15,29 @@ import com.runwaysdk.constants.ClientRequestIF;
 public class RegistryClientConfiguration extends DefaultClientConfiguration implements ClientConfigurationIF
 {
 
-	@Override
-	  public List<GeoprismApplication> getApplications(ClientRequestIF request)
-	  {
-	    GeoprismApplication management = new GeoprismApplication();
-	    management.setId("projects");
-	    management.setLabel(LocalizationFacadeDTO.getFromBundles(request, "projects.landing"));
-	    management.setSrc("net/geoprism/images/dm_icon.svg");
-	    management.setUrl("project/management");
+  @Override
+  public List<GeoprismApplication> getApplications(ClientRequestIF request)
+  {
+    GeoprismApplication management = new GeoprismApplication();
+    management.setId("projects");
+    management.setLabel(LocalizationFacadeDTO.getFromBundles(request, "projects.landing"));
+    management.setSrc("net/geoprism/images/dm_icon.svg");
+    management.setUrl("project/management");
 
-	    List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();
-	    applications.add(management);
-	    
-	    return applications;
-	  }
+    List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();
+    applications.add(management);
+
+    return applications;
+  }
 
   /*
-   * Expose public endpoints to allow non-logged in users to hit controller endpoints
+   * Expose public endpoints to allow non-logged in users to hit controller
+   * endpoints
    */
   @Override
   public Set<String> getPublicEndpoints()
   {
-    Set<String> endpoints = new TreeSet<String>();
-
-    return endpoints;
+    return super.getPublicEndpoints();
   }
 
 }
