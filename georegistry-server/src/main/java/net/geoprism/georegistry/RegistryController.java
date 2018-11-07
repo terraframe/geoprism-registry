@@ -32,17 +32,28 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.mvc.ViewResponse;
 
 import net.geoprism.georegistry.service.RegistryService;
 
 @Controller(url = "registry")
 public class RegistryController
 {
+  public static final String       JSP_DIR   = "/WEB-INF/";
+
+  public static final String       INDEX_JSP = "net/geoprism/registry/index.jsp";
+	  
   private RegistryService registryService;
   
   public RegistryController()
   {
     this.registryService = new RegistryService();
+  }
+  
+  @Endpoint(method = ServletMethod.GET)
+  public ResponseIF hierarchies()
+  {
+    return new ViewResponse(JSP_DIR + INDEX_JSP);
   }
   
   /**

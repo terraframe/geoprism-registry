@@ -5,9 +5,9 @@ var helpers = require('./helpers');
 
 module.exports = {
   entry: {
-    'map-polyfills': './src/polyfills.ts',
-    'map-vendor': './src/vendor.ts',
-    'map-app': './src/main.ts'
+    'cgr-polyfills': './src/polyfills.ts',
+    'cgr-vendor': './src/vendor.ts',
+    'cgr-app': './src/main.ts'
   },
 
   resolve: {

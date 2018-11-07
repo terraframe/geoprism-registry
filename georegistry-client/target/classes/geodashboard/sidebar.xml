@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Runway SDK(tm).
+
+    Runway SDK(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Runway SDK(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<sidebar>
+  <link-list>
+    <item name="Log_out" uri="session/logout" synch="true" />
+    <item name="Account" uri="admin/account" synch="false" />
+    <item name="Menu" uri="menu" synch="true" />
+    <item name="User_Dashboards" uri="dashboards" synch="true" classes="link-viewer" />
+  </link-list>
+  <nav-list>
+
+    <item name="System_Configuration" uri="admin/system" roles="geoprism.admin.Administrator" />
+
+    <item name="Account_Management" uri="admin/users" roles="geoprism.admin.Administrator" />
+
+    <item name="GIS_Management" roles="geoprism.admin.Administrator">
+      <item name="Manage_Universals" uri="admin/universal" roles="geoprism.admin.Administrator" />
+      <item name="Manage_Geoentities" uri="admin/geoentity" roles="geoprism.admin.Administrator" />
+    </item>
+
+    <item name="Datatype_Management" roles="geoprism.admin.Administrator">
+      <item name="Term_Ontology_Admin" uri="admin/ontologies" roles="geoprism.admin.Administrator" />
+      <item name="Data_Browser" uri="admin/databrowser" roles="geoprism.admin.Administrator" />
+      <item name="Data_Sets" uri="admin/datasets" roles="geoprism.admin.Administrator" />
+    </item>
+  </nav-list>
+
+</sidebar>

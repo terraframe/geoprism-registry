@@ -1,0 +1,22 @@
+<div class="new-admin-design-main">
+  <data-header></data-header>
+  
+<div id="app-container" class="container">
+
+  <message ></message>  
+
+  <h2> <localize key="hierarchy.management.title"></localize> </h2>
+  
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <div *ngIf="nodes.length > 0" class="tree">
+        <tree-root [nodes]="nodes" [options]="options"></tree-root>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+  
+</div>
+
+</div>
