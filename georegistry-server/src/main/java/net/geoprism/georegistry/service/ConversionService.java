@@ -49,9 +49,31 @@ public class ConversionService
   public GeoObjectType universalToGeoObjectType(Universal uni)
   {
     // TODO : GeometryType is hardcoded
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), GeometryType.POLYGON, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), registry);
+    // TODO : isVirtual / leaf is hardcoded
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), GeometryType.POLYGON, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), false, registry);
     
     return geoObjType;
+  }
+  
+  public GeoEntity geoObjectToGeoEntity(GeoObject geoObject)
+  {
+    GeoEntity geo = new GeoEntity();
+    
+    populateGeoEntity(geoObject, geo);
+    
+    return geo;
+  }
+  
+  public void populateGeoEntity(GeoObject geoObject, GeoEntity geo)
+  {
+    Universal uni = geoObjectTypeToUniversal(geoObject.getType());
+    
+    // TODO : Set the id ?
+    // TODO : Status term
+    geo.setUniversal(uni);
+    geo.setGeoId(geoObject.getCode());
+    geo.setWkt(geoObject.getGeometry().toString());
+    geo.getDisplayLabel().setValue(geoObject.getLocalizedDisplayLabel());
   }
   
   public GeoObject geoEntityToGeoObject(GeoEntity geoEntity)

@@ -5,14 +5,18 @@ import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.georegistry.USATestData.TestGeoEntityInfo;
 import net.geoprism.georegistry.service.IdService;
 import net.geoprism.georegistry.service.RegistryService;
 
@@ -109,6 +113,13 @@ public class RegistryServiceTest
     Assert.assertEquals(USATestData.DISTRICT.getCode(), district.getCode());
     Assert.assertEquals(USATestData.DISTRICT.getDisplayLabel(), district.getLocalizedLabel());
     Assert.assertEquals(USATestData.DISTRICT.getDescription(), district.getLocalizedDescription());
+    
+    // Test to make sure we can provide none
+    GeoObjectType[] gots2 = data.registryService.getGeoObjectTypes(data.systemSession.getSessionId(), new String[]{});
+    Assert.assertTrue(gots2.length > 0);
+    
+    GeoObjectType[] gots3 = data.registryService.getGeoObjectTypes(data.systemSession.getSessionId(), null);
+    Assert.assertTrue(gots3.length > 0);
   }
   
   @Test
@@ -157,5 +168,65 @@ public class RegistryServiceTest
     ParentTreeNode tn3 = data.registryService.getParentGeoObjects(data.systemSession.getSessionId(), childId, countryArr, true);
     USATestData.CO_D_TWO.assertEquals(tn3, countryArr, true);
     Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
+  }
+  
+  @Test
+  @Request
+  public void testGetHierarchyTypes()
+  {
+    String[] types = new String[]{ LocatedIn.CLASS, AllowedIn.CLASS };
+    
+    HierarchyType[] hts = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), types);
+    
+    Assert.assertEquals(types.length, hts.length);
+    
+    HierarchyType locatedIn = hts[0];
+    USATestData.assertEqualsHierarchyType(LocatedIn.CLASS, locatedIn);
+    Assert.assertEquals(locatedIn.toJSON().toString(), HierarchyType.fromJSON(locatedIn.toJSON().toString(), RegistryService.getRegistryAdapter()).toJSON().toString());
+    
+    HierarchyType allowedIn = hts[1];
+    USATestData.assertEqualsHierarchyType(AllowedIn.CLASS, allowedIn);
+    
+    // Test to make sure we can provide no types and get everything back
+    HierarchyType[] hts2 = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), new String[]{});
+    Assert.assertTrue(hts2.length > 0);
+    
+    HierarchyType[] hts3 = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), null);
+    Assert.assertTrue(hts3.length > 0);
+  }
+  
+  @Test
+  @Request
+  public void testAddChild()
+  {
+    TestGeoEntityInfo testAddChild = new TestGeoEntityInfo("TEST_ADD_CHILD", USATestData.STATE);
+    testAddChild.apply();
+    
+    ParentTreeNode ptnTestState = data.registryService.addChild(data.systemSession.getSessionId(), USATestData.USA.getGeoId(), testAddChild.getGeoId(), LocatedIn.CLASS);
+    
+    boolean found = false;
+    for (ParentTreeNode ptnUSA : ptnTestState.getParents())
+    {
+      if (ptnUSA.getGeoObject().getCode().equals(USATestData.USA.getGeoId()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    testAddChild.assertEquals(ptnTestState.getGeoObject());
+    
+    ChildTreeNode ctnUSA2 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), USATestData.USA.getUid(), new String[]{USATestData.STATE.getCode()}, false);
+    
+    found = false;
+    for (ChildTreeNode ctnState : ctnUSA2.getChildren())
+    {
+      if (ctnState.getGeoObject().getCode().equals(testAddChild.getGeoId()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
   }
 }

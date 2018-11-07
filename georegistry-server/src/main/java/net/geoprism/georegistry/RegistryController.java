@@ -18,9 +18,13 @@
  */
 package net.geoprism.georegistry;
 
+import net.geoprism.georegistry.service.RegistryService;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
@@ -34,9 +38,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
-import net.geoprism.georegistry.service.RegistryService;
-
-@Controller(url = "registry")
+@Controller(url = "cgr")
 public class RegistryController
 {
   public static final String       JSP_DIR   = "/WEB-INF/";
@@ -67,7 +69,7 @@ public class RegistryController
    * @returns a GeoObject in GeoJSON format with the given uid.
    * @throws
    **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobject/get")
    public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = "uid") String uid) throws JSONException
    {
      GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), uid);
@@ -86,7 +88,7 @@ public class RegistryController
    * @returns 
    * @throws //TODO
    **/
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="geoobject/update")
    public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = "geoObject") String jGeoObj)
    {
      GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj);
@@ -107,7 +109,7 @@ public class RegistryController
    * @returns
    * @throws
    **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobject/getchildren")
    public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = "parentUid") String parentUid, @RequestParamter(name = "childrenTypes") String[] childrenTypes, @RequestParamter(name = "recursive") Boolean recursive)
    {
      TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentUid, childrenTypes, recursive);
@@ -148,7 +150,7 @@ public class RegistryController
    * @returns
    * @throws
    **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="")
    public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = "amount") Integer amount)
    {
      String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);
@@ -180,5 +182,38 @@ public class RegistryController
      }
      
      return new RestBodyResponse(jarray);
+   }
+   
+   /**
+    * Returns HierarchyTypes that define the given list of types. If no types are provided then all will be returned.
+    */
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   {
+     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), types);
+     
+     JsonArray jarray = new JsonArray();
+     for (int i = 0; i < hts.length; ++i)
+     {
+       jarray.add(hts[i].toJSON());
+     }
+     
+     return new RestBodyResponse(jarray);
+   }
+   
+   /**
+    * Creates a relationship between @parentCode and @childCode.
+    *
+    * @pre Both parentCode and childCode have already been persisted / applied
+    * @post A relationship will exist between @parentCode and @childCode
+    *
+    * @returns ParentTreeNode The new node which was created with the provided parent.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+   public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = "parent") String parentRef, @RequestParamter(name = "child") String childRef, @RequestParamter(name = "hierarchy") String hierarchyRef)
+   {
+     ParentTreeNode pn = this.registryService.addChild(request.getSessionId(), parentRef, childRef, hierarchyRef);
+     
+     return new RestBodyResponse(pn.toJSON());
    }
 }
