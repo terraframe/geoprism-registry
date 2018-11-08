@@ -36,6 +36,8 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
 
 @Controller(url = "cgr")
 public class RegistryController
@@ -145,50 +147,7 @@ public class RegistryController
      String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);
      
      return new RestBodyResponse(ids);
-   }
-   
-   
-   /**
-   * Return GeoOjectType objects that define the given list of types.
-   *
-   * @pre 
-   * @post 
-   *
-   * @param types An array of GeoObjectType codes. If blank then all GeoObjectType objects are returned.
-   *
-   * @returns
-   * @throws
-   **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
-   {
-     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), types);
-     
-     JsonArray jarray = new JsonArray();
-     for (int i = 0; i < gots.length; ++i)
-     {
-       jarray.add(gots[i].toJSON());
-     }
-     
-     return new RestBodyResponse(jarray);
-   }
-   
-   /**
-    * Returns HierarchyTypes that define the given list of types. If no types are provided then all will be returned.
-    */
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-   public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
-   {
-     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), types);
-     
-     JsonArray jarray = new JsonArray();
-     for (int i = 0; i < hts.length; ++i)
-     {
-       jarray.add(hts[i].toJSON());
-     }
-     
-     return new RestBodyResponse(jarray);
-   }
+   }   
    
    /**
     * Creates a relationship between @parentCode and @childCode.
@@ -205,4 +164,194 @@ public class RegistryController
      
      return new RestBodyResponse(pn.toJSON());
    }
+   
+   
+   /**
+    * Return GeoOjectType objects that define the given list of types.
+    *
+     * @pre 
+    * @post 
+    *
+    * @param types An array of GeoObjectType codes. If blank then all GeoObjectType objects are returned.
+    *
+     * @returns
+    * @throws
+    **/
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON url="geoobjecttype/get-all")
+   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   {
+     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), types);
+     
+     JsonArray jarray = new JsonArray();
+     for (int i = 0; i < gots.length; ++i)
+     {
+       jarray.add(gots[i].toJSON());
+     }
+     
+     return new RestBodyResponse(jarray);
+   }
+   
+   /**
+    * Returns the {@link GeoObjectType} with the given code.
+    * 
+    * @param request 
+    * @param code code of the {@link GeoObjectType}
+    * @return the {@link GeoObjectType} with the given code.
+    */
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobjecttype/get")
+   public ResponseIF getGeoObjectType(ClientRequestIF request, @RequestParamter(name = "code") String code) throws JSONException
+   {
+     GeoObjectType geoObjectType = this.registryService.getGeoObjectType(request.getSessionId(), code);
+     
+     return new RestBodyResponse(geoObjectType.toJSON());
+   }
+   
+   /**
+    * Creates a {@link GeoObjectType} from the given JSON.
+    * 
+    * @param request
+    * @param gtJSON JSON of the {@link GeoObjectType} to be created.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="geoobjecttype/create")
+   public ResponseIF createGeoObjectType(ClientRequestIF request, @RequestParamter(name = "gtJSON") String gtJSON) throws JSONException
+   {
+     GeoObjectType geoObjectType = this.registryService.createGeoObjectType(request.getSessionId(), gtJSON);
+     
+     return new RestBodyResponse(geoObjectType.toJSON());
+   }
+   
+   /**
+    * Updates the given {@link GeoObjectType} represented as JSON.
+    * 
+    * @param sessionId
+    * @param gtJSON JSON of the {@link GeoObjectType} to be updated.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="geoobjecttype/update")
+   public ResponseIF updateGeoObjectType(ClientRequestIF request, @RequestParamter(name = "gtJSON") String gtJSON)  throws JSONException
+   {
+     GeoObjectType geoObjectType = this.registryService.updateGeoObjectType(request.getSessionId(), gtJSON);
+     
+     return new RestBodyResponse(geoObjectType.toJSON());
+   }
+   
+   /**
+    * Deletes the {@link GeoObjectType} with the given code.
+    * 
+    * @param sessionId
+    * @param code code of the {@link GeoObjectType} to delete.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="geoobjecttype/delete")
+   public void deleteGeoObjectType(ClientRequestIF request, @RequestParamter(name = "code") String code)  throws JSONException
+   {
+     this.registryService.deleteGeoObjectType(request.getSessionId(), code);
+   }   
+    
+   /**
+    * Returns HierarchyTypes that define the given list of types. If no types are provided then all will be returned.
+    */
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/get-all")
+   public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   {
+     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), types);
+     
+     JsonArray jarray = new JsonArray();
+     for (int i = 0; i < hts.length; ++i)
+     {
+       jarray.add(hts[i].toJSON());
+     }
+     
+     return new RestBodyResponse(jarray);
+   }
+   
+   /**
+    * Returns the {@link HierarchyType} with the given code.
+    * 
+    * @param sessionId
+    * @param code code value of the {@link HierarchyType}.
+    * @return the {@link HierarchyType} with the given code.
+    */
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/get")
+   public ResponseIF getHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
+   {
+     HierarchyType hierarchyType = this.registryService.getHierarchyType(request.getSessionId(), code);
+     
+     return new RestBodyResponse(hierarchyType.toJSON());
+   }
+   
+   /**
+    * Create the {@link HierarchyType} from the given JSON.
+    * 
+    * @param sessionId
+    * @param htJSON JSON of the {@link HierarchyType} to be created.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/create")
+   public ResponseIF createHierarcyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
+   {
+     HierarchyType hierarchyType = this.registryService.createHierarcyType(request.getSessionId(), htJSON);
+     
+     return new RestBodyResponse(hierarchyType.toJSON());
+   }
+   
+   /**
+    * Updates the given {@link HierarchyType} represented as JSON.
+    * 
+    * @param sessionId
+    * @param gtJSON JSON of the {@link HierarchyType} to be updated.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/update")
+   public ResponseIF updateHierarcyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
+   {
+     HierarchyType hierarchyType = this.registryService.updateHierarcyType(request.getSessionId(), htJSON);
+     
+     return new RestBodyResponse(hierarchyType.toJSON());
+   }
+   
+   /**
+    * Deletes the {@link HierarchyType} with the given code.
+    * 
+    * @param sessionId
+    * @param code code of the {@link HierarchyType} to delete.
+    */
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/delete")
+   public void deleteHierarcyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
+   {
+     this.registryService.deleteHierarcyType(request.getSessionId(), code);
+   }
+   
+   /**
+    * Adds the {@link GeoObjectType} with the given child code to the
+    * parent {@link GeoObjectType} with the given code for the 
+    * given {@link HierarchyType} code.
+    * 
+    * @param sessionId
+    * @param hierarchyCode code of the {@link HierarchyType} the child is being added to.
+    * @param parentGeoObjectTypeCode parent {@link GeoObjectType}.
+    * @param childGeoObjectTypeCode child {@link GeoObjectType}.
+    */
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/add")
+   public void addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, 
+       @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode,  
+       @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
+   {
+     this.registryService.addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+   }
+   
+   /**
+    * Removes the {@link GeoObjectType} with the given child code from the
+    * parent {@link GeoObjectType} with the given code for the 
+    * given {@link HierarchyType} code.
+    * 
+    * @param sessionId
+    * @param hierarchyCode code of the {@link HierarchyType} the child is being added to.
+    * @param parentGeoObjectTypeCode parent {@link GeoObjectType}.
+    * @param childGeoObjectTypeCode child {@link GeoObjectType}.
+    */
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/remove")
+   public void removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, 
+       @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode,  
+       @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
+   {
+     this.registryService.addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+   }
+
 }
