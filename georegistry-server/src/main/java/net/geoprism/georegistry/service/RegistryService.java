@@ -4,18 +4,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.geoprism.georegistry.AdapterUtilities;
+import net.geoprism.georegistry.action.RegistryAction;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.action.AbstractAction;
-import org.commongeoregistry.adapter.action.UpdateAction;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory.Adapter;
 import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -33,9 +34,6 @@ import com.runwaysdk.system.metadata.MdRelationship;
 import com.runwaysdk.system.metadata.MdRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
-
-import net.geoprism.georegistry.AdapterUtilities;
-import net.geoprism.georegistry.action.RegistryAction;
 
 public class RegistryService
 {
@@ -231,24 +229,6 @@ public class RegistryService
   {
     return IdService.getInstance(sessionId).getUIDS(amount);
   }
-
-  @Request(RequestType.SESSION)
-  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes)
-  {
-    if (codes == null || codes.length == 0)
-    {
-      return adapter.getMetadataCache().getAllGeoObjectTypes();
-    }
-    
-    GeoObjectType[] gots = new GeoObjectType[codes.length];
-    
-    for (int i = 0; i < codes.length; ++i)
-    {
-      gots[i] = adapter.getMetadataCache().getGeoObjectType(codes[i]).get();
-    }
-    
-    return gots;
-  }
   
   @Request(RequestType.SESSION)
   public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String[] childrenTypes, Boolean recursive)
@@ -287,47 +267,7 @@ public class RegistryService
     
     return tnRoot;
   }
-  
-  @Request(RequestType.SESSION)
-  public HierarchyType[] getHierarchyTypes(String sessionId, String[] relationshipTypes)
-  {
-    if (relationshipTypes == null || relationshipTypes.length == 0)
-    {
-//      MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
-//      List<? extends MdRelationship> mdRels = mrq.getIterator().getAll();
-//      relationshipTypes = new String[mdRels.size()];
-//      for (int i = 0; i < mdRels.size(); ++i)
-//      {
-//        // TODO : Maybe we want to filter out system types
-//        MdRelationship mdRel = mdRels.get(i);
-//        relationshipTypes[i] = mdRel.definesType();
-//      }
-      
-      return adapter.getMetadataCache().getAllHierarchyTypes();
-    }
-    
-    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
-    
-    // Sort them based on the array we were given
-    Collection<HierarchyType> htVals = htMap.values();
-    HierarchyType[] out = new HierarchyType[htVals.size()];
-    
-    for (int i = 0; i < relationshipTypes.length; ++i)
-    {
-      String relType = relationshipTypes[i];
-      
-      for (HierarchyType ht : htVals)
-      {
-        if (ht.getCode().equals(relType))
-        {
-          out[i] = ht;
-        }
-      }
-    }
-    
-    return out;
-  }
-  
+
   private Map<String, HierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
     Map<String, HierarchyType> map = new HashMap<String, HierarchyType>();
@@ -462,6 +402,80 @@ public class RegistryService
     }
   }
   
+  
+  ///////////////////// Hierarchy Management /////////////////////
+  
+
+  /**
+   * Returns the {@link GeoObjectType}s with the given codes or all {@link GeoObjectType}s if no codes are provided.
+   * 
+   * @param sessionId 
+   * @param codes codes of the {@link GeoObjectType}s.
+   * @return the {@link GeoObjectType}s with the given codes or all {@link GeoObjectType}s if no codes are provided.
+   */
+  @Request(RequestType.SESSION)
+  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes)
+  {
+    if (codes == null || codes.length == 0)
+    {
+      return adapter.getMetadataCache().getAllGeoObjectTypes();
+    }
+    
+    GeoObjectType[] gots = new GeoObjectType[codes.length];
+    
+    for (int i = 0; i < codes.length; ++i)
+    {
+      gots[i] = adapter.getMetadataCache().getGeoObjectType(codes[i]).get();
+    }
+    
+    return gots;
+  }
+  
+  /**
+   * Returns the {@link GeoObjectType} with the given code.
+   * 
+   * @param sessionId 
+   * @param code code of the {@link GeoObjectType}
+   * @return the {@link GeoObjectType} with the given code.
+   */
+  @Request(RequestType.SESSION)
+  public GeoObjectType getGeoObjectType(String sessionId, String code)
+  {
+    return null;
+  }
+  
+  /**
+   * Creates a {@link GeoObjectType} from the given JSON.
+   * 
+   * @param sessionId
+   * @param gtJSON JSON of the {@link GeoObjectType} to be created.
+   * @return newly created {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
+  {
+    return null;
+  }
+  
+  /**
+   * Updates the given {@link GeoObjectType} represented as JSON.
+   * 
+   * @param sessionId
+   * @param gtJSON JSON of the {@link GeoObjectType} to be updated.
+   * @return updated {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
+  {
+    return null;
+  }
+  
+  /**
+   * Deletes the {@link GeoObjectType} with the given code.
+   * 
+   * @param sessionId
+   * @param code code of the {@link GeoObjectType} to delete.
+   */
   @Request(RequestType.SESSION)
   public void deleteGeoObjectType(String sessionId, String code)
   {
@@ -475,4 +489,138 @@ public class RegistryService
     
     uni.delete();
   }
+  
+  
+  /**
+   * Returns the {@link HierarchyType}s with the given codes or all {@link HierarchyType}s if no codes are provided.
+   * 
+   * @param sessionId 
+   * @param codes codes of the {@link HierarchyType}s.
+   * @return the {@link HierarchyType}s with the given codes or all {@link HierarchyType}s if no codes are provided.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType[] getHierarchyTypes(String sessionId, String[] relationshipTypes)
+  {
+    if (relationshipTypes == null || relationshipTypes.length == 0)
+    {
+//      MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
+//      List<? extends MdRelationship> mdRels = mrq.getIterator().getAll();
+//      relationshipTypes = new String[mdRels.size()];
+//      for (int i = 0; i < mdRels.size(); ++i)
+//      {
+//        // TODO : Maybe we want to filter out system types
+//        MdRelationship mdRel = mdRels.get(i);
+//        relationshipTypes[i] = mdRel.definesType();
+//      }
+      
+      return adapter.getMetadataCache().getAllHierarchyTypes();
+    }
+    
+    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
+    
+    // Sort them based on the array we were given
+    Collection<HierarchyType> htVals = htMap.values();
+    HierarchyType[] out = new HierarchyType[htVals.size()];
+    
+    for (int i = 0; i < relationshipTypes.length; ++i)
+    {
+      String relType = relationshipTypes[i];
+      
+      for (HierarchyType ht : htVals)
+      {
+        if (ht.getCode().equals(relType))
+        {
+          out[i] = ht;
+        }
+      }
+    }
+    
+    return out;
+  }
+  
+  
+  
+  /**
+   * Returns the {@link HierarchyType} with the given code.
+   * 
+   * @param sessionId
+   * @param code code value of the {@link HierarchyType}.
+   * @return the {@link HierarchyType} with the given code.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType getHierarchyType(String sessionId, String code)
+  {
+    return null;
+  }
+  
+  /**
+   * Create the {@link HierarchyType} from the given JSON.
+   * 
+   * @param sessionId
+   * @param htJSON JSON of the {@link HierarchyType} to be created.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType createHierarcyType(String sessionId, String htJSON)
+  {
+    return null;
+  }
+  
+  /**
+   * Updates the given {@link HierarchyType} represented as JSON.
+   * 
+   * @param sessionId
+   * @param gtJSON JSON of the {@link HierarchyType} to be updated.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType updateHierarcyType(String sessionId, String htJSON)
+  {
+    return null;
+  }
+  
+  /**
+   * Deletes the {@link HierarchyType} with the given code.
+   * 
+   * @param sessionId
+   * @param code code of the {@link HierarchyType} to delete.
+   */
+  @Request(RequestType.SESSION)
+  public void deleteHierarcyType(String sessionId, String code)
+  {
+  }
+  
+  /**
+   * Adds the {@link GeoObjectType} with the given child code to the
+   * parent {@link GeoObjectType} with the given code for the 
+   * given {@link HierarchyType} code.
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode code of the {@link HierarchyType} the child is being added to.
+   * @param parentGeoObjectTypeCode parent {@link GeoObjectType}.
+   * @param childGeoObjectTypeCode child {@link GeoObjectType}.
+   */
+  @Request(RequestType.SESSION)
+  public void addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  {
+  }
+  
+  /**
+   * Removes the {@link GeoObjectType} with the given child code from the
+   * parent {@link GeoObjectType} with the given code for the 
+   * given {@link HierarchyType} code.
+   * 
+   * @param sessionId
+   * @param hierarchyCode code of the {@link HierarchyType} the child is being added to.
+   * @param parentGeoObjectTypeCode parent {@link GeoObjectType}.
+   * @param childGeoObjectTypeCode child {@link GeoObjectType}.
+   */
+  @Request(RequestType.SESSION)
+  public void removeFromHierarchy(String sessionId, String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  {
+  }
+  
+//  @Request(RequestType.SESSION)
+//  public void m(String sessionId)
+//  {
+//  }
+  
 }

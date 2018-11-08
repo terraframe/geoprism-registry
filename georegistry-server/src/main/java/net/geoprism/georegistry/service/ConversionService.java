@@ -50,7 +50,7 @@ public class ConversionService
   {
     // TODO : GeometryType is hardcoded
     // TODO : isVirtual / leaf is hardcoded
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), GeometryType.POLYGON, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), false, registry);
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), GeometryType.POLYGON, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), registry);
     
     return geoObjType;
   }
