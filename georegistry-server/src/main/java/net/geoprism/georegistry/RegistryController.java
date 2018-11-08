@@ -177,7 +177,7 @@ public class RegistryController
      * @returns
     * @throws
     **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON url="geoobjecttype/get-all")
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobjecttype/get-all")
    public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
    {
      GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), types);
