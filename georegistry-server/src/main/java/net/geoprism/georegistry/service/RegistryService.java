@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.geoprism.georegistry.AdapterUtilities;
+import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -30,6 +31,7 @@ import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
+import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdRelationship;
 import com.runwaysdk.system.metadata.MdRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
@@ -454,7 +456,37 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
   {
-    return null;
+    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
+    
+    Universal universal = createGeoObjectType(geoObjectType);
+    
+    return conversionService.universalToGeoObjectType(universal);
+  }
+  
+  @Transaction
+  private Universal createGeoObjectType(GeoObjectType geoObjectType)
+  {
+    Universal universal = conversionService.newGeoObjectTypeToUniversal(geoObjectType);
+    
+    MdBusiness mdBusiness = new MdBusiness();
+    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
+    // The CODE name becomes the class name
+    mdBusiness.setTypeName(universal.getUniversalId());
+    mdBusiness.setGenerateSource(false);
+    mdBusiness.setPublish(false);
+    mdBusiness.setIsAbstract(false);
+    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
+    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
+    mdBusiness.apply();
+    
+    // Add the default attributes.
+    conversionService.createDefaultAttributes(mdBusiness);
+    
+    universal.setMdBusiness(mdBusiness);
+    
+    universal.apply();
+    
+    return universal;
   }
   
   /**
