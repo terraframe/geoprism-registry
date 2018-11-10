@@ -8,6 +8,7 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -95,52 +96,73 @@ public class HierarchyManagementServiceTest
     }  
   }
   
+//  @Test
+//  public void testCreateGeoObjectType()
+//  {  
+//    String sessionId = this.logInAdmin();
+//    
+//    String code = "PROVINCE_TEST";
+//    
+//    RegistryAdapterServer registry = new RegistryAdapterServer();
+//    
+//    GeoObjectType province = MetadataFactory.newGeoObjectType(code, GeometryType.POLYGON, "Province", "", false, registry);
+//    String gtJSON = province.toJSON().toString();
+//    
+//    try
+//    {
+//      service.createGeoObjectType(sessionId, gtJSON);
+//    }
+//    finally
+//    {
+//      logOutAdmin(sessionId);
+//    }
+//    
+//    checkAttributes(code);
+//    
+//    sessionId = this.logInAdmin();
+//    
+//    try
+//    {
+//      service.deleteGeoObjectType(sessionId, code);
+//    }
+//    finally
+//    {
+//      logOutAdmin(sessionId);
+//    }
+//  }  
+//  @Request
+//  private void checkAttributes(String code)
+//  {
+//    Universal universal = Universal.getByKey(code);
+//    MdBusiness mdBusiness = universal.getMdBusiness();
+//    
+//    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+//    
+//    mdBusinessDAOIF.getAllDefinedMdAttributes().forEach(a -> System.out.println(a.definesAttribute() +" "+a.getType()));
+//  }
+
+  
   @Test
-  public void testCreateGeoObjectType()
+  public void testHierarchyType()
   {  
     String sessionId = this.logInAdmin();
-    
-    String code = "PROVINCE";
-    
-    RegistryAdapterServer registry = new RegistryAdapterServer();
-    
-    GeoObjectType province = MetadataFactory.newGeoObjectType(code, GeometryType.POLYGON, "Province", "", false, registry);
-// com.runwaysdk.dataaccess.DuplicateDataException:
-    String gtJSON = province.toJSON().toString();
-    
-    try
-    {
-      service.createGeoObjectType(sessionId, gtJSON);
-    }
-    finally
-    {
-      logOutAdmin(sessionId);
-    }
-    
-    checkAttributes(code);
-    
-    sessionId = this.logInAdmin();
-    
-    try
-    {
-      service.deleteGeoObjectType(sessionId, code);
-    }
-    finally
-    {
-      logOutAdmin(sessionId);
-    }
-  }  
-  @Request
-  private void checkAttributes(String code)
-  {
-    Universal universal = Universal.getByKey(code);
-    MdBusiness mdBusiness = universal.getMdBusiness();
-    
-    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
-    
-    mdBusinessDAOIF.getAllDefinedMdAttributes().forEach(a -> System.out.println(a.definesAttribute() +" "+a.getType()));
-  }
 
+    try
+    {
+      HierarchyType[] hierarchyTypes = service.getHierarchyTypes(sessionId, null);
+
+      for (HierarchyType hierarchyType : hierarchyTypes)
+      {
+System.out.println(hierarchyType.toJSON());
+      }
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+  }  
+  
   /**
    * Logs in admin user and returns session id of the user.
    * 
@@ -162,7 +184,6 @@ public class HierarchyManagementServiceTest
   {
     SessionFacade.closeSession(sessionId);
   }
-      
-  
+
   
 }

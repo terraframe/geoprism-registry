@@ -34,6 +34,8 @@ import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdRelationship;
 import com.runwaysdk.system.metadata.MdRelationshipQuery;
+import com.runwaysdk.system.metadata.MdTermRelationship;
+import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -99,26 +101,30 @@ public class RegistryService
       it.close();
     }
     
-    MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
-    OIterator<? extends MdRelationship> relit = mrq.getIterator();
+    MdBusiness univMdBusiness = MdBusiness.getMdBusiness(Universal.CLASS);
+    
+    
+    MdTermRelationshipQuery trq = new MdTermRelationshipQuery(qf);
+    trq.WHERE(trq.getParentMdBusiness().EQ(univMdBusiness).
+        AND(trq.getChildMdBusiness().EQ(univMdBusiness)));
+    
+    OIterator<? extends MdTermRelationship> it2 = trq.getIterator();
     
     try
     {
-      while (relit.hasNext())
+      while (it2.hasNext())
       {
-        MdRelationship mdRel = relit.next();
+        MdTermRelationship mdTermRel  = it2.next();
         
-        HierarchyType ht = conversionService.mdRelationshipToHierarchyType(mdRel);
+        HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
         
         adapter.getMetadataCache().addHierarchyType(ht);
       }
     }
     finally
     {
-      relit.close();
+      it2.close();
     }
-    
-    // TODO : Terms
   }
   
   @Request(RequestType.SESSION)
@@ -276,9 +282,9 @@ public class RegistryService
     
     for (String relationshipType : relationshipTypes)
     {
-      MdRelationship mdRel = MdRelationship.getMdRelationship(relationshipType);
+      MdTermRelationship mdRel = (MdTermRelationship)MdTermRelationship.getMdRelationship(relationshipType);
       
-      HierarchyType ht = conversionService.mdRelationshipToHierarchyType(mdRel);
+      HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdRel);
       
       map.put(relationshipType, ht);
     }
