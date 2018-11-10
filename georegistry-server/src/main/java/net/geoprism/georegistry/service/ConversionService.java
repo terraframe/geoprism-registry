@@ -149,11 +149,32 @@ public class ConversionService
   }
   
   
+  /** 
+   * Creates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.
+   * 
+   * @param got
+   * @return a {@link Universal} from the given {@link GeoObjectType} that is not persisted.
+   */
   public Universal newGeoObjectTypeToUniversal(GeoObjectType got)
   {    
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
     universal.setIsLeafType(got.isLeaf());
+    universal.getDisplayLabel().setValue(got.getLocalizedLabel());
+    universal.getDescription().setValue(got.getLocalizedDescription());
+        
+    return universal;
+  }
+  
+  /** 
+   * Updates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.
+   * 
+   * @param got
+   * @return a {@link Universal} from the given {@link GeoObjectType} that is updated but not persisted.
+   */
+  public Universal existingGeoObjectTypeToUniversal(GeoObjectType got)
+  {    
+    Universal universal = Universal.getByKey(got.getCode());
     universal.getDisplayLabel().setValue(got.getLocalizedLabel());
     universal.getDescription().setValue(got.getLocalizedDescription());
         

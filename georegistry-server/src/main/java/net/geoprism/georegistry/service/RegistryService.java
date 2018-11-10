@@ -508,7 +508,32 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
-    return null;
+    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
+    
+    Universal universal = updateGeoObjectType(geoObjectType);
+    
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    
+    return conversionService.universalToGeoObjectType(universal);
+  }
+  
+  @Transaction
+  private Universal updateGeoObjectType(GeoObjectType geoObjectType)
+  {
+    Universal universal = conversionService.existingGeoObjectTypeToUniversal(geoObjectType);
+    
+    MdBusiness mdBusiness = universal.getMdBusiness();
+
+    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
+    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
+    mdBusiness.apply();
+    
+    universal.setMdBusiness(mdBusiness);
+    
+    universal.apply();
+    
+    return universal;
   }
   
   /**
