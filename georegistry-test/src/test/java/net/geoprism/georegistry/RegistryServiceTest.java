@@ -188,7 +188,7 @@ public class RegistryServiceTest
   public void testGetHierarchyTypes()
   {
     String[] types = new String[]{ LocatedIn.CLASS, AllowedIn.CLASS };
-    
+
     HierarchyType[] hts = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), types);
     
     Assert.assertEquals(types.length, hts.length);
