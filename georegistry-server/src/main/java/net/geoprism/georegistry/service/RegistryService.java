@@ -466,6 +466,9 @@ public class RegistryService
     
     Universal universal = createGeoObjectType(geoObjectType);
     
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    
     return conversionService.universalToGeoObjectType(universal);
   }
   
@@ -518,13 +521,15 @@ public class RegistryService
   public void deleteGeoObjectType(String sessionId, String code)
   {
     deleteGeoObjectTypeInTransaction(sessionId, code);
+    
+    // If we get here then it was successfully deleted
+    adapter.getMetadataCache().removeGeoObjectType(code);
   }
   
   @Transaction
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
   {
     Universal uni = Universal.getByKey(code);
-    
     uni.delete();
   }
   
