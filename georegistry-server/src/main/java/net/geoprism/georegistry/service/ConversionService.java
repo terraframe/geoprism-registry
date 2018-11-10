@@ -1,5 +1,6 @@
 package net.geoprism.georegistry.service;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
@@ -45,6 +47,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -52,7 +55,7 @@ import com.runwaysdk.system.metadata.MdAttributeEnumeration;
 import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
-import com.runwaysdk.system.metadata.MdRelationship;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 public class ConversionService
 {
@@ -73,12 +76,70 @@ public class ConversionService
     this.registry = registry;
   }
   
-  public HierarchyType mdRelationshipToHierarchyType(MdRelationship mdRel)
+  public HierarchyType mdTermRelationshipToHierarchyType(MdTermRelationship mdTermRel)
   {
-    HierarchyType ht = new HierarchyType(mdRel.getKey(), mdRel.getDisplayLabel().getValue(), mdRel.getDescription().getValue());
+    HierarchyType ht = new HierarchyType(mdTermRel.getKey(), mdTermRel.getDisplayLabel().getValue(), mdTermRel.getDescription().getValue());
     
+    Universal rootUniversal = Universal.getByKey(Universal.ROOT);
+    
+    
+    // Copy all of the children to a list so as not to have recursion with open database cursors.
+    List<Universal> childUniversals = new LinkedList<Universal>();
+    
+    OIterator<? extends Business> i = rootUniversal.getChildren(mdTermRel.definesType());
+    try
+    {
+      i.forEach(u -> childUniversals.add((Universal)u));
+    }
+    finally
+    {
+      i.close();
+    }
+
+
+    for (Universal childUniversal : childUniversals)
+    {      
+      GeoObjectType geoObjectType = this.universalToGeoObjectType(childUniversal);
+      
+      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType);
+      
+      node = buildHierarchy(node, childUniversal, mdTermRel);
+      
+      ht.addRootGeoObjects(node);
+    }
+
     return ht;
   }
+  
+  private HierarchyType.HierarchyNode buildHierarchy(HierarchyType.HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
+  {
+    List<Universal> childUniversals = new LinkedList<Universal>();
+    
+    OIterator<? extends Business> i = parentUniversal.getChildren(mdTermRel.definesType());
+    try
+    {
+      i.forEach(u -> childUniversals.add((Universal)u));
+    }
+    finally
+    {
+      i.close();
+    }
+    
+    for (Universal childUniversal : childUniversals)
+    {      
+      GeoObjectType geoObjectType = this.universalToGeoObjectType(childUniversal);
+      
+      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType);
+      
+      node = buildHierarchy(node, childUniversal, mdTermRel);
+      
+      parentNode.addChild(node);
+    }
+    
+    return parentNode;
+
+  }
+  
   
   public Universal geoObjectTypeToUniversal(GeoObjectType got)
   {
@@ -88,11 +149,32 @@ public class ConversionService
   }
   
   
+  /** 
+   * Creates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.
+   * 
+   * @param got
+   * @return a {@link Universal} from the given {@link GeoObjectType} that is not persisted.
+   */
   public Universal newGeoObjectTypeToUniversal(GeoObjectType got)
   {    
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
     universal.setIsLeafType(got.isLeaf());
+    universal.getDisplayLabel().setValue(got.getLocalizedLabel());
+    universal.getDescription().setValue(got.getLocalizedDescription());
+        
+    return universal;
+  }
+  
+  /** 
+   * Updates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.
+   * 
+   * @param got
+   * @return a {@link Universal} from the given {@link GeoObjectType} that is updated but not persisted.
+   */
+  public Universal existingGeoObjectTypeToUniversal(GeoObjectType got)
+  {    
+    Universal universal = Universal.getByKey(got.getCode());
     universal.getDisplayLabel().setValue(got.getLocalizedLabel());
     universal.getDescription().setValue(got.getLocalizedDescription());
         

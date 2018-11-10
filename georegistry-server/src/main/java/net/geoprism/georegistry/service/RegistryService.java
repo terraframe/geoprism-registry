@@ -34,6 +34,8 @@ import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdRelationship;
 import com.runwaysdk.system.metadata.MdRelationshipQuery;
+import com.runwaysdk.system.metadata.MdTermRelationship;
+import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -99,26 +101,30 @@ public class RegistryService
       it.close();
     }
     
-    MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
-    OIterator<? extends MdRelationship> relit = mrq.getIterator();
+    MdBusiness univMdBusiness = MdBusiness.getMdBusiness(Universal.CLASS);
+    
+    
+    MdTermRelationshipQuery trq = new MdTermRelationshipQuery(qf);
+    trq.WHERE(trq.getParentMdBusiness().EQ(univMdBusiness).
+        AND(trq.getChildMdBusiness().EQ(univMdBusiness)));
+    
+    OIterator<? extends MdTermRelationship> it2 = trq.getIterator();
     
     try
     {
-      while (relit.hasNext())
+      while (it2.hasNext())
       {
-        MdRelationship mdRel = relit.next();
+        MdTermRelationship mdTermRel  = it2.next();
         
-        HierarchyType ht = conversionService.mdRelationshipToHierarchyType(mdRel);
+        HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
         
         adapter.getMetadataCache().addHierarchyType(ht);
       }
     }
     finally
     {
-      relit.close();
+      it2.close();
     }
-    
-    // TODO : Terms
   }
   
   @Request(RequestType.SESSION)
@@ -276,9 +282,9 @@ public class RegistryService
     
     for (String relationshipType : relationshipTypes)
     {
-      MdRelationship mdRel = MdRelationship.getMdRelationship(relationshipType);
+      MdTermRelationship mdRel = (MdTermRelationship)MdTermRelationship.getMdRelationship(relationshipType);
       
-      HierarchyType ht = conversionService.mdRelationshipToHierarchyType(mdRel);
+      HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdRel);
       
       map.put(relationshipType, ht);
     }
@@ -460,6 +466,9 @@ public class RegistryService
     
     Universal universal = createGeoObjectType(geoObjectType);
     
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    
     return conversionService.universalToGeoObjectType(universal);
   }
   
@@ -499,7 +508,32 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
-    return null;
+    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
+    
+    Universal universal = updateGeoObjectType(geoObjectType);
+    
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    
+    return conversionService.universalToGeoObjectType(universal);
+  }
+  
+  @Transaction
+  private Universal updateGeoObjectType(GeoObjectType geoObjectType)
+  {
+    Universal universal = conversionService.existingGeoObjectTypeToUniversal(geoObjectType);
+    
+    MdBusiness mdBusiness = universal.getMdBusiness();
+
+    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
+    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
+    mdBusiness.apply();
+    
+    universal.setMdBusiness(mdBusiness);
+    
+    universal.apply();
+    
+    return universal;
   }
   
   /**
@@ -512,13 +546,15 @@ public class RegistryService
   public void deleteGeoObjectType(String sessionId, String code)
   {
     deleteGeoObjectTypeInTransaction(sessionId, code);
+    
+    // If we get here then it was successfully deleted
+    adapter.getMetadataCache().removeGeoObjectType(code);
   }
   
   @Transaction
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
   {
     Universal uni = Universal.getByKey(code);
-    
     uni.delete();
   }
   

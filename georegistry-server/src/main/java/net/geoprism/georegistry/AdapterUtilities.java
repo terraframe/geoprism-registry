@@ -9,7 +9,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdRelationship;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 public class AdapterUtilities
 {
@@ -41,9 +41,9 @@ public class AdapterUtilities
 
   public HierarchyType getHierarchyTypeById(String oid)
   {
-    MdRelationship mdRel = MdRelationship.get(oid);
+    MdTermRelationship mdTermRel = MdTermRelationship.get(oid);
     
-    HierarchyType ht = this.conversionService.mdRelationshipToHierarchyType(mdRel);
+    HierarchyType ht = this.conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
     
     return ht;
   }
