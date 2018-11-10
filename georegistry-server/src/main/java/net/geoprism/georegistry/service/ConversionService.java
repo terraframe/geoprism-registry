@@ -51,8 +51,11 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
+import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeReference;
+import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.runwaysdk.system.metadata.MdTermRelationship;
@@ -61,17 +64,17 @@ public class ConversionService
 {
   private RegistryAdapter registry;
   
-  public ConversionService(RegistryAdapter registry)
+  protected ConversionService(RegistryAdapter registry)
   {
     this.registry = registry;
   }
   
-  public RegistryAdapter getRegistry()
+  protected RegistryAdapter getRegistry()
   {
     return this.registry;
   }
   
-  public void setRegistry(RegistryAdapter registry)
+  protected void setRegistry(RegistryAdapter registry)
   {
     this.registry = registry;
   }
@@ -141,7 +144,7 @@ public class ConversionService
   }
   
   
-  public Universal geoObjectTypeToUniversal(GeoObjectType got)
+  protected Universal geoObjectTypeToUniversal(GeoObjectType got)
   {
     Universal uni = Universal.getByKey(got.getCode());
     
@@ -155,7 +158,7 @@ public class ConversionService
    * @param got
    * @return a {@link Universal} from the given {@link GeoObjectType} that is not persisted.
    */
-  public Universal newGeoObjectTypeToUniversal(GeoObjectType got)
+  protected Universal newGeoObjectTypeToUniversal(GeoObjectType got)
   {    
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
@@ -167,19 +170,18 @@ public class ConversionService
   }
   
   /** 
-   * Updates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.
+   * Returns a {@link Universal} from the code value on the given {@link GeoObjectType}.
    * 
    * @param got
-   * @return a {@link Universal} from the given {@link GeoObjectType} that is updated but not persisted.
+   * @return a {@link Universal} from the code value on the given {@link GeoObjectType}.
    */
-  public Universal existingGeoObjectTypeToUniversal(GeoObjectType got)
+  protected Universal getUniversalFromGeoObjectType(GeoObjectType got)
   {    
     Universal universal = Universal.getByKey(got.getCode());
-    universal.getDisplayLabel().setValue(got.getLocalizedLabel());
-    universal.getDescription().setValue(got.getLocalizedDescription());
         
     return universal;
   }
+  
   
   public GeoObjectType universalToGeoObjectType(Universal uni)
   {
@@ -389,29 +391,46 @@ public class ConversionService
   {    
     MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
     
-    MdAttributeReference mdAttrRef = new MdAttributeReference();
-    mdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
-    mdAttrRef.setMdBusiness(mdBusGeoEntity);
-    mdAttrRef.setDefiningMdClass(definingMdBusiness);
-    mdAttrRef.apply();
+    MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
+    geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
+    geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
+    geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
+    geoEntRefMdAttrRef.setRequired(false);
+    geoEntRefMdAttrRef.apply();
+    
+    // DefaultAttribute.UID - Defined on the MdBusiness and the values are from the {@code GeoObject#OID};
+    MdAttributeUUID uuidMdAttr = new MdAttributeUUID();
+    uuidMdAttr.setAttributeName(RegistryConstants.UUID);
+    uuidMdAttr.setDefiningMdClass(definingMdBusiness);
+    uuidMdAttr.setRequired(true);
+    uuidMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
+    uuidMdAttr.apply();
     
   // DefaultAttribute.CODE - defined by GeoEntity geoId
+    MdAttributeCharacter codeMdAttr = new MdAttributeCharacter();
+    codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
+    codeMdAttr.setDatabaseSize(255);
+    codeMdAttr.setDefiningMdClass(definingMdBusiness);
+    codeMdAttr.setRequired(true);
+    codeMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
+    codeMdAttr.apply();
+    
+  // DefaultAttribute.TYPE - This is the display label of the Universal. BusObject.mdBusiness.Universal.displayLabel
   
-  // DefaultAttribute.TYPE - This is the type field on the business object associated with the GeoObject
+  // DefaultAttribute.CREATED_DATE - The create data on the Business Object?
   
-  // DefaultAttribute.CREATED_DATE - The create data on the GeoObject?
-  
-  // DefaultAttribute.UPDATED_DATE - The update data on the GeoObject?
+  // DefaultAttribute.UPDATED_DATE - The update data on the Business Object?
   
   // DefaultAttribute.STATUS 
-    
+
     MdEnumeration geoObjectStatusEnum = MdEnumeration.getMdEnumeration(GeoObjectStatus.CLASS);
     
-    MdAttributeEnumeration mdAttrEnum = new MdAttributeEnumeration();
-    mdAttrEnum.setAttributeName(RegistryConstants.OBJECT_STATUS);
-    mdAttrEnum.setMdEnumeration(geoObjectStatusEnum);
-    mdAttrEnum.setSelectMultiple(false);
-    mdAttrEnum.setDefiningMdClass(definingMdBusiness);
-    mdAttrEnum.apply();
+    MdAttributeEnumeration objStatusNdAttrEnum = new MdAttributeEnumeration();
+    objStatusNdAttrEnum.setAttributeName(DefaultAttribute.STATUS.getName());
+    objStatusNdAttrEnum.setRequired(true);
+    objStatusNdAttrEnum.setMdEnumeration(geoObjectStatusEnum);
+    objStatusNdAttrEnum.setSelectMultiple(false);
+    objStatusNdAttrEnum.setDefiningMdClass(definingMdBusiness);
+    objStatusNdAttrEnum.apply();
   }
 }

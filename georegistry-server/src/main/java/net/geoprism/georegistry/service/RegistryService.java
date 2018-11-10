@@ -501,6 +501,8 @@ public class RegistryService
   /**
    * Updates the given {@link GeoObjectType} represented as JSON.
    * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
    * @param sessionId
    * @param gtJSON JSON of the {@link GeoObjectType} to be updated.
    * @return updated {@link GeoObjectType}
@@ -508,30 +510,42 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
-    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
+    GeoObjectType geoObjectTypeNew = GeoObjectType.fromJSON(gtJSON, adapter);
     
-    Universal universal = updateGeoObjectType(geoObjectType);
+    GeoObjectType geoObjectTypeOld = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeNew.getCode()).get();
     
+    GeoObjectType geoObjectTypeModified = geoObjectTypeOld.copy(geoObjectTypeNew);
+        
+    Universal universal = updateGeoObjectType(geoObjectTypeModified);
+    
+    GeoObjectType geoObjectTypeModifiedApplied = conversionService.universalToGeoObjectType(universal);
+
     // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
     
-    return conversionService.universalToGeoObjectType(universal);
+    return geoObjectTypeModifiedApplied;
   }
   
   @Transaction
   private Universal updateGeoObjectType(GeoObjectType geoObjectType)
   {
-    Universal universal = conversionService.existingGeoObjectTypeToUniversal(geoObjectType);
+    Universal universal = conversionService.getUniversalFromGeoObjectType(geoObjectType);
+    
+    universal.lock();
+    universal.getDisplayLabel().setValue(geoObjectType.getLocalizedLabel());
+    universal.getDescription().setValue(geoObjectType.getLocalizedDescription());
+    universal.apply();
     
     MdBusiness mdBusiness = universal.getMdBusiness();
-
+    
+    mdBusiness.lock();
     mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
     mdBusiness.getDescription().setValue(universal.getDescription().getValue());
     mdBusiness.apply();
     
-    universal.setMdBusiness(mdBusiness);
+    mdBusiness.unlock();
     
-    universal.apply();
+    universal.unlock();
     
     return universal;
   }
