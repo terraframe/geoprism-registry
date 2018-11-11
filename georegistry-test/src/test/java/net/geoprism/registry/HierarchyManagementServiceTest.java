@@ -273,7 +273,7 @@ public class HierarchyManagementServiceTest
   }  
   
   @Test
-  public void testCreateHierarchyTypeType()
+  public void testCreateHierarchyType()
   {      
     RegistryAdapterServer registry = new RegistryAdapterServer();
     
@@ -310,6 +310,49 @@ public class HierarchyManagementServiceTest
       logOutAdmin(sessionId);
     }
     
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteHierarcyType(sessionId, REPORTING_DIVISION_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }  
+  
+  @Test
+  public void testUpdateHierarchyType()
+  {      
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+    
+    // newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry);
+    
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The rporting division hieracy...", registry);
+    String gtJSON = reportingDivision.toJSON().toString();
+    
+    String sessionId = this.logInAdmin();
+    try
+    {
+      reportingDivision = service.createHierarcyType(sessionId, gtJSON);
+      
+      reportingDivision.setLocalizedLabel("Reporting Division 2");
+      
+      reportingDivision.setLocalizedDescription("The rporting division hieracy 2");
+      
+      gtJSON = reportingDivision.toJSON().toString();
+     
+      reportingDivision = service.updateHierarcyType(sessionId, gtJSON);
+      
+      Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
+      Assert.assertEquals("", "Reporting Division 2", reportingDivision.getLocalizedLabel());
+      Assert.assertEquals("", "The rporting division hieracy 2", reportingDivision.getLocalizedDescription());
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+ 
     sessionId = this.logInAdmin();
     try
     {

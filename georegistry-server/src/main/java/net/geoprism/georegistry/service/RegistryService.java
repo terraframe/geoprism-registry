@@ -634,6 +634,7 @@ public class RegistryService
 
     hierarchyType = createHierarchyTypeTransaction(hierarchyType);
     
+    // The transaction did not error out, so it is safe to put into the cache.
     adapter.getMetadataCache().addHierarchyType(hierarchyType);
     
     return hierarchyType;
@@ -658,8 +659,33 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public HierarchyType updateHierarcyType(String sessionId, String htJSON)
   {
-    return null;
+    HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
+    
+    hierarchyType = updateHierarchyTypeTransaction(hierarchyType);
+    
+    // The transaction did not error out, so it is safe to put into the cache.
+    adapter.getMetadataCache().addHierarchyType(hierarchyType);
+    
+    return hierarchyType;
   }
+  @Transaction
+  private HierarchyType updateHierarchyTypeTransaction(HierarchyType hierarchyType)
+  {
+    MdTermRelationship mdTermRelationship = conversionService.existingHierarchyToMdTermRelationiship(hierarchyType);
+    
+    mdTermRelationship.lock();
+    
+    mdTermRelationship.getDisplayLabel().setValue(hierarchyType.getLocalizedLabel());
+    mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
+    mdTermRelationship.apply();
+    
+    mdTermRelationship.unlock();
+    
+    HierarchyType returnHierarchyType = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+    
+    return returnHierarchyType;
+  }
+  
   
   /**
    * Deletes the {@link HierarchyType} with the given code.

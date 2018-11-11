@@ -115,6 +115,21 @@ public class ConversionService
   }
   
   /**
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  protected MdTermRelationship existingHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
+  {
+    String mdTermRelKey = buildMdTermRelationshipKey(hierarchyType.getCode());
+  
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
+    
+    return mdTermRelationship;
+  }
+  
+  /**
    * Turns the given {@link HierarchyType} code into the corresponding {@link MdTermRelationship} key.
    * 
    * @param hierarchyCode {@link HierarchyType} code
