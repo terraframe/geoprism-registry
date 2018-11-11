@@ -2,6 +2,7 @@ package net.geoprism.registry;
 
 import java.util.Locale;
 
+import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -20,18 +21,18 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.CommonProperties;
+import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.constants.UserInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 public class HierarchyManagementServiceTest
 {
@@ -48,21 +49,25 @@ public class HierarchyManagementServiceTest
   /**
    * The username for the user
    */
-  private final static String             USERNAME       = "btables";
+  private final static String             USERNAME                 = "btables";
 
   /**
    * The password for the user
    */
-  private final static String             PASSWORD       = "1234";
+  private final static String             PASSWORD                 = "1234";
 
-  private final static int                sessionLimit   = 2;
+  private final static int                sessionLimit             = 2;
   
-  private final static String             PROVINCE_CODE  = "PROVINCE_TEST";
+  private final static String             PROVINCE_CODE            = "ProvinceTest";
+  
+  private final static String             REPORTING_DIVISION_CODE  = "ReportingDivision";
   
   @BeforeClass
   @Request
   public static void setUp()
   {
+    LocalProperties.setSkipCodeGenAndCompile(true);
+    
     adapter = RegistryService.getRegistryAdapter();
     
     service = new RegistryService();
@@ -87,13 +92,6 @@ public class HierarchyManagementServiceTest
       adminRole.assignMember(newUser);
     }
     catch (DuplicateDataException e) {}
-    
-    try
-    {
-      Universal provinceTestUniversal = Universal.getByKey("PROVINCE_TEST");
-      provinceTestUniversal.delete();
-    }
-    catch (DuplicateDataException e) {}
   }
   
   @AfterClass
@@ -101,10 +99,27 @@ public class HierarchyManagementServiceTest
   public static void tearDown()
   {
     tearDownTransaction();
+    
+    LocalProperties.setSkipCodeGenAndCompile(false);
   }
   @Transaction
   private static void tearDownTransaction()
   {
+    // Just in case a previous test did not clean up properly.
+    try
+    {
+      Universal provinceTestUniversal = Universal.getByKey(PROVINCE_CODE);
+      provinceTestUniversal.delete();
+    }
+    catch (DataNotFoundException e) {} 
+    
+    try
+    {
+      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelationshipKey(REPORTING_DIVISION_CODE));
+      mdTermRelationship.delete();
+    }
+    catch (DataNotFoundException e) {} 
+    
     if (newUser.isAppliedToDB())
     {
       newUser.getBusinessDAO().delete();
@@ -250,6 +265,55 @@ public class HierarchyManagementServiceTest
     try
     {
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }  
+  
+  @Test
+  public void testCreateHierarchyTypeType()
+  {      
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+    
+    // newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry);
+    
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The rporting division hieracy...", registry);
+    String gtJSON = reportingDivision.toJSON().toString();
+    
+    String sessionId = this.logInAdmin();
+    try
+    {
+      service.createHierarcyType(sessionId, gtJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+   
+    sessionId = this.logInAdmin();
+    try
+    {
+      HierarchyType[] hierarchies = service.getHierarchyTypes(sessionId, new String[]{REPORTING_DIVISION_CODE});
+
+      Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
+      
+      Assert.assertEquals("The wrong number of hierarchies were returned.", 1, hierarchies.length);
+
+      HierarchyType hierarchy = hierarchies[0];
+      
+      Assert.assertEquals("", "Reporting Division", hierarchy.getLocalizedLabel());
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteHierarcyType(sessionId, REPORTING_DIVISION_CODE);
     }
     finally
     {

@@ -192,21 +192,6 @@ public class RegistryController
    }
    
    /**
-    * Returns the {@link GeoObjectType} with the given code.
-    * 
-    * @param request 
-    * @param code code of the {@link GeoObjectType}
-    * @return the {@link GeoObjectType} with the given code.
-    */
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobjecttype/get")
-   public ResponseIF getGeoObjectType(ClientRequestIF request, @RequestParamter(name = "code") String code) throws JSONException
-   {
-     GeoObjectType geoObjectType = this.registryService.getGeoObjectType(request.getSessionId(), code);
-     
-     return new RestBodyResponse(geoObjectType.toJSON());
-   }
-   
-   /**
     * Creates a {@link GeoObjectType} from the given JSON.
     * 
     * @param request
@@ -261,21 +246,6 @@ public class RegistryController
      }
      
      return new RestBodyResponse(jarray);
-   }
-   
-   /**
-    * Returns the {@link HierarchyType} with the given code.
-    * 
-    * @param sessionId
-    * @param code code value of the {@link HierarchyType}.
-    * @return the {@link HierarchyType} with the given code.
-    */
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/get")
-   public ResponseIF getHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
-   {
-     HierarchyType hierarchyType = this.registryService.getHierarchyType(request.getSessionId(), code);
-     
-     return new RestBodyResponse(hierarchyType.toJSON());
    }
    
    /**

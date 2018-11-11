@@ -1,8 +1,10 @@
 package net.geoprism.georegistry.service;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
@@ -32,8 +34,6 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdRelationship;
-import com.runwaysdk.system.metadata.MdRelationshipQuery;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
@@ -102,7 +102,6 @@ public class RegistryService
     }
     
     MdBusiness univMdBusiness = MdBusiness.getMdBusiness(Universal.CLASS);
-    
     
     MdTermRelationshipQuery trq = new MdTermRelationshipQuery(qf);
     trq.WHERE(trq.getParentMdBusiness().EQ(univMdBusiness).
@@ -440,19 +439,6 @@ public class RegistryService
   }
   
   /**
-   * Returns the {@link GeoObjectType} with the given code.
-   * 
-   * @param sessionId 
-   * @param code code of the {@link GeoObjectType}
-   * @return the {@link GeoObjectType} with the given code.
-   */
-  @Request(RequestType.SESSION)
-  public GeoObjectType getGeoObjectType(String sessionId, String code)
-  {
-    return null;
-  }
-  
-  /**
    * Creates a {@link GeoObjectType} from the given JSON.
    * 
    * @param sessionId
@@ -581,9 +567,9 @@ public class RegistryService
    * @return the {@link HierarchyType}s with the given codes or all {@link HierarchyType}s if no codes are provided.
    */
   @Request(RequestType.SESSION)
-  public HierarchyType[] getHierarchyTypes(String sessionId, String[] relationshipTypes)
+  public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes)
   {
-    if (relationshipTypes == null || relationshipTypes.length == 0)
+    if (codes == null || codes.length == 0)
     {
 //      MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
 //      List<? extends MdRelationship> mdRels = mrq.getIterator().getAll();
@@ -598,43 +584,43 @@ public class RegistryService
       return adapter.getMetadataCache().getAllHierarchyTypes();
     }
     
-    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
-    
-    // Sort them based on the array we were given
-    Collection<HierarchyType> htVals = htMap.values();
-    HierarchyType[] out = new HierarchyType[htVals.size()];
-    
-    for (int i = 0; i < relationshipTypes.length; ++i)
+//    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
+//    
+//    // Sort them based on the array we were given
+//    Collection<HierarchyType> htVals = htMap.values();
+//    HierarchyType[] out = new HierarchyType[htVals.size()];
+//    
+//    for (int i = 0; i < relationshipTypes.length; ++i)
+//    {
+//      String relType = relationshipTypes[i];
+//      
+//      for (HierarchyType ht : htVals)
+//      {
+//        if (ht.getCode().equals(relType))
+//        {
+//          out[i] = ht;
+//        }
+//      }
+//    }
+//   
+
+    List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
+    for (String code : codes)
     {
-      String relType = relationshipTypes[i];
+      Optional<HierarchyType> oht = adapter.getMetadataCache().getHierachyType(code);
       
-      for (HierarchyType ht : htVals)
+      if (oht.isPresent())
       {
-        if (ht.getCode().equals(relType))
-        {
-          out[i] = ht;
-        }
+        hierarchyTypeList.add(oht.get());
       }
     }
     
-    return out;
+    HierarchyType[] hierarchies = hierarchyTypeList.toArray(new HierarchyType[hierarchyTypeList.size()]);
+    
+    return hierarchies; 
   }
   
-  
-  
-  /**
-   * Returns the {@link HierarchyType} with the given code.
-   * 
-   * @param sessionId
-   * @param code code value of the {@link HierarchyType}.
-   * @return the {@link HierarchyType} with the given code.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType getHierarchyType(String sessionId, String code)
-  {
-    return null;
-  }
-  
+
   /**
    * Create the {@link HierarchyType} from the given JSON.
    * 
@@ -644,8 +630,24 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public HierarchyType createHierarcyType(String sessionId, String htJSON)
   {
-    return null;
+    HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
+
+    hierarchyType = createHierarchyTypeTransaction(hierarchyType);
+    
+    adapter.getMetadataCache().addHierarchyType(hierarchyType);
+    
+    return hierarchyType;
   }
+  @Transaction
+  private HierarchyType createHierarchyTypeTransaction(HierarchyType hierarchyType)
+  {
+    MdTermRelationship mdTermRelationship = conversionService.newHierarchyToMdTermRelationiship(hierarchyType);
+    
+    mdTermRelationship.apply();
+
+    return conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+  }
+  
   
   /**
    * Updates the given {@link HierarchyType} represented as JSON.
@@ -668,6 +670,18 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void deleteHierarcyType(String sessionId, String code)
   {
+    deleteHierarcyTypeTransaction(code);
+    
+    // No error at this point so the transaction completed successfully.
+    adapter.getMetadataCache().removeHierarchyType(code);
+  }
+  @Transaction
+  private void deleteHierarcyTypeTransaction(String code)
+  {
+    String mdTermRelKey = ConversionService.buildMdTermRelationshipKey(code);
+
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
+    mdTermRelationship.delete();
   }
   
   /**
