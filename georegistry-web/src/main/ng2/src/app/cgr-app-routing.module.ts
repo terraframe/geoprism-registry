@@ -8,13 +8,13 @@ import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 
 const routes: Routes = [
   {
-    path: '',
-    redirectTo: '/hierarchies',
-    pathMatch: 'full'
-  },
-  {
 	path: 'hierarchies',
 	component: HierarchyComponent
+  },
+  {
+	path: '',
+	redirectTo: '/hierarchies',
+	pathMatch: 'full'
   },
 //  {
 //    path: 'map/:id/:simple',

@@ -1,20 +1,40 @@
 <div class="new-admin-design-main">
-  <data-header></data-header>
+  <cgr-header></cgr-header>
   
 <div id="app-container" class="container">
 
   <message ></message>  
 
-  <h2> <localize key="hierarchy.management.title"></localize> </h2>
+<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
   
   <div class="row">
-    <div class="col-md-4"></div>
     <div class="col-md-4">
+      <h3>Select Hierarchy</h3>
+      <hr>
+      <ul class="list-group">
+        <li class="list-group-item" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
+          <i class="fa fa-sitemap"></i> {{hierarchy.geoObjectType}}
+        </li>
+      </ul>
+        
+    </div>
+    <div class="col-md-4">
+<!--     {{currentHierarchy.name}}  -->
+      <h3> Manage </h3>
+      <hr>
       <div *ngIf="nodes.length > 0" class="tree">
         <tree-root [nodes]="nodes" [options]="options"></tree-root>
       </div>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <h3>Available Types</h3>
+      <hr>
+      <ul class="list-group" (treeDrop)="onDrop($event)" [treeAllowDrop]="allowDrop.bind(this)">
+        <li class="list-group-item draggable" *ngFor="let type of geoObjectTypes;" [treeDrag]="{id:type.code, name: type.localizedLabel }" [treeDragEnabled]="true">
+          {{type.localizedLabel}}
+        </li>
+      </ul>
+    </div>
   </div>
   
 </div>

@@ -23,13 +23,12 @@ declare var acp: any;
 
 @Component({
   
-  selector: 'uasdm-header',
+  selector: 'cgr-header',
   templateUrl: './header.component.html',
   styleUrls: []
 })
-export class UasdmHeaderComponent {
+export class CgrHeaderComponent {
   private context:string;
-  private userName:string;
 
   constructor() {
     this.context = acp;

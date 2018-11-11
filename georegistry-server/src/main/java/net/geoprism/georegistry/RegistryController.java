@@ -18,6 +18,8 @@
  */
 package net.geoprism.georegistry;
 
+import java.util.ArrayList;
+
 import net.geoprism.georegistry.service.RegistryService;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -25,11 +27,13 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -110,11 +114,35 @@ public class RegistryController
    * 
    * @returns
    * @throws
+   * 
+   * Example 1: https://localhost:8443/georegistry/cgr/geoobject/getchildren?parentUid=addfa9b7-e234-354d-a6e9-c7f2af00050a&childrenTypes=Cambodia_Province&recursive=true
+   * Example 2: https://localhost:8443/georegistry/cgr/geoobject/getchildren?parentUid=addfa9b7-e234-354d-a6e9-c7f2af00050a&childrenTypes=Cambodia_Province&childrenTypes=Cambodia_District&recursive=true
    **/
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobject/getchildren")
-   public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = "parentUid") String parentUid, @RequestParamter(name = "childrenTypes") String[] childrenTypes, @RequestParamter(name = "recursive") Boolean recursive)
+   public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = "parentUid") String parentUid, @RequestParamter(name = "childrenTypes") String childrenTypes, @RequestParamter(name = "recursive") Boolean recursive)
    {
-     TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentUid, childrenTypes, recursive);
+	 
+	 JSONArray childrenTypesJSON = null;
+	 String[] childrenTypesArray = null;
+	 try
+	 {
+	   childrenTypesJSON = new JSONArray(childrenTypes);
+	 }
+	 catch(JSONException e)
+	 {
+		// TODO Replace with more specific exception
+		 throw new ProgrammingErrorException(childrenTypes.concat(" can't be parsed."), e);
+	 }
+	 
+	 if(childrenTypesJSON != null)
+	 {
+       childrenTypesArray = new String[childrenTypesJSON.length()];
+	   for (int i = 0; i < childrenTypesJSON.length(); i++) {
+		 childrenTypesArray[i] = childrenTypesJSON.getString(i);
+	   }
+	 }
+	 
+     TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentUid, childrenTypesArray, recursive);
      
      return new RestBodyResponse(tn.toJSON());
    }
@@ -261,9 +289,30 @@ public class RegistryController
     * Returns HierarchyTypes that define the given list of types. If no types are provided then all will be returned.
     */
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/get-all")
-   public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String types)
    {
-     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), types);
+	   
+	   JSONArray childrenTypesJSON = null;
+		 String[] childrenTypesArray = null;
+		 try
+		 {
+		   childrenTypesJSON = new JSONArray(types);
+		 }
+		 catch(JSONException e)
+		 {
+			// TODO Replace with more specific exception
+			 throw new ProgrammingErrorException(types.concat(" can't be parsed."), e);
+		 }
+		 
+		 if(childrenTypesJSON != null)
+		 {
+	       childrenTypesArray = new String[childrenTypesJSON.length()];
+		   for (int i = 0; i < childrenTypesJSON.length(); i++) {
+			 childrenTypesArray[i] = childrenTypesJSON.getString(i);
+		   }
+		 }
+		 
+     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), childrenTypesArray);
      
      JsonArray jarray = new JsonArray();
      for (int i = 0; i < hts.length; ++i)

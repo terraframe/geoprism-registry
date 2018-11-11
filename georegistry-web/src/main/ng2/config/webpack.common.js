@@ -11,7 +11,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js', '.scss']
   },
 
   module: {
@@ -40,7 +40,16 @@ module.exports = {
         test: /\.css$/,
         include: helpers.root('src', 'app'),
         loader: 'raw-loader'
-      }
+      },
+      {
+          test: /\.scss$/,
+//          include: helpers.root('styles'),
+          use: [
+              "style-loader", // creates style nodes from JS strings
+              "css-loader", // translates CSS into CommonJS
+              "sass-loader" // compiles Sass to CSS, using Node Sass by default
+          ]
+        }  
     ]
   },
 
@@ -54,7 +63,7 @@ module.exports = {
     ),
 
     new webpack.optimize.CommonsChunkPlugin({
-      name: ['map-app', 'map-vendor', 'map-polyfills']
+      name: ['cgr-app', 'cgr-vendor', 'cgr-polyfills']
     }),
   ]
 };

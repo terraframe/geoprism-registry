@@ -1,5 +1,5 @@
 {
-  "name": "@denversouthedp/dsedp",
+  "name": "@geoprismregistry/cgr",
   "version": "0.1.0",
   "scripts": {
     "start": "webpack-dev-server --https --inline --progress --port 8080",
@@ -40,19 +40,21 @@
     "html-webpack-plugin": "^2.16.1",
     "jasmine-core": "^2.4.1",
     "karma": "^1.2.0",
+    "karma-chrome-launcher": "^1.0.1",
     "karma-jasmine": "^1.0.2",
     "karma-phantomjs-launcher": "^1.0.2",
-    "karma-chrome-launcher": "^1.0.1",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.1",
+    "node-sass": "^4.10.0",
     "null-loader": "^0.1.1",
     "phantomjs-prebuilt": "^2.1.7",
     "raw-loader": "^0.5.1",
     "rimraf": "^2.5.2",
+    "sass-loader": "^7.1.0",
     "style-loader": "^0.13.1",
     "typescript": "~2.4.2",
     "uglify-js": "^3.3.11",
-    "webpack": "^2.4.0",
+    "webpack": "^2.7.0",
     "webpack-dev-server": "2.4.1",
     "webpack-merge": "^3.0.0"
   }
