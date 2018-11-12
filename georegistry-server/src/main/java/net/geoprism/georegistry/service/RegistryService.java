@@ -571,38 +571,8 @@ public class RegistryService
   {
     if (codes == null || codes.length == 0)
     {
-//      MdRelationshipQuery mrq = new MdRelationshipQuery(new QueryFactory());
-//      List<? extends MdRelationship> mdRels = mrq.getIterator().getAll();
-//      relationshipTypes = new String[mdRels.size()];
-//      for (int i = 0; i < mdRels.size(); ++i)
-//      {
-//        // TODO : Maybe we want to filter out system types
-//        MdRelationship mdRel = mdRels.get(i);
-//        relationshipTypes[i] = mdRel.definesType();
-//      }
-      
       return adapter.getMetadataCache().getAllHierarchyTypes();
     }
-    
-//    Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
-//    
-//    // Sort them based on the array we were given
-//    Collection<HierarchyType> htVals = htMap.values();
-//    HierarchyType[] out = new HierarchyType[htVals.size()];
-//    
-//    for (int i = 0; i < relationshipTypes.length; ++i)
-//    {
-//      String relType = relationshipTypes[i];
-//      
-//      for (HierarchyType ht : htVals)
-//      {
-//        if (ht.getCode().equals(relType))
-//        {
-//          out[i] = ht;
-//        }
-//      }
-//    }
-//   
 
     List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
     for (String code : codes)
@@ -628,7 +598,7 @@ public class RegistryService
    * @param htJSON JSON of the {@link HierarchyType} to be created.
    */
   @Request(RequestType.SESSION)
-  public HierarchyType createHierarcyType(String sessionId, String htJSON)
+  public HierarchyType createHierarchyType(String sessionId, String htJSON)
   {
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
 
@@ -657,7 +627,7 @@ public class RegistryService
    * @param gtJSON JSON of the {@link HierarchyType} to be updated.
    */
   @Request(RequestType.SESSION)
-  public HierarchyType updateHierarcyType(String sessionId, String htJSON)
+  public HierarchyType updateHierarchyType(String sessionId, String htJSON)
   {
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
     
@@ -694,15 +664,15 @@ public class RegistryService
    * @param code code of the {@link HierarchyType} to delete.
    */
   @Request(RequestType.SESSION)
-  public void deleteHierarcyType(String sessionId, String code)
+  public void deleteHierarchyType(String sessionId, String code)
   {
-    deleteHierarcyTypeTransaction(code);
+    deleteHierarchyType(code);
     
     // No error at this point so the transaction completed successfully.
     adapter.getMetadataCache().removeHierarchyType(code);
   }
   @Transaction
-  private void deleteHierarcyTypeTransaction(String code)
+  private void deleteHierarchyType(String code)
   {
     String mdTermRelKey = ConversionService.buildMdTermRelationshipKey(code);
 
@@ -721,8 +691,27 @@ public class RegistryService
    * @param childGeoObjectTypeCode child {@link GeoObjectType}.
    */
   @Request(RequestType.SESSION)
-  public void addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
+    String mdTermRelKey = ConversionService.buildMdTermRelationshipKey(hierarchyTypeCode);
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
+    
+    this.addToHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    
+    // No exceptions thrown. Refresh the HierarchyType object to include the new relationships.
+    HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+    
+    adapter.getMetadataCache().addHierarchyType(ht);
+    
+    return ht;
+  }
+  @Transaction
+  private void addToHierarchy(MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  {
+    Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
+    Universal child = Universal.getByKey(childGeoObjectTypeCode);
+    
+    parent.addChild(child, mdTermRelationship.definesType()).apply();
   }
   
   /**
@@ -736,13 +725,26 @@ public class RegistryService
    * @param childGeoObjectTypeCode child {@link GeoObjectType}.
    */
   @Request(RequestType.SESSION)
-  public void removeFromHierarchy(String sessionId, String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
+    String mdTermRelKey = ConversionService.buildMdTermRelationshipKey(hierarchyTypeCode);
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
+    
+    this.removeFromHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    
+    // No exceptions thrown. Refresh the HierarchyType object to include the new relationships.
+    HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+    
+    adapter.getMetadataCache().addHierarchyType(ht);
+    
+    return ht;
   }
-  
-//  @Request(RequestType.SESSION)
-//  public void m(String sessionId)
-//  {
-//  }
-  
+  @Transaction
+  private void removeFromHierarchy(MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  {
+    Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
+    Universal child = Universal.getByKey(childGeoObjectTypeCode);
+    
+    parent.removeAllChildren(child, mdTermRelationship.definesType()); 
+  }
 }

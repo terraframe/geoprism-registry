@@ -255,9 +255,9 @@ public class RegistryController
     * @param htJSON JSON of the {@link HierarchyType} to be created.
     */
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/create")
-   public ResponseIF createHierarcyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
+   public ResponseIF createHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
    {
-     HierarchyType hierarchyType = this.registryService.createHierarcyType(request.getSessionId(), htJSON);
+     HierarchyType hierarchyType = this.registryService.createHierarchyType(request.getSessionId(), htJSON);
      
      return new RestBodyResponse(hierarchyType.toJSON());
    }
@@ -269,9 +269,9 @@ public class RegistryController
     * @param gtJSON JSON of the {@link HierarchyType} to be updated.
     */
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/update")
-   public ResponseIF updateHierarcyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
+   public ResponseIF updateHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
    {
-     HierarchyType hierarchyType = this.registryService.updateHierarcyType(request.getSessionId(), htJSON);
+     HierarchyType hierarchyType = this.registryService.updateHierarchyType(request.getSessionId(), htJSON);
      
      return new RestBodyResponse(hierarchyType.toJSON());
    }
@@ -283,9 +283,9 @@ public class RegistryController
     * @param code code of the {@link HierarchyType} to delete.
     */
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/delete")
-   public void deleteHierarcyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
+   public void deleteHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
    {
-     this.registryService.deleteHierarcyType(request.getSessionId(), code);
+     this.registryService.deleteHierarchyType(request.getSessionId(), code);
    }
    
    /**
@@ -299,11 +299,13 @@ public class RegistryController
     * @param childGeoObjectTypeCode child {@link GeoObjectType}.
     */
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/add")
-   public void addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, 
+   public ResponseIF addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, 
        @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode,  
        @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
    {
-     this.registryService.addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+     HierarchyType ht = this.registryService.addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+     
+     return new RestBodyResponse(ht.toJSON());
    }
    
    /**
@@ -317,11 +319,13 @@ public class RegistryController
     * @param childGeoObjectTypeCode child {@link GeoObjectType}.
     */
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/remove")
-   public void removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, 
+   public ResponseIF removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, 
        @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode,  
        @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
    {
-     this.registryService.addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+     HierarchyType ht = this.registryService.removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+     
+     return new RestBodyResponse(ht.toJSON());
    }
 
 }

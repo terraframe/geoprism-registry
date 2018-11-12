@@ -58,7 +58,13 @@ public class HierarchyManagementServiceTest
 
   private final static int                sessionLimit             = 2;
   
+  private final static String             COUNTRY_CODE             = "CountryTest";
+  
   private final static String             PROVINCE_CODE            = "ProvinceTest";
+  
+  private final static String             DISTRICT_CODE            = "DistrictTest";
+  
+  private final static String             VILLAGE_CODE             = "VillageTest";
   
   private final static String             REPORTING_DIVISION_CODE  = "ReportingDivision";
   
@@ -105,20 +111,36 @@ public class HierarchyManagementServiceTest
   @Transaction
   private static void tearDownTransaction()
   {
-    // Just in case a previous test did not clean up properly.
+    // Just in case a previous test did not clean up properly.   
+    try
+    {
+      Universal universal = Universal.getByKey(VILLAGE_CODE);
+      universal.delete();
+    } catch (DataNotFoundException e) {} 
+    
+    try
+    {
+      Universal universal = Universal.getByKey(DISTRICT_CODE);
+      universal.delete();
+    } catch (DataNotFoundException e) {} 
+    
     try
     {
       Universal provinceTestUniversal = Universal.getByKey(PROVINCE_CODE);
       provinceTestUniversal.delete();
-    }
-    catch (DataNotFoundException e) {} 
+    } catch (DataNotFoundException e) {} 
+    
+    try
+    {
+      Universal provinceTestUniversal = Universal.getByKey(COUNTRY_CODE);
+      provinceTestUniversal.delete();
+    } catch (DataNotFoundException e) {} 
     
     try
     {
       MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelationshipKey(REPORTING_DIVISION_CODE));
       mdTermRelationship.delete();
-    }
-    catch (DataNotFoundException e) {} 
+    } catch (DataNotFoundException e) {} 
     
     if (newUser.isAppliedToDB())
     {
@@ -149,7 +171,6 @@ public class HierarchyManagementServiceTest
     checkAttributes(PROVINCE_CODE);
     
     sessionId = this.logInAdmin();
-    
     try
     {
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
@@ -285,7 +306,7 @@ public class HierarchyManagementServiceTest
     String sessionId = this.logInAdmin();
     try
     {
-      service.createHierarcyType(sessionId, gtJSON);
+      service.createHierarchyType(sessionId, gtJSON);
     }
     finally
     {
@@ -313,7 +334,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      service.deleteHierarcyType(sessionId, REPORTING_DIVISION_CODE);
+      service.deleteHierarchyType(sessionId, REPORTING_DIVISION_CODE);
     }
     finally
     {
@@ -334,7 +355,7 @@ public class HierarchyManagementServiceTest
     String sessionId = this.logInAdmin();
     try
     {
-      reportingDivision = service.createHierarcyType(sessionId, gtJSON);
+      reportingDivision = service.createHierarchyType(sessionId, gtJSON);
       
       reportingDivision.setLocalizedLabel("Reporting Division 2");
       
@@ -342,7 +363,7 @@ public class HierarchyManagementServiceTest
       
       gtJSON = reportingDivision.toJSON().toString();
      
-      reportingDivision = service.updateHierarcyType(sessionId, gtJSON);
+      reportingDivision = service.updateHierarchyType(sessionId, gtJSON);
       
       Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
       Assert.assertEquals("", "Reporting Division 2", reportingDivision.getLocalizedLabel());
@@ -356,7 +377,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      service.deleteHierarcyType(sessionId, REPORTING_DIVISION_CODE);
+      service.deleteHierarchyType(sessionId, REPORTING_DIVISION_CODE);
     }
     finally
     {
@@ -364,6 +385,133 @@ public class HierarchyManagementServiceTest
     }
   }  
   
+  
+  @Test
+  public void testAddToHierarchy()
+  { 
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+    
+    GeoObjectType country = MetadataFactory.newGeoObjectType(COUNTRY_CODE, GeometryType.POLYGON, "Country Test", "Some Description", false, registry);
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province Test", "Some Description", false, registry);
+    
+    GeoObjectType district = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, "District Test", "Some Description", false, registry);
+
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POLYGON, "Village Test", "Some Description", false, registry);
+    
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The rporting division hieracy...", registry);
+    
+    // Create the GeoObjectTypes
+    String sessionId = this.logInAdmin();
+    try
+    {
+      String gtJSON = country.toJSON().toString();
+      country = service.createGeoObjectType(sessionId, gtJSON);
+      
+      gtJSON = province.toJSON().toString();
+      province = service.createGeoObjectType(sessionId, gtJSON);
+      
+      gtJSON = district.toJSON().toString();
+      district = service.createGeoObjectType(sessionId, gtJSON);
+      
+      gtJSON = village.toJSON().toString();
+      village = service.createGeoObjectType(sessionId, gtJSON);
+      
+      String htJSON = reportingDivision.toJSON().toString();
+      reportingDivision = service.createHierarchyType(sessionId, htJSON);
+      
+      
+      Assert.assertEquals("HierarchyType \""+REPORTING_DIVISION_CODE+"\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
+      
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), Universal.ROOT, country.getCode());
+      
+      Assert.assertEquals("HierarchyType \""+REPORTING_DIVISION_CODE+"\" should have one root type", 1, reportingDivision.getRootGeoObjectTypes().size());
+      
+      HierarchyType.HierarchyNode countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
+      
+      Assert.assertEquals("HierarchyType \""+REPORTING_DIVISION_CODE+"\" should have root of type", COUNTRY_CODE, countryNode.getGeoObjectType().getCode());
+      
+      Assert.assertEquals("GeoObjectType \""+COUNTRY_CODE+"\" should have no child", 0, countryNode.getChildren().size());
+      
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), country.getCode(), province.getCode());
+
+      countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
+      
+      Assert.assertEquals("GeoObjectType \""+COUNTRY_CODE+"\" should have one child", 1, countryNode.getChildren().size());
+      
+      HierarchyType.HierarchyNode provinceNode = countryNode.getChildren().get(0);
+      
+      Assert.assertEquals("GeoObjectType \""+COUNTRY_CODE+"\" should have a child of type", PROVINCE_CODE, provinceNode.getGeoObjectType().getCode());
+      
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), province.getCode(), district.getCode());
+      
+      countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
+      provinceNode = countryNode.getChildren().get(0);
+      HierarchyType.HierarchyNode districtNode = provinceNode.getChildren().get(0);
+      
+      Assert.assertEquals("GeoObjectType \""+PROVINCE_CODE+"\" should have a child of type", DISTRICT_CODE, districtNode.getGeoObjectType().getCode()); 
+      
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), district.getCode(), village.getCode());
+      
+      countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
+      provinceNode = countryNode.getChildren().get(0);
+      districtNode = provinceNode.getChildren().get(0);
+      HierarchyType.HierarchyNode villageNode = districtNode.getChildren().get(0);
+      
+      Assert.assertEquals("GeoObjectType \""+DISTRICT_CODE+"\" should have a child of type", VILLAGE_CODE, villageNode.getGeoObjectType().getCode()); 
+      
+      
+      reportingDivision = service.removeFromHierarchy(sessionId, reportingDivision.getCode(), district.getCode(), village.getCode());
+      
+      countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
+      provinceNode = countryNode.getChildren().get(0);
+      districtNode = provinceNode.getChildren().get(0);
+      
+      Assert.assertEquals("GeoObjectType \""+DISTRICT_CODE+"\" should have no child", 0, districtNode.getChildren().size());
+      
+      reportingDivision = service.removeFromHierarchy(sessionId, reportingDivision.getCode(), province.getCode(), district.getCode());
+      
+      countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
+      provinceNode = countryNode.getChildren().get(0);
+
+      Assert.assertEquals("GeoObjectType \""+PROVINCE_CODE+"\" should have no child", 0, provinceNode.getChildren().size());
+      
+      reportingDivision = service.removeFromHierarchy(sessionId, reportingDivision.getCode(), country.getCode(), province.getCode());
+      
+      countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
+      
+      Assert.assertEquals("GeoObjectType \""+COUNTRY_CODE+"\" should have no child", 0, countryNode.getChildren().size());
+      
+      reportingDivision = service.removeFromHierarchy(sessionId, reportingDivision.getCode(), Universal.ROOT, country.getCode());
+      
+      Assert.assertEquals("HierarchyType \""+REPORTING_DIVISION_CODE+"\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
+      
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+    
+
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, VILLAGE_CODE);
+      
+      service.deleteGeoObjectType(sessionId, DISTRICT_CODE);
+      
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+      
+      service.deleteGeoObjectType(sessionId, COUNTRY_CODE);
+      
+      service.deleteHierarchyType(sessionId, REPORTING_DIVISION_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
   
   @Test
   public void testHierarchyType()
