@@ -95,7 +95,7 @@ public class ConversionService
     MdTermRelationship mdTermRelationship = new MdTermRelationship();
     
     mdTermRelationship.setTypeName(hierarchyType.getCode());
-    mdTermRelationship.setPackageName(RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE);
+    mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
     mdTermRelationship.getDisplayLabel().setValue(hierarchyType.getLocalizedLabel());
     mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
     mdTermRelationship.setIsAbstract(false);
@@ -137,7 +137,7 @@ public class ConversionService
    */
   public static String buildMdTermRelationshipKey(String hierarchyCode)
   {
-    return RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE+"."+hierarchyCode;
+    return GISConstants.GEO_PACKAGE+"."+hierarchyCode;
   }
   
   /**
@@ -148,17 +148,8 @@ public class ConversionService
    */
   public static String buildHierarchyKey(String mdTermRelKey)
   {   
-    int startIndex = 0;
+    int startIndex = GISConstants.GEO_PACKAGE.length()+1;
 
-    if (mdTermRelKey.indexOf(RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE) >= 0)
-    {
-      startIndex = RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE.length()+1;
-    }
-    else if (mdTermRelKey.indexOf(GISConstants.GEO_PACKAGE) >= 0)
-    {
-      startIndex = GISConstants.GEO_PACKAGE.length()+1;
-    }
-    
     String hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
     
     return hierarchyKey;
