@@ -47,10 +47,12 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.AssociationType;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
@@ -59,6 +61,7 @@ import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.runwaysdk.system.metadata.MdTermRelationship;
+import com.runwaysdk.system.metadata.RelationshipCache;
 
 public class ConversionService
 {
@@ -79,13 +82,101 @@ public class ConversionService
     this.registry = registry;
   }
   
+  /**
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  protected MdTermRelationship newHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
+  {
+    MdBusiness mdBusUniversal = MdBusiness.getMdBusiness(Universal.CLASS);
+    
+    MdTermRelationship mdTermRelationship = new MdTermRelationship();
+    
+    mdTermRelationship.setTypeName(hierarchyType.getCode());
+    mdTermRelationship.setPackageName(RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE);
+    mdTermRelationship.getDisplayLabel().setValue(hierarchyType.getLocalizedLabel());
+    mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
+    mdTermRelationship.setIsAbstract(false);
+    mdTermRelationship.setGenerateSource(false);
+    mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_EVERYTHING);
+    mdTermRelationship.addAssociationType(AssociationType.Graph);
+    mdTermRelationship.setRemove(true);
+    // Create the relationship between different universals.
+    mdTermRelationship.setParentMdBusiness(mdBusUniversal);
+    mdTermRelationship.setParentCardinality("1");   
+    mdTermRelationship.setParentMethod("Parent");
+    mdTermRelationship.setChildMdBusiness(mdBusUniversal);
+    mdTermRelationship.setChildCardinality("*");
+    mdTermRelationship.setChildMethod("Children");
+    
+    return mdTermRelationship;
+  }
+  
+  /**
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  protected MdTermRelationship existingHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
+  {
+    String mdTermRelKey = buildMdTermRelationshipKey(hierarchyType.getCode());
+  
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
+    
+    return mdTermRelationship;
+  }
+  
+  /**
+   * Turns the given {@link HierarchyType} code into the corresponding {@link MdTermRelationship} key.
+   * 
+   * @param hierarchyCode {@link HierarchyType} code
+   * @return corresponding {@link MdTermRelationship} key.
+   */
+  public static String buildMdTermRelationshipKey(String hierarchyCode)
+  {
+    return RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE+"."+hierarchyCode;
+  }
+  
+  /**
+   * Convert the given {@link MdTermRelationShip} key into a {@link HierarchyType} key.
+   * 
+   * @param mdTermRelKey {@link MdTermRelationShip} key 
+   * @return a {@link HierarchyType} key.
+   */
+  public static String buildHierarchyKey(String mdTermRelKey)
+  {   
+    int startIndex = 0;
+
+    if (mdTermRelKey.indexOf(RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE) >= 0)
+    {
+      startIndex = RegistryConstants.HIERARCHY_MDTERMRELATIONSHIP_PACKAGE.length()+1;
+    }
+    else if (mdTermRelKey.indexOf(GISConstants.GEO_PACKAGE) >= 0)
+    {
+      startIndex = GISConstants.GEO_PACKAGE.length()+1;
+    }
+    
+    String hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
+    
+    return hierarchyKey;
+  }
+  
+  /**
+   * 
+   * @param mdTermRel
+   * @return
+   */
   public HierarchyType mdTermRelationshipToHierarchyType(MdTermRelationship mdTermRel)
   {
-    HierarchyType ht = new HierarchyType(mdTermRel.getKey(), mdTermRel.getDisplayLabel().getValue(), mdTermRel.getDescription().getValue());
+    String hierarchyKey = buildHierarchyKey(mdTermRel.getKey());
+    
+    HierarchyType ht = new HierarchyType(hierarchyKey, mdTermRel.getDisplayLabel().getValue(), mdTermRel.getDescription().getValue());
     
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
-    
-    
+
     // Copy all of the children to a list so as not to have recursion with open database cursors.
     List<Universal> childUniversals = new LinkedList<Universal>();
     
@@ -144,6 +235,7 @@ public class ConversionService
   }
   
   
+  
   protected Universal geoObjectTypeToUniversal(GeoObjectType got)
   {
     Universal uni = Universal.getByKey(got.getCode());
@@ -154,6 +246,8 @@ public class ConversionService
   
   /** 
    * Creates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.
+   * 
+   * @pre needs to occur within a transaction
    * 
    * @param got
    * @return a {@link Universal} from the given {@link GeoObjectType} that is not persisted.
@@ -337,6 +431,12 @@ public class ConversionService
     }
   }
   
+  /**
+   * Needs to occur within a transaction!
+   * 
+   * @param geoObject
+   * @return
+   */
   public GeoEntity geoObjectToGeoEntity(GeoObject geoObject)
   {
     GeoEntity geo = new GeoEntity();
@@ -346,6 +446,12 @@ public class ConversionService
     return geo;
   }
   
+  /**
+   * Needs to occur within a transaction!
+   * 
+   * @param geoObject
+   * @return
+   */
   public void populateGeoEntity(GeoObject geoObject, GeoEntity geo)
   {
     Universal uni = geoObjectTypeToUniversal(geoObject.getType());
@@ -393,6 +499,8 @@ public class ConversionService
     
     MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
     geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
+    geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
+    geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
     geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
     geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
     geoEntRefMdAttrRef.setRequired(false);
@@ -401,14 +509,19 @@ public class ConversionService
     // DefaultAttribute.UID - Defined on the MdBusiness and the values are from the {@code GeoObject#OID};
     MdAttributeUUID uuidMdAttr = new MdAttributeUUID();
     uuidMdAttr.setAttributeName(RegistryConstants.UUID);
+    uuidMdAttr.getDisplayLabel().setValue(RegistryConstants.UUID_LABEL);
+    uuidMdAttr.getDescription().setValue("The universal unique identifier of the feature.");
     uuidMdAttr.setDefiningMdClass(definingMdBusiness);
     uuidMdAttr.setRequired(true);
     uuidMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
     uuidMdAttr.apply();
     
+    
   // DefaultAttribute.CODE - defined by GeoEntity geoId
     MdAttributeCharacter codeMdAttr = new MdAttributeCharacter();
     codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
+    codeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
+    codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultLocalizedDescription());
     codeMdAttr.setDatabaseSize(255);
     codeMdAttr.setDefiningMdClass(definingMdBusiness);
     codeMdAttr.setRequired(true);
@@ -427,6 +540,8 @@ public class ConversionService
     
     MdAttributeEnumeration objStatusNdAttrEnum = new MdAttributeEnumeration();
     objStatusNdAttrEnum.setAttributeName(DefaultAttribute.STATUS.getName());
+    objStatusNdAttrEnum.getDisplayLabel().setValue(DefaultAttribute.STATUS.getDefaultLocalizedName());
+    objStatusNdAttrEnum.getDescription().setValue(DefaultAttribute.STATUS.getDefaultLocalizedDescription());
     objStatusNdAttrEnum.setRequired(true);
     objStatusNdAttrEnum.setMdEnumeration(geoObjectStatusEnum);
     objStatusNdAttrEnum.setSelectMultiple(false);
