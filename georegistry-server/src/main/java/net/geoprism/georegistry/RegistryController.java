@@ -40,6 +40,7 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -160,7 +161,7 @@ public class RegistryController
    * @returns
    * @throws
    **/   
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobject/get-parent-geoobjects")
    public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = "childUid") String childUid, @RequestParamter(name = "parentTypes") String[] parentTypes, @RequestParamter(name = "recursive") Boolean recursive)
    {
      TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childUid, parentTypes, recursive);
@@ -180,7 +181,7 @@ public class RegistryController
    * @returns
    * @throws
    **/
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="")
+   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="geoobject/get-uids")
    public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = "amount") Integer amount)
    {
      String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);
@@ -196,7 +197,7 @@ public class RegistryController
     *
     * @returns ParentTreeNode The new node which was created with the provided parent.
     */
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="geoobject/create")
    public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = "parent") String parentRef, @RequestParamter(name = "child") String childRef, @RequestParamter(name = "hierarchy") String hierarchyRef)
    {
      ParentTreeNode pn = this.registryService.addChild(request.getSessionId(), parentRef, childRef, hierarchyRef);
@@ -341,11 +342,14 @@ public class RegistryController
     * 
     * @param sessionId
     * @param code code of the {@link HierarchyType} to delete.
+ * @return 
     */
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/delete")
-   public void deleteHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/remove-type")
+   public RestResponse deleteHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
    {
      this.registryService.deleteHierarchyType(request.getSessionId(), code);
+     
+     return new RestResponse();
    }
    
    /**
@@ -358,7 +362,7 @@ public class RegistryController
     * @param parentGeoObjectTypeCode parent {@link GeoObjectType}.
     * @param childGeoObjectTypeCode child {@link GeoObjectType}.
     */
-   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url="hierarchytype/add")
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/add")
    public ResponseIF addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, 
        @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode,  
        @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)

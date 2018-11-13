@@ -1,0 +1,23 @@
+<form>
+  
+  <div class="modal-body">
+    <div *ngIf="message != null" class="error-container">
+      <div class="label-holder">
+        <strong>Error</strong>
+      </div>
+      <div class="holder">
+        <div>
+          <p class="error-message">{{message}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="nameInput">Name</label>
+      <input  [(ngModel)]="hierarchyType.code" name="name" type="input" class="form-control" id="nameInput" placeholder="Name" required>
+    </div>
+    <div>
+      <button type="submit" class="btn btn-primary" [disabled]="hierarchyType.code.length < 1" (click)="handleOnSubmit()">Ok</button>
+      <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">Cancel</button>
+    </div>
+  </div>
+</form>

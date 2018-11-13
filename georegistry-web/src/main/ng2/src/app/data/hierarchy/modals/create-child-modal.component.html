@@ -1,0 +1,35 @@
+<form>
+  
+  <div *ngIf="parent != null" class="modal-body">
+    <div *ngIf="message != null" class="error-container">
+      <div class="label-holder">
+        <strong>Error</strong>
+      </div>
+      <div class="holder">
+        <div>
+          <p class="error-message">{{message}}</p>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="form-group">
+    
+<!--       <div *ngIf="hierarchyType"> -->
+<!--         <label for="nameInput">Name</label> -->
+<!--         <input [(ngModel)]="hierarchyType.code" name="name" type="input" class="form-control" id="nameInput" placeholder="Name" required> -->
+<!--       </div> -->
+       
+      <select *ngIf="allGeoObjectTypes" (change)="onSelect($event.target.value)">
+        <option *ngFor="let geoObjType of allGeoObjectTypes" value={{geoObjType.code}}>
+          {{geoObjType.localizedLabel}}
+        </option>
+      </select>
+    
+    </div>
+    <div>
+      <button type="submit" class="btn btn-primary" (click)="handleOnSubmit()">Ok</button>
+      <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">Cancel</button>
+    </div>
+  </div>
+</form>

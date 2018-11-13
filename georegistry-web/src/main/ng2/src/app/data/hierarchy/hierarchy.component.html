@@ -1,42 +1,67 @@
 <div class="new-admin-design-main">
   <cgr-header></cgr-header>
   
-<div id="app-container" class="container">
-
-  <message ></message>  
-
-<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+  <div id="app-container" class="container">
   
-  <div class="row">
-    <div class="col-md-4">
-      <h3>Select Hierarchy</h3>
-      <hr>
-      <ul class="list-group">
-        <li class="list-group-item" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
-          <i class="fa fa-sitemap"></i> {{hierarchy.geoObjectType}}
-        </li>
-      </ul>
+    <message ></message>  
+  
+  <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Select Hierarchy</h3>
+        <hr>
+        <ul class="list-group">
+          <li class="list-group-item" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
+            <i class="fa fa-sitemap"></i> {{hierarchy.localizedLabel}}
+          </li>
+        </ul>
         
-    </div>
-    <div class="col-md-4">
-<!--     {{currentHierarchy.name}}  -->
-      <h3> Manage </h3>
-      <hr>
-      <div *ngIf="nodes.length > 0" class="tree">
-        <tree-root [nodes]="nodes" [options]="options"></tree-root>
+        <div>
+          <button type="submit" class="btn btn-primary" (click)="createHierarchy()">Create</button>
+        </div>
+          
       </div>
+      <div class="col-md-6">
+<!--         <h3> Manage the {{currentHierarchy.localizedLabel}} hierarchy</h3> -->
+<h3> Manage </h3>
+        <hr>
+        <div *ngIf="nodes.length > 0" class="tree">
+          <tree-root [nodes]="nodes" [options]="options"></tree-root>
+        </div>
+      </div>
+<!--       <div class="col-md-4"> -->
+<!--         <h3>Available Types</h3> -->
+<!--         <hr> -->
+<!--         <ul class="list-group" (treeDrop)="onDrop($event)" [treeAllowDrop]="allowDrop.bind(this)"> -->
+<!--           <li class="list-group-item draggable" *ngFor="let type of geoObjectTypes;" [treeDrag]="{id:type.code, name: type.localizedLabel }" [treeDragEnabled]="true"> -->
+<!--             {{type.localizedLabel}} -->
+<!--           </li> -->
+<!--         </ul> -->
+<!--       </div> -->
     </div>
-    <div class="col-md-4">
-      <h3>Available Types</h3>
-      <hr>
-      <ul class="list-group" (treeDrop)="onDrop($event)" [treeAllowDrop]="allowDrop.bind(this)">
-        <li class="list-group-item draggable" *ngFor="let type of geoObjectTypes;" [treeDrag]="{id:type.code, name: type.localizedLabel }" [treeDragEnabled]="true">
-          {{type.localizedLabel}}
-        </li>
-      </ul>
-    </div>
+    
   </div>
   
-</div>
+  <context-menu #nodeMenu>
+<!--     <ng-template contextMenuItem let-item (execute)="handleEdit($event.item)"> -->
+<!--       Edit {{item?.data.name}} -->
+<!--     </ng-template> -->
+    <ng-template contextMenuItem let-item (execute)="addChildToHierarchy($event.item)">
+      Add a new type
+    </ng-template>
+<!--     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)"> -->
+<!--       Delete this type -->
+<!--     </ng-template> -->
+  </context-menu>
+  
+  <context-menu #leafMenu>
+<!--     <ng-template contextMenuItem let-item (execute)="handleEdit($event.item)"> -->
+<!--       Edit {{item?.data.name}} -->
+<!--     </ng-template> -->
+    <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
+      Delete {{item?.data.label}}
+    </ng-template>
+  </context-menu>
 
 </div>

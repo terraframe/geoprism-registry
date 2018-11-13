@@ -2,9 +2,13 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpModule, XHRBackend, RequestOptions, Http} from '@angular/http';
-
-import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { TreeModule } from 'angular-tree-component';
+import { ContextMenuModule } from 'ngx-contextmenu';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { CookieService } from 'ngx-cookie-service';
+
+import './rxjs-extensions';
 
 import { FillPipe } from './core/fill.pipe';
 import { Safe } from './core/safe.html.pipe';
@@ -14,13 +18,14 @@ import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { CgrHeaderComponent } from './header.component';
 import { ErrorModalComponent } from './data/hierarchy/modals/error-modal.component';
-
+import { CreateModalComponent } from './data/hierarchy/modals/create-modal.component';
+import { CreateChildModalComponent } from './data/hierarchy/modals/create-child-modal.component';
+import { ConfirmModalComponent } from './data/hierarchy/modals/confirm-modal.component';
+import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 
 //import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
 import { EventService } from './event/event.service';
-
-import { TreeModule } from 'angular-tree-component';
 
 import { CoreModule } from '@terraframe/core/core.module';
 
@@ -34,9 +39,10 @@ import './rxjs-extensions';
     CgrAppRoutingModule,
     CoreModule,
     ReactiveFormsModule,
-    FileUploadModule,
     ModalModule.forRoot(),
-    TreeModule.forRoot()
+    TreeModule.forRoot(),
+    ContextMenuModule.forRoot(),
+    BsDropdownModule.forRoot()
   ],
   declarations: [
     CgrAppComponent,
@@ -44,7 +50,11 @@ import './rxjs-extensions';
     FillPipe,
     Safe,
     CgrHeaderComponent,
+    CreateModalComponent,
+    CreateChildModalComponent,
+    ConfirmModalComponent,
     ErrorModalComponent,
+    LoadingBarComponent,
     
     // Routing components
     routedComponents
@@ -52,9 +62,10 @@ import './rxjs-extensions';
   providers: [
     HierarchyService,
     EventService,
-    Safe
+    Safe,
+    CookieService
   ],
   bootstrap: [CgrAppComponent],
-  entryComponents: [ErrorModalComponent]        
+  entryComponents: [ErrorModalComponent,CreateChildModalComponent, CreateModalComponent, ConfirmModalComponent, LoadingBarComponent]        
 })
 export class CgrAppModule { }

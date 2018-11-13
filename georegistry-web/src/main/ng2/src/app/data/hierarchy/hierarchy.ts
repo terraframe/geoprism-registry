@@ -19,7 +19,7 @@ export class HierarchyNode {
 	geoObjectType: string;
     children: HierarchyNode[];
     label: string; // added for angular-tree-widget
-    id: string; // added for angular-tree-widget
+//    id: string; // added for angular-tree-widget
 }
 
 export class TreeEntity {
