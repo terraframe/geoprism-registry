@@ -1,0 +1,68 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+<!-- I think I will implement the status as an inumeration rather than 
+      <mdTerm name="net.geoprism.registry.GeoObjectStatus" label="Geo Object Status" isAbstract="false" description="Status options for a GeoObject" hasDeterministicId="true" removable="false" table="geo_object_status" publish="true" extendable="true" generateController="true" cacheAlgorithm="everything">
+        <attributes>
+          <char name="code" size="32" required="true" indexType="unique index" label="Code" />
+        </attributes>
+      </mdTerm>
+
+      <object key="ROOT" type="net.geoprism.registry.GeoObjectStatus">
+        <attribute name="code" value="ROOT" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="ROOT" />
+        </attributeStruct>
+      </object>
+  -->
+      <enumerationMaster name="net.geoprism.registry.GeoObjectStatusMaster" label="Geometry Types Master" generateController="false">
+        <attributes>
+          <integer name="statusOrder" label="Order" defaultValue="" required="true" indexType="no index"/> 
+        </attributes>
+      </enumerationMaster>
+      
+      <object key="NEW" type="net.geoprism.registry.GeoObjectStatusMaster">
+        <attribute name="enumName" value="NEW" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="New" />
+        </attributeStruct>
+        <attribute name="statusOrder" value="1" />
+      </object>
+  
+      <object key="PENDING" type="net.geoprism.registry.GeoObjectStatusMaster">
+        <attribute name="enumName" value="PENDING" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Pending" />
+        </attributeStruct>
+        <attribute name="statusOrder" value="2" />
+      </object>
+
+      <object key="ACTIVE" type="net.geoprism.registry.GeoObjectStatusMaster">
+        <attribute name="enumName" value="ACTIVE" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Active" />
+        </attributeStruct>
+        <attribute name="statusOrder" value="3" />
+      </object>
+
+      <object key="INACTIVE" type="net.geoprism.registry.GeoObjectStatusMaster">
+        <attribute name="enumName" value="INACTIVE" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Inactive" />
+        </attributeStruct>
+        <attribute name="statusOrder" value="4" />
+      </object>
+      
+      <mdEnumeration name="net.geoprism.registry.GeoObjectStatus" type="net.geoprism.registry.GeoObjectStatusMaster">
+        <includeAll />
+      </mdEnumeration>
+      
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.GeoObjectStatusMaster" type="com.runwaysdk.system.metadata.MdBusiness" />
+    </delete>
+  </undoIt>
+</version>
