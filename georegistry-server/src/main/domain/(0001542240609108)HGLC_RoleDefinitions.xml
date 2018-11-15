@@ -1,0 +1,60 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <object key="Roles.commongeoregistry.RegistryAdministrator" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="commongeoregistry.RegistryAdministrator" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Registry Administrator" />
+        </attributeStruct>
+      </object>
+      <object key="Roles.commongeoregistry.RegistryMaintainer" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="commongeoregistry.RegistryMaintainer" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Registry Maintainer" />
+        </attributeStruct>
+      </object>
+      <object key="Roles.commongeoregistry.RegistryContributor" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="commongeoregistry.RegistryContributor" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Registry Contributor" />
+        </attributeStruct>
+      </object>
+      <object key="Roles.commongeoregistry.APIConsumer" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="commongeoregistry.APIConsumer" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="API Consumer" />
+        </attributeStruct>
+      </object>
+
+    </create>
+    <permissions>
+      <role roleName="commongeoregistry.RegistryAdministrator">
+        <superRole roleName="geoprism.admin.Administrator" />
+      </role>
+    </permissions>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
+
+<!--  
+
+      <mdException name="gov.geoplatform.uasdm.bus.InvalidUasComponentNameException" 
+                   label="Invalid Name" 
+                   description="Thrown when a user enters an invalid name for a Project, Mission, etc." 
+                   message="Invalid name. No spaces or special characters such as &lt;, &gt;, -, +, =, !, @, #, $, %, ^, &amp;, *, ?,/, \ or apostrophes are allowed.">
+      </mdException>
+
+      <mdException name="gov.geoplatform.uasdm.bus.DuplicateComponentException" 
+                   label="Empty Layer Information" 
+                   description="Thrown when someone tries to create a child item whose name conflicts with an existing child name." 
+                   message="[{parentName}] already has a [{childComponentLabel}] with the name [{childName}].">
+        <attributes>
+          <text name="parentName" label="Parent Name" />
+          <text name="childComponentLabel" label="Child Component Label" />
+          <text name="childName" label="Child Name" />
+        </attributes>
+      </mdException>
+-->
