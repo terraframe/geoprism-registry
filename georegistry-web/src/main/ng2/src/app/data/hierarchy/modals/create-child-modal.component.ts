@@ -3,7 +3,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { TreeNode } from 'angular-tree-component';
 
-import { TreeEntity, HierarchyType, GeoObjectType } from '../hierarchy';
+import { TreeEntity, HierarchyType, GeoObjectType, HierarchyNode } from '../hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
 
 
@@ -21,9 +21,13 @@ export class CreateChildModalComponent implements OnInit {
 
     public hierarchyType: HierarchyType;
 
+    public nodes: HierarchyNode[];
+
     public allGeoObjectTypes: GeoObjectType[];
 
     public selectedGeoObjectType: GeoObjectType;
+
+    private selectUndefinedOptionValue: any;
 
     message: string = null;
 
@@ -33,7 +37,6 @@ export class CreateChildModalComponent implements OnInit {
     public onNodeChange: Subject<HierarchyType>;
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) {
-    	
     }
 
     ngOnInit(): void {
@@ -51,7 +54,7 @@ export class CreateChildModalComponent implements OnInit {
     handleOnSubmit(): void {
         this.message = null;
 
-        this.hierarchyService.addChildToHierarchy( this.hierarchyType.code, this.parent.data.geoObjectType, this.selectedGeoObjectType.code ).then( data => {
+        this.hierarchyService.addChildToHierarchy( this.hierarchyType.code, this.parent.data === "ROOT" ? this.parent.data.geoObjectType : "ROOT", this.selectedGeoObjectType.code ).then( data => {
             this.onNodeChange.next( data );
             this.bsModalRef.hide();
         } ).catch(( err: any ) => {

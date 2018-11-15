@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { GeoObjectType, HierarchyNode } from '../hierarchy';
 
 @Pipe({
-  name: 'geoobjecttype'
+  name: 'geoobjecttype',
+  pure: false
 })
 export class GeoObjectTypePipe implements PipeTransform {
   transform(items: GeoObjectType[], filter: HierarchyNode[]): any {

@@ -94,3 +94,14 @@ i.fa.fa-sitemap{
 i.fa.fa-sitemap:hover{
   color:  #bababa;
 }
+
+.delete-btn{
+  font-size: 20px;
+}
+.delete-btn:hover {
+  color:red !important;
+}
+
+.modal-body .form-group select {
+  float: none !important;
+}

@@ -266,9 +266,11 @@ public class RegistryController
     * @param code code of the {@link GeoObjectType} to delete.
     */
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="geoobjecttype/delete")
-   public void deleteGeoObjectType(ClientRequestIF request, @RequestParamter(name = "code") String code)  throws JSONException
+   public RestResponse deleteGeoObjectType(ClientRequestIF request, @RequestParamter(name = "code") String code)  throws JSONException
    {
      this.registryService.deleteGeoObjectType(request.getSessionId(), code);
+     
+     return new RestResponse();
    }   
     
    /**
@@ -344,7 +346,7 @@ public class RegistryController
     * @param code code of the {@link HierarchyType} to delete.
  * @return 
     */
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/remove-type")
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url="hierarchytype/delete")
    public RestResponse deleteHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
    {
      this.registryService.deleteHierarchyType(request.getSessionId(), code);

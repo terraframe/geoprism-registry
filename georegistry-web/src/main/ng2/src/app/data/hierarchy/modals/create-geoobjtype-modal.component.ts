@@ -36,14 +36,6 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
         this.onGeoObjTypeCreate = new Subject();
     }
     
-//    onSelect(value: string): void {
-//    	this.allGeoObjectTypes.forEach(gObj => {
-//    		if(gObj.code === value){
-//    			this.selectedGeoObjectType = gObj;
-//    		}
-//    	})
-//    }
-    
     handleOnSubmit(): void {
         this.message = null;
 

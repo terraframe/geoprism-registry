@@ -31,7 +31,6 @@ declare var acp: any;
 //import { EventService, BasicService } from '../core/service/core.service';
 //import { EventHttpService } from '../../core/service/event-http.service';
 
-//import { TreeNode } from '../data/hierarchy/hierarchy';
 import { TreeNode } from 'angular-tree-component';
 
 declare var acp: any;
@@ -70,12 +69,6 @@ export class HierarchyService {
           params.set( 'types', JSON.stringify(types) );
         }
         
-//        availableTypes = [{id:"1", name:"Health Post"},
-//                          {id:"2", name:"Ministry of Health"},
-//                 		   {id:"3", name:"OD Office"}
-//                         ]
-
-
         return this.http
             .get( acp + '/cgr/geoobjecttype/get-all' )
             .toPromise()
@@ -91,8 +84,6 @@ export class HierarchyService {
           params.set( 'childrenTypes', JSON.stringify(childrenTypes) )
           params.set( 'recursive', JSON.stringify(recursive) );
         
-//        let availableTypes:HierarchyNode = {id:"addfa9b7-e234-354d-a6e9-c7f2af00050a", name:"Health Post", children:[]}
-
         return this.http
             .get( acp + '/cgr/geoobject/getchildren', {params: params} )
             .toPromise()
@@ -119,6 +110,25 @@ export class HierarchyService {
                return response.json() as HierarchyType;
            } )
     }
+    
+    removeFromHierarchy( hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string ): Promise<HierarchyType> {
+
+ 	   let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/cgr/hierarchytype/remove', JSON.stringify( { hierarchyCode : hierarchyCode, parentGeoObjectTypeCode : parentGeoObjectTypeCode, childGeoObjectTypeCode : childGeoObjectTypeCode } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as HierarchyType;
+            } )
+     }
     
     createHierarchyType( htJSON: string): Promise<HierarchyType> {
 
@@ -158,25 +168,6 @@ export class HierarchyService {
             } )
     }
 
-//    newHierarchyType( hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string ): Promise<TreeEntity> {
-//
-//        let headers = new Headers( {
-//            'Content-Type': 'application/json'
-//        });
-//        
-//        this.eventService.start();
-//
-//        return this.http
-//            .post( acp + '/cgr/hierarchytype/add', { 'hierarchyCode': hierarchyCode, 'parentGeoObjectTypeCode': parentGeoObjectTypeCode, 'childGeoObjectTypeCode': childGeoObjectTypeCode }, { headers: headers } )
-//            .finally(() => {
-//                this.eventService.complete();
-//            } )
-//            .toPromise()
-//            .then( response => {
-//                return response.json() as TreeEntity;
-//            } )
-//    }
-    
     deleteHierarchyType( code: string ): Promise<TreeEntity> {
 
         let headers = new Headers( {
@@ -186,7 +177,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post( acp + '/cgr/hierarchytype/remove-type', { 'code': code }, { headers: headers } )
+            .post( acp + '/cgr/hierarchytype/delete', { 'code': code }, { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -195,40 +186,20 @@ export class HierarchyService {
                 return response.json() as TreeEntity;
             } )
     }
+    
+    deleteGeoObjectType( code: string ): Promise<Response> {
+    	let headers = new Headers( {
+    		'Content-Type': 'application/json'
+    	} );
 
-//    applyWithParent( entity: TreeEntity, parentId: string ): Promise<TreeEntity> {
-//
-//        let headers = new Headers( {
-//            'Content-Type': 'application/json'
-//        } );
-//
-//        this.eventService.start();
-//
-//        return this.http
-//            .post( acp + '/cgr/apply-with-parent', JSON.stringify( { entity: entity, parentId: parentId } ), { headers: headers } )
-//            .finally(() => {
-//                this.eventService.complete();
-//            } )
-//            .toPromise()
-//            .then( response => {
-//                return response.json() as TreeEntity;
-//            } )
-//    }
+    	this.eventService.start();
 
-//    remove( id: string ): Promise<Response> {
-//
-//        let headers = new Headers( {
-//            'Content-Type': 'application/json'
-//        } );
-//
-//        this.eventService.start();
-//
-//        return this.http
-//            .post( acp + '/cgr/remove', JSON.stringify( { id: id } ), { headers: headers } )
-//            .finally(() => {
-//                this.eventService.complete();
-//            } )
-//            .toPromise()
-//    }
+    	return this.http
+    	.post( acp + '/cgr/geoobjecttype/delete', JSON.stringify( { code: code } ), { headers: headers } )
+    	.finally(() => {
+    		this.eventService.complete();
+    	} )
+    	.toPromise()
+      }
 
 }
