@@ -192,8 +192,8 @@ public class ConversionService
     
     mdTermRelationship.setTypeName(hierarchyType.getCode()+RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
     mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
-    mdTermRelationship.getDisplayLabel().setValue("Metadata: "+hierarchyType.getLocalizedLabel());
-    mdTermRelationship.getDescription().setValue("Metadata: "+hierarchyType.getLocalizedDescription());
+    mdTermRelationship.getDisplayLabel().setValue(hierarchyType.getLocalizedLabel());
+    mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
     mdTermRelationship.setIsAbstract(false);
     mdTermRelationship.setGenerateSource(false);
     mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_EVERYTHING);
