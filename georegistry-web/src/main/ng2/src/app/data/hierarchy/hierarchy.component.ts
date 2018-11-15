@@ -27,6 +27,7 @@ import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
 import { CreateModalComponent } from './modals/create-modal.component';
 import { CreateChildModalComponent } from './modals/create-child-modal.component';
+import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
 import { ErrorModalComponent } from './modals/error-modal.component';
 
@@ -49,8 +50,6 @@ export class HierarchyComponent implements OnInit {
   instance : Instance = new Instance();  
   private hierarchies: HierarchyType[];
   private geoObjectTypes: GeoObjectType[] = [];
-
-//  private hierarchyNodes:any = [];
   private nodes = [] as HierarchyNode[];
   private currentHierarchy: HierarchyType = null;
 
@@ -157,18 +156,18 @@ export class HierarchyComponent implements OnInit {
 	  this.hierarchyService.getGeoObjectTypes([])
 	    .then( types => {
 		  this.geoObjectTypes = types;
-        }).catch(( err: any ) => {
-          this.error( err.json() );
-        });
 	  
-	  this.hierarchyService.getHierarchyTypes([])
-	    .then( types => {
-		  this.setHierarchies(types);
-		  
-		  this.setNodes();
-		  
-		  this.currentHierarchy = this.hierarchies[0];
-      })
+		  this.hierarchyService.getHierarchyTypes([])
+		    .then( types => {
+			  this.setHierarchies(types);
+			  
+			  this.setNodes();
+			  
+			  this.currentHierarchy = this.hierarchies[0];
+	      })
+	  }).catch(( err: any ) => {
+	      this.error( err.json() );
+	  });
   }
   
   ngAfterViewInit() {
@@ -177,24 +176,6 @@ export class HierarchyComponent implements OnInit {
   
   handleOnMenu( node: any, $event: any ): void {
 	  
-//	  if(node.data.children.length > 0){
-//		  node.data.children
-//	  }
-  	
-//  	if(node.data.typeLabel === "Site"){
-//  		node.data.childType = "Project"
-//  	}
-//  	else if(node.data.typeLabel === "Project"){
-//  		node.data.childType = "Mission"
-//  	}
-//  	else if(node.data.typeLabel === "Mission"){
-//  		node.data.childType = "Collection"
-//  	}
-//  	else if(node.data.typeLabel === "Collection"){
-//  		node.data.childType = null
-//  	}
-  	
-  	
       this.contextMenuService.show.next( {
           contextMenu: (node.data.childType !== null ? this.nodeMenuComponent : this.leafMenuComponent),
           event: $event,
@@ -222,12 +203,6 @@ export class HierarchyComponent implements OnInit {
 			    // return true / false based on element, to.parent, to.index. e.g.
 //			    return parent.hasChildren;
 //			  },
-//		    allowDrag: (node:any) => {
-//		        return true;
-//		      },
-//		      allowDrop: (node:any) => {
-//		        return true;
-//		      },
 	      displayField: "label",
 		  actionMapping: {
 	            mouse: {
@@ -240,17 +215,11 @@ export class HierarchyComponent implements OnInit {
 	            }
 	        },
 	        mouse: {
-	            drop: (tree: TreeComponent, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
-	            	console.log("js")
-//	              to.parent.children.set(to.index, from)
-//	            	to.data.children.push(from)
-//	            	to.parent.data.children.push(from)
-//	              tree.treeModel.update()
-	              
-	              console.log('drag', from, to); // from === {name: 'first'}
-	              // Add a node to `to.parent` at `to.index` based on the data in `from`
-	              // Then call tree.update()
-	            }
+//	            drop: (tree: TreeComponent, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
+//	              console.log('drag', from, to); // from === {name: 'first'}
+//	              // Add a node to `to.parent` at `to.index` based on the data in `from`
+//	              // Then call tree.update()
+//	            }
 	          }
   };
   
@@ -266,7 +235,9 @@ export class HierarchyComponent implements OnInit {
 	    this.nodes.push(this.getHierarchy(hierarchyId).rootGeoObjectTypes[0]);
 	    
 	    setTimeout(() => {
-		  this.tree.treeModel.expandAll();
+	      if(this && this.tree){
+		    this.tree.treeModel.expandAll();
+	      }
 		}, 1)
 	  }
 	  
@@ -280,8 +251,6 @@ export class HierarchyComponent implements OnInit {
           ignoreBackdropClick: true,
           'class': 'upload-modal'
       } );
-//      this.bsModalRef.content.entity = data;
-//      this.bsModalRef.content.parentId = parent.data.id;
       
       ( <CreateModalComponent>this.bsModalRef.content ).onHierarchytTypeCreate.subscribe( data => {
     	  
@@ -290,6 +259,21 @@ export class HierarchyComponent implements OnInit {
       } );
   }
   
+  createGeoObjectType(): void {
+	  this.bsModalRef = this.modalService.show( CreateGeoObjTypeModalComponent, {
+          animated: true,
+          backdrop: true,
+          ignoreBackdropClick: true,
+          'class': 'upload-modal'
+      } );
+	  this.bsModalRef.content.hierarchyType = this.currentHierarchy;
+	  
+      ( <CreateGeoObjTypeModalComponent>this.bsModalRef.content ).onGeoObjTypeCreate.subscribe( data => {
+    	  
+    	  // TODO: Make sure this works
+    	  this.geoObjectTypes.push(data);
+      } );
+  }
   
   addChildToHierarchy( parent: TreeNode ): void {
       this.current = parent;
@@ -319,38 +303,6 @@ export class HierarchyComponent implements OnInit {
       } );
   }
   
-  
-//  createTreeNode( parent: TreeNode ): void {
-//      this.current = parent;
-//
-//	  this.bsModalRef = this.modalService.show( CreateModalComponent, {
-//          animated: true,
-//          backdrop: true,
-//          ignoreBackdropClick: true,
-//          'class': 'upload-modal'
-//      } );
-//      this.bsModalRef.content.entity = data;
-//      this.bsModalRef.content.parentId = parent.data.id;
-//	  
-//      this.hierarchyService.newHierarchyType( "AllowedIn", parent.data.geoObjectType, "test" ).then( data => {
-//
-//          ( <CreateModalComponent>this.bsModalRef.content ).onHierarchytTypeCreate.subscribe( entity => {
-//              const d = parent;
-//
-//              if ( d.children != null ) {
-//                  d.children.push( entity );
-//              }
-//              else {
-//                  d.children = [entity];
-////                  d.hasChildren = true; //TODO: uncomment and fix
-//              }
-//
-//              this.tree.treeModel.update();
-//          } );
-//      } ).catch(( err: any ) => {
-//          this.error( err.json() );
-//      } );
-//  }
   
   deleteTreeNode( node: TreeNode ): void {
       this.bsModalRef = this.modalService.show( ConfirmModalComponent, {

@@ -8,7 +8,8 @@
   <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
     
     <div class="row">
-      <div class="col-md-6">
+    
+      <div class="col-md-4">
         <h3>Select Hierarchy</h3>
         <hr>
         <ul class="list-group">
@@ -20,9 +21,9 @@
         <div>
           <button type="submit" class="btn btn-primary" (click)="createHierarchy()">Create</button>
         </div>
-          
       </div>
-      <div class="col-md-6">
+      
+      <div class="col-md-4">
 <!--         <h3> Manage the {{currentHierarchy.localizedLabel}} hierarchy</h3> -->
 <h3> Manage </h3>
         <hr>
@@ -30,15 +31,23 @@
           <tree-root [nodes]="nodes" [options]="options"></tree-root>
         </div>
       </div>
-<!--       <div class="col-md-4"> -->
-<!--         <h3>Available Types</h3> -->
-<!--         <hr> -->
-<!--         <ul class="list-group" (treeDrop)="onDrop($event)" [treeAllowDrop]="allowDrop.bind(this)"> -->
-<!--           <li class="list-group-item draggable" *ngFor="let type of geoObjectTypes;" [treeDrag]="{id:type.code, name: type.localizedLabel }" [treeDragEnabled]="true"> -->
-<!--             {{type.localizedLabel}} -->
-<!--           </li> -->
-<!--         </ul> -->
-<!--       </div> -->
+      
+      <div class="col-md-4">
+        <h3>Available Types</h3>
+        <hr>
+        <ul class="list-group" (treeDrop)="onDrop($event)" [treeAllowDrop]="allowDrop.bind(this)">
+          <li class="list-group-item draggable" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes"
+          [treeDrag]="{id:type.code, name: type.localizedLabel }" [treeDragEnabled]="true">
+            {{type.localizedLabel}}
+          </li>
+        </ul>
+        
+        <div>
+          <button type="submit" class="btn btn-primary" (click)="createGeoObjectType()">Create</button>
+        </div>
+        
+      </div>
+      
     </div>
     
   </div>
@@ -48,7 +57,7 @@
 <!--       Edit {{item?.data.name}} -->
 <!--     </ng-template> -->
     <ng-template contextMenuItem let-item (execute)="addChildToHierarchy($event.item)">
-      Add a new type
+      Add relationship to a type
     </ng-template>
 <!--     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)"> -->
 <!--       Delete this type -->
