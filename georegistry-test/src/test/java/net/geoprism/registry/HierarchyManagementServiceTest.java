@@ -26,11 +26,11 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
@@ -296,7 +296,7 @@ public class HierarchyManagementServiceTest
    
     RegistryAdapterServer registry = new RegistryAdapterServer();
     
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, "Village", "", false, registry);
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, "Village", "", true, registry);
     String villageJSON = village.toJSON().toString();
 
     try
@@ -328,7 +328,7 @@ public class HierarchyManagementServiceTest
    
     RegistryAdapterServer registry = new RegistryAdapterServer();
    
-    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.LINE, "River", "", false, registry);
+    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.LINE, "River", "", true, registry);
     String riverJSON = river.toJSON().toString();
 
     try
@@ -360,7 +360,7 @@ public class HierarchyManagementServiceTest
    
     RegistryAdapterServer registry = new RegistryAdapterServer();
    
-    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, "District", "", false, registry);
+    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, "District", "", true, registry);
     String gtJSON = geoObjectType.toJSON().toString();
 
     try
@@ -392,7 +392,7 @@ public class HierarchyManagementServiceTest
    
     RegistryAdapterServer registry = new RegistryAdapterServer();
     
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.MULTIPOINT, "Village", "", false, registry);
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.MULTIPOINT, "Village", "", true, registry);
     String villageJSON = village.toJSON().toString();
 
     try
@@ -424,7 +424,7 @@ public class HierarchyManagementServiceTest
    
     RegistryAdapterServer registry = new RegistryAdapterServer();
    
-    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.MULTILINE, "River", "", false, registry);
+    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.MULTILINE, "River", "", true, registry);
     String riverJSON = river.toJSON().toString();
 
     try
@@ -456,7 +456,7 @@ public class HierarchyManagementServiceTest
    
     RegistryAdapterServer registry = new RegistryAdapterServer();
    
-    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.MULTIPOLYGON, "District", "", false, registry);
+    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.MULTIPOLYGON, "District", "", true, registry);
     String gtJSON = geoObjectType.toJSON().toString();
 
     try
@@ -488,15 +488,10 @@ public class HierarchyManagementServiceTest
     MdBusiness mdBusiness = universal.getMdBusiness();
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
-    
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
-    }
+
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
+
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POINT_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeLine(String code)
@@ -505,15 +500,11 @@ public class HierarchyManagementServiceTest
     MdBusiness mdBusiness = universal.getMdBusiness();
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
-    
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
-    }
+
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
+
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_LINE_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+
   }
   @Request
   private void checkAttributePolygon(String code)
@@ -522,15 +513,10 @@ public class HierarchyManagementServiceTest
     MdBusiness mdBusiness = universal.getMdBusiness();
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
-    
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
-    }
+
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
+
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeMultiPoint(String code)
@@ -540,14 +526,9 @@ public class HierarchyManagementServiceTest
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
     
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
-    }
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
+
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeMultiLine(String code)
@@ -556,15 +537,10 @@ public class HierarchyManagementServiceTest
     MdBusiness mdBusiness = universal.getMdBusiness();
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
-    
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
-    }
+
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
+
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeMultiPolygon(String code)
@@ -573,23 +549,16 @@ public class HierarchyManagementServiceTest
     MdBusiness mdBusiness = universal.getMdBusiness();
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
-    
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
-    }
-  }
 
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
+
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+  }
 
 
   @Test
   public void testUpdateGeoObjectType()
   {      
-    
     RegistryAdapterServer registry = new RegistryAdapterServer();
     
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province Test", "Some Description", false, registry);
