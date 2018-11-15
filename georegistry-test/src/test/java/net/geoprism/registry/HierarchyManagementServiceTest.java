@@ -30,6 +30,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
@@ -667,7 +668,7 @@ public class HierarchyManagementServiceTest
 
       HierarchyType hierarchy = hierarchies[0];
       
-      Assert.assertEquals("", "Metadata: Reporting Division", hierarchy.getLocalizedLabel());
+      Assert.assertEquals("", "Reporting Division", hierarchy.getLocalizedLabel());
     }
     finally
     {
@@ -769,15 +770,16 @@ public class HierarchyManagementServiceTest
       
       String htJSON2 = administrativeDivision.toJSON().toString();
       administrativeDivision = service.createHierarchyType(sessionId, htJSON2);
-    }
-    finally
-    {
-      logOutAdmin(sessionId);
-    }
-    // Log out and log back in so as to get the latest user permissions.  
-    sessionId = this.logInAdmin();
-    try
-    {
+      
+//    }
+//    finally
+//    {
+//      logOutAdmin(sessionId);
+//    }
+//    // Log out and log back in so as to get the latest user permissions.  
+//    sessionId = this.logInAdmin();
+//    try
+//    {
       Assert.assertEquals("HierarchyType \""+REPORTING_DIVISION_CODE+"\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
       
       reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), Universal.ROOT, country.getCode());

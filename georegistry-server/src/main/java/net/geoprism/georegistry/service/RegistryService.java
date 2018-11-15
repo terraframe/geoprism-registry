@@ -31,6 +31,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -609,6 +610,8 @@ public class RegistryService
     
     // The transaction did not error out, so it is safe to put into the cache.
     adapter.getMetadataCache().addHierarchyType(hierarchyType);
+    
+    ((Session)Session.getCurrentSession()).reloadPermissions();
     
     return hierarchyType;
   }
