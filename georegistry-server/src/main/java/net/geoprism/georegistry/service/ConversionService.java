@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.GeoObjectStatus;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -50,8 +51,18 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.IsARelationship;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
+import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
+import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
+import com.runwaysdk.system.gis.metadata.MdAttributeMultiPoint;
+import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
+import com.runwaysdk.system.gis.metadata.MdAttributePoint;
+import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
 import com.runwaysdk.system.metadata.AssociationType;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
@@ -83,14 +94,133 @@ public class ConversionService
   }
   
   /**
+   * Turns the given {@link HierarchyType} code into the corresponding {@link MdTermRelationship} key for
+   * the {@link Universal} relationship.
+   * 
+   * @param hierarchyCode {@link HierarchyType} code
+   * @return corresponding {@link MdTermRelationship} key.
+   */
+  public static String buildMdTermRelUniversalKey(String hierarchyCode)
+  {
+    // Check for existing GeoPrism hierarchyTypes
+    if (AllowedIn.CLASS.indexOf(hierarchyCode) > -1 ||
+        IsARelationship.CLASS.indexOf(hierarchyCode) > -1)
+    {
+      return GISConstants.GEO_PACKAGE+"."+hierarchyCode;
+    }
+    else
+    {
+      return GISConstants.GEO_PACKAGE+"."+hierarchyCode+RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
+    }
+  }
+  
+  /**
+   * Convert the given {@link MdTermRelationShip} key for {@link Universal}s into a {@link HierarchyType} key.
+   * 
+   * @param mdTermRelKey {@link MdTermRelationShip} key 
+   * @return a {@link HierarchyType} key.
+   */
+  public static String buildHierarchyKeyFromMdTermRelUniversal(String mdTermRelKey)
+  {   
+    int startIndex = GISConstants.GEO_PACKAGE.length()+1;
+
+    int endIndex = mdTermRelKey.indexOf(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
+    
+    String hierarchyKey;
+    if (endIndex > -1)
+    {
+      hierarchyKey = mdTermRelKey.substring(startIndex, endIndex);
+    }
+    else
+    {
+      hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
+    }
+
+    return hierarchyKey;
+  }
+  
+  /**
+   * Turns the given {@link MdTermRelationShip} key for a {@link Universal} into the corresponding 
+   * {@link MdTermRelationship} key for the {@link GeoEntity} relationship.
+   * 
+   * @param hierarchyCode {@link HierarchyType} code
+   * @return corresponding {@link MdTermRelationship} key.
+   */
+  public static String buildMdTermRelGeoEntityKey(String hierarchyCode)
+  {
+    // Check for existing GeoPrism hierarchyTypes
+    if (AllowedIn.CLASS.indexOf(hierarchyCode) > -1)
+    {
+      return LocatedIn.CLASS;
+    }
+    else if (IsARelationship.CLASS.indexOf(hierarchyCode) > -1)
+    {
+      return ClassifierIsARelationship.CLASS;
+    }
+    else
+    {
+      return GISConstants.GEO_PACKAGE+"."+hierarchyCode;
+    }
+  }
+  
+  /**
+   * Convert the given {@link MdTermRelationShip} key for a {@link GeoEntities} into a {@link HierarchyType} key.
+   * 
+   * @param mdTermRelKey {@link MdTermRelationShip} key 
+   * @return a {@link HierarchyType} key.
+   */
+  public static String buildHierarchyKeyFromMdTermRelGeoEntity(String mdTermRelKey)
+  {   
+    int startIndex = GISConstants.GEO_PACKAGE.length()+1;
+
+    return mdTermRelKey.substring(startIndex, mdTermRelKey.length());
+  }
+  
+  /**
+   * It creates an {@link MdTermRelationship} to model the relationship between {@link Universal}s.
+   * 
    * Needs to occur in a transaction.
    * 
    * @param hierarchyType
    * @return
    */
-  protected MdTermRelationship newHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
+  protected MdTermRelationship newHierarchyToMdTermRelForUniversals(HierarchyType hierarchyType)
   {
     MdBusiness mdBusUniversal = MdBusiness.getMdBusiness(Universal.CLASS);
+    
+    MdTermRelationship mdTermRelationship = new MdTermRelationship();
+    
+    mdTermRelationship.setTypeName(hierarchyType.getCode()+RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
+    mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
+    mdTermRelationship.getDisplayLabel().setValue("Metadata: "+hierarchyType.getLocalizedLabel());
+    mdTermRelationship.getDescription().setValue("Metadata: "+hierarchyType.getLocalizedDescription());
+    mdTermRelationship.setIsAbstract(false);
+    mdTermRelationship.setGenerateSource(false);
+    mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_EVERYTHING);
+    mdTermRelationship.addAssociationType(AssociationType.Graph);
+    mdTermRelationship.setRemove(true);
+    // Create the relationship between different universals.
+    mdTermRelationship.setParentMdBusiness(mdBusUniversal);
+    mdTermRelationship.setParentCardinality("1");   
+    mdTermRelationship.setChildMdBusiness(mdBusUniversal);
+    mdTermRelationship.setChildCardinality("*");
+    mdTermRelationship.setParentMethod("Parent");
+    mdTermRelationship.setChildMethod("Children");
+    
+    return mdTermRelationship;
+  }
+  
+  /**
+   * It creates an {@link MdTermRelationship} to model the relationship between {@link GeoEntity}s.
+   * 
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  protected MdTermRelationship newHierarchyToMdTermRelForGeoEntities(HierarchyType hierarchyType)
+  {
+    MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
     
     MdTermRelationship mdTermRelationship = new MdTermRelationship();
     
@@ -100,15 +230,15 @@ public class ConversionService
     mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
     mdTermRelationship.setIsAbstract(false);
     mdTermRelationship.setGenerateSource(false);
-    mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_EVERYTHING);
+    mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_NOTHING);
     mdTermRelationship.addAssociationType(AssociationType.Graph);
     mdTermRelationship.setRemove(true);
     // Create the relationship between different universals.
-    mdTermRelationship.setParentMdBusiness(mdBusUniversal);
+    mdTermRelationship.setParentMdBusiness(mdBusGeoEntity);
     mdTermRelationship.setParentCardinality("1");   
-    mdTermRelationship.setParentMethod("Parent");
-    mdTermRelationship.setChildMdBusiness(mdBusUniversal);
+    mdTermRelationship.setChildMdBusiness(mdBusGeoEntity);
     mdTermRelationship.setChildCardinality("*");
+    mdTermRelationship.setParentMethod("Parent");
     mdTermRelationship.setChildMethod("Children");
     
     return mdTermRelationship;
@@ -122,38 +252,13 @@ public class ConversionService
    */
   protected MdTermRelationship existingHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
   {
-    String mdTermRelKey = buildMdTermRelationshipKey(hierarchyType.getCode());
+    String mdTermRelKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
   
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
     
     return mdTermRelationship;
   }
   
-  /**
-   * Turns the given {@link HierarchyType} code into the corresponding {@link MdTermRelationship} key.
-   * 
-   * @param hierarchyCode {@link HierarchyType} code
-   * @return corresponding {@link MdTermRelationship} key.
-   */
-  public static String buildMdTermRelationshipKey(String hierarchyCode)
-  {
-    return GISConstants.GEO_PACKAGE+"."+hierarchyCode;
-  }
-  
-  /**
-   * Convert the given {@link MdTermRelationShip} key into a {@link HierarchyType} key.
-   * 
-   * @param mdTermRelKey {@link MdTermRelationShip} key 
-   * @return a {@link HierarchyType} key.
-   */
-  public static String buildHierarchyKey(String mdTermRelKey)
-  {   
-    int startIndex = GISConstants.GEO_PACKAGE.length()+1;
-
-    String hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
-    
-    return hierarchyKey;
-  }
   
   /**
    * 
@@ -162,7 +267,7 @@ public class ConversionService
    */
   public HierarchyType mdTermRelationshipToHierarchyType(MdTermRelationship mdTermRel)
   {
-    String hierarchyKey = buildHierarchyKey(mdTermRel.getKey());
+    String hierarchyKey = buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
     
     HierarchyType ht = new HierarchyType(hierarchyKey, mdTermRel.getDisplayLabel().getValue(), mdTermRel.getDescription().getValue());
     
@@ -250,6 +355,10 @@ public class ConversionService
     universal.setIsLeafType(got.isLeaf());
     universal.getDisplayLabel().setValue(got.getLocalizedLabel());
     universal.getDescription().setValue(got.getLocalizedDescription());
+    
+    com.runwaysdk.system.gis.geo.GeometryType geometryType = convertAdapterToRegistryPolygonType(got.getGeometryType());
+
+    universal.getGeometryType().add(geometryType);
         
     return universal;
   }
@@ -272,7 +381,7 @@ public class ConversionService
   {
     com.runwaysdk.system.gis.geo.GeometryType geoPrismgeometryType = uni.getGeometryType().get(0);
     
-    org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = this.convertPolygonType(geoPrismgeometryType);   
+    org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = this.convertRegistryToAdapterPolygonType(geoPrismgeometryType);   
 
     GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), registry);
 
@@ -314,7 +423,7 @@ public class ConversionService
   /**
    * True if the given {@link MdAttributeConcreteDAOIF} should be converted to an {@link AttributeType}, false otherwise.
    * Standard attributes such as {@link DefaultAttribute} are already defined on a {@link GeoObjectType} and do not 
-   * need to be converted. This method also returns true if the attribute is not a system attribue.
+   * need to be converted. This method also returns true if the attribute is not a system attribute.
    * 
    * @return True if the given {@link MdAttributeConcreteDAOIF} should be converted to an {@link AttributeType}, false otherwise.
    */
@@ -390,31 +499,69 @@ public class ConversionService
    * @param geoPrismgeometryType
    * @return CGR GeometryType
    */
-  private org.commongeoregistry.adapter.constants.GeometryType convertPolygonType(com.runwaysdk.system.gis.geo.GeometryType geoPrismgeometryType)
+  private org.commongeoregistry.adapter.constants.GeometryType convertRegistryToAdapterPolygonType(com.runwaysdk.system.gis.geo.GeometryType geoPrismGeometryType)
   {
-    if (geoPrismgeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
+    if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
     {
       return org.commongeoregistry.adapter.constants.GeometryType.POINT;
     }
-    else if (geoPrismgeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
+    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
     {
       return org.commongeoregistry.adapter.constants.GeometryType.LINE;
     }
-    else if (geoPrismgeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
+    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
     {
       return org.commongeoregistry.adapter.constants.GeometryType.POLYGON;
     }
-    else if (geoPrismgeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
+    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
     {
       return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOINT;
     }
-    else if (geoPrismgeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
+    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
     {
       return org.commongeoregistry.adapter.constants.GeometryType.MULTILINE;
     }
-    else if (geoPrismgeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON))
+    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON))
     {
       return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON;
+    }
+    else
+    {
+      return null;
+    }
+  }
+  
+  /**
+   * Convert Geometry types between the CGR standard by GeoPrism.
+   * 
+   * @param geoPrismgeometryType
+   * @return CGR GeometryType
+   */
+  private com.runwaysdk.system.gis.geo.GeometryType convertAdapterToRegistryPolygonType(org.commongeoregistry.adapter.constants.GeometryType adapterGeometryType)
+  {
+    if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.POINT))
+    {
+      return com.runwaysdk.system.gis.geo.GeometryType.POINT;
+    }
+    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.LINE))
+    {
+      return com.runwaysdk.system.gis.geo.GeometryType.LINE;
+    }
+    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.POLYGON))
+    {
+      return com.runwaysdk.system.gis.geo.GeometryType.POLYGON;
+    }
+    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MULTIPOINT))
+    {
+      return com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT;
+    }
+    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MULTILINE))
+    {
+      return com.runwaysdk.system.gis.geo.GeometryType.MULTILINE;
+    }
+    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON))
+    {
+      return com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON;
     }
     else
     {
@@ -484,7 +631,7 @@ public class ConversionService
    * @param mdBusinessDAO {@link MdBusinessDAO} that will define the default attributes.
    */
   @Transaction
-  public void createDefaultAttributes(MdBusiness definingMdBusiness)
+  public void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
   {    
     MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
     
@@ -538,5 +685,56 @@ public class ConversionService
     objStatusNdAttrEnum.setSelectMultiple(false);
     objStatusNdAttrEnum.setDefiningMdClass(definingMdBusiness);
     objStatusNdAttrEnum.apply();
+    
+    if (universal.getIsLeafType())
+    {
+      com.runwaysdk.system.gis.geo.GeometryType geometryType = universal.getGeometryType().get(0);
+      
+      MdAttributeGeometry mdAttributeGeometry;
+      
+      if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
+      {
+        mdAttributeGeometry = new MdAttributePoint();
+        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
+        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POINT_ATTRIBUTE_LABEL);
+      }
+      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
+      {
+        mdAttributeGeometry = new MdAttributeLineString();
+        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
+        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_LINE_ATTRIBUTE_LABEL);
+      }
+      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
+      {
+        mdAttributeGeometry = new MdAttributePolygon();
+        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
+        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POLYGON_ATTRIBUTE_LABEL);
+      }
+      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
+      {
+        mdAttributeGeometry = new MdAttributeMultiPoint();
+        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
+        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_LABEL);
+
+      }
+      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
+      {
+        mdAttributeGeometry = new MdAttributeMultiLineString();
+        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
+        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_LABEL);
+
+      }
+      else // geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON
+      {
+        mdAttributeGeometry = new MdAttributeMultiPolygon();
+        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
+        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
+      }
+      
+      mdAttributeGeometry.setRequired(false);
+      mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
+      mdAttributeGeometry.apply();
+    }
+    
   }
 }

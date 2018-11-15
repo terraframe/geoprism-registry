@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
@@ -22,6 +23,8 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.ontology.TermAndRel;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
@@ -475,7 +478,7 @@ public class RegistryService
     mdBusiness.apply();
     
     // Add the default attributes.
-    conversionService.createDefaultAttributes(mdBusiness);
+    conversionService.createDefaultAttributes(universal, mdBusiness);
     
     universal.setMdBusiness(mdBusiness);
     
@@ -612,11 +615,30 @@ public class RegistryService
   @Transaction
   private HierarchyType createHierarchyTypeTransaction(HierarchyType hierarchyType)
   {
-    MdTermRelationship mdTermRelationship = conversionService.newHierarchyToMdTermRelationiship(hierarchyType);
+    MdTermRelationship mdTermRelUniversal = conversionService.newHierarchyToMdTermRelForUniversals(hierarchyType);
+    mdTermRelUniversal.apply();
+    this.grantAdmiPermissionsOnMdTermRel(mdTermRelUniversal);
     
-    mdTermRelationship.apply();
+    MdTermRelationship mdTermRelGeoEntity = conversionService.newHierarchyToMdTermRelForGeoEntities(hierarchyType);
+    mdTermRelGeoEntity.apply();
+    this.grantAdmiPermissionsOnMdTermRel(mdTermRelGeoEntity); 
 
-    return conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+    return conversionService.mdTermRelationshipToHierarchyType(mdTermRelUniversal);
+  }
+  private void grantAdmiPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship) 
+  {
+    RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+    
+    registryAdminRole.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.DELETE_PARENT, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.DELETE_CHILD, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.READ_PARENT, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.READ_CHILD, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
   }
   
   
@@ -674,10 +696,16 @@ public class RegistryService
   @Transaction
   private void deleteHierarchyType(String code)
   {
-    String mdTermRelKey = ConversionService.buildMdTermRelationshipKey(code);
+    String mdTermRelUniversalKey = ConversionService.buildMdTermRelUniversalKey(code);
 
-    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
-    mdTermRelationship.delete();
+    MdTermRelationship mdTermRelUniversal = MdTermRelationship.getByKey(mdTermRelUniversalKey);
+    mdTermRelUniversal.delete();
+    
+    
+    String mdTermRelGeoEntityKey = ConversionService.buildMdTermRelGeoEntityKey(code);
+    
+    MdTermRelationship mdTermRelGeoEntity = MdTermRelationship.getByKey(mdTermRelGeoEntityKey);
+    mdTermRelGeoEntity.delete();
   }
   
   /**
@@ -693,7 +721,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    String mdTermRelKey = ConversionService.buildMdTermRelationshipKey(hierarchyTypeCode);
+    String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
     
     this.addToHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
@@ -727,7 +755,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    String mdTermRelKey = ConversionService.buildMdTermRelationshipKey(hierarchyTypeCode);
+    String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
     
     this.removeFromHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);

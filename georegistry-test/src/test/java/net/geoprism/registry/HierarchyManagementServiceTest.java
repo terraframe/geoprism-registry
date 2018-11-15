@@ -2,6 +2,8 @@ package net.geoprism.registry;
 
 import java.util.Locale;
 
+import net.geoprism.GeoprismUser;
+import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
 
@@ -23,7 +25,6 @@ import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.constants.MdBusinessInfo;
-import com.runwaysdk.constants.UserInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -44,29 +45,36 @@ public class HierarchyManagementServiceTest
   /**
    * The test user object
    */
-  private static UserDAO                  newUser;
+//  private static UserDAO                  newUser;
+  private static GeoprismUser             newUser;
   
   /**
    * The username for the user
    */
-  private final static String             USERNAME                 = "btables";
+  private final static String             USERNAME                          = "btables";
+  
+  private static String                   USER_KEY                          = "";
 
   /**
    * The password for the user
    */
-  private final static String             PASSWORD                 = "1234";
+  private final static String             PASSWORD                          = "1234";
 
-  private final static int                sessionLimit             = 2;
+  private final static int                sessionLimit                      = 2;
   
-  private final static String             COUNTRY_CODE             = "CountryTest";
+  private final static String             COUNTRY_CODE                      = "CountryTest";
   
-  private final static String             PROVINCE_CODE            = "ProvinceTest";
+  private final static String             PROVINCE_CODE                     = "ProvinceTest";
   
-  private final static String             DISTRICT_CODE            = "DistrictTest";
+  private final static String             DISTRICT_CODE                     = "DistrictTest";
   
-  private final static String             VILLAGE_CODE             = "VillageTest";
+  private final static String             VILLAGE_CODE                      = "VillageTest";
   
-  private final static String             REPORTING_DIVISION_CODE  = "ReportingDivision";
+  private final static String             RIVER_CODE                        = "RiverTest";
+  
+  private final static String             REPORTING_DIVISION_CODE           = "ReportingDivision";
+  
+  private final static String             ADMINISTRATIVE_DIVISION_CODE      = "AdministrativeDivision";
   
   @BeforeClass
   @Request
@@ -87,30 +95,48 @@ public class HierarchyManagementServiceTest
     try
     {
       // Create a new user
-      newUser = UserDAO.newInstance();
-      newUser.setValue(UserInfo.USERNAME, USERNAME);
-      newUser.setValue(UserInfo.PASSWORD, PASSWORD);
-      newUser.setValue(UserInfo.SESSION_LIMIT, Integer.toString(sessionLimit));
+//      newUser = UserDAO.newInstance();
+//      newUser.setValue(UserInfo.USERNAME, USERNAME);
+//      newUser.setValue(UserInfo.PASSWORD, PASSWORD);
+//      newUser.setValue(UserInfo.SESSION_LIMIT, Integer.toString(sessionLimit));
+//      newUser.apply();
+      
+      newUser = new GeoprismUser();
+      newUser.setUsername(USERNAME);
+      newUser.setPassword(PASSWORD);
+      newUser.setFirstName("Bobby");
+      newUser.setLastName("Tables");
+      newUser.setEmail("bobby@tables.com");
+      newUser.setSessionLimit(sessionLimit);
       newUser.apply();
       
-      // Make the user an admin
-      RoleDAO adminRole = RoleDAO.findRole(RoleDAO.ADMIN_ROLE).getBusinessDAO();
-      adminRole.assignMember(newUser);
+      // Make the user an admin //
+//      RoleDAO adminRole = RoleDAO.findRole(RegistryConstants.REGISTRY_ADMIN_ROLE).getBusinessDAO();
+      
+      RoleDAO adminRole = RoleDAO.findRole(RegistryConstants.REGISTRY_ADMIN_ROLE).getBusinessDAO();
+      adminRole.assignMember((UserDAO)BusinessFacade.getEntityDAO(newUser));
     }
     catch (DuplicateDataException e) {}
+    
+    USER_KEY = "Users."+USERNAME;
   }
   
   @AfterClass
   @Request
   public static void tearDown()
   {
-    tearDownTransaction();
-    
-    LocalProperties.setSkipCodeGenAndCompile(false);
+    try
+    {
+      tearDownTransaction();
+    }
+    finally
+    {
+      LocalProperties.setSkipCodeGenAndCompile(false);
+    }
   }
   @Transaction
   private static void tearDownTransaction()
-  {
+  {    
     // Just in case a previous test did not clean up properly.   
     try
     {
@@ -132,20 +158,41 @@ public class HierarchyManagementServiceTest
     
     try
     {
-      Universal provinceTestUniversal = Universal.getByKey(COUNTRY_CODE);
-      provinceTestUniversal.delete();
+      Universal countryTestUniversal = Universal.getByKey(COUNTRY_CODE);
+      countryTestUniversal.delete();
     } catch (DataNotFoundException e) {} 
     
     try
     {
-      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelationshipKey(REPORTING_DIVISION_CODE));
+      Universal riverTestUniversal = Universal.getByKey(RIVER_CODE);
+      riverTestUniversal.delete();
+    } catch (DataNotFoundException e) {} 
+    
+    try
+    {
+      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(REPORTING_DIVISION_CODE));
       mdTermRelationship.delete();
     } catch (DataNotFoundException e) {} 
     
-    if (newUser.isAppliedToDB())
+    try
     {
-      newUser.getBusinessDAO().delete();
-    }  
+      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(ADMINISTRATIVE_DIVISION_CODE));
+      mdTermRelationship.delete();
+    } catch (DataNotFoundException e) {} 
+    
+    try
+    {
+      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(REPORTING_DIVISION_CODE));
+      mdTermRelationship.delete();
+    } catch (DataNotFoundException e) {} 
+    
+    try
+    {
+      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(ADMINISTRATIVE_DIVISION_CODE));
+      mdTermRelationship.delete();
+    } catch (DataNotFoundException e) {} 
+    
+    GeoprismUser.getByKey(USER_KEY).delete();
   }
   
   @Test
@@ -158,7 +205,7 @@ public class HierarchyManagementServiceTest
     
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry);
     String gtJSON = province.toJSON().toString();
-    
+
     try
     {
       service.createGeoObjectType(sessionId, gtJSON);
@@ -241,7 +288,303 @@ public class HierarchyManagementServiceTest
     }
   }
 
+  @Test
+  public void testCreateGeoObjectTypePoint()
+  {  
+    String sessionId = this.logInAdmin();
+   
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+    
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, "Village", "", false, registry);
+    String villageJSON = village.toJSON().toString();
+
+    try
+    {
+      service.createGeoObjectType(sessionId, villageJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    checkAttributePoint(VILLAGE_CODE);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, VILLAGE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  } 
   
+  @Test
+  public void testCreateGeoObjectTypeLine()
+  {  
+    String sessionId = this.logInAdmin();
+   
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+   
+    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.LINE, "River", "", false, registry);
+    String riverJSON = river.toJSON().toString();
+
+    try
+    {
+      service.createGeoObjectType(sessionId, riverJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+    checkAttributeLine(RIVER_CODE);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, RIVER_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  } 
+  
+  @Test
+  public void testCreateGeoObjectTypePolygon()
+  {  
+    String sessionId = this.logInAdmin();
+   
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+   
+    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, "District", "", false, registry);
+    String gtJSON = geoObjectType.toJSON().toString();
+
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+    checkAttributePolygon(DISTRICT_CODE);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, DISTRICT_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  } 
+  
+  @Test
+  public void testCreateGeoObjectTypeMultiPoint()
+  {  
+    String sessionId = this.logInAdmin();
+   
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+    
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.MULTIPOINT, "Village", "", false, registry);
+    String villageJSON = village.toJSON().toString();
+
+    try
+    {
+      service.createGeoObjectType(sessionId, villageJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    checkAttributeMultiPoint(VILLAGE_CODE);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, VILLAGE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  } 
+  
+  @Test
+  public void testCreateGeoObjectTypeMultiLine()
+  {  
+    String sessionId = this.logInAdmin();
+   
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+   
+    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.MULTILINE, "River", "", false, registry);
+    String riverJSON = river.toJSON().toString();
+
+    try
+    {
+      service.createGeoObjectType(sessionId, riverJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+    checkAttributeMultiLine(RIVER_CODE);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, RIVER_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  } 
+  
+  @Test
+  public void testCreateGeoObjectTypeMultiPolygon()
+  {  
+    String sessionId = this.logInAdmin();
+   
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+   
+    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.MULTIPOLYGON, "District", "", false, registry);
+    String gtJSON = geoObjectType.toJSON().toString();
+
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+    checkAttributeMultiPolygon(DISTRICT_CODE);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, DISTRICT_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  } 
+  
+  @Request
+  private void checkAttributePoint(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+    
+    try
+    {
+      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
+    }
+    catch (DataNotFoundException e)
+    {
+      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
+    }
+  }
+  @Request
+  private void checkAttributeLine(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+    
+    try
+    {
+      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
+    }
+    catch (DataNotFoundException e)
+    {
+      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
+    }
+  }
+  @Request
+  private void checkAttributePolygon(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+    
+    try
+    {
+      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
+    }
+    catch (DataNotFoundException e)
+    {
+      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
+    }
+  }
+  @Request
+  private void checkAttributeMultiPoint(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+    
+    try
+    {
+      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
+    }
+    catch (DataNotFoundException e)
+    {
+      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
+    }
+  }
+  @Request
+  private void checkAttributeMultiLine(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+    
+    try
+    {
+      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
+    }
+    catch (DataNotFoundException e)
+    {
+      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
+    }
+  }
+  @Request
+  private void checkAttributeMultiPolygon(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+    
+    try
+    {
+      mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
+    }
+    catch (DataNotFoundException e)
+    {
+      Assert.fail("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
+    }
+  }
+
+
+
   @Test
   public void testUpdateGeoObjectType()
   {      
@@ -302,7 +645,7 @@ public class HierarchyManagementServiceTest
     
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The rporting division hieracy...", registry);
     String gtJSON = reportingDivision.toJSON().toString();
-    
+
     String sessionId = this.logInAdmin();
     try
     {
@@ -324,7 +667,7 @@ public class HierarchyManagementServiceTest
 
       HierarchyType hierarchy = hierarchies[0];
       
-      Assert.assertEquals("", "Reporting Division", hierarchy.getLocalizedLabel());
+      Assert.assertEquals("", "Metadata: Reporting Division", hierarchy.getLocalizedLabel());
     }
     finally
     {
@@ -399,7 +742,11 @@ public class HierarchyManagementServiceTest
 
     GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POLYGON, "Village Test", "Some Description", false, registry);
     
-    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The rporting division hieracy...", registry);
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The reporting division hieracy...", registry);
+    
+    HierarchyType administrativeDivision = MetadataFactory.newHierarchyType(ADMINISTRATIVE_DIVISION_CODE, "Administrative Division", "The administrative division hieracy...", registry);
+    
+    
     
     // Create the GeoObjectTypes
     String sessionId = this.logInAdmin();
@@ -420,7 +767,17 @@ public class HierarchyManagementServiceTest
       String htJSON = reportingDivision.toJSON().toString();
       reportingDivision = service.createHierarchyType(sessionId, htJSON);
       
-      
+      String htJSON2 = administrativeDivision.toJSON().toString();
+      administrativeDivision = service.createHierarchyType(sessionId, htJSON2);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    // Log out and log back in so as to get the latest user permissions.  
+    sessionId = this.logInAdmin();
+    try
+    {
       Assert.assertEquals("HierarchyType \""+REPORTING_DIVISION_CODE+"\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
       
       reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), Universal.ROOT, country.getCode());
@@ -506,6 +863,8 @@ public class HierarchyManagementServiceTest
       service.deleteGeoObjectType(sessionId, COUNTRY_CODE);
       
       service.deleteHierarchyType(sessionId, REPORTING_DIVISION_CODE);
+      
+      service.deleteHierarchyType(sessionId, ADMINISTRATIVE_DIVISION_CODE);
     }
     finally
     {
@@ -543,6 +902,8 @@ System.out.println(hierarchyType.toJSON());
   private String logInAdmin()
   {
     return SessionFacade.logIn(USERNAME, PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
+    
+//    return SessionFacade.logIn("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
   }
   
   /**
