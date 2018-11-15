@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
@@ -24,7 +25,6 @@ import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
@@ -627,7 +627,7 @@ public class RegistryService
   }
   private void grantAdmiPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship) 
   {
-    RoleDAO registryAdminRole = RoleDAO.findRole(RegistryConstants.REGISTRY_ADMIN_ROLE).getBusinessDAO();
+    RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
     
     registryAdminRole.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
     registryAdminRole.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
