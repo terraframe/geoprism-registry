@@ -102,6 +102,11 @@ export class HierarchyComponent implements OnInit {
 		      else if (a.localizedLabel.toLowerCase() > b.localizedLabel.toLowerCase()) return 1;
 		      else return 0;
 		  });
+		  
+		  let pos = this.getGeoObjectTypePosition("ROOT");
+		  if(pos){
+			  this.geoObjectTypes.splice(pos, 1);
+		  }
 	  
 		  this.hierarchyService.getHierarchyTypes([])
 		    .then( types => {
@@ -133,6 +138,21 @@ export class HierarchyComponent implements OnInit {
 		  this.nodes = hierarchy.rootGeoObjectTypes;
 		  this.currentHierarchy = hierarchy;
 		  break;
+		}
+	  }
+	  
+	  setTimeout(() => {
+		  this.tree.treeModel.expandAll();
+	  }, 1)
+  }
+  
+  private setNodesForHierarchy(hierarchyType: HierarchyType):void {
+	  for(let i=0; i<this.hierarchies.length; i++){
+		let hierarchy = this.hierarchies[i];
+		if(hierarchy.code === hierarchyType.code){
+		   this.nodes = hierarchyType.rootGeoObjectTypes;
+		   this.currentHierarchy = hierarchy;
+		   break;
 		}
 	  }
 	  
@@ -412,6 +432,7 @@ export class HierarchyComponent implements OnInit {
       } );
       this.bsModalRef.content.allGeoObjectTypes = this.geoObjectTypes;
       this.bsModalRef.content.parent = "ROOT";
+      this.bsModalRef.content.toRoot = true;
       this.bsModalRef.content.hierarchyType = this.currentHierarchy;
       this.bsModalRef.content.nodes = this.nodes;
 
@@ -420,9 +441,11 @@ export class HierarchyComponent implements OnInit {
           that.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
           that.updateHierarchy(hierarchyType.code, hierarchyType.rootGeoObjectTypes)
           
-          that.setNodesOnInit();
+          that.setNodesForHierarchy(hierarchyType);
 
-          this.tree.treeModel.update();
+          if(this.tree){
+            this.tree.treeModel.update();
+          }
       } );
   }
   
@@ -438,6 +461,7 @@ export class HierarchyComponent implements OnInit {
       } );
       this.bsModalRef.content.allGeoObjectTypes = this.geoObjectTypes;
       this.bsModalRef.content.parent = parent;
+      this.bsModalRef.content.toRoot = false;
       this.bsModalRef.content.hierarchyType = this.currentHierarchy;
       this.bsModalRef.content.nodes = this.nodes;
 
@@ -448,9 +472,11 @@ export class HierarchyComponent implements OnInit {
           that.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
           that.updateHierarchy(hierarchyType.code, hierarchyType.rootGeoObjectTypes)
           
-          that.setNodesOnInit();
+          that.setNodesForHierarchy(hierarchyType);
 
-          this.tree.treeModel.update();
+          if(this.tree){
+            this.tree.treeModel.update();
+          }
       } );
   }
   

@@ -47,6 +47,10 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
         } );
         
     }
+    
+    toggleIsLeaf(): void {
+    	this.geoObjectType.isLeaf = !this.geoObjectType.isLeaf;
+    }
 
     error( err: any ): void {
         // Handle error

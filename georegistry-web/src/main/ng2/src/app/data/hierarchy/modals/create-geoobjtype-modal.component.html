@@ -43,13 +43,28 @@
        </div>
     </div>
     
+    <div class="form-group">
+      <div >
+<!--          <label for="isLeafNodeInput">Leaf Node</label> -->
+<!--         <input  [(ngModel)]="geoObjectType.isLeaf" name="isLeafNode" type="input" class="form-control" id="isLeafNodeInput" placeholder="Description..."> -->
+
+        <div class="check-block" style="display: inline-block;">
+         <div (click)="toggleIsLeaf()" [ngClass]="{'chk-checked' : geoObjectType.isLeaf}" style="margin:0;" class="jcf-unselectable chk-area">
+          <span></span>
+         </div>
+    
+         <label class="checkbox-label">Is Leaf Node</label>
+        </div>
+       </div>
+    </div>
+    
     <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
       <div class="ui-dialog-buttonset">
-        <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text">Ok</span>
-        </button>
         <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
           <span class="ui-button-text">Cancel</span>
+        </button>
+        <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+          <span class="ui-button-text">Ok</span>
         </button>
       </div>
     </div>

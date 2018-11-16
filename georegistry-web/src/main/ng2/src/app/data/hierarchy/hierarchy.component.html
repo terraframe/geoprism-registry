@@ -32,7 +32,7 @@
         </div>
         <div *ngIf="nodes.length === 0" class="tree">
           <div>
-            <button type="submit" class="btn btn-primary" (click)="addChildAndRootToHierarchy()">Create</button>
+            <button type="submit" class="btn btn-primary" (click)="addChildAndRootToHierarchy()">Add</button>
           </div>
         </div>
       </div>
@@ -41,9 +41,10 @@
         <h3>Available Types</h3>
         <hr>
         <ul class="list-group" (treeDrop)="onDrop($event)" [treeAllowDrop]="allowDrop.bind(this)">
-          <li class="list-group-item draggable" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes"
+          <!-- Add the draggable class for drag & drop -->
+          <li class="list-group-item" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes"
           [treeDrag]="{id:type.code, name: type.localizedLabel }" [treeDragEnabled]="true">
-            {{type.localizedLabel}} <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i>
+            {{type.localizedLabel}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" aria-hidden="true"></i> <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i>
           </li>
         </ul>
         

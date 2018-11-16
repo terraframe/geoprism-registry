@@ -29,6 +29,8 @@ export class CreateChildModalComponent implements OnInit {
 
     private selectUndefinedOptionValue: any;
 
+	private toRoot: boolean = false;
+
     message: string = null;
 
     /*
@@ -53,8 +55,9 @@ export class CreateChildModalComponent implements OnInit {
     
     handleOnSubmit(): void {
         this.message = null;
-
-        this.hierarchyService.addChildToHierarchy( this.hierarchyType.code, this.parent.data === "ROOT" ? this.parent.data.geoObjectType : "ROOT", this.selectedGeoObjectType.code ).then( data => {
+        
+        let parent = (this.toRoot) ? "ROOT" : this.parent.data.geoObjectType;
+        this.hierarchyService.addChildToHierarchy( this.hierarchyType.code, parent, this.selectedGeoObjectType.code ).then( data => {
             this.onNodeChange.next( data );
             this.bsModalRef.hide();
         } ).catch(( err: any ) => {

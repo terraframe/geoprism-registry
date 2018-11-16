@@ -26,11 +26,11 @@
     
     <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
       <div class="ui-dialog-buttonset">
-        <button type="submit" [disabled]="hierarchyType.code.length < 1 && hierarchyType.localizedLabel.length < 1" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text">Ok</span>
-        </button>
         <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
           <span class="ui-button-text">Cancel</span>
+        </button>
+        <button type="submit" [disabled]="hierarchyType.code.length < 1 && hierarchyType.localizedLabel.length < 1" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+          <span class="ui-button-text">Ok</span>
         </button>
       </div>
     </div>
