@@ -56,6 +56,7 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.mapping.GeoserverFacade;
 import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
 import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
 import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
@@ -358,8 +359,10 @@ public class ConversionService
     
     com.runwaysdk.system.gis.geo.GeometryType geometryType = convertAdapterToRegistryPolygonType(got.getGeometryType());
 
-    universal.getGeometryType().add(geometryType);
-        
+    // Clear the default value
+    universal.clearGeometryType();
+    universal.addGeometryType(geometryType);
+
     return universal;
   }
   
@@ -733,8 +736,8 @@ public class ConversionService
       
       mdAttributeGeometry.setRequired(false);
       mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
+      mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
       mdAttributeGeometry.apply();
-    }
-    
+   }    
   }
 }
