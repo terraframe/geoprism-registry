@@ -9,10 +9,10 @@
   <meta charset='utf-8' />
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   
-  <title><gdb:localize key="project.management.title"/></title>
+  <title><gdb:localize key="cgr.title"/></title>
   <link rel="icon" href="${pageContext.request.contextPath}/net/geoprism/images/splash_logo_icon.png"/>  
   
-  <base href="<%=request.getContextPath()%>/hierarchies">
+  <base href="<%=request.getContextPath()%>/cgr/hierarchies">
   
   <style>
     body { background-color:#efe9e1 }
@@ -44,11 +44,11 @@
 
 <body>
 <!--   <div> -->
-    <uasdm-app>
-    </uasdm-app>
+    <cgr-app>
+    </cgr-app>
 
-<!--     <script type="text/javascript" src="https://localhost:8080/dist/uasdm-app.js"></script>       -->
-    <script type="text/javascript" src="${pageContext.request.contextPath}/dist/uasdm-app.js"></script>      
+<!--     <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script>       -->
+    <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-app.js"></script>      
 <!--   </div> -->
 </body>
   
