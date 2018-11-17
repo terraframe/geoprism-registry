@@ -8,3 +8,5 @@
 The <a href="https://github.com/terraframe/common-geo-registry-specification" target="_blank">Common Geo-Registry specification </a> which this project implements.
 
 
+## REST API Documentation
+https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/
