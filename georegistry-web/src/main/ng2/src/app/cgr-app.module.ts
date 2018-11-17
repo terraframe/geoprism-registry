@@ -30,7 +30,6 @@ import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { HierarchyService } from './service/hierarchy.service';
 import { EventService } from './event/event.service';
 
-import { CoreModule } from '@terraframe/core/core.module';
 
 import './rxjs-extensions';
 
@@ -40,7 +39,6 @@ import './rxjs-extensions';
     FormsModule,
     HttpModule,    
     CgrAppRoutingModule,
-    CoreModule,
     ReactiveFormsModule,
     ModalModule.forRoot(),
     TreeModule.forRoot(),
