@@ -30,7 +30,6 @@ import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { HierarchyService } from './service/hierarchy.service';
 import { EventService } from './event/event.service';
 
-
 import './rxjs-extensions';
 
 @NgModule({
