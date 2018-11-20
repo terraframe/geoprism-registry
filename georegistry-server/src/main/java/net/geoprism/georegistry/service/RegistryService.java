@@ -228,9 +228,12 @@ public class RegistryService
       }
     }
     
-    // TODO : STATUS
+    // TODO : Set the status on the GeoEntity
     
     ge.apply();
+    
+    geoObject.setUid(ge.getOid());
+    // TODO : Set the status on the object we're returning
     
     return geoObject;
   }

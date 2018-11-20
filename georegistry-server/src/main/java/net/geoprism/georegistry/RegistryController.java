@@ -63,6 +63,22 @@ public class RegistryController
   }
   
   /**
+   * Executes the provided actions in the order they exist in the provided json array as a single transaction.
+   * 
+   * @param request
+   * @param uid
+   * @return
+   * @throws JSONException
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.EXECUTE_ACTIONS)
+  public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "actions") String actions) throws JSONException
+  {
+    this.registryService.executeActions(request.getSessionId(), actions);
+    
+    return new RestResponse();
+  }
+  
+  /**
    * Returns a GeoObject with the given uid.
    *
    * @pre
