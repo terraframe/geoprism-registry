@@ -8,11 +8,11 @@ import com.runwaysdk.session.Request;
  * 
  * @author rrowlands
  */
-public class FullStackIntegrationTestDatabaseBuilder
+public class AndroidIntegrationTestDatabaseBuilder
 {
   public static void main(String[] args)
   {
-    FullStackIntegrationTestDatabaseBuilder.build();
+    AndroidIntegrationTestDatabaseBuilder.build();
   }
   
   @Request
@@ -22,5 +22,7 @@ public class FullStackIntegrationTestDatabaseBuilder
     data.setUp();
     
     data.newTestGeoEntityInfo("Utah", USATestData.STATE).delete();
+    data.newTestGeoEntityInfo("California", USATestData.STATE).delete();
+    data.newTestGeoEntityInfo("TEST_ADD_CHILD", USATestData.STATE).apply();
   }
 }

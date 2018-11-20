@@ -98,6 +98,25 @@ public class RegistryController
    }
    
    /**
+    * Returns a GeoObject with the given code.
+    *
+    * @pre
+    * @post
+    *
+    * @param uid The UID of the GeoObject.
+    *
+    * @returns a GeoObject in GeoJSON format with the given uid.
+    * @throws
+    **/
+    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_GET_CODE)
+    public ResponseIF getGeoObjectByCode(ClientRequestIF request, @RequestParamter(name = "code") String code) throws JSONException
+    {
+      GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code);
+      
+      return new RestBodyResponse(geoObject.toJSON());
+    }
+   
+   /**
    * Update a new GeoObject in the Common Geo-Registry
    *
    * @pre 
@@ -203,15 +222,15 @@ public class RegistryController
    }   
    
    /**
-    * Creates a relationship between @parentCode and @childCode.
+    * Creates a relationship between @parentUid and @childUid.
     *
-    * @pre Both parentCode and childCode have already been persisted / applied
-    * @post A relationship will exist between @parentCode and @childCode
+    * @pre Both the parent and child have already been persisted / applied
+    * @post A relationship will exist between @parent and @child
     *
     * @returns ParentTreeNode The new node which was created with the provided parent.
     */
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_ADD_CHILD)
-   public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = "parent") String parentRef, @RequestParamter(name = "child") String childRef, @RequestParamter(name = "hierarchy") String hierarchyRef)
+   public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = "parentUid") String parentRef, @RequestParamter(name = "childUid") String childRef, @RequestParamter(name = "hierarchyCode") String hierarchyRef)
    {
      ParentTreeNode pn = this.registryService.addChild(request.getSessionId(), parentRef, childRef, hierarchyRef);
      
@@ -219,20 +238,29 @@ public class RegistryController
    }
    
    /**
-    * Return GeoOjectType objects that define the given list of types.
+    * Returns an array of {@link GeoOjectType} objects that define the given list of types.
     *
      * @pre 
     * @post 
     *
-    * @param types An array of GeoObjectType codes. If blank then all GeoObjectType objects are returned.
+    * @param types A serialized json array of GeoObjectType codes. If blank then all GeoObjectType objects are returned.
     *
      * @returns
     * @throws
     **/
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
-   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "types") String types)
    {
-     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), types);
+     
+     JSONArray jaTypes = new JSONArray(types);
+     
+     String[] aTypes = new String[jaTypes.length()];
+     for (int i = 0; i < jaTypes.length(); i++)
+     {
+       aTypes[i] = jaTypes.getString(i);
+     }
+     
+     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes);
      
      JsonArray jarray = new JsonArray();
      for (int i = 0; i < gots.length; ++i)
@@ -286,7 +314,9 @@ public class RegistryController
    }   
     
    /**
-    * Returns HierarchyTypes that define the given list of types. If no types are provided then all will be returned.
+    * Returns an array of {@link HierarchyType} that define the given list of types. If no types are provided then all will be returned.
+    * 
+    * @param types A serialized json array of HierarchyType codes that will be retrieved.
     */
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.HIERARCHY_TYPE_GET_ALL)
    public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String types)
