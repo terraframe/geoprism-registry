@@ -187,7 +187,7 @@ public class RegistryServiceTest
   @Request
   public void testGetHierarchyTypes()
   {
-    String[] types = new String[]{ LocatedIn.CLASS, AllowedIn.CLASS };
+    String[] types = new String[]{ LocatedIn.class.getSimpleName() };
 
     HierarchyType[] hts = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), types);
     
@@ -196,9 +196,6 @@ public class RegistryServiceTest
     HierarchyType locatedIn = hts[0];
     USATestData.assertEqualsHierarchyType(LocatedIn.CLASS, locatedIn);
     Assert.assertEquals(locatedIn.toJSON().toString(), HierarchyType.fromJSON(locatedIn.toJSON().toString(), adapter).toJSON().toString());
-    
-    HierarchyType allowedIn = hts[1];
-    USATestData.assertEqualsHierarchyType(AllowedIn.CLASS, allowedIn);
     
     // Test to make sure we can provide no types and get everything back
     HierarchyType[] hts2 = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), new String[]{});
@@ -215,7 +212,7 @@ public class RegistryServiceTest
     TestGeoEntityInfo testAddChild = data.newTestGeoEntityInfo("TEST_ADD_CHILD", USATestData.STATE);
     testAddChild.apply();
     
-    ParentTreeNode ptnTestState = data.registryService.addChild(data.systemSession.getSessionId(), USATestData.USA.getUid(), testAddChild.getUid(), LocatedIn.CLASS);
+    ParentTreeNode ptnTestState = data.registryService.addChild(data.systemSession.getSessionId(), USATestData.USA.getUid(), testAddChild.getUid(), LocatedIn.class.getSimpleName());
     
     boolean found = false;
     for (ParentTreeNode ptnUSA : ptnTestState.getParents())
@@ -268,7 +265,7 @@ public class RegistryServiceTest
     int i = 0;
     
     // Add Child
-    AddChildAction addChild = new AddChildAction(testAddChild.getUid(), testAddChildParent.getUid(), LocatedIn.CLASS);
+    AddChildAction addChild = new AddChildAction(testAddChild.getUid(), testAddChildParent.getUid(), LocatedIn.class.getSimpleName());
     String addChildJson = addChild.toJSON().toString();
     String addChildJson2 = AddChildAction.fromJSON(addChildJson).toJSON().toString();
     Assert.assertEquals(addChildJson, addChildJson2);

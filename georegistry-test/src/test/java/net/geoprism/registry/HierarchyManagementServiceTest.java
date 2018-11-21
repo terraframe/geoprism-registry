@@ -30,8 +30,11 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.system.gis.geo.AllowedIn;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
@@ -95,13 +98,7 @@ public class HierarchyManagementServiceTest
   {    
     try
     {
-      // Create a new user
-//      newUser = UserDAO.newInstance();
-//      newUser.setValue(UserInfo.USERNAME, USERNAME);
-//      newUser.setValue(UserInfo.PASSWORD, PASSWORD);
-//      newUser.setValue(UserInfo.SESSION_LIMIT, Integer.toString(sessionLimit));
-//      newUser.apply();
-      
+      // Create a new user      
       newUser = new GeoprismUser();
       newUser.setUsername(USERNAME);
       newUser.setPassword(PASSWORD);
@@ -111,9 +108,7 @@ public class HierarchyManagementServiceTest
       newUser.setSessionLimit(sessionLimit);
       newUser.apply();
       
-      // Make the user an admin //
-//      RoleDAO adminRole = RoleDAO.findRole(RegistryConstants.REGISTRY_ADMIN_ROLE).getBusinessDAO();
-      
+      // Make the user an admin //      
       RoleDAO adminRole = RoleDAO.findRole(RegistryConstants.REGISTRY_ADMIN_ROLE).getBusinessDAO();
       adminRole.assignMember((UserDAO)BusinessFacade.getEntityDAO(newUser));
     }
@@ -644,6 +639,17 @@ public class HierarchyManagementServiceTest
       logOutAdmin(sessionId);
     }
     
+    
+    // test the types that were created 
+    String mdTermRelUniversal = ConversionService.buildMdTermRelUniversalKey(reportingDivision.getCode());
+    String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE+"."+reportingDivision.getCode()+RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
+    Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
+    
+    String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
+    String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE+"."+reportingDivision.getCode();
+    Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
+        
+    
     sessionId = this.logInAdmin();
     try
     {
@@ -863,6 +869,59 @@ System.out.println(hierarchyType.toJSON());
     }
 
   }  
+  
+  
+  /** 
+   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not follow the common geo registry convention.
+   */
+  @Test
+  public void testLocatedInCode_To_MdTermRelUniversal()
+  {
+    String locatedInClassName = LocatedIn.class.getSimpleName();
+    
+    String mdTermRelUniversalType = ConversionService.buildMdTermRelUniversalKey(locatedInClassName);
+    
+    Assert.assertEquals("HierarchyCode LocatedIn did not get converted to the AllowedIn Universal relationshipType.", AllowedIn.CLASS, mdTermRelUniversalType);
+  }
+  
+  /** 
+   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not follow the common geo registry convention.
+   */
+  @Test
+  public void testToMdTermRelUniversal_To_HierarchyCode()
+  {
+    String allowedInClass = AllowedIn.CLASS;
+    
+    String hierarchyCode = ConversionService.buildHierarchyKeyFromMdTermRelUniversal(allowedInClass);
+    
+    Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
+  }
+  
+  /** 
+   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not follow the common geo registry convention.
+   */
+  @Test
+  public void testLocatedInCode_To_MdTermRelGeoEntity()
+  {
+    String locatedInClassName = LocatedIn.class.getSimpleName();
+    
+    String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(locatedInClassName);
+    
+    Assert.assertEquals("HierarchyCode LocatedIn did not get converted to the AllowedIn Universal relationshipType.", LocatedIn.CLASS, mdTermRelGeoEntity);
+  }
+  
+  /** 
+   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not follow the common geo registry convention.
+   */
+  @Test
+  public void testToMdTermRelGeoEntity_To_HierarchyCode()
+  {
+    String locatedInClass = LocatedIn.CLASS;
+    
+    String hierarchyCode = ConversionService.buildHierarchyKeyFromMdTermRelGeoEntity(locatedInClass);
+    
+    Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
+  }
   
   /**
    * Logs in admin user and returns session id of the user.

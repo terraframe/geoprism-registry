@@ -21,7 +21,6 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
-import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -34,6 +33,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
+import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
@@ -119,8 +119,14 @@ public class RegistryService
       {
         MdTermRelationship mdTermRel  = it2.next();
         
-        HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
+        // Ignore the IsARelationship class between universals. It should be depricated
+        if (mdTermRel.definesType().equals(IsARelationship.CLASS))
+        {
+          continue;
+        }
         
+        HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
+
         adapter.getMetadataCache().addHierarchyType(ht);
       }
     }
@@ -364,7 +370,10 @@ public class RegistryService
       GeoEntity geParent = GeoEntity.get(goParent.getUid());
       GeoEntity geChild = GeoEntity.get(goChild.getUid());
       
-      Relationship rel = geChild.addLink(geParent, hierarchy.getCode());
+      
+      String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(hierarchyCode);
+      
+      geChild.addLink(geParent, mdTermRelGeoEntity);
       
       ParentTreeNode node = new ParentTreeNode(goChild, hierarchy);
       node.addParent(new ParentTreeNode(goParent, hierarchy));

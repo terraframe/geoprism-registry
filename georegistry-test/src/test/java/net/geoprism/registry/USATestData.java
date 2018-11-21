@@ -125,7 +125,7 @@ public class USATestData
   {
     MdRelationship allowedIn = MdRelationship.getMdRelationship(relationshipType);
     
-    Assert.assertEquals(allowedIn.getKey(), compare.getCode());
+    Assert.assertEquals(allowedIn.getTypeName(), compare.getCode());
     Assert.assertEquals(allowedIn.getDescription().getValue(), compare.getLocalizedDescription());
     Assert.assertEquals(allowedIn.getDisplayLabel().getValue(), compare.getLocalizedLabel());
     

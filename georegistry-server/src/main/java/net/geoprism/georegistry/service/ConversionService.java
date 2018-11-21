@@ -102,13 +102,13 @@ public class ConversionService
    * @return corresponding {@link MdTermRelationship} key.
    */
   public static String buildMdTermRelUniversalKey(String hierarchyCode)
-  {
-    // Check for existing GeoPrism hierarchyTypes
-    if (AllowedIn.CLASS.indexOf(hierarchyCode) > -1 ||
-        IsARelationship.CLASS.indexOf(hierarchyCode) > -1)
+  {    
+    // If the code is for the LocatedIn hierarchy, then the relationship that defines the 
+    // Universals for that relationship is AllowedIn.
+    if (hierarchyCode.trim().equals(LocatedIn.class.getSimpleName()))
     {
-      return GISConstants.GEO_PACKAGE+"."+hierarchyCode;
-    }
+      return AllowedIn.CLASS;
+    }    
     else
     {
       return GISConstants.GEO_PACKAGE+"."+hierarchyCode+RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
@@ -123,21 +123,29 @@ public class ConversionService
    */
   public static String buildHierarchyKeyFromMdTermRelUniversal(String mdTermRelKey)
   {   
-    int startIndex = GISConstants.GEO_PACKAGE.length()+1;
-
-    int endIndex = mdTermRelKey.indexOf(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
-    
-    String hierarchyKey;
-    if (endIndex > -1)
+    // the hierarchyType code for the allowed in relationship is the located in relationship
+    if (mdTermRelKey.trim().equals(AllowedIn.CLASS))
     {
-      hierarchyKey = mdTermRelKey.substring(startIndex, endIndex);
+      return LocatedIn.class.getSimpleName();
     }
     else
-    {
-      hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
-    }
+    {   
+      int startIndex = GISConstants.GEO_PACKAGE.length()+1;
 
-    return hierarchyKey;
+      int endIndex = mdTermRelKey.indexOf(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
+    
+      String hierarchyKey;
+      if (endIndex > -1)
+      {
+        hierarchyKey = mdTermRelKey.substring(startIndex, endIndex);
+      }
+      else
+      {
+        hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
+      }
+
+      return hierarchyKey;
+    }
   }
   
   /**
@@ -150,13 +158,9 @@ public class ConversionService
   public static String buildMdTermRelGeoEntityKey(String hierarchyCode)
   {
     // Check for existing GeoPrism hierarchyTypes
-    if (AllowedIn.CLASS.indexOf(hierarchyCode) > -1)
+    if (hierarchyCode.trim().equals(LocatedIn.class.getSimpleName()))
     {
       return LocatedIn.CLASS;
-    }
-    else if (IsARelationship.CLASS.indexOf(hierarchyCode) > -1)
-    {
-      return ClassifierIsARelationship.CLASS;
     }
     else
     {
@@ -270,7 +274,23 @@ public class ConversionService
   {
     String hierarchyKey = buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
     
-    HierarchyType ht = new HierarchyType(hierarchyKey, mdTermRel.getDisplayLabel().getValue(), mdTermRel.getDescription().getValue());
+    String displayLabel;
+    String description;
+    
+    if (mdTermRel.definesType().equals(AllowedIn.CLASS))
+    {
+      MdTermRelationship locatedInMdTermRel = (MdTermRelationship)MdTermRelationship.getMdRelationship(LocatedIn.CLASS);
+      displayLabel = locatedInMdTermRel.getDisplayLabel().getValue();
+      description = locatedInMdTermRel.getDescription().getValue();
+    }
+    else
+    {
+      displayLabel = mdTermRel.getDisplayLabel().getValue();
+      description = mdTermRel.getDescription().getValue();
+    }
+    
+    
+    HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description);
     
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
 
