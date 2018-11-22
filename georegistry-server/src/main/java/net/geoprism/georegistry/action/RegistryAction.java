@@ -19,10 +19,10 @@ abstract public class RegistryAction
       {
         return new RegistryAddChildAction((AddChildAction) action, registry, sessionId);
       }
-      else if (action instanceof DeleteAction)
-      {
-        return new RegistryDeleteAction((DeleteAction) action, registry, sessionId);
-      }
+//      else if (action instanceof DeleteAction)
+//      {
+//        return new RegistryDeleteAction((DeleteAction) action, registry, sessionId);
+//      }
       else
       {
         throw new UnsupportedOperationException(action.getClass().getName());

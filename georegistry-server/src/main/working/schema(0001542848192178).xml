@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.georegistry.IdRecord" label="Id Record">
+        <attributes>
+          <char name="registryId" required="true" indexType="unique index" size="36" label="registryId"/>
+        </attributes>
+      </mdBusiness>
+      <mdException name="net.geoprism.georegistry.InvalidRegistryIdException" label="Invalid Registry Id Exception" message="The provided registry id [{registryId}] is invalid.">
+        <attributes>
+          <char name="registryId" required="true" indexType="unique index" size="36" label="registryId" />
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.georegistry.IdRecord">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.georegistry.IdRecord" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.georegistry.InvalidRegistryIdException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>

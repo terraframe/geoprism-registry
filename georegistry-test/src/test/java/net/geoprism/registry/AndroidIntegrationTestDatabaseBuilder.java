@@ -18,11 +18,10 @@ public class AndroidIntegrationTestDatabaseBuilder
   @Request
   private static void build()
   {
-    USATestData data = new USATestData();
-    data.setUp();
+    USATestData data = USATestData.newTestData();
     
-    data.newTestGeoEntityInfo("Utah", USATestData.STATE).delete();
-    data.newTestGeoEntityInfo("California", USATestData.STATE).delete();
-    data.newTestGeoEntityInfo("TEST_ADD_CHILD", USATestData.STATE).apply();
+    data.newTestGeoObjectInfo("Utah", data.STATE).delete();
+    data.newTestGeoObjectInfo("California", data.STATE).delete();
+    data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.DISTRICT).apply();
   }
 }

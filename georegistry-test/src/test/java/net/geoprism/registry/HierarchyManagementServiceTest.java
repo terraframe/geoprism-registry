@@ -5,6 +5,7 @@ import java.util.Locale;
 import net.geoprism.GeoprismUser;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.ConversionService;
+import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.RegistryService;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -86,9 +87,9 @@ public class HierarchyManagementServiceTest
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
     
-    adapter = RegistryService.getRegistryAdapter();
-    
     service = new RegistryService();
+    
+    adapter = service.getRegistryAdapter();
     
     setUpTransaction();
   }
@@ -197,7 +198,7 @@ public class HierarchyManagementServiceTest
     String sessionId = this.logInAdmin();
    
     
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry);
     String gtJSON = province.toJSON().toString();
@@ -289,7 +290,7 @@ public class HierarchyManagementServiceTest
   {  
     String sessionId = this.logInAdmin();
    
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, "Village", "", true, registry);
     String villageJSON = village.toJSON().toString();
@@ -321,7 +322,7 @@ public class HierarchyManagementServiceTest
   {  
     String sessionId = this.logInAdmin();
    
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
    
     GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.LINE, "River", "", true, registry);
     String riverJSON = river.toJSON().toString();
@@ -353,7 +354,7 @@ public class HierarchyManagementServiceTest
   {  
     String sessionId = this.logInAdmin();
    
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
    
     GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, "District", "", true, registry);
     String gtJSON = geoObjectType.toJSON().toString();
@@ -385,7 +386,7 @@ public class HierarchyManagementServiceTest
   {  
     String sessionId = this.logInAdmin();
    
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.MULTIPOINT, "Village", "", true, registry);
     String villageJSON = village.toJSON().toString();
@@ -417,7 +418,7 @@ public class HierarchyManagementServiceTest
   {  
     String sessionId = this.logInAdmin();
    
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
    
     GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.MULTILINE, "River", "", true, registry);
     String riverJSON = river.toJSON().toString();
@@ -449,7 +450,7 @@ public class HierarchyManagementServiceTest
   {  
     String sessionId = this.logInAdmin();
    
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
    
     GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.MULTIPOLYGON, "District", "", true, registry);
     String gtJSON = geoObjectType.toJSON().toString();
@@ -554,7 +555,7 @@ public class HierarchyManagementServiceTest
   @Test
   public void testUpdateGeoObjectType()
   {      
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province Test", "Some Description", false, registry);
     String gtJSON = province.toJSON().toString();
@@ -604,7 +605,7 @@ public class HierarchyManagementServiceTest
   @Test
   public void testCreateHierarchyType()
   {      
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     // newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry);
     
@@ -664,7 +665,7 @@ public class HierarchyManagementServiceTest
   @Test
   public void testUpdateHierarchyType()
   {      
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     // newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry);
     
@@ -708,7 +709,7 @@ public class HierarchyManagementServiceTest
   @Test
   public void testAddToHierarchy()
   { 
-    RegistryAdapterServer registry = new RegistryAdapterServer();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     GeoObjectType country = MetadataFactory.newGeoObjectType(COUNTRY_CODE, GeometryType.POLYGON, "Country Test", "Some Description", false, registry);
     

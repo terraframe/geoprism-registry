@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.ontology.ClassifierIsARelationship;
-import net.geoprism.registry.GeoObjectStatus;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -46,54 +45,60 @@ import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.gis.mapping.GeoserverFacade;
-import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
-import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiPoint;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
-import com.runwaysdk.system.gis.metadata.MdAttributePoint;
-import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
 import com.runwaysdk.system.metadata.AssociationType;
-import com.runwaysdk.system.metadata.MdAttributeCharacter;
-import com.runwaysdk.system.metadata.MdAttributeEnumeration;
-import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeReference;
-import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdEnumeration;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
 
 public class ConversionService
 {
-  private RegistryAdapter registry;
+  private RegistryAdapter adapter = null;
   
-  protected ConversionService(RegistryAdapter registry)
+  private static ConversionService instance = null;
+  
+  private AdapterUtilities util = null;
+  
+  public ConversionService()
   {
-    this.registry = registry;
   }
   
-  protected RegistryAdapter getRegistry()
+  public synchronized static ConversionService getInstance()
   {
-    return this.registry;
+    if (instance == null)
+    {
+      instance = new ConversionService();
+    }
+    
+    return instance;
   }
   
-  protected void setRegistry(RegistryAdapter registry)
+  public RegistryAdapter getAdapter()
   {
-    this.registry = registry;
+    return this.adapter;
   }
   
+  public void setAdapter(RegistryAdapter adapter)
+  {
+    this.adapter = adapter;
+  }
+  
+  public AdapterUtilities getUtil()
+  {
+    return util;
+  }
+
+  public void setUtil(AdapterUtilities util)
+  {
+    this.util = util;
+  }
+
   /**
    * Turns the given {@link HierarchyType} code into the corresponding {@link MdTermRelationship} key for
    * the {@link Universal} relationship.
@@ -369,7 +374,7 @@ public class ConversionService
    * @param got
    * @return a {@link Universal} from the given {@link GeoObjectType} that is not persisted.
    */
-  protected Universal newGeoObjectTypeToUniversal(GeoObjectType got)
+  public Universal newGeoObjectTypeToUniversal(GeoObjectType got)
   {    
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
@@ -406,7 +411,7 @@ public class ConversionService
     
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = this.convertRegistryToAdapterPolygonType(geoPrismgeometryType);   
 
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), registry);
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), adapter);
 
     geoObjType = convertAttributeTypes(uni, geoObjType);
     
@@ -634,7 +639,7 @@ public class ConversionService
     // TODO : GeometryType is hardcoded
     GeoObject geoObj = new GeoObject(got, GeometryType.POLYGON, attributeMap);
     
-    geoObj.setUid(geoEntity.getOid());
+    geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(geoEntity.getOid(), geoEntity.getUniversal()));
     geoObj.setCode(geoEntity.getGeoId());
     geoObj.setWKTGeometry(geoEntity.getWkt());
     geoObj.setLocalizedDisplayLabel(geoEntity.getDisplayLabel().getValue());
@@ -645,119 +650,5 @@ public class ConversionService
     // TODO : Type attribute?
     
     return geoObj;
-  }
-  
-  /**
-   * Adds default attributes to the given {@link MdBusinessDAO} according to the 
-   * Common Geo-Registry specification for {@link GeoObject}.
-   * 
-   * @param mdBusinessDAO {@link MdBusinessDAO} that will define the default attributes.
-   */
-  @Transaction
-  public void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
-  {    
-    MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
-    
-    MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
-    geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
-    geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
-    geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
-    geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
-    geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
-    geoEntRefMdAttrRef.setRequired(false);
-    geoEntRefMdAttrRef.apply();
-    
-    // DefaultAttribute.UID - Defined on the MdBusiness and the values are from the {@code GeoObject#OID};
-    MdAttributeUUID uuidMdAttr = new MdAttributeUUID();
-    uuidMdAttr.setAttributeName(RegistryConstants.UUID);
-    uuidMdAttr.getDisplayLabel().setValue(RegistryConstants.UUID_LABEL);
-    uuidMdAttr.getDescription().setValue("The universal unique identifier of the feature.");
-    uuidMdAttr.setDefiningMdClass(definingMdBusiness);
-    uuidMdAttr.setRequired(true);
-    uuidMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
-    uuidMdAttr.apply();
-    
-    
-  // DefaultAttribute.CODE - defined by GeoEntity geoId
-    MdAttributeCharacter codeMdAttr = new MdAttributeCharacter();
-    codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
-    codeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
-    codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultLocalizedDescription());
-    codeMdAttr.setDatabaseSize(255);
-    codeMdAttr.setDefiningMdClass(definingMdBusiness);
-    codeMdAttr.setRequired(true);
-    codeMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
-    codeMdAttr.apply();
-    
-  // DefaultAttribute.TYPE - This is the display label of the Universal. BusObject.mdBusiness.Universal.displayLabel
-  
-  // DefaultAttribute.CREATED_DATE - The create data on the Business Object?
-  
-  // DefaultAttribute.UPDATED_DATE - The update data on the Business Object?
-  
-  // DefaultAttribute.STATUS 
-
-    MdEnumeration geoObjectStatusEnum = MdEnumeration.getMdEnumeration(GeoObjectStatus.CLASS);
-    
-    MdAttributeEnumeration objStatusNdAttrEnum = new MdAttributeEnumeration();
-    objStatusNdAttrEnum.setAttributeName(DefaultAttribute.STATUS.getName());
-    objStatusNdAttrEnum.getDisplayLabel().setValue(DefaultAttribute.STATUS.getDefaultLocalizedName());
-    objStatusNdAttrEnum.getDescription().setValue(DefaultAttribute.STATUS.getDefaultLocalizedDescription());
-    objStatusNdAttrEnum.setRequired(true);
-    objStatusNdAttrEnum.setMdEnumeration(geoObjectStatusEnum);
-    objStatusNdAttrEnum.setSelectMultiple(false);
-    objStatusNdAttrEnum.setDefiningMdClass(definingMdBusiness);
-    objStatusNdAttrEnum.apply();
-    
-    if (universal.getIsLeafType())
-    {
-      com.runwaysdk.system.gis.geo.GeometryType geometryType = universal.getGeometryType().get(0);
-      
-      MdAttributeGeometry mdAttributeGeometry;
-      
-      if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
-      {
-        mdAttributeGeometry = new MdAttributePoint();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POINT_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
-      {
-        mdAttributeGeometry = new MdAttributeLineString();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_LINE_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
-      {
-        mdAttributeGeometry = new MdAttributePolygon();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POLYGON_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
-      {
-        mdAttributeGeometry = new MdAttributeMultiPoint();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_LABEL);
-
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
-      {
-        mdAttributeGeometry = new MdAttributeMultiLineString();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_LABEL);
-
-      }
-      else // geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON
-      {
-        mdAttributeGeometry = new MdAttributeMultiPolygon();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
-      }
-      
-      mdAttributeGeometry.setRequired(false);
-      mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
-      mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
-      mdAttributeGeometry.apply();
-   }    
   }
 }
