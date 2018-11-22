@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.GeoObjectStatus;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -53,7 +52,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.mapping.GeoserverFacade;
@@ -760,4 +758,69 @@ public class ConversionService
       mdAttributeGeometry.apply();
    }    
   }
+  
+  /**
+   * Creates a reference attribute to the parent node class.
+   * 
+   * 
+   * @param hierarchyTypeCode
+   * @param parentUniversal
+   * @param childUniversal
+   */
+  @Transaction
+  public static void addParentReferenceToLeafType(String hierarchyTypeCode, Universal parentUniversal, Universal childUniversal)
+  {
+    String mdTermRelKey = buildMdTermRelGeoEntityKey(hierarchyTypeCode);
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey); 
+
+    MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
+    MdBusiness childMdBusiness = childUniversal.getMdBusiness();
+    
+    String refAttrName = getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
+    
+    String displayLabel = "Reference to "+parentUniversal.getDisplayLabel().getValue()+" in hierarchy "+mdTermRelationship.getDisplayLabel().getValue();
+
+    MdAttributeReference mdAttributeReference = new MdAttributeReference();
+    mdAttributeReference.setAttributeName(refAttrName);
+    mdAttributeReference.getDisplayLabel().setValue(displayLabel);
+    mdAttributeReference.getDescription().setValue(displayLabel);
+    mdAttributeReference.setRequired(false);
+    mdAttributeReference.setDefiningMdClass(childMdBusiness);
+    mdAttributeReference.setMdBusiness(parentMdBusiness);
+    mdAttributeReference.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
+    mdAttributeReference.apply();
+
+  }
+  
+  /**
+   * Creates a reference attribute name for a child leaf type that references the parent type
+   * 
+   * @param hierarchyTypeCode
+   * @param parentUniversal
+   * @return
+   */
+  public static String getParentReferenceAttributeName(String hierarchyTypeCode, Universal parentUniversal)
+  {
+    MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
+    String parentTypeName = parentMdBusiness.getTypeName();
+    
+    // Lower case the first character of the hierarchy Code
+    String lowerCaseHierarchyName = Character.toLowerCase(hierarchyTypeCode.charAt(0)) + hierarchyTypeCode.substring(1);
+    if (lowerCaseHierarchyName.length() > 32)
+    {
+      lowerCaseHierarchyName = lowerCaseHierarchyName.substring(0, 31);
+    }
+    
+    // Upper case the first character of the parent class
+    String upperCaseParentClassName = Character.toUpperCase(parentTypeName.charAt(0)) + parentTypeName.substring(1);
+    if (upperCaseParentClassName.length() > 32)
+    {
+      upperCaseParentClassName = upperCaseParentClassName.substring(0, 31);
+    }
+    
+    String refAttrName = lowerCaseHierarchyName+upperCaseParentClassName;
+    
+    return refAttrName;
+  }
+  
 }

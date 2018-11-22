@@ -74,6 +74,8 @@ public class HierarchyManagementServiceTest
   
   private final static String             VILLAGE_CODE                      = "VillageTest";
   
+  private final static String             HOUSEHOLD_CODE                    = "HouseholdTest";
+  
   private final static String             RIVER_CODE                        = "RiverTest";
   
   private final static String             REPORTING_DIVISION_CODE           = "ReportingDivision";
@@ -133,62 +135,87 @@ public class HierarchyManagementServiceTest
   @Transaction
   private static void tearDownTransaction()
   {    
-    // Just in case a previous test did not clean up properly.   
     try
     {
-      Universal universal = Universal.getByKey(VILLAGE_CODE);
-      universal.delete();
-    } catch (DataNotFoundException e) {} 
+      // Just in case a previous test did not clean up properly.  
+      try
+      {
+        Universal riverTestUniversal = Universal.getByKey(RIVER_CODE);
+        MdBusiness mdBusiness = riverTestUniversal.getMdBusiness();
+        riverTestUniversal.delete();
+        mdBusiness.delete();
+      } catch (DataNotFoundException e) {} 
+
+      try
+      {
+        Universal householdTestUniversal = Universal.getByKey(HOUSEHOLD_CODE);
+        MdBusiness mdBusiness = householdTestUniversal.getMdBusiness();
+        householdTestUniversal.delete();
+        mdBusiness.delete();
+      } catch (DataNotFoundException e) {} 
+      
+      try
+      {
+        Universal universal = Universal.getByKey(VILLAGE_CODE);
+        MdBusiness mdBusiness = universal.getMdBusiness();
+        universal.delete();
+        mdBusiness.delete();
+      } catch (DataNotFoundException e) {} 
     
-    try
+      try
+      {
+        Universal universal = Universal.getByKey(DISTRICT_CODE);
+        MdBusiness mdBusiness = universal.getMdBusiness();
+        universal.delete();
+        mdBusiness.delete();
+      } catch (DataNotFoundException e) {} 
+    
+      try
+      {
+        Universal provinceTestUniversal = Universal.getByKey(PROVINCE_CODE);
+        MdBusiness mdBusiness = provinceTestUniversal.getMdBusiness();
+        provinceTestUniversal.delete();
+        mdBusiness.delete();
+      } catch (DataNotFoundException e) {} 
+    
+      try
+      {
+        Universal countryTestUniversal = Universal.getByKey(COUNTRY_CODE);
+        MdBusiness mdBusiness = countryTestUniversal.getMdBusiness();
+        countryTestUniversal.delete();
+        mdBusiness.delete();
+      } catch (DataNotFoundException e) {} 
+    
+      try
+      {
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(REPORTING_DIVISION_CODE));
+        mdTermRelationship.delete();
+      } catch (DataNotFoundException e) {} 
+      
+      try
+      {
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(REPORTING_DIVISION_CODE));
+        mdTermRelationship.delete();
+      } catch (DataNotFoundException e) {} 
+    
+      try
+      {
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(ADMINISTRATIVE_DIVISION_CODE));
+        mdTermRelationship.delete();
+      } catch (DataNotFoundException e) {} 
+      
+      try
+      {
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(ADMINISTRATIVE_DIVISION_CODE));
+        mdTermRelationship.delete();
+      } catch (DataNotFoundException e) {} 
+    
+      GeoprismUser.getByKey(USER_KEY).delete();
+    }
+    catch (RuntimeException e)
     {
-      Universal universal = Universal.getByKey(DISTRICT_CODE);
-      universal.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    try
-    {
-      Universal provinceTestUniversal = Universal.getByKey(PROVINCE_CODE);
-      provinceTestUniversal.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    try
-    {
-      Universal countryTestUniversal = Universal.getByKey(COUNTRY_CODE);
-      countryTestUniversal.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    try
-    {
-      Universal riverTestUniversal = Universal.getByKey(RIVER_CODE);
-      riverTestUniversal.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    try
-    {
-      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(REPORTING_DIVISION_CODE));
-      mdTermRelationship.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    try
-    {
-      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(ADMINISTRATIVE_DIVISION_CODE));
-      mdTermRelationship.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    try
-    {
-      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(REPORTING_DIVISION_CODE));
-      mdTermRelationship.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    try
-    {
-      MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(ADMINISTRATIVE_DIVISION_CODE));
-      mdTermRelationship.delete();
-    } catch (DataNotFoundException e) {} 
-    
-    GeoprismUser.getByKey(USER_KEY).delete();
+      e.printStackTrace();
+    }
   }
   
   @Test
@@ -723,7 +750,6 @@ public class HierarchyManagementServiceTest
     HierarchyType administrativeDivision = MetadataFactory.newHierarchyType(ADMINISTRATIVE_DIVISION_CODE, "Administrative Division", "The administrative division hieracy...", registry);
     
     
-    
     // Create the GeoObjectTypes
     String sessionId = this.logInAdmin();
     try
@@ -745,16 +771,7 @@ public class HierarchyManagementServiceTest
       
       String htJSON2 = administrativeDivision.toJSON().toString();
       administrativeDivision = service.createHierarchyType(sessionId, htJSON2);
-      
-//    }
-//    finally
-//    {
-//      logOutAdmin(sessionId);
-//    }
-//    // Log out and log back in so as to get the latest user permissions.  
-//    sessionId = this.logInAdmin();
-//    try
-//    {
+
       Assert.assertEquals("HierarchyType \""+REPORTING_DIVISION_CODE+"\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
       
       reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), Universal.ROOT, country.getCode());
@@ -826,8 +843,6 @@ public class HierarchyManagementServiceTest
       logOutAdmin(sessionId);
     }
 
-    
-
     sessionId = this.logInAdmin();
     try
     {
@@ -846,6 +861,154 @@ public class HierarchyManagementServiceTest
     finally
     {
       logOutAdmin(sessionId);
+    }
+  }
+  
+  
+  /**
+   * Leaf types cannot be parents in a hierarchy.
+   */
+  @Test
+  public void testAddToLeaf()
+  { 
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province Test", "Some Description", false, registry);
+    
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, "Village Test", "Some Description", false, registry);
+
+    GeoObjectType household = MetadataFactory.newGeoObjectType(HOUSEHOLD_CODE, GeometryType.POINT, "Household Test", "Some Description", true, registry);
+    
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The reporting division hieracy...", registry);
+    
+    // Create the GeoObjectTypes
+    String sessionId = this.logInAdmin();
+    try
+    {
+      String gtJSON = province.toJSON().toString();
+      province = service.createGeoObjectType(sessionId, gtJSON);
+      
+      gtJSON = village.toJSON().toString();
+      village = service.createGeoObjectType(sessionId, gtJSON);
+      
+      gtJSON = household.toJSON().toString();
+      household = service.createGeoObjectType(sessionId, gtJSON);
+      
+      String htJSON = reportingDivision.toJSON().toString();
+      reportingDivision = service.createHierarchyType(sessionId, htJSON);
+
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), Universal.ROOT, province.getCode()); 
+      
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), province.getCode(), household.getCode()); 
+      
+      try
+      {
+        reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), household.getCode(), village.getCode()); 
+      }
+      catch (RuntimeException re)
+      {
+        String expectedMessage = "You cannot add [Village Test] to the hierarchy [Reporting Division] as a child to [Household Test] because [Village Test] is a Leaf Type.";
+        String returnedMessage = re.getLocalizedMessage();
+        
+        Assert.assertEquals("Wrong error message returned when trying to add a GeoObjectType as a child to a Leaf GeoObjectType", expectedMessage, returnedMessage);
+      }
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, HOUSEHOLD_CODE);
+      
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+      
+      service.deleteGeoObjectType(sessionId, VILLAGE_CODE);
+      
+      service.deleteHierarchyType(sessionId, REPORTING_DIVISION_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
+
+  
+  /**
+   * Leaf types cannot be parents in a hierarchy.
+   */
+  @Test
+  public void testLeafReferenceAttributes()
+  { 
+    RegistryAdapterServer registry = new RegistryAdapterServer();
+    
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, "Village Test", "Some Description", false, registry);
+
+    GeoObjectType household = MetadataFactory.newGeoObjectType(HOUSEHOLD_CODE, GeometryType.POINT, "Household Test", "Some Description", true, registry);
+    
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, "Reporting Division", "The reporting division hieracy...", registry);
+    
+    // Create the GeoObjectTypes
+    String sessionId = this.logInAdmin();
+    try
+    {
+      String gtJSON = village.toJSON().toString();
+      village = service.createGeoObjectType(sessionId, gtJSON);
+      
+      gtJSON = household.toJSON().toString();
+      household = service.createGeoObjectType(sessionId, gtJSON);
+      
+      String htJSON = reportingDivision.toJSON().toString();
+      reportingDivision = service.createHierarchyType(sessionId, htJSON);
+      
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), Universal.ROOT, village.getCode()); 
+      reportingDivision = service.addToHierarchy(sessionId, reportingDivision.getCode(), village.getCode(), household.getCode()); 
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+
+    this.checkReferenceAttribute(reportingDivision.getCode(), village.getCode(), household.getCode());  
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteGeoObjectType(sessionId, HOUSEHOLD_CODE);
+      
+      service.deleteGeoObjectType(sessionId, VILLAGE_CODE);
+      
+      service.deleteHierarchyType(sessionId, REPORTING_DIVISION_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }  
+  
+  @Request
+  private void checkReferenceAttribute(String hierarchyTypeCode, String parentCode, String childCode)
+  {
+    Universal parentUniversal = Universal.getByKey(parentCode);
+    Universal childUniversal = Universal.getByKey(childCode);
+    
+    String refAttrName = ConversionService.getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
+    
+    MdBusiness childMdBusiness = childUniversal.getMdBusiness();
+    MdBusinessDAOIF childMdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(childMdBusiness);
+
+    try
+    {
+      MdAttributeConcreteDAOIF mdAttribute = childMdBusinessDAOIF.definesAttribute(refAttrName);
+      
+      Assert.assertNotNull("By adding a leaf type as a child of a non-leaf type, a reference attribute ["+refAttrName+"] to the parent was not defined on the child.", mdAttribute);
+      
+    }
+    catch (DataNotFoundException e)
+    {
+      Assert.fail("Attribute that implements GeoObject.UID does not exist. It should be defined on the business class");
     }
   }
   
@@ -923,6 +1086,7 @@ System.out.println(hierarchyType.toJSON());
     Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
   }
   
+
   /**
    * Logs in admin user and returns session id of the user.
    * 

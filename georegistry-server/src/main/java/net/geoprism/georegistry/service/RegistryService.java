@@ -10,6 +10,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
+import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -732,11 +733,27 @@ public class RegistryService
    */
   @Request(RequestType.SESSION)
   public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
+  {    
     String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
     
-    this.addToHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
+    
+    if (parentUniversal.getIsLeafType())
+    {
+      Universal childUniversal = Universal.getByKey(childGeoObjectTypeCode);
+      
+      NoChildForLeafGeoObjectType exception = new NoChildForLeafGeoObjectType();
+      
+      exception.setChildGeoObjectTypeLabel(childUniversal.getDisplayLabel().getValue());
+      exception.setHierarchyTypeLabel(mdTermRelationship.getDisplayLabel().getValue());
+      exception.setParentGeoObjectTypeLabel(parentUniversal.getDisplayLabel().getValue());
+      exception.apply();
+      
+      throw exception;
+    }
+    
+    this.addToHierarchy(hierarchyTypeCode, mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     
     // No exceptions thrown. Refresh the HierarchyType object to include the new relationships.
     HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
@@ -746,12 +763,17 @@ public class RegistryService
     return ht;
   }
   @Transaction
-  private void addToHierarchy(MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  private void addToHierarchy(String hierarchyTypeCode, MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
     Universal child = Universal.getByKey(childGeoObjectTypeCode);
     
     parent.addChild(child, mdTermRelationship.definesType()).apply();
+    
+    if (child.getIsLeafType())
+    {
+      ConversionService.addParentReferenceToLeafType(hierarchyTypeCode, parent, child);
+    }
   }
   
   /**
