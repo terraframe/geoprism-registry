@@ -61,6 +61,15 @@ public class RegistryServiceTest
   }
   
   @Test
+  public void testGetGeoObjectByCode()
+  {
+    GeoObject geoObj = data.registryService.getGeoObjectByCode(data.systemSession.getSessionId(), USATestData.COLORADO.getGeoId());
+    
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
+    USATestData.COLORADO.assertEquals(geoObj);
+  }
+  
+  @Test
   @Request
   public void testUpdateGeoObject()
   {

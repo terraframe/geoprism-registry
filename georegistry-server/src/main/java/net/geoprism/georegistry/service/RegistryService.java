@@ -148,6 +148,16 @@ public class RegistryService
   }
   
   @Request(RequestType.SESSION)
+  public GeoObject getGeoObjectByCode(String sessionId, String code)
+  {
+    GeoEntity geo = GeoEntity.getByKey(code);
+    
+    GeoObject geoObject = conversionService.geoEntityToGeoObject(geo);
+    
+    return geoObject;
+  }
+  
+  @Request(RequestType.SESSION)
   public GeoObject updateGeoObject(String sessionId, String jGeoObj)
   {
     return updateGeoObjectInTransaction(sessionId, jGeoObj);
@@ -235,9 +245,12 @@ public class RegistryService
       }
     }
     
-    // TODO : STATUS
+    // TODO : Set the status on the GeoEntity
     
     ge.apply();
+    
+    geoObject.setUid(ge.getOid());
+    // TODO : Set the status on the object we're returning
     
     return geoObject;
   }
