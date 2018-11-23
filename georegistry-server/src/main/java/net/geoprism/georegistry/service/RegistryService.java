@@ -477,23 +477,7 @@ public class RegistryService
   {
     Universal universal = conversionService.newGeoObjectTypeToUniversal(geoObjectType);
     
-    MdBusiness mdBusiness = new MdBusiness();
-    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
-    // The CODE name becomes the class name
-    mdBusiness.setTypeName(universal.getUniversalId());
-    mdBusiness.setGenerateSource(false);
-    mdBusiness.setPublish(false);
-    mdBusiness.setIsAbstract(false);
-    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
-    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
-    mdBusiness.apply();
-    
-    // Add the default attributes.
-    conversionService.createDefaultAttributes(universal, mdBusiness);
-    
-    universal.setMdBusiness(mdBusiness);
-    
-    universal.apply();
+    universal= ConversionService.createMdBusinessForUniversal(universal);
     
     return universal;
   }

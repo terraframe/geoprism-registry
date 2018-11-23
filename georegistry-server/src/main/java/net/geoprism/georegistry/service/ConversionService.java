@@ -26,6 +26,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
+import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
@@ -44,7 +45,6 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
@@ -72,6 +72,8 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
+import com.runwaysdk.system.ontology.ImmutableRootException;
+import com.runwaysdk.util.IDGenerator;
 
 public class ConversionService
 {
@@ -468,13 +470,7 @@ public class ConversionService
     }
       
   }
-  
-  // TODO: Complete
-  private MdAttributeDAO attributeTypeToMdAttribute(AttributeType attributeType)
-  {
-    return null;
-  }
-  
+
   private AttributeType mdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
   {
     Locale locale = Session.getCurrentLocale();
@@ -645,6 +641,47 @@ public class ConversionService
     return geoObj;
   }
   
+  /** 
+   * Creates an {@link MdBusiness} for the given universal.
+   * 
+   * @pre universal.gertMdBusiness() == null
+   * 
+   * @param universal
+   * 
+   * @return modified {@link Universal} that references an applied {@link MdBusiness} .
+   */
+  @Transaction
+  public static Universal createMdBusinessForUniversal(Universal universal)
+  { 
+    MdBusiness mdBusiness = new MdBusiness();
+    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
+    // The CODE name becomes the class name
+    mdBusiness.setTypeName(universal.getUniversalId());
+    mdBusiness.setGenerateSource(false);
+    mdBusiness.setPublish(false);
+    mdBusiness.setIsAbstract(false);
+    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
+    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
+    mdBusiness.apply();
+    
+    // Add the default attributes.
+    createDefaultAttributes(universal, mdBusiness);
+    
+    universal.setMdBusiness(mdBusiness);
+    
+    try
+    {
+      universal.apply();
+    }
+    // remove once ROOT attribute is defined.
+    catch (ImmutableRootException e) 
+    {
+      System.out.println(universal.getUniversalId()+" - "+universal.getOid()+"    "+mdBusiness.getOid());
+    }
+      
+    return universal;
+  }
+  
   /**
    * Adds default attributes to the given {@link MdBusinessDAO} according to the 
    * Common Geo-Registry specification for {@link GeoObject}.
@@ -652,7 +689,7 @@ public class ConversionService
    * @param mdBusinessDAO {@link MdBusinessDAO} that will define the default attributes.
    */
   @Transaction
-  public void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
+  public static void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
   {    
     MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
     
@@ -823,4 +860,20 @@ public class ConversionService
     return refAttrName;
   }
   
+  @Transaction
+  public static void createBusinessObjectForExistingGeoEntity(GeoEntity geoEntity)
+  {
+    Universal universal = geoEntity.getUniversal();
+    MdBusiness mdBusiness = universal.getMdBusiness();
+
+    String uuid = IDGenerator.nextID();
+    
+    BusinessDAO businessDAO = BusinessDAO.newInstance(mdBusiness.definesType());
+    businessDAO.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, geoEntity.getOid());
+    businessDAO.setValue(RegistryConstants.UUID, uuid);
+    businessDAO.setValue(DefaultAttribute.CODE.getName(), geoEntity.getGeoId());
+    businessDAO.addItem(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
+    businessDAO.apply();
+  }
+
 }

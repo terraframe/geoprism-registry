@@ -1,0 +1,42 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.NoChildForLeafGeoObjectType" 
+                   label="No Child for Leaf GeoObjectType Exception" 
+                   description="Thrown when a child GeoObjectType is added to a Parent GeoObjectType that is a leaf" 
+                   message="You cannot add [{childGeoObjectTypeLabel}] to the hierarchy [{hierarchyTypeLabel}] as a child to [{parentGeoObjectTypeLabel}] because [{childGeoObjectTypeLabel}] is a Leaf Type.">
+        <attributes>
+          <text name="childGeoObjectTypeLabel" label="Child Type" />
+          <text name="hierarchyTypeLabel" label="Hierarchy Type Label" />
+          <text name="parentGeoObjectTypeLabel" label="Parent Type" />
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.NoChildForLeafGeoObjectType" type="com.runwaysdk.system.metadata.MdException" />
+    </delete>
+  </undoIt>
+</version>
+
+<!--  
+
+      <mdException name="gov.geoplatform.uasdm.bus.InvalidUasComponentNameException" 
+                   label="Invalid Name" 
+                   description="Thrown when a user enters an invalid name for a Project, Mission, etc." 
+                   message="Invalid name. No spaces or special characters such as &lt;, &gt;, -, +, =, !, @, #, $, %, ^, &amp;, *, ?,/, \ or apostrophes are allowed.">
+      </mdException>
+
+      <mdException name="gov.geoplatform.uasdm.bus.DuplicateComponentException" 
+                   label="Empty Layer Information" 
+                   description="Thrown when someone tries to create a child item whose name conflicts with an existing child name." 
+                   message="[{parentName}] already has a [{childComponentLabel}] with the name [{childName}].">
+        <attributes>
+          <text name="parentName" label="Parent Name" />
+          <text name="childComponentLabel" label="Child Component Label" />
+          <text name="childName" label="Child Name" />
+        </attributes>
+      </mdException>
+-->
