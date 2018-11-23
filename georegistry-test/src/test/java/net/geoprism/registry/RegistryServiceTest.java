@@ -166,7 +166,7 @@ public class RegistryServiceTest
   public void testGetParentGeoObjects()
   {
     String childId = data.CO_D_TWO.getRegistryId();
-    String childTypeCode = data.USA.getUniversal().getCode();
+    String childTypeCode = data.DISTRICT.getCode();
     String[] childrenTypes = new String[]{data.COUNTRY.getCode(), data.STATE.getCode()};
     
     // Recursive

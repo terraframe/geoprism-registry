@@ -5,12 +5,20 @@ import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.registry.GeoObjectStatus;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
+import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessEnumeration;
+import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.mapping.GeoserverFacade;
@@ -88,7 +96,35 @@ public class AdapterUtilities
     
     GeoObject gobj = this.conversionService.geoEntityToGeoObject(ge);
     
+    Business biz = this.getGeoEntityBusiness(ge);
+//    GeoObjectStatus gos = GeoObjectStatus.get(biz.getValue(DefaultAttribute.STATUS.getName()));
+    BusinessEnumeration busEnum = biz.getEnumValues(DefaultAttribute.STATUS.getName()).get(0);
+    GeoObjectStatus gos = GeoObjectStatus.valueOf(busEnum.name());
+    Term statusTerm = this.conversionService.geoObjectStatusToTerm(gos);
+    gobj.setStatus(statusTerm);
+    
     return gobj;
+  }
+  
+  public Business getGeoEntityBusiness(GeoEntity ge)
+  {
+    QueryFactory qf = new QueryFactory();
+    BusinessQuery bq = qf.businessQuery(ge.getUniversal().getMdBusiness().definesType());
+    bq.WHERE(bq.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(ge));
+    OIterator<? extends Business> bit = bq.getIterator();
+    try
+    {
+      if (bit.hasNext())
+      {
+        return bit.next();
+      }
+    }
+    finally
+    {
+      bit.close();
+    }
+    
+    return null;
   }
   
   public GeoObject getGeoObjectByCode(String code)
@@ -133,12 +169,21 @@ public class AdapterUtilities
     mdBusiness.getDescription().setValue(universal.getDescription().getValue());
     mdBusiness.apply();
     
+    // Create the permissions for the new MdBusiness
+    RoleDAO adminRole = RoleDAO.findRole("geoprism.admin.Administrator").getBusinessDAO();
+    adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
+    adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+    adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
+    adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+    
     // Add the default attributes.
     this.createDefaultAttributes(universal, mdBusiness);
     
     universal.setMdBusiness(mdBusiness);
     
     universal.apply();
+    
+    
     
     return universal;
   }

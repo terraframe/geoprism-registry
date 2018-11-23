@@ -11,6 +11,9 @@ import java.util.UUID;
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierAllPathsTableQuery;
+import net.geoprism.ontology.ClassifierIsARelationship;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -27,10 +30,13 @@ import org.junit.Assert;
 import com.runwaysdk.ClasspathResource;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.Relationship;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.generated.system.gis.geo.GeoEntityAllPathsTableQuery;
+import com.runwaysdk.generated.system.gis.geo.UniversalAllPathsTableQuery;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -43,7 +49,6 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdBusinessQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
-import com.runwaysdk.util.IDGenerator;
 
 public class USATestData
 {
@@ -124,6 +129,8 @@ public class USATestData
   {
     cleanUp();
     
+//    rebuildAllpaths();
+    
     for (TestGeoObjectTypeInfo uni : UNIVERSALS)
     {
       uni.apply();
@@ -150,6 +157,28 @@ public class USATestData
     WASHINGTON.addChild(WA_D_TWO, LocatedIn.CLASS);
     
     systemSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
+  }
+  
+  private void rebuildAllpaths()
+  {
+    Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
+    Universal.getStrategy().initialize(AllowedIn.CLASS);
+    GeoEntity.getStrategy().initialize(LocatedIn.CLASS);
+
+    if (new UniversalAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    {
+      Universal.getStrategy().reinitialize(AllowedIn.CLASS);
+    }
+
+    if (new GeoEntityAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    {
+      GeoEntity.getStrategy().reinitialize(LocatedIn.CLASS);
+    }
+
+    if (new ClassifierAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    {
+      Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
+    }
   }
   
   public static void assertEqualsHierarchyType(String relationshipType, HierarchyType compare)
@@ -268,6 +297,7 @@ public class USATestData
       deleteUniversal(this.getCode());
       deleteMdBusiness(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
       this.children.clear();
+      this.universal = null;
     }
 
     public GeoObjectType getGeoObjectType()
@@ -587,14 +617,33 @@ public class USATestData
       biz.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
       biz.apply();
       
-//      System.out.println("Creating business of type [" + mdBiz.definesType() + "] and adding registryId [" + this.getRegistryId() + "].");
-      
       return geoEntity;
     }
     
     public void delete()
     {
+      // Make sure we delete the business first, otherwise when we delete the geoEntity it nulls out the reference in the table.
+      if (this.getUniversal() != null && this.getUniversal().getUniversal() != null)
+      {
+        QueryFactory qf = new QueryFactory();
+        BusinessQuery bq = qf.businessQuery(this.getUniversal().getUniversal().getMdBusiness().definesType());
+        bq.WHERE(bq.aCharacter(DefaultAttribute.CODE.getName()).EQ(this.getGeoId()));
+        OIterator<? extends Business> bit = bq.getIterator();
+        try
+        {
+          while(bit.hasNext())
+          {
+            bit.next().delete();
+          }
+        }
+        finally
+        {
+          bit.close();
+        }
+      }
+      
       deleteGeoEntity(this.getGeoId());
+      
       this.children.clear();
     }
   }

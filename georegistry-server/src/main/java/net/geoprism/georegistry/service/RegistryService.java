@@ -31,6 +31,7 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
@@ -167,19 +168,20 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
     
-    boolean isNew = false;
+    Term newStatus = adapter.getMetadataCache().getTerm(GeoObjectStatusTerm.NEW.code).get();
+    boolean isNew = geoObject.getStatus().equals(newStatus);
+    
     GeoEntity ge;
-    try
+    if (!isNew)
     {
       String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
       
       ge = GeoEntity.get(runwayId);
       ge.appLock();
     }
-    catch (InvalidRegistryIdException ex)
+    else
     {
       ge = new GeoEntity();
-      isNew = true;
     }
     
     if (geoObject.getCode() != null)
@@ -244,27 +246,8 @@ public class RegistryService
     }
     else
     {
-      QueryFactory qf = new QueryFactory();
-      BusinessQuery bq = qf.businessQuery(mdBiz.definesType());
-      bq.WHERE(bq.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(ge));
-      
-      OIterator<Business> bizIt = bq.getIterator();
-      try
-      {
-        if (bizIt.hasNext())
-        {
-          biz = bizIt.next();
-          biz.appLock();
-        }
-        else
-        {
-          throw new RuntimeException("Expected to find a business object"); // TODO : I'm too tired to figure out a better exception
-        }
-      }
-      finally
-      {
-        bizIt.close();
-      }
+      biz = util.getGeoEntityBusiness(ge);
+      biz.appLock();
     }
     biz.setValue(RegistryConstants.UUID, geoObject.getUid());
     biz.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, ge.getOid());
@@ -425,8 +408,11 @@ public class RegistryService
     }
     else
     {
-      GeoEntity geParent = GeoEntity.get(goParent.getUid());
-      GeoEntity geChild = GeoEntity.get(goChild.getUid());
+      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
+      GeoEntity geParent = GeoEntity.get(parentRunwayId);
+      
+      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
+      GeoEntity geChild = GeoEntity.get(childRunwayId);
       
       
       String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(hierarchyCode);
