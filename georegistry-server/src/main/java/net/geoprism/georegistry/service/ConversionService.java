@@ -10,7 +10,9 @@ import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.registry.GeoObjectStatus;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -46,6 +48,7 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
@@ -664,6 +667,7 @@ public class ConversionService
     
     return geoObj;
   }
+
   
   /** 
    * Creates an {@link MdBusiness} for the given universal.
@@ -900,4 +904,29 @@ public class ConversionService
     businessDAO.apply();
   }
 
+
+  public Term geoObjectStatusToTerm(GeoObjectStatus gos)
+  {
+    if (gos.getEnumName().equals(GeoObjectStatus.ACTIVE.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code).get();
+    }
+    else if (gos.getEnumName().equals(GeoObjectStatus.INACTIVE.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code).get();
+    }
+    else if (gos.getEnumName().equals(GeoObjectStatus.NEW.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get();
+    }
+    else if (gos.getEnumName().equals(GeoObjectStatus.PENDING.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code).get();
+    }
+    else
+    {
+      // TODO Throw a localized Exception
+      throw new ProgrammingErrorException("Unknown Status [" + gos.getEnumName() + "].");
+    }
+  }
 }

@@ -16,9 +16,8 @@ import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
-import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.util.IDGenerator;
+import com.runwaysdk.system.metadata.MdBusiness;
 
 public class RegistryIdService implements AdapterIdServiceIF
 {
@@ -86,6 +85,8 @@ public class RegistryIdService implements AdapterIdServiceIF
       vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));
       
       OIterator<ValueObject> it = vq.getIterator();
+      
+//      System.out.println(((MdBusiness)MdBusiness.get("com.runwaysdk.system.metadata.MdBusiness", RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE + "." + uni.getUniversalId())).getTableName());
       
       try
       {
