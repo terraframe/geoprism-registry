@@ -1,5 +1,6 @@
 package net.geoprism.registry;
 
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
 /**
@@ -17,6 +18,11 @@ public class AndroidIntegrationTestDatabaseBuilder
   
   @Request
   private static void build()
+  {
+    buildInTransaction();
+  }
+  @Transaction
+  private static void buildInTransaction()
   {
     USATestData data = USATestData.newTestData();
     

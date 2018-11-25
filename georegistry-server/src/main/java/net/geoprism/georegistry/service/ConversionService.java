@@ -360,15 +360,12 @@ public class ConversionService
 
   }
   
-  
-  
-  protected Universal geoObjectTypeToUniversal(GeoObjectType got)
+  public Universal geoObjectTypeToUniversal(GeoObjectType got)
   {
     Universal uni = Universal.getByKey(got.getCode());
     
     return uni;
   }
-  
   
   /** 
    * Creates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.

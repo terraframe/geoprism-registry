@@ -40,7 +40,7 @@ public class RegistryIdService implements AdapterIdServiceIF
     
     QueryFactory qf = new QueryFactory();
     ValueQuery vq = new ValueQuery(qf);
-    BusinessQuery bq = qf.businessQuery(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE + "." + uni.getUniversalId());
+    BusinessQuery bq = qf.businessQuery(uni.getMdBusiness().definesType());
     
     vq.SELECT(bq.get(RegistryConstants.UUID));
     vq.WHERE(bq.get(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(runwayId));
@@ -79,7 +79,7 @@ public class RegistryIdService implements AdapterIdServiceIF
       
       QueryFactory qf = new QueryFactory();
       ValueQuery vq = new ValueQuery(qf);
-      BusinessQuery bq = qf.businessQuery(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE + "." + uni.getUniversalId());
+      BusinessQuery bq = qf.businessQuery(uni.getMdBusiness().definesType());
       
       vq.SELECT(bq.get(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME));
       vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));

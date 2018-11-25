@@ -152,9 +152,23 @@ public class RegistryService
   }
   
   @Request(RequestType.SESSION)
-  public GeoObject getGeoObjectByCode(String sessionId, String code)
+  public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode)
   {
-    return util.getGeoObjectByCode(code);
+    return util.getGeoObjectByCode(code, typeCode);
+  }
+  
+  @Request(RequestType.SESSION)
+  public GeoObject createGeoObject(String sessionId, String jGeoObj)
+  {
+    return createGeoObjectInTransaction(sessionId, jGeoObj);
+  }
+  
+  @Transaction
+  private GeoObject createGeoObjectInTransaction(String sessionId, String jGeoObj)
+  {
+    GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
+    
+    return util.applyGeoObject(geoObject, true);
   }
   
   @Request(RequestType.SESSION)
@@ -168,100 +182,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
     
-    Term newStatus = adapter.getMetadataCache().getTerm(GeoObjectStatusTerm.NEW.code).get();
-    boolean isNew = geoObject.getStatus().equals(newStatus);
-    
-    GeoEntity ge;
-    if (!isNew)
-    {
-      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
-      
-      ge = GeoEntity.get(runwayId);
-      ge.appLock();
-    }
-    else
-    {
-      ge = new GeoEntity();
-    }
-    
-    if (geoObject.getCode() != null)
-    {
-      ge.setGeoId(geoObject.getCode());
-    }
-    
-    if (geoObject.getLocalizedDisplayLabel() != null)
-    {
-      ge.getDisplayLabel().setValue(geoObject.getLocalizedDisplayLabel());
-    }
-    
-    if (geoObject.getType() != null)
-    {
-      GeoObjectType got = geoObject.getType();
-      
-      Universal inputUni = conversionService.geoObjectTypeToUniversal(got);
-      
-      if (inputUni != ge.getUniversal())
-      {
-        ge.setUniversal(inputUni);
-      }
-    }
-    
-    org.locationtech.jts.geom.Geometry geom = geoObject.getGeometry();
-    if (geom != null)
-    {
-      try
-      {
-        String wkt = geom.toText();
-        
-        GeometryHelper geometryHelper = new GeometryHelper();
-        
-        Geometry geo = geometryHelper.parseGeometry(wkt);
-        ge.setGeoPoint(geometryHelper.getGeoPoint(geo));
-        ge.setGeoMultiPolygon(geometryHelper.getGeoMultiPolygon(geo));
-        ge.setWkt(wkt);
-      }
-      catch (Exception e)
-      {
-        String msg = "Error parsing WKT";
-        
-        WKTParsingProblem p = new WKTParsingProblem(msg);
-        p.setNotification(ge, GeoEntity.WKT);
-        p.setReason(e.getLocalizedMessage());
-        p.apply();
-        p.throwIt();
-      }
-    }
-    
-    ge.apply();
-    
-    
-    /*
-     * Update the business
-     */
-    Business biz;
-    MdBusiness mdBiz = ge.getUniversal().getMdBusiness();
-    if (isNew)
-    {
-      biz = new Business(mdBiz.definesType());
-    }
-    else
-    {
-      biz = util.getGeoEntityBusiness(ge);
-      biz.appLock();
-    }
-    biz.setValue(RegistryConstants.UUID, geoObject.getUid());
-    biz.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, ge.getOid());
-    biz.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
-    biz.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid()); // TODO : Are we using the right status here?
-    biz.apply();
-    
-    /*
-     * Update the returned GeoObject
-     */
-    Term activeStatus = adapter.getMetadataCache().getTerm(GeoObjectStatusTerm.ACTIVE.code).get();
-    geoObject.setStatus(activeStatus);
-    
-    return geoObject;
+    return util.applyGeoObject(geoObject, false);
   }
 
   @Request(RequestType.SESSION)

@@ -1,14 +1,13 @@
 package net.geoprism.registry;
 
 import net.geoprism.georegistry.service.RegistryIdService;
-import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.registry.USATestData.TestGeoObjectInfo;
 import net.geoprism.registry.USATestData.TestGeoObjectTypeInfo;
 
 import org.apache.commons.lang.StringUtils;
-import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.action.AddChildAction;
+import org.commongeoregistry.adapter.action.CreateAction;
 import org.commongeoregistry.adapter.action.UpdateAction;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -56,7 +55,7 @@ public class RegistryServiceTest
   @Request
   public void testGetGeoObjectByCode()
   {
-    GeoObject geoObj = data.registryService.getGeoObjectByCode(data.systemSession.getSessionId(), data.COLORADO.getGeoId());
+    GeoObject geoObj = data.registryService.getGeoObjectByCode(data.systemSession.getSessionId(), data.COLORADO.getGeoId(), data.COLORADO.getUniversal().getCode());
     
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(data.adapter, geoObj.toJSON().toString()).toJSON().toString());
     data.COLORADO.assertEquals(geoObj);
@@ -73,7 +72,7 @@ public class RegistryServiceTest
     geoObj.setWKTGeometry(data.WASHINGTON.getWkt());
     geoObj.setCode(data.WASHINGTON.getGeoId());
     geoObj.setLocalizedDisplayLabel(data.WASHINGTON.getDisplayLabel());
-    data.registryService.updateGeoObject(data.systemSession.getSessionId(), geoObj.toJSON().toString());
+    data.registryService.createGeoObject(data.systemSession.getSessionId(), geoObj.toJSON().toString());
     
     GeoEntity waGeo = GeoEntity.getByKey(data.WASHINGTON.getGeoId());
     Assert.assertEquals(StringUtils.deleteWhitespace(data.WASHINGTON.getWkt()), StringUtils.deleteWhitespace(waGeo.getWkt()));
@@ -264,7 +263,7 @@ public class RegistryServiceTest
     GeoObjectType gotDelete = testDeleteUni.getGeoObjectType();
     data.adapter.getMetadataCache().addGeoObjectType(gotDelete);
     
-    AbstractAction[] actions = new AbstractAction[2];
+    AbstractAction[] actions = new AbstractAction[3];
     int i = 0;
     
     // Add Child
@@ -278,6 +277,15 @@ public class RegistryServiceTest
     // TODO
     
     // Create a new GeoObject
+    CreateAction create = new CreateAction(goNewChild);
+    String createJson = create.toJSON().toString();
+    String createJson2 = CreateAction.fromJSON(createJson).toJSON().toString();
+    Assert.assertEquals(createJson, createJson2);
+    actions[i++] = create;
+    
+    // Update the previously created GeoObject
+    final String NEW_DISPLAY_LABEL = "NEW_DISPLAY_LABEL";
+    goNewChild.setLocalizedDisplayLabel(NEW_DISPLAY_LABEL);
     UpdateAction update = new UpdateAction(goNewChild);
     String updateJson = update.toJSON().toString();
     String updateJson2 = UpdateAction.fromJSON(updateJson).toJSON().toString();
@@ -324,6 +332,7 @@ public class RegistryServiceTest
     GeoEntityQuery createGEQ = new GeoEntityQuery(new QueryFactory());
     createGEQ.WHERE(createGEQ.getGeoId().EQ(testNew.getGeoId()));
     Assert.assertEquals(1, createGEQ.getCount());
+    Assert.assertEquals(NEW_DISPLAY_LABEL, createGEQ.getIterator().getAll().get(0).getDisplayLabel().getValue());
     
 //    UniversalQuery delUQ = new UniversalQuery(new QueryFactory());
 //    delUQ.WHERE(delUQ.getOid().EQ(testDeleteUni.getUid()));

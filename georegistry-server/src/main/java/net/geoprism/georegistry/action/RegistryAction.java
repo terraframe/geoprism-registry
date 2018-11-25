@@ -4,7 +4,7 @@ import net.geoprism.georegistry.service.RegistryService;
 
 import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.action.AddChildAction;
-import org.commongeoregistry.adapter.action.DeleteAction;
+import org.commongeoregistry.adapter.action.CreateAction;
 import org.commongeoregistry.adapter.action.UpdateAction;
 
 abstract public class RegistryAction
@@ -14,6 +14,10 @@ abstract public class RegistryAction
       if (action instanceof UpdateAction)
       {
         return new RegistryUpdateAction((UpdateAction) action, registry, sessionId);
+      }
+      else if (action instanceof CreateAction)
+      {
+        return new RegistryCreateAction((CreateAction) action, registry, sessionId);
       }
       else if (action instanceof AddChildAction)
       {

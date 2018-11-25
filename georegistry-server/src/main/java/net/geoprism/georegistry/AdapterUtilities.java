@@ -7,6 +7,7 @@ import net.geoprism.registry.GeoObjectStatus;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
@@ -17,10 +18,12 @@ import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.gis.mapping.GeoserverFacade;
 import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
 import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
@@ -36,6 +39,7 @@ import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
+import com.vividsolutions.jts.geom.Geometry;
 
 public class AdapterUtilities
 {
@@ -79,6 +83,110 @@ public class AdapterUtilities
     this.conversionService = conversionService;
   }
 
+  /**
+   * Applies the GeoObject to the database.
+   * 
+   * @param geoObject
+   * @param isNew
+   * @return
+   */
+  public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew)
+  {
+    // TODO : Virtual leaf nodes
+    
+    GeoEntity ge;
+    if (!isNew)
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
+      
+      ge = GeoEntity.get(runwayId);
+      ge.appLock();
+    }
+    else
+    {
+      ge = new GeoEntity();
+    }
+    
+    if (geoObject.getCode() != null)
+    {
+      ge.setGeoId(geoObject.getCode());
+    }
+    
+    if (geoObject.getLocalizedDisplayLabel() != null)
+    {
+      ge.getDisplayLabel().setValue(geoObject.getLocalizedDisplayLabel());
+    }
+    
+    if (geoObject.getType() != null)
+    {
+      GeoObjectType got = geoObject.getType();
+      
+      Universal inputUni = conversionService.geoObjectTypeToUniversal(got);
+      
+      if (inputUni != ge.getUniversal())
+      {
+        ge.setUniversal(inputUni);
+      }
+    }
+    
+    org.locationtech.jts.geom.Geometry geom = geoObject.getGeometry();
+    if (geom != null)
+    {
+      try
+      {
+        String wkt = geom.toText();
+        
+        GeometryHelper geometryHelper = new GeometryHelper();
+        
+        Geometry geo = geometryHelper.parseGeometry(wkt);
+        ge.setGeoPoint(geometryHelper.getGeoPoint(geo));
+        ge.setGeoMultiPolygon(geometryHelper.getGeoMultiPolygon(geo));
+        ge.setWkt(wkt);
+      }
+      catch (Exception e)
+      {
+        String msg = "Error parsing WKT";
+        
+        WKTParsingProblem p = new WKTParsingProblem(msg);
+        p.setNotification(ge, GeoEntity.WKT);
+        p.setReason(e.getLocalizedMessage());
+        p.apply();
+        p.throwIt();
+      }
+    }
+    
+    ge.apply();
+    
+    
+    /*
+     * Update the business
+     */
+    Business biz;
+    MdBusiness mdBiz = ge.getUniversal().getMdBusiness();
+    if (isNew)
+    {
+      biz = new Business(mdBiz.definesType());
+    }
+    else
+    {
+      biz = this.getGeoEntityBusiness(ge);
+      biz.appLock();
+    }
+    biz.setValue(RegistryConstants.UUID, geoObject.getUid());
+    biz.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, ge.getOid());
+    biz.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
+    biz.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid()); // TODO : Are we using the right status here?
+    biz.apply();
+    
+    /*
+     * Update the returned GeoObject
+     */
+    Term activeStatus = adapter.getMetadataCache().getTerm(GeoObjectStatusTerm.ACTIVE.code).get();
+    geoObject.setStatus(activeStatus);
+    
+    return geoObject;
+  }
+  
   /**
    * Fetches a new GeoObject from the database for the given registry id.
    * 
@@ -127,7 +235,7 @@ public class AdapterUtilities
     return null;
   }
   
-  public GeoObject getGeoObjectByCode(String code)
+  public GeoObject getGeoObjectByCode(String code, String typeCode)
   {
     // TODO : virtual leaf nodes
     
