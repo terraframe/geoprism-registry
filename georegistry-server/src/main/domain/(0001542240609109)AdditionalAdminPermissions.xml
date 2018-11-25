@@ -7,6 +7,11 @@
             <operation name="ALL" />
           </mdRelationshipPermission>
         </grant>
+        <grant>
+          <mdRelationshipPermission type="com.runwaysdk.system.TypePermission">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
       </role>
     </permissions>
     <update></update>

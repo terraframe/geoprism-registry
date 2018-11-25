@@ -12,6 +12,7 @@ import net.geoprism.georegistry.InvalidRegistryIdException;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -121,6 +122,7 @@ public class RegistryService
         AND(trq.getChildMdBusiness().EQ(univMdBusiness)));
     
     OIterator<? extends MdTermRelationship> it2 = trq.getIterator();
+    
     
     try
     {
@@ -440,24 +442,8 @@ public class RegistryService
   private Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
     Universal universal = conversionService.newGeoObjectTypeToUniversal(geoObjectType);
-    
-    MdBusiness mdBusiness = new MdBusiness();
-    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
-    // The CODE name becomes the class name
-    mdBusiness.setTypeName(universal.getUniversalId());
-    mdBusiness.setGenerateSource(false);
-    mdBusiness.setPublish(false);
-    mdBusiness.setIsAbstract(false);
-    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
-    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
-    mdBusiness.apply();
-    
-    // Add the default attributes.
-    util.createDefaultAttributes(universal, mdBusiness);
-    
-    universal.setMdBusiness(mdBusiness);
-    
-    universal.apply();
+
+    universal= ConversionService.createMdBusinessForUniversal(universal);
     
     return universal;
   }
@@ -697,11 +683,27 @@ public class RegistryService
    */
   @Request(RequestType.SESSION)
   public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
+  {    
     String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
     
-    this.addToHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
+    
+    if (parentUniversal.getIsLeafType())
+    {
+      Universal childUniversal = Universal.getByKey(childGeoObjectTypeCode);
+      
+      NoChildForLeafGeoObjectType exception = new NoChildForLeafGeoObjectType();
+      
+      exception.setChildGeoObjectTypeLabel(childUniversal.getDisplayLabel().getValue());
+      exception.setHierarchyTypeLabel(mdTermRelationship.getDisplayLabel().getValue());
+      exception.setParentGeoObjectTypeLabel(parentUniversal.getDisplayLabel().getValue());
+      exception.apply();
+      
+      throw exception;
+    }
+    
+    this.addToHierarchy(hierarchyTypeCode, mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     
     // No exceptions thrown. Refresh the HierarchyType object to include the new relationships.
     HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
@@ -711,12 +713,17 @@ public class RegistryService
     return ht;
   }
   @Transaction
-  private void addToHierarchy(MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  private void addToHierarchy(String hierarchyTypeCode, MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
     Universal child = Universal.getByKey(childGeoObjectTypeCode);
     
     parent.addChild(child, mdTermRelationship.definesType()).apply();
+    
+    if (child.getIsLeafType())
+    {
+      ConversionService.addParentReferenceToLeafType(hierarchyTypeCode, parent, child);
+    }
   }
   
   /**
