@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.registry.testframework;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,13 +7,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-
-import net.geoprism.georegistry.AdapterUtilities;
-import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.georegistry.service.RegistryService;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierAllPathsTableQuery;
-import net.geoprism.ontology.ClassifierIsARelationship;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +25,7 @@ import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.Relationship;
+import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -50,7 +44,15 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdBusinessQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
 
-public class USATestData
+import net.geoprism.georegistry.AdapterUtilities;
+import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierAllPathsTableQuery;
+import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.GeoObjectStatus;
+
+public class USATestData extends TestUtilities
 {
   public static final String TEST_DATA_KEY = "USATestData";
   
@@ -80,11 +82,11 @@ public class USATestData
   
   public TestGeoObjectInfo[] GEOENTITIES = new TestGeoObjectInfo[]{USA, COLORADO, WASHINGTON, CO_D_ONE, CO_D_TWO, CO_D_THREE, WA_D_ONE, WA_D_TWO};
   
-  public RegistryService registryService;
-  
   public RegistryAdapter adapter;
   
-  public ClientSession systemSession   = null;
+  public ClientSession adminSession   = null;
+  
+  public ClientRequestIF adminClientRequest = null;
   
   private ArrayList<TestGeoObjectInfo> customGeoInfos = new ArrayList<TestGeoObjectInfo>();
 
@@ -100,23 +102,20 @@ public class USATestData
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
     
-    RegistryService registry = new RegistryService();
+    RegistryAdapter adapter = RegistryService.getInstance().getRegistryAdapter();
     
-    RegistryAdapter adapter = registry.getRegistryAdapter();
-    
-    USATestData data = new USATestData(registry, adapter);
+    USATestData data = new USATestData(adapter);
     
     data.setUp();
     
-    registry.refreshMetadataCache();
+    RegistryService.getInstance().refreshMetadataCache();
     
     return data;
   }
   
-  public USATestData(RegistryService registry, RegistryAdapter adapter)
+  public USATestData(RegistryAdapter adapter)
   {
     this.adapter = adapter;
-    this.registryService = registry;
   }
   
   @Request
@@ -156,7 +155,8 @@ public class USATestData
     WASHINGTON.addChild(WA_D_ONE, LocatedIn.CLASS);
     WASHINGTON.addChild(WA_D_TWO, LocatedIn.CLASS);
     
-    systemSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
+    adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
+    adminClientRequest = adminSession.getRequest();
   }
   
   private void rebuildAllpaths()
@@ -273,7 +273,6 @@ public class USATestData
       Assert.assertEquals(code, got.getCode());
       Assert.assertEquals(displayLabel, got.getLocalizedLabel());
       Assert.assertEquals(description, got.getLocalizedDescription());
-      // TOOD : check the uid
     }
     
     public void assertEquals(Universal uni)
@@ -302,14 +301,14 @@ public class USATestData
 
     public GeoObjectType getGeoObjectType()
     {
-      if (this.getUniversal() != null)
-      {
-        return registryService.getConversionService().universalToGeoObjectType(this.getUniversal());
-      }
-      else
-      {
+//      if (this.getUniversal() != null)
+//      {
+//        return registryService.getConversionService().universalToGeoObjectType(this.getUniversal());
+//      }
+//      else
+//      {
         return new GeoObjectType(this.getCode(), this.getGeometryType(), this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), adapter);
-      }
+//      }
     }
   }
   
@@ -676,9 +675,9 @@ public class USATestData
       geo.delete();
     }
     
-    if (systemSession != null)
+    if (adminSession != null)
     {
-      systemSession.logout();
+      adminSession.logout();
     }
   }
   

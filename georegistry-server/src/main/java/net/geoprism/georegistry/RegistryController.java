@@ -53,7 +53,7 @@ public class RegistryController
   
   public RegistryController()
   {
-    this.registryService = new RegistryService();
+    this.registryService = RegistryService.getInstance();
   }
   
   @Endpoint(method = ServletMethod.GET)
@@ -274,12 +274,16 @@ public class RegistryController
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
    public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types)
    {
-     JSONArray jaTypes = new JSONArray(types);
-     
-     String[] aTypes = new String[jaTypes.length()];
-     for (int i = 0; i < jaTypes.length(); i++)
+     String[] aTypes = null;
+     if (types != null)
      {
-       aTypes[i] = jaTypes.getString(i);
+       JSONArray jaTypes = new JSONArray(types);
+       
+       aTypes = new String[jaTypes.length()];
+       for (int i = 0; i < jaTypes.length(); i++)
+       {
+         aTypes[i] = jaTypes.getString(i);
+       }
      }
      
      GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes);
@@ -343,27 +347,19 @@ public class RegistryController
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.HIERARCHY_TYPE_GET_ALL)
    public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String types)
    {
-	 JSONArray childrenTypesJSON = null;
-		 String[] childrenTypesArray = null;
-		 try
-		 {
-		   childrenTypesJSON = new JSONArray(types);
-		 }
-		 catch(JSONException e)
-		 {
-			// TODO Replace with more specific exception
-			 throw new ProgrammingErrorException(types.concat(" can't be parsed."), e);
-		 }
+		 String[] aTypes = null;
+     if (types != null)
+     {
+       JSONArray jaTypes = new JSONArray(types);
+       
+       aTypes = new String[jaTypes.length()];
+       for (int i = 0; i < jaTypes.length(); i++)
+       {
+         aTypes[i] = jaTypes.getString(i);
+       }
+     }
 		 
-		 if(childrenTypesJSON != null)
-		 {
-	       childrenTypesArray = new String[childrenTypesJSON.length()];
-		   for (int i = 0; i < childrenTypesJSON.length(); i++) {
-			 childrenTypesArray[i] = childrenTypesJSON.getString(i);
-		   }
-		 }
-		 
-     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), childrenTypesArray);
+     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), aTypes);
      
      JsonArray jarray = new JsonArray();
      for (int i = 0; i < hts.length; ++i)

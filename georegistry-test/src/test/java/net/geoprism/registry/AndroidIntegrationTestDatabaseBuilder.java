@@ -3,6 +3,8 @@ package net.geoprism.registry;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.testframework.USATestData;
+
 /**
  * This class must be run before running the Andorid FullStackIntegrationTest. This class brings your database
  * to a state which will enable the test to run successfully, regardless of any tests that ran before it.

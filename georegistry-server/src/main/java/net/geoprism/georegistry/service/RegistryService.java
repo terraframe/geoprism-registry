@@ -59,9 +59,22 @@ public class RegistryService
   
   private AdapterUtilities util;
   
+  private static RegistryService instance = null;
+  
   public RegistryService()
   {
     initialize();
+  }
+  
+  public static synchronized RegistryService getInstance()
+  {
+    if (RegistryService.instance == null)
+    {
+      RegistryService.instance = new RegistryService();
+      RegistryService.instance.initialize();
+    }
+    
+    return RegistryService.instance;
   }
   
   @Request

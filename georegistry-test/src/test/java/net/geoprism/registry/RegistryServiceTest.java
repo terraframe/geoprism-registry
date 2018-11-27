@@ -1,10 +1,7 @@
 package net.geoprism.registry;
 
-import net.geoprism.georegistry.service.RegistryIdService;
-import net.geoprism.registry.USATestData.TestGeoObjectInfo;
-import net.geoprism.registry.USATestData.TestGeoObjectTypeInfo;
-
 import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.action.AddChildAction;
 import org.commongeoregistry.adapter.action.CreateAction;
@@ -19,82 +16,102 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.georegistry.RegistryController;
+import net.geoprism.georegistry.service.RegistryIdService;
+import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.registry.testframework.USATestData;
+import net.geoprism.registry.testframework.USATestData.TestGeoObjectInfo;
+import net.geoprism.registry.testframework.USATestData.TestGeoObjectTypeInfo;
+
 public class RegistryServiceTest
 {
-  protected static USATestData data;
+  protected RegistryAdapter adapter;
+  
+  protected USATestData tutil;
+  
+  protected RegistryController controller;
+  
+  protected ClientRequestIF adminCR;
   
   @Before
   public void setUp()
   {
-    data = USATestData.newTestData();
+    this.controller = new RegistryController();
+    
+    this.tutil = USATestData.newTestData();
+    
+    this.adminCR = tutil.adminClientRequest;
+    
+    this.adapter = RegistryService.getInstance().getRegistryAdapter();
   }
   
   @After
   public void tearDown()
   {
-    data.cleanUp();
+    tutil.cleanUp();
   }
   
   @Test
   @Request
   public void testGetGeoObject()
   {
-    GeoObject geoObj = data.registryService.getGeoObject(data.systemSession.getSessionId(), data.COLORADO.getRegistryId(), data.COLORADO.getUniversal().getCode());
-    
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(data.adapter, geoObj.toJSON().toString()).toJSON().toString());
-    data.COLORADO.assertEquals(geoObj);
+    GeoObject geoObj = tutil.responseToGeoObject(this.controller.getGeoObject(this.adminCR, tutil.COLORADO.getRegistryId(), tutil.COLORADO.getUniversal().getCode()));
+     
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(tutil.adapter, geoObj.toJSON().toString()).toJSON().toString());
+    tutil.COLORADO.assertEquals(geoObj);
   }
   
   @Test
   @Request
   public void testGetGeoObjectByCode()
   {
-    GeoObject geoObj = data.registryService.getGeoObjectByCode(data.systemSession.getSessionId(), data.COLORADO.getGeoId(), data.COLORADO.getUniversal().getCode());
+    GeoObject geoObj = tutil.responseToGeoObject(this.controller.getGeoObjectByCode(this.adminCR, tutil.COLORADO.getGeoId(), tutil.COLORADO.getUniversal().getCode()));
     
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(data.adapter, geoObj.toJSON().toString()).toJSON().toString());
-    data.COLORADO.assertEquals(geoObj);
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(tutil.adapter, geoObj.toJSON().toString()).toJSON().toString());
+    tutil.COLORADO.assertEquals(geoObj);
   }
   
   @Test
   @Request
   public void testUpdateGeoObject()
   {
-    data.WASHINGTON.delete();
+    tutil.WASHINGTON.delete();
     
     // 1. Test creating a new one
-    GeoObject geoObj = data.adapter.newGeoObjectInstance(data.STATE.getCode());
-    geoObj.setWKTGeometry(data.WASHINGTON.getWkt());
-    geoObj.setCode(data.WASHINGTON.getGeoId());
-    geoObj.setLocalizedDisplayLabel(data.WASHINGTON.getDisplayLabel());
-    data.registryService.createGeoObject(data.systemSession.getSessionId(), geoObj.toJSON().toString());
+    GeoObject geoObj = tutil.adapter.newGeoObjectInstance(tutil.STATE.getCode());
+    geoObj.setWKTGeometry(tutil.WASHINGTON.getWkt());
+    geoObj.setCode(tutil.WASHINGTON.getGeoId());
+    geoObj.setLocalizedDisplayLabel(tutil.WASHINGTON.getDisplayLabel());
+    this.controller.createGeoObject(this.adminCR, geoObj.toJSON().toString());
     
-    GeoEntity waGeo = GeoEntity.getByKey(data.WASHINGTON.getGeoId());
-    Assert.assertEquals(StringUtils.deleteWhitespace(data.WASHINGTON.getWkt()), StringUtils.deleteWhitespace(waGeo.getWkt()));
-    Assert.assertEquals(data.WASHINGTON.getGeoId(), waGeo.getGeoId());
-    Assert.assertEquals(data.WASHINGTON.getDisplayLabel(), waGeo.getDisplayLabel().getValue());
+    GeoEntity waGeo = GeoEntity.getByKey(tutil.WASHINGTON.getGeoId());
+    Assert.assertEquals(StringUtils.deleteWhitespace(tutil.WASHINGTON.getWkt()), StringUtils.deleteWhitespace(waGeo.getWkt()));
+    Assert.assertEquals(tutil.WASHINGTON.getGeoId(), waGeo.getGeoId());
+    Assert.assertEquals(tutil.WASHINGTON.getDisplayLabel(), waGeo.getDisplayLabel().getValue());
     
     // 2. Test updating the one we created earlier
-    GeoObject waGeoObj = data.registryService.getGeoObject(data.systemSession.getSessionId(), geoObj.getUid(), waGeo.getUniversal().getUniversalId());
-    waGeoObj.setWKTGeometry(data.COLORADO.getWkt());
-    waGeoObj.setLocalizedDisplayLabel(data.COLORADO.getDisplayLabel());
-    data.registryService.updateGeoObject(data.systemSession.getSessionId(), waGeoObj.toJSON().toString());
+    GeoObject waGeoObj = tutil.responseToGeoObject(this.controller.getGeoObject(this.adminCR, geoObj.getUid(), waGeo.getUniversal().getUniversalId()));
+    waGeoObj.setWKTGeometry(tutil.COLORADO.getWkt());
+    waGeoObj.setLocalizedDisplayLabel(tutil.COLORADO.getDisplayLabel());
+    this.controller.updateGeoObject(this.adminCR, waGeoObj.toJSON().toString());
     
-    GeoEntity waGeo2 = GeoEntity.getByKey(data.WASHINGTON.getGeoId());
-    Assert.assertEquals(StringUtils.deleteWhitespace(data.COLORADO.getWkt()), StringUtils.deleteWhitespace(waGeo2.getWkt()));
-    Assert.assertEquals(data.COLORADO.getDisplayLabel(), waGeo2.getDisplayLabel().getValue());
+    GeoEntity waGeo2 = GeoEntity.getByKey(tutil.WASHINGTON.getGeoId());
+    Assert.assertEquals(StringUtils.deleteWhitespace(tutil.COLORADO.getWkt()), StringUtils.deleteWhitespace(waGeo2.getWkt()));
+    Assert.assertEquals(tutil.COLORADO.getDisplayLabel(), waGeo2.getDisplayLabel().getValue());
   }
   
   @Test
   @Request
   public void testGetUIDS()
   {
-    String[] ids = data.registryService.getUIDS(data.systemSession.getSessionId(), 100);
+    String[] ids = tutil.responseToStringArray(this.controller.getUIDs(this.adminCR, 100));
     
     Assert.assertEquals(100, ids.length);
     
@@ -107,31 +124,26 @@ public class RegistryServiceTest
   @Test
   public void testGetGeoObjectTypes()
   {
-    String[] codes = new String[]{ data.STATE.getCode(), data.DISTRICT.getCode() };
+    String[] codes = new String[]{ tutil.STATE.getCode(), tutil.DISTRICT.getCode() };
+    String saCodes = tutil.serialize(codes);
     
-    GeoObjectType[] gots = data.registryService.getGeoObjectTypes(data.systemSession.getSessionId(), codes);
+    GeoObjectType[] gots = tutil.responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.adminCR, saCodes));
     
     Assert.assertEquals(codes.length, gots.length);
     
     GeoObjectType state = gots[0];
-    Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), data.adapter).toJSON().toString());
-//    Assert.assertEquals(data.STATE_UID, state.get); // TODO : GeoOBjectTypes don't have a uid?
-    Assert.assertEquals(data.STATE.getCode(), state.getCode());
-    Assert.assertEquals(data.STATE.getDisplayLabel(), state.getLocalizedLabel());
-    Assert.assertEquals(data.STATE.getDescription(), state.getLocalizedDescription());
+    Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), tutil.adapter).toJSON().toString());
+    tutil.STATE.assertEquals(state);
     
     GeoObjectType district = gots[1];
-    Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), data.adapter).toJSON().toString());
-//  Assert.assertEquals(data.DISTRICT_UID, district.get); // TODO : GeoOBjectTypes don't have a uid?
-    Assert.assertEquals(data.DISTRICT.getCode(), district.getCode());
-    Assert.assertEquals(data.DISTRICT.getDisplayLabel(), district.getLocalizedLabel());
-    Assert.assertEquals(data.DISTRICT.getDescription(), district.getLocalizedDescription());
+    Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), tutil.adapter).toJSON().toString());
+    tutil.DISTRICT.assertEquals(district);
     
     // Test to make sure we can provide none
-    GeoObjectType[] gots2 = data.registryService.getGeoObjectTypes(data.systemSession.getSessionId(), new String[]{});
+    GeoObjectType[] gots2 = tutil.responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.adminCR, "[]"));
     Assert.assertTrue(gots2.length > 0);
     
-    GeoObjectType[] gots3 = data.registryService.getGeoObjectTypes(data.systemSession.getSessionId(), null);
+    GeoObjectType[] gots3 = tutil.responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.adminCR, null));
     Assert.assertTrue(gots3.length > 0);
   }
   
@@ -139,50 +151,54 @@ public class RegistryServiceTest
   @Request
   public void testGetChildGeoObjects()
   {
-    String parentId = data.USA.getRegistryId();
-    String parentTypeCode = data.USA.getUniversal().getCode();
-    String[] childrenTypes = new String[]{data.STATE.getCode(), data.DISTRICT.getCode()};
+    String parentId = tutil.USA.getRegistryId();
+    String parentTypeCode = tutil.USA.getUniversal().getCode();
+    String[] childrenTypes = new String[]{tutil.STATE.getCode(), tutil.DISTRICT.getCode()};
+    String saChildrenTypes = tutil.serialize(childrenTypes);
     
     // Recursive
-    ChildTreeNode tn = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), parentId, parentTypeCode, childrenTypes, true);
-    data.USA.assertEquals(tn, childrenTypes, true);
-    Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), data.adapter).toJSON().toString());
+    ChildTreeNode tn = tutil.responseToChildTreeNode(this.controller.getChildGeoObjects(this.adminCR, parentId, parentTypeCode, saChildrenTypes, true));
+    tutil.USA.assertEquals(tn, childrenTypes, true);
+    Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), tutil.adapter).toJSON().toString());
     
     // Not recursive
-    ChildTreeNode tn2 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), parentId, parentTypeCode, childrenTypes, false);
-    data.USA.assertEquals(tn2, childrenTypes, false);
-    Assert.assertEquals(tn2.toJSON().toString(), ChildTreeNode.fromJSON(tn2.toJSON().toString(), data.adapter).toJSON().toString());
+    ChildTreeNode tn2 = tutil.responseToChildTreeNode(this.controller.getChildGeoObjects(this.adminCR, parentId, parentTypeCode, saChildrenTypes, false));
+    tutil.USA.assertEquals(tn2, childrenTypes, false);
+    Assert.assertEquals(tn2.toJSON().toString(), ChildTreeNode.fromJSON(tn2.toJSON().toString(), tutil.adapter).toJSON().toString());
     
     // Test only getting districts
-    String[] distArr = new String[]{data.DISTRICT.getCode()};
-    ChildTreeNode tn3 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), parentId, parentTypeCode, distArr, true);
-    data.USA.assertEquals(tn3, distArr, true);
-    Assert.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), data.adapter).toJSON().toString());
+    String[] distArr = new String[]{tutil.DISTRICT.getCode()};
+    String saDistArr = tutil.serialize(distArr);
+    ChildTreeNode tn3 = tutil.responseToChildTreeNode(this.controller.getChildGeoObjects(this.adminCR, parentId, parentTypeCode, saDistArr, true));
+    tutil.USA.assertEquals(tn3, distArr, true);
+    Assert.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), tutil.adapter).toJSON().toString());
   }
   
   @Test
   @Request
   public void testGetParentGeoObjects()
   {
-    String childId = data.CO_D_TWO.getRegistryId();
-    String childTypeCode = data.DISTRICT.getCode();
-    String[] childrenTypes = new String[]{data.COUNTRY.getCode(), data.STATE.getCode()};
+    String childId = tutil.CO_D_TWO.getRegistryId();
+    String childTypeCode = tutil.DISTRICT.getCode();
+    String[] childrenTypes = new String[]{tutil.COUNTRY.getCode(), tutil.STATE.getCode()};
+    String saChildrenTypes = tutil.serialize(childrenTypes);
     
     // Recursive
-    ParentTreeNode tn = data.registryService.getParentGeoObjects(data.systemSession.getSessionId(), childId, childTypeCode, childrenTypes, true);
-    data.CO_D_TWO.assertEquals(tn, childrenTypes, true);
-    Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), data.adapter).toJSON().toString());
+    ParentTreeNode tn = tutil.responseToParentTreeNode(this.controller.getParentGeoObjects(this.adminCR, childId, childTypeCode, saChildrenTypes, true));
+    tutil.CO_D_TWO.assertEquals(tn, childrenTypes, true);
+    Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), tutil.adapter).toJSON().toString());
     
     // Not recursive
-    ParentTreeNode tn2 = data.registryService.getParentGeoObjects(data.systemSession.getSessionId(), childId, childTypeCode, childrenTypes, false);
-    data.CO_D_TWO.assertEquals(tn2, childrenTypes, false);
-    Assert.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), data.adapter).toJSON().toString());
+    ParentTreeNode tn2 = tutil.responseToParentTreeNode(this.controller.getParentGeoObjects(this.adminCR, childId, childTypeCode, saChildrenTypes, false));
+    tutil.CO_D_TWO.assertEquals(tn2, childrenTypes, false);
+    Assert.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), tutil.adapter).toJSON().toString());
     
     // Test only getting countries
-    String[] countryArr = new String[]{data.COUNTRY.getCode()};
-    ParentTreeNode tn3 = data.registryService.getParentGeoObjects(data.systemSession.getSessionId(), childId, childTypeCode, countryArr, true);
-    data.CO_D_TWO.assertEquals(tn3, countryArr, true);
-    Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), data.adapter).toJSON().toString());
+    String[] countryArr = new String[]{tutil.COUNTRY.getCode()};
+    String saCountryArr = tutil.serialize(countryArr);
+    ParentTreeNode tn3 = tutil.responseToParentTreeNode(this.controller.getParentGeoObjects(this.adminCR, childId, childTypeCode, saCountryArr, true));
+    tutil.CO_D_TWO.assertEquals(tn3, countryArr, true);
+    Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), tutil.adapter).toJSON().toString());
   }
   
   @Test
@@ -191,19 +207,19 @@ public class RegistryServiceTest
   {
     String[] types = new String[]{ LocatedIn.class.getSimpleName() };
 
-    HierarchyType[] hts = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), types);
+    HierarchyType[] hts = tutil.responseToHierarchyTypes(this.controller.getHierarchyTypes(this.adminCR, tutil.serialize(types)));
     
     Assert.assertEquals(types.length, hts.length);
     
     HierarchyType locatedIn = hts[0];
     USATestData.assertEqualsHierarchyType(LocatedIn.CLASS, locatedIn);
-    Assert.assertEquals(locatedIn.toJSON().toString(), HierarchyType.fromJSON(locatedIn.toJSON().toString(), data.adapter).toJSON().toString());
+    Assert.assertEquals(locatedIn.toJSON().toString(), HierarchyType.fromJSON(locatedIn.toJSON().toString(), tutil.adapter).toJSON().toString());
     
     // Test to make sure we can provide no types and get everything back
-    HierarchyType[] hts2 = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), new String[]{});
+    HierarchyType[] hts2 = tutil.responseToHierarchyTypes(this.controller.getHierarchyTypes(this.adminCR, tutil.serialize(new String[]{})));
     Assert.assertTrue(hts2.length > 0);
     
-    HierarchyType[] hts3 = data.registryService.getHierarchyTypes(data.systemSession.getSessionId(), null);
+    HierarchyType[] hts3 = tutil.responseToHierarchyTypes(this.controller.getHierarchyTypes(this.adminCR, null));
     Assert.assertTrue(hts3.length > 0);
   }
   
@@ -211,15 +227,15 @@ public class RegistryServiceTest
   @Request
   public void testAddChild()
   {
-    TestGeoObjectInfo testAddChild = data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.STATE);
+    TestGeoObjectInfo testAddChild = tutil.newTestGeoObjectInfo("TEST_ADD_CHILD", tutil.STATE);
     testAddChild.apply();
     
-    ParentTreeNode ptnTestState = data.registryService.addChild(data.systemSession.getSessionId(), data.USA.getRegistryId(), data.USA.getUniversal().getCode(), testAddChild.getRegistryId(), testAddChild.getUniversal().getCode(), LocatedIn.class.getSimpleName());
+    ParentTreeNode ptnTestState = tutil.responseToParentTreeNode(this.controller.addChild(this.adminCR, tutil.USA.getRegistryId(), tutil.USA.getUniversal().getCode(), testAddChild.getRegistryId(), testAddChild.getUniversal().getCode(), LocatedIn.class.getSimpleName()));
     
     boolean found = false;
     for (ParentTreeNode ptnUSA : ptnTestState.getParents())
     {
-      if (ptnUSA.getGeoObject().getCode().equals(data.USA.getGeoId()))
+      if (ptnUSA.getGeoObject().getCode().equals(tutil.USA.getGeoId()))
       {
         found = true;
         break;
@@ -228,7 +244,7 @@ public class RegistryServiceTest
     Assert.assertTrue("Did not find our test object in the list of returned children", found);
     testAddChild.assertEquals(ptnTestState.getGeoObject());
     
-    ChildTreeNode ctnUSA2 = data.registryService.getChildGeoObjects(data.systemSession.getSessionId(), data.USA.getRegistryId(), data.USA.getUniversal().getCode(), new String[]{data.STATE.getCode()}, false);
+    ChildTreeNode ctnUSA2 = tutil.responseToChildTreeNode(this.controller.getChildGeoObjects(this.adminCR, tutil.USA.getRegistryId(), tutil.USA.getUniversal().getCode(), tutil.serialize(new String[]{tutil.STATE.getCode()}), false));
     
     found = false;
     for (ChildTreeNode ctnState : ctnUSA2.getChildren())
@@ -246,22 +262,22 @@ public class RegistryServiceTest
   @Request
   public void testActions()
   {
-    TestGeoObjectInfo testAddChildParent = data.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD_PARENT", data.STATE);
+    TestGeoObjectInfo testAddChildParent = tutil.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD_PARENT", tutil.STATE);
     testAddChildParent.apply();
     
-    TestGeoObjectInfo testAddChild = data.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD", data.DISTRICT);
+    TestGeoObjectInfo testAddChild = tutil.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD", tutil.DISTRICT);
     testAddChild.apply();
     
-    TestGeoObjectInfo testDelete = data.newTestGeoObjectInfo("TEST_ACTIONS_DELETE_CHILD", data.STATE);
+    TestGeoObjectInfo testDelete = tutil.newTestGeoObjectInfo("TEST_ACTIONS_DELETE_CHILD", tutil.STATE);
     testDelete.apply();
     
-    TestGeoObjectInfo testNew = data.newTestGeoObjectInfo("TEST_ACTIONS_NEW_CHILD", data.STATE);
+    TestGeoObjectInfo testNew = tutil.newTestGeoObjectInfo("TEST_ACTIONS_NEW_CHILD", tutil.STATE);
     GeoObject goNewChild = testNew.getGeoObject();
     
-    TestGeoObjectTypeInfo testDeleteUni = data.newTestGeoObjectTypeInfo("TEST_ACTIONS_DELETE_UNI");
+    TestGeoObjectTypeInfo testDeleteUni = tutil.newTestGeoObjectTypeInfo("TEST_ACTIONS_DELETE_UNI");
     testDeleteUni.apply();
     GeoObjectType gotDelete = testDeleteUni.getGeoObjectType();
-    data.adapter.getMetadataCache().addGeoObjectType(gotDelete);
+    tutil.adapter.getMetadataCache().addGeoObjectType(gotDelete);
     
     AbstractAction[] actions = new AbstractAction[3];
     int i = 0;
@@ -320,7 +336,7 @@ public class RegistryServiceTest
     Assert.assertEquals(sActions, sActions2);
     
     // Execute the actions
-    data.registryService.executeActions(data.systemSession.getSessionId(), sActions);
+    this.controller.executeActions(this.adminCR, sActions);
     
     // Make sure that the database has been modified correctly
     Assert.assertEquals(1, testAddChildParent.getGeoEntity().getChildren(LocatedIn.CLASS).getAll().size());
