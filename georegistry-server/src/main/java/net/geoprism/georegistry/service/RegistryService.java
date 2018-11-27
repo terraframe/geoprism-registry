@@ -256,10 +256,6 @@ public class RegistryService
     return map;
   }
   
-  private void addGeoObjectRoots(HierarchyType ht)
-  {
-    // TODO : I'm not sure how this is supposed to work.
-  }
 
   @Request(RequestType.SESSION)
   public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive)

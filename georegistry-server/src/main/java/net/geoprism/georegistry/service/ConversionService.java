@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
@@ -664,6 +665,16 @@ public class ConversionService
     
     return geoObj;
   }
+  
+//  public GeoObject getGeoObjectById(String uuid, String geoObjectTypeCode) 
+//  {
+//    Universal universal = Universal.getByKey(geoObjectTypeCode);
+//    
+//    MdBusiness mdBusiness = universal.getMdBusiness();
+//    
+//    
+//    
+//  }
 
   
   /** 
@@ -897,6 +908,7 @@ public class ConversionService
     businessDAO.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, geoEntity.getOid());
     businessDAO.setValue(RegistryConstants.UUID, uuid);
     businessDAO.setValue(DefaultAttribute.CODE.getName(), geoEntity.getGeoId());
+    businessDAO.setValue(ComponentInfo.KEY, geoEntity.getGeoId());
     businessDAO.addItem(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
     businessDAO.apply();
   }
