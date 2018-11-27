@@ -3,10 +3,7 @@
     <create>
       <mdBusiness name="net.geoprism.georegistry.IdRecord" label="Id Record">
         <attributes>
-          <uuid name="registryId" required="true" indexType="unique index" label="registryId"/>
-          <!--  
-          <uuid name="registryId" required="true" indexType="unique index" size="36" label="registryId"/>
-          -->
+          <char name="registryId" required="true" indexType="unique index" size="36" label="registryId"/>
         </attributes>
       </mdBusiness>
       <mdException name="net.geoprism.georegistry.InvalidRegistryIdException" label="Invalid Registry Id Exception" message="The provided registry id [{registryId}] is invalid.">
