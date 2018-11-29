@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.GeoObjectStatus;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -26,7 +28,9 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
+import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
@@ -45,7 +49,7 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
@@ -53,7 +57,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.mapping.GeoserverFacade;
@@ -74,26 +77,51 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
+import com.runwaysdk.system.ontology.ImmutableRootException;
+import com.runwaysdk.util.IDGenerator;
 
 public class ConversionService
 {
-  private RegistryAdapter registry;
+  private RegistryAdapter adapter = null;
   
-  protected ConversionService(RegistryAdapter registry)
+  private static ConversionService instance = null;
+  
+  private AdapterUtilities util = null;
+  
+  public ConversionService()
   {
-    this.registry = registry;
   }
   
-  protected RegistryAdapter getRegistry()
+  public synchronized static ConversionService getInstance()
   {
-    return this.registry;
+    if (instance == null)
+    {
+      instance = new ConversionService();
+    }
+    
+    return instance;
   }
   
-  protected void setRegistry(RegistryAdapter registry)
+  public RegistryAdapter getAdapter()
   {
-    this.registry = registry;
+    return this.adapter;
   }
   
+  public void setAdapter(RegistryAdapter adapter)
+  {
+    this.adapter = adapter;
+  }
+  
+  public AdapterUtilities getUtil()
+  {
+    return util;
+  }
+
+  public void setUtil(AdapterUtilities util)
+  {
+    this.util = util;
+  }
+
   /**
    * Turns the given {@link HierarchyType} code into the corresponding {@link MdTermRelationship} key for
    * the {@link Universal} relationship.
@@ -102,13 +130,13 @@ public class ConversionService
    * @return corresponding {@link MdTermRelationship} key.
    */
   public static String buildMdTermRelUniversalKey(String hierarchyCode)
-  {
-    // Check for existing GeoPrism hierarchyTypes
-    if (AllowedIn.CLASS.indexOf(hierarchyCode) > -1 ||
-        IsARelationship.CLASS.indexOf(hierarchyCode) > -1)
+  {    
+    // If the code is for the LocatedIn hierarchy, then the relationship that defines the 
+    // Universals for that relationship is AllowedIn.
+    if (hierarchyCode.trim().equals(LocatedIn.class.getSimpleName()))
     {
-      return GISConstants.GEO_PACKAGE+"."+hierarchyCode;
-    }
+      return AllowedIn.CLASS;
+    }    
     else
     {
       return GISConstants.GEO_PACKAGE+"."+hierarchyCode+RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
@@ -123,21 +151,29 @@ public class ConversionService
    */
   public static String buildHierarchyKeyFromMdTermRelUniversal(String mdTermRelKey)
   {   
-    int startIndex = GISConstants.GEO_PACKAGE.length()+1;
-
-    int endIndex = mdTermRelKey.indexOf(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
-    
-    String hierarchyKey;
-    if (endIndex > -1)
+    // the hierarchyType code for the allowed in relationship is the located in relationship
+    if (mdTermRelKey.trim().equals(AllowedIn.CLASS))
     {
-      hierarchyKey = mdTermRelKey.substring(startIndex, endIndex);
+      return LocatedIn.class.getSimpleName();
     }
     else
-    {
-      hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
-    }
+    {   
+      int startIndex = GISConstants.GEO_PACKAGE.length()+1;
 
-    return hierarchyKey;
+      int endIndex = mdTermRelKey.indexOf(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
+    
+      String hierarchyKey;
+      if (endIndex > -1)
+      {
+        hierarchyKey = mdTermRelKey.substring(startIndex, endIndex);
+      }
+      else
+      {
+        hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
+      }
+
+      return hierarchyKey;
+    }
   }
   
   /**
@@ -150,13 +186,9 @@ public class ConversionService
   public static String buildMdTermRelGeoEntityKey(String hierarchyCode)
   {
     // Check for existing GeoPrism hierarchyTypes
-    if (AllowedIn.CLASS.indexOf(hierarchyCode) > -1)
+    if (hierarchyCode.trim().equals(LocatedIn.class.getSimpleName()))
     {
       return LocatedIn.CLASS;
-    }
-    else if (IsARelationship.CLASS.indexOf(hierarchyCode) > -1)
-    {
-      return ClassifierIsARelationship.CLASS;
     }
     else
     {
@@ -270,7 +302,23 @@ public class ConversionService
   {
     String hierarchyKey = buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
     
-    HierarchyType ht = new HierarchyType(hierarchyKey, mdTermRel.getDisplayLabel().getValue(), mdTermRel.getDescription().getValue());
+    String displayLabel;
+    String description;
+    
+    if (mdTermRel.definesType().equals(AllowedIn.CLASS))
+    {
+      MdTermRelationship locatedInMdTermRel = (MdTermRelationship)MdTermRelationship.getMdRelationship(LocatedIn.CLASS);
+      displayLabel = locatedInMdTermRel.getDisplayLabel().getValue();
+      description = locatedInMdTermRel.getDescription().getValue();
+    }
+    else
+    {
+      displayLabel = mdTermRel.getDisplayLabel().getValue();
+      description = mdTermRel.getDescription().getValue();
+    }
+    
+    
+    HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description);
     
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
 
@@ -331,15 +379,12 @@ public class ConversionService
 
   }
   
-  
-  
-  protected Universal geoObjectTypeToUniversal(GeoObjectType got)
+  public Universal geoObjectTypeToUniversal(GeoObjectType got)
   {
     Universal uni = Universal.getByKey(got.getCode());
     
     return uni;
   }
-  
   
   /** 
    * Creates, but does not persist, a {@link Universal} from the given {@link GeoObjectType}.
@@ -349,7 +394,7 @@ public class ConversionService
    * @param got
    * @return a {@link Universal} from the given {@link GeoObjectType} that is not persisted.
    */
-  protected Universal newGeoObjectTypeToUniversal(GeoObjectType got)
+  public Universal newGeoObjectTypeToUniversal(GeoObjectType got)
   {    
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
@@ -386,7 +431,7 @@ public class ConversionService
     
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = this.convertRegistryToAdapterPolygonType(geoPrismgeometryType);   
 
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), registry);
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), adapter);
 
     geoObjType = convertAttributeTypes(uni, geoObjType);
     
@@ -450,13 +495,7 @@ public class ConversionService
     }
       
   }
-  
-  // TODO: Complete
-  private MdAttributeDAO attributeTypeToMdAttribute(AttributeType attributeType)
-  {
-    return null;
-  }
-  
+
   private AttributeType mdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
   {
     Locale locale = Session.getCurrentLocale();
@@ -614,7 +653,7 @@ public class ConversionService
     // TODO : GeometryType is hardcoded
     GeoObject geoObj = new GeoObject(got, GeometryType.POLYGON, attributeMap);
     
-    geoObj.setUid(geoEntity.getOid());
+    geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(geoEntity.getOid(), geoEntity.getUniversal()));
     geoObj.setCode(geoEntity.getGeoId());
     geoObj.setWKTGeometry(geoEntity.getWkt());
     geoObj.setLocalizedDisplayLabel(geoEntity.getDisplayLabel().getValue());
@@ -627,6 +666,58 @@ public class ConversionService
     return geoObj;
   }
   
+//  public GeoObject getGeoObjectById(String uuid, String geoObjectTypeCode) 
+//  {
+//    Universal universal = Universal.getByKey(geoObjectTypeCode);
+//    
+//    MdBusiness mdBusiness = universal.getMdBusiness();
+//    
+//    
+//    
+//  }
+
+  
+  /** 
+   * Creates an {@link MdBusiness} for the given universal.
+   * 
+   * @pre universal.gertMdBusiness() == null
+   * 
+   * @param universal
+   * 
+   * @return modified {@link Universal} that references an applied {@link MdBusiness} .
+   */
+  @Transaction
+  public static Universal createMdBusinessForUniversal(Universal universal)
+  { 
+    MdBusiness mdBusiness = new MdBusiness();
+    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
+    // The CODE name becomes the class name
+    mdBusiness.setTypeName(universal.getUniversalId());
+    mdBusiness.setGenerateSource(false);
+    mdBusiness.setPublish(false);
+    mdBusiness.setIsAbstract(false);
+    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
+    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
+    mdBusiness.apply();
+    
+    // Add the default attributes.
+    createDefaultAttributes(universal, mdBusiness);
+    
+    universal.setMdBusiness(mdBusiness);
+    
+    try
+    {
+      universal.apply();
+    }
+    // remove once ROOT attribute is defined.
+    catch (ImmutableRootException e) 
+    {
+      System.out.println(universal.getUniversalId()+" - "+universal.getOid()+"    "+mdBusiness.getOid());
+    }
+      
+    return universal;
+  }
+  
   /**
    * Adds default attributes to the given {@link MdBusinessDAO} according to the 
    * Common Geo-Registry specification for {@link GeoObject}.
@@ -634,7 +725,7 @@ public class ConversionService
    * @param mdBusinessDAO {@link MdBusinessDAO} that will define the default attributes.
    */
   @Transaction
-  public void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
+  public static void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
   {    
     MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
     
@@ -739,5 +830,112 @@ public class ConversionService
       mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
       mdAttributeGeometry.apply();
    }    
+  }
+  
+  /**
+   * Creates a reference attribute to the parent node class.
+   * 
+   * 
+   * @param hierarchyTypeCode
+   * @param parentUniversal
+   * @param childUniversal
+   */
+  @Transaction
+  public static void addParentReferenceToLeafType(String hierarchyTypeCode, Universal parentUniversal, Universal childUniversal)
+  {
+    String mdTermRelKey = buildMdTermRelGeoEntityKey(hierarchyTypeCode);
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey); 
+
+    MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
+    MdBusiness childMdBusiness = childUniversal.getMdBusiness();
+    
+    String refAttrName = getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
+    
+    String displayLabel = "Reference to "+parentUniversal.getDisplayLabel().getValue()+" in hierarchy "+mdTermRelationship.getDisplayLabel().getValue();
+
+    MdAttributeReference mdAttributeReference = new MdAttributeReference();
+    mdAttributeReference.setAttributeName(refAttrName);
+    mdAttributeReference.getDisplayLabel().setValue(displayLabel);
+    mdAttributeReference.getDescription().setValue(displayLabel);
+    mdAttributeReference.setRequired(false);
+    mdAttributeReference.setDefiningMdClass(childMdBusiness);
+    mdAttributeReference.setMdBusiness(parentMdBusiness);
+    mdAttributeReference.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
+    mdAttributeReference.apply();
+
+  }
+  
+  /**
+   * Creates a reference attribute name for a child leaf type that references the parent type
+   * 
+   * @param hierarchyTypeCode
+   * @param parentUniversal
+   * @return
+   */
+  public static String getParentReferenceAttributeName(String hierarchyTypeCode, Universal parentUniversal)
+  {
+    MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
+    String parentTypeName = parentMdBusiness.getTypeName();
+    
+    // Lower case the first character of the hierarchy Code
+    String lowerCaseHierarchyName = Character.toLowerCase(hierarchyTypeCode.charAt(0)) + hierarchyTypeCode.substring(1);
+    if (lowerCaseHierarchyName.length() > 32)
+    {
+      lowerCaseHierarchyName = lowerCaseHierarchyName.substring(0, 31);
+    }
+    
+    // Upper case the first character of the parent class
+    String upperCaseParentClassName = Character.toUpperCase(parentTypeName.charAt(0)) + parentTypeName.substring(1);
+    if (upperCaseParentClassName.length() > 32)
+    {
+      upperCaseParentClassName = upperCaseParentClassName.substring(0, 31);
+    }
+    
+    String refAttrName = lowerCaseHierarchyName+upperCaseParentClassName;
+    
+    return refAttrName;
+  }
+  
+  @Transaction
+  public static void createBusinessObjectForExistingGeoEntity(GeoEntity geoEntity)
+  {
+    Universal universal = geoEntity.getUniversal();
+    MdBusiness mdBusiness = universal.getMdBusiness();
+
+    String uuid = IDGenerator.nextID();
+    
+    BusinessDAO businessDAO = BusinessDAO.newInstance(mdBusiness.definesType());
+    businessDAO.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, geoEntity.getOid());
+    businessDAO.setValue(RegistryConstants.UUID, uuid);
+    businessDAO.setValue(DefaultAttribute.CODE.getName(), geoEntity.getGeoId());
+    businessDAO.setValue(ComponentInfo.KEY, geoEntity.getGeoId());
+    businessDAO.addItem(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
+    businessDAO.apply();
+  }
+
+
+  public Term geoObjectStatusToTerm(GeoObjectStatus gos)
+  {
+    if (gos.getEnumName().equals(GeoObjectStatus.ACTIVE.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code).get();
+    }
+    else if (gos.getEnumName().equals(GeoObjectStatus.INACTIVE.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code).get();
+    }
+    else if (gos.getEnumName().equals(GeoObjectStatus.NEW.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get();
+    }
+    else if (gos.getEnumName().equals(GeoObjectStatus.PENDING.getEnumName()))
+    {
+      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code).get();
+    }
+    else
+    {
+      // TODO Throw a localized Exception
+      throw new ProgrammingErrorException("Unknown Status [" + gos.getEnumName() + "].");
+    }
   }
 }

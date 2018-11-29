@@ -39,7 +39,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.setId("locations");
     management.setLabel(LocalizationFacadeDTO.getFromBundles(request, "geoprismLanding.locationManagement"));
     management.setSrc("net/geoprism/images/dm_icon.svg");
-    management.setUrl("/nav/management#locations");
+    management.setUrl("nav/management#locations");
     management.addRole(RoleConstants.ADIM_ROLE);
     management.addRole(RoleConstants.BUILDER_ROLE);
     

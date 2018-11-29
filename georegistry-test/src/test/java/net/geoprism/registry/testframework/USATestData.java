@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.registry.testframework;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,11 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
-import net.geoprism.georegistry.service.RegistryService;
+import java.util.UUID;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -20,9 +22,15 @@ import org.junit.Assert;
 
 import com.runwaysdk.ClasspathResource;
 import com.runwaysdk.ClientSession;
+import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.Relationship;
+import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
+import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.generated.system.gis.geo.GeoEntityAllPathsTableQuery;
+import com.runwaysdk.generated.system.gis.geo.UniversalAllPathsTableQuery;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -32,54 +40,82 @@ import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
+import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdBusinessQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
 
-public class USATestData
+import net.geoprism.georegistry.AdapterUtilities;
+import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierAllPathsTableQuery;
+import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.GeoObjectStatus;
+
+public class USATestData extends TestUtilities
 {
   public static final String TEST_DATA_KEY = "USATestData";
   
-  public static final TestUniversalInfo COUNTRY = new TestUniversalInfo("Country");
+  public final TestGeoObjectTypeInfo COUNTRY = new TestGeoObjectTypeInfo("Country");
   
-  public static final TestGeoEntityInfo USA = new TestGeoEntityInfo("USA", COUNTRY);
+  public final TestGeoObjectInfo USA = new TestGeoObjectInfo("USA", COUNTRY);
   
-  public static final TestUniversalInfo STATE = new TestUniversalInfo("State");
+  public final TestGeoObjectTypeInfo STATE = new TestGeoObjectTypeInfo("State");
   
-  public static final TestUniversalInfo DISTRICT = new TestUniversalInfo("District");
+  public final TestGeoObjectTypeInfo DISTRICT = new TestGeoObjectTypeInfo("District");
   
-  public static final TestGeoEntityInfo COLORADO = new TestGeoEntityInfo("Colorado", STATE);
+  public final TestGeoObjectInfo COLORADO = new TestGeoObjectInfo("Colorado", STATE);
   
-  public static final TestGeoEntityInfo CO_D_ONE = new TestGeoEntityInfo("ColoradoDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo CO_D_ONE = new TestGeoObjectInfo("ColoradoDistrictOne", DISTRICT);
   
-  public static final TestGeoEntityInfo CO_D_TWO = new TestGeoEntityInfo("ColoradoDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo CO_D_TWO = new TestGeoObjectInfo("ColoradoDistrictTwo", DISTRICT);
   
-  public static final TestGeoEntityInfo CO_D_THREE = new TestGeoEntityInfo("ColoradoDistrictThree", DISTRICT);
+  public final TestGeoObjectInfo CO_D_THREE = new TestGeoObjectInfo("ColoradoDistrictThree", DISTRICT);
   
-  public static final TestGeoEntityInfo WASHINGTON = new TestGeoEntityInfo("Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
+  public final TestGeoObjectInfo WASHINGTON = new TestGeoObjectInfo("Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
   
-  public static final TestGeoEntityInfo WA_D_ONE = new TestGeoEntityInfo("WashingtonDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo WA_D_ONE = new TestGeoObjectInfo("WashingtonDistrictOne", DISTRICT);
   
-  public static final TestGeoEntityInfo WA_D_TWO = new TestGeoEntityInfo("WashingtonDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo WA_D_TWO = new TestGeoObjectInfo("WashingtonDistrictTwo", DISTRICT);
   
-  public static TestUniversalInfo[] UNIVERSALS = new TestUniversalInfo[]{COUNTRY, STATE, DISTRICT};
+  public TestGeoObjectTypeInfo[] UNIVERSALS = new TestGeoObjectTypeInfo[]{COUNTRY, STATE, DISTRICT};
   
-  public static TestGeoEntityInfo[] GEOENTITIES = new TestGeoEntityInfo[]{USA, COLORADO, WASHINGTON, CO_D_ONE, CO_D_TWO, CO_D_THREE, WA_D_ONE, WA_D_TWO};
+  public TestGeoObjectInfo[] GEOENTITIES = new TestGeoObjectInfo[]{USA, COLORADO, WASHINGTON, CO_D_ONE, CO_D_TWO, CO_D_THREE, WA_D_ONE, WA_D_TWO};
   
-  public RegistryService registryService;
+  public RegistryAdapter adapter;
   
-  public ClientSession systemSession   = null;
+  public ClientSession adminSession   = null;
   
-  private ArrayList<TestGeoEntityInfo> customGeoInfos = new ArrayList<TestGeoEntityInfo>();
+  public ClientRequestIF adminClientRequest = null;
+  
+  private ArrayList<TestGeoObjectInfo> customGeoInfos = new ArrayList<TestGeoObjectInfo>();
 
-  private ArrayList<TestUniversalInfo> customUniInfos = new ArrayList<TestUniversalInfo>();
+  private ArrayList<TestGeoObjectTypeInfo> customUniInfos = new ArrayList<TestGeoObjectTypeInfo>();
   
   static
   {
     checkDuplicateClasspathResources();
   }
   
-  public USATestData()
+  @Request
+  public static USATestData newTestData()
   {
+    LocalProperties.setSkipCodeGenAndCompile(true);
     
+    RegistryAdapter adapter = RegistryService.getInstance().getRegistryAdapter();
+    
+    USATestData data = new USATestData(adapter);
+    
+    data.setUp();
+    
+    RegistryService.getInstance().refreshMetadataCache();
+    
+    return data;
+  }
+  
+  public USATestData(RegistryAdapter adapter)
+  {
+    this.adapter = adapter;
   }
   
   @Request
@@ -92,7 +128,9 @@ public class USATestData
   {
     cleanUp();
     
-    for (TestUniversalInfo uni : UNIVERSALS)
+//    rebuildAllpaths();
+    
+    for (TestGeoObjectTypeInfo uni : UNIVERSALS)
     {
       uni.apply();
     }
@@ -101,7 +139,7 @@ public class USATestData
     COUNTRY.addChild(STATE, AllowedIn.CLASS);
     STATE.addChild(DISTRICT, AllowedIn.CLASS);
     
-    for (TestGeoEntityInfo geo : GEOENTITIES)
+    for (TestGeoObjectInfo geo : GEOENTITIES)
     {
       geo.apply();
     }
@@ -117,24 +155,44 @@ public class USATestData
     WASHINGTON.addChild(WA_D_ONE, LocatedIn.CLASS);
     WASHINGTON.addChild(WA_D_TWO, LocatedIn.CLASS);
     
-    registryService = new RegistryService();
-    systemSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
+    adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
+    adminClientRequest = adminSession.getRequest();
+  }
+  
+  private void rebuildAllpaths()
+  {
+    Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
+    Universal.getStrategy().initialize(AllowedIn.CLASS);
+    GeoEntity.getStrategy().initialize(LocatedIn.CLASS);
+
+    if (new UniversalAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    {
+      Universal.getStrategy().reinitialize(AllowedIn.CLASS);
+    }
+
+    if (new GeoEntityAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    {
+      GeoEntity.getStrategy().reinitialize(LocatedIn.CLASS);
+    }
+
+    if (new ClassifierAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    {
+      Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
+    }
   }
   
   public static void assertEqualsHierarchyType(String relationshipType, HierarchyType compare)
   {
     MdRelationship allowedIn = MdRelationship.getMdRelationship(relationshipType);
     
-    Assert.assertEquals(allowedIn.getKey(), compare.getCode());
+    Assert.assertEquals(allowedIn.getTypeName(), compare.getCode());
     Assert.assertEquals(allowedIn.getDescription().getValue(), compare.getLocalizedDescription());
     Assert.assertEquals(allowedIn.getDisplayLabel().getValue(), compare.getLocalizedLabel());
     
 //    compare.getRootGeoObjectTypes() // TODO
   }
   
-  
-  
-  public static class TestUniversalInfo
+  public class TestGeoObjectTypeInfo
   {
     private Universal universal;
     
@@ -146,14 +204,20 @@ public class USATestData
     
     private String uid;
     
-    private List<TestUniversalInfo> children;
+    private GeometryType geomType;
     
-    private TestUniversalInfo(String genKey)
+    private boolean isLeaf;
+    
+    private List<TestGeoObjectTypeInfo> children;
+    
+    private TestGeoObjectTypeInfo(String genKey)
     {
-      this.code = TEST_DATA_KEY + "-" + genKey + "Code";
+      this.code = TEST_DATA_KEY + genKey + "Code";
       this.displayLabel = TEST_DATA_KEY + " " + genKey + " Display Label";
       this.description = TEST_DATA_KEY + " " + genKey + " Description";
-      this.children = new LinkedList<TestUniversalInfo>();
+      this.children = new LinkedList<TestGeoObjectTypeInfo>();
+      this.geomType = GeometryType.POLYGON;
+      this.isLeaf = false;
     }
 
     public String getCode() {
@@ -166,6 +230,14 @@ public class USATestData
 
     public String getDescription() {
       return description;
+    }
+    
+    public GeometryType getGeometryType() {
+      return geomType;
+    }
+    
+    public boolean getIsLeaf() {
+      return isLeaf;
     }
 
     public String getUid() {
@@ -181,12 +253,12 @@ public class USATestData
       return this.universal;
     }
     
-    public List<TestUniversalInfo> getChildren()
+    public List<TestGeoObjectTypeInfo> getChildren()
     {
       return this.children;
     }
     
-    public Relationship addChild(TestUniversalInfo child, String relationshipType)
+    public Relationship addChild(TestGeoObjectTypeInfo child, String relationshipType)
     {
       if (!this.children.contains(child))
       {
@@ -201,7 +273,6 @@ public class USATestData
       Assert.assertEquals(code, got.getCode());
       Assert.assertEquals(displayLabel, got.getLocalizedLabel());
       Assert.assertEquals(description, got.getLocalizedDescription());
-      // TOOD : check the uid
     }
     
     public void assertEquals(Universal uni)
@@ -213,11 +284,7 @@ public class USATestData
     
     public Universal apply()
     {
-      universal = new Universal();
-      universal.setUniversalId(this.getCode());
-      universal.getDisplayLabel().setValue(this.getDisplayLabel());
-      universal.getDescription().setValue(this.getDescription());
-      universal.apply();
+      universal = AdapterUtilities.getInstance().createGeoObjectType(this.getGeoObjectType());
       
       this.setUid(universal.getOid());
       
@@ -227,19 +294,27 @@ public class USATestData
     public void delete()
     {
       deleteUniversal(this.getCode());
+      deleteMdBusiness(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
       this.children.clear();
+      this.universal = null;
     }
 
-    public GeoObjectType newGeoObjectType()
+    public GeoObjectType getGeoObjectType()
     {
-//      return RegistryService.getRegistryAdapter().getMetadataCache().getGeoObjectType(this.getUniversal().getKey()).get();
-      return RegistryService.getConversionService().universalToGeoObjectType(this.getUniversal());
+//      if (this.getUniversal() != null)
+//      {
+//        return registryService.getConversionService().universalToGeoObjectType(this.getUniversal());
+//      }
+//      else
+//      {
+        return new GeoObjectType(this.getCode(), this.getGeometryType(), this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), adapter);
+//      }
     }
   }
   
-  public TestGeoEntityInfo newTestGeoEntityInfo(String genKey, TestUniversalInfo testUni)
+  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
   {
-    TestGeoEntityInfo info = new TestGeoEntityInfo(genKey, testUni);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni);
     
     info.delete();
     
@@ -248,9 +323,9 @@ public class USATestData
     return info;
   }
   
-  public TestGeoEntityInfo newTestGeoEntityInfo(String genKey, TestUniversalInfo testUni, String wkt)
+  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
   {
-    TestGeoEntityInfo info = new TestGeoEntityInfo(genKey, testUni, wkt);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt);
     
     info.delete();
     
@@ -259,9 +334,9 @@ public class USATestData
     return info;
   }
   
-  public TestUniversalInfo newTestUniversalInfo(String genKey)
+  public TestGeoObjectTypeInfo newTestGeoObjectTypeInfo(String genKey)
   {
-    TestUniversalInfo info = new TestUniversalInfo(genKey);
+    TestGeoObjectTypeInfo info = new TestGeoObjectTypeInfo(genKey);
     
     info.delete();
     
@@ -270,7 +345,7 @@ public class USATestData
     return info;
   }
   
-  public static class TestGeoEntityInfo
+  public class TestGeoObjectInfo
   {
     private String geoId;
     
@@ -278,35 +353,35 @@ public class USATestData
     
     private String wkt;
     
-    private String uid = null;
+    private String registryId = null;
     
     private GeoEntity geoEntity;
     
-    private TestUniversalInfo universal;
+    private TestGeoObjectTypeInfo universal;
     
-    private List<TestGeoEntityInfo> children;
+    private List<TestGeoObjectInfo> children;
     
-    private List<TestGeoEntityInfo> parents;
+    private List<TestGeoObjectInfo> parents;
     
-    private TestGeoEntityInfo(String genKey, TestUniversalInfo testUni, String wkt)
+    private TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
     {
       initialize(genKey, testUni);
       this.wkt = wkt;
     }
     
-    private TestGeoEntityInfo(String genKey, TestUniversalInfo testUni)
+    private TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
     {
       initialize(genKey, testUni);
     }
     
-    private void initialize(String genKey, TestUniversalInfo testUni)
+    private void initialize(String genKey, TestGeoObjectTypeInfo testUni)
     {
-      this.geoId = TEST_DATA_KEY + "-" + genKey + "Code";
+      this.geoId = TEST_DATA_KEY + genKey + "Code";
       this.displayLabel = TEST_DATA_KEY + " " + genKey + " Display Label";
       this.wkt = "POLYGON ((10000 10000, 12300 40000, 16800 50000, 12354 60000, 13354 60000, 17800 50000, 13300 40000, 11000 10000, 10000 10000))";
       this.universal = testUni;
-      this.children = new LinkedList<TestGeoEntityInfo>();
-      this.parents = new LinkedList<TestGeoEntityInfo>();
+      this.children = new LinkedList<TestGeoObjectInfo>();
+      this.parents = new LinkedList<TestGeoObjectInfo>();
     }
 
     public String getGeoId() {
@@ -321,12 +396,12 @@ public class USATestData
       return wkt;
     }
 
-    public String getUid() {
-      return uid;
+    public String getRegistryId() {
+      return registryId;
     }
 
-    public void setUid(String uid) {
-      this.uid = uid;
+    public void setRegistryId(String uid) {
+      this.registryId = uid;
     }
     
     public GeoEntity getGeoEntity()
@@ -334,28 +409,28 @@ public class USATestData
       return this.geoEntity;
     }
     
-    public GeoObject newGeoObject()
+    public GeoObject getGeoObject()
     {
-      GeoObject geoObj = RegistryService.getRegistryAdapter().newGeoObjectInstance(this.universal.getCode());
+      GeoObject geoObj = adapter.newGeoObjectInstance(this.universal.getCode());
       
       geoObj.setWKTGeometry(this.getWkt());
       geoObj.setCode(this.getGeoId());
       geoObj.setLocalizedDisplayLabel(this.getDisplayLabel());
       
-      if (uid != null)
+      if (registryId != null)
       {
-        geoObj.setUid(uid);
+        geoObj.setUid(registryId);
       }
       
       return geoObj;
     }
     
-    public List<TestGeoEntityInfo> getChildren()
+    public List<TestGeoObjectInfo> getChildren()
     {
       return this.children;
     }
     
-    public List<TestGeoEntityInfo> getParents()
+    public List<TestGeoObjectInfo> getParents()
     {
       return this.parents;
     }
@@ -369,7 +444,7 @@ public class USATestData
       
       // Check array size
       int numChildren = 0;
-      for (TestGeoEntityInfo testChild : this.children)
+      for (TestGeoObjectInfo testChild : this.children)
       {
         if (ArrayUtils.contains(childrenTypes, testChild.getUniversal().getCode()))
         {
@@ -389,7 +464,7 @@ public class USATestData
         }
       }
       
-      for (TestGeoEntityInfo testChild : this.children)
+      for (TestGeoObjectInfo testChild : this.children)
       {
         if (ArrayUtils.contains(childrenTypes, testChild.getGeoId()))
         {
@@ -428,7 +503,7 @@ public class USATestData
       
       // Check array size
       int numParents = 0;
-      for (TestGeoEntityInfo testParent : this.parents)
+      for (TestGeoObjectInfo testParent : this.parents)
       {
         if (ArrayUtils.contains(parentTypes, testParent.getUniversal().getCode()))
         {
@@ -448,7 +523,7 @@ public class USATestData
         }
       }
       
-      for (TestGeoEntityInfo testParent : this.parents)
+      for (TestGeoObjectInfo testParent : this.parents)
       {
         if (ArrayUtils.contains(parentTypes, testParent.getGeoId()))
         {
@@ -480,7 +555,7 @@ public class USATestData
     
     public void assertEquals(GeoObject geoObj)
     {
-      Assert.assertEquals(this.getUid(), geoObj.getUid());
+      Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
       Assert.assertEquals(this.getGeoId(), geoObj.getCode());
       Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
       Assert.assertEquals(this.getDisplayLabel(), geoObj.getLocalizedDisplayLabel());
@@ -489,7 +564,7 @@ public class USATestData
     
     public void assertEquals(GeoEntity geoEnt)
     {
-      Assert.assertEquals(this.getUid(), geoEnt.getOid());
+      Assert.assertEquals(this.getRegistryId(), geoEnt.getOid());
       Assert.assertEquals(this.getGeoId(), geoEnt.getGeoId());
       Assert.assertEquals(this.getDisplayLabel(), geoEnt.getDisplayLabel().getValue());
       this.getUniversal().assertEquals(geoEnt.getUniversal());
@@ -498,7 +573,7 @@ public class USATestData
       // TODO : Check MultiPolygon and Point ?
     }
     
-    public Relationship addChild(TestGeoEntityInfo child, String relationshipType)
+    public Relationship addChild(TestGeoObjectInfo child, String relationshipType)
     {
       if (!this.children.contains(child))
       {
@@ -509,7 +584,7 @@ public class USATestData
       return child.getGeoEntity().addLink(geoEntity, relationshipType);
     }
     
-    private void addParent(TestGeoEntityInfo parent)
+    private void addParent(TestGeoObjectInfo parent)
     {
       if (!this.parents.contains(parent))
       {
@@ -517,7 +592,7 @@ public class USATestData
       }
     }
     
-    public TestUniversalInfo getUniversal()
+    public TestGeoObjectTypeInfo getUniversal()
     {
       return universal;
     }
@@ -531,14 +606,43 @@ public class USATestData
       geoEntity.setUniversal(this.universal.getUniversal());
       geoEntity.apply();
       
-      this.setUid(geoEntity.getOid());
+      this.setRegistryId(UUID.randomUUID().toString());
+      
+      MdBusiness mdBiz = this.universal.getUniversal().getMdBusiness();
+      Business biz = new Business(mdBiz.definesType());
+      biz.setValue(RegistryConstants.UUID, this.getRegistryId());
+      biz.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, geoEntity.getOid());
+      biz.setValue(DefaultAttribute.CODE.getName(), this.getGeoId());
+      biz.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
+      biz.apply();
       
       return geoEntity;
     }
     
     public void delete()
     {
+      // Make sure we delete the business first, otherwise when we delete the geoEntity it nulls out the reference in the table.
+      if (this.getUniversal() != null && this.getUniversal().getUniversal() != null)
+      {
+        QueryFactory qf = new QueryFactory();
+        BusinessQuery bq = qf.businessQuery(this.getUniversal().getUniversal().getMdBusiness().definesType());
+        bq.WHERE(bq.aCharacter(DefaultAttribute.CODE.getName()).EQ(this.getGeoId()));
+        OIterator<? extends Business> bit = bq.getIterator();
+        try
+        {
+          while(bit.hasNext())
+          {
+            bit.next().delete();
+          }
+        }
+        finally
+        {
+          bit.close();
+        }
+      }
+      
       deleteGeoEntity(this.getGeoId());
+      
       this.children.clear();
     }
   }
@@ -551,36 +655,55 @@ public class USATestData
   @Transaction
   public void cleanUpInTrans()
   {
-    for (TestGeoEntityInfo geo : customGeoInfos)
+    for (TestGeoObjectInfo geo : customGeoInfos)
     {
       geo.delete();
     }
     
-    for (TestUniversalInfo uni : customUniInfos )
+    for (TestGeoObjectTypeInfo uni : customUniInfos )
     {
       uni.delete();
     }
     
-    for (TestUniversalInfo uni : UNIVERSALS)
+    for (TestGeoObjectTypeInfo uni : UNIVERSALS)
     {
       uni.delete();
     }
     
-    for (TestGeoEntityInfo geo : GEOENTITIES)
+    for (TestGeoObjectInfo geo : GEOENTITIES)
     {
       geo.delete();
     }
     
-    if (systemSession != null)
+    if (adminSession != null)
     {
-      systemSession.logout();
+      adminSession.logout();
     }
   }
   
-  public static void deleteUniversal(String key)
+  public static void deleteMdBusiness(String pack, String type)
+  {
+    MdBusinessQuery mbq = new MdBusinessQuery(new QueryFactory());
+    mbq.WHERE(mbq.getPackageName().EQ(pack));
+    mbq.WHERE(mbq.getTypeName().EQ(type));
+    OIterator<? extends MdBusiness> it = mbq.getIterator();
+    try
+    {
+      while(it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+  }
+  
+  public static void deleteUniversal(String code)
   {
     UniversalQuery uq = new UniversalQuery(new QueryFactory());
-    uq.WHERE(uq.getKeyName().EQ(key));
+    uq.WHERE(uq.getUniversalId().EQ(code));
     OIterator<? extends Universal> it = uq.getIterator();
     try
     {

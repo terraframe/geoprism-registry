@@ -53,13 +53,29 @@ public class RegistryController
   
   public RegistryController()
   {
-    this.registryService = new RegistryService();
+    this.registryService = RegistryService.getInstance();
   }
   
   @Endpoint(method = ServletMethod.GET)
   public ResponseIF hierarchies()
   {
     return new ViewResponse(JSP_DIR + INDEX_JSP);
+  }
+  
+  /**
+   * Executes the provided actions in the order they exist in the provided json array as a single transaction.
+   * 
+   * @param request
+   * @param uid
+   * @return
+   * @throws JSONException
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.EXECUTE_ACTIONS)
+  public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = RegistryUrls.EXECUTE_ACTIONS_PARAM_ACTIONS) String actions) throws JSONException
+  {
+    this.registryService.executeActions(request.getSessionId(), actions);
+    
+    return new RestResponse();
   }
   
   /**
@@ -74,13 +90,51 @@ public class RegistryController
    * @throws
    **/
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_GET)
-   public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = "uid") String uid) throws JSONException
+   public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
    {
-     GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), uid);
+     GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), id, typeCode);
      
      return new RestBodyResponse(geoObject.toJSON());
    }
    
+   /**
+    * Returns a GeoObject with the given code.
+    *
+    * @pre
+    * @post
+    *
+    * @param uid The UID of the GeoObject.
+    *
+    * @returns a GeoObject in GeoJSON format with the given uid.
+    * @throws
+    **/
+    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_GET_CODE)
+    public ResponseIF getGeoObjectByCode(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_TYPE_CODE) String typeCode) throws JSONException
+    {
+      GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode);
+      
+      return new RestBodyResponse(geoObject.toJSON());
+    }
+   
+    /**
+     * Creates a new GeoObject in the Common Geo-Registry
+     *
+     * @pre 
+     * @post 
+     *
+     * @param geoObject in GeoJSON format to be created.
+     *
+     * @returns 
+     * @throws //TODO
+     **/
+     @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_CREATE)
+     public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_CREATE_PARAM_GEOOBJECT) String jGeoObj)
+     {
+       GeoObject geoObject = this.registryService.createGeoObject(request.getSessionId(), jGeoObj);
+       
+       return new RestBodyResponse(geoObject.toJSON());
+     }
+    
    /**
    * Update a new GeoObject in the Common Geo-Registry
    *
@@ -93,7 +147,7 @@ public class RegistryController
    * @throws //TODO
    **/
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_UPDATE)
-   public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = "geoObject") String jGeoObj)
+   public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_UPDATE_PARAM_GEOOBJECT) String jGeoObj)
    {
      GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj);
      
@@ -112,12 +166,9 @@ public class RegistryController
    * 
    * @returns
    * @throws
-   * 
-   * Example 1: https://localhost:8443/georegistry/cgr/geoobject/getchildren?parentUid=addfa9b7-e234-354d-a6e9-c7f2af00050a&childrenTypes=Cambodia_Province&recursive=true
-   * Example 2: https://localhost:8443/georegistry/cgr/geoobject/getchildren?parentUid=addfa9b7-e234-354d-a6e9-c7f2af00050a&childrenTypes=Cambodia_Province&childrenTypes=Cambodia_District&recursive=true
    **/
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_GET_CHILDREN)
-   public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = "parentUid") String parentUid, @RequestParamter(name = "childrenTypes") String childrenTypes, @RequestParamter(name = "recursive") Boolean recursive)
+   public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE) Boolean recursive)
    {
 	 
 	 JSONArray childrenTypesJSON = null;
@@ -140,7 +191,7 @@ public class RegistryController
 	   }
 	 }
 	 
-     TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentUid, childrenTypesArray, recursive);
+     TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentId, parentTypeCode, childrenTypesArray, recursive);
      
      return new RestBodyResponse(tn.toJSON());
    }
@@ -159,9 +210,16 @@ public class RegistryController
    * @throws
    **/   
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_GET_PARENTS)
-   public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = "childUid") String childUid, @RequestParamter(name = "parentTypes") String[] parentTypes, @RequestParamter(name = "recursive") Boolean recursive)
+   public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE) Boolean recursive)
    {
-     TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childUid, parentTypes, recursive);
+     JSONArray jaParentTypes = new JSONArray(parentTypes);
+     
+     String[] aParentTypes = new String[jaParentTypes.length()];
+     for (int i = 0; i < jaParentTypes.length(); i++) {
+       aParentTypes[i] = jaParentTypes.getString(i);
+     }
+     
+     TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childId, childTypeCode, aParentTypes, recursive);
      
      return new RestBodyResponse(tn.toJSON());
    }
@@ -179,7 +237,7 @@ public class RegistryController
    * @throws
    **/
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_GET_UIDS)
-   public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = "amount") Integer amount)
+   public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_UIDS_PARAM_AMOUNT) Integer amount)
    {
      String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);
      
@@ -187,36 +245,48 @@ public class RegistryController
    }   
    
    /**
-    * Creates a relationship between @parentCode and @childCode.
+    * Creates a relationship between @parentUid and @childUid.
     *
-    * @pre Both parentCode and childCode have already been persisted / applied
-    * @post A relationship will exist between @parentCode and @childCode
+    * @pre Both the parent and child have already been persisted / applied
+    * @post A relationship will exist between @parent and @child
     *
     * @returns ParentTreeNode The new node which was created with the provided parent.
     */
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_ADD_CHILD)
-   public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = "parent") String parentRef, @RequestParamter(name = "child") String childRef, @RequestParamter(name = "hierarchy") String hierarchyRef)
+   public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef)
    {
-     ParentTreeNode pn = this.registryService.addChild(request.getSessionId(), parentRef, childRef, hierarchyRef);
+     ParentTreeNode pn = this.registryService.addChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef);
      
      return new RestBodyResponse(pn.toJSON());
    }
    
    /**
-    * Return GeoOjectType objects that define the given list of types.
+    * Returns an array of {@link GeoOjectType} objects that define the given list of types.
     *
      * @pre 
     * @post 
     *
-    * @param types An array of GeoObjectType codes. If blank then all GeoObjectType objects are returned.
+    * @param types A serialized json array of GeoObjectType codes. If blank then all GeoObjectType objects are returned.
     *
      * @returns
     * @throws
     **/
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
-   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "types") String[] types)
+   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types)
    {
-     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), types);
+     String[] aTypes = null;
+     if (types != null)
+     {
+       JSONArray jaTypes = new JSONArray(types);
+       
+       aTypes = new String[jaTypes.length()];
+       for (int i = 0; i < jaTypes.length(); i++)
+       {
+         aTypes[i] = jaTypes.getString(i);
+       }
+     }
+     
+     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes);
      
      JsonArray jarray = new JsonArray();
      for (int i = 0; i < gots.length; ++i)
@@ -270,33 +340,26 @@ public class RegistryController
    }   
     
    /**
-    * Returns HierarchyTypes that define the given list of types. If no types are provided then all will be returned.
+    * Returns an array of {@link HierarchyType} that define the given list of types. If no types are provided then all will be returned.
+    * 
+    * @param types A serialized json array of HierarchyType codes that will be retrieved.
     */
    @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url=RegistryUrls.HIERARCHY_TYPE_GET_ALL)
    public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String types)
    {
-	   
-	   JSONArray childrenTypesJSON = null;
-		 String[] childrenTypesArray = null;
-		 try
-		 {
-		   childrenTypesJSON = new JSONArray(types);
-		 }
-		 catch(JSONException e)
-		 {
-			// TODO Replace with more specific exception
-			 throw new ProgrammingErrorException(types.concat(" can't be parsed."), e);
-		 }
+		 String[] aTypes = null;
+     if (types != null)
+     {
+       JSONArray jaTypes = new JSONArray(types);
+       
+       aTypes = new String[jaTypes.length()];
+       for (int i = 0; i < jaTypes.length(); i++)
+       {
+         aTypes[i] = jaTypes.getString(i);
+       }
+     }
 		 
-		 if(childrenTypesJSON != null)
-		 {
-	       childrenTypesArray = new String[childrenTypesJSON.length()];
-		   for (int i = 0; i < childrenTypesJSON.length(); i++) {
-			 childrenTypesArray[i] = childrenTypesJSON.getString(i);
-		   }
-		 }
-		 
-     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), childrenTypesArray);
+     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), aTypes);
      
      JsonArray jarray = new JsonArray();
      for (int i = 0; i < hts.length; ++i)

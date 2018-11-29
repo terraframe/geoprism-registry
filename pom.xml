@@ -16,15 +16,13 @@
   </modules>
 
   <properties>
+    <geoprism.version>1.02.0001-SNAPSHOT</geoprism.version>
+  
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <aspectj.version>1.8.6</aspectj.version>
     <aspectj.plugin.version>1.7</aspectj.plugin.version>
-
-    <runway.version>3.0.4-SNAPSHOT</runway.version>
-    <geoprism.version>1.02.0001-SNAPSHOT</geoprism.version>
-    <geotools.version>16.1</geotools.version>    
   </properties>
 
   <dependencies>

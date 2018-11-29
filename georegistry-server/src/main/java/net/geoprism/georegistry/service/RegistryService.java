@@ -8,23 +8,31 @@ import java.util.Optional;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.AdapterUtilities;
+import net.geoprism.georegistry.InvalidRegistryIdException;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.action.AbstractAction;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
-import com.runwaysdk.business.Relationship;
+import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
@@ -33,7 +41,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.GeoEntityQuery;
+import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
@@ -45,38 +53,53 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class RegistryService
 {
-  private static ConversionService conversionService;
+  private ConversionService conversionService;
   
-  private static RegistryAdapter adapter;
+  private RegistryAdapter adapter;
   
-  private static AdapterUtilities util;
+  private AdapterUtilities util;
+  
+  private static RegistryService instance = null;
   
   public RegistryService()
   {
     initialize();
   }
   
+  public static synchronized RegistryService getInstance()
+  {
+    if (RegistryService.instance == null)
+    {
+      RegistryService.instance = new RegistryService();
+      RegistryService.instance.initialize();
+    }
+    
+    return RegistryService.instance;
+  }
+  
   @Request
   private synchronized void initialize()
   {
-    if (RegistryService.adapter == null)
+    if (adapter == null)
     {
-      RegistryService.adapter = new RegistryAdapterServer();
+      adapter = new RegistryAdapterServer(RegistryIdService.getInstance());
       
-      conversionService = new ConversionService(adapter);
+      ServiceFactory.constructServices(adapter);
       
-      util = new AdapterUtilities(adapter, conversionService);
+      conversionService = ConversionService.getInstance();
+      
+      util = AdapterUtilities.getInstance();
       
       refreshMetadataCache();
     }
   }
   
-  public static ConversionService getConversionService()
+  public ConversionService getConversionService()
   {
     return conversionService;
   }
   
-  public static RegistryAdapter getRegistryAdapter()
+  public RegistryAdapter getRegistryAdapter()
   {
     return adapter;
   }
@@ -113,14 +136,21 @@ public class RegistryService
     
     OIterator<? extends MdTermRelationship> it2 = trq.getIterator();
     
+    
     try
     {
       while (it2.hasNext())
       {
         MdTermRelationship mdTermRel  = it2.next();
         
-        HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
+        // Ignore the IsARelationship class between universals. It should be depricated
+        if (mdTermRel.definesType().equals(IsARelationship.CLASS))
+        {
+          continue;
+        }
         
+        HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
+
         adapter.getMetadataCache().addHierarchyType(ht);
       }
     }
@@ -131,13 +161,29 @@ public class RegistryService
   }
   
   @Request(RequestType.SESSION)
-  public GeoObject getGeoObject(String sessionId, String uid)
+  public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
   {
-    GeoEntity geo = GeoEntity.get(uid);
+    return util.getGeoObjectById(uid, geoObjectTypeCode);
+  }
+  
+  @Request(RequestType.SESSION)
+  public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode)
+  {
+    return util.getGeoObjectByCode(code, typeCode);
+  }
+  
+  @Request(RequestType.SESSION)
+  public GeoObject createGeoObject(String sessionId, String jGeoObj)
+  {
+    return createGeoObjectInTransaction(sessionId, jGeoObj);
+  }
+  
+  @Transaction
+  private GeoObject createGeoObjectInTransaction(String sessionId, String jGeoObj)
+  {
+    GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
     
-    GeoObject geoObject = conversionService.geoEntityToGeoObject(geo);
-    
-    return geoObject;
+    return util.applyGeoObject(geoObject, true);
   }
   
   @Request(RequestType.SESSION)
@@ -151,107 +197,35 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
     
-    GeoEntity ge;
-    if (geoObject.getUid() != null && geoObject.getUid().length() > 0)
-    {
-      GeoEntityQuery geq = new GeoEntityQuery(new QueryFactory());
-      geq.WHERE(geq.getOid().EQ(geoObject.getUid()));
-  
-      OIterator<? extends GeoEntity> it = geq.getIterator();
-      try
-      {
-        if (it.hasNext())
-        {
-          ge = it.next();
-          ge.appLock();
-        }
-        else
-        {
-          ge = new GeoEntity();
-        }
-      }
-      finally
-      {
-        it.close();
-      }
-    }
-    else
-    {
-      ge = new GeoEntity();
-    }
-    
-    if (geoObject.getCode() != null)
-    {
-      ge.setGeoId(geoObject.getCode());
-    }
-    
-    if (geoObject.getLocalizedDisplayLabel() != null)
-    {
-      ge.getDisplayLabel().setValue(geoObject.getLocalizedDisplayLabel());
-    }
-    
-    if (geoObject.getType() != null)
-    {
-      GeoObjectType got = geoObject.getType();
-      
-      Universal inputUni = conversionService.geoObjectTypeToUniversal(got);
-      
-      if (inputUni != ge.getUniversal())
-      {
-        ge.setUniversal(inputUni);
-      }
-    }
-    
-    org.locationtech.jts.geom.Geometry geom = geoObject.getGeometry();
-    if (geom != null)
-    {
-      try
-      {
-        String wkt = geom.toText();
-        
-        GeometryHelper geometryHelper = new GeometryHelper();
-        
-        Geometry geo = geometryHelper.parseGeometry(wkt);
-        ge.setGeoPoint(geometryHelper.getGeoPoint(geo));
-        ge.setGeoMultiPolygon(geometryHelper.getGeoMultiPolygon(geo));
-        ge.setWkt(wkt);
-      }
-      catch (Exception e)
-      {
-        String msg = "Error parsing WKT";
-        
-        WKTParsingProblem p = new WKTParsingProblem(msg);
-        p.setNotification(ge, GeoEntity.WKT);
-        p.setReason(e.getLocalizedMessage());
-        p.apply();
-        p.throwIt();
-      }
-    }
-    
-    // TODO : STATUS
-    
-    ge.apply();
-    
-    return geoObject;
+    return util.applyGeoObject(geoObject, false);
   }
 
   @Request(RequestType.SESSION)
   public String[] getUIDS(String sessionId, Integer amount)
   {
-    return IdService.getInstance(sessionId).getUIDS(amount);
+    return RegistryIdService.getInstance().getUids(amount);
   }
   
   @Request(RequestType.SESSION)
-  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String[] childrenTypes, Boolean recursive)
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
   {
-    String[] relationshipTypes = TermUtil.getAllParentRelationships(parentUid);
+    GeoObject goParent = util.getGeoObjectById(parentUid, parentGeoObjectTypeCode);
+    
+    if (goParent.getType().isLeaf())
+    {
+      throw new UnsupportedOperationException("Leaf nodes cannot have children.");
+    }
+    
+    String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
+    
+    String[] relationshipTypes = TermUtil.getAllParentRelationships(parentRunwayId);
     Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
-    GeoEntity parent = GeoEntity.get(parentUid);
+    GeoEntity parent = GeoEntity.get(parentRunwayId);
     
     GeoObject goRoot = conversionService.geoEntityToGeoObject(parent);
     ChildTreeNode tnRoot = new ChildTreeNode(goRoot, null);
     
-    TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(parentUid, relationshipTypes);
+    TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(parentRunwayId, relationshipTypes);
     for (TermAndRel tnrChild : tnrChildren)
     {
       GeoEntity geChild = (GeoEntity) tnrChild.getTerm();
@@ -265,7 +239,7 @@ public class RegistryService
         ChildTreeNode tnChild;
         if (recursive)
         {
-          tnChild = this.getChildGeoObjects(sessionId, geChild.getOid(), childrenTypes, recursive);
+          tnChild = this.getChildGeoObjects(sessionId, goChild.getUid(), goChild.getType().getCode(), childrenTypes, recursive);
         }
         else
         {
@@ -295,22 +269,27 @@ public class RegistryService
     return map;
   }
   
-  private void addGeoObjectRoots(HierarchyType ht)
-  {
-    // TODO : I'm not sure how this is supposed to work.
-  }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String[] parentTypes, boolean recursive)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive)
   {
-    String[] relationshipTypes = TermUtil.getAllChildRelationships(childId);
+    GeoObject goChild = util.getGeoObjectById(childId, childGeoObjectTypeCode);
+    
+    if (goChild.getType().isLeaf())
+    {
+      throw new UnsupportedOperationException("Leaf nodes cannot have children.");
+    }
+    
+    String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
+    
+    String[] relationshipTypes = TermUtil.getAllChildRelationships(parentRunwayId);
     Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
-    GeoEntity child = GeoEntity.get(childId);
+    GeoEntity child = GeoEntity.get(parentRunwayId);
     
     GeoObject goRoot = conversionService.geoEntityToGeoObject(child);
     ParentTreeNode tnRoot = new ParentTreeNode(goRoot, null);
     
-    TermAndRel[] tnrParents = TermUtil.getDirectAncestors(childId, relationshipTypes);
+    TermAndRel[] tnrParents = TermUtil.getDirectAncestors(parentRunwayId, relationshipTypes);
     for (TermAndRel tnrParent : tnrParents)
     {
       GeoEntity geParent = (GeoEntity) tnrParent.getTerm();
@@ -324,7 +303,7 @@ public class RegistryService
         ParentTreeNode tnParent;
         if (recursive)
         {
-          tnParent = this.getParentGeoObjects(sessionId, geParent.getOid(), parentTypes, recursive);
+          tnParent = this.getParentGeoObjects(sessionId, goParent.getUid(), goParent.getType().getCode(), parentTypes, recursive);
         }
         else
         {
@@ -339,16 +318,16 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode addChild(String sessionId, String parentId, String childId, String hierarchyCode)
+  public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
-    return addChildInTransaction(sessionId, parentId, childId, hierarchyCode);
+    return addChildInTransaction(sessionId, parentId, parentGeoObjectTypeCode, childId, childGeoObjectTypeCode, hierarchyCode);
   }
   
   @Transaction
-  public ParentTreeNode addChildInTransaction(String sessionId, String parentId, String childId, String hierarchyCode)
+  public ParentTreeNode addChildInTransaction(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
-    GeoObject goParent = util.getGeoObjectById(parentId);
-    GeoObject goChild = util.getGeoObjectById(childId);
+    GeoObject goParent = util.getGeoObjectById(parentId, parentGeoObjectTypeCode);
+    GeoObject goChild = util.getGeoObjectById(childId, childGeoObjectTypeCode);
     HierarchyType hierarchy = adapter.getMetadataCache().getHierachyType(hierarchyCode).get();
     
     if (goParent.getType().isLeaf())
@@ -361,10 +340,16 @@ public class RegistryService
     }
     else
     {
-      GeoEntity geParent = GeoEntity.get(goParent.getUid());
-      GeoEntity geChild = GeoEntity.get(goChild.getUid());
+      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
+      GeoEntity geParent = GeoEntity.get(parentRunwayId);
       
-      Relationship rel = geChild.addLink(geParent, hierarchy.getCode());
+      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
+      GeoEntity geChild = GeoEntity.get(childRunwayId);
+      
+      
+      String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(hierarchyCode);
+      
+      geChild.addLink(geParent, mdTermRelGeoEntity);
       
       ParentTreeNode node = new ParentTreeNode(goChild, hierarchy);
       node.addParent(new ParentTreeNode(goParent, hierarchy));
@@ -393,15 +378,15 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public void deleteGeoObject(String sessionId, String uid)
+  public void deleteGeoObject(String sessionId, String id, String typeCode)
   {
-    deleteGeoObjectInTransaction(sessionId, uid);
+    deleteGeoObjectInTransaction(sessionId, id, typeCode);
   }
   
   @Transaction
-  private void deleteGeoObjectInTransaction(String sessionId, String uid)
+  private void deleteGeoObjectInTransaction(String sessionId, String id, String typeCode)
   {
-    GeoObject geoObject = util.getGeoObjectById(uid);
+    GeoObject geoObject = util.getGeoObjectById(id, typeCode);
     
     if (geoObject.getType().isLeaf())
     {
@@ -466,24 +451,8 @@ public class RegistryService
   private Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
     Universal universal = conversionService.newGeoObjectTypeToUniversal(geoObjectType);
-    
-    MdBusiness mdBusiness = new MdBusiness();
-    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
-    // The CODE name becomes the class name
-    mdBusiness.setTypeName(universal.getUniversalId());
-    mdBusiness.setGenerateSource(false);
-    mdBusiness.setPublish(false);
-    mdBusiness.setIsAbstract(false);
-    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
-    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
-    mdBusiness.apply();
-    
-    // Add the default attributes.
-    conversionService.createDefaultAttributes(universal, mdBusiness);
-    
-    universal.setMdBusiness(mdBusiness);
-    
-    universal.apply();
+
+    universal= ConversionService.createMdBusinessForUniversal(universal);
     
     return universal;
   }
@@ -723,11 +692,27 @@ public class RegistryService
    */
   @Request(RequestType.SESSION)
   public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
+  {    
     String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
     
-    this.addToHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
+    
+    if (parentUniversal.getIsLeafType())
+    {
+      Universal childUniversal = Universal.getByKey(childGeoObjectTypeCode);
+      
+      NoChildForLeafGeoObjectType exception = new NoChildForLeafGeoObjectType();
+      
+      exception.setChildGeoObjectTypeLabel(childUniversal.getDisplayLabel().getValue());
+      exception.setHierarchyTypeLabel(mdTermRelationship.getDisplayLabel().getValue());
+      exception.setParentGeoObjectTypeLabel(parentUniversal.getDisplayLabel().getValue());
+      exception.apply();
+      
+      throw exception;
+    }
+    
+    this.addToHierarchy(hierarchyTypeCode, mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     
     // No exceptions thrown. Refresh the HierarchyType object to include the new relationships.
     HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
@@ -737,12 +722,17 @@ public class RegistryService
     return ht;
   }
   @Transaction
-  private void addToHierarchy(MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  private void addToHierarchy(String hierarchyTypeCode, MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
     Universal child = Universal.getByKey(childGeoObjectTypeCode);
     
     parent.addChild(child, mdTermRelationship.definesType()).apply();
+    
+    if (child.getIsLeafType())
+    {
+      ConversionService.addParentReferenceToLeafType(hierarchyTypeCode, parent, child);
+    }
   }
   
   /**

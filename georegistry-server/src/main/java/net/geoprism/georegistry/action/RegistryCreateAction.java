@@ -2,19 +2,21 @@ package net.geoprism.georegistry.action;
 
 import net.geoprism.georegistry.service.RegistryService;
 
-import org.commongeoregistry.adapter.action.DeleteAction;
+import org.commongeoregistry.adapter.action.CreateAction;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-public class RegistryDeleteAction extends RegistryAction
+import com.google.gson.JsonObject;
+
+public class RegistryCreateAction extends RegistryAction
 {
-    private DeleteAction action;
+    private CreateAction action;
     
     private RegistryService registry;
     
     private String sessionId;
 
-    public RegistryDeleteAction(DeleteAction action, RegistryService registry, String sessionId)
+    public RegistryCreateAction(CreateAction action, RegistryService registry, String sessionId)
     {
       this.action = action;
       this.registry = registry;
@@ -25,15 +27,16 @@ public class RegistryDeleteAction extends RegistryAction
     public void execute()
     {
       String type = this.action.getObjType();
-      String oid = this.action.getObjOid(); // TODO : This is a code, not an id
+      JsonObject json = this.action.getObjJson();
       
       if (type.equals(GeoObject.class.getName()))
       {
-        this.registry.deleteGeoObject(sessionId, oid);
+        this.registry.createGeoObject(sessionId, json.toString());
       }
       else if (type.equals(GeoObjectType.class.getName()))
       {
-        this.registry.deleteGeoObjectType(sessionId, oid);
+        // TODO
+        throw new UnsupportedOperationException("TODO : Not implemented yet");
       }
       else
       {

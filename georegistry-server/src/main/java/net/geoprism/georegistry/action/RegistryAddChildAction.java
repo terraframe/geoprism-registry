@@ -23,9 +23,11 @@ public class RegistryAddChildAction extends RegistryAction
     public void execute()
     {
       String parentId = this.action.getParentId();
+      String parentTypeCode = this.action.getParentTypeCode();
       String childId = this.action.getChildId();
-      String hierarchyId = this.action.getHierarchyId(); // TODO : This is a code, not an id
+      String childTypeCode = this.action.getChildTypeCode();
+      String hierarchyCode = this.action.getHierarchyCode();
       
-      this.registry.addChild(sessionId, parentId, childId, hierarchyId);
+      this.registry.addChild(sessionId, parentId, parentTypeCode, childId, childTypeCode, hierarchyCode);
     }
 }
