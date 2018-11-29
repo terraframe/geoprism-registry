@@ -40,10 +40,8 @@
       <div class="col-md-4">
         <h3>Available Types</h3>
         <hr>
-        <ul class="list-group" (treeDrop)="onDrop($event)" [treeAllowDrop]="allowDrop.bind(this)">
-          <!-- Add the draggable class for drag & drop -->
-          <li class="list-group-item" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes"
-          [treeDrag]="{id:type.code, name: type.localizedLabel }" [treeDragEnabled]="true">
+        <ul class="list-group">
+          <li class="list-group-item" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes">
             {{type.localizedLabel}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" aria-hidden="true"></i> <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i>
           </li>
         </ul>
