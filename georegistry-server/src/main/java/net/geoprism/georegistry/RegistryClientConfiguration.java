@@ -3,18 +3,23 @@ package net.geoprism.georegistry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+
+import com.runwaysdk.constants.ClientRequestIF;
 
 import net.geoprism.ClientConfigurationIF;
 import net.geoprism.DefaultClientConfiguration;
 import net.geoprism.GeoprismApplication;
+import net.geoprism.GeoprismPatcher;
 import net.geoprism.RoleConstants;
 import net.geoprism.localization.LocalizationFacadeDTO;
 
-import com.runwaysdk.constants.ClientRequestIF;
-
 public class RegistryClientConfiguration extends DefaultClientConfiguration implements ClientConfigurationIF
 {
+  
+  public GeoprismPatcher getPatcher()
+  {
+    return new GeoregistryPatcher();
+  }
 
   @Override
   public List<GeoprismApplication> getApplications(ClientRequestIF request)

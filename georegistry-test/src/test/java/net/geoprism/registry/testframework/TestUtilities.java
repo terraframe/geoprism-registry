@@ -13,6 +13,7 @@ import com.runwaysdk.mvc.AbstractRestResponse;
 import com.runwaysdk.mvc.ResponseIF;
 
 import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.georegistry.service.ServiceFactory;
 
 public class TestUtilities
 {
@@ -25,32 +26,32 @@ public class TestUtilities
   
   public GeoObject responseToGeoObject(ResponseIF resp)
   {
-    return GeoObject.fromJSON(RegistryService.getInstance().getRegistryAdapter(), responseToString(resp));
+    return GeoObject.fromJSON(ServiceFactory.getAdapter(), responseToString(resp));
   }
   
   public GeoObjectType responseToGeoObjectType(ResponseIF resp)
   {
-    return GeoObjectType.fromJSON((responseToString(resp)), RegistryService.getInstance().getRegistryAdapter());
+    return GeoObjectType.fromJSON((responseToString(resp)), ServiceFactory.getAdapter());
   }
   
   public GeoObjectType[] responseToGeoObjectTypes(ResponseIF resp)
   {
-    return GeoObjectType.fromJSONArray((responseToString(resp)), RegistryService.getInstance().getRegistryAdapter());
+    return GeoObjectType.fromJSONArray((responseToString(resp)), ServiceFactory.getAdapter());
   }
   
   public ChildTreeNode responseToChildTreeNode(ResponseIF resp)
   {
-    return ChildTreeNode.fromJSON((responseToString(resp)), RegistryService.getInstance().getRegistryAdapter());
+    return ChildTreeNode.fromJSON((responseToString(resp)), ServiceFactory.getAdapter());
   }
   
   public ParentTreeNode responseToParentTreeNode(ResponseIF resp)
   {
-    return ParentTreeNode.fromJSON((responseToString(resp)), RegistryService.getInstance().getRegistryAdapter());
+    return ParentTreeNode.fromJSON((responseToString(resp)), ServiceFactory.getAdapter());
   }
   
   public HierarchyType[] responseToHierarchyTypes(ResponseIF resp)
   {
-    return HierarchyType.fromJSONArray((responseToString(resp)), RegistryService.getInstance().getRegistryAdapter());
+    return HierarchyType.fromJSONArray((responseToString(resp)), ServiceFactory.getAdapter());
   }
   
   public String[] responseToStringArray(ResponseIF resp)

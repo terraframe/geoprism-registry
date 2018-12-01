@@ -21,17 +21,8 @@ import com.runwaysdk.system.metadata.MdBusiness;
 
 public class RegistryIdService implements AdapterIdServiceIF
 {
-  private static RegistryIdService instance = null;
-  
-  private ConversionService conversionService = null;
-  
   public RegistryIdService()
   {
-  }
-  
-  public void setConversionService(ConversionService cs)
-  {
-    this.conversionService = cs;
   }
   
   public String runwayIdToRegistryId(String runwayId, Universal uni)
@@ -75,7 +66,7 @@ public class RegistryIdService implements AdapterIdServiceIF
     
     if (!got.isLeaf())
     {
-      Universal uni = this.conversionService.geoObjectTypeToUniversal(got);
+      Universal uni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
       
       QueryFactory qf = new QueryFactory();
       ValueQuery vq = new ValueQuery(qf);
@@ -157,11 +148,6 @@ public class RegistryIdService implements AdapterIdServiceIF
 
   public static synchronized RegistryIdService getInstance()
   {
-    if (instance == null)
-    {
-      instance = new RegistryIdService();
-    }
-    
-    return instance;
+    return ServiceFactory.getIdService();
   }
 }

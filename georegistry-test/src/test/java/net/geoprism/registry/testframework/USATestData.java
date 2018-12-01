@@ -12,6 +12,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -47,6 +49,7 @@ import com.runwaysdk.system.metadata.MdRelationship;
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierAllPathsTableQuery;
 import net.geoprism.ontology.ClassifierIsARelationship;
@@ -102,7 +105,7 @@ public class USATestData extends TestUtilities
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
     
-    RegistryAdapter adapter = RegistryService.getInstance().getRegistryAdapter();
+    RegistryAdapter adapter = ServiceFactory.getAdapter();
     
     USATestData data = new USATestData(adapter);
     
@@ -551,6 +554,11 @@ public class USATestData extends TestUtilities
           }
         }
       }
+    }
+    
+    public void assertEquals(GeoObject geoObj, GeoObjectStatusTerm status)
+    {
+      Assert.assertEquals(adapter.getMetadataCache().getTerm(status.code).get(), geoObj.getStatus());
     }
     
     public void assertEquals(GeoObject geoObj)

@@ -1,10 +1,5 @@
 package net.geoprism.georegistry;
 
-import net.geoprism.georegistry.service.ConversionService;
-import net.geoprism.georegistry.service.RegistryIdService;
-import net.geoprism.registry.GeoObjectStatus;
-
-import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
@@ -41,46 +36,20 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.georegistry.service.RegistryIdService;
+import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.registry.GeoObjectStatus;
+
 public class AdapterUtilities
 {
-  private RegistryAdapter adapter;
-  
-  private ConversionService conversionService;
-  
-  private static AdapterUtilities instance = null;
   
   public synchronized static AdapterUtilities getInstance()
   {
-    if (instance == null)
-    {
-      instance = new AdapterUtilities();
-    }
-    
-    return instance;
+    return ServiceFactory.getUtilities();
   }
   
   public AdapterUtilities()
   {
-  }
-  
-  public RegistryAdapter getAdapter()
-  {
-    return adapter;
-  }
-
-  public void setAdapter(RegistryAdapter adapter)
-  {
-    this.adapter = adapter;
-  }
-
-  public ConversionService getConversionService()
-  {
-    return conversionService;
-  }
-
-  public void setConversionService(ConversionService conversionService)
-  {
-    this.conversionService = conversionService;
   }
 
   /**
@@ -121,7 +90,7 @@ public class AdapterUtilities
     {
       GeoObjectType got = geoObject.getType();
       
-      Universal inputUni = conversionService.geoObjectTypeToUniversal(got);
+      Universal inputUni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
       
       if (inputUni != ge.getUniversal())
       {
@@ -181,7 +150,7 @@ public class AdapterUtilities
     /*
      * Update the returned GeoObject
      */
-    Term activeStatus = adapter.getMetadataCache().getTerm(GeoObjectStatusTerm.ACTIVE.code).get();
+    Term activeStatus = ServiceFactory.getAdapter().getMetadataCache().getTerm(GeoObjectStatusTerm.ACTIVE.code).get();
     geoObject.setStatus(activeStatus);
     
     return geoObject;
@@ -196,20 +165,13 @@ public class AdapterUtilities
   {
     // TODO : virtual leaf nodes
     
-    GeoObjectType got = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
+    GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
     
     String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(registryId, got);
     
     GeoEntity ge = GeoEntity.get(runwayId);
     
-    GeoObject gobj = this.conversionService.geoEntityToGeoObject(ge);
-    
-    Business biz = this.getGeoEntityBusiness(ge);
-//    GeoObjectStatus gos = GeoObjectStatus.get(biz.getValue(DefaultAttribute.STATUS.getName()));
-    BusinessEnumeration busEnum = biz.getEnumValues(DefaultAttribute.STATUS.getName()).get(0);
-    GeoObjectStatus gos = GeoObjectStatus.valueOf(busEnum.name());
-    Term statusTerm = this.conversionService.geoObjectStatusToTerm(gos);
-    gobj.setStatus(statusTerm);
+    GeoObject gobj = ServiceFactory.getConversionService().geoEntityToGeoObject(ge);
     
     return gobj;
   }
@@ -241,7 +203,7 @@ public class AdapterUtilities
     
     GeoEntity geo = GeoEntity.getByKey(code);
     
-    GeoObject geoObject = conversionService.geoEntityToGeoObject(geo);
+    GeoObject geoObject = ServiceFactory.getConversionService().geoEntityToGeoObject(geo);
     
     return geoObject;
   }
@@ -250,7 +212,7 @@ public class AdapterUtilities
 //  {
 //    MdTermRelationship mdTermRel = MdTermRelationship.get(oid);
 //    
-//    HierarchyType ht = this.conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
+//    HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRel);
 //    
 //    return ht;
 //  }
@@ -259,12 +221,12 @@ public class AdapterUtilities
 //  {
 //    Universal uni = Universal.get(id);
 //    
-//    return this.adapter.getMetadataCache().getGeoObjectType(uni.getKey()).get();
+//    return ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(uni.getKey()).get();
 //  }
   
   public Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
-    Universal universal = conversionService.newGeoObjectTypeToUniversal(geoObjectType);
+    Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
     
     MdBusiness mdBusiness = new MdBusiness();
     mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
@@ -278,11 +240,7 @@ public class AdapterUtilities
     mdBusiness.apply();
     
     // Create the permissions for the new MdBusiness
-    RoleDAO adminRole = RoleDAO.findRole("geoprism.admin.Administrator").getBusinessDAO();
-    adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-    adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
-    adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
-    adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+    assignDefaultRolePermissions(mdBusiness);
     
     // Add the default attributes.
     this.createDefaultAttributes(universal, mdBusiness);
@@ -291,9 +249,16 @@ public class AdapterUtilities
     
     universal.apply();
     
-    
-    
     return universal;
+  }
+
+  public void assignDefaultRolePermissions(MdBusiness mdBusiness)
+  {
+    RoleDAO adminRole = RoleDAO.findRole("geoprism.admin.Administrator").getBusinessDAO();
+    adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
+    adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+    adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
+    adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
   }
   
   /**

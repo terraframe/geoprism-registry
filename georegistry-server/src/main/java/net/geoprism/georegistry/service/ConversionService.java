@@ -27,6 +27,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
@@ -82,44 +83,13 @@ import com.runwaysdk.util.IDGenerator;
 
 public class ConversionService
 {
-  private RegistryAdapter adapter = null;
-  
-  private static ConversionService instance = null;
-  
-  private AdapterUtilities util = null;
-  
   public ConversionService()
   {
   }
   
-  public synchronized static ConversionService getInstance()
+  public static ConversionService getInstance()
   {
-    if (instance == null)
-    {
-      instance = new ConversionService();
-    }
-    
-    return instance;
-  }
-  
-  public RegistryAdapter getAdapter()
-  {
-    return this.adapter;
-  }
-  
-  public void setAdapter(RegistryAdapter adapter)
-  {
-    this.adapter = adapter;
-  }
-  
-  public AdapterUtilities getUtil()
-  {
-    return util;
-  }
-
-  public void setUtil(AdapterUtilities util)
-  {
-    this.util = util;
+    return ServiceFactory.getConversionService();
   }
 
   /**
@@ -431,7 +401,7 @@ public class ConversionService
     
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = this.convertRegistryToAdapterPolygonType(geoPrismgeometryType);   
 
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), adapter);
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), ServiceFactory.getAdapter());
 
     geoObjType = convertAttributeTypes(uni, geoObjType);
     
@@ -658,8 +628,11 @@ public class ConversionService
     geoObj.setWKTGeometry(geoEntity.getWkt());
     geoObj.setLocalizedDisplayLabel(geoEntity.getDisplayLabel().getValue());
     
-    // TODO : Status term
-//    geoObj.setStatus(this.registry.getMetadataCache().getTerm());
+    Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(geoEntity);
+    BusinessEnumeration busEnum = biz.getEnumValues(DefaultAttribute.STATUS.getName()).get(0);
+    GeoObjectStatus gos = GeoObjectStatus.valueOf(busEnum.name());
+    Term statusTerm = this.geoObjectStatusToTerm(gos);
+    geoObj.setStatus(statusTerm);
     
     // TODO : Type attribute?
     
@@ -918,19 +891,19 @@ public class ConversionService
   {
     if (gos.getEnumName().equals(GeoObjectStatus.ACTIVE.getEnumName()))
     {
-      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code).get();
+      return ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code).get();
     }
     else if (gos.getEnumName().equals(GeoObjectStatus.INACTIVE.getEnumName()))
     {
-      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code).get();
+      return ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code).get();
     }
     else if (gos.getEnumName().equals(GeoObjectStatus.NEW.getEnumName()))
     {
-      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get();
+      return ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get();
     }
     else if (gos.getEnumName().equals(GeoObjectStatus.PENDING.getEnumName()))
     {
-      return adapter.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code).get();
+      return ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code).get();
     }
     else
     {

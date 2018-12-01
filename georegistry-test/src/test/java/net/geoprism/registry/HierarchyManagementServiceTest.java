@@ -7,6 +7,7 @@ import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.georegistry.service.ServiceFactory;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
@@ -89,9 +90,9 @@ public class HierarchyManagementServiceTest
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
     
-    service = new RegistryService();
+    service = RegistryService.getInstance();
     
-    adapter = service.getRegistryAdapter();
+    adapter = ServiceFactory.getAdapter();
     
     setUpTransaction();
   }

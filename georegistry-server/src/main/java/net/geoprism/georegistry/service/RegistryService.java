@@ -53,55 +53,22 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class RegistryService
 {
-  private ConversionService conversionService;
-  
   private RegistryAdapter adapter;
   
-  private AdapterUtilities util;
-  
-  private static RegistryService instance = null;
-  
-  public RegistryService()
+  protected RegistryService()
   {
-    initialize();
   }
   
-  public static synchronized RegistryService getInstance()
+  public static RegistryService getInstance()
   {
-    if (RegistryService.instance == null)
-    {
-      RegistryService.instance = new RegistryService();
-      RegistryService.instance.initialize();
-    }
-    
-    return RegistryService.instance;
+    return ServiceFactory.getRegistryService();
   }
   
   @Request
-  private synchronized void initialize()
+  public synchronized void initialize(RegistryAdapter adapter)
   {
-    if (adapter == null)
-    {
-      adapter = new RegistryAdapterServer(RegistryIdService.getInstance());
-      
-      ServiceFactory.constructServices(adapter);
-      
-      conversionService = ConversionService.getInstance();
-      
-      util = AdapterUtilities.getInstance();
-      
-      refreshMetadataCache();
-    }
-  }
-  
-  public ConversionService getConversionService()
-  {
-    return conversionService;
-  }
-  
-  public RegistryAdapter getRegistryAdapter()
-  {
-    return adapter;
+    this.adapter = adapter;
+    refreshMetadataCache();
   }
   
   public void refreshMetadataCache()
@@ -118,7 +85,7 @@ public class RegistryService
       {
         Universal uni = it.next();
         
-        GeoObjectType got = conversionService.universalToGeoObjectType(uni);
+        GeoObjectType got = ServiceFactory.getConversionService().universalToGeoObjectType(uni);
         
         adapter.getMetadataCache().addGeoObjectType(got);
       }
@@ -149,7 +116,7 @@ public class RegistryService
           continue;
         }
         
-        HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRel);
+        HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRel);
 
         adapter.getMetadataCache().addHierarchyType(ht);
       }
@@ -163,13 +130,13 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
   {
-    return util.getGeoObjectById(uid, geoObjectTypeCode);
+    return ServiceFactory.getUtilities().getGeoObjectById(uid, geoObjectTypeCode);
   }
   
   @Request(RequestType.SESSION)
   public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode)
   {
-    return util.getGeoObjectByCode(code, typeCode);
+    return ServiceFactory.getUtilities().getGeoObjectByCode(code, typeCode);
   }
   
   @Request(RequestType.SESSION)
@@ -183,7 +150,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
     
-    return util.applyGeoObject(geoObject, true);
+    return ServiceFactory.getUtilities().applyGeoObject(geoObject, true);
   }
   
   @Request(RequestType.SESSION)
@@ -197,7 +164,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
     
-    return util.applyGeoObject(geoObject, false);
+    return ServiceFactory.getUtilities().applyGeoObject(geoObject, false);
   }
 
   @Request(RequestType.SESSION)
@@ -209,7 +176,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
   {
-    GeoObject goParent = util.getGeoObjectById(parentUid, parentGeoObjectTypeCode);
+    GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentUid, parentGeoObjectTypeCode);
     
     if (goParent.getType().isLeaf())
     {
@@ -222,7 +189,7 @@ public class RegistryService
     Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
     GeoEntity parent = GeoEntity.get(parentRunwayId);
     
-    GeoObject goRoot = conversionService.geoEntityToGeoObject(parent);
+    GeoObject goRoot = ServiceFactory.getConversionService().geoEntityToGeoObject(parent);
     ChildTreeNode tnRoot = new ChildTreeNode(goRoot, null);
     
     TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(parentRunwayId, relationshipTypes);
@@ -233,7 +200,7 @@ public class RegistryService
       
       if (ArrayUtils.contains(childrenTypes, uni.getKey()))
       {
-        GeoObject goChild = conversionService.geoEntityToGeoObject(geChild);
+        GeoObject goChild = ServiceFactory.getConversionService().geoEntityToGeoObject(geChild);
         HierarchyType ht = htMap.get(tnrChild.getRelationshipType());
         
         ChildTreeNode tnChild;
@@ -261,7 +228,7 @@ public class RegistryService
     {
       MdTermRelationship mdRel = (MdTermRelationship)MdTermRelationship.getMdRelationship(relationshipType);
       
-      HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdRel);
+      HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdRel);
       
       map.put(relationshipType, ht);
     }
@@ -273,7 +240,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive)
   {
-    GeoObject goChild = util.getGeoObjectById(childId, childGeoObjectTypeCode);
+    GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
     
     if (goChild.getType().isLeaf())
     {
@@ -286,7 +253,7 @@ public class RegistryService
     Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
     GeoEntity child = GeoEntity.get(parentRunwayId);
     
-    GeoObject goRoot = conversionService.geoEntityToGeoObject(child);
+    GeoObject goRoot = ServiceFactory.getConversionService().geoEntityToGeoObject(child);
     ParentTreeNode tnRoot = new ParentTreeNode(goRoot, null);
     
     TermAndRel[] tnrParents = TermUtil.getDirectAncestors(parentRunwayId, relationshipTypes);
@@ -297,7 +264,7 @@ public class RegistryService
       
       if (ArrayUtils.contains(parentTypes, uni.getKey()))
       {
-        GeoObject goParent = conversionService.geoEntityToGeoObject(geParent);
+        GeoObject goParent = ServiceFactory.getConversionService().geoEntityToGeoObject(geParent);
         HierarchyType ht = htMap.get(tnrParent.getRelationshipType());
         
         ParentTreeNode tnParent;
@@ -326,8 +293,8 @@ public class RegistryService
   @Transaction
   public ParentTreeNode addChildInTransaction(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
-    GeoObject goParent = util.getGeoObjectById(parentId, parentGeoObjectTypeCode);
-    GeoObject goChild = util.getGeoObjectById(childId, childGeoObjectTypeCode);
+    GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
+    GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
     HierarchyType hierarchy = adapter.getMetadataCache().getHierachyType(hierarchyCode).get();
     
     if (goParent.getType().isLeaf())
@@ -347,7 +314,7 @@ public class RegistryService
       GeoEntity geChild = GeoEntity.get(childRunwayId);
       
       
-      String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(hierarchyCode);
+      String mdTermRelGeoEntity = ServiceFactory.getConversionService().buildMdTermRelGeoEntityKey(hierarchyCode);
       
       geChild.addLink(geParent, mdTermRelGeoEntity);
       
@@ -386,7 +353,7 @@ public class RegistryService
   @Transaction
   private void deleteGeoObjectInTransaction(String sessionId, String id, String typeCode)
   {
-    GeoObject geoObject = util.getGeoObjectById(id, typeCode);
+    GeoObject geoObject = ServiceFactory.getUtilities().getGeoObjectById(id, typeCode);
     
     if (geoObject.getType().isLeaf())
     {
@@ -444,13 +411,13 @@ public class RegistryService
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
     
-    return conversionService.universalToGeoObjectType(universal);
+    return ServiceFactory.getConversionService().universalToGeoObjectType(universal);
   }
   
   @Transaction
   private Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
-    Universal universal = conversionService.newGeoObjectTypeToUniversal(geoObjectType);
+    Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
 
     universal= ConversionService.createMdBusinessForUniversal(universal);
     
@@ -477,7 +444,7 @@ public class RegistryService
         
     Universal universal = updateGeoObjectType(geoObjectTypeModified);
     
-    GeoObjectType geoObjectTypeModifiedApplied = conversionService.universalToGeoObjectType(universal);
+    GeoObjectType geoObjectTypeModifiedApplied = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
@@ -488,7 +455,7 @@ public class RegistryService
   @Transaction
   private Universal updateGeoObjectType(GeoObjectType geoObjectType)
   {
-    Universal universal = conversionService.getUniversalFromGeoObjectType(geoObjectType);
+    Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(geoObjectType);
     
     universal.lock();
     universal.getDisplayLabel().setValue(geoObjectType.getLocalizedLabel());
@@ -587,15 +554,15 @@ public class RegistryService
   @Transaction
   private HierarchyType createHierarchyTypeTransaction(HierarchyType hierarchyType)
   {
-    MdTermRelationship mdTermRelUniversal = conversionService.newHierarchyToMdTermRelForUniversals(hierarchyType);
+    MdTermRelationship mdTermRelUniversal = ServiceFactory.getConversionService().newHierarchyToMdTermRelForUniversals(hierarchyType);
     mdTermRelUniversal.apply();
     this.grantAdmiPermissionsOnMdTermRel(mdTermRelUniversal);
     
-    MdTermRelationship mdTermRelGeoEntity = conversionService.newHierarchyToMdTermRelForGeoEntities(hierarchyType);
+    MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
     mdTermRelGeoEntity.apply();
     this.grantAdmiPermissionsOnMdTermRel(mdTermRelGeoEntity); 
 
-    return conversionService.mdTermRelationshipToHierarchyType(mdTermRelUniversal);
+    return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
   }
   private void grantAdmiPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship) 
   {
@@ -635,7 +602,7 @@ public class RegistryService
   @Transaction
   private HierarchyType updateHierarchyTypeTransaction(HierarchyType hierarchyType)
   {
-    MdTermRelationship mdTermRelationship = conversionService.existingHierarchyToMdTermRelationiship(hierarchyType);
+    MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToMdTermRelationiship(hierarchyType);
     
     mdTermRelationship.lock();
     
@@ -645,7 +612,7 @@ public class RegistryService
     
     mdTermRelationship.unlock();
     
-    HierarchyType returnHierarchyType = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+    HierarchyType returnHierarchyType = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelationship);
     
     return returnHierarchyType;
   }
@@ -715,7 +682,7 @@ public class RegistryService
     this.addToHierarchy(hierarchyTypeCode, mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     
     // No exceptions thrown. Refresh the HierarchyType object to include the new relationships.
-    HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+    HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelationship);
     
     adapter.getMetadataCache().addHierarchyType(ht);
     
@@ -754,7 +721,7 @@ public class RegistryService
     this.removeFromHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     
     // No exceptions thrown. Refresh the HierarchyType object to include the new relationships.
-    HierarchyType ht = conversionService.mdTermRelationshipToHierarchyType(mdTermRelationship);
+    HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelationship);
     
     adapter.getMetadataCache().addHierarchyType(ht);
     

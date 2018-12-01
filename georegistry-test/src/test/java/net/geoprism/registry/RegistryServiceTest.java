@@ -6,6 +6,7 @@ import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.action.AddChildAction;
 import org.commongeoregistry.adapter.action.CreateAction;
 import org.commongeoregistry.adapter.action.UpdateAction;
+import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -26,6 +27,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import net.geoprism.georegistry.RegistryController;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.registry.testframework.USATestData;
 import net.geoprism.registry.testframework.USATestData.TestGeoObjectInfo;
 import net.geoprism.registry.testframework.USATestData.TestGeoObjectTypeInfo;
@@ -49,7 +51,7 @@ public class RegistryServiceTest
     
     this.adminCR = tutil.adminClientRequest;
     
-    this.adapter = RegistryService.getInstance().getRegistryAdapter();
+    this.adapter = ServiceFactory.getAdapter();
   }
   
   @After
@@ -65,7 +67,7 @@ public class RegistryServiceTest
     GeoObject geoObj = tutil.responseToGeoObject(this.controller.getGeoObject(this.adminCR, tutil.COLORADO.getRegistryId(), tutil.COLORADO.getUniversal().getCode()));
      
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(tutil.adapter, geoObj.toJSON().toString()).toJSON().toString());
-    tutil.COLORADO.assertEquals(geoObj);
+    tutil.COLORADO.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
   }
   
   @Test
@@ -75,7 +77,7 @@ public class RegistryServiceTest
     GeoObject geoObj = tutil.responseToGeoObject(this.controller.getGeoObjectByCode(this.adminCR, tutil.COLORADO.getGeoId(), tutil.COLORADO.getUniversal().getCode()));
     
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(tutil.adapter, geoObj.toJSON().toString()).toJSON().toString());
-    tutil.COLORADO.assertEquals(geoObj);
+    tutil.COLORADO.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
   }
   
   @Test
