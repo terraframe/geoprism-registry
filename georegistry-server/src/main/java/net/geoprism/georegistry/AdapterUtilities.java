@@ -36,6 +36,7 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.registry.GeoObjectStatus;
@@ -126,12 +127,9 @@ public class AdapterUtilities
     
     ge.apply();
     
-    
-    /*
-     * Update the business
-     */
     Business biz;
     MdBusiness mdBiz = ge.getUniversal().getMdBusiness();
+    
     if (isNew)
     {
       biz = new Business(mdBiz.definesType());
@@ -141,17 +139,33 @@ public class AdapterUtilities
       biz = this.getGeoEntityBusiness(ge);
       biz.appLock();
     }
+    
+    /**
+     * Figure out what status we are
+     */
+    GeoObjectStatus gos;
+    Term statusTerm;
+    if (isNew)
+    {
+      gos = GeoObjectStatus.ACTIVE;
+      statusTerm = ConversionService.getInstance().geoObjectStatusToTerm(gos);
+    }
+    else
+    {
+      statusTerm = geoObject.getStatus();
+      gos = ConversionService.getInstance().termToGeoObjectStatus(statusTerm);
+    }
+    
     biz.setValue(RegistryConstants.UUID, geoObject.getUid());
     biz.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, ge.getOid());
     biz.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
-    biz.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid()); // TODO : Are we using the right status here?
+    biz.setValue(DefaultAttribute.STATUS.getName(), gos.getOid());
     biz.apply();
     
     /*
      * Update the returned GeoObject
      */
-    Term activeStatus = ServiceFactory.getAdapter().getMetadataCache().getTerm(GeoObjectStatusTerm.ACTIVE.code).get();
-    geoObject.setStatus(activeStatus);
+    geoObject.setStatus(statusTerm);
     
     return geoObject;
   }

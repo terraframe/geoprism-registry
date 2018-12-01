@@ -623,16 +623,26 @@ public class ConversionService
     // TODO : GeometryType is hardcoded
     GeoObject geoObj = new GeoObject(got, GeometryType.POLYGON, attributeMap);
     
-    geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(geoEntity.getOid(), geoEntity.getUniversal()));
+    if (geoEntity.isNew())
+    {
+      geoObj.setUid(RegistryIdService.getInstance().next());
+      
+      geoObj.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get());
+    }
+    else
+    {
+      geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(geoEntity.getOid(), geoEntity.getUniversal()));
+      
+      Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(geoEntity);
+      BusinessEnumeration busEnum = biz.getEnumValues(DefaultAttribute.STATUS.getName()).get(0);
+      GeoObjectStatus gos = GeoObjectStatus.valueOf(busEnum.name());
+      Term statusTerm = this.geoObjectStatusToTerm(gos);
+      geoObj.setStatus(statusTerm);
+    }
+    
     geoObj.setCode(geoEntity.getGeoId());
     geoObj.setWKTGeometry(geoEntity.getWkt());
     geoObj.setLocalizedDisplayLabel(geoEntity.getDisplayLabel().getValue());
-    
-    Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(geoEntity);
-    BusinessEnumeration busEnum = biz.getEnumValues(DefaultAttribute.STATUS.getName()).get(0);
-    GeoObjectStatus gos = GeoObjectStatus.valueOf(busEnum.name());
-    Term statusTerm = this.geoObjectStatusToTerm(gos);
-    geoObj.setStatus(statusTerm);
     
     // TODO : Type attribute?
     
@@ -886,6 +896,29 @@ public class ConversionService
     businessDAO.apply();
   }
 
+  public GeoObjectStatus termToGeoObjectStatus(Term term)
+  {
+    if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code))
+    {
+      return GeoObjectStatus.ACTIVE;
+    }
+    else if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code))
+    {
+      return GeoObjectStatus.INACTIVE;
+    }
+    else if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.NEW.code))
+    {
+      return GeoObjectStatus.NEW;
+    }
+    else if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.PENDING.code))
+    {
+      return GeoObjectStatus.PENDING;
+    }
+    else
+    {
+      throw new ProgrammingErrorException("Unknown Status Term [" + term.getCode() + "].");
+    }
+  }
 
   public Term geoObjectStatusToTerm(GeoObjectStatus gos)
   {
@@ -907,7 +940,6 @@ public class ConversionService
     }
     else
     {
-      // TODO Throw a localized Exception
       throw new ProgrammingErrorException("Unknown Status [" + gos.getEnumName() + "].");
     }
   }

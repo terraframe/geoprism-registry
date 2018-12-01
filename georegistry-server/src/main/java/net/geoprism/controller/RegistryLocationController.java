@@ -22,6 +22,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.runwaysdk.business.Mutable;
 import com.runwaysdk.business.ValueObjectDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.mvc.Controller;
@@ -39,6 +40,8 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityDTO;
 import com.runwaysdk.system.gis.geo.GeoEntityViewDTO;
 import com.runwaysdk.system.gis.geo.LocatedInDTO;
+import com.runwaysdk.transport.conversion.business.MutableDTOToMutable;
+import com.runwaysdk.transport.conversion.json.ComponentDTOIFToJSON;
 import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.ExcludeConfiguration;
@@ -66,7 +69,7 @@ public class RegistryLocationController
     
     // Add the GeoObject to the response
     GeoObject go = getGeoObject(request.getSessionId(), entity.getOid());
-    joGeoEnt.put("geoObject", new JSONObject(serializeGo(go)));
+    joGeoEnt.put("geoObject", serializeGo(go));
     
     return new RestBodyResponse(joGeoEnt.toString());
   }
@@ -77,106 +80,78 @@ public class RegistryLocationController
     return ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(id));
   }
   
-  private String serializeGo(GeoObject go)
+  private JSONObject serializeGo(GeoObject go)
   {
     JSONObject joGo = new JSONObject(go.toJSON().toString());
     joGo.remove("geometry");
-    return joGo.toString();
+    return joGo;
   }
   
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "entity") String sEntity, @RequestParamter(name = "parentOid") String parentOid, @RequestParamter(name = "existingLayers") String existingLayers) throws JSONException
   {
+    return applyInRequest(request.getSessionId(), request, sEntity, parentOid, existingLayers);
+  }
+
+  @Request(RequestType.SESSION)
+  private ResponseIF applyInRequest(String sessionId, ClientRequestIF request, String sEntity, String parentOid, String existingLayers) {
     BasicJSONToComponentDTO converter = BasicJSONToComponentDTO.getConverter(request.getSessionId(), Session.getCurrentLocale(), GeoEntityDTO.CLASS + "DTO", sEntity);
-    GeoEntityDTO entity = (GeoEntityDTO) converter.populate();
+    GeoEntityDTO entityDTO = (GeoEntityDTO) converter.populate();
     
-    if (entity.getGeoId() == null || entity.getGeoId().length() == 0)
+    MutableDTOToMutable dtoToComponent = MutableDTOToMutable.getConverter(request.getSessionId(), entityDTO);
+    GeoEntity entity = (GeoEntity) dtoToComponent.populate();
+    
+    if (entityDTO.getGeoId() == null || entityDTO.getGeoId().length() == 0)
     {
-      entity.setGeoId(IDGenerator.nextID());
+      entityDTO.setGeoId(IDGenerator.nextID());
     }
     
     JSONObject joEntity = new JSONObject(sEntity);
-    if (joEntity.has("geoObject") && joEntity.getJSONObject("geoObject").has("properties"))
+    JSONObject geoObject = joEntity.getJSONObject("geoObject");
+    JSONObject properties = geoObject.getJSONObject("properties");
+    
+    String statusCode = properties.getJSONObject("status").getString("code");
+    
+    GeoObject go = ConversionService.getInstance().geoEntityToGeoObject(entity);
+    go.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(statusCode).get());
+    
+    if (entityDTO.isNewInstance())
     {
-      JSONObject geoObject = joEntity.getJSONObject("geoObject");
-      JSONObject properties = geoObject.getJSONObject("properties");
+      GeoObject goChild = RegistryService.getInstance().createGeoObject(request.getSessionId(), go.toJSON().toString());
       
-      String statusCode = properties.getJSONObject("status").getString("code");
+      GeoObject goParent = getGeoObject(request.getSessionId(), parentOid);
+      RegistryService.getInstance().addChild(request.getSessionId(), goParent.getUid(), goParent.getType().getCode(), goChild.getUid(), goChild.getType().getCode(), "LocatedIn");
       
-      GeoObject go = getGeoObject(request.getSessionId(), entity.getOid());
-      go.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(statusCode).get());
-      
-      if (entity.isNewInstance())
-      {
-        GeoObject goChild = RegistryService.getInstance().createGeoObject(request.getSessionId(), go.toJSON().toString());
-        
-        GeoObject goParent = getGeoObject(request.getSessionId(), parentOid);
-        RegistryService.getInstance().addChild(request.getSessionId(), goParent.getUid(), goParent.getType().getCode(), goChild.getUid(), goChild.getType().getCode(), "LocatedIn");
-        
-        GeoEntityUtilDTO.refreshViews(request, existingLayers);
-
-        JSONObject object = new JSONObject();
-        object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-        object.put(GeoEntityDTO.OID, entity.getOid());
-        object.put(GeoEntityDTO.DISPLAYLABEL, entity.getDisplayLabel().getValue());
-        object.put(GeoEntityDTO.GEOID, entity.getGeoId());
-        object.put(GeoEntityDTO.UNIVERSAL, entity.getUniversal().getDisplayLabel().getValue());
-
-        object.put("geoObject", serializeGo(goChild));
-        
-        return new RestBodyResponse(object);
-      }
-      else
-      {
-        String oid = entity.getOid();
-
-        RegistryService.getInstance().updateGeoObject(request.getSessionId(), go.toJSON().toString());
-
-        GeoEntityUtilDTO.refreshViews(request, existingLayers);
-
-        JSONObject object = new JSONObject();
-        object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-        object.put(GeoEntityDTO.OID, entity.getOid());
-        object.put(GeoEntityDTO.DISPLAYLABEL, entity.getDisplayLabel().getValue());
-        object.put(GeoEntityDTO.GEOID, entity.getGeoId());
-        object.put(GeoEntityDTO.UNIVERSAL, entity.getUniversal().getDisplayLabel().getValue());
-        object.put("oid", oid);
-        
-        object.put("geoObject", serializeGo(go));
-
-        return new RestBodyResponse(object);
-      }
-    }
-    else if (entity.isNewInstance())
-    {
-      GeoEntityViewDTO dto = GeoEntityDTO.create(request, entity, parentOid, LocatedInDTO.CLASS);
-
       GeoEntityUtilDTO.refreshViews(request, existingLayers);
 
       JSONObject object = new JSONObject();
       object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-      object.put(GeoEntityDTO.OID, dto.getGeoEntityId());
-      object.put(GeoEntityDTO.DISPLAYLABEL, dto.getGeoEntityDisplayLabel());
-      object.put(GeoEntityDTO.GEOID, entity.getGeoId());
-      object.put(GeoEntityDTO.UNIVERSAL, dto.getUniversalDisplayLabel());
+      object.put(GeoEntityDTO.OID, entityDTO.getOid());
+      object.put(GeoEntityDTO.DISPLAYLABEL, entityDTO.getDisplayLabel().getValue());
+      object.put(GeoEntityDTO.GEOID, entityDTO.getGeoId());
+      object.put(GeoEntityDTO.UNIVERSAL, entityDTO.getUniversal().getDisplayLabel().getValue());
 
+      object.put("geoObject", serializeGo(goChild));
+      
       return new RestBodyResponse(object);
     }
     else
     {
-      String oid = entity.getOid();
+      String oid = entityDTO.getOid();
 
-      entity.apply();
+      RegistryService.getInstance().updateGeoObject(request.getSessionId(), go.toJSON().toString());
 
       GeoEntityUtilDTO.refreshViews(request, existingLayers);
 
       JSONObject object = new JSONObject();
       object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-      object.put(GeoEntityDTO.OID, entity.getOid());
-      object.put(GeoEntityDTO.DISPLAYLABEL, entity.getDisplayLabel().getValue());
-      object.put(GeoEntityDTO.GEOID, entity.getGeoId());
-      object.put(GeoEntityDTO.UNIVERSAL, entity.getUniversal().getDisplayLabel().getValue());
+      object.put(GeoEntityDTO.OID, entityDTO.getOid());
+      object.put(GeoEntityDTO.DISPLAYLABEL, entityDTO.getDisplayLabel().getValue());
+      object.put(GeoEntityDTO.GEOID, entityDTO.getGeoId());
+      object.put(GeoEntityDTO.UNIVERSAL, entityDTO.getUniversal().getDisplayLabel().getValue());
       object.put("oid", oid);
+      
+      object.put("geoObject", serializeGo(go));
 
       return new RestBodyResponse(object);
     }

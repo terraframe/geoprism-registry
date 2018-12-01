@@ -71,9 +71,9 @@
                   <div class="select-box">
                     <select class="method-select" ng-model="entity.geoObject.properties.status.code" required="required">
                       <option value="CGR:Status-New">New</option> <!-- TODO : Localization -->
-                      <option value="CGR:Status-Active">Active</option>
-                      <option value="CGR:Status-Pending">Pending</option>
-                      <option value="CGR:Status-Inactive">Inactive</option>
+                      <option ng-show="entity.oid" value="CGR:Status-Active">Active</option>
+                      <option ng-show="entity.oid" value="CGR:Status-Pending">Pending</option>
+                      <option ng-show="entity.oid" value="CGR:Status-Inactive">Inactive</option>
                     </select>
                   </div>
                 </div>
