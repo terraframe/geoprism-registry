@@ -2,12 +2,12 @@ package net.geoprism.georegistry;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
-import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -43,6 +43,7 @@ import net.geoprism.registry.GeoObjectStatus;
 
 public class AdapterUtilities
 {
+  private Logger logger = LoggerFactory.getLogger(AdapterUtilities.class);
   
   public synchronized static AdapterUtilities getInstance()
   {
@@ -74,6 +75,13 @@ public class AdapterUtilities
     }
     else
     {
+      if (!RegistryIdService.getInstance().isIssuedId(geoObject.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+      
       ge = new GeoEntity();
     }
     
@@ -92,9 +100,30 @@ public class AdapterUtilities
       GeoObjectType got = geoObject.getType();
       
       Universal inputUni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
+      Universal oldUni = ge.getUniversal();
       
-      if (inputUni != ge.getUniversal())
+      if (oldUni == null && inputUni != null)
       {
+        ge.setUniversal(inputUni);
+      }
+      else if (oldUni != null && inputUni == null)
+      {
+        // do nothing
+      }
+      else if (oldUni != null && inputUni != null && inputUni.getKey() != oldUni.getKey())
+      {
+        if (!isNew && oldUni != null)
+        {
+          Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(ge);
+          
+          if (biz == null)
+          {
+            logger.error("Expected to find a business object on MdBusiness table [" + oldUni.getMdBusiness().definesType() + "] with GeoEntity oid [" + ge.getOid() + "].");
+          }
+          
+          biz.delete();
+        }
+        
         ge.setUniversal(inputUni);
       }
     }

@@ -1,5 +1,7 @@
 package net.geoprism.registry;
 
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractAction;
@@ -17,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -24,9 +27,9 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.georegistry.InvalidRegistryIdException;
 import net.geoprism.georegistry.RegistryController;
 import net.geoprism.georegistry.service.RegistryIdService;
-import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.registry.testframework.USATestData;
 import net.geoprism.registry.testframework.USATestData.TestGeoObjectInfo;
@@ -109,6 +112,24 @@ public class RegistryServiceTest
     Assert.assertEquals(tutil.COLORADO.getDisplayLabel(), waGeo2.getDisplayLabel().getValue());
   }
   
+//  @Test
+//  @Request
+//  public void testUpdateUniversal()
+//  {
+//    TestGeoObjectInfo infoUniSwap = tutil.newTestGeoObjectInfo("TEST_UPDATE_GEO_OBJECT_UNI_SWAP", tutil.STATE);
+//    infoUniSwap.apply();
+//    
+//    // Most basic Universal swap
+//    GeoObject goUniSwap = tutil.responseToGeoObject(this.controller.getGeoObjectByCode(this.adminCR, infoUniSwap.getGeoId(), infoUniSwap.getUniversal().getCode()));
+//    goUniSwap.setType(this.adapter.getMetadataCache().getGeoObjectType(tutil.DISTRICT.getCode()).get());
+//    GeoObject goUniSwap2 = tutil.responseToGeoObject(this.controller.updateGeoObject(this.adminCR, goUniSwap.toJSON().toString()));
+//    Assert.assertEquals(tutil.DISTRICT.getCode(), goUniSwap2.getType().getCode());
+//    
+//    // TODO : Make sure we throw an error if the GeoObject isn't allowed within some other hierarchy
+//    
+//    // TODO : Validate based on universal tree? I.e. now that its a district its not allowed within something else
+//  }
+  
   @Test
   @Request
   public void testGetUIDS()
@@ -121,6 +142,35 @@ public class RegistryServiceTest
     {
       Assert.assertTrue(RegistryIdService.getInstance().isIssuedId(id));
     }
+  }
+  
+  @Test(expected = SmartExceptionDTO.class)
+  @Request
+  public void testUnissuedIdCreate()
+  {
+    // Test to make sure we can't just provide random ids, they actually have to be issued by our id service
+    
+    // Create
+    GeoObject geoObj = tutil.adapter.newGeoObjectInstance(tutil.STATE.getCode());
+    geoObj.setWKTGeometry(tutil.WASHINGTON.getWkt());
+    geoObj.setCode(tutil.WASHINGTON.getGeoId());
+    geoObj.setLocalizedDisplayLabel(tutil.WASHINGTON.getDisplayLabel());
+    geoObj.setUid(UUID.randomUUID().toString());
+    this.controller.createGeoObject(this.adminCR, geoObj.toJSON().toString());
+  }
+  
+  @Test(expected = SmartExceptionDTO.class)
+  @Request
+  public void testUnissuedIdUpdate()
+  {
+    // Test to make sure we can't just provide random ids, they actually have to be issued by our id service
+    
+    // Update
+    GeoObject waGeoObj = tutil.responseToGeoObject(this.controller.getGeoObject(this.adminCR, tutil.WASHINGTON.getRegistryId(), tutil.WASHINGTON.getUniversal().getCode()));
+    waGeoObj.setWKTGeometry(tutil.COLORADO.getWkt());
+    waGeoObj.setLocalizedDisplayLabel(tutil.COLORADO.getDisplayLabel());
+    waGeoObj.setUid(UUID.randomUUID().toString());
+    this.controller.updateGeoObject(this.adminCR, waGeoObj.toJSON().toString());
   }
   
   @Test

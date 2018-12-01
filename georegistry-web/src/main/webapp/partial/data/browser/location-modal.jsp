@@ -83,7 +83,8 @@
                   <label><gdb:localize key="location.management.universal"/></label>
                 </div>    
                 <div class="holder">
-                  <div class="select-box">
+                  <label ng-show="entity.oid" style="margin-top:12px;">{{entity.geoObject.properties.type}}</label>
+                  <div ng-show="!entity.oid" class="select-box">
                     <select class="method-select" ng-model="entity.universal" ng-options="opt.oid as opt.displayLabel for opt in universals" required="required">
                       <option value=""></option>
                     </select>
