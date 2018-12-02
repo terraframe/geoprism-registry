@@ -31,6 +31,8 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
   @Override
   protected void importLocationData()
   {
+    super.importLocationData();
+    
     QueryFactory qf = new QueryFactory();
     MdBusinessQuery mbq = new MdBusinessQuery(qf);
     

@@ -631,9 +631,19 @@ public class ConversionService
     }
     else
     {
-      geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(geoEntity.getOid(), geoEntity.getUniversal()));
+      GeoEntity bizGeo; // The GeoEntity which contains the Business information
+      if (geoEntity.isModified(GeoEntity.UNIVERSAL))
+      {
+        bizGeo = GeoEntity.get(geoEntity.getOid());
+      }
+      else
+      {
+        bizGeo = geoEntity;
+      }
       
-      Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(geoEntity);
+      geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(geoEntity.getOid(), bizGeo.getUniversal()));
+      
+      Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(bizGeo);
       BusinessEnumeration busEnum = biz.getEnumValues(DefaultAttribute.STATUS.getName()).get(0);
       GeoObjectStatus gos = GeoObjectStatus.valueOf(busEnum.name());
       Term statusTerm = this.geoObjectStatusToTerm(gos);

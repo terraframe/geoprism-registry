@@ -44,7 +44,7 @@ public class RegistryIdService implements AdapterIdServiceIF
       {
         InvalidRegistryIdException ex = new InvalidRegistryIdException();
         ex.setRegistryId(runwayId);
-        throw ex; // TODO : Throw some other exception?
+        throw ex;
       }
       
       return it.next().getValue(RegistryConstants.UUID);
