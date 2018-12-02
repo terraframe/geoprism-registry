@@ -231,7 +231,7 @@
             $scope.children.splice(index, 1);
           }          
           
-          controller.open($scope.previous[$scope.previous.length-1].id);
+          controller.open($scope.previous[$scope.previous.length-1].oid);
         }
       };
       
@@ -249,7 +249,7 @@
     
     controller.findIndex = function(entityId) {
       for(var i = 0; i < $scope.children.length; i++) {
-        if($scope.children[i].id == entityId) {
+        if($scope.children[i].oid == entityId) {
           return i;
         };
       }
@@ -269,7 +269,7 @@
     controller.scrollTo = function(entityId) {
       var child = null;
       for(var i = 0; i < $scope.children.length; i++) {
-        if($scope.children[i].id == entityId) {
+        if($scope.children[i].oid == entityId) {
           child = $scope.children[i];
         };
       }
@@ -283,7 +283,7 @@
     });
     
     $scope.$on('locationReloadCurrent', function(event){
-      controller.open($scope.previous[$scope.previous.length-1].id);
+      controller.open($scope.previous[$scope.previous.length-1].oid);
     });
     
     $scope.$on('hoverChange', function(event, data){

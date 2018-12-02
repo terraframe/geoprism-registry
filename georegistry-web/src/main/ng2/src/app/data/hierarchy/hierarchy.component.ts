@@ -142,7 +142,10 @@ export class HierarchyComponent implements OnInit {
 	  }
 	  
 	  setTimeout(() => {
-		  this.tree.treeModel.expandAll();
+		  if(this.tree)
+		  {
+		    this.tree.treeModel.expandAll();
+		  }
 	  }, 1)
   }
   

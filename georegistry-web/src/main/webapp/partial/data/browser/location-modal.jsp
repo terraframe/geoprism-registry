@@ -59,7 +59,7 @@
                 </div>    
                 <div class="holder">
                   <span class="text">
-                    <input type="text" ng-model="entity.geoId" name="geoId" placeholder="<gdb:localize key="location.management.geoIdPlaceholder"/>">
+                    <input type="text" ng-model="entity.geoId" name="geoId" placeholder="<gdb:localize key="location.management.geoIdPlaceholder"/>" required="required">
                   </span>
                 </div>
               </div>
