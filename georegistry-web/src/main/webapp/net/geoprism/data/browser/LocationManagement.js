@@ -109,7 +109,7 @@
           }
         };    
                 
-        var id = $scope.previous[index].id;
+        var id = $scope.previous[index].oid;
                 
         locationService.select(connection, id, "", $scope.layers);        
       }
