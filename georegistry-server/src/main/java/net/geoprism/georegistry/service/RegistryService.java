@@ -556,15 +556,15 @@ public class RegistryService
   {
     MdTermRelationship mdTermRelUniversal = ServiceFactory.getConversionService().newHierarchyToMdTermRelForUniversals(hierarchyType);
     mdTermRelUniversal.apply();
-    this.grantAdmiPermissionsOnMdTermRel(mdTermRelUniversal);
+    this.grantAdminPermissionsOnMdTermRel(mdTermRelUniversal);
     
     MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
     mdTermRelGeoEntity.apply();
-    this.grantAdmiPermissionsOnMdTermRel(mdTermRelGeoEntity); 
+    this.grantAdminPermissionsOnMdTermRel(mdTermRelGeoEntity); 
 
     return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
   }
-  private void grantAdmiPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship) 
+  private void grantAdminPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship) 
   {
     RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
     
