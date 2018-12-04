@@ -538,9 +538,9 @@
           
           controller.clear();
           
-//          $scope.$emit('locationChange', {
-//            entity : entity  
-//          });
+          $scope.$emit('locationChange', {
+            entity : entity  
+          });
           $scope.$emit('locationReloadCurrent');
         },
         onFailure : function(e){
