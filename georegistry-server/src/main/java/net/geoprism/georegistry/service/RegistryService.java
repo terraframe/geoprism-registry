@@ -421,6 +421,8 @@ public class RegistryService
 
     universal= ConversionService.createMdBusinessForUniversal(universal);
     
+    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(geoObjectType);
+    
     return universal;
   }
   
