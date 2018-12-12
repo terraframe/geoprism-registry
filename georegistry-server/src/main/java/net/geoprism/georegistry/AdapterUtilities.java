@@ -128,19 +128,15 @@ public class AdapterUtilities
       }
     }
     
-    org.locationtech.jts.geom.Geometry geom = geoObject.getGeometry();
+    Geometry geom = geoObject.getGeometry();
     if (geom != null)
     {
       try
       {
-        String wkt = geom.toText();
-        
         GeometryHelper geometryHelper = new GeometryHelper();
-        
-        Geometry geo = geometryHelper.parseGeometry(wkt);
-        ge.setGeoPoint(geometryHelper.getGeoPoint(geo));
-        ge.setGeoMultiPolygon(geometryHelper.getGeoMultiPolygon(geo));
-        ge.setWkt(wkt);
+        ge.setGeoPoint(geometryHelper.getGeoPoint(geom));
+        ge.setGeoMultiPolygon(geometryHelper.getGeoMultiPolygon(geom));
+        ge.setWkt(geom.toText());
       }
       catch (Exception e)
       {
