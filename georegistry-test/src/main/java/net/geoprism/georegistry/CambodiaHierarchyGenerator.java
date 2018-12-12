@@ -1,3 +1,4 @@
+package net.geoprism.georegistry;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdBusiness;
 
-public class RegistryTestSandbox
+public class CambodiaHierarchyGenerator
 {
   public static void main(String[] args) {
 //    GeoprismPatcher.main(args);
