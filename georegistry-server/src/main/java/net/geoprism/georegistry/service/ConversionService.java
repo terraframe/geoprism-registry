@@ -668,48 +668,6 @@ public class ConversionService
 //    
 //    
 //  }
-
-  
-  /** 
-   * Creates an {@link MdBusiness} for the given universal.
-   * 
-   * @pre universal.gertMdBusiness() == null
-   * 
-   * @param universal
-   * 
-   * @return modified {@link Universal} that references an applied {@link MdBusiness} .
-   */
-  @Transaction
-  public static Universal createMdBusinessForUniversal(Universal universal)
-  { 
-    MdBusiness mdBusiness = new MdBusiness();
-    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
-    // The CODE name becomes the class name
-    mdBusiness.setTypeName(universal.getUniversalId());
-    mdBusiness.setGenerateSource(false);
-    mdBusiness.setPublish(false);
-    mdBusiness.setIsAbstract(false);
-    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
-    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
-    mdBusiness.apply();
-    
-    // Add the default attributes.
-    createDefaultAttributes(universal, mdBusiness);
-    
-    universal.setMdBusiness(mdBusiness);
-    
-    try
-    {
-      universal.apply();
-    }
-    // remove once ROOT attribute is defined.
-    catch (ImmutableRootException e) 
-    {
-      System.out.println(universal.getUniversalId()+" - "+universal.getOid()+"    "+mdBusiness.getOid());
-    }
-      
-    return universal;
-  }
   
   /**
    * Adds default attributes to the given {@link MdBusinessDAO} according to the 

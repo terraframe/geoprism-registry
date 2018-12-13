@@ -417,11 +417,7 @@ public class RegistryService
   @Transaction
   private Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
-    Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
-
-    universal= ConversionService.createMdBusinessForUniversal(universal);
-    
-    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(geoObjectType);
+    Universal universal = ServiceFactory.getUtilities().createGeoObjectType(geoObjectType);
     
     return universal;
   }
@@ -696,7 +692,7 @@ public class RegistryService
     Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
     Universal child = Universal.getByKey(childGeoObjectTypeCode);
     
-    parent.addChild(child, mdTermRelationship.definesType()).apply();
+    child.addLink(parent, mdTermRelationship.definesType());
     
     if (child.getIsLeafType())
     {
