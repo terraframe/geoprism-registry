@@ -411,6 +411,8 @@ public class RegistryService
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
     
+    ((Session)Session.getCurrentSession()).reloadPermissions();
+    
     return ServiceFactory.getConversionService().universalToGeoObjectType(universal);
   }
   
