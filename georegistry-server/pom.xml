@@ -89,7 +89,7 @@
             <executions>
               <execution>
                 <id>new-schema</id>
-                <phase>process-resources</phase>
+                <phase>validate</phase>
                 <goals>
                   <goal>java</goal>
                 </goals>
@@ -99,6 +99,12 @@
                   <arguments>
                     <argument>${project.basedir}/src/main/working</argument>
                   </arguments>
+                  <systemProperties>
+                    <systemProperty>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
+                    </systemProperty>
+                  </systemProperties>
                 </configuration>
               </execution>
             </executions>
@@ -122,7 +128,7 @@
             <executions>
               <execution>
                 <id>unimport-working</id>
-                <phase>process-resources</phase>
+                <phase>validate</phase>
                 <goals>
                   <goal>java</goal>
                 </goals>
@@ -136,28 +142,12 @@
                   </arguments>
                   <systemProperties>
                     <systemProperty>
-                      <key>server.root</key>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
+                    </systemProperty>
+                    <systemProperty>
+                      <key>project.basedir</key>
                       <value>${project.basedir}</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>client.root</key>
-                      <value>${project.basedir}/../georegistry-client</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>common.root</key>
-                      <value>${project.basedir}/../georegistry-common</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>jsp.dir</key>
-                      <value>georegistry-web/src/main/webapp/WEB-INF</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>server.classpath.append</key>
-                      <value>../geoprism/geoprism-common/target/classes;../geoprism/geoprism-server/target/classes</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>client.classpath.append</key>
-                      <value>../geoprism/geoprism-common/target/classes;../geoprism/geoprism-client/target/classes</value>
                     </systemProperty>
                   </systemProperties>
                 </configuration>
@@ -183,7 +173,7 @@
             <executions>
               <execution>
                 <id>import-working</id>
-                <phase>process-resources</phase>
+                <phase>validate</phase>
                 <goals>
                   <goal>java</goal>
                 </goals>
@@ -197,64 +187,20 @@
                   </arguments>
                   <systemProperties>
                     <systemProperty>
-                      <key>server.root</key>
-                      <value>georegistry-server</value>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
                     </systemProperty>
                     <systemProperty>
-                      <key>client.root</key>
-                      <value>georegistry-client</value>
+                      <key>project.basedir</key>
+                      <value>${project.basedir}</value>
                     </systemProperty>
-                    <systemProperty>
-                      <key>common.root</key>
-                      <value>georegistry-common</value>
-                    </systemProperty>
+                    <!--
                     <systemProperty>
                       <key>jsp.dir</key>
                       <value>georegistry-web/src/main/webapp/WEB-INF</value>
                     </systemProperty>
-                    <systemProperty>
-                      <key>server.classpath.append</key>
-                      <value>../geoprism/geoprism-common/target/classes;../geoprism/geoprism-server/target/classes</value>
-                    </systemProperty>
-                    <systemProperty>
-                      <key>client.classpath.append</key>
-                      <value>../geoprism/geoprism-common/target/classes;../geoprism/geoprism-client/target/classes</value>
-                    </systemProperty>
+                    -->
                   </systemProperties>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>package-deployable</id>
-      <activation>
-        <property>
-          <name>package-deployable</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>1.4.0</version>
-            <executions>
-              <execution>
-                <id>package-deployable-filemerge</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>java</goal>
-                </goals>
-                <configuration>
-                  <mainClass>net.geoprism.configuration.MergeUtility</mainClass>
-                  <arguments>
-                    <argument>--base=${project.build.directory}/classes</argument>
-                    <argument>--override=${project.basedir}/src/deployed/resources</argument>
-                    <argument>--export=${project.build.directory}/classes</argument>
-                  </arguments>
                 </configuration>
               </execution>
             </executions>
@@ -278,7 +224,7 @@
             <executions>
               <execution>
                 <id>patch</id>
-                <phase>verify</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>java</goal>
                 </goals>
@@ -290,12 +236,16 @@
                     <argument>--rootUser=${root.user}</argument>
                     <argument>--rootPass=${root.pass}</argument>
                     <argument>--templateDb=${root.db}</argument>
-                    <argument>--modules=georegistry</argument>
+                    <argument>--clean=${root.clean}</argument>
                   </arguments>
                   <systemProperties>
                     <systemProperty>
                       <key>endpoint.cache</key>
                       <value>${project.basedir}/cache</value>
+                    </systemProperty>
+                    <systemProperty>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
                     </systemProperty>
                   </systemProperties>
                 </configuration>
@@ -326,70 +276,9 @@
           <include>**/*.zip</include>
         </includes>
       </resource>
-      <resource>
-        <directory>src/main/domain</directory>
-        <filtering>false</filtering>
-        <targetPath>${project.basedir}/target/classes/metadata/georegistry</targetPath>
-        <excludes>
-          <exclude>**/temp/**</exclude>
-          <exclude>**/*.gitignore</exclude>
-        </excludes>
-      </resource>
     </resources>
 
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.4.0</version>
-        <executions>
-          <execution>
-            <id>geoprism.project.filemerge-server</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>net.geoprism.configuration.MergeUtility</mainClass>
-              <arguments>
-                <argument>--base=${geoprism.basedir}/geoprism-server/target/classes</argument>
-                <argument>--override=${project.build.directory}/classes</argument>
-                <argument>--export=${project.build.directory}/classes</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>geoprism.project.filemerge-common</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>net.geoprism.configuration.MergeUtility</mainClass>
-              <arguments>
-                <argument>--base=${geoprism.basedir}/geoprism-common/target/classes</argument>
-                <argument>--override=${project.build.directory}/classes</argument>
-                <argument>--export=${project.build.directory}/classes</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>geoprism.project.filemerge-client</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>net.geoprism.configuration.MergeUtility</mainClass>
-              <arguments>
-                <argument>--base=${geoprism.basedir}/geoprism-client/target/classes</argument>
-                <argument>--override=${project.build.directory}/classes</argument>
-                <argument>--export=${project.build.directory}/classes</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <!-- Weave Aspects -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -424,45 +313,6 @@
           <meminitial>512m</meminitial>
           <maxmem>1024m</maxmem>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <id>add-resource</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>add-resource</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>src/main/java</directory>
-                  <targetPath>source/server/stub</targetPath>
-                  <includes>
-                    <include>**/*.java</include>
-                  </includes>
-                </resource>
-                <resource>
-                  <directory>src/main/java-gen/stub</directory>
-                  <targetPath>source/server/stub</targetPath>
-                  <includes>
-                    <include>**/*.java</include>
-                  </includes>
-                </resource>
-                <resource>
-                  <directory>src/main/java-gen/base</directory>
-                  <targetPath>source/server/base</targetPath>
-                  <includes>
-                    <include>**/*.java</include>
-                  </includes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
