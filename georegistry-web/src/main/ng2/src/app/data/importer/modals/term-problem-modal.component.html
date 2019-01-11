@@ -1,0 +1,54 @@
+<form #form="ngForm" name="form" class="modal-form">
+  <div>
+    <fieldset>
+      <section class="form-container">
+
+
+<div>
+  <div class="wide-holder">
+    <div class="row-holder">    
+      <div class="inline-value">
+        <label><localize key="dataUploader.categoryAttribute"></localize></label>   
+        <div class="label-help-ico-container">
+          <i class="fa fa-question-circle help-info-ico" [title]="'dataUploader.categoryAttributeHelpToolTip' | localize"></i>
+        </div>   
+      </div>    
+      <div class="inline-value">
+        <label><localize key="dataUploader.unknownCategory"></localize></label>
+        <div class="label-help-ico-container">
+          <i class="fa fa-question-circle help-info-ico" [title]="'dataUploader.unknownCategoryHelpToolTip' | localize"></i>
+      </div>   
+      </div>
+      <div class="inline-combo">
+        <label><localize key="dataUploader.synonymn"></localize></label>
+        <div class="label-help-ico-container">
+          <i class="fa fa-question-circle help-info-ico" [title]="'dataUploader.categorySynonymSearchHelpToolTip' | localize"></i>
+      </div> 
+      </div>
+      <div class="inline-actions">
+        <label><localize key="dataUploader.actions"></localize></label>
+        <div class="label-help-ico-container">
+          <i class="fa fa-question-circle help-info-ico" [title]="'dataUploader.categoryProblemActionsHelpToolTip' | localize"></i>
+      </div> 
+      </div>
+    </div>  
+
+    <div *ngFor="let problem of problems.categories; let i = index;">
+      <category-validation-problem [problem]="problem" [workbook]="workbook" [index]="i" [options]="problems.options[problem.mdAttributeId]" [format]="format" (onResolve)="onResolve($event)"></category-validation-problem>
+    </div>
+  </div>
+  <div class="wide-holder">
+    <div class="error-message">
+      <p *ngIf="hasProblems()"><localize key="dataUploader.existingProblems"></localize></p>
+    </div>          
+  </div>  
+</div>
+
+
+      </section>        
+    </fieldset>   
+    
+    <paging [form]="form" [page]="page" [global]="!hasProblems()"></paging>
+  </div>
+</form>
+

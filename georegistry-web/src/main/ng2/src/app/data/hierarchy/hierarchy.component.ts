@@ -28,8 +28,8 @@ import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 import { CreateModalComponent } from './modals/create-modal.component';
 import { CreateChildModalComponent } from './modals/create-child-modal.component';
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
-import { ConfirmModalComponent } from './modals/confirm-modal.component';
-import { ErrorModalComponent } from './modals/error-modal.component';
+import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component';
+import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 
 import { Hierarchy, HierarchyType, HierarchyNode, GeoObjectType, TreeEntity } from './hierarchy';
 

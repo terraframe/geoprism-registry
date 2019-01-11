@@ -5,11 +5,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import net.geoprism.georegistry.AdapterUtilities;
-import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.registry.GeoObjectStatus;
-
-import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -78,8 +73,10 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
-import com.runwaysdk.system.ontology.ImmutableRootException;
 import com.runwaysdk.util.IDGenerator;
+
+import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.registry.GeoObjectStatus;
 
 public class ConversionService
 {
