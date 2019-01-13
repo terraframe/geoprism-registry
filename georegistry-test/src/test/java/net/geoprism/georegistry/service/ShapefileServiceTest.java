@@ -1,20 +1,26 @@
 package net.geoprism.georegistry.service;
 
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.testframework.USATestData;
 
 public class ShapefileServiceTest
@@ -90,6 +96,23 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
+  }
+
+  @Test
+  public void testCreateFeatureType()
+  {
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, new LinkedList<GeoObject>());
+    SimpleFeatureType featureType = exporter.createFeatureType();
+
+    Assert.assertNotNull(featureType);
+
+    Assert.assertEquals("geom", featureType.getGeometryDescriptor().getLocalName());
+
+    List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
+
+    Assert.assertEquals( ( type.getAttributeMap().size() + 1 ), attributes.size());
   }
 
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service)
