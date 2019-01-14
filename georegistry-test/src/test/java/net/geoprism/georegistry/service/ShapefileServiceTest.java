@@ -1,7 +1,6 @@
 package net.geoprism.georegistry.service;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -12,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -251,8 +251,7 @@ public class ShapefileServiceTest
 
     Assert.assertNotNull(export);
 
-    IOUtils.copy(export, new FileOutputStream("C:\\Users\\admin\\Documents\\TerraFrame\\DSME\\shapefile.zip"));
-    // IOUtils.copy(export, new NullOutputStream());
+    IOUtils.copy(export, new NullOutputStream());
   }
 
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service)
