@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,14 +12,13 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -127,7 +125,7 @@ public class ShapefileServiceTest
 
     Assert.assertNotNull(featureType);
 
-    Assert.assertEquals("geom", featureType.getGeometryDescriptor().getLocalName());
+    Assert.assertEquals(GeoObjectShapefileExporter.GEOM, featureType.getGeometryDescriptor().getLocalName());
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
@@ -153,19 +151,18 @@ public class ShapefileServiceTest
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
 
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);
-    Collections.reverse(objects);
 
     Assert.assertEquals(58, objects.size());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
-    DefaultFeatureCollection features = exporter.createFeatures(featureType);
+    FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
 
     Assert.assertEquals(objects.size(), features.size());
 
-    SimpleFeature feature = features.iterator().next();
-    GeoObject object = objects.get(objects.size() - 1);
+    SimpleFeature feature = features.features().next();
+    GeoObject object = objects.get(0);
 
     Assert.assertEquals("Attributes not equal [code]", object.getValue(GeoObject.CODE), feature.getAttribute(GeoObject.CODE));
 
@@ -253,9 +250,9 @@ public class ShapefileServiceTest
     InputStream export = exporter.export();
 
     Assert.assertNotNull(export);
-    
+
     IOUtils.copy(export, new FileOutputStream("C:\\Users\\admin\\Documents\\TerraFrame\\DSME\\shapefile.zip"));
-//    IOUtils.copy(export, new NullOutputStream());
+    // IOUtils.copy(export, new NullOutputStream());
   }
 
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service)

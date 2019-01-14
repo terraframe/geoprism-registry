@@ -7,8 +7,10 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -29,11 +31,12 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
-import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -59,7 +62,7 @@ public class GeoObjectShapefileExporter
 {
   private static Logger       logger = LoggerFactory.getLogger(GeoObjectShapefileExporter.class);
 
-  public static final String  GEOM   = "geom";
+  public static final String  GEOM   = "the_geom";
 
   private GeoObjectType       type;
 
@@ -95,7 +98,7 @@ public class GeoObjectShapefileExporter
   {
     SimpleFeatureType featureType = createFeatureType();
 
-    DefaultFeatureCollection collection = createFeatures(featureType);
+    FeatureCollection<SimpleFeatureType, SimpleFeature> collection = features(featureType);
 
     String name = SessionPredicate.generateId();
 
@@ -116,16 +119,16 @@ public class GeoObjectShapefileExporter
     params.put("url", file.toURI().toURL());
     params.put("create spatial index", Boolean.TRUE);
 
-    ShapefileDataStore newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
-    newDataStore.createSchema(featureType);
+    ShapefileDataStore dataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+    dataStore.createSchema(featureType);
 
     /*
      * Write the features to the shapefile
      */
-    try (Transaction transaction = new DefaultTransaction("create"))
+    try (Transaction transaction = new DefaultTransaction())
     {
-      String typeName = newDataStore.getTypeNames()[0];
-      SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
+      String typeName = dataStore.getTypeNames()[0];
+      SimpleFeatureSource featureSource = dataStore.getFeatureSource(typeName);
 
       if (featureSource instanceof SimpleFeatureStore)
       {
@@ -150,6 +153,8 @@ public class GeoObjectShapefileExporter
         throw new ProgrammingErrorException(typeName + " does not support read/write access");
       }
     }
+
+    dataStore.dispose();
 
     return directory;
   }
@@ -203,17 +208,17 @@ public class GeoObjectShapefileExporter
 
   }
 
-  public DefaultFeatureCollection createFeatures(SimpleFeatureType featureType)
+  public FeatureCollection<SimpleFeatureType, SimpleFeature> features(SimpleFeatureType featureType)
   {
     Map<String, AttributeType> attributes = this.type.getAttributeMap();
     Set<Entry<String, AttributeType>> entries = attributes.entrySet();
 
-    DefaultFeatureCollection collection = new DefaultFeatureCollection("internal", featureType);
-    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(featureType);
+    List<SimpleFeature> features = new ArrayList<SimpleFeature>();
+    SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
     for (GeoObject object : this.objects)
     {
-      featureBuilder.set(GEOM, object.getGeometry());
+      builder.set(GEOM, object.getGeometry());
 
       for (Entry<String, AttributeType> entry : entries)
       {
@@ -223,19 +228,19 @@ public class GeoObjectShapefileExporter
 
         if (attribute instanceof AttributeTermType)
         {
-          featureBuilder.set(GeoObjectShapefileExporter.format(name), GeoObjectUtil.convertToTermString(value));
+          builder.set(GeoObjectShapefileExporter.format(name), GeoObjectUtil.convertToTermString(value));
         }
         else
         {
-          featureBuilder.set(GeoObjectShapefileExporter.format(name), value);
+          builder.set(GeoObjectShapefileExporter.format(name), value);
         }
       }
 
-      SimpleFeature feature = featureBuilder.buildFeature(object.getCode());
-      collection.add(feature);
+      SimpleFeature feature = builder.buildFeature(object.getCode());
+      features.add(feature);
     }
 
-    return collection;
+    return new ListFeatureCollection(featureType, features);
   }
 
   public SimpleFeatureType createFeatureType()
@@ -243,7 +248,7 @@ public class GeoObjectShapefileExporter
     SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
     builder.setName(this.type.getLocalizedLabel());
     builder.setCRS(DefaultGeographicCRS.WGS84);
-    builder.add(GEOM, this.getShapefileType(this.type.getGeometryType()));
+    builder.add(GEOM, this.getShapefileType(this.type.getGeometryType()), 4326);
 
     Map<String, AttributeType> attributes = this.type.getAttributeMap();
     Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -252,7 +257,9 @@ public class GeoObjectShapefileExporter
     {
       AttributeType attribute = entry.getValue();
 
-      builder.length(15).add(GeoObjectShapefileExporter.format(attribute.getName()), this.getShapefileType(attribute));
+      // builder.length(15).add(GeoObjectShapefileExporter.format(attribute.getName()),
+      // this.getShapefileType(attribute));
+      builder.add(GeoObjectShapefileExporter.format(attribute.getName()), this.getShapefileType(attribute));
     }
 
     return builder.buildFeatureType();
@@ -322,7 +329,7 @@ public class GeoObjectShapefileExporter
   {
     if (name.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
     {
-      return "LABEL";
+      return "label";
     }
 
     return name.substring(0, Math.min(10, name.length()));
