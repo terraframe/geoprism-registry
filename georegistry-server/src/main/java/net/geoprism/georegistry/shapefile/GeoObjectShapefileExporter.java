@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -211,7 +209,6 @@ public class GeoObjectShapefileExporter
   public FeatureCollection<SimpleFeatureType, SimpleFeature> features(SimpleFeatureType featureType)
   {
     Map<String, AttributeType> attributes = this.type.getAttributeMap();
-    Set<Entry<String, AttributeType>> entries = attributes.entrySet();
 
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
@@ -220,10 +217,7 @@ public class GeoObjectShapefileExporter
     {
       builder.set(GEOM, object.getGeometry());
 
-      for (Entry<String, AttributeType> entry : entries)
-      {
-        AttributeType attribute = entry.getValue();
-        String name = attribute.getName();
+      attributes.forEach((name, attribute) -> {
         Object value = object.getValue(name);
 
         if (attribute instanceof AttributeTermType)
@@ -234,7 +228,7 @@ public class GeoObjectShapefileExporter
         {
           builder.set(GeoObjectShapefileExporter.format(name), value);
         }
-      }
+      });
 
       SimpleFeature feature = builder.buildFeature(object.getCode());
       features.add(feature);
@@ -251,16 +245,11 @@ public class GeoObjectShapefileExporter
     builder.add(GEOM, this.getShapefileType(this.type.getGeometryType()), 4326);
 
     Map<String, AttributeType> attributes = this.type.getAttributeMap();
-    Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-
-    for (Entry<String, AttributeType> entry : entries)
-    {
-      AttributeType attribute = entry.getValue();
-
+    attributes.forEach((name, attribute) -> {
       // builder.length(15).add(GeoObjectShapefileExporter.format(attribute.getName()),
       // this.getShapefileType(attribute));
       builder.add(GeoObjectShapefileExporter.format(attribute.getName()), this.getShapefileType(attribute));
-    }
+    });
 
     return builder.buildFeatureType();
   }
