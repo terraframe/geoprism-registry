@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
@@ -26,7 +29,9 @@ import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.georegistry.excel.ExcelFieldContentsHandler;
 import net.geoprism.georegistry.excel.GeoObjectContentHandler;
+import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.localization.LocalizationFacade;
 
@@ -158,6 +163,34 @@ public class ExcelService
     {
       throw new ProgrammingErrorException(e);
     }
+  }
 
+  @Request(RequestType.SESSION)
+  public InputStream exportShapefile(String sessionId, String code)
+  {
+    return this.exportShapefile(code);
+  }
+
+  @Transaction
+  private InputStream exportShapefile(String code)
+  {
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
+    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+
+    GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+
+    NullOutputStream ostream = new NullOutputStream();
+
+    try
+    {
+      exporter.export(ostream);
+    }
+    catch (IOException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    return null;
   }
 }

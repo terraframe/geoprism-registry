@@ -25,8 +25,8 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.georegistry.shapefile.TermProblem;
 import net.geoprism.ontology.Classifier;
 
 public class GeoObjectConverter

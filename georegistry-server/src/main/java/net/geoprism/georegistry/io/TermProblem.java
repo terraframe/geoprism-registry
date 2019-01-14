@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Runway SDK(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.georegistry.shapefile;
+package net.geoprism.georegistry.io;
 
 import com.google.gson.JsonObject;
 

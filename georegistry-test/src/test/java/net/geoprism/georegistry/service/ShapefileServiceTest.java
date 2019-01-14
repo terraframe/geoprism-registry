@@ -1,25 +1,39 @@
 package net.geoprism.georegistry.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.constants.VaultProperties;
+import com.runwaysdk.session.Request;
 
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.testframework.USATestData;
 
@@ -38,9 +52,11 @@ public class ShapefileServiceTest
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws IOException
   {
     tutil.cleanUp();
+
+    FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
 
   @Test
@@ -113,6 +129,96 @@ public class ShapefileServiceTest
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
     Assert.assertEquals( ( type.getAttributeMap().size() + 1 ), attributes.size());
+  }
+
+  @Test
+  @Request
+  public void testCreateFeatures()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    JsonObject json = this.getTestConfiguration(istream, service);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+
+    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+
+    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    Collections.reverse(objects);
+
+    Assert.assertEquals(58, objects.size());
+
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
+    SimpleFeatureType featureType = exporter.createFeatureType();
+
+    DefaultFeatureCollection features = exporter.createFeatures(featureType);
+
+    Assert.assertEquals(objects.size(), features.size());
+
+    SimpleFeature feature = features.iterator().next();
+    GeoObject object = objects.get(objects.size() - 1);
+
+    Assert.assertEquals("Attributes not equal [code]", object.getValue(GeoObject.CODE), feature.getAttribute(GeoObject.CODE));
+
+    Object geometry = feature.getDefaultGeometry();
+    Assert.assertNotNull(geometry);
+
+    Map<String, AttributeType> attributes = type.getAttributeMap();
+    Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+    for (Entry<String, AttributeType> entry : entries)
+    {
+      AttributeType attribute = entry.getValue();
+      String attributeName = attribute.getName();
+
+      Object oValue = object.getValue(attributeName);
+      Object fValue = feature.getAttribute(GeoObjectShapefileExporter.format(attributeName));
+
+      if (attribute instanceof AttributeTermType)
+      {
+        Assert.assertEquals("Attributes not equal [" + attributeName + "]", GeoObjectUtil.convertToTermString(oValue), fValue);
+      }
+      else
+      {
+        Assert.assertEquals("Attributes not equal [" + attributeName + "]", oValue, fValue);
+      }
+
+    }
+  }
+
+  @Test
+  @Request
+  public void testExport() throws IOException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    JsonObject json = this.getTestConfiguration(istream, service);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+
+    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+
+    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+
+    Assert.assertEquals(58, objects.size());
+
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
+    File result = exporter.export();
+
+    System.out.println(result.getAbsolutePath());
+    Assert.assertTrue(result.exists());
   }
 
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service)

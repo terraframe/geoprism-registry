@@ -54,6 +54,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.data.importer.TaskObservable;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;

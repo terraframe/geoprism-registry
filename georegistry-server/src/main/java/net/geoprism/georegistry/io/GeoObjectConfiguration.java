@@ -25,7 +25,6 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.georegistry.shapefile.TermProblem;
 import net.geoprism.localization.LocalizationFacade;
 
 public class GeoObjectConfiguration

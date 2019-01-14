@@ -1,13 +1,13 @@
 package net.geoprism.georegistry.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -29,19 +29,13 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.GeoEntityQuery;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileImporter;
 import net.geoprism.georegistry.shapefile.NullLogger;
@@ -270,39 +264,18 @@ public class ShapefileService
   private InputStream exportShapefile(String code)
   {
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    List<GeoObject> objects = this.getObjects(type);
+    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
-    return exporter.export();
-  }
-
-  private List<GeoObject> getObjects(GeoObjectType type)
-  {
-    List<GeoObject> objects = new LinkedList<>();
-
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
-
-    GeoEntityQuery query = new GeoEntityQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(universal));
-    query.ORDER_BY_ASC(query.getGeoId());
-
-    OIterator<? extends GeoEntity> it = query.getIterator();
 
     try
     {
-      List<? extends GeoEntity> entities = it.getAll();
-
-      for (GeoEntity entity : entities)
-      {
-        objects.add(ServiceFactory.getUtilities().getGeoObjectByCode(entity.getGeoId(), type.getCode()));
-      }
+      File shapefile = exporter.export();
+      return new FileInputStream(shapefile);
     }
-    finally
+    catch (IOException e)
     {
-      it.close();
+      throw new ProgrammingErrorException(e);
     }
-
-    return objects;
   }
-
 }
