@@ -165,13 +165,13 @@ public class ExcelService
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportShapefile(String sessionId, String code)
+  public InputStream exportSpreadsheet(String sessionId, String code)
   {
-    return this.exportShapefile(code);
+    return this.exportSpreadsheet(code);
   }
 
   @Transaction
-  private InputStream exportShapefile(String code)
+  private InputStream exportSpreadsheet(String code)
   {
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);

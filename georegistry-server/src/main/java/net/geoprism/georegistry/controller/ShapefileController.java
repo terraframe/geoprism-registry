@@ -12,21 +12,20 @@ import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
+import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.DataUploaderDTO;
 import net.geoprism.georegistry.service.ShapefileService;
-import net.geoprism.util.ProgressFacade;
-import net.geoprism.util.ProgressState;
 
 @Controller(url = "shapfile")
-public class ShapefileImportController
+public class ShapefileController
 {
   private ShapefileService service;
 
-  public ShapefileImportController()
+  public ShapefileController()
   {
     this.service = new ShapefileService();
   }
@@ -64,16 +63,9 @@ public class ShapefileImportController
     return new RestBodyResponse("");
   }
 
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF progress(@RequestParamter(name = "oid") String oid) throws JSONException
+  @Endpoint(url = "export-shape-file", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type) throws JSONException
   {
-    ProgressState progress = ProgressFacade.get(oid);
-
-    if (progress == null)
-    {
-      progress = new ProgressState(oid);
-    }
-
-    return new RestBodyResponse(progress.toJSON());
+    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), type), "application/zip", "shapefile.zip");
   }
 }
