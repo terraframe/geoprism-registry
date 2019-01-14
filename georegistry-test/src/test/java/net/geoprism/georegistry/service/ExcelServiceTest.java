@@ -1,10 +1,10 @@
 package net.geoprism.georegistry.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openide.util.io.NullOutputStream;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -25,7 +26,6 @@ import com.runwaysdk.session.Request;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
-import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.testframework.USATestData;
 
 public class ExcelServiceTest
@@ -133,6 +133,36 @@ public class ExcelServiceTest
     Sheet sheet = workbook.getSheetAt(0);
 
     Assert.assertEquals(WorkbookUtil.createSafeSheetName(type.getLocalizedLabel()), sheet.getSheetName());
+  }
+
+  @Test
+  @Request
+  public void testExport() throws IOException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+
+    JsonObject json = this.getTestConfiguration(istream, service);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+
+    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+
+    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+
+    Assert.assertEquals(3, objects.size());
+
+    GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+    InputStream export = exporter.export();
+
+    Assert.assertNotNull(export);
+
+    IOUtils.copy(export, new NullOutputStream());
   }
 
   private JsonObject getTestConfiguration(InputStream istream, ExcelService service)

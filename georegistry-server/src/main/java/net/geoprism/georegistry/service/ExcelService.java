@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -177,20 +176,16 @@ public class ExcelService
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);
 
-    GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
-
-    NullOutputStream ostream = new NullOutputStream();
-
     try
     {
-      exporter.export(ostream);
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+      InputStream istream = exporter.export();
+
+      return istream;
     }
     catch (IOException e)
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new ProgrammingErrorException(e);
     }
-
-    return null;
   }
 }
