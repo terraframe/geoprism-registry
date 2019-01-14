@@ -1,14 +1,22 @@
 package net.geoprism.georegistry.shapefile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -31,6 +39,8 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.constants.VaultProperties;
@@ -47,7 +57,9 @@ import net.geoprism.gis.geoserver.SessionPredicate;
 
 public class GeoObjectShapefileExporter
 {
-  public static final String  GEOM = "geom";
+  private static Logger       logger = LoggerFactory.getLogger(GeoObjectShapefileExporter.class);
+
+  public static final String  GEOM   = "geom";
 
   private GeoObjectType       type;
 
@@ -79,7 +91,7 @@ public class GeoObjectShapefileExporter
     this.objects = objects;
   }
 
-  public File export() throws IOException
+  public File writeToFile() throws IOException
   {
     SimpleFeatureType featureType = createFeatureType();
 
@@ -90,7 +102,10 @@ public class GeoObjectShapefileExporter
     File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
     root.mkdirs();
 
-    File file = new File(root, this.getType().getCode() + ".shp");
+    File directory = new File(root, this.getType().getCode());
+    directory.mkdirs();
+
+    File file = new File(directory, this.getType().getCode() + ".shp");
 
     /*
      * Get an output file name and create the new shapefile
@@ -136,7 +151,56 @@ public class GeoObjectShapefileExporter
       }
     }
 
-    return file;
+    return directory;
+  }
+
+  public InputStream export() throws IOException
+  {
+    // Zip up the entire contents of the file
+    final File directory = this.writeToFile();
+    final PipedOutputStream pos = new PipedOutputStream();
+    final PipedInputStream pis = new PipedInputStream(pos);
+
+    Thread t = new Thread(new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        try
+        {
+          try (ZipOutputStream zipFile = new ZipOutputStream(pos))
+          {
+            File[] files = directory.listFiles();
+
+            for (File file : files)
+            {
+              ZipEntry entry = new ZipEntry(file.getName());
+              zipFile.putNextEntry(entry);
+
+              try (FileInputStream in = new FileInputStream(file))
+              {
+                IOUtils.copy(in, zipFile);
+              }
+            }
+          }
+          finally
+          {
+            pos.close();
+          }
+
+          FileUtils.deleteQuietly(directory);
+        }
+        catch (IOException e)
+        {
+          logger.error("Error while writing the workbook", e);
+        }
+      }
+    });
+    t.setDaemon(true);
+    t.start();
+
+    return pis;
+
   }
 
   public DefaultFeatureCollection createFeatures(SimpleFeatureType featureType)

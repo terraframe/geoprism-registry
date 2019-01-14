@@ -1,6 +1,7 @@
 package net.geoprism.georegistry.service;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -11,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -194,6 +197,38 @@ public class ShapefileServiceTest
 
   @Test
   @Request
+  public void testWriteToFile() throws IOException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    JsonObject json = this.getTestConfiguration(istream, service);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+
+    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+
+    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+
+    Assert.assertEquals(58, objects.size());
+
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
+    File directory = exporter.writeToFile();
+
+    Assert.assertTrue(directory.exists());
+
+    File[] files = directory.listFiles();
+
+    Assert.assertEquals(5, files.length);
+  }
+
+  @Test
+  @Request
   public void testExport() throws IOException
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
@@ -215,10 +250,12 @@ public class ShapefileServiceTest
     Assert.assertEquals(58, objects.size());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
-    File result = exporter.export();
+    InputStream export = exporter.export();
 
-    System.out.println(result.getAbsolutePath());
-    Assert.assertTrue(result.exists());
+    Assert.assertNotNull(export);
+    
+    IOUtils.copy(export, new FileOutputStream("C:\\Users\\admin\\Documents\\TerraFrame\\DSME\\shapefile.zip"));
+//    IOUtils.copy(export, new NullOutputStream());
   }
 
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service)

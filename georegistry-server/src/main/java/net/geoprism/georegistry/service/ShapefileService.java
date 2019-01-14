@@ -270,7 +270,7 @@ public class ShapefileService
 
     try
     {
-      File shapefile = exporter.export();
+      File shapefile = exporter.writeToFile();
       return new FileInputStream(shapefile);
     }
     catch (IOException e)

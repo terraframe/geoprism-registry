@@ -149,7 +149,14 @@ public class GeoObjectExcelExporter
       {
         try
         {
-          workbook.write(pos);
+          try
+          {
+            workbook.write(pos);
+          }
+          finally
+          {
+            pos.close();
+          }
         }
         catch (IOException e)
         {
