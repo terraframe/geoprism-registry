@@ -5,12 +5,22 @@ import { Observable } from 'rxjs/Observable';
 
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
+import { ShapefileComponent } from './data/importer/shapefile.component';
+import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 
 
 const routes: Routes = [
   {
 	path: 'hierarchies',
 	component: HierarchyComponent
+  },
+  {
+	path: 'shapefile',
+	component: ShapefileComponent
+  },
+  {
+	path: 'spreadsheet',
+	component: SpreadsheetComponent
   },
   {
 	path: '',
@@ -50,4 +60,4 @@ const routes: Routes = [
 })
 export class CgrAppRoutingModule { }
 
-export const routedComponents:any = [];
+export const routedComponents:any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent];

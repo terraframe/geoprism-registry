@@ -6,35 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.georegistry.AdapterUtilities;
-import net.geoprism.georegistry.InvalidRegistryIdException;
-import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.georegistry.action.RegistryAction;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.NoChildForLeafGeoObjectType;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.RegistryAdapterServer;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.action.AbstractAction;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
-import com.runwaysdk.business.Business;
-import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -44,12 +28,14 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
-import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
-import com.vividsolutions.jts.geom.Geometry;
+
+import net.geoprism.DefaultConfiguration;
+import net.geoprism.georegistry.action.RegistryAction;
+import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
 public class RegistryService
 {
