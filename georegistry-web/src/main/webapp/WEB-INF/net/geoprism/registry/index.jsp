@@ -12,7 +12,7 @@
   <title><gdb:localize key="cgr.title"/></title>
   <link rel="icon" href="${pageContext.request.contextPath}/net/geoprism/images/splash_logo_icon.png"/>  
   
-  <base href="<%=request.getContextPath()%>/cgr/hierarchies">
+  <base href="<%=request.getContextPath()%>/cgr/ng2">
   
   <style>
     body { background-color:#efe9e1 }

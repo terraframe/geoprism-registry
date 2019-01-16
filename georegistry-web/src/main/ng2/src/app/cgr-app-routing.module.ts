@@ -4,6 +4,7 @@ import { Routes, RouterModule, Resolve, ActivatedRouteSnapshot, RouterStateSnaps
 import { Observable } from 'rxjs/Observable';
 
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
+import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 
 
 const routes: Routes = [
@@ -16,6 +17,10 @@ const routes: Routes = [
 	redirectTo: '/hierarchies',
 	pathMatch: 'full'
   },
+  {
+  path: 'localization-manager',
+  component: LocalizationManagerComponent
+  }
 //  {
 //    path: 'map/:id/:simple',
 //    component: MapComponent,

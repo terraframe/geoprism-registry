@@ -1,0 +1,21 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  
+  <div id="app-container" class="container">
+  
+    <div class="row" style="margin:25px;">
+      <div>
+        <button type="submit" class="btn btn-primary" (click)="exportLocalization()"><localize key="localization-manager.exportButton"></localize></button>
+      </div>
+    </div>
+    
+    <div class="row" style="margin:25px;">
+      <div>
+        <!-- <button type="submit" class="btn btn-primary" (click)="importLocalization()"><localize key="localization-manager.importButton"></localize></button> -->
+        <label><localize key="localization-manager.importButton"></localize></label>
+        <input type="file" (change)="importLocalization($event)" placeholder="Upload file" accept=".xlsx,"/>
+      </div>
+    </div>
+    
+  </div>
+</div>
