@@ -1,5 +1,6 @@
 package net.geoprism.georegistry.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,11 +22,14 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
+import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONObject;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -50,6 +54,8 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
+
+
 
 public class RegistryService
 {
@@ -166,6 +172,8 @@ public class RegistryService
     
     return ServiceFactory.getUtilities().applyGeoObject(geoObject, false);
   }
+  
+  
 
   @Request(RequestType.SESSION)
   public String[] getUIDS(String sessionId, Integer amount)
@@ -477,6 +485,82 @@ public class RegistryService
   }
   
   /**
+   * Adds an attribute to the given {@link GeoObjectType}.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   * @param gtId string of the {@link GeoObjectType} to be updated.
+   * @param attribute AttributeType to be added to the GeoObjectType
+   * @return updated {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public AttributeType addAttributeToGeoObjectType(String sessionId, String gtId, String attribute)
+  {
+    
+    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
+    
+    JSONObject attrObj = new JSONObject(attribute);
+    
+    AttributeType attrType = AttributeType.factory(attrObj.getString("name"), attrObj.getString("localizedLabel"), attrObj.getString("localizedDescription"), attrObj.getString("type"));
+    
+    
+    geoObjectType.addAttribute(attrType);
+
+    //GeoObjectType geoObjectTypeModifiedApplied = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+
+    // If this did not error out then add to the cache
+    //adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+    
+    return attrType;
+  }
+  
+  
+  /**
+   * Deletes an attribute from the given {@link GeoObjectType}.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   * @param gtId string of the {@link GeoObjectType} to be updated.
+   * @param attribute AttributeType to be removed from the GeoObjectType
+   * @return updated {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public boolean deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attribute)
+  {
+    
+    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
+    
+    JSONObject attrObj = new JSONObject(attribute);
+    
+    
+    //geoObjectType.deleteAttribute(attrType);
+
+    // If this did not error out then add to the cache
+    //adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+    
+    return true; 
+  }
+  
+  @Request(RequestType.SESSION)
+  public Term[] getTerms(String sessionId)
+  {
+	 Term term1 = new Term("testCode", "testLabel", "testDescription"); 
+	 Term term2 = new Term("testCode2", "testLabel2", "testDescription2"); 
+	 term1.addChild(term2);
+	 
+	 ArrayList<Term> terms = new ArrayList<Term>();
+	 terms.add(term1);
+	 
+	 Term[] termsArr = new Term[terms.size()];
+	 termsArr = terms.toArray(termsArr);
+	 
+	 return termsArr;
+  }
+  
+  /**
    * Deletes the {@link GeoObjectType} with the given code.
    * 
    * @param sessionId
@@ -734,5 +818,21 @@ public class RegistryService
     Universal child = Universal.getByKey(childGeoObjectTypeCode);
     
     parent.removeAllChildren(child, mdTermRelationship.definesType()); 
+  }
+  
+  
+  
+  @Request(RequestType.SESSION)
+  public List<String> search(String sessionId, String term)
+  {
+	  List<String> results = new ArrayList<String>();
+	  
+	  JSONObject ob = new JSONObject();
+	  ob.put("test", "test");
+	  results.add(ob.toString());
+	  
+//    List<QueryResult> results = SolrService.query(term);
+
+    return results;
   }
 }
