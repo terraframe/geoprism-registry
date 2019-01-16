@@ -1,0 +1,136 @@
+<form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
+  
+  <div class="modal-body" *ngIf="modalState === 'MANAGE-ATTRIBUTES'">
+    <div *ngIf="message != null" class="error-container">
+      <div class="label-holder">
+        <strong>Error</strong>
+      </div>
+      <div class="holder">
+        <div>
+          <p class="error-message">{{message}}</p>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="form-group">
+      <label for="codeInput">Code</label>
+      <input  [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput" placeholder="Code..." required>
+    </div>
+    <div class="form-group">
+      <label for="localizedLabelInput">Label</label>
+      <input  [(ngModel)]="hierarchyType.localizedLabel" name="localizedLabel" type="input" class="form-control" id="localizedLabelInput" placeholder="Label..." required>
+    </div>
+    <div class="form-group">
+      <label for="localizedDescriptionInput">Description</label>
+      <input  [(ngModel)]="hierarchyType.localizedDescription" name="localizedDescription" type="input" class="form-control" id="localizedDescriptionInput" placeholder="Description...">
+    </div>
+    
+    <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+      <div class="ui-dialog-buttonset">
+        <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+          <span class="ui-button-text">Cancel</span>
+        </button>
+        <button type="submit" [disabled]="hierarchyType.code.length < 1 && hierarchyType.localizedLabel.length < 1" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+          <span class="ui-button-text">Ok</span>
+        </button>
+      </div>
+    </div> -->
+
+        <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">    
+        <!-- <div class=""> -->
+        <!-- <div class="modal-content"> -->
+            <div class="heading">
+            <h1>Manage Attributes</h1>
+            </div>      
+            <fieldset>   
+
+            <div class="row-holder">
+                <div class="label-holder">
+                <label>Name</label>
+                </div>          
+                <div class="holder" >
+                <span class="text">                  
+                    <textarea [(ngModel)]="geoObjectType.localizedLabel" name="label" [disabled]="true"></textarea>
+                </span>
+                </div>
+            </div>
+            
+            <div class="row-holder">
+                <div class="label-holder">
+                <label>Description</label>
+                </div>          
+                <div class="holder" >
+                <span class="text">                  
+                    <textarea [(ngModel)]="geoObjectType.localizedDescription" name="description" [disabled]="true"></textarea>
+                </span>
+                </div>
+            </div> 
+                
+            <!-- <div *ngFor="let attr of geoObjectType.attributes" class="row-holder">
+                <div class="label-holder">
+                <label>{{attr.localizedLabel}}</label>
+                </div>          
+                <div class="holder" >
+                <span class="text">
+                    <input type="text" name="label" [value]="attr.name" [disabled]="attr.isDefault || attr.name === 'keyName'" >
+                </span>
+                </div>
+            </div> -->
+            
+
+            <!-- <localize key="dataset.attributes"></localize> -->
+
+            <div>
+                <div class="label-holder">
+                <label>Attributes</label>
+                </div>          
+                <div class="holder dataset-attr-holder" >
+                <table class="list-table table table-bordered table-striped">
+                    <tbody>
+                    <tr *ngFor="let attr of geoObjectType.attributes" class="fade-ngRepeat-item">
+                        <td class="button-column">
+                        <a *ngIf="!attr.isDefault && attr.name !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)" [title]="'Edit'"></a>                             
+                        <a *ngIf="!attr.isDefault && attr.name !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)" [title]="'Remove'"></a>
+                        </td>                  
+                        <td class="submit-form">
+                        <dl>
+                            <dd>
+                            <!-- <input type="text" name="label" [value]="attr.localizedLabel" [disabled]="attr.isDefault || attr.name === 'keyName'" > -->
+                            <h4 [ngClass]="attr.isDefault || attr.name === 'keyName' ? 'disabled' : ''" >{{attr.localizedLabel}}</h4>
+                            </dd>
+                            <!-- <dd *ngIf="attribute.type == 'Category'">
+                            <localize key="dataset.category"></localize> <a (click)="open(attribute.root, $event)" [title]="'category.management.editThisCategoryTooltip' | localize">{{attribute.root.label}}</a>
+                            </dd> -->
+                        </dl>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>      
+            <div class="row-holder">
+                <div class="label-holder">
+                </div>                    
+                <div class="holder">
+                <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()">Add</i>
+                </div>
+            </div>          
+            <div class="row-holder">
+                <div class="label-holder">
+                </div>                    
+                <div class="holder">
+                <div class="button-holder">
+                    <button type="button" class="btn btn-primary" (click)="close()">Ok</button>              
+                    <!-- <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid  && validName)" /> -->
+                </div>
+                </div>
+            </div> 
+            </fieldset>
+        <!-- </div> -->
+        <!-- </div> -->
+    </form>
+
+  </div>
+
+  <define-attribute-modal-content *ngIf="modalState === 'DEFINE-ATTRIBUTE'" [geoObjectType]="geoObjectType" ></define-attribute-modal-content>
+
+</form>

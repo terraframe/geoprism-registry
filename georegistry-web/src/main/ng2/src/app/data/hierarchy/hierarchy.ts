@@ -60,4 +60,5 @@ export class Attribute {
   type: string;
   localizedLabel: string;
   localizedDescription: string;
+  isDefault: boolean;
 }

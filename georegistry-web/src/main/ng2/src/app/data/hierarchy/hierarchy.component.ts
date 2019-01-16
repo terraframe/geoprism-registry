@@ -29,6 +29,8 @@ import { CreateModalComponent } from './modals/create-modal.component';
 import { CreateChildModalComponent } from './modals/create-child-modal.component';
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
+import { ManageAttributesModalComponent } from './modals/manage-attributes-modal.component';
+import { DefineAttributeModalContentComponent } from './modals/define-attribute-modal-content.component';
 import { ErrorModalComponent } from './modals/error-modal.component';
 
 import { Hierarchy, HierarchyType, HierarchyNode, GeoObjectType, TreeEntity } from './hierarchy';
@@ -404,6 +406,27 @@ export class HierarchyComponent implements OnInit {
       } ).catch(( err: any ) => {
           this.error( err.json() );
       } );
+  }
+
+   public addAttributesToGeoObjectType(geoObjectType: GeoObjectType): void {
+	  
+	  this.bsModalRef = this.modalService.show( ManageAttributesModalComponent, {
+          animated: true,
+          backdrop: true,
+          ignoreBackdropClick: true,
+          'class': 'add-attributes-modal'
+      } );
+
+      geoObjectType.attributes.sort((a, b) => {
+        if (a.localizedLabel < b.localizedLabel) return -1;
+        else if (a.localizedLabel > b.localizedLabel) return 1;
+        else return 0;
+      });
+	  this.bsModalRef.content.geoObjectType = geoObjectType;
+	  
+    //   ( <AddAttributesModalComponent>this.bsModalRef.content ).onAddAttributes.subscribe( data => {
+    	//   this.geoObjectTypes.push(data);
+    //   } );
   }
   
   private getHierarchyTypePosition(code: string): number{
