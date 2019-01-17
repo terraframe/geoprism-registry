@@ -17,6 +17,7 @@ import com.runwaysdk.localization.configuration.ConfigurationBuilder;
 import com.runwaysdk.localization.configuration.SpreadsheetConfiguration;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
+import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
@@ -30,7 +31,7 @@ import com.runwaysdk.system.metadata.MdLocalizable;
 @Controller(url = "localization")
 public class RegistryLocalizationController
 {
-  @Endpoint(method = ServletMethod.POST)
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF importSpreadsheet(ClientRequestIF request, @RequestParamter(name = "file") MultipartFileParameter file)
   {
     importSpreadsheetInRequest(request.getSessionId(), file);
@@ -51,7 +52,7 @@ public class RegistryLocalizationController
     }
   }
   
-  @Endpoint(method = ServletMethod.GET)
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request)
   {
     return exportSpreadsheetInRequest(request.getSessionId());

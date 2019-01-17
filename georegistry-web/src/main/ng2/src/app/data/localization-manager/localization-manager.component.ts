@@ -22,11 +22,15 @@ import { Headers, Http, RequestOptions, Response, URLSearchParams } from '@angul
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
+import { EventService } from '../../event/event.service';
+
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { LocalizationManagerService } from '../../service/localization-manager.service';
+
+import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 
 declare var acp: any;
 
@@ -40,7 +44,7 @@ export class LocalizationManagerComponent implements OnInit {
 
   
 
-  constructor(private router: Router, private http: Http, private localizationManagerService: LocalizationManagerService) { 
+  constructor(private router: Router, private eventService: EventService, private http: Http, private localizationManagerService: LocalizationManagerService, private modalService: BsModalService) { 
 	  
   }
 
@@ -61,11 +65,18 @@ export class LocalizationManagerComponent implements OnInit {
         let headers = new Headers();
         let options = new RequestOptions({ headers: headers });
         
+        this.eventService.start();
+        
         this.http.post(acp + "/localization/importSpreadsheet", formData, options)
         .toPromise()
         .then(response => {
-          console.log("success");
-        })
+          this.eventService.complete();
+          this.error({message:"Import success"});
+        }).catch(( err: any ) => {
+            console.log(err)
+            this.eventService.complete();
+            this.error( err.json() );
+        } );
     }
   }
   
@@ -74,6 +85,14 @@ export class LocalizationManagerComponent implements OnInit {
     
     //this.localizationManagerService.exportLocalization();
     window.location.href = acp + "/localization/exportSpreadsheet";
+  }
+  
+  public error( err: any ): void {
+      // Handle error
+      if ( err !== null ) {
+          let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+          bsModalRef.content.message = ( err.localizedMessage || err.message );
+      }
   }
    
 }
