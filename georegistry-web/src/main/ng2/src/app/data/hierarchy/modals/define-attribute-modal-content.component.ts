@@ -13,7 +13,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
-import { TreeEntity, HierarchyType, GeoObjectType, Attribute, Term } from '../hierarchy';
+import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term } from '../hierarchy';
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjTypeModalService } from '../../../service/geo-obj-type-modal.service';
@@ -88,19 +88,12 @@ export class DefineAttributeModalContentComponent implements OnInit {
 	                    this.handleOnMenu( node, $event );
 	                }
 	            }
-	        },
-	        mouse: {
-//	            drop: (tree: TreeComponent, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
-//	              console.log('drag', from, to); // from === {name: 'first'}
-//	              // Add a node to `to.parent` at `to.index` based on the data in `from`
-//	              // Then call tree.update()
-//	            }
-	          }
+	        }
     };
 
     public treeNodeOnClick( node: TreeNode, $event: any ): void {
   	
-        node.treeModel.setFocusedNode(node);
+        //node.treeModel.setFocusedNode(node);
         
         if(node.treeModel.isExpanded(node)){
             node.collapse();
@@ -122,11 +115,17 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
 
     public selectAsRoot(node: any): void {
-        this.root = node.data.code;
+        // this.root = node.data.code;
+
+        if(this.newAttribute instanceof AttributeTerm){
+          this.newAttribute.setRootTerm(node.data.code);
+        }
+        
+        this.tree.treeModel.setFocusedNode(node);
     }
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private geoObjTypeModalService: GeoObjTypeModalService,
-        private contextMenuService: ContextMenuService ) {
+      private contextMenuService: ContextMenuService ) {
 
       geoObjTypeModalService.modalState.subscribe(state => {
         this.modalState = state;
@@ -136,7 +135,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
     ngOnInit(): void {
         this.onAddAttribute = new Subject();
 
-        this.newAttribute = { localizedDescription:"", localizedLabel:"", name:"", type:"character", isDefault:false};
+        this.setAttribute("character");
 
         this.hierarchyService.getTerms()
 	      .then( terms => {
@@ -156,6 +155,11 @@ export class DefineAttributeModalContentComponent implements OnInit {
       }, 1000)
     }
 
+    ngOnDestroy(){
+    //   this.geoObjTypeModalService.modalStateSource.unsubscribe();
+      this.onAddAttribute.unsubscribe()
+    }
+
     handleOnSubmit(): void {
         
         this.hierarchyService.addAttributeType( this.geoObjectType.code, this.newAttribute ).then( data => {
@@ -167,10 +171,22 @@ export class DefineAttributeModalContentComponent implements OnInit {
         } );
     }
 
-    setAttributeType(type: string): void {
-        this.newAttribute.type = type;
-    }
+    // setAttributeType(type: string): void {
+    //     this.newAttribute.type = type;
+    // }
 
+    setAttribute(type:string): void {
+        if(type === 'term'){
+            this.newAttribute = new AttributeTerm("", type, "", "", false);
+        }
+        else{
+            this.newAttribute = new Attribute("", type, "", "", false);
+        }
+        
+        
+        console.log(this.newAttribute);
+    }
+    
     cancel(): void {
         this.geoObjTypeModalService.setState("MANAGE-ATTRIBUTES");
     }

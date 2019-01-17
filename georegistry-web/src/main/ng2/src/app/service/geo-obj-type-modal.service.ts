@@ -43,7 +43,7 @@ export class GeoObjTypeModalService {
     constructor( ) { }
 
     state: string  = "";
-    private modalStateSource = new Subject<string>();
+    public modalStateSource = new Subject<string>();
 
     modalState = this.modalStateSource.asObservable();
 
@@ -53,4 +53,7 @@ export class GeoObjTypeModalService {
         this.modalStateSource.next(this.state);
     }
 
+    ngOnDestroy(){
+        this.modalStateSource.unsubscribe();
+    }
 }

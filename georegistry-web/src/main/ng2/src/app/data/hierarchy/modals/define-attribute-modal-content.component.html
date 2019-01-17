@@ -46,12 +46,19 @@
             <div class="label-holder"></div>
             <div class="holder" >
                 <div class="btn-group define-attribute-btns">
-                    <label class="btn full-width-radio-button" ng-class="{active: newAttribute.type == 'character'}" [(ngModel)]="newAttribute.type" name="text" btnRadio="character" tabindex="0" role="button">Text</label>
-                    <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="integer" btnRadio="integer" tabindex="0" role="button">Integer</label>
-                    <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="float" btnRadio="float" tabindex="0" role="button">Float</label>
-                    <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="date" btnRadio="date" tabindex="0" role="button">Date</label>
-                    <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="boolean" btnRadio="boolean" tabindex="0" role="button">Boolean</label>
-                    <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="term" btnRadio="term" tabindex="0" role="button">Term</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'character'}" (click)="setAttribute('character')"  >Text</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'integer'}" (click)="setAttribute('integer')" >Integer</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'float'}" (click)="setAttribute('float')" >Float</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'date'}" (click)="setAttribute('date')" >Date</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'boolean'}" (click)="setAttribute('boolean')" >Boolean</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'term'}" (click)="setAttribute('term')" >Term</label>
+               
+<!--                		<label class="btn full-width-radio-button" ng-class="{active: newAttribute.type == 'character'}" [(ngModel)]="newAttribute.type" name="text" btnRadio="character" tabindex="0" role="button">Text</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="integer" btnRadio="integer" tabindex="0" role="button">Integer</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="float" btnRadio="float" tabindex="0" role="button">Float</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="date" btnRadio="date" tabindex="0" role="button">Date</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="boolean" btnRadio="boolean" tabindex="0" role="button">Boolean</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="term" btnRadio="term" tabindex="0" role="button">Term</label> -->
                 </div>
             </div>
         </div>
@@ -179,9 +186,16 @@
               <div *ngIf="terms.length > 0" class="tree">
                 <tree-root [nodes]="terms" [options]="options"></tree-root>
               </div>
-              <input type="hidden" [ngModel]="root" [disabled]="false" name="root" #rootin="ngModel" required>
-              <p class="input-message" style="text-align: right;color: red;" *ngIf="rootin && rootin.errors && rootin.errors.required">Select a root from the hierarchy above</p>
+              <input type="hidden" [ngModel]="newAttribute.rootTerm" [disabled]="false" name="root" #rootin="ngModel" required>
               
+            </div>
+            
+            <div class="label-holder">
+              <label>Selected root</label>
+            </div>          
+            <div class="holder" >
+              <h4 *ngIf="newAttribute.rootTerm" >{{newAttribute.rootTerm}}</h4>
+              <h4 *ngIf="!newAttribute.rootTerm" >No Root selected. Select a root from the hierarchy above.</h4>
             </div>
           </div>
           <div *ngIf="newAttribute.type === 'term'" [@openClose]="newAttribute.type === 'term' ? 'open' : 'closed'" class="row-holder">

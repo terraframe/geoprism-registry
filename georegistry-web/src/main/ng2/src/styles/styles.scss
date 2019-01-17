@@ -124,15 +124,16 @@ i.fa.fa-sitemap:hover{
 .btn-group.define-attribute-btns .btn.full-width-radio-button {
     width: 16%;
 }
-// .btn-group.define-attribute-btns .btn.full-width-radio-button:active{
-//     background: #009edc !important;
-// }
-// .btn-group.define-attribute-btns .btn.full-width-radio-button:focus{
-//   background: #009edc !important;
-// }
+.btn-group.define-attribute-btns .btn.full-width-radio-button:active{
+    background: #009edc !important;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button:focus{
+  background: #009edc !important;
+}
 .btn-group.define-attribute-btns .btn.full-width-radio-button.active{
     background: #009edc !important;
 }
+
 
 
 .cdk-overlay-container{

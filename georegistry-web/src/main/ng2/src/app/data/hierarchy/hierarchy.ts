@@ -55,10 +55,43 @@ export class GeoObjectType {
   attributes: Attribute[];
 }
 
+// export class Attribute {
+    
+//   name: string;
+//   type: string;
+//   localizedLabel: string;
+//   localizedDescription: string;
+//   isDefault: boolean;
+// }
+
+// export class AttributeTerm extends Attribute {
+//     descendants: Attribute[];
+//     rootTerm: string;
+// }
+
 export class Attribute {
-  name: string;
-  type: string;
-  localizedLabel: string;
-  localizedDescription: string;
-  isDefault: boolean;
+
+  constructor(public name:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
+  
+    this.name = name;
+    this.type = type;
+    this.localizedLabel = localizedLabel;
+    this.localizedDescription = localizedDescription;
+    this.isDefault = isDefault;
+  }
+  
+}
+
+export class AttributeTerm extends Attribute {
+    //descendants: Attribute[];
+    
+    constructor(public name:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
+      super(name, type, localizedLabel, localizedDescription, isDefault);
+    }
+
+    rootTerm:string = null;
+
+    setRootTerm(term:string){
+        this.rootTerm = term;
+    }
 }

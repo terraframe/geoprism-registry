@@ -44,6 +44,12 @@ export class ManageAttributesModalComponent implements OnInit {
         this.onDeleteAttribute = new Subject();
     }
 
+    ngOnDestroy(){
+
+    //   this.geoObjTypeModalService.modalStateSource.unsubscribe();
+      this.onDeleteAttribute.unsubscribe();
+    }
+
     defineAttributeModal(): void {
 
         this.geoObjTypeModalService.setState("DEFINE-ATTRIBUTE");
