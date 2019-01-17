@@ -22,7 +22,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.Assert;
 
-import com.runwaysdk.ClasspathResource;
+import com.runwaysdk.util.ClasspathResource;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -872,7 +872,7 @@ public class USATestData extends TestUtilities
 
       if (existingRes != null)
       {
-        System.out.println("WARNING : resource path [" + resource.getAbsolutePath() + "] is overloaded.  [" + resource.getPackageURL() + "] conflicts with existing resource [" + existingRes.getPackageURL() + "].");
+        System.out.println("WARNING : resource path [" + resource.getAbsolutePath() + "] is overloaded.  [" + resource.getURL() + "] conflicts with existing resource [" + existingRes.getURL() + "].");
       }
 
       existingResources.add(resource);

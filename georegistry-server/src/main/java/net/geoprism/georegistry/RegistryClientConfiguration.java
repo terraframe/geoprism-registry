@@ -28,7 +28,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.setId("hierarchies");
     hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
     hierarchies.setSrc("net/geoprism/images/dm_icon.svg");
-    hierarchies.setUrl("cgr/hierarchies");
+    hierarchies.setUrl("cgr/ng2#/hierarchies");
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
     hierarchies.addRole(RoleConstants.BUILDER_ROLE);
     

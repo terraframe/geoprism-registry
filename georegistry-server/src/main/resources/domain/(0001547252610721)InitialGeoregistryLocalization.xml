@@ -1,0 +1,87 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+	  <create>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="splash.header">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="splash.header" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="GeoRegistry" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="location.management.universal">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="location.management.universal" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Type" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="location.management.status">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="location.management.status" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Status" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.title">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="cgr.title" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="GeoPrism Registry" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="login.title">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="login.title" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="GeoRegistry Login" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.landing">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="hierarchies.landing" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="HIERARCHY MANAGEMENT" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.title">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="hierarchy.management.title" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Manage Hierarchies" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoprismLanding.locationManagement">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="geoprismLanding.locationManagement" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="LOCATION MANAGEMENT" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="splash.pagetitle">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="splash.pagetitle" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="GeoRegistry" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="splash.logoalt">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="splash.logoalt" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="GeoRegistry logo" />
+	      </attributeStruct>
+	    </object>
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="login.header">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="login.header" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="GeoRegistry" />
+	      </attributeStruct>
+	    </object>
+	  </create>
+  </doIt>
+  <undoIt>
+    <delete>
+    </delete>
+  </undoIt>
+</version>
