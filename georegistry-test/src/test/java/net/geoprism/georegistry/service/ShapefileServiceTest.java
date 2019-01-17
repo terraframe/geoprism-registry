@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -47,7 +48,7 @@ public class ShapefileServiceTest
   @Before
   public void setUp()
   {
-    this.tutil = USATestData.newTestData();
+    this.tutil = USATestData.newTestData(GeometryType.MULTIPOLYGON, false);
 
     this.adminCR = tutil.adminClientRequest;
   }
@@ -152,7 +153,7 @@ public class ShapefileServiceTest
 
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);
 
-    Assert.assertEquals(58, objects.size());
+    Assert.assertEquals(56, objects.size());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
     SimpleFeatureType featureType = exporter.createFeatureType();
@@ -212,7 +213,7 @@ public class ShapefileServiceTest
 
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);
 
-    Assert.assertEquals(58, objects.size());
+    Assert.assertEquals(56, objects.size());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
     File directory = exporter.writeToFile();
@@ -244,7 +245,7 @@ public class ShapefileServiceTest
 
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);
 
-    Assert.assertEquals(58, objects.size());
+    Assert.assertEquals(56, objects.size());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
     InputStream export = exporter.export();

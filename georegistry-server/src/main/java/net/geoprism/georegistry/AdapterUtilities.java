@@ -1,9 +1,11 @@
 package net.geoprism.georegistry;
 
+import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -34,16 +36,25 @@ import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
+import com.runwaysdk.system.metadata.MdAttributeLocalCharacter;
 import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeometryTypeException;
 
 public class AdapterUtilities
 {
@@ -67,27 +78,61 @@ public class AdapterUtilities
    */
   public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew)
   {
-    // TODO : Virtual leaf nodes
-
-    GeoEntity ge;
-    if (!isNew)
+    if (geoObject.getType().isLeaf())
     {
-      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
-
-      ge = GeoEntity.get(runwayId);
-      ge.appLock();
+      return this.applyLeafObject(geoObject, isNew);
     }
     else
     {
-      if (!RegistryIdService.getInstance().isIssuedId(geoObject.getUid()))
+
+      return this.applyTreeObject(geoObject, isNew);
+    }
+  }
+
+  private GeoObject applyLeafObject(GeoObject geoObject, boolean isNew)
+  {
+    Business biz = this.constructLeafObject(geoObject, isNew);
+
+    if (geoObject.getCode() != null)
+    {
+      biz.setValue(GeoObject.CODE, geoObject.getCode());
+    }
+
+    if (geoObject.getLocalizedDisplayLabel() != null)
+    {
+      biz.setValue(GeoObject.LOCALIZED_DISPLAY_LABEL, geoObject.getLocalizedDisplayLabel());
+    }
+
+    Geometry geom = geoObject.getGeometry();
+    if (geom != null)
+    {
+      if (!this.isValidGeometry(geoObject.getType(), geom))
       {
-        InvalidRegistryIdException ex = new InvalidRegistryIdException();
-        ex.setRegistryId(geoObject.getUid());
+        GeometryTypeException ex = new GeometryTypeException();
+        ex.setActualType(geom.getGeometryType());
+        ex.setExpectedType(geoObject.getGeometryType().name());
+
         throw ex;
       }
-
-      ge = new GeoEntity();
+      else
+      {
+        biz.setValue(GeoObject.LOCALIZED_DISPLAY_LABEL, geoObject.getLocalizedDisplayLabel());
+      }
     }
+
+    Term status = this.populateBusiness(geoObject, isNew, biz, null);
+
+    /*
+     * Update the returned GeoObject
+     */
+    geoObject.setStatus(status);
+
+    return geoObject;
+  }
+
+  private GeoObject applyTreeObject(GeoObject geoObject, boolean isNew)
+  {
+    GeoEntity ge = this.constructGeoEntity(geoObject, isNew);
 
     if (geoObject.getCode() != null)
     {
@@ -99,42 +144,18 @@ public class AdapterUtilities
       ge.getDisplayLabel().setValue(geoObject.getLocalizedDisplayLabel());
     }
 
-    if (geoObject.getType() != null)
-    {
-      GeoObjectType got = geoObject.getType();
-
-      Universal inputUni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-      Universal oldUni = ge.getUniversal();
-
-      if (oldUni == null && inputUni != null)
-      {
-        ge.setUniversal(inputUni);
-      }
-      else if (oldUni != null && inputUni == null)
-      {
-        // do nothing
-      }
-      else if (oldUni != null && inputUni != null && inputUni.getKey() != oldUni.getKey())
-      {
-        if (!isNew && oldUni != null)
-        {
-          Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(ge);
-
-          if (biz == null)
-          {
-            logger.error("Expected to find a business object on MdBusiness table [" + oldUni.getMdBusiness().definesType() + "] with GeoEntity oid [" + ge.getOid() + "].");
-          }
-
-          biz.delete();
-        }
-
-        ge.setUniversal(inputUni);
-      }
-    }
-
     Geometry geom = geoObject.getGeometry();
     if (geom != null)
     {
+      if (!this.isValidGeometry(geoObject.getType(), geom))
+      {
+        GeometryTypeException ex = new GeometryTypeException();
+        ex.setActualType(geom.getGeometryType());
+        ex.setExpectedType(geoObject.getGeometryType().name());
+
+        throw ex;
+      }
+
       try
       {
         GeometryHelper geometryHelper = new GeometryHelper();
@@ -169,62 +190,7 @@ public class AdapterUtilities
       biz.appLock();
     }
 
-    /**
-     * Figure out what status we are
-     */
-    GeoObjectStatus gos;
-    Term statusTerm;
-    if (isNew)
-    {
-      gos = GeoObjectStatus.ACTIVE;
-      statusTerm = ConversionService.getInstance().geoObjectStatusToTerm(gos);
-    }
-    else
-    {
-      statusTerm = geoObject.getStatus();
-      gos = ConversionService.getInstance().termToGeoObjectStatus(statusTerm);
-    }
-
-    biz.setValue(RegistryConstants.UUID, geoObject.getUid());
-    biz.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, ge.getOid());
-    biz.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
-    biz.setValue(DefaultAttribute.STATUS.getName(), gos.getOid());
-
-    Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
-    attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
-      {
-        // Ignore the attributes
-      }
-      else if (biz.hasAttribute(attributeName) && !biz.getMdAttributeDAO(attributeName).isSystem())
-      {
-        if (attribute instanceof AttributeTermType)
-        {
-          // String termId = biz.getValue(attributeName);
-          //
-          // if (termId != null && termId.length() > 0)
-          // {
-          // Classifier classifier = Classifier.get(termId);
-          //
-          // biz.setValue(attributeName,
-          // this.getTerm(classifier.getClassifierId()));
-          // }
-        }
-        else
-        {
-          Object value = geoObject.getValue(attributeName);
-
-          if (value != null)
-          {
-            biz.setValue(attributeName, value);
-          }
-          else
-          {
-            biz.setValue(attributeName, (String) null);
-          }
-        }
-      }
-    });
+    Term statusTerm = populateBusiness(geoObject, isNew, biz, ge);
 
     biz.apply();
 
@@ -236,6 +202,159 @@ public class AdapterUtilities
     return geoObject;
   }
 
+  @SuppressWarnings("unchecked")
+  private Term populateBusiness(GeoObject geoObject, boolean isNew, Business business, GeoEntity entity)
+  {
+    /**
+     * Figure out what status we are
+     */
+    GeoObjectStatus gos = isNew ? GeoObjectStatus.ACTIVE : ConversionService.getInstance().termToGeoObjectStatus(geoObject.getStatus());
+    Term statusTerm = isNew ? ConversionService.getInstance().geoObjectStatusToTerm(GeoObjectStatus.ACTIVE) : geoObject.getStatus();
+
+    business.setValue(RegistryConstants.UUID, geoObject.getUid());
+    business.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
+    business.setValue(DefaultAttribute.STATUS.getName(), gos.getOid());
+
+    if (entity != null)
+    {
+      business.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, entity.getOid());
+    }
+
+    Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
+    attributes.forEach((attributeName, attribute) -> {
+      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      {
+        // Ignore the attributes
+      }
+      else if (business.hasAttribute(attributeName) && !business.getMdAttributeDAO(attributeName).isSystem())
+      {
+        if (attribute instanceof AttributeTermType)
+        {
+          List<Term> value = (List<Term>) geoObject.getValue(attributeName);
+
+          if (value != null && value.size() > 0)
+          {
+            Term term = value.get(0);
+            Classifier classifier = Classifier.getByKey(term.getCode());
+
+            business.setValue(attributeName, classifier.getOid());
+          }
+          else
+          {
+            business.setValue(attributeName, (String) null);
+          }
+        }
+        else
+        {
+          Object value = geoObject.getValue(attributeName);
+
+          if (value != null)
+          {
+            business.setValue(attributeName, value);
+          }
+          else
+          {
+            business.setValue(attributeName, (String) null);
+          }
+        }
+      }
+    });
+    return statusTerm;
+  }
+
+  private Business constructLeafObject(GeoObject geoObject, boolean isNew)
+  {
+    if (!isNew)
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
+
+      Business business = Business.get(runwayId);
+      business.appLock();
+
+      return business;
+    }
+    else
+    {
+      if (!RegistryIdService.getInstance().isIssuedId(geoObject.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+
+      GeoObjectType type = geoObject.getType();
+      Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
+      MdBusiness mdBiz = universal.getMdBusiness();
+
+      return new Business(mdBiz.definesType());
+    }
+  }
+
+  private GeoEntity constructGeoEntity(GeoObject geoObject, boolean isNew)
+  {
+    if (!isNew)
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
+
+      GeoEntity entity = GeoEntity.get(runwayId);
+      entity.appLock();
+
+      return entity;
+    }
+    else
+    {
+      if (!RegistryIdService.getInstance().isIssuedId(geoObject.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+
+      Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObject.getType());
+
+      GeoEntity entity = new GeoEntity();
+      entity.setUniversal(universal);
+      return entity;
+    }
+  }
+
+  private boolean isValidGeometry(GeoObjectType got, Geometry geometry)
+  {
+    if (geometry != null)
+    {
+      GeometryType type = got.getGeometryType();
+
+      if (type.equals(GeometryType.LINE) && ! ( geometry instanceof LineString ))
+      {
+        return false;
+      }
+      else if (type.equals(GeometryType.MULTILINE) && ! ( geometry instanceof MultiLineString ))
+      {
+        return false;
+      }
+      else if (type.equals(GeometryType.POINT) && ! ( geometry instanceof Point ))
+      {
+        return false;
+      }
+      else if (type.equals(GeometryType.MULTIPOINT) && ! ( geometry instanceof MultiPoint ))
+      {
+        return false;
+      }
+      else if (type.equals(GeometryType.POLYGON) && ! ( geometry instanceof Polygon ))
+      {
+        return false;
+      }
+      else if (type.equals(GeometryType.MULTIPOLYGON) && ! ( geometry instanceof MultiPolygon ))
+      {
+        return false;
+      }
+
+      return true;
+    }
+
+    return true;
+  }
+
   /**
    * Fetches a new GeoObject from the database for the given registry id.
    * 
@@ -243,17 +362,23 @@ public class AdapterUtilities
    */
   public GeoObject getGeoObjectById(String registryId, String geoObjectTypeCode)
   {
-    // TODO : virtual leaf nodes
-
     GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
-
     String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(registryId, got);
 
-    GeoEntity ge = GeoEntity.get(runwayId);
+    if (!got.isLeaf())
+    {
+      GeoEntity ge = GeoEntity.get(runwayId);
 
-    GeoObject gobj = ServiceFactory.getConversionService().geoEntityToGeoObject(ge);
+      GeoObject gobj = ServiceFactory.getConversionService().geoEntityToGeoObject(ge);
 
-    return gobj;
+      return gobj;
+    }
+    else
+    {
+      Business business = Business.get(runwayId);
+
+      return ServiceFactory.getConversionService().leafToGeoObject(got, business);
+    }
   }
 
   public Business getGeoEntityBusiness(GeoEntity ge)
@@ -409,6 +534,15 @@ public class AdapterUtilities
 
     if (universal.getIsLeafType())
     {
+      // DefaultAttribute.DISPLAY_LABEL
+      MdAttributeLocalCharacter labelMdAttr = new MdAttributeLocalCharacter();
+      labelMdAttr.setAttributeName(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName());
+      labelMdAttr.getDisplayLabel().setValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getDefaultLocalizedName());
+      labelMdAttr.getDescription().setValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getDefaultLocalizedDescription());
+      labelMdAttr.setDefiningMdClass(definingMdBusiness);
+      labelMdAttr.setRequired(true);
+      labelMdAttr.apply();
+
       com.runwaysdk.system.gis.geo.GeometryType geometryType = universal.getGeometryType().get(0);
 
       MdAttributeGeometry mdAttributeGeometry;
@@ -416,42 +550,37 @@ public class AdapterUtilities
       if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
       {
         mdAttributeGeometry = new MdAttributePoint();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
         mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POINT_ATTRIBUTE_LABEL);
       }
       else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
       {
         mdAttributeGeometry = new MdAttributeLineString();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
         mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_LINE_ATTRIBUTE_LABEL);
       }
       else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
       {
         mdAttributeGeometry = new MdAttributePolygon();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
         mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POLYGON_ATTRIBUTE_LABEL);
       }
       else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
       {
         mdAttributeGeometry = new MdAttributeMultiPoint();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
         mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_LABEL);
 
       }
       else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
       {
         mdAttributeGeometry = new MdAttributeMultiLineString();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
         mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_LABEL);
 
       }
       else // geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON
       {
         mdAttributeGeometry = new MdAttributeMultiPolygon();
-        mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
         mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
       }
 
+      mdAttributeGeometry.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
       mdAttributeGeometry.setRequired(false);
       mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
       mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
