@@ -513,9 +513,9 @@ public class HierarchyManagementServiceTest
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
 
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POINT_ATTRIBUTE_NAME);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POINT_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeLine(String code)
@@ -525,9 +525,9 @@ public class HierarchyManagementServiceTest
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
 
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_LINE_ATTRIBUTE_NAME);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_LINE_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
 
   }
   @Request
@@ -538,9 +538,9 @@ public class HierarchyManagementServiceTest
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
 
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_POLYGON_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeMultiPoint(String code)
@@ -550,9 +550,9 @@ public class HierarchyManagementServiceTest
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
     
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeMultiLine(String code)
@@ -562,9 +562,9 @@ public class HierarchyManagementServiceTest
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
 
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTILINE_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
   @Request
   private void checkAttributeMultiPolygon(String code)
@@ -574,9 +574,9 @@ public class HierarchyManagementServiceTest
     
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
 
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: "+RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
   }
 
 

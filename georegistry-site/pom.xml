@@ -1,0 +1,60 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>net.geoprism</groupId>
+	<artifactId>georegistry-site</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	
+	<name>georegistry-site</name>
+	<url>http://maven.apache.org</url>
+ 
+  <modules>
+    <module>../../common-geo-registry-adapter/java/common</module>
+    <module>../georegistry-test</module>
+  </modules>
+	
+  <repositories>
+    <repository>
+      <id>terraframe</id>
+      <name>terraframe</name>
+      <url>http://nexus.terraframe.com/content/groups/allrepos</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <site>
+      <id>s3-terraframe-site</id>
+      <url>s3://terraframe-sites/cgr-site</url>
+    </site>
+  </distributionManagement>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.kuali.maven.wagons</groupId>
+        <artifactId>maven-s3-wagon</artifactId>
+        <version>1.2.1</version>
+      </extension>
+    </extensions>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <licenses>
+    <license>
+      <name>
+        GNU Library or Lesser General Public License (LGPL)
+      </name>
+      <url>http://www.gnu.org/licenses/lgpl.html</url>
+    </license>
+  </licenses>
+</project>
+

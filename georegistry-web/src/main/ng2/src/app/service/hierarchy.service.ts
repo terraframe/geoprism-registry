@@ -78,7 +78,7 @@ export class HierarchyService {
         }
         
         return this.http
-            .get( acp + '/cgr/geoobjecttype/get-all' )
+            .get( acp + '/cgr/geoobjecttype/get-all', {params: params} )
             .toPromise()
             .then( response => {
                 return response.json() as GeoObjectType[];

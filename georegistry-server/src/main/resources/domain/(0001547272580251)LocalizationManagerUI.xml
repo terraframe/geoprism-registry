@@ -1,0 +1,53 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy-management.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy-management.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchy Management" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="logged-in-as">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="logged-in-as" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Logged in as " />
+        </attributeStruct>
+      </object>
+    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.pagetitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization-manager.pagetitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Localization Manager" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization-manager.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Localization Manager" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.exportButton">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization-manager.exportButton" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export Localization" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.importButton">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization-manager.importButton" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Localization" />
+        </attributeStruct>
+      </object>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -4,6 +4,9 @@ import { Routes, RouterModule, Resolve, ActivatedRouteSnapshot, RouterStateSnaps
 import { Observable } from 'rxjs/Observable';
 
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
+import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
+import { ShapefileComponent } from './data/importer/shapefile.component';
+import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 
 
 const routes: Routes = [
@@ -12,10 +15,22 @@ const routes: Routes = [
 	component: HierarchyComponent
   },
   {
+	path: 'shapefile',
+	component: ShapefileComponent
+  },
+  {
+	path: 'spreadsheet',
+	component: SpreadsheetComponent
+  },
+  {
 	path: '',
 	redirectTo: '/hierarchies',
 	pathMatch: 'full'
   },
+  {
+  path: 'localization-manager',
+  component: LocalizationManagerComponent
+  }
 //  {
 //    path: 'map/:id/:simple',
 //    component: MapComponent,
@@ -45,4 +60,4 @@ const routes: Routes = [
 })
 export class CgrAppRoutingModule { }
 
-export const routedComponents:any = [];
+export const routedComponents:any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent];

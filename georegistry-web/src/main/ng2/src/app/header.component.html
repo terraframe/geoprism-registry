@@ -3,27 +3,36 @@
   <nav class="navbar navbar-default">
     <div class="container">
       <div class="navbar-header">
-        <a class="navbar-brand" href="{{context}}/prism/home#/menu" [title]="Header"><img [src]="context + '/logo/view?id=logo'" /></a>
-        <a class="navbar-brand" href="{{context}}/prism/home#/menu">Hierarchy Management</a>
+        <a class="navbar-brand" href="{{context}}/prism/home#/menu"><img [src]="context + '/logo/view?id=logo'" /></a>
+        <a class="navbar-brand" href="{{context}}/prism/home#/menu"><localize key="cgr.title"></localize></a>
       </div>
           
-<!--       <ul class="nav navbar-nav navbar-right"> -->
-<!--         <li dropdown> -->
-<!--           <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle> -->
-<!--             Hierarchies<span class="caret"></span> -->
-<!--           </a>     -->
-<!--           <ul *dropdownMenu class="dropdown-menu"> -->
-<!--             <li role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active">Hierarchies</a></li> -->
-<!--             <li role="menuitem"><a class="dropdown-item" routerLink="/" routerLinkActive="active">Help</a></li> -->
-<!--             <li role="menuitem"><a class="dropdown-item" href="{{context}}/session/logout">Log out</a></li> -->
-<!--           </ul> -->
-<!--         </li> -->
-<!--       </ul> -->
-      
-<!--       <div class="navbar-right"> -->
-<!--         <p class="navbar-text">Logged in as <b style="color:white;">{{userName}}</b></p> -->
-<!--       </div> -->
-      
+       <ul class="nav navbar-nav navbar-right"> 
+         <li dropdown> 
+           <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle> 
+             <localize key="hierarchy-management.menu"></localize><span class="caret"></span> 
+           </a>     
+           <ul *dropdownMenu class="dropdown-menu"> 
+             <li role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchy-management.menu"></localize></a></li> 
+             <li role="menuitem"><a class="dropdown-item" routerLink="/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li> 
+             <li role="menuitem"><a class="dropdown-item" routerLink="/shapefile" routerLinkActive="active">Import Shapefile</a></li>
+             <li role="menuitem"><a class="dropdown-item" routerLink="/spreadsheet" routerLinkActive="active">Import Spreadsheet</a></li>
+             
+             <!--
+             <li role="menuitem"><a class="dropdown-item" href="{{context}}/session/logout"><localize key="Log_out"></localize></a></li>
+             --> 
+           </ul> 
+         </li> 
+       </ul> 
+       
+       <div class="navbar-right">
+        <a class="dropdown-item" href="{{context}}/session/logout">Log out</a>
+      </div>
+       <!--
+       <div class="navbar-right"> 
+         <p class="navbar-text"><localize key="logged-in-as"></localize><b style="color:white;">{{userName}}</b></p> 
+       </div> 
+       -->
     </div>
   </nav>
 </header>
