@@ -61,7 +61,7 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET)
-  public ResponseIF hierarchies()
+  public ResponseIF ng2()
   {
     return new ViewResponse(JSP_DIR + INDEX_JSP);
   }

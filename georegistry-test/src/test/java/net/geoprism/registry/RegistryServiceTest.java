@@ -9,6 +9,7 @@ import org.commongeoregistry.adapter.action.AddChildAction;
 import org.commongeoregistry.adapter.action.CreateAction;
 import org.commongeoregistry.adapter.action.UpdateAction;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -217,10 +218,10 @@ public class RegistryServiceTest
     RestBodyResponse response = (RestBodyResponse) this.controller.listGeoObjectTypes(this.tutil.adminClientRequest);
     JsonArray types = (JsonArray) response.serialize();
 
-    Assert.assertEquals(9, types.size());
-    
-    JsonObject object = types.get(0).getAsJsonObject();
-    
+    Assert.assertEquals(8, types.size());
+
+    JsonObject object = types.get(1).getAsJsonObject();
+
     Assert.assertEquals("Commune", object.get("label").getAsString());
     Assert.assertEquals("Cambodia_Commune", object.get("code").getAsString());
   }
@@ -353,8 +354,8 @@ public class RegistryServiceTest
     GeoObject goNewChild = testNew.getGeoObject();
 
     TestGeoObjectTypeInfo testDeleteUni = tutil.newTestGeoObjectTypeInfo("TEST_ACTIONS_DELETE_UNI");
-    testDeleteUni.apply();
-    GeoObjectType gotDelete = testDeleteUni.getGeoObjectType();
+    testDeleteUni.apply(GeometryType.POLYGON);
+    GeoObjectType gotDelete = testDeleteUni.getGeoObjectType(GeometryType.POLYGON);
     tutil.adapter.getMetadataCache().addGeoObjectType(gotDelete);
 
     AbstractAction[] actions = new AbstractAction[3];
@@ -420,7 +421,7 @@ public class RegistryServiceTest
     this.controller.executeActions(this.adminCR, sActions);
 
     // Make sure that the database has been modified correctly
-    Assert.assertEquals(1, testAddChildParent.getGeoEntity().getChildren(LocatedIn.CLASS).getAll().size());
+    Assert.assertEquals(1, testAddChildParent.getChildren(LocatedIn.CLASS).getAll().size());
 
     // GeoEntityQuery delGEQ = new GeoEntityQuery(new QueryFactory());
     // delGEQ.WHERE(delGEQ.getOid().EQ(testDelete.getUid()));

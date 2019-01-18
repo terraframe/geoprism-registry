@@ -9,6 +9,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -37,7 +38,7 @@ public class ExcelServiceTest
   @Before
   public void setUp()
   {
-    this.tutil = USATestData.newTestData();
+    this.tutil = USATestData.newTestData(GeometryType.POINT, false);
 
     this.adminCR = tutil.adminClientRequest;
   }
@@ -123,7 +124,7 @@ public class ExcelServiceTest
 
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);
 
-    Assert.assertEquals(3, objects.size());
+    Assert.assertEquals(1, objects.size());
 
     GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
     Workbook workbook = exporter.createWorkbook();
@@ -155,7 +156,7 @@ public class ExcelServiceTest
 
     List<GeoObject> objects = GeoObjectUtil.getObjects(type);
 
-    Assert.assertEquals(3, objects.size());
+    Assert.assertEquals(1, objects.size());
 
     GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
     InputStream export = exporter.export();

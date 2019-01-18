@@ -18,6 +18,8 @@ import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 
 import { CgrAppComponent } from './cgr-app.component';
+import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
+import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 import { CgrHeaderComponent } from './header.component';
 import { CreateModalComponent } from './data/hierarchy/modals/create-modal.component';
 import { CreateChildModalComponent } from './data/hierarchy/modals/create-child-modal.component';
@@ -28,8 +30,13 @@ import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
+import { LocalizeComponent } from './core/localize/localize.component';
+import { LocalizePipe } from './core/localize/localize.pipe';
+import { LocalizationService } from './core/service/localization.service';
+
 //import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
+import { LocalizationManagerService } from './service/localization-manager.service';
 import { ShapefileService } from './service/shapefile.service';
 
 import { ExcelService } from './service/excel.service';
@@ -41,7 +48,7 @@ import './rxjs-extensions';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule,    
+    HttpModule,
     CgrAppRoutingModule,
     ReactiveFormsModule,
     FileUploadModule,
@@ -52,6 +59,8 @@ import './rxjs-extensions';
   ],
   declarations: [
     CgrAppComponent,
+    HierarchyComponent,
+    LocalizationManagerComponent,
     FillPipe,
     Safe,
     CgrHeaderComponent,
@@ -65,16 +74,21 @@ import './rxjs-extensions';
     LoadingBarComponent,
     GeoObjectTypePipe,
     
+    LocalizeComponent,
+    LocalizePipe,
+    
     // Routing components
     routedComponents
   ],
   providers: [
     HierarchyService,
+    LocalizationManagerService,
     ShapefileService,
     ExcelService,
     EventService,
     Safe,
-    CookieService
+    CookieService,
+    LocalizationService
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [ErrorModalComponent, CreateChildModalComponent, CreateGeoObjTypeModalComponent, CreateModalComponent, ConfirmModalComponent, LoadingBarComponent, ShapefileModalComponent, SpreadsheetModalComponent]        
