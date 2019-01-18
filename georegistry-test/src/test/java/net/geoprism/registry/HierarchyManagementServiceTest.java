@@ -362,6 +362,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testChar.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
@@ -403,6 +404,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testDate.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
@@ -444,6 +446,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testInteger.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
@@ -485,6 +488,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testBoolean.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
