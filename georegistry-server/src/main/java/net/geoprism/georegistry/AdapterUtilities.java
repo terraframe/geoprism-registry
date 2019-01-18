@@ -519,7 +519,7 @@ public class AdapterUtilities
     codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
     codeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
     codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultLocalizedDescription());
-    codeMdAttr.setDatabaseSize(MdAttributeCharacter.MAX_CHARACTER_SIZE);
+    codeMdAttr.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
     codeMdAttr.setDefiningMdClass(definingMdBusiness);
     codeMdAttr.setRequired(true);
     codeMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
