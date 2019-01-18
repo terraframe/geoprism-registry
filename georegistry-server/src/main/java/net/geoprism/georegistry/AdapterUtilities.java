@@ -23,6 +23,7 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
@@ -33,6 +34,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
+import com.runwaysdk.system.gis.mapping.GeoserverFacade;
 import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
 import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
 import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
@@ -54,7 +56,6 @@ import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
-
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -621,48 +622,46 @@ public class AdapterUtilities
 //	  AttributeCharacterType attributeCharacterType = (AttributeCharacterType)attributeType;		
       mdAttribute = new MdAttributeCharacter();
       MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter)mdAttribute;
-      mdAttributeCharacter.setDatabaseSize(MdAttributeCharacter.MAX_CHARACTER_SIZE);
+      mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
 	}
-    else if (_type.equals(AttributeDateType.TYPE))
+    else if (attributeType.getType().equals(AttributeDateType.TYPE))
     {
 //      AttributeDateType attributeDateType = (AttributeDateType)attributeType;
       mdAttribute = new MdAttributeDateTime();
-      MdAttributeDateTime mdAttributeDateTime = (MdAttributeDateTime)mdAttribute;
+//      MdAttributeDateTime mdAttributeDateTime = (MdAttributeDateTime)mdAttribute;
     }
-    else if (_type.equals(AttributeIntegerType.TYPE))
+    else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
     {
 //      AttributeIntegerType attributeIntegerType = (AttributeIntegerType)attributeType;
       mdAttribute = new MdAttributeInteger();
-      MdAttributeInteger mdAttributeInteger = (MdAttributeInteger)mdAttribute;
+//      MdAttributeInteger mdAttributeInteger = (MdAttributeInteger)mdAttribute;
     }
-    else if (_type.equals(AttributeFloatType.TYPE))
+    else if (attributeType.getType().equals(AttributeFloatType.TYPE))
     {
-      AttributeFloatType attributeIntegerType = (AttributeFloatType)attributeType;
-    	
+//      AttributeFloatType attributeIntegerType = (AttributeFloatType)attributeType;
       mdAttribute = new MdAttributeFloat();
-      MdAttributeFloat mdAttributeFloat = (MdAttributeFloat)mdAttribute;
+//      MdAttributeFloat mdAttributeFloat = (MdAttributeFloat)mdAttribute;
     }
-    else if (_type.equals(AttributeTermType.TYPE))
+    else if (attributeType.getType().equals(AttributeTermType.TYPE))
     {
       AttributeTermType attributeTermType = (AttributeTermType)attributeType;
-    	
+    
       mdAttribute = new MdAttributeMultiTerm();
       MdAttributeMultiTerm mdAttributeMultiTerm = (MdAttributeMultiTerm)mdAttribute;
       
       // TODO - implement Terms
     }
-    else if (_type.equals(AttributeBooleanType.TYPE))
+    else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
     {
-      AttributeBooleanType attributeBooleanType = (AttributeBooleanType)attributeType;
-    	
+//      AttributeBooleanType attributeBooleanType = (AttributeBooleanType)attributeType;
       mdAttribute = new MdAttributeBoolean();
-      MdAttributeBoolean mdAttributeBoolean = (MdAttributeBoolean)mdAttribute;
+//      MdAttributeBoolean mdAttributeBoolean = (MdAttributeBoolean)mdAttribute;
     }  
 
 	mdAttribute.setAttributeName(attributeType.getName());
 	mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
-	mdAttribute.getDescription().setValue(attributeType.getDescription());
-	mdAttribute.setDefiningMdClass(definingMdBusiness);
+	mdAttribute.getDescription().setValue(attributeType.getLocalizedDescription());
+	mdAttribute.setDefiningMdClass(mdBusiness);
 	mdAttribute.apply();
 	
 	return attributeType;
@@ -690,7 +689,7 @@ public class AdapterUtilities
       
       mdAttribute.setAttributeName(attributeType.getName());
   	  mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
-  	  mdAttribute.getDescription().setValue(attributeType.getDescription());
+  	  mdAttribute.getDescription().setValue(attributeType.getLocalizedDescription());
   	  mdAttribute.apply();   
   	  
   	  mdAttribute.unlock();
