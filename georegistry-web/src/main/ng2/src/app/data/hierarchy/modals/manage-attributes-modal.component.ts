@@ -10,7 +10,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 import { TreeNode } from 'angular-tree-component';
-import { ConfirmModalComponent } from './confirm-modal.component';
+import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
 
 import { TreeEntity, HierarchyType, GeoObjectType, Attribute } from '../hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
