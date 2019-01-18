@@ -105,7 +105,7 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -145,7 +145,7 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -205,7 +205,7 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -237,7 +237,7 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 

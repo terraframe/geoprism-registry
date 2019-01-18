@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -23,6 +24,13 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
+import com.runwaysdk.dataaccess.MdTermDAOIF;
+import com.runwaysdk.dataaccess.MdTermRelationshipDAOIF;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -193,29 +201,52 @@ public class RegistryService
       if (childType.isLeaf())
       {
         Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(childType);
-        MdBusiness mdBusiness = universal.getMdBusiness();
-        HierarchyType ht = this.getHierarchyType(childType, htMap);
 
-        BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
-        query.WHERE(query.get(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(parentRunwayId));
-
-        OIterator<Business> it = query.getIterator();
-
-        try
+        if (ArrayUtils.contains(childrenTypes, universal.getKey()))
         {
-          List<Business> children = it.getAll();
+          MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(universal.getMdBusinessOid());
 
-          for (Business child : children)
+          List<MdAttributeDAOIF> mdAttributes = mdBusiness.definesAttributes().stream().filter(mdAttribute -> {
+            if (mdAttribute instanceof MdAttributeReferenceDAOIF)
+            {
+              MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
+
+              if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
+              {
+                return true;
+              }
+            }
+
+            return false;
+          }).collect(Collectors.toList());
+
+          for (MdAttributeDAOIF mdAttribute : mdAttributes)
           {
-            // Do something
-            GeoObject goChild = ServiceFactory.getConversionService().leafToGeoObject(childType, child);
+            String code = mdAttribute.getDescription(Session.getCurrentLocale());
+            HierarchyType ht = adapter.getMetadataCache().getHierachyType(code).get();
 
-            tnRoot.addChild(new ChildTreeNode(goChild, ht));
+            BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+            query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parentRunwayId));
+
+            OIterator<Business> it = query.getIterator();
+
+            try
+            {
+              List<Business> children = it.getAll();
+
+              for (Business child : children)
+              {
+                // Do something
+                GeoObject goChild = ServiceFactory.getConversionService().leafToGeoObject(childType, child);
+
+                tnRoot.addChild(new ChildTreeNode(goChild, ht));
+              }
+            }
+            finally
+            {
+              it.close();
+            }
           }
-        }
-        finally
-        {
-          it.close();
         }
       }
     }
@@ -293,43 +324,63 @@ public class RegistryService
   {
     GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
     String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
+
     ParentTreeNode tnRoot = new ParentTreeNode(goChild, null);
 
     if (goChild.getType().isLeaf())
     {
       Business business = Business.get(childRunwayId);
-      String parentRunwayId = business.getValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
 
-      if (parentRunwayId != null && parentRunwayId.length() > 0)
-      {
-        GeoEntity geParent = GeoEntity.get(parentRunwayId);
-        GeoObject goParent = ServiceFactory.getConversionService().geoEntityToGeoObject(geParent);
-        Universal uni = geParent.getUniversal();
-
-        if (ArrayUtils.contains(parentTypes, uni.getKey()))
+      List<MdAttributeDAOIF> mdAttributes = business.getMdAttributeDAOs().stream().filter(mdAttribute -> {
+        if (mdAttribute instanceof MdAttributeReferenceDAOIF)
         {
-          String[] relationshipTypes = TermUtil.getAllChildRelationships(geParent.getOid());
-          MdTermRelationship mdRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(relationshipTypes[0]);
-          HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdRel);
+          MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
 
-          ParentTreeNode tnParent;
-
-          if (recursive)
+          if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
           {
-            tnParent = this.getParentGeoObjects(sessionId, goParent.getUid(), goParent.getType().getCode(), parentTypes, recursive);
+            return true;
           }
-          else
-          {
-            tnParent = new ParentTreeNode(goParent, ht);
-          }
-
-          tnRoot.addParent(tnParent);
         }
-      }
+
+        return false;
+      }).collect(Collectors.toList());
+
+      mdAttributes.forEach(mdAttribute -> {
+
+        String parentRunwayId = business.getValue(mdAttribute.definesAttribute());
+
+        if (parentRunwayId != null && parentRunwayId.length() > 0)
+        {
+          GeoEntity geParent = GeoEntity.get(parentRunwayId);
+          GeoObject goParent = ServiceFactory.getConversionService().geoEntityToGeoObject(geParent);
+          Universal uni = geParent.getUniversal();
+
+          if (ArrayUtils.contains(parentTypes, uni.getKey()))
+          {
+            ParentTreeNode tnParent;
+
+            if (recursive)
+            {
+              tnParent = this.getParentGeoObjects(sessionId, goParent.getUid(), goParent.getType().getCode(), parentTypes, recursive);
+            }
+            else
+            {
+              String code = mdAttribute.getDescription(Session.getCurrentLocale());
+              HierarchyType ht = adapter.getMetadataCache().getHierachyType(code).get();
+              tnParent = new ParentTreeNode(goParent, ht);
+            }
+
+            tnRoot.addParent(tnParent);
+          }
+        }
+      });
+
     }
     else
     {
+
       String[] relationshipTypes = TermUtil.getAllChildRelationships(childRunwayId);
+
       Map<String, HierarchyType> htMap = getHierarchyTypeMap(relationshipTypes);
 
       TermAndRel[] tnrParents = TermUtil.getDirectAncestors(childRunwayId, relationshipTypes);
@@ -361,6 +412,22 @@ public class RegistryService
     return tnRoot;
   }
 
+  private List<String> getTermRelationships(MdTermDAOIF mdTerm)
+  {
+    List<MdRelationshipDAOIF> mdRelationships = mdTerm.getAllParentMdRelationships();
+
+    List<String> relationshipTypes = new LinkedList<String>();
+
+    for (MdRelationshipDAOIF mdRelationship : mdRelationships)
+    {
+      if (mdRelationship instanceof MdTermRelationshipDAOIF)
+      {
+        relationshipTypes.add(mdRelationship.definesType());
+      }
+    }
+    return relationshipTypes;
+  }
+
   @Request(RequestType.SESSION)
   public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
@@ -384,10 +451,13 @@ public class RegistryService
       String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
 
       GeoEntity parent = GeoEntity.get(parentRunwayId);
-
       Business child = Business.get(childRunwayId);
+
+      Universal parentUniversal = parent.getUniversal();
+      String refAttrName = ConversionService.getParentReferenceAttributeName(hierarchyCode, parentUniversal);
+
       child.appLock();
-      child.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, parent.getOid());
+      child.setValue(refAttrName, parent.getOid());
       child.apply();
 
       ParentTreeNode node = new ParentTreeNode(goChild, hierarchy);
@@ -824,7 +894,7 @@ public class RegistryService
     String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
 
-    this.removeFromHierarchy(mdTermRelationship, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    this.removeFromHierarchy(mdTermRelationship, hierarchyTypeCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
@@ -836,11 +906,16 @@ public class RegistryService
   }
 
   @Transaction
-  private void removeFromHierarchy(MdTermRelationship mdTermRelationship, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  private void removeFromHierarchy(MdTermRelationship mdTermRelationship, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
     Universal child = Universal.getByKey(childGeoObjectTypeCode);
 
     parent.removeAllChildren(child, mdTermRelationship.definesType());
+
+    if (child.getIsLeafType())
+    {
+      ConversionService.removeParentReferenceToLeafType(hierarchyTypeCode, parent, child);
+    }
   }
 }

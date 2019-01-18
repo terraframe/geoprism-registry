@@ -53,10 +53,23 @@ public class GeoObjectConfiguration
 
   private Set<TermProblem>               problems;
 
+  private boolean                        includeCoordinates;
+
   public GeoObjectConfiguration()
   {
     this.functions = new HashMap<String, ShapefileFunction>();
     this.problems = new TreeSet<TermProblem>();
+    this.includeCoordinates = false;
+  }
+
+  public boolean isIncludeCoordinates()
+  {
+    return includeCoordinates;
+  }
+
+  public void setIncludeCoordinates(boolean includeCoordinates)
+  {
+    this.includeCoordinates = includeCoordinates;
   }
 
   public GeoObjectType getType()
@@ -163,8 +176,12 @@ public class GeoObjectConfiguration
   {
     JsonObject type = this.type.toJSON();
     JsonArray attributes = type.get("attributes").getAsJsonArray();
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc")).toJSON());
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc")).toJSON());
+
+    if (this.includeCoordinates)
+    {
+      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc")).toJSON());
+      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc")).toJSON());
+    }
 
     for (int i = 0; i < attributes.size(); i++)
     {
@@ -198,7 +215,7 @@ public class GeoObjectConfiguration
   }
 
   @Request
-  public static GeoObjectConfiguration parse(String json)
+  public static GeoObjectConfiguration parse(String json, boolean includeCoordinates)
   {
     JsonObject config = new JsonParser().parse(json).getAsJsonObject();
     JsonObject type = config.get("type").getAsJsonObject();
@@ -213,6 +230,7 @@ public class GeoObjectConfiguration
     configuration.setFilename(config.get("filename").getAsString());
     configuration.setType(got);
     configuration.setMdBusiness(mdBusiness);
+    configuration.setIncludeCoordinates(includeCoordinates);
 
     for (int i = 0; i < attributes.size(); i++)
     {

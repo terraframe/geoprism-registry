@@ -83,6 +83,7 @@ public class ExcelServiceTest
   }
 
   @Test
+  @Request
   public void testImportSpreadsheet()
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
@@ -93,7 +94,7 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -116,7 +117,7 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -148,7 +149,7 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 

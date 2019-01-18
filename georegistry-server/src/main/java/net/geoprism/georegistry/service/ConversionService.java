@@ -50,7 +50,7 @@ import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.attributes.entity.AttributeLocalCharacter;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
@@ -61,7 +61,6 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.AssociationType;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeLocalCharacter;
 import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
@@ -807,7 +806,7 @@ public class ConversionService
     String mdTermRelKey = buildMdTermRelGeoEntityKey(hierarchyTypeCode);
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
 
-    MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
+    // MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
     MdBusiness childMdBusiness = childUniversal.getMdBusiness();
 
     String refAttrName = getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
@@ -817,13 +816,32 @@ public class ConversionService
     MdAttributeReference mdAttributeReference = new MdAttributeReference();
     mdAttributeReference.setAttributeName(refAttrName);
     mdAttributeReference.getDisplayLabel().setValue(displayLabel);
-    mdAttributeReference.getDescription().setValue(displayLabel);
+    mdAttributeReference.getDescription().setValue(hierarchyTypeCode);
     mdAttributeReference.setRequired(false);
     mdAttributeReference.setDefiningMdClass(childMdBusiness);
-    mdAttributeReference.setMdBusiness(parentMdBusiness);
+    mdAttributeReference.setMdBusiness(MdBusiness.getMdBusiness(GeoEntity.CLASS));
     mdAttributeReference.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
     mdAttributeReference.apply();
+  }
 
+  /**
+   * Creates a reference attribute to the parent node class.
+   * 
+   * 
+   * @param hierarchyTypeCode
+   * @param parentUniversal
+   * @param childUniversal
+   */
+  @Transaction
+  public static void removeParentReferenceToLeafType(String hierarchyTypeCode, Universal parentUniversal, Universal childUniversal)
+  {
+    // MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
+    MdBusinessDAOIF childMdBusiness = MdBusinessDAO.get(childUniversal.getMdBusinessOid());
+
+    String refAttrName = getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
+
+    MdAttributeConcreteDAOIF mdAttributeReference = childMdBusiness.definesAttribute(refAttrName);
+    mdAttributeReference.getBusinessDAO().delete();
   }
 
   /**
@@ -836,7 +854,11 @@ public class ConversionService
    */
   public static String getParentReferenceAttributeName(String hierarchyTypeCode, Universal parentUniversal)
   {
-    MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
+    return getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal.getMdBusiness());
+  }
+
+  public static String getParentReferenceAttributeName(String hierarchyTypeCode, MdBusiness parentMdBusiness)
+  {
     String parentTypeName = parentMdBusiness.getTypeName();
 
     // Lower case the first character of the hierarchy Code

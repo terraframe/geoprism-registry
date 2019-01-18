@@ -212,7 +212,7 @@ public class ShapefileService
   @Request(RequestType.SESSION)
   public JsonObject importShapefile(String sessionId, String config)
   {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config);
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, false);
 
     String dir = configuration.getDirectory();
     String fname = configuration.getFilename();

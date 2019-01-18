@@ -52,6 +52,7 @@ import com.vividsolutions.jts.io.ParseException;
 
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.ontology.Classifier;
@@ -156,6 +157,8 @@ public class USATestData extends TestUtilities
     COUNTRY.getUniversal().addLink(Universal.getRoot(), AllowedIn.CLASS);
     COUNTRY.addChild(STATE, AllowedIn.CLASS);
     STATE.addChild(DISTRICT, AllowedIn.CLASS);
+
+    ConversionService.addParentReferenceToLeafType(LocatedIn.class.getSimpleName(), STATE.universal, DISTRICT.universal);
 
     if (this.includeData)
     {
@@ -640,8 +643,10 @@ public class USATestData extends TestUtilities
 
       if (child.getUniversal().getIsLeaf())
       {
+        String refAttrName = ConversionService.getParentReferenceAttributeName(LocatedIn.class.getSimpleName(), this.getUniversal().universal);
+
         Business business = child.getBusiness();
-        business.setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, geoEntity.getOid());
+        business.setValue(refAttrName, geoEntity.getOid());
         business.apply();
 
         return null;

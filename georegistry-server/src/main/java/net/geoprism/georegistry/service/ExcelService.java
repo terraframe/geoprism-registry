@@ -114,7 +114,7 @@ public class ExcelService
   @Transaction
   private JsonObject importExcelFile(String config)
   {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config);
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, true);
 
     String dir = configuration.getDirectory();
     String fname = configuration.getFilename();
@@ -148,7 +148,7 @@ public class ExcelService
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String config)
   {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config);
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, false);
 
     try
     {
