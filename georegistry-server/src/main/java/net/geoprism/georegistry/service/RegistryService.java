@@ -620,25 +620,21 @@ public class RegistryService
    * 
    * @param sessionId
    * @param gtId string of the {@link GeoObjectType} to be updated.
-   * @param attribute AttributeType to be removed from the GeoObjectType
+   * @param attributeName Name of the attribute to be removed from the GeoObjectType
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public boolean deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attribute)
+  public boolean deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attributeName)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
-    
-    JSONObject attrObj = new JSONObject(attribute);
-    
-    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_NAME), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
     
     MdBusiness mdBusiness = universal.getMdBusiness();
     
-    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(mdBusiness, attrType);
+    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(mdBusiness, attributeName);
 
-    geoObjectType.removeAttribute(attrType);
+    geoObjectType.removeAttribute(attributeName);
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
