@@ -1,0 +1,90 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="new-locale.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="new-locale.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Install New Locale" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="new-locale.cancel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="new-locale.cancel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="new-locale.submit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="new-locale.submit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.installLocale">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization-manager.installLocale" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Install New Locale" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="new-locale.language">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="new-locale.language" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Language" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="new-locale.country">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="new-locale.country" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Country" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="new-locale.variant">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="new-locale.variant" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Variant" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="confirm.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="confirm.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Warning" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="confirm.cancel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="confirm.cancel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="confirm.submit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="confirm.submit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit" />
+        </attributeStruct>
+      </object>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.SupportedLocale">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

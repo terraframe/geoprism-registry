@@ -257,14 +257,6 @@
   </profiles>
 
   <build>
-    <!-- This tells maven to resolve variables in our properties files (like maven.basedir) -->
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

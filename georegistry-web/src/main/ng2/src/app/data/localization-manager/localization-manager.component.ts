@@ -31,6 +31,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { LocalizationManagerService } from '../../service/localization-manager.service';
 
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
+import { NewLocaleModalComponent } from './new-locale-modal.component';
 
 declare var acp: any;
 
@@ -49,11 +50,15 @@ export class LocalizationManagerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  
+    
   }
   
   ngAfterViewInit() {
 	  
+  }
+  
+  showNewLocaleModal() {
+    let bsModalRef = this.modalService.show( NewLocaleModalComponent, { backdrop: true } );
   }
   
   importLocalization(event: any) {
@@ -90,8 +95,8 @@ export class LocalizationManagerComponent implements OnInit {
   public error( err: any ): void {
       // Handle error
       if ( err !== null ) {
-          let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-          bsModalRef.content.message = ( err.localizedMessage || err.message );
+        let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+        bsModalRef.content.message = ( err.localizedMessage || err.message );
       }
   }
    

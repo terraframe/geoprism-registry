@@ -30,6 +30,7 @@ import { DefineAttributeModalContentComponent } from './data/hierarchy/modals/de
 import { ShapefileModalComponent } from './data/importer/modals/shapefile-modal.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
+import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -86,7 +87,7 @@ import './rxjs-extensions';
     LoadingBarComponent,
     GeoObjectTypePipe,
     GeoObjectAttributeCodeValidator,
-    
+    NewLocaleModalComponent,
     LocalizeComponent,
     LocalizePipe,
     
@@ -115,7 +116,8 @@ import './rxjs-extensions';
       ConfirmModalComponent, 
       LoadingBarComponent,
       ShapefileModalComponent, 
-      SpreadsheetModalComponent
+      SpreadsheetModalComponent,
+      NewLocaleModalComponent
   ]        
 })
 export class CgrAppModule { }
