@@ -583,27 +583,30 @@ public class RegistryService
    * @pre given {@link GeoObjectType} must already exist.
    * 
    * @param sessionId
-   * @param gtId string of the {@link GeoObjectType} to be updated.
-   * @param attribute AttributeType to be added to the GeoObjectType
+   * @param geoObjectTypeCode string of the {@link GeoObjectType} to be updated.
+   * @param attributeTypeJSON AttributeType to be added to the GeoObjectType
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public AttributeType addAttributeToGeoObjectType(String sessionId, String gtId, String attribute)
+  public AttributeType addAttributeToGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     
-    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
+    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
     
-    JSONObject attrObj = new JSONObject(attribute);
+    JSONObject attrObj = new JSONObject(attributeTypeJSON);
     
-    AttributeType attrType = AttributeType.factory(attrObj.getString("name"), attrObj.getString("localizedLabel"), attrObj.getString("localizedDescription"), attrObj.getString("type"));
+    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_NAME), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
+
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
     
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    attrType = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
     
     geoObjectType.addAttribute(attrType);
 
-    //GeoObjectType geoObjectTypeModifiedApplied = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
-
     // If this did not error out then add to the cache
-    //adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
     
     return attrType;
   }
@@ -623,16 +626,22 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public boolean deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attribute)
   {
-    
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
     
     JSONObject attrObj = new JSONObject(attribute);
     
+    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_NAME), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
+
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
     
-    //geoObjectType.deleteAttribute(attrType);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(mdBusiness, attrType);
+
+    geoObjectType.removeAttribute(attrType);
 
     // If this did not error out then add to the cache
-    //adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
     
     return true; 
   }
