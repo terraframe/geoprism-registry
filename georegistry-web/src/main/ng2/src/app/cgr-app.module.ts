@@ -7,6 +7,7 @@ import { TreeModule } from 'angular-tree-component';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { CookieService } from 'ngx-cookie-service';
+import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 
 import './rxjs-extensions';
@@ -24,9 +25,12 @@ import { CgrHeaderComponent } from './header.component';
 import { CreateModalComponent } from './data/hierarchy/modals/create-modal.component';
 import { CreateChildModalComponent } from './data/hierarchy/modals/create-child-modal.component';
 import { CreateGeoObjTypeModalComponent } from './data/hierarchy/modals/create-geoobjtype-modal.component';
+import { ManageAttributesModalComponent } from './data/hierarchy/modals/manage-attributes-modal.component';
+import { DefineAttributeModalContentComponent } from './data/hierarchy/modals/define-attribute-modal-content.component';
 import { ShapefileModalComponent } from './data/importer/modals/shapefile-modal.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
+import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -36,11 +40,16 @@ import { LocalizationService } from './core/service/localization.service';
 
 //import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
+import { GeoObjTypeModalService } from './service/geo-obj-type-modal.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { ShapefileService } from './service/shapefile.service';
-
 import { ExcelService } from './service/excel.service';
 import { EventService } from './event/event.service';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
+
 
 import './rxjs-extensions';
 
@@ -55,7 +64,9 @@ import './rxjs-extensions';
     ModalModule.forRoot(),
     TreeModule.forRoot(),
     ContextMenuModule.forRoot(),
-    BsDropdownModule.forRoot()
+    BsDropdownModule.forRoot(),
+    ButtonsModule.forRoot(),
+    BrowserAnimationsModule
   ],
   declarations: [
     CgrAppComponent,
@@ -68,12 +79,15 @@ import './rxjs-extensions';
     CreateChildModalComponent,
     CreateGeoObjTypeModalComponent,
     ConfirmModalComponent,
-    ErrorModalComponent,
+    ManageAttributesModalComponent,
+    DefineAttributeModalContentComponent,
+    ErrorModalComponent, 
     ShapefileModalComponent,
     SpreadsheetModalComponent,
     LoadingBarComponent,
     GeoObjectTypePipe,
-    
+    GeoObjectAttributeCodeValidator,
+    NewLocaleModalComponent,
     LocalizeComponent,
     LocalizePipe,
     
@@ -82,6 +96,7 @@ import './rxjs-extensions';
   ],
   providers: [
     HierarchyService,
+    GeoObjTypeModalService,
     LocalizationManagerService,
     ShapefileService,
     ExcelService,
@@ -91,6 +106,18 @@ import './rxjs-extensions';
     LocalizationService
   ],
   bootstrap: [CgrAppComponent],
-  entryComponents: [ErrorModalComponent, CreateChildModalComponent, CreateGeoObjTypeModalComponent, CreateModalComponent, ConfirmModalComponent, LoadingBarComponent, ShapefileModalComponent, SpreadsheetModalComponent]        
+  entryComponents: [
+      ErrorModalComponent, 
+      CreateChildModalComponent, 
+      CreateGeoObjTypeModalComponent, 
+      ManageAttributesModalComponent, 
+      DefineAttributeModalContentComponent,
+      CreateModalComponent, 
+      ConfirmModalComponent, 
+      LoadingBarComponent,
+      ShapefileModalComponent, 
+      SpreadsheetModalComponent,
+      NewLocaleModalComponent
+  ]        
 })
 export class CgrAppModule { }

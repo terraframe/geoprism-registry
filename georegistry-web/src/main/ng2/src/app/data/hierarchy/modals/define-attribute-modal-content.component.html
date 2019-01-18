@@ -1,0 +1,248 @@
+<!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget" style="width: 100%;"> -->
+  
+  <div class="modal-body">
+    <div *ngIf="message != null" class="error-container">
+      <div class="label-holder">
+        <strong>Error</strong>
+      </div>
+      <div class="holder">
+        <div>
+          <p class="error-message">{{message}}</p>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="form-group">
+      <label for="codeInput">Code</label>
+      <input  [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput" placeholder="Code..." required>
+    </div>
+    <div class="form-group">
+      <label for="localizedLabelInput">Label</label>
+      <input  [(ngModel)]="hierarchyType.localizedLabel" name="localizedLabel" type="input" class="form-control" id="localizedLabelInput" placeholder="Label..." required>
+    </div>
+    <div class="form-group">
+      <label for="localizedDescriptionInput">Description</label>
+      <input  [(ngModel)]="hierarchyType.localizedDescription" name="localizedDescription" type="input" class="form-control" id="localizedDescriptionInput" placeholder="Description...">
+    </div>
+    
+    <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+      <div class="ui-dialog-buttonset">
+        <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+          <span class="ui-button-text">Cancel</span>
+        </button>
+        <button type="submit" [disabled]="hierarchyType.code.length < 1 && hierarchyType.localizedLabel.length < 1" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+          <span class="ui-button-text">Ok</span>
+        </button>
+      </div>
+    </div> -->
+
+    <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && handleOnSubmit()">    
+    <div class="">
+      <div class="">
+        <div class="heading">
+          <h1>Define a new attribute</h1>
+        </div>   
+        
+        <div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder" >
+                <div class="btn-group define-attribute-btns">
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'character'}" (click)="setAttribute('character')"  >Text</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'integer'}" (click)="setAttribute('integer')" >Integer</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'float'}" (click)="setAttribute('float')" >Float</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'date'}" (click)="setAttribute('date')" >Date</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'boolean'}" (click)="setAttribute('boolean')" >Boolean</label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'term'}" (click)="setAttribute('term')" >Term</label>
+               
+<!--                		<label class="btn full-width-radio-button" ng-class="{active: newAttribute.type == 'character'}" [(ngModel)]="newAttribute.type" name="text" btnRadio="character" tabindex="0" role="button">Text</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="integer" btnRadio="integer" tabindex="0" role="button">Integer</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="float" btnRadio="float" tabindex="0" role="button">Float</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="date" btnRadio="date" tabindex="0" role="button">Date</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="boolean" btnRadio="boolean" tabindex="0" role="button">Boolean</label> -->
+<!--                     <label class="btn full-width-radio-button" [(ngModel)]="newAttribute.type" name="term" btnRadio="term" tabindex="0" role="button">Term</label> -->
+                </div>
+            </div>
+        </div>
+        
+        <fieldset>         
+
+          <div *ngIf="newAttribute.type === 'character'" [@openClose]="newAttribute.type === 'character' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Code</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="newAttribute.type === 'character'" [@openClose]="newAttribute.type === 'character' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Label</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
+              </span>
+            </div>
+          </div>
+
+
+          <div *ngIf="newAttribute.type === 'integer'" [@openClose]="newAttribute.type === 'integer' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Code</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="newAttribute.type === 'integer'" [@openClose]="newAttribute.type === 'integer' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Label</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
+              </span>
+            </div>
+          </div>
+
+
+          <div *ngIf="newAttribute.type === 'float'" [@openClose]="newAttribute.type === 'float' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Code</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="newAttribute.type === 'float'" [@openClose]="newAttribute.type === 'float' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Label</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="newAttribute.type === 'boolean'" [@openClose]="newAttribute.type === 'boolean' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Code</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="newAttribute.type === 'boolean'" [@openClose]="newAttribute.type === 'boolean' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Label</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
+              </span>
+            </div>
+          </div>
+
+
+          <div *ngIf="newAttribute.type === 'date'" [@openClose]="newAttribute.type === 'date' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Code</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="newAttribute.type === 'date'" [@openClose]="newAttribute.type === 'date' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Label</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
+              </span>
+            </div>
+          </div>
+
+
+          <div *ngIf="newAttribute.type === 'term'" [@openClose]="newAttribute.type === 'term' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Set Term Root</label>
+            </div>          
+            <div class="holder" >
+              <!-- <span class="text">
+                <input type="text" name="label" >
+              </span> -->
+
+              <div *ngIf="terms.length > 0" class="tree">
+                <tree-root [nodes]="terms" [options]="options"></tree-root>
+              </div>
+              <input type="hidden" [ngModel]="newAttribute.rootTerm" [disabled]="false" name="root" #rootin="ngModel" required>
+              
+            </div>
+            
+            <div class="label-holder">
+              <label>Selected root</label>
+            </div>          
+            <div class="holder" >
+              <h4 *ngIf="newAttribute.rootTerm" >{{newAttribute.rootTerm}}</h4>
+              <h4 *ngIf="!newAttribute.rootTerm" >No Root selected. Select a root from the hierarchy above.</h4>
+            </div>
+          </div>
+          <div *ngIf="newAttribute.type === 'term'" [@openClose]="newAttribute.type === 'term' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Code</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="newAttribute.type === 'term'" [@openClose]="newAttribute.type === 'term' ? 'open' : 'closed'" class="row-holder">
+            <div class="label-holder">
+              <label>Label</label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required >
+              </span>
+            </div>
+          </div>
+
+
+         
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>                    
+            <div class="holder">
+              <div class="button-holder">
+                <!-- <input type="button" [value]="Cancel" class="btn btn-default" (click)="cancel()" />   -->
+                <button type="button" class="btn btn-default" (click)="cancel()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Submit</button>
+                <!-- <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid  && validName)" /> -->
+              </div>
+            </div>
+          </div> 
+        </fieldset>
+      </div>
+    </div>
+  </form>
+  
+   <context-menu #selectRootMenu style="z-index:9999;">
+    <ng-template contextMenuItem let-item (execute)="selectAsRoot($event.item)">
+      Select as root
+    </ng-template>
+  </context-menu>
+    
+  </div>
+<!-- </form> -->

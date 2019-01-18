@@ -19,10 +19,16 @@
 
 import { Injectable } from '@angular/core';
 import { Headers, Http, Response, URLSearchParams } from '@angular/http';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { TreeEntity, HierarchyType, Hierarchy, HierarchyNode, GeoObject, GeoObjectType } from '../data/hierarchy/hierarchy';
+import { Observable } from 'rxjs/Observable';
+
+import { TreeEntity, HierarchyType, Hierarchy, HierarchyNode, GeoObject, GeoObjectType, Attribute, Term } from '../data/hierarchy/hierarchy';
 import { EventService } from '../event/event.service';
 
 declare var acp: any;
@@ -47,6 +53,8 @@ declare var acp: any;
 
 @Injectable()
 export class HierarchyService {
+
+    baseUrl: string = acp + '/cgr/hierarchies';
 
     constructor( private http: Http, private eventService: EventService ) { }
 
@@ -201,5 +209,71 @@ export class HierarchyService {
     	} )
     	.toPromise()
       }
+
+    addAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+
+	   let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+
+       return this.http
+           .post( acp + '/cgr/geoobjecttype/addattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response.json() as Attribute;
+           } )
+    }
+
+    deleteAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<boolean> {
+
+	   let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+
+       return this.http
+           .post( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response.json();
+           } )
+    }
+
+    getTerms(): Promise<Term[]> {
+        
+        return this.http
+            .get( acp + '/cgr/terms/get-all' )
+            .toPromise()
+            .then( response => {
+                return response.json() as Term[];
+            } )
+    }
+
+    search(terms: Observable<string>) {
+	  return terms.debounceTime(400)
+	    .distinctUntilChanged()
+	    .switchMap(term => this.searchEntries(term));
+    }
+    
+    searchEntries(term:string) {
+
+      let params: URLSearchParams = new URLSearchParams();
+      params.set( 'term', term );
+
+	  return this.http
+	      .get(this.baseUrl, { search: params } )
+	      .map(res => res.json());
+	}
 
 }

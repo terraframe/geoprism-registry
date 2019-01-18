@@ -105,3 +105,37 @@ i.fa.fa-sitemap:hover{
 .modal-body .form-group select {
   float: none !important;
 }
+
+.modal-content {
+    padding: 0;
+}
+
+.submit-form input[type="text"][disabled] {
+    color: #999;
+}
+
+
+.btn-group.define-attribute-btns {
+    // width: 50%;
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 100px;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button {
+    width: 16%;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button:active{
+    background: #009edc !important;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button:focus{
+  background: #009edc !important;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button.active{
+    background: #009edc !important;
+}
+
+
+
+.cdk-overlay-container{
+        z-index: 5000 !important;
+}

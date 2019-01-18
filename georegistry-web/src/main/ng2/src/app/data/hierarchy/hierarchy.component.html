@@ -12,7 +12,7 @@
         <hr>
         <ul class="list-group">
           <li class="list-group-item" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
-            <i class="fa fa-sitemap"></i> {{hierarchy.localizedLabel}} <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i>
+            <i class="fa fa-sitemap"></i> {{hierarchy.localizedLabel}} <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
           </li>
         </ul>
         
@@ -40,7 +40,9 @@
         <hr>
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes">
-            {{type.localizedLabel}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" aria-hidden="true"></i> <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i>
+            {{type.localizedLabel}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" aria-hidden="true"></i> 
+            <i class="fa fa-pencil pull-right" (click)="addAttributesToGeoObjectType(type)"></i> 
+            <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
           </li>
         </ul>
         

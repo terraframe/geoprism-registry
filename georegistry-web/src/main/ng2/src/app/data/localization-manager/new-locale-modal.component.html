@@ -1,0 +1,38 @@
+<div class="confirm-modal ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons" tabindex="-1" role="dialog">
+  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+    <span id="ui-id-1" class="ui-dialog-title"><localize key="new-locale.title"></localize></span>
+  </div>
+  <div class="confirm-text ui-dialog-content ui-widget-content">
+    {{message}}
+  </div>
+    
+  <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+    <div>
+      <label><localize key="new-locale.language"></localize></label>
+			<select [(ngModel)]="language">
+			  <option *ngFor="let lang of allLocaleInfo.languages" [ngValue]="lang.key">{{lang.label}}</option>
+			</select>
+    </div>
+    
+    <div>
+      <label><localize key="new-locale.country"></localize></label>
+      <select [(ngModel)]="country">
+        <option *ngFor="let count of allLocaleInfo.countries" [ngValue]="count.key">{{count.label}}</option>
+      </select>
+    </div>
+    
+    <div>
+      <label><localize key="new-locale.variant"></localize></label>
+      <input type="text" [(ngModel)]="variant"/>
+    </div>
+  
+    <div class="ui-dialog-buttonset">
+      <button type="button" (click)="cancel()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+        <span class="ui-button-text"><localize key="new-locale.cancel"></localize></span>
+      </button>
+      <button type="button" (click)="submit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+        <span class="ui-button-text"><localize key="new-locale.submit"></localize></span>
+      </button>
+    </div>
+  </div>
+</div>  

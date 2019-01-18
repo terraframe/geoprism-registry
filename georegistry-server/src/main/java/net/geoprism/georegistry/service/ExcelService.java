@@ -91,8 +91,8 @@ public class ExcelService
     JsonArray attributes = type.get("attributes").getAsJsonArray();
 
     // Add the longitude and latitude attributes
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc")).toJSON());
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc")).toJSON());
+    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc"), false).toJSON());
+    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc"), false).toJSON());
 
     for (int i = 0; i < attributes.size(); i++)
     {

@@ -3,6 +3,7 @@ package net.geoprism.georegistry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.dataaccess.cache.globalcache.ehcache.CacheShutdown;
@@ -20,8 +21,8 @@ public class LocalizationConversionExamples
 {
   public static void main(String[] args) throws Exception
   {
-    doAll();
-//    doConvert();
+//    doAll();
+    doConvert();
 //    doLocalize();
   }
   
@@ -37,9 +38,9 @@ public class LocalizationConversionExamples
     try
     {
       PropertiesFileToXMLLocalizationConverter.main(new String[] {
-          "--propertyFile=/home/rich/dev/workspace/georegistry/envcfg/messages-extension.properties",
-          "--xmlFile=/home/rich/dev/tmp/xmlOut.xml",
-          "--tagName=" + LocalizedValueStore.TAG_NAME_UI_TEXT
+          "--propertyFile=/home/rich/dev/workspace/georegistry/runwayExceptions/gisCommonExceptions.properties",
+          "--xmlFile=/home/rich/dev/workspace/georegistry/runwayExceptionsConverted/gisCommonExceptions.xml",
+          "--tagName=" + LocalizedValueStore.TAG_NAME_RUNWAY_GIS_EXCEPTIONS
       });
     }
     finally
@@ -76,8 +77,8 @@ public class LocalizationConversionExamples
       
       ConfigurationBuilder builder = new ConfigurationBuilder();
       builder.addAttributeLocalTab("Custom Exceptions", (MdAttributeLocal) BusinessFacade.get(MdLocalizable.getMessageMd()));
-      builder.addLocalizedValueStoreTab("Runway Exceptions", LocalizedValueStore.TAG_NAME_RUNWAY_EXCEPTION);
-      builder.addLocalizedValueStoreTab("UI Text", LocalizedValueStore.TAG_NAME_UI_TEXT);
+      builder.addLocalizedValueStoreTab("Runway Exceptions", LocalizedValueStore.TAG_NAME_ALL_RUNWAY_EXCEPTIONS);
+      builder.addLocalizedValueStoreTab("UI Text", Arrays.asList(LocalizedValueStore.TAG_NAME_UI_TEXT));
       SpreadsheetConfiguration config = builder.build();
     
       LocalizationExcelExporter exporter = new LocalizationExcelExporter(config, new FileOutputStream(file));
