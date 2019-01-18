@@ -5,6 +5,11 @@ import java.util.Map;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -12,9 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
@@ -31,14 +39,19 @@ import com.runwaysdk.system.gis.metadata.MdAttributeMultiPoint;
 import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
 import com.runwaysdk.system.gis.metadata.MdAttributePoint;
 import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
+import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
+import com.runwaysdk.system.metadata.MdAttributeConcrete;
+import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
+import com.runwaysdk.system.metadata.MdAttributeFloat;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
+import com.runwaysdk.system.metadata.MdAttributeInteger;
+import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
@@ -380,7 +393,7 @@ public class AdapterUtilities
     codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
     codeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
     codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultLocalizedDescription());
-    codeMdAttr.setDatabaseSize(255);
+    codeMdAttr.setDatabaseSize(MdAttributeCharacter.MAX_CHARACTER_SIZE);
     codeMdAttr.setDefiningMdClass(definingMdBusiness);
     codeMdAttr.setRequired(true);
     codeMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
@@ -451,11 +464,172 @@ public class AdapterUtilities
         mdAttributeGeometry.setAttributeName(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_NAME);
         mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
       }
-
+      
       mdAttributeGeometry.setRequired(false);
       mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
       mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
       mdAttributeGeometry.apply();
     }
   }
+  
+  /**
+   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness} from the given {@link AttributeType}
+   * 
+   * @pre assumes no attribute has been defined on the type with the given name.
+   * 
+   * @param mdBusiness Type to receive attribute definition
+   * @param attributeType newly defined attribute
+   * 
+   * @return {@link AttributeType}
+   */
+  public AttributeType createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  {  
+	MdAttributeConcrete mdAttribute = null;
+	  
+	if (attributeType.getType().equals(AttributeCharacterType.TYPE))
+	{
+//	  AttributeCharacterType attributeCharacterType = (AttributeCharacterType)attributeType;		
+      mdAttribute = new MdAttributeCharacter();
+      MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter)mdAttribute;
+      mdAttributeCharacter.setDatabaseSize(MdAttributeCharacter.MAX_CHARACTER_SIZE);
+	}
+    else if (_type.equals(AttributeDateType.TYPE))
+    {
+//      AttributeDateType attributeDateType = (AttributeDateType)attributeType;
+      mdAttribute = new MdAttributeDateTime();
+      MdAttributeDateTime mdAttributeDateTime = (MdAttributeDateTime)mdAttribute;
+    }
+    else if (_type.equals(AttributeIntegerType.TYPE))
+    {
+//      AttributeIntegerType attributeIntegerType = (AttributeIntegerType)attributeType;
+      mdAttribute = new MdAttributeInteger();
+      MdAttributeInteger mdAttributeInteger = (MdAttributeInteger)mdAttribute;
+    }
+    else if (_type.equals(AttributeFloatType.TYPE))
+    {
+      AttributeFloatType attributeIntegerType = (AttributeFloatType)attributeType;
+    	
+      mdAttribute = new MdAttributeFloat();
+      MdAttributeFloat mdAttributeFloat = (MdAttributeFloat)mdAttribute;
+    }
+    else if (_type.equals(AttributeTermType.TYPE))
+    {
+      AttributeTermType attributeTermType = (AttributeTermType)attributeType;
+    	
+      mdAttribute = new MdAttributeMultiTerm();
+      MdAttributeMultiTerm mdAttributeMultiTerm = (MdAttributeMultiTerm)mdAttribute;
+      
+      // TODO - implement Terms
+    }
+    else if (_type.equals(AttributeBooleanType.TYPE))
+    {
+      AttributeBooleanType attributeBooleanType = (AttributeBooleanType)attributeType;
+    	
+      mdAttribute = new MdAttributeBoolean();
+      MdAttributeBoolean mdAttributeBoolean = (MdAttributeBoolean)mdAttribute;
+    }  
+
+	mdAttribute.setAttributeName(attributeType.getName());
+	mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
+	mdAttribute.getDescription().setValue(attributeType.getDescription());
+	mdAttribute.setDefiningMdClass(definingMdBusiness);
+	mdAttribute.apply();
+	
+	return attributeType;
+  }
+  
+  /**
+   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness} from the given {@link AttributeType}
+   * 
+   * @pre assumes no attribute has been defined on the type with the given name.
+   * 
+   * @param mdBusiness Type to receive attribute definition
+   * @param attributeType newly defined attribute
+   * 
+   * @return {@link AttributeType}
+   */
+  public AttributeType updateMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  { 
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType);
+    
+    if (mdAttributeConcreteDAOIF != null)
+    {
+      // Get the type safe version
+      MdAttributeConcrete mdAttribute = (MdAttributeConcrete)BusinessFacade.get(mdAttributeConcreteDAOIF);
+      mdAttribute.lock();
+      
+      mdAttribute.setAttributeName(attributeType.getName());
+  	  mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
+  	  mdAttribute.getDescription().setValue(attributeType.getDescription());
+  	  mdAttribute.apply();   
+  	  
+  	  mdAttribute.unlock();
+    }
+    
+    return attributeType;
+  }
+  
+  /**
+   * Delete 
+   * 
+   * 
+   * @param mdBusiness
+   * @param attributeType
+   */
+  public void deleteMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  {    
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType);
+    
+    if (mdAttributeConcreteDAOIF != null)
+    {
+      mdAttributeConcreteDAOIF.getBusinessDAO().delete();
+    }
+  }
+  
+  /**
+   * Returns the {link MdAttributeConcreteDAOIF} for the given {@link AttributeType} defined on the
+   * given {@link MdBusiness} or null no such attribute is defined.
+   * 
+   * @param mdBusiness
+   * @param attributeType
+   * @return
+   */
+  private MdAttributeConcreteDAOIF getMdAttribute(MdBusiness mdBusiness, AttributeType attributeType)
+  {
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+	    
+	return mdBusinessDAOIF.definesAttribute(attributeType.getName());
+  }
+  
+  
+//  AttributeType attributeType = null;
+//  
+//  if (_type.equals(AttributeCharacterType.TYPE))
+//  {
+//    attributeType = new AttributeCharacterType(_name, _localizedLabel, _localizedDescription);
+//  }
+//  else if (_type.equals(AttributeDateType.TYPE))
+//  {
+//    attributeType = new AttributeDateType(_name, _localizedLabel, _localizedDescription);
+//  }
+//  else if (_type.equals(AttributeIntegerType.TYPE))
+//  {
+//    attributeType = new AttributeIntegerType(_name, _localizedLabel, _localizedDescription);
+//  }
+//  else if (_type.equals(AttributeFloatType.TYPE))
+//  {
+//    attributeType = new AttributeFloatType(_name, _localizedLabel, _localizedDescription);
+//  }
+//  else if (_type.equals(AttributeTermType.TYPE))
+//  {
+//    attributeType = new AttributeTermType(_name, _localizedLabel, _localizedDescription);
+//  }
+//  else if (_type.equals(AttributeBooleanType.TYPE))
+//  {
+//    attributeType = new AttributeBooleanType(_name, _localizedLabel, _localizedDescription);
+//  }
+//  
+//  return attributeType;
+  
+  
 }
