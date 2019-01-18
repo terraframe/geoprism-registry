@@ -25,6 +25,8 @@ import { Observable } from 'rxjs/Observable';
 
 import { EventService } from '../event/event.service';
 
+import { AllLocaleInfo } from '../data/localization-manager/localization-manager';
+
 declare var acp: any;
 
 @Injectable()
@@ -32,14 +34,27 @@ export class LocalizationManagerService {
 
     constructor( private http: Http, private eventService: EventService ) { }
 
-    exportLocalization( ): Promise<Response> {
-        console.log("export localization in service")
-        
+    getNewLocaleInfo( ): Promise<AllLocaleInfo> {
         return this.http
-            .get( acp + '/localization/exportSpreadsheet' )
-            .toPromise()
-            .then( response => {
-                return response;
-            } )
+          .get( acp + '/localization/getNewLocaleInformation' )
+          .toPromise()
+          .then( response => {
+              return response.json() as AllLocaleInfo;
+          } )
     }
+    
+    installLocale( language: string, country: string, variant: string ): Promise<Response> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'language', language );
+        params.set( 'country', country );
+        params.set( 'variant', variant );
+    
+        return this.http
+          .get( acp + '/localization/installLocale', {params: params} )
+          .toPromise()
+          .then( response => {
+              return response;
+          } )
+    }
+    
 }

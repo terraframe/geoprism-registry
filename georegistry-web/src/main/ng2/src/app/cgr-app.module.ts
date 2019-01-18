@@ -27,6 +27,7 @@ import { CreateGeoObjTypeModalComponent } from './data/hierarchy/modals/create-g
 import { ShapefileModalComponent } from './data/importer/modals/shapefile-modal.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
+import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -73,6 +74,7 @@ import './rxjs-extensions';
     SpreadsheetModalComponent,
     LoadingBarComponent,
     GeoObjectTypePipe,
+    NewLocaleModalComponent,
     
     LocalizeComponent,
     LocalizePipe,
@@ -91,6 +93,6 @@ import './rxjs-extensions';
     LocalizationService
   ],
   bootstrap: [CgrAppComponent],
-  entryComponents: [ErrorModalComponent, CreateChildModalComponent, CreateGeoObjTypeModalComponent, CreateModalComponent, ConfirmModalComponent, LoadingBarComponent, ShapefileModalComponent, SpreadsheetModalComponent]        
+  entryComponents: [ErrorModalComponent, NewLocaleModalComponent, CreateChildModalComponent, CreateGeoObjTypeModalComponent, CreateModalComponent, ConfirmModalComponent, LoadingBarComponent, ShapefileModalComponent, SpreadsheetModalComponent]        
 })
 export class CgrAppModule { }

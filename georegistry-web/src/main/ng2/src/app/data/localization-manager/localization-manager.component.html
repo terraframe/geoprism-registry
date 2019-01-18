@@ -5,9 +5,13 @@
   <div id="app-container" class="container">
   
     <div class="row" style="margin:25px;">
-      <div>
-        <button type="submit" class="btn btn-primary" (click)="exportLocalization()"><localize key="localization-manager.exportButton"></localize></button>
-      </div>
+      <div style="margin-bottom: 5px;">
+	      <button type="submit" class="btn btn-primary" (click)="exportLocalization()"><localize key="localization-manager.exportButton"></localize></button>
+	    </div>
+	    
+	    <div>
+	      <button type="submit" class="btn btn-primary" (click)="showNewLocaleModal()"><localize key="localization-manager.installLocale"></localize></button>
+	    </div>
     </div>
     
     <div class="row" style="margin:25px;">
