@@ -682,7 +682,7 @@ public class AdapterUtilities
    */
   public AttributeType updateMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
   { 
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType.getName());
     
     if (mdAttributeConcreteDAOIF != null)
     {
@@ -702,15 +702,15 @@ public class AdapterUtilities
   }
   
   /**
-   * Delete 
+   * Delete the {@link MdAttributeConcreteDAOIF} from the given {
    * 
    * 
    * @param mdBusiness
-   * @param attributeType
+   * @param attributeName
    */
-  public void deleteMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  public void deleteMdAttributeFromAttributeType(MdBusiness mdBusiness, String attributeName)
   {    
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeName);
     
     if (mdAttributeConcreteDAOIF != null)
     {
@@ -723,45 +723,14 @@ public class AdapterUtilities
    * given {@link MdBusiness} or null no such attribute is defined.
    * 
    * @param mdBusiness
-   * @param attributeType
+   * @param attributeName
    * @return
    */
-  private MdAttributeConcreteDAOIF getMdAttribute(MdBusiness mdBusiness, AttributeType attributeType)
+  private MdAttributeConcreteDAOIF getMdAttribute(MdBusiness mdBusiness, String attributeName)
   {
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
 	    
-	return mdBusinessDAOIF.definesAttribute(attributeType.getName());
-  }
-  
-  
-//  AttributeType attributeType = null;
-//  
-//  if (_type.equals(AttributeCharacterType.TYPE))
-//  {
-//    attributeType = new AttributeCharacterType(_name, _localizedLabel, _localizedDescription);
-//  }
-//  else if (_type.equals(AttributeDateType.TYPE))
-//  {
-//    attributeType = new AttributeDateType(_name, _localizedLabel, _localizedDescription);
-//  }
-//  else if (_type.equals(AttributeIntegerType.TYPE))
-//  {
-//    attributeType = new AttributeIntegerType(_name, _localizedLabel, _localizedDescription);
-//  }
-//  else if (_type.equals(AttributeFloatType.TYPE))
-//  {
-//    attributeType = new AttributeFloatType(_name, _localizedLabel, _localizedDescription);
-//  }
-//  else if (_type.equals(AttributeTermType.TYPE))
-//  {
-//    attributeType = new AttributeTermType(_name, _localizedLabel, _localizedDescription);
-//  }
-//  else if (_type.equals(AttributeBooleanType.TYPE))
-//  {
-//    attributeType = new AttributeBooleanType(_name, _localizedLabel, _localizedDescription);
-//  }
-//  
-//  return attributeType;
-  
+	return mdBusinessDAOIF.definesAttribute(attributeName);
+  }  
   
 }

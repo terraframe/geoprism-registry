@@ -2,17 +2,15 @@ package net.geoprism.registry;
 
 import java.util.Locale;
 
-import net.geoprism.GeoprismUser;
-import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.georegistry.service.ConversionService;
-import net.geoprism.georegistry.service.RegistryIdService;
-import net.geoprism.georegistry.service.RegistryService;
-import net.geoprism.georegistry.service.ServiceFactory;
-
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
@@ -28,7 +26,11 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -40,6 +42,13 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
+
+import net.geoprism.GeoprismUser;
+import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.service.ConversionService;
+import net.geoprism.georegistry.service.RegistryIdService;
+import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.georegistry.service.ServiceFactory;
 
 public class HierarchyManagementServiceTest
 {
@@ -312,7 +321,193 @@ public class HierarchyManagementServiceTest
       Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
     }
   }
+  
+//AttributeType testChar = AttributeType.factory("testChar",  "testCharLocalName", "testCharLocalDescrip", AttributeCharacterType.TYPE);
+//AttributeType testDate = AttributeType.factory("testDate",  "testDateLocalName", "testDateLocalDescrip", AttributeDateType.TYPE);
+//AttributeType testInteger = AttributeType.factory("testInteger",  "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
+//AttributeType testBoolean = AttributeType.factory("testBoolean",  "testBooleanName", "testBooleanDescrip", AttributeBooleanType.TYPE);
+//AttributeType testTerm = AttributeType.factory("testTerm",  "testTermLocalName", "testTermLocalDescrip", AttributeTermType.TYPE);
 
+  
+  @Test
+  public void testCreateGeoObjectTypeCharacter()
+  {  
+    String sessionId = this.logInAdmin();
+
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry); 
+    String gtJSON = province.toJSON().toString();
+    
+    AttributeType testChar = AttributeType.factory("testChar",  "testCharLocalName", "testCharLocalDescrip", AttributeCharacterType.TYPE);
+
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+            
+      String geoObjectTypeCode = province.getCode();
+      String attributeTypeJSON = testChar.toJSON().toString();
+      testChar = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = checkAttribute(PROVINCE_CODE, testChar.getName());
+
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: "+testChar.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: "+mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeCharacterDAOIF);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testChar.getName());
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
+  
+  @Test
+  public void testCreateGeoObjectTypeDate()
+  {  
+    String sessionId = this.logInAdmin();
+
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry); 
+    String gtJSON = province.toJSON().toString();
+    
+    AttributeType testDate = AttributeType.factory("testDate",  "testDateLocalName", "testDateLocalDescrip", AttributeDateType.TYPE);
+
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+            
+      String geoObjectTypeCode = province.getCode();
+      String attributeTypeJSON = testDate.toJSON().toString();
+      testDate = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = checkAttribute(PROVINCE_CODE, testDate.getName());
+
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: "+testDate.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: "+mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeMomentDAOIF);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testDate.getName());
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
+
+  @Test
+  public void testCreateGeoObjectTypeInteger()
+  {  
+    String sessionId = this.logInAdmin();
+
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry); 
+    String gtJSON = province.toJSON().toString();
+    
+    AttributeType testInteger = AttributeType.factory("testInteger",  "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
+
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+            
+      String geoObjectTypeCode = province.getCode();
+      String attributeTypeJSON = testInteger.toJSON().toString();
+      testInteger = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = checkAttribute(PROVINCE_CODE, testInteger.getName());
+
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: "+testInteger.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: "+mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeIntegerDAOIF);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testInteger.getName());
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
+  
+  @Test
+  public void testCreateGeoObjectTypeBoolean()
+  {  
+    String sessionId = this.logInAdmin();
+
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry); 
+    String gtJSON = province.toJSON().toString();
+    
+    AttributeType testBoolean = AttributeType.factory("testBoolean",  "testBooleanName", "testBooleanDescrip", AttributeBooleanType.TYPE);
+
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+            
+      String geoObjectTypeCode = province.getCode();
+      String attributeTypeJSON = testBoolean.toJSON().toString();
+      testBoolean = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = checkAttribute(PROVINCE_CODE, testBoolean.getName());
+
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: "+testBoolean.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: "+mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeBooleanDAOIF);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testBoolean.getName());
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
+  
+  @Request
+  private MdAttributeConcreteDAOIF checkAttribute(String geoObjectTypeCode, String attributeName)
+  {
+    Universal universal = Universal.getByKey(geoObjectTypeCode);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
+
+    return mdBusinessDAOIF.definesAttribute(attributeName);
+  }
+  
   @Test
   public void testCreateGeoObjectTypePoint()
   {  

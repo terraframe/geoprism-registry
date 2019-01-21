@@ -173,9 +173,9 @@ public class RegistryController
    }
    
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
-   public ResponseIF deleteAttributeFromGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_TYPE_PARAM) String attributeType)
+   public ResponseIF deleteAttributeFromGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_TYPE_PARAM) String attributeName)
    {
-     Boolean deleted = this.registryService.deleteAttributeFromGeoObjectType(request.getSessionId(), geoObjTypeId, attributeType);
+     Boolean deleted = this.registryService.deleteAttributeFromGeoObjectType(request.getSessionId(), geoObjTypeId, attributeName);
      
      return new RestBodyResponse(deleted);
    }
