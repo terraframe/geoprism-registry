@@ -1,7 +1,6 @@
 package net.geoprism.georegistry.service;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -31,11 +30,13 @@ import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
-import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileImporter;
 import net.geoprism.georegistry.shapefile.NullLogger;
@@ -264,18 +265,29 @@ public class ShapefileService
   private InputStream exportShapefile(String code)
   {
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
 
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    OIterator<GeoObject> it = null;
 
     try
     {
-      File shapefile = exporter.writeToFile();
-      return new FileInputStream(shapefile);
+      it = query.getIterator();
+
+      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, it);
+
+      return exporter.export();
     }
     catch (IOException e)
     {
       throw new ProgrammingErrorException(e);
+    }
+    finally
+    {
+      if (it != null)
+      {
+        it.close();
+      }
     }
   }
 }

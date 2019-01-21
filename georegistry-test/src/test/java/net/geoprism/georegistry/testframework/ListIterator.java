@@ -1,4 +1,4 @@
-package net.geoprism.registry.testframework;
+package net.geoprism.georegistry.testframework;
 
 import java.util.Iterator;
 import java.util.List;

@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.georegistry.service;
 
 import java.util.UUID;
 
@@ -34,9 +34,9 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import net.geoprism.georegistry.RegistryController;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.registry.testframework.USATestData;
-import net.geoprism.registry.testframework.USATestData.TestGeoObjectInfo;
-import net.geoprism.registry.testframework.USATestData.TestGeoObjectTypeInfo;
+import net.geoprism.georegistry.testframework.USATestData;
+import net.geoprism.georegistry.testframework.USATestData.TestGeoObjectInfo;
+import net.geoprism.georegistry.testframework.USATestData.TestGeoObjectTypeInfo;
 
 public class RegistryServiceTest
 {

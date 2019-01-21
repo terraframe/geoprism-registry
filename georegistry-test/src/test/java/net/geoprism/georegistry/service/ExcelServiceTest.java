@@ -24,10 +24,10 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
-import net.geoprism.georegistry.io.GeoObjectUtil;
-import net.geoprism.registry.testframework.USATestData;
+import net.geoprism.georegistry.testframework.USATestData;
 
 public class ExcelServiceTest
 {
@@ -121,9 +121,9 @@ public class ExcelServiceTest
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POINT);
 
-    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    List<GeoObject> objects = new GeoObjectQuery(type, tutil.STATE.getUniversal()).getIterator().getAll();
 
     Assert.assertEquals(1, objects.size());
 
@@ -153,9 +153,9 @@ public class ExcelServiceTest
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POINT);
 
-    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    List<GeoObject> objects = new GeoObjectQuery(type, tutil.STATE.getUniversal()).getIterator().getAll();
 
     Assert.assertEquals(1, objects.size());
 

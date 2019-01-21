@@ -1,4 +1,4 @@
-package net.geoprism.registry.testframework;
+package net.geoprism.georegistry.testframework;
 
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;

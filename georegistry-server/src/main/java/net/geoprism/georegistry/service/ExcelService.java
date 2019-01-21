@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -20,17 +19,19 @@ import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
+import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.excel.ExcelFieldContentsHandler;
 import net.geoprism.georegistry.excel.GeoObjectContentHandler;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
-import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.localization.LocalizationFacade;
 
@@ -174,11 +175,16 @@ public class ExcelService
   private InputStream exportSpreadsheet(String code)
   {
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    OIterator<GeoObject> it = null;
 
     try
     {
-      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+      it = query.getIterator();
+
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, it);
       InputStream istream = exporter.export();
 
       return istream;
@@ -186,6 +192,13 @@ public class ExcelService
     catch (IOException e)
     {
       throw new ProgrammingErrorException(e);
+    }
+    finally
+    {
+      if (it != null)
+      {
+        it.close();
+      }
     }
   }
 }

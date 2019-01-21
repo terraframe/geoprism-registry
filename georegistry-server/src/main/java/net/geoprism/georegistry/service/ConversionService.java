@@ -453,7 +453,19 @@ public class ConversionService
    */
   private boolean convertMdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
   {
-    if (mdAttribute.isSystem() || mdAttribute instanceof MdAttributeStructDAOIF || mdAttribute instanceof MdAttributeEncryptionDAOIF || mdAttribute instanceof MdAttributeIndicatorDAOIF || mdAttribute instanceof MdAttributeBlobDAOIF || mdAttribute instanceof MdAttributeFileDAOIF || mdAttribute instanceof MdAttributeTimeDAOIF || mdAttribute instanceof MdAttributeUUIDDAOIF || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
+    if (mdAttribute.isSystem()
+        || mdAttribute instanceof MdAttributeStructDAOIF
+        || mdAttribute instanceof MdAttributeEncryptionDAOIF
+        || mdAttribute instanceof MdAttributeIndicatorDAOIF
+        || mdAttribute instanceof MdAttributeBlobDAOIF
+        || mdAttribute instanceof MdAttributeFileDAOIF
+        || mdAttribute instanceof MdAttributeTimeDAOIF
+        || mdAttribute instanceof MdAttributeUUIDDAOIF
+        || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
+    {
+      return false;
+    }
+    else if(mdAttribute.definesAttribute().equals(ComponentInfo.KEY) || mdAttribute.definesAttribute().equals(ComponentInfo.TYPE))
     {
       return false;
     }
