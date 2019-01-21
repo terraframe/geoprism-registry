@@ -772,6 +772,11 @@ public class USATestData extends TestUtilities
   @Transaction
   public void cleanUpInTrans()
   {
+    if (STATE.universal != null && DISTRICT.universal != null)
+    {
+      ConversionService.removeParentReferenceToLeafType(LocatedIn.class.getSimpleName(), STATE.universal, DISTRICT.universal);
+    }
+
     for (TestGeoObjectInfo geo : customGeoInfos)
     {
       geo.delete();

@@ -176,17 +176,12 @@ public class GeoObjectConfiguration
   {
     JsonObject type = this.type.toJSON();
     JsonArray attributes = type.get("attributes").getAsJsonArray();
-<<<<<<< HEAD
 
     if (this.includeCoordinates)
     {
-      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc")).toJSON());
-      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc")).toJSON());
+      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc"), false).toJSON());
+      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc"), false).toJSON());
     }
-=======
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc"), false).toJSON());
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc"), false).toJSON());
->>>>>>> refs/remotes/origin/dev
 
     for (int i = 0; i < attributes.size(); i++)
     {

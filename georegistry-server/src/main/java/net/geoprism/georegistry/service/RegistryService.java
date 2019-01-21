@@ -5,13 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -19,10 +18,7 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.Term;
-
 import org.json.JSONObject;
-import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -52,11 +48,9 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.DefaultConfiguration;
-import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
+import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
-
-
 
 public class RegistryService
 {
@@ -172,8 +166,6 @@ public class RegistryService
 
     return ServiceFactory.getUtilities().applyGeoObject(geoObject, false);
   }
-  
-  
 
   @Request(RequestType.SESSION)
   public String[] getUIDS(String sessionId, Integer amount)
@@ -231,8 +223,7 @@ public class RegistryService
 
           for (MdAttributeDAOIF mdAttribute : mdAttributes)
           {
-            String code = mdAttribute.getDescription(Session.getCurrentLocale());
-            HierarchyType ht = adapter.getMetadataCache().getHierachyType(code).get();
+            HierarchyType ht = AttributeHierarhcy.getHierarchyType(mdAttribute.getKey());
 
             BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
             query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parentRunwayId));
@@ -289,27 +280,6 @@ public class RegistryService
     }
 
     return tnRoot;
-  }
-
-  private HierarchyType getHierarchyType(GeoObjectType type, Map<String, HierarchyType> map)
-  {
-    Set<Entry<String, HierarchyType>> entries = map.entrySet();
-
-    for (Entry<String, HierarchyType> entry : entries)
-    {
-      HierarchyType hierarchy = entry.getValue();
-      List<HierarchyNode> nodes = hierarchy.getRootGeoObjectTypes();
-
-      for (HierarchyNode node : nodes)
-      {
-        if (node.getGeoObjectType().getCode().equals(type.getCode()))
-        {
-          return hierarchy;
-        }
-      }
-    }
-
-    return null;
   }
 
   private Map<String, HierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
@@ -374,8 +344,8 @@ public class RegistryService
             }
             else
             {
-              String code = mdAttribute.getDescription(Session.getCurrentLocale());
-              HierarchyType ht = adapter.getMetadataCache().getHierachyType(code).get();
+              HierarchyType ht = AttributeHierarhcy.getHierarchyType(mdAttribute.getKey());
+
               tnParent = new ParentTreeNode(goParent, ht);
             }
 
@@ -653,32 +623,33 @@ public class RegistryService
    * @pre given {@link GeoObjectType} must already exist.
    * 
    * @param sessionId
-   * @param gtId string of the {@link GeoObjectType} to be updated.
-   * @param attribute AttributeType to be added to the GeoObjectType
+   * @param gtId
+   *          string of the {@link GeoObjectType} to be updated.
+   * @param attribute
+   *          AttributeType to be added to the GeoObjectType
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
   public AttributeType addAttributeToGeoObjectType(String sessionId, String gtId, String attribute)
   {
-    
+
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
-    
+
     JSONObject attrObj = new JSONObject(attribute);
-    
+
     AttributeType attrType = AttributeType.factory(attrObj.getString("name"), attrObj.getString("localizedLabel"), attrObj.getString("localizedDescription"), attrObj.getString("type"));
-    
-    
+
     geoObjectType.addAttribute(attrType);
 
-    //GeoObjectType geoObjectTypeModifiedApplied = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+    // GeoObjectType geoObjectTypeModifiedApplied =
+    // ServiceFactory.getConversionService().universalToGeoObjectType(universal);
 
     // If this did not error out then add to the cache
-    //adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
-    
+    // adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+
     return attrType;
   }
-  
-  
+
   /**
    * Deletes an attribute from the given {@link GeoObjectType}.
    * 
@@ -686,43 +657,44 @@ public class RegistryService
    * @pre given {@link GeoObjectType} must already exist.
    * 
    * @param sessionId
-   * @param gtId string of the {@link GeoObjectType} to be updated.
-   * @param attribute AttributeType to be removed from the GeoObjectType
+   * @param gtId
+   *          string of the {@link GeoObjectType} to be updated.
+   * @param attribute
+   *          AttributeType to be removed from the GeoObjectType
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
   public boolean deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attribute)
   {
-    
+
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
-    
+
     JSONObject attrObj = new JSONObject(attribute);
-    
-    
-    //geoObjectType.deleteAttribute(attrType);
+
+    // geoObjectType.deleteAttribute(attrType);
 
     // If this did not error out then add to the cache
-    //adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
-    
-    return true; 
+    // adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+
+    return true;
   }
-  
+
   @Request(RequestType.SESSION)
   public Term[] getTerms(String sessionId)
   {
-	 Term term1 = new Term("testCode", "testLabel", "testDescription"); 
-	 Term term2 = new Term("testCode2", "testLabel2", "testDescription2"); 
-	 term1.addChild(term2);
-	 
-	 ArrayList<Term> terms = new ArrayList<Term>();
-	 terms.add(term1);
-	 
-	 Term[] termsArr = new Term[terms.size()];
-	 termsArr = terms.toArray(termsArr);
-	 
-	 return termsArr;
+    Term term1 = new Term("testCode", "testLabel", "testDescription");
+    Term term2 = new Term("testCode2", "testLabel2", "testDescription2");
+    term1.addChild(term2);
+
+    ArrayList<Term> terms = new ArrayList<Term>();
+    terms.add(term1);
+
+    Term[] termsArr = new Term[terms.size()];
+    termsArr = terms.toArray(termsArr);
+
+    return termsArr;
   }
-  
+
   /**
    * Deletes the {@link GeoObjectType} with the given code.
    * 
@@ -743,6 +715,12 @@ public class RegistryService
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
   {
     Universal uni = Universal.getByKey(code);
+
+    /*
+     * Delete all Attribute references
+     */
+    AttributeHierarhcy.deleteByUniversal(uni);
+
     uni.delete();
   }
 
@@ -892,6 +870,9 @@ public class RegistryService
     String mdTermRelUniversalKey = ConversionService.buildMdTermRelUniversalKey(code);
 
     MdTermRelationship mdTermRelUniversal = MdTermRelationship.getByKey(mdTermRelUniversalKey);
+    
+    AttributeHierarhcy.deleteByRelationship(mdTermRelUniversal);
+    
     mdTermRelUniversal.delete();
 
     String mdTermRelGeoEntityKey = ConversionService.buildMdTermRelGeoEntityKey(code);
@@ -1003,19 +984,17 @@ public class RegistryService
       ConversionService.removeParentReferenceToLeafType(hierarchyTypeCode, parent, child);
     }
   }
-  
-  
-  
+
   @Request(RequestType.SESSION)
   public List<String> search(String sessionId, String term)
   {
-	  List<String> results = new ArrayList<String>();
-	  
-	  JSONObject ob = new JSONObject();
-	  ob.put("test", "test");
-	  results.add(ob.toString());
-	  
-//    List<QueryResult> results = SolrService.query(term);
+    List<String> results = new ArrayList<String>();
+
+    JSONObject ob = new JSONObject();
+    ob.put("test", "test");
+    results.add(ob.toString());
+
+    // List<QueryResult> results = SolrService.query(term);
 
     return results;
   }

@@ -63,7 +63,10 @@ public class RegistryServiceTest
   @After
   public void tearDown()
   {
-    tutil.cleanUp();
+    if (this.tutil != null)
+    {
+      tutil.cleanUp();
+    }
   }
 
   @Test

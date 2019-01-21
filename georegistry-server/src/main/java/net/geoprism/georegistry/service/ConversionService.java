@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoObjectStatus;
 
 public class ConversionService
@@ -822,6 +823,12 @@ public class ConversionService
     mdAttributeReference.setMdBusiness(MdBusiness.getMdBusiness(GeoEntity.CLASS));
     mdAttributeReference.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
     mdAttributeReference.apply();
+
+    AttributeHierarhcy map = new AttributeHierarhcy();
+    map.setMdAttribute(mdAttributeReference);
+    map.setMdTermRelationship(mdTermRelationship);
+    map.setKeyName(mdAttributeReference.getKey());
+    map.apply();
   }
 
   /**
@@ -841,6 +848,10 @@ public class ConversionService
     String refAttrName = getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
 
     MdAttributeConcreteDAOIF mdAttributeReference = childMdBusiness.definesAttribute(refAttrName);
+
+    AttributeHierarhcy map = AttributeHierarhcy.getByKey(mdAttributeReference.getKey());
+    map.delete();
+
     mdAttributeReference.getBusinessDAO().delete();
   }
 
