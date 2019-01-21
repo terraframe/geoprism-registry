@@ -8,11 +8,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.EnumerationMasterInfo;
-import com.runwaysdk.constants.MdAttributeEnumerationInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -25,6 +23,10 @@ public class GeoObjectQuery
   private GeoObjectType type;
 
   private Universal     universal;
+
+  private String        registryId;
+
+  private String        code;
 
   public GeoObjectQuery(GeoObjectType type, Universal universal)
   {
@@ -40,6 +42,26 @@ public class GeoObjectQuery
   public void setType(GeoObjectType type)
   {
     this.type = type;
+  }
+
+  public String getRegistryId()
+  {
+    return registryId;
+  }
+
+  public void setRegistryId(String registryId)
+  {
+    this.registryId = registryId;
+  }
+
+  public String getCode()
+  {
+    return code;
+  }
+
+  public void setCode(String code)
+  {
+    this.code = code;
   }
 
   public OIterator<GeoObject> getIterator()
@@ -58,6 +80,15 @@ public class GeoObjectQuery
       vQuery.SELECT(bQuery.get(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
       this.selectCustomAttributes(vQuery, bQuery);
+
+      if (this.registryId != null)
+      {
+        vQuery.WHERE(bQuery.get(RegistryConstants.UUID).EQ(this.registryId));
+      }
+      else if (this.code != null)
+      {
+        vQuery.WHERE(bQuery.get(DefaultAttribute.CODE.getName()).EQ(this.code));
+      }
 
       vQuery.ORDER_BY_ASC(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
     }
@@ -99,6 +130,16 @@ public class GeoObjectQuery
       this.selectCustomAttributes(vQuery, bQuery);
 
       vQuery.WHERE(bQuery.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(geQuery));
+
+      if (this.registryId != null)
+      {
+        vQuery.WHERE(bQuery.get(RegistryConstants.UUID).EQ(this.registryId));
+      }
+      else if (this.code != null)
+      {
+        vQuery.WHERE(geQuery.getGeoId().EQ(this.code));
+      }
+
       vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
     }
 
