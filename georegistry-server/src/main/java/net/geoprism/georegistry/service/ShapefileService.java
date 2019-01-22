@@ -37,6 +37,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileImporter;
 import net.geoprism.georegistry.shapefile.NullLogger;
@@ -100,7 +101,7 @@ public class ShapefileService
 
   private JsonObject getType(GeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON();
+    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(false));
     JsonArray attributes = type.get("attributes").getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)

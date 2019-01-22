@@ -19,7 +19,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.query.OIterator;

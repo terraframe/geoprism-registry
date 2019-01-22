@@ -36,4 +36,19 @@ export class ShapefileService {
             } )
             .toPromise()
     }
+    
+    cancelImport( configuration: ShapefileConfiguration ): Promise<Response> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/shapefile/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+    }
 }

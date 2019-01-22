@@ -1,0 +1,128 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.ok">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.ok" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Ok" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.cancel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.cancel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.error">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.error" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Error" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.geoObjectType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.geoObjectType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo Object Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.submit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.submit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.shapefile">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.shapefile" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Shapefile" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="shapefile.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="shapefile.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Shapefile import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="shapefile.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="shapefile.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select a zip of a shapefile, map the shapefile feature columns to Geo Object Type fields and import the locations into the system." />
+        </attributeStruct>
+      </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.spreadsheet">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.spreadsheet" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Spreadsheet" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="spreadsheet.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="spreadsheet.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Spreadsheet import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="spreadsheet.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="spreadsheet.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select a .xls or .xlsx file, map the spreadsheet columns to Geo Object Type fields and import the locations into the system." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="georegistry.longitude.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="georegistry.longitude.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Longitude" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="georegistry.latitude.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="georegistry.latitude.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Latitude" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.modal.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.modal.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Attribute Mapping" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.modal.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.modal.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Map the Geo Object Type attributes to the source file columns" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="spreadsheet.modal.heading">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="spreadsheet.modal.heading" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Map the workbook sheet " />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="shapefile.modal.heading">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="shapefile.modal.heading" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Map the shapefile type " />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

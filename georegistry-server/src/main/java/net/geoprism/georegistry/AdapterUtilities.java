@@ -384,30 +384,16 @@ public class AdapterUtilities
     GeoObjectQuery query = new GeoObjectQuery(got, universal);
     query.setRegistryId(registryId);
 
-    OIterator<GeoObject> it = null;
+    GeoObject gObject = query.getSingleResult();
 
-    try
+    if (gObject == null)
     {
-      it = query.getIterator();
+      InvalidRegistryIdException ex = new InvalidRegistryIdException();
+      ex.setRegistryId(registryId);
+      throw ex;
+    }
 
-      if (it.hasNext())
-      {
-        return it.next();
-      }
-      else
-      {
-        InvalidRegistryIdException ex = new InvalidRegistryIdException();
-        ex.setRegistryId(registryId);
-        throw ex;
-      }
-    }
-    finally
-    {
-      if (it != null)
-      {
-        it.close();
-      }
-    }
+    return gObject;
   }
 
   public Business getGeoEntityBusiness(GeoEntity ge)
@@ -439,28 +425,14 @@ public class AdapterUtilities
     GeoObjectQuery query = new GeoObjectQuery(got, universal);
     query.setCode(code);
 
-    OIterator<GeoObject> it = null;
+    GeoObject gObject = query.getSingleResult();
 
-    try
+    if (gObject == null)
     {
-      it = query.getIterator();
+      throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", MdBusinessDAO.get(universal.getMdBusinessOid()));
+    }
 
-      if (it.hasNext())
-      {
-        return it.next();
-      }
-      else
-      {
-        throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", MdBusinessDAO.get(universal.getMdBusinessOid()));
-      }
-    }
-    finally
-    {
-      if (it != null)
-      {
-        it.close();
-      }
-    }
+    return gObject;
   }
 
   // public HierarchyType getHierarchyTypeById(String oid)

@@ -26,6 +26,8 @@ public class GeoObjectQuery
 
   private String        registryId;
 
+  private String        runwayId;
+
   private String        code;
 
   public GeoObjectQuery(GeoObjectType type, Universal universal)
@@ -64,6 +66,16 @@ public class GeoObjectQuery
     this.code = code;
   }
 
+  public String getRunwayId()
+  {
+    return runwayId;
+  }
+
+  public void setRunwayId(String runwayId)
+  {
+    this.runwayId = runwayId;
+  }
+
   public OIterator<GeoObject> getIterator()
   {
     QueryFactory factory = new QueryFactory();
@@ -88,6 +100,10 @@ public class GeoObjectQuery
       else if (this.code != null)
       {
         vQuery.WHERE(bQuery.get(DefaultAttribute.CODE.getName()).EQ(this.code));
+      }
+      else if (this.runwayId != null)
+      {
+        vQuery.WHERE(bQuery.get(ComponentInfo.OID).EQ(this.runwayId));
       }
 
       vQuery.ORDER_BY_ASC(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
@@ -139,6 +155,10 @@ public class GeoObjectQuery
       {
         vQuery.WHERE(geQuery.getGeoId().EQ(this.code));
       }
+      else if (this.runwayId != null)
+      {
+        vQuery.WHERE(geQuery.getOid().EQ(this.runwayId));
+      }
 
       vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
     }
@@ -184,4 +204,29 @@ public class GeoObjectQuery
 
     return true;
   }
+
+  public GeoObject getSingleResult()
+  {
+    OIterator<GeoObject> it = null;
+
+    try
+    {
+      it = this.getIterator();
+
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+
+      return null;
+    }
+    finally
+    {
+      if (it != null)
+      {
+        it.close();
+      }
+    }
+  }
+
 }

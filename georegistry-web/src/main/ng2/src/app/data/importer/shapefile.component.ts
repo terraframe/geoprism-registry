@@ -53,7 +53,7 @@ export class ShapefileComponent implements OnInit {
         let options: FileUploaderOptions = {
             queueLimit: 1,
             removeAfterUpload: true,
-            url: acp + '/shapfile/get-shapefile-configuration'
+            url: acp + '/shapefile/get-shapefile-configuration'
         };
 
         this.uploader = new FileUploader( options );

@@ -32,6 +32,14 @@ export class ShapefileModalComponent implements OnInit {
 
     }
 
+    onCancel(): void {
+        this.service.cancelImport( this.configuration ).then( response => {
+            this.bsModalRef.hide()
+        } ).catch(( err: any ) => {
+            this.error( err.json() );
+        } );
+    }
+
     error( err: any ): void {
         // Handle error
         if ( err !== null ) {

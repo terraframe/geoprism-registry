@@ -8,7 +8,6 @@ import java.io.InputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
 
@@ -32,8 +31,8 @@ import net.geoprism.georegistry.excel.ExcelFieldContentsHandler;
 import net.geoprism.georegistry.excel.GeoObjectContentHandler;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.localization.LocalizationFacade;
 
 public class ExcelService
 {
@@ -88,12 +87,8 @@ public class ExcelService
 
   private JsonObject getType(GeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON();
+    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(true));
     JsonArray attributes = type.get("attributes").getAsJsonArray();
-
-    // Add the longitude and latitude attributes
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc"), false).toJSON());
-    attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc"), false).toJSON());
 
     for (int i = 0; i < attributes.size(); i++)
     {

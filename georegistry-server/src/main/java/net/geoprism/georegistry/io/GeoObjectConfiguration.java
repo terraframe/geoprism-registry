@@ -29,15 +29,19 @@ import net.geoprism.localization.LocalizationFacade;
 
 public class GeoObjectConfiguration
 {
-  public static final String             TARGET    = "target";
+  public static final String             TARGET        = "target";
 
-  public static String                   TEXT      = "text";
+  public static String                   TEXT          = "text";
 
-  public static String                   LATITUDE  = "latitude";
+  public static String                   LATITUDE      = "latitude";
 
-  public static String                   LONGITUDE = "longitude";
+  public static String                   LONGITUDE     = "longitude";
 
-  public static String                   NUMERIC   = "numeric";
+  public static String                   NUMERIC       = "numeric";
+
+  public static String                   LONGITUDE_KEY = "georegistry.longitude.label";
+
+  public static String                   LATITUDE_KEY  = "georegistry.latitude.label";
 
   private Map<String, ShapefileFunction> functions;
 
@@ -174,14 +178,8 @@ public class GeoObjectConfiguration
 
   public JsonObject toJson()
   {
-    JsonObject type = this.type.toJSON();
+    JsonObject type = this.type.toJSON(new ImportAttributeSerializer(this.includeCoordinates));
     JsonArray attributes = type.get("attributes").getAsJsonArray();
-
-    if (this.includeCoordinates)
-    {
-      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles("georegistry.longitude.label"), LocalizationFacade.getFromBundles("georegistry.longitude.desc"), false).toJSON());
-      attributes.add(new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles("georegistry.latitude.label"), LocalizationFacade.getFromBundles("georegistry.latitude.desc"), false).toJSON());
-    }
 
     for (int i = 0; i < attributes.size(); i++)
     {
@@ -289,4 +287,15 @@ public class GeoObjectConfiguration
 
     throw new UnsupportedOperationException("Unsupported type [" + type.getBinding().getName() + "]");
   }
+
+  public static AttributeFloatType latitude()
+  {
+    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles(LATITUDE_KEY), "", false);
+  }
+
+  public static AttributeFloatType longitude()
+  {
+    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles(LONGITUDE_KEY), "", false);
+  }
+
 }

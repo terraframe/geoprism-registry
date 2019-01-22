@@ -60,7 +60,7 @@ public class ExcelImportController
     return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), type), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration)
   {
     service.cancelImport(request.getSessionId(), configuration);

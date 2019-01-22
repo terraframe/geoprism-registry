@@ -72,9 +72,14 @@ public class ShapefileServiceTest
     ShapefileService service = new ShapefileService();
     JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), tutil.STATE.getCode(), "cb_2017_us_state_500k.zip", istream);
 
-    System.out.println(result.toString());
+    JsonObject type = result.getAsJsonObject("type");
 
-    Assert.assertNotNull(result.getAsJsonObject("type"));
+    Assert.assertNotNull(type);
+
+    JsonArray tAttributes = type.get("attributes").getAsJsonArray();
+
+    Assert.assertEquals(2, tAttributes.size());
+    Assert.assertTrue(tAttributes.get(0).getAsJsonObject().get("required").getAsBoolean());
 
     JsonObject sheet = result.getAsJsonObject("sheet");
 
