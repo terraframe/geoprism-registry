@@ -1036,22 +1036,4 @@ public class RegistryService
       ConversionService.removeParentReferenceToLeafType(hierarchyTypeCode, parent, child);
     }
   }
-<<<<<<< HEAD
-  
-=======
-
-  @Request(RequestType.SESSION)
-  public List<String> search(String sessionId, String term)
-  {
-    List<String> results = new ArrayList<String>();
-
-    JSONObject ob = new JSONObject();
-    ob.put("test", "test");
-    results.add(ob.toString());
-
-    // List<QueryResult> results = SolrService.query(term);
-
-    return results;
-  }
->>>>>>> 5e9c06ba9a00e8309557920468552d254c937b8a
 }
