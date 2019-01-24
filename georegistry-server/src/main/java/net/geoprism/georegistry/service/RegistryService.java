@@ -585,7 +585,7 @@ public class RegistryService
    * @param sessionId
    * @param geoObjectTypeCode string of the {@link GeoObjectType} to be updated.
    * @param attributeTypeJSON AttributeType to be added to the GeoObjectType
-   * @return updated {@link GeoObjectType}
+   * @return updated {@link AttributeType}
    */
   @Request(RequestType.SESSION)
   public AttributeType addAttributeToGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
@@ -607,6 +607,46 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    
+    return attrType;
+  }
+  
+  /**
+   * Updates an attribute in the given {@link GeoObjectType}.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   * @param geoObjectTypeCode string of the {@link GeoObjectType} to be updated.
+   * @param attributeTypeJSON AttributeType to be added to the GeoObjectType
+   * @return updated {@link AttributeType}
+   */
+  @Request(RequestType.SESSION)
+  public AttributeType updateAttributeInGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  {
+	  
+	  
+	  
+	// TODO: change this method to do an update rather than an add
+	  
+    
+//    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
+//    
+    JSONObject attrObj = new JSONObject(attributeTypeJSON);
+//    
+    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_NAME), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
+//
+//    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
+//    
+//    MdBusiness mdBusiness = universal.getMdBusiness();
+//    
+//    attrType = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
+//    
+//    geoObjectType.addAttribute(attrType);
+//
+//    // If this did not error out then add to the cache
+//    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+	  
     
     return attrType;
   }
@@ -934,19 +974,4 @@ public class RegistryService
     parent.removeAllChildren(child, mdTermRelationship.definesType());
   }
   
-  
-  
-  @Request(RequestType.SESSION)
-  public List<String> search(String sessionId, String term)
-  {
-	  List<String> results = new ArrayList<String>();
-	  
-	  JSONObject ob = new JSONObject();
-	  ob.put("test", "test");
-	  results.add(ob.toString());
-	  
-//    List<QueryResult> results = SolrService.query(term);
-
-    return results;
-  }
 }
