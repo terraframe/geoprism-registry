@@ -1,0 +1,20 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.io.RequiredMappingException" 
+                   label="Required attribute mapping exception" 
+                   description="Thrown when trying to import location data without mapping the required attributes" 
+                   message="The attribute [{attributeLabel}] must be mapped to a source column">
+        <attributes>
+          <text name="attributeLabel" label="Attribute label" />
+        </attributes>
+      </mdException>
+    
+    </create>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdException" key="net.geoprism.registry.io.RequiredMappingException" />
+    </delete>
+  </undoIt>
+</version>

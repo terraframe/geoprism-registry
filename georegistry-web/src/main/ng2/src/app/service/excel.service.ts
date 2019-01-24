@@ -27,4 +27,20 @@ export class ExcelService {
             } )
             .toPromise()
     }
+
+    cancelImport( configuration: ShapefileConfiguration ): Promise<Response> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/excel/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+    }
+
 }

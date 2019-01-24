@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.georegistry.service;
 
 import java.util.Locale;
 

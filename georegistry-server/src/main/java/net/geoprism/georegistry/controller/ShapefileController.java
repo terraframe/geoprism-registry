@@ -20,7 +20,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import net.geoprism.DataUploaderDTO;
 import net.geoprism.georegistry.service.ShapefileService;
 
-@Controller(url = "shapfile")
+@Controller(url = "shapefile")
 public class ShapefileController
 {
   private ShapefileService service;
@@ -47,7 +47,7 @@ public class ShapefileController
     }
   }
 
-  @Endpoint(url = "import-shape-file", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  @Endpoint(url = "import-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF importShapefile(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration) throws JSONException
   {
     JsonObject response = service.importShapefile(request.getSessionId(), configuration);
@@ -55,7 +55,7 @@ public class ShapefileController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration)
   {
     DataUploaderDTO.cancelImport(request, configuration);
@@ -63,7 +63,7 @@ public class ShapefileController
     return new RestBodyResponse("");
   }
 
-  @Endpoint(url = "export-shape-file", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  @Endpoint(url = "export-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type) throws JSONException
   {
     return new InputStreamResponse(service.exportShapefile(request.getSessionId(), type), "application/zip", "shapefile.zip");

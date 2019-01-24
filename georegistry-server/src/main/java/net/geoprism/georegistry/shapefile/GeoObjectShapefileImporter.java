@@ -58,6 +58,7 @@ import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.io.RequiredMappingException;
 
 /**
  * Class responsible for importing GeoObject definitions from a shapefile.
@@ -435,6 +436,13 @@ public class GeoObjectShapefileImporter extends TaskObservable
   {
     ShapefileFunction function = this.config.getFunction(GeoObject.CODE);
 
+    if (function == null)
+    {
+      RequiredMappingException ex = new RequiredMappingException();
+      ex.setAttributeLabel(this.config.getType().getAttribute(GeoObject.CODE).get().getLocalizedLabel());
+      throw ex;
+    }
+
     Object geoId = function.getValue(feature);
 
     if (geoId != null)
@@ -452,6 +460,13 @@ public class GeoObjectShapefileImporter extends TaskObservable
   private String getName(FeatureRow feature)
   {
     ShapefileFunction function = this.config.getFunction(GeoObject.LOCALIZED_DISPLAY_LABEL);
+    
+    if (function == null)
+    {
+      RequiredMappingException ex = new RequiredMappingException();
+      ex.setAttributeLabel(this.config.getType().getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getLocalizedLabel());
+      throw ex;
+    }
 
     Object attribute = function.getValue(feature);
 

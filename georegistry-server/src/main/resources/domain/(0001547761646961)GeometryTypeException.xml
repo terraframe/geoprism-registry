@@ -1,0 +1,20 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.GeometryTypeException" 
+                   label="Geomtry type exception" 
+                   description="Thrown when a geometry does not match the type specified in the GeoObjectType" 
+                   message="You cannot add a geo object with a geometry of type [{actualType}]. As geometry of type [{expectedType}] is expected.">
+        <attributes>
+          <text name="actualType" label="Actual type" />
+          <text name="expectedType" label="Expected type" />
+        </attributes>
+      </mdException>
+    
+    </create>
+  </doIt>
+  <undoIt>
+    <delete>
+    </delete>
+  </undoIt>
+</version>
