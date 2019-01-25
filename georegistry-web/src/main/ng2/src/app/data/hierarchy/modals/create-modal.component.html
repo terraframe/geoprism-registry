@@ -3,7 +3,7 @@
   <div class="modal-body">
     <div *ngIf="message != null" class="error-container">
       <div class="label-holder">
-        <strong>Error</strong>
+        <strong><localize key="error.title"></localize></strong>
       </div>
       <div class="holder">
         <div>
@@ -13,24 +13,24 @@
     </div>
     <div class="form-group">
       <label for="codeInput">Code</label>
-      <input  [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput" placeholder="Code..." required>
+      <input  [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput" placeholder="<localize key='hierarchy.management.create.geoobjecttype.code.input.placeholder'></localize>" required>
     </div>
     <div class="form-group">
       <label for="localizedLabelInput">Label</label>
-      <input  [(ngModel)]="hierarchyType.localizedLabel" name="localizedLabel" type="input" class="form-control" id="localizedLabelInput" placeholder="Label..." required>
+      <input  [(ngModel)]="hierarchyType.localizedLabel" name="localizedLabel" type="input" class="form-control" id="localizedLabelInput" placeholder="<localize key='hierarchy.management.create.geoobjecttype.label.input.placeholder'></localize>" required>
     </div>
     <div class="form-group">
       <label for="localizedDescriptionInput">Description</label>
-      <input  [(ngModel)]="hierarchyType.localizedDescription" name="localizedDescription" type="input" class="form-control" id="localizedDescriptionInput" placeholder="Description...">
+      <input  [(ngModel)]="hierarchyType.localizedDescription" name="localizedDescription" type="input" class="form-control" id="localizedDescriptionInput" placeholder="<localize key='hierarchy.management.create.geoobjecttype.description.input.placeholder'></localize>">
     </div>
     
     <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
       <div class="ui-dialog-buttonset">
         <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text">Cancel</span>
+          <span class="ui-button-text"><localize key="modal.button.cancel"></localize></span>
         </button>
         <button type="submit" [disabled]="hierarchyType.code.length < 1 && hierarchyType.localizedLabel.length < 1" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text">Ok</span>
+          <span class="ui-button-text"><localize key="modal.button.ok"></localize></span>
         </button>
       </div>
     </div>

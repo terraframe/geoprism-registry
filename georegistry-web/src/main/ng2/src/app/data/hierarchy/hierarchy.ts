@@ -34,6 +34,15 @@ export class Term {
     children: Term[];
 }
 
+
+export class TermOption {
+    constructor(public code:string, public localizedLabel:string, public localizedDescription:string){  
+        this.code = code;
+        this.localizedLabel = localizedLabel;
+        this.localizedDescription = localizedDescription;
+    }
+}
+
 export class GeoObject {
 	type: string;
 	geometry: any;
@@ -89,9 +98,16 @@ export class AttributeTerm extends Attribute {
       super(name, type, localizedLabel, localizedDescription, isDefault);
     }
 
-    rootTerm:string = null;
+    rootTerm:string;
+
+    termOptions:TermOption[] = [];
 
     setRootTerm(term:string){
         this.rootTerm = term;
     }
+}
+
+export class ManageAttributeState {
+  state: string;
+  attribute: any;
 }

@@ -27,10 +27,12 @@ import { CreateChildModalComponent } from './data/hierarchy/modals/create-child-
 import { CreateGeoObjTypeModalComponent } from './data/hierarchy/modals/create-geoobjtype-modal.component';
 import { ManageAttributesModalComponent } from './data/hierarchy/modals/manage-attributes-modal.component';
 import { DefineAttributeModalContentComponent } from './data/hierarchy/modals/define-attribute-modal-content.component';
+import { EditAttributeModalContentComponent } from './data/hierarchy/modals/edit-attribute-modal-content.component';
 import { ShapefileModalComponent } from './data/importer/modals/shapefile-modal.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
+import { TermOptionInputComponent } from './data/hierarchy/form-inputs/term-option-input.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -40,7 +42,6 @@ import { LocalizationService } from './core/service/localization.service';
 
 //import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
-import { GeoObjTypeModalService } from './service/geo-obj-type-modal.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { ShapefileService } from './service/shapefile.service';
 import { ExcelService } from './service/excel.service';
@@ -90,13 +91,14 @@ import './rxjs-extensions';
     NewLocaleModalComponent,
     LocalizeComponent,
     LocalizePipe,
+    EditAttributeModalContentComponent,
+    TermOptionInputComponent,
     
     // Routing components
     routedComponents
   ],
   providers: [
     HierarchyService,
-    GeoObjTypeModalService,
     LocalizationManagerService,
     ShapefileService,
     ExcelService,
@@ -112,12 +114,14 @@ import './rxjs-extensions';
       CreateGeoObjTypeModalComponent, 
       ManageAttributesModalComponent, 
       DefineAttributeModalContentComponent,
+      EditAttributeModalContentComponent,
       CreateModalComponent, 
       ConfirmModalComponent, 
       LoadingBarComponent,
       ShapefileModalComponent, 
       SpreadsheetModalComponent,
-      NewLocaleModalComponent
+      NewLocaleModalComponent,
+      TermOptionInputComponent
   ]        
 })
 export class CgrAppModule { }
