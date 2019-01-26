@@ -26,6 +26,7 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
@@ -68,11 +69,12 @@ import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierMultiTermAttributeRoot;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 
 public class AdapterUtilities
-{
+{	
   private Logger logger = LoggerFactory.getLogger(AdapterUtilities.class);
 
   public synchronized static AdapterUtilities getInstance()
@@ -220,11 +222,8 @@ public class AdapterUtilities
   @SuppressWarnings("unchecked")
   private Term populateBusiness(GeoObject geoObject, boolean isNew, Business business, GeoEntity entity)
   {
-    /**
-     * Figure out what status we are
-     */
-    GeoObjectStatus gos = isNew ? GeoObjectStatus.ACTIVE : ConversionService.getInstance().termToGeoObjectStatus(geoObject.getStatus());
-    Term statusTerm = isNew ? ConversionService.getInstance().geoObjectStatusToTerm(GeoObjectStatus.ACTIVE) : geoObject.getStatus();
+    GeoObjectStatus gos = isNew ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(geoObject.getStatus());
+    Term status = isNew ? ConversionService.getInstance().geoObjectStatusToTerm(GeoObjectStatus.PENDING) : geoObject.getStatus();
 
     business.setValue(RegistryConstants.UUID, geoObject.getUid());
     business.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
@@ -274,7 +273,8 @@ public class AdapterUtilities
         }
       }
     });
-    return statusTerm;
+    
+    return status;
   }
 
   private Business constructLeafObject(GeoObject geoObject, boolean isNew)
@@ -470,6 +470,9 @@ public class AdapterUtilities
     universal.setMdBusiness(mdBusiness);
 
     universal.apply();
+    
+    // Build the parent class term root if it does not exist.
+    buildIfNotExistdMdBusinessClassifier(mdBusiness);
 
     return universal;
   }
@@ -644,10 +647,14 @@ public class AdapterUtilities
     }
     else if (attributeType.getType().equals(AttributeTermType.TYPE))
     {
-      AttributeTermType attributeTermType = (AttributeTermType)attributeType;
-    
       mdAttribute = new MdAttributeMultiTerm();
       MdAttributeMultiTerm mdAttributeMultiTerm = (MdAttributeMultiTerm)mdAttribute;
+      
+      MdBusiness classifierMdBusiness = MdBusiness.getMdBusiness(Classifier.CLASS);
+      mdAttributeMultiTerm.setMdBusiness(classifierMdBusiness);
+      
+//      public static java.lang.String MDBUSINESS = "mdBusiness";
+      
       
       // TODO - implement Terms
     }
@@ -664,7 +671,132 @@ public class AdapterUtilities
 	mdAttribute.setDefiningMdClass(mdBusiness);
 	mdAttribute.apply();
 	
+	
+	if (attributeType.getType().equals(AttributeTermType.TYPE))
+    {
+	  MdAttributeMultiTerm mdAttributeMultiTerm = (MdAttributeMultiTerm)mdAttribute;
+
+//	  org.commongeoregistry.adapter.Term rootTerm = attributeTermType.getRootTerm();
+      
+      // Build the parent class term root if it does not exist.
+      Classifier classTerm = this.buildIfNotExistdMdBusinessClassifier(mdBusiness);
+      
+      // Create the root term node for this attribute
+      Classifier attributeTermRoot = this.buildIfNotExistAttribute(mdBusiness, mdAttributeMultiTerm);
+      classTerm.addIsAChild(attributeTermRoot).apply();
+      
+      // Make this the root term of the multi-attribute
+      attributeTermRoot.addClassifierMultiTermAttributeRoots(mdAttributeMultiTerm).apply();
+      
+	  AttributeTermType attributeTermType = (AttributeTermType)attributeType;
+	  
+	  Term term = new Term(attributeTermRoot.getKey(), attributeTermRoot.getDisplayLabel().getValue(), "");
+	  attributeTermType.setRootTerm(term);
+    }
+	
 	return attributeType;
+  }
+
+  
+  /**
+   * Builds if not exists a {@link Classifier} object as a parent of terms that pertain to
+   * the given {@link MdBusiness}.
+   * 
+   * @param mdBusiness {@link MdBusiness}
+   * 
+   * @return {@link Classifier} object as a parent of terms that pertain to
+   * the given {@link MdBusiness}.
+   */
+  public Classifier buildIfNotExistdMdBusinessClassifier(MdBusiness mdBusiness)
+  {
+    String clasTermKey = buildRootForClassTermKey(mdBusiness);
+    
+    Classifier classTerm = null;
+    
+    try
+    {
+      classTerm = Classifier.getByKey(clasTermKey);
+    }
+    catch (DataNotFoundException e)
+    {
+      classTerm = new Classifier();
+      classTerm.setKeyName(clasTermKey);
+      classTerm.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+      // This will set the value of the display label to the locale of the user performing the action.
+      classTerm.getDisplayLabel().setValue(mdBusiness.getDisplayLabel().getValue());
+      classTerm.getDisplayLabel().setDefaultValue(mdBusiness.getDisplayLabel().getDefaultValue());
+      classTerm.apply();
+      
+      Classifier rootClassTerm = Classifier.getByKey(RegistryConstants.TERM_CLASS);
+      rootClassTerm.addIsAChild(classTerm).apply();
+    }
+      
+    return classTerm;
+  }
+  
+  /**
+   * Builds if not exists a {@link Classifier} object as a parent of terms of the 
+   * given {@link MdAttributeMultiTerm}.
+   * 
+   * @param mdAttributeMultiTerm {@link MdAttributeMultiTerm}
+   * @param mdAttributeMultiTerm {@link MdAttributeMultiTerm}
+   * 
+   * @return {@link Classifier} object as a parent of terms that pertain to
+   * the given {@link MdBusiness}.
+   */
+  public Classifier buildIfNotExistAttribute(MdBusiness mdBusiness, MdAttributeMultiTerm mdAttributeMultiTerm)
+  {	    
+    String attributeTermKey = buildtAtttributeTermKey(mdBusiness, mdAttributeMultiTerm);
+    
+    Classifier attributeTerm = null;
+    
+    try
+    {
+      attributeTerm = Classifier.getByKey(attributeTermKey);
+    }
+    catch (DataNotFoundException e)
+    {
+      attributeTerm = new Classifier();
+      attributeTerm.setKeyName(attributeTermKey);
+      attributeTerm.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+      // This will set the value of the display label to the locale of the user performing the action.
+      attributeTerm.getDisplayLabel().setValue(mdBusiness.getDisplayLabel().getValue());
+      attributeTerm.getDisplayLabel().setDefaultValue(mdBusiness.getDisplayLabel().getDefaultValue());
+      attributeTerm.apply();
+    }
+      
+    return attributeTerm;
+  }
+  
+  /**
+   * Returns the {@link Classifier} code/key of the root term specifying the values for the
+   * given {@link MdBusiness}.
+   * 
+   * @param mdBusiness
+   * 
+   * @return {@link Classifier} code/key of the root term specifying the values for the
+   * given {@link MdBusiness}.
+   */
+  public static String buildRootForClassTermKey(MdBusiness mdBusiness)
+  {
+    return RegistryConstants.TERM_CLASS+"_"+mdBusiness.definesType();
+  }
+  
+  /**
+   * Returns the {@link Classifier} code/key of the root term specifying the values for an
+   * {@link AttributeTermType}.
+   * 
+   * @param mdBusiness
+   * @param mdAttributeMultiTerm
+   * 
+   * @return {@link Classifier} code/key of the root term specifying the values for an
+   * {@link AttributeTermType}.
+   */
+  public static String buildtAtttributeTermKey(MdBusiness mdBusiness, MdAttributeMultiTerm mdAttributeMultiTerm)
+  {
+	String rootClassTermCode = buildRootForClassTermKey(mdBusiness);
+	  
+    return rootClassTermCode+"_"+mdAttributeMultiTerm.getAttributeName();
   }
   
   /**

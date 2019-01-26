@@ -607,7 +607,7 @@ public class USATestData extends TestUtilities
 
     public void assertEquals(GeoObject geoObj, GeoObjectStatusTerm status)
     {
-      Assert.assertEquals(adapter.getMetadataCache().getTerm(status.code).get(), geoObj.getStatus());
+      Assert.assertEquals(adapter.getMetadataCache().getTerm(status.code).get().getCode(), geoObj.getStatus());
     }
 
     public void assertEquals(GeoObject geoObj)

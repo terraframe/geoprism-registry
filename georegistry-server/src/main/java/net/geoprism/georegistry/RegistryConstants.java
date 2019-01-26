@@ -31,5 +31,7 @@ public interface RegistryConstants
   public static final String GEO_MULTIPOLYGON_ATTRIBUTE_LABEL = "Geo MultiPolygon";
 
   public static final String REGISTRY_ADMIN_ROLE              = "commongeoregistry.RegistryAdministrator";
+  
+  public final static String TERM_CLASS                       = "CLASS";
 
 }

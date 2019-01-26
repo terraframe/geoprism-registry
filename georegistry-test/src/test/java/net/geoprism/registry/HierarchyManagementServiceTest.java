@@ -4,12 +4,14 @@ import java.util.Locale;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -31,6 +33,7 @@ import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -489,6 +492,53 @@ public class HierarchyManagementServiceTest
     try
     {
       service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testBoolean.getName());
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
+  
+  @Test
+  public void testCreateGeoObjectTypeTerm()
+  {  
+    String sessionId = this.logInAdmin();
+
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry); 
+    
+    AttributeTermType testTerm = (AttributeTermType)AttributeType.factory("testTerm",  "Test Term Name", "Test Term Description", AttributeTermType.TYPE);    
+    Term term = new Term(PROVINCE_CODE+"_"+"testTerm", "Test Term Name", "Test Term Description");
+    testTerm.setRootTerm(term);
+    
+    province.addAttribute(testTerm);
+
+    String gtJSON = province.toJSON().toString();
+    
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+            
+      String geoObjectTypeCode = province.getCode();
+      String attributeTypeJSON = testTerm.toJSON().toString();
+      testTerm = (AttributeTermType)service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = checkAttribute(PROVINCE_CODE, testTerm.getName());
+
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: "+testTerm.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: "+mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeMultiTermDAOIF);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testTerm.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally

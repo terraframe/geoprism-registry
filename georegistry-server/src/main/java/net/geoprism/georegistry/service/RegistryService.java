@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.action.AbstractAction;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -18,10 +19,8 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.Term;
-
-import org.json.JSONObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
+import org.json.JSONObject;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -46,6 +45,7 @@ import com.runwaysdk.system.ontology.TermUtil;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.RegistryAction;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
 
@@ -676,9 +676,17 @@ public class RegistryService
 
   @Transaction
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
-  {
+  {	  
     Universal uni = Universal.getByKey(code);
+    
+	MdBusiness mdBusiness = uni.getMdBusiness();
+
+	// This deletes the {@link MdBusiness} as well
     uni.delete();
+    
+	// Delete the term root
+	Classifier classRootTerm =  ServiceFactory.getUtilities().buildIfNotExistdMdBusinessClassifier(mdBusiness); 
+	classRootTerm.delete();
   }
 
   /**
