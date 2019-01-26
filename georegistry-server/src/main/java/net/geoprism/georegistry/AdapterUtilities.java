@@ -25,6 +25,7 @@ import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
@@ -69,7 +70,6 @@ import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierMultiTermAttributeRoot;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 
@@ -858,13 +858,20 @@ public class AdapterUtilities
   public void deleteMdAttributeFromAttributeType(MdBusiness mdBusiness, String attributeName)
   {
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeName);
-
+    
     if (mdAttributeConcreteDAOIF != null)
     {
+      if (mdAttributeConcreteDAOIF instanceof MdAttributeMultiTermDAOIF)
+      {
+        MdAttributeMultiTerm mdAttributeMultiTerm = (MdAttributeMultiTerm) BusinessFacade.get(mdAttributeConcreteDAOIF);
+        Classifier attributeRoot = this.buildIfNotExistAttribute(mdBusiness, mdAttributeMultiTerm);
+        attributeRoot.delete();
+      }
+    	
       mdAttributeConcreteDAOIF.getBusinessDAO().delete();
     }
   }
-
+  
   /**
    * Returns the {link MdAttributeConcreteDAOIF} for the given
    * {@link AttributeType} defined on the given {@link MdBusiness} or null no
