@@ -22,7 +22,6 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.Assert;
 
-import com.runwaysdk.util.ClasspathResource;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -47,6 +46,7 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdBusinessQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
+import com.runwaysdk.util.ClasspathResource;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 
@@ -54,6 +54,8 @@ import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.georegistry.testframework.ListIterator;
+import net.geoprism.georegistry.testframework.TestUtilities;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierAllPathsTableQuery;
 import net.geoprism.ontology.ClassifierIsARelationship;

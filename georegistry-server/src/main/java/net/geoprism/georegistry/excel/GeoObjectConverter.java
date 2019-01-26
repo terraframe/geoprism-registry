@@ -27,7 +27,9 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.io.RequiredMappingException;
 
 public class GeoObjectConverter
 {
@@ -197,6 +199,18 @@ public class GeoObjectConverter
 
       return new Point(new CoordinateSequence2D(new Double(latitude.toString()), new Double(longitude.toString())), factory);
     }
+    else if (latitudeFunction == null)
+    {
+      RequiredMappingException ex = new RequiredMappingException();
+      ex.setAttributeLabel(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
+      throw ex;
+    }
+    else if (longitudeFunction == null)
+    {
+      RequiredMappingException ex = new RequiredMappingException();
+      ex.setAttributeLabel(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
+      throw ex;
+    }
 
     return null;
   }
@@ -211,6 +225,13 @@ public class GeoObjectConverter
   private String getCode(FeatureRow row)
   {
     ShapefileFunction function = this.configuration.getFunction(GeoObject.CODE);
+
+    if (function == null)
+    {
+      RequiredMappingException ex = new RequiredMappingException();
+      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.CODE).get().getLocalizedLabel());
+      throw ex;
+    }
 
     Object geoId = function.getValue(row);
 
@@ -229,6 +250,13 @@ public class GeoObjectConverter
   private String getName(FeatureRow row)
   {
     ShapefileFunction function = this.configuration.getFunction(GeoObject.LOCALIZED_DISPLAY_LABEL);
+
+    if (function == null)
+    {
+      RequiredMappingException ex = new RequiredMappingException();
+      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getLocalizedLabel());
+      throw ex;
+    }
 
     Object attribute = function.getValue(row);
 

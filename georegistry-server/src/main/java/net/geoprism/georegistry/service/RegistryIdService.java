@@ -2,11 +2,6 @@ package net.geoprism.georegistry.service;
 
 import java.util.UUID;
 
-import net.geoprism.georegistry.IdRecord;
-import net.geoprism.georegistry.IdRecordQuery;
-import net.geoprism.georegistry.InvalidRegistryIdException;
-import net.geoprism.georegistry.RegistryConstants;
-
 import org.commongeoregistry.adapter.id.AdapterIdServiceIF;
 import org.commongeoregistry.adapter.id.EmptyIdCacheException;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -18,7 +13,11 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdBusiness;
+
+import net.geoprism.georegistry.IdRecord;
+import net.geoprism.georegistry.IdRecordQuery;
+import net.geoprism.georegistry.InvalidRegistryIdException;
+import net.geoprism.georegistry.RegistryConstants;
 
 public class RegistryIdService implements AdapterIdServiceIF
 {

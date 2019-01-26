@@ -378,22 +378,21 @@ public class AdapterUtilities
   public GeoObject getGeoObjectById(String registryId, String geoObjectTypeCode)
   {
     GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
-    String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(registryId, got);
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
 
-    if (!got.isLeaf())
+    GeoObjectQuery query = new GeoObjectQuery(got, universal);
+    query.setRegistryId(registryId);
+
+    GeoObject gObject = query.getSingleResult();
+
+    if (gObject == null)
     {
-      GeoEntity ge = GeoEntity.get(runwayId);
-
-      GeoObject gobj = ServiceFactory.getConversionService().geoEntityToGeoObject(ge);
-
-      return gobj;
+      InvalidRegistryIdException ex = new InvalidRegistryIdException();
+      ex.setRegistryId(registryId);
+      throw ex;
     }
-    else
-    {
-      Business business = Business.get(runwayId);
 
-      return ServiceFactory.getConversionService().leafToGeoObject(got, business);
-    }
+    return gObject;
   }
 
   public Business getGeoEntityBusiness(GeoEntity ge)
@@ -419,13 +418,20 @@ public class AdapterUtilities
 
   public GeoObject getGeoObjectByCode(String code, String typeCode)
   {
-    // TODO : virtual leaf nodes
+    GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
 
-    GeoEntity geo = GeoEntity.getByKey(code);
+    GeoObjectQuery query = new GeoObjectQuery(got, universal);
+    query.setCode(code);
 
-    GeoObject geoObject = ServiceFactory.getConversionService().geoEntityToGeoObject(geo);
+    GeoObject gObject = query.getSingleResult();
 
-    return geoObject;
+    if (gObject == null)
+    {
+      throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", MdBusinessDAO.get(universal.getMdBusinessOid()));
+    }
+
+    return gObject;
   }
 
   // public HierarchyType getHierarchyTypeById(String oid)
@@ -498,14 +504,17 @@ public class AdapterUtilities
   {
     MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
 
-    MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
-    geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
-    geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
-    geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
-    geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
-    geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
-    geoEntRefMdAttrRef.setRequired(false);
-    geoEntRefMdAttrRef.apply();
+    if (!universal.getIsLeafType())
+    {
+      MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
+      geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
+      geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
+      geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
+      geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
+      geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
+      geoEntRefMdAttrRef.setRequired(false);
+      geoEntRefMdAttrRef.apply();
+    }
 
     // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
     // the {@code GeoObject#OID};
@@ -605,45 +614,53 @@ public class AdapterUtilities
       mdAttributeGeometry.apply();
     }
   }
-  
+
   /**
-   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness} from the given {@link AttributeType}
+   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness}
+   * from the given {@link AttributeType}
    * 
    * @pre assumes no attribute has been defined on the type with the given name.
    * 
-   * @param mdBusiness Type to receive attribute definition
-   * @param attributeType newly defined attribute
+   * @param mdBusiness
+   *          Type to receive attribute definition
+   * @param attributeType
+   *          newly defined attribute
    * 
    * @return {@link AttributeType}
    */
   public AttributeType createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
-  {  
-	MdAttributeConcrete mdAttribute = null;
-	  
-	if (attributeType.getType().equals(AttributeCharacterType.TYPE))
-	{
-//	  AttributeCharacterType attributeCharacterType = (AttributeCharacterType)attributeType;		
+  {
+    MdAttributeConcrete mdAttribute = null;
+
+    if (attributeType.getType().equals(AttributeCharacterType.TYPE))
+    {
+      // AttributeCharacterType attributeCharacterType =
+      // (AttributeCharacterType)attributeType;
       mdAttribute = new MdAttributeCharacter();
-      MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter)mdAttribute;
+      MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
       mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-	}
+    }
     else if (attributeType.getType().equals(AttributeDateType.TYPE))
     {
-//      AttributeDateType attributeDateType = (AttributeDateType)attributeType;
+      // AttributeDateType attributeDateType = (AttributeDateType)attributeType;
       mdAttribute = new MdAttributeDateTime();
-//      MdAttributeDateTime mdAttributeDateTime = (MdAttributeDateTime)mdAttribute;
+      // MdAttributeDateTime mdAttributeDateTime =
+      // (MdAttributeDateTime)mdAttribute;
     }
     else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
     {
-//      AttributeIntegerType attributeIntegerType = (AttributeIntegerType)attributeType;
+      // AttributeIntegerType attributeIntegerType =
+      // (AttributeIntegerType)attributeType;
       mdAttribute = new MdAttributeInteger();
-//      MdAttributeInteger mdAttributeInteger = (MdAttributeInteger)mdAttribute;
+      // MdAttributeInteger mdAttributeInteger =
+      // (MdAttributeInteger)mdAttribute;
     }
     else if (attributeType.getType().equals(AttributeFloatType.TYPE))
     {
-//      AttributeFloatType attributeIntegerType = (AttributeFloatType)attributeType;
+      // AttributeFloatType attributeIntegerType =
+      // (AttributeFloatType)attributeType;
       mdAttribute = new MdAttributeFloat();
-//      MdAttributeFloat mdAttributeFloat = (MdAttributeFloat)mdAttribute;
+      // MdAttributeFloat mdAttributeFloat = (MdAttributeFloat)mdAttribute;
     }
     else if (attributeType.getType().equals(AttributeTermType.TYPE))
     {
@@ -652,18 +669,16 @@ public class AdapterUtilities
       
       MdBusiness classifierMdBusiness = MdBusiness.getMdBusiness(Classifier.CLASS);
       mdAttributeMultiTerm.setMdBusiness(classifierMdBusiness);
-      
-//      public static java.lang.String MDBUSINESS = "mdBusiness";
-      
-      
       // TODO - implement Terms
     }
     else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
     {
-//      AttributeBooleanType attributeBooleanType = (AttributeBooleanType)attributeType;
+      // AttributeBooleanType attributeBooleanType =
+      // (AttributeBooleanType)attributeType;
       mdAttribute = new MdAttributeBoolean();
-//      MdAttributeBoolean mdAttributeBoolean = (MdAttributeBoolean)mdAttribute;
-    }  
+      // MdAttributeBoolean mdAttributeBoolean =
+      // (MdAttributeBoolean)mdAttribute;
+    }
 
 	mdAttribute.setAttributeName(attributeType.getName());
 	mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
@@ -696,7 +711,6 @@ public class AdapterUtilities
 	
 	return attributeType;
   }
-
   
   /**
    * Builds if not exists a {@link Classifier} object as a parent of terms that pertain to
@@ -799,37 +813,41 @@ public class AdapterUtilities
     return rootClassTermCode+"_"+mdAttributeMultiTerm.getAttributeName();
   }
   
+
   /**
-   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness} from the given {@link AttributeType}
+   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness}
+   * from the given {@link AttributeType}
    * 
    * @pre assumes no attribute has been defined on the type with the given name.
    * 
-   * @param mdBusiness Type to receive attribute definition
-   * @param attributeType newly defined attribute
+   * @param mdBusiness
+   *          Type to receive attribute definition
+   * @param attributeType
+   *          newly defined attribute
    * 
    * @return {@link AttributeType}
    */
   public AttributeType updateMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
-  { 
+  {
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType.getName());
-    
+
     if (mdAttributeConcreteDAOIF != null)
     {
       // Get the type safe version
-      MdAttributeConcrete mdAttribute = (MdAttributeConcrete)BusinessFacade.get(mdAttributeConcreteDAOIF);
+      MdAttributeConcrete mdAttribute = (MdAttributeConcrete) BusinessFacade.get(mdAttributeConcreteDAOIF);
       mdAttribute.lock();
-      
+
       mdAttribute.setAttributeName(attributeType.getName());
-  	  mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
-  	  mdAttribute.getDescription().setValue(attributeType.getLocalizedDescription());
-  	  mdAttribute.apply();   
-  	  
-  	  mdAttribute.unlock();
+      mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
+      mdAttribute.getDescription().setValue(attributeType.getLocalizedDescription());
+      mdAttribute.apply();
+
+      mdAttribute.unlock();
     }
-    
+
     return attributeType;
   }
-  
+
   /**
    * Delete the {@link MdAttributeConcreteDAOIF} from the given {
    * 
@@ -838,18 +856,19 @@ public class AdapterUtilities
    * @param attributeName
    */
   public void deleteMdAttributeFromAttributeType(MdBusiness mdBusiness, String attributeName)
-  {    
+  {
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeName);
-    
+
     if (mdAttributeConcreteDAOIF != null)
     {
       mdAttributeConcreteDAOIF.getBusinessDAO().delete();
     }
   }
-  
+
   /**
-   * Returns the {link MdAttributeConcreteDAOIF} for the given {@link AttributeType} defined on the
-   * given {@link MdBusiness} or null no such attribute is defined.
+   * Returns the {link MdAttributeConcreteDAOIF} for the given
+   * {@link AttributeType} defined on the given {@link MdBusiness} or null no
+   * such attribute is defined.
    * 
    * @param mdBusiness
    * @param attributeName
@@ -857,9 +876,9 @@ public class AdapterUtilities
    */
   private MdAttributeConcreteDAOIF getMdAttribute(MdBusiness mdBusiness, String attributeName)
   {
-    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF)BusinessFacade.getEntityDAO(mdBusiness);
-	    
-	return mdBusinessDAOIF.definesAttribute(attributeName);
-  }  
-  
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+
+    return mdBusinessDAOIF.definesAttribute(attributeName);
+  }
+
 }

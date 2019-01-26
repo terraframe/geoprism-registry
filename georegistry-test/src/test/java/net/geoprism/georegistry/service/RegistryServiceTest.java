@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.georegistry.service;
 
 import java.util.UUID;
 
@@ -15,6 +15,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.geotools.geometry.jts.GeometryBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,13 +31,14 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.LocatedIn;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.georegistry.RegistryController;
-import net.geoprism.georegistry.service.RegistryIdService;
-import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.registry.testframework.USATestData;
-import net.geoprism.registry.testframework.USATestData.TestGeoObjectInfo;
-import net.geoprism.registry.testframework.USATestData.TestGeoObjectTypeInfo;
+import net.geoprism.georegistry.testframework.USATestData;
+import net.geoprism.georegistry.testframework.USATestData.TestGeoObjectInfo;
+import net.geoprism.georegistry.testframework.USATestData.TestGeoObjectTypeInfo;
+import net.geoprism.registry.GeometryTypeException;
 
 public class RegistryServiceTest
 {
@@ -63,7 +65,10 @@ public class RegistryServiceTest
   @After
   public void tearDown()
   {
-    tutil.cleanUp();
+    if (this.tutil != null)
+    {
+      tutil.cleanUp();
+    }
   }
 
   @Test
@@ -74,6 +79,32 @@ public class RegistryServiceTest
 
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(tutil.adapter, geoObj.toJSON().toString()).toJSON().toString());
     tutil.COLORADO.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+  }
+
+  @Test
+  @Request
+  public void testCreateGeoObjectBadGeometry()
+  {
+    GeometryBuilder builder = new GeometryBuilder(new GeometryFactory());
+    Point point = builder.point(48.44, -123.37);
+
+    // 1. Test creating a new one
+    GeoObject geoObj = tutil.adapter.newGeoObjectInstance(tutil.STATE.getCode());
+    geoObj.setGeometry(point);
+    geoObj.setCode(tutil.WASHINGTON.getGeoId());
+    geoObj.setLocalizedDisplayLabel(tutil.WASHINGTON.getDisplayLabel());
+
+    try
+    {
+      this.controller.createGeoObject(this.adminCR, geoObj.toJSON().toString());
+
+      Assert.fail("Able to create a GeoObject with a wrong geometry type");
+    }
+    catch (SmartExceptionDTO e)
+    {
+      // This is expected
+      Assert.assertEquals(GeometryTypeException.CLASS, e.getType());
+    }
   }
 
   @Test

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import {
   trigger,
   state,
@@ -8,15 +8,15 @@ import {
 } from '@angular/animations'
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
-import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term } from '../hierarchy';
+import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term, TermOption, ManageAttributeState } from '../hierarchy';
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { HierarchyService } from '../../../service/hierarchy.service';
-import { GeoObjTypeModalService } from '../../../service/geo-obj-type-modal.service';
+
+import { TermOptionInputComponent} from '../form-inputs/term-option-input.component';
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
@@ -30,7 +30,7 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
     animations: [
         trigger('openClose', 
             [
-                transition(
+            transition(
                 ':enter', [
                 style({ 'opacity': 0}),
                 animate('500ms', style({ 'opacity': 1}))
@@ -49,16 +49,13 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
 export class DefineAttributeModalContentComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
+    @Input() modalState: ManageAttributeState;
+    @Output() modalStateChange = new EventEmitter<ManageAttributeState>();
     message: string = null;
     newAttribute: Attribute = null;
 
     terms: Term[] = [];
-
     root: string = null;
-
-    public onAddAttribute: Subject<Attribute>;
-
-    modalState: string = null;
 
     /*
     * Tree component
@@ -115,8 +112,6 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
 
     public selectAsRoot(node: any): void {
-        // this.root = node.data.code;
-
         if(this.newAttribute instanceof AttributeTerm){
           this.newAttribute.setRootTerm(node.data.code);
         }
@@ -124,16 +119,11 @@ export class DefineAttributeModalContentComponent implements OnInit {
         this.tree.treeModel.setFocusedNode(node);
     }
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private geoObjTypeModalService: GeoObjTypeModalService,
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef,
       private contextMenuService: ContextMenuService ) {
-
-      geoObjTypeModalService.modalState.subscribe(state => {
-        this.modalState = state;
-      });
     }
 
     ngOnInit(): void {
-        this.onAddAttribute = new Subject();
 
         this.setAttribute("character");
 
@@ -156,24 +146,18 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
 
     ngOnDestroy(){
-    //   this.geoObjTypeModalService.modalStateSource.unsubscribe();
-      this.onAddAttribute.unsubscribe()
     }
 
     handleOnSubmit(): void {
         
         this.hierarchyService.addAttributeType( this.geoObjectType.code, this.newAttribute ).then( data => {
             this.geoObjectType.attributes.push(data);
-            // this.onAddAttribute.next( data );
-        	this.geoObjTypeModalService.setState("MANAGE-ATTRIBUTES");
+
+            this.modalStateChange.emit({"state":"MANAGE-ATTRIBUTES", "attribute":""});
         } ).catch(( err: any ) => {
             this.error( err.json() );
         } );
     }
-
-    // setAttributeType(type: string): void {
-    //     this.newAttribute.type = type;
-    // }
 
     setAttribute(type:string): void {
         if(type === 'term'){
@@ -182,13 +166,11 @@ export class DefineAttributeModalContentComponent implements OnInit {
         else{
             this.newAttribute = new Attribute("", type, "", "", false);
         }
-        
-        
-        console.log(this.newAttribute);
     }
+
     
     cancel(): void {
-        this.geoObjTypeModalService.setState("MANAGE-ATTRIBUTES");
+        this.modalStateChange.emit({"state":"MANAGE-ATTRIBUTES", "attribute":""});
     }
 
     error( err: any ): void {

@@ -34,10 +34,11 @@ import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
-import net.geoprism.registry.testframework.USATestData;
+import net.geoprism.georegistry.testframework.USATestData;
 
 public class ShapefileServiceTest
 {
@@ -71,9 +72,14 @@ public class ShapefileServiceTest
     ShapefileService service = new ShapefileService();
     JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), tutil.STATE.getCode(), "cb_2017_us_state_500k.zip", istream);
 
-    System.out.println(result.toString());
+    JsonObject type = result.getAsJsonObject("type");
 
-    Assert.assertNotNull(result.getAsJsonObject("type"));
+    Assert.assertNotNull(type);
+
+    JsonArray tAttributes = type.get("attributes").getAsJsonArray();
+
+    Assert.assertEquals(2, tAttributes.size());
+    Assert.assertTrue(tAttributes.get(0).getAsJsonObject().get("required").getAsBoolean());
 
     JsonObject sheet = result.getAsJsonObject("sheet");
 
@@ -105,7 +111,7 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -145,13 +151,13 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
 
-    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    List<GeoObject> objects = new GeoObjectQuery(type, tutil.STATE.getUniversal()).getIterator().getAll();
 
     Assert.assertEquals(56, objects.size());
 
@@ -205,13 +211,13 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
 
-    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    List<GeoObject> objects = new GeoObjectQuery(type, tutil.STATE.getUniversal()).getIterator().getAll();
 
     Assert.assertEquals(56, objects.size());
 
@@ -237,13 +243,13 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString());
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(tutil.STATE.getCode()).get();
+    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
 
-    List<GeoObject> objects = GeoObjectUtil.getObjects(type);
+    List<GeoObject> objects = new GeoObjectQuery(type, tutil.STATE.getUniversal()).getIterator().getAll();
 
     Assert.assertEquals(56, objects.size());
 

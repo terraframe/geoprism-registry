@@ -1,0 +1,339 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.panel.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.panel.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select Hierarchy" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.button.create">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.button.create" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create" />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.current.management.panel.button.add">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.current.management.panel.button.add" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add" />
+        </attributeStruct>
+      </object>
+
+       <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.current.management.panel.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.current.management.panel.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.types.management.panel.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.types.management.panel.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Available Types" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.button.addRelationship">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.button.addRelationship" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add relationship to this type" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.button.deleteType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.button.deleteType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Delete this type" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.button.deleteTreeNode">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.button.deleteTreeNode" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Delete" />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.define.attribute.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.define.attribute.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Define a new attribute" />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.text">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.label.text" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Text" />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.integer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.label.integer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Integer" />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.float">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.label.float" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Decimal" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.date">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.label.date" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Date" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.boolean">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.label.boolean" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Boolean" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.term">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.label.term" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Term" />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.code">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.code" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code" />
+        </attributeStruct>
+      </object>
+
+           <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Label" />
+        </attributeStruct>
+      </object>
+
+           <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Description (optional)" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.define.attribute.term.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.define.attribute.term.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Set Term Root" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.define.attribute.select.root.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.define.attribute.select.root.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Selected root" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.define.attribute.no.root.selected.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.define.attribute.no.root.selected.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No Root selected. Select a root from the hierarchy above." />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.cancel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.cancel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel" />
+        </attributeStruct>
+      </object>
+
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.submit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.submit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.add">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.add" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.ok">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.ok" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Ok" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.remove">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.remove" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Remove" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.edit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.edit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.define.attribute.button.selectAsRoot">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.define.attribute.button.selectAsRoot" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select as root" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.edit.attribute.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.edit.attribute.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit attribute" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.define.attribute.label.addTermTypeOptions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.define.attribute.label.addTermTypeOptions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add term types (optional)" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="term.option.input.label.existingTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="term.option.input.label.existingTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Existing term types" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.create.child.option.label.selectType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.create.child.option.label.selectType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="select a type to add" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.create.geoobjecttype.code.input.placeholder">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.create.geoobjecttype.code.input.placeholder" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code..." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.create.geoobjecttype.label.input.placeholder">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.create.geoobjecttype.label.input.placeholder" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Label..." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.create.geoobjecttype.description.input.placeholder">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.create.geoobjecttype.description.input.placeholder" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Description..." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.option.label.isLeafNode">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.option.label.isLeafNode" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Is Leaf Node" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.manage.attributes.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.manage.attributes.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Attributes" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.manage.attributes.label.displayAttributes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.manage.attributes.label.displayAttributes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Attributes" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="import-shapefile-localization-manager.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="import-shapefile-localization-manager.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Shapefile" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="import-spreadsheet-localization-manager.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="import-spreadsheet-localization-manager.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Spreadsheet" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization.manager.input.placeholder.uploadFile">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization.manager.input.placeholder.uploadFile" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Upload file..." />
+        </attributeStruct>
+      </object>
+
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

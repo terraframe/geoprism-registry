@@ -58,6 +58,7 @@ export class SpreadsheetComponent implements OnInit {
         };
 
         this.uploader = new FileUploader( options );
+
         this.uploader.onBuildItemForm = ( fileItem: any, form: any ) => {
             form.append( 'type', this.code );
         };

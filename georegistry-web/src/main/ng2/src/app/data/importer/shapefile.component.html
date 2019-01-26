@@ -3,25 +3,43 @@
   <loading-bar></loading-bar>
 
   <div id="app-container" class="container">
-    <form #form="ngForm">
-      <div class="form-group row" *ngIf="types">
-        <label for="code">Geo Object Type</label>
-        <div class="col-10">
-          <select id="code" name="code" class="form-control" [(ngModel)]="code" required>
-            <option></option>
-            <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
-          </select>
+    <div class="py-5 text-center">
+      <h2>
+        <localize key="shapefile.title"></localize>
+      </h2>
+      <p class="lead">
+        <localize key="shapefile.description"></localize>
+      </p>
+    </div>
+    <div class="col-md-8 order-md-1 text-center">
+      <form #form="ngForm">
+        <div class="form-group row" *ngIf="types">
+          <label class="col-md-2" for="code">
+            <localize key="io.geoObjectType"></localize>
+          </label>
+          <div class="col-md-6">
+            <select id="code" name="code" class="form-control" [(ngModel)]="code" required>
+              <option></option>
+              <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="form-group row">
-        <label for="code">Shapefile</label>
-        <div class="col-10">
-          <input name="file" type="file" ng2FileSelect [uploader]="uploader" required />
+        <div class="form-group row">
+          <label class="col-md-2" for="code">
+            <localize key="io.shapefile"></localize>
+          </label>
+          <div class="col-md-6">
+            <input name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".zip" required />
+          </div>
         </div>
-      </div>
-      <div class="form-group row">
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()" >Submit</button>
-      </div>
-    </form>
+        <div class="form-group row">
+          <div class="col-md-8 text-right">
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
+              <localize key="io.submit"></localize>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

@@ -1,9 +1,9 @@
-package net.geoprism.registry;
+package net.geoprism.georegistry;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.testframework.USATestData;
+import net.geoprism.georegistry.testframework.USATestData;
 
 /**
  * This class must be run before running the Andorid FullStackIntegrationTest. This class brings your database

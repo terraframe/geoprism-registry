@@ -66,7 +66,7 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET)
-  public ResponseIF ng2()
+  public ResponseIF manage()
   {
     return new ViewResponse(JSP_DIR + INDEX_JSP);
   }
@@ -168,6 +168,14 @@ public class RegistryController
    public ResponseIF addAttributeToGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
    {
      AttributeType attrType = this.registryService.addAttributeToGeoObjectType(request.getSessionId(), geoObjTypeId, attributeType);
+     
+     return new RestBodyResponse(attrType.toJSON());
+   }
+   
+   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
+   public ResponseIF updateAttributeInGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_TYPE_PARAM) String attributeType)
+   {
+     AttributeType attrType = this.registryService.updateAttributeInGeoObjectType(request.getSessionId(), geoObjTypeId, attributeType);
      
      return new RestBodyResponse(attrType.toJSON());
    }
