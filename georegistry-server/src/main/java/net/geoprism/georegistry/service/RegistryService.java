@@ -715,7 +715,7 @@ public class RegistryService
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public boolean deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attributeName)
+  public void deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attributeName)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
 
@@ -729,8 +729,6 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
-
-    return true;
   }
   
   /**
@@ -743,9 +741,13 @@ public class RegistryService
    * @return Newly created {@link Term} object.
    */
   @Request(RequestType.SESSION)
-  public Term createTerm(String sessionId, String parentTemCode, String termJSON)
+  public Term createTerm(String sessionId, String parentTermCode, String termJSON)
   {
-    return null;
+	Term testTerm1 = new Term("testTerm11", "Test Term 1", "test description...");
+	Term testTerm2 = new Term("testTerm22", "Test Term 2", "test description...");
+	testTerm1.addChild(testTerm2);
+	
+    return testTerm1;
   }
 
   
@@ -773,25 +775,9 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void deleteTerm(String sessionId, String termCode)
   {
-
+	
   }
   
-  @Request(RequestType.SESSION)
-  public Term[] getTerms(String sessionId)
-  {
-    Term term1 = new Term("testCode", "testLabel", "testDescription");
-    Term term2 = new Term("testCode2", "testLabel2", "testDescription2");
-    term1.addChild(term2);
-
-    ArrayList<Term> terms = new ArrayList<Term>();
-    terms.add(term1);
-
-    Term[] termsArr = new Term[terms.size()];
-    termsArr = terms.toArray(termsArr);
-
-    return termsArr;
-  }
-
   /**
    * Deletes the {@link GeoObjectType} with the given code.
    * 
