@@ -49,6 +49,7 @@ import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.action.RegistryAction;
+import net.geoprism.georegistry.conversion.TermBuilder;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
@@ -731,7 +732,50 @@ public class RegistryService
 
     return true;
   }
+  
+  /**
+   * Creates a new {@link Term} object and makes it a child of the term with the given code.
+   * 
+   * @param sessionId
+   * @param parentTemCode The code of the parent [@link Term}.
+   * @param termJSON JSON of the term object.
+   * 
+   * @return Newly created {@link Term} object.
+   */
+  @Request(RequestType.SESSION)
+  public Term createTerm(String sessionId, String parentTemCode, String termJSON)
+  {
+    return null;
+  }
 
+  
+  /**
+   * Creates a new {@link Term} object and makes it a child of the term with the given code.
+   * 
+   * @param sessionId
+   * @param termJSON JSON of the term object.
+   * 
+   * @return Updated {@link Term} object.
+   */
+  @Request(RequestType.SESSION)
+  public Term updateTerm(String sessionId, String termJSON)
+  {
+    return null;
+  }
+  
+  /**
+   * Deletes the {@link Term} with the given code. All children codoe will be deleted.
+   * 
+   * @param sessionId
+   * @param geoObjectTypeCode
+   * @param attributeTypeJSON
+   */
+  @Request(RequestType.SESSION)
+  public void deleteTerm(String sessionId, String termCode)
+  {
+
+  }
+  
   @Request(RequestType.SESSION)
   public Term[] getTerms(String sessionId)
   {
@@ -780,7 +824,7 @@ public class RegistryService
     uni.delete();
     
 	// Delete the term root
-	Classifier classRootTerm =  ServiceFactory.getUtilities().buildIfNotExistdMdBusinessClassifier(mdBusiness); 
+	Classifier classRootTerm =  TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness); 
 	classRootTerm.delete();
   }
 
