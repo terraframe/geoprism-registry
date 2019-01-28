@@ -1,9 +1,8 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
-import { TreeNode } from 'angular-tree-component';
 
-import { TreeEntity, HierarchyType } from '../hierarchy';
+import { HierarchyType } from '../hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
 
 

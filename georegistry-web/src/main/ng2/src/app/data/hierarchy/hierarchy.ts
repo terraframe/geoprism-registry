@@ -29,19 +29,29 @@ export class TreeEntity {
 }
 
 export class Term {
-	code: string;
-    localizedLabel: string;
-    children: Term[];
-}
 
-
-export class TermOption {
     constructor(public code:string, public localizedLabel:string, public localizedDescription:string){  
         this.code = code;
         this.localizedLabel = localizedLabel;
         this.localizedDescription = localizedDescription;
     }
+	// code: string;
+    // localizedLabel: string;
+    children: Term[] = [];
+
+    addChild(term:Term) {
+      this.children.push(term);
+    }
 }
+
+
+// export class TermOption {
+//     constructor(public code:string, public localizedLabel:string, public localizedDescription:string){  
+//         this.code = code;
+//         this.localizedLabel = localizedLabel;
+//         this.localizedDescription = localizedDescription;
+//     }
+// }
 
 export class GeoObject {
 	type: string;
@@ -100,7 +110,7 @@ export class AttributeTerm extends Attribute {
 
     rootTerm:string;
 
-    termOptions:TermOption[] = [];
+    termOptions:Term[] = [];
 
     setRootTerm(term:string){
         this.rootTerm = term;

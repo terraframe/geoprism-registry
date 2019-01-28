@@ -4,7 +4,9 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
@@ -20,16 +22,17 @@ import net.geoprism.ontology.Classifier;
  */
 public class TermBuilder 
 {
-  private String rootClassifierCode;
+  private String rootClassifierKey;
 	
-  public TermBuilder(String rootClassifierCode)
+  public TermBuilder(String rootClassifierKey)
   {
-    this.rootClassifierCode = rootClassifierCode;
+    this.rootClassifierKey = rootClassifierKey;
   }
   
+  @Request
   public Term build()
   {
-    Classifier rootClassifier = Classifier.getByKey(this.rootClassifierCode);
+    Classifier rootClassifier = Classifier.getByKey(this.rootClassifierKey);
     
     return this.buildTermFromClassifier(rootClassifier);
     
@@ -44,6 +47,39 @@ public class TermBuilder
     childClassifiers.forEach(c -> term.addChild(this.buildTermFromClassifier(c)));
     
     return term;
+  }
+  
+  
+  @Transaction
+  public static Classifier createClassifierFromTerm(String parentTermCode, Term term)
+  {
+    Classifier classifier = new Classifier();
+    classifier.setClassifierId(term.getCode());
+    classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    // This will set the value of the display label to the locale of the user performing the action.
+    classifier.getDisplayLabel().setValue(term.getLocalizedLabel());
+    classifier.apply();
+    
+    String parnetClassifierKey = buildClassifierKeyFromTermCode(parentTermCode);
+    
+    Classifier parent = Classifier.getByKey(parnetClassifierKey);
+    
+    parent.addIsAChild(classifier).apply();
+    
+    return classifier;
+  }
+  
+  @Transaction
+  public static Classifier updateClassifier(String termCode, String localizedLabel)
+  {
+    String classifierKey = buildClassifierKeyFromTermCode(termCode);
+    
+    Classifier classifier = Classifier.getByKey(classifierKey);
+    classifier.setClassifierId(termCode);
+    classifier.getDisplayLabel().setValue(localizedLabel);
+    classifier.apply();
+    
+    return classifier;
   }
   
   
@@ -179,5 +215,16 @@ public class TermBuilder
   public static String buildtAtttributeKey(String mdBusinessName, String mdAttributeTermOrMultiName)
   {
 	return Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, buildRootClassClassifierId(mdBusinessName)+"_"+mdAttributeTermOrMultiName);
+  }
+  
+  /**
+   * Converts the given code from a {@link Term} to a {@link Classifier} key
+   * 
+   * @param termCode
+   * @return
+   */
+  public static String buildClassifierKeyFromTermCode(String termCode)
+  {
+    return Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, termCode);
   }
 }

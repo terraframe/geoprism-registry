@@ -625,27 +625,21 @@ public class RegistryService
    * @pre given {@link GeoObjectType} must already exist.
    * 
    * @param sessionId
-<<<<<<< HEAD
-   * @param geoObjectTypeCode string of the {@link GeoObjectType} to be updated.
-   * @param attributeTypeJSON AttributeType to be added to the GeoObjectType
-   * @return updated {@link AttributeType}
-=======
+   *
    * @param geoObjectTypeCode
    *          string of the {@link GeoObjectType} to be updated.
    * @param attributeTypeJSON
    *          AttributeType to be added to the GeoObjectType
    * @return updated {@link GeoObjectType}
->>>>>>> 5e9c06ba9a00e8309557920468552d254c937b8a
    */
   @Request(RequestType.SESSION)
   public AttributeType addAttributeToGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
-
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
     JSONObject attrObj = new JSONObject(attributeTypeJSON);
 
-    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_NAME), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
+    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_CODE), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
 
@@ -673,31 +667,28 @@ public class RegistryService
    */
   @Request(RequestType.SESSION)
   public AttributeType updateAttributeInGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
-  {
-	  
-	  
-	  
-	// TODO: change this method to do an update rather than an add
-	  
-    
-//    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
-//    
+  {	  
+    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
+ 
     JSONObject attrObj = new JSONObject(attributeTypeJSON);
-//    
-    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_NAME), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
-//
-//    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
-//    
-//    MdBusiness mdBusiness = universal.getMdBusiness();
-//    
-//    attrType = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
-//    
-//    geoObjectType.addAttribute(attrType);
-//
-//    // If this did not error out then add to the cache
-//    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
-	  
     
+    String attrTypeCode = attrObj.getString(AttributeType.JSON_CODE);
+    
+    AttributeType attrType = geoObjectType.getAttribute(attrTypeCode).get();
+    attrType.setLocalizedLabel(attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL));
+    attrType.setLocalizedDescription(attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION));
+
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
+    
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    attrType = ServiceFactory.getUtilities().updateMdAttributeFromAttributeType(mdBusiness, attrType);
+      
+    geoObjectType.addAttribute(attrType);
+
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+	  
     return attrType;
   }
   
@@ -743,14 +734,20 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public Term createTerm(String sessionId, String parentTermCode, String termJSON)
   {
-	Term testTerm1 = new Term("testTerm11", "Test Term 1", "test description...");
-	Term testTerm2 = new Term("testTerm22", "Test Term 2", "test description...");
-	testTerm1.addChild(testTerm2);
+	JSONObject termJSONobj = new JSONObject(termJSON);
 	
-    return testTerm1;
+	Term term = new Term(termJSONobj.getString(Term.JSON_CODE), termJSONobj.getString(Term.JSON_LOCALIZED_LABEL), "");
+
+	Classifier classifier = TermBuilder.createClassifierFromTerm(parentTermCode, term);
+	
+	TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
+	
+	Term returnTerm = termBuilder.build();
+	
+    return returnTerm;
   }
 
-  
+
   /**
    * Creates a new {@link Term} object and makes it a child of the term with the given code.
    * 
@@ -762,7 +759,19 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public Term updateTerm(String sessionId, String termJSON)
   {
-    return null;
+    JSONObject termJSONobj = new JSONObject(termJSON);
+    
+    String termCode = termJSONobj.getString(Term.JSON_CODE);
+
+    String localizedLabel = termJSONobj.getString(Term.JSON_LOCALIZED_LABEL);
+    
+    Classifier classifier = TermBuilder.updateClassifier(termCode, localizedLabel);
+    
+	TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
+	
+	Term returnTerm = termBuilder.build();
+	
+    return returnTerm;
   }
   
   /**
@@ -775,7 +784,10 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void deleteTerm(String sessionId, String termCode)
   {
-	
+    String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(termCode);
+	    
+	Classifier classifier = Classifier.getByKey(classifierKey);
+	classifier.delete();
   }
   
   /**

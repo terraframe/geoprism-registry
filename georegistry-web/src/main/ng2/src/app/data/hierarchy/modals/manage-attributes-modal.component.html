@@ -54,7 +54,7 @@
                             <td class="submit-form">
                             <dl>
                                 <dd>
-                                <h4 [ngClass]="attr.isDefault || attr.name === 'keyName' ? 'disabled' : ''" >{{attr.localizedLabel}}</h4>
+                                <h4 class="disabled" >{{attr.localizedLabel}}</h4>
                                 </dd>
                             </dl>
                             </td>
@@ -75,7 +75,7 @@
                     </div>                    
                     <div class="holder">
                     <div class="button-holder">
-                        <button type="button" class="btn btn-primary" (click)="close()"><localize key="modal.button.ok"></localize></button>              
+                        <button type="button" class="btn btn-default" (click)="close()"><localize key="modal.button.close"></localize></button>              
                     </div>
                     </div>
                 </div> 

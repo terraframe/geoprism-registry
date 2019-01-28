@@ -218,7 +218,6 @@ export class HierarchyService {
 
        this.eventService.start();
 
-
        return this.http
            .post( acp + '/cgr/geoobjecttype/addattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
            .finally(() => {
@@ -270,30 +269,64 @@ export class HierarchyService {
            } )
     }
 
-    getTerms(): Promise<Term[]> {
-        
-        return this.http
-            .get( acp + '/cgr/terms/get-all' )
-            .toPromise()
-            .then( response => {
-                return response.json() as Term[];
-            } )
+    addAttributeTermTypeOption(parentTermCode: string, term: Term): Promise<Term> {
+
+	   let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+
+       return this.http
+           .post( acp + '/cgr/geoobjecttype/addterm', JSON.stringify( { 'parentTermCode': parentTermCode, 'termJSON' : term } ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response.json() as Term;
+           } )
     }
 
-    search(terms: Observable<string>) {
-	  return terms.debounceTime(400)
-	    .distinctUntilChanged()
-	    .switchMap(term => this.searchEntries(term));
+    updateAttributeTermTypeOption(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+
+	   let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+
+       return this.http
+           .post( acp + '/cgr/geoobjecttype/addattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response.json() as Attribute;
+           } )
     }
-    
-    searchEntries(term:string) {
 
-      let params: URLSearchParams = new URLSearchParams();
-      params.set( 'term', term );
+    deleteAttributeTermTypeOption(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
 
-	  return this.http
-	      .get(this.baseUrl, { search: params } )
-	      .map(res => res.json());
-	}
+	   let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+
+       return this.http
+           .post( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response.json() as Attribute;
+           } )
+    }
 
 }

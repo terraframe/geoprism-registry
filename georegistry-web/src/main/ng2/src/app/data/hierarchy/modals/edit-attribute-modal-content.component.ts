@@ -16,9 +16,9 @@ import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Ter
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { HierarchyService } from '../../../service/hierarchy.service';
 
+import { AttributeInputComponent} from '../form-inputs/attribute-input.component';
+
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
-
-
 
 
 @Component( {
@@ -51,94 +51,23 @@ export class EditAttributeModalContentComponent implements OnInit {
     @Input() modalState: ManageAttributeState;
     @Output() modalStateChange = new EventEmitter<ManageAttributeState>();
     message: string = null;
-    terms: Term[] = [];
 
-    root: string = null;
+    @ViewChild(AttributeInputComponent) attributeInputComponent:AttributeInputComponent;
 
-    /*
-    * Tree component
-    */
-    @ViewChild( TreeComponent )
-    private tree: TreeComponent;
-
-    /*
-    * Template for tree node menu
-    */
-    @ViewChild( 'selectRootMenu' ) public selectRootMenuComponent: ContextMenuComponent;
-
-    /*
-    * Template for leaf menu
-    */
-    @ViewChild( 'leafMenu' ) public leafMenuComponent: ContextMenuComponent;
-
-
-     options = {
-	      displayField: "localizedLabel",
-		  actionMapping: {
-	            mouse: {
-	                click : ( tree: TreeComponent, node: TreeNode, $event: any ) => {
-	                    this.treeNodeOnClick( node, $event );
-	                },
-	                contextMenu: ( tree: any, node: any, $event: any ) => {
-	                    this.handleOnMenu( node, $event );
-	                }
-	            }
-	        }
-    };
-
-    public treeNodeOnClick( node: TreeNode, $event: any ): void {
-  	
-        //node.treeModel.setFocusedNode(node);
-        
-        if(node.treeModel.isExpanded(node)){
-            node.collapse();
-        }
-        else{
-            node.treeModel.expandAll();
-        }
-    }
-
-    public handleOnMenu( node: any, $event: any ): void {
-	  
-        this.contextMenuService.show.next( {
-            contextMenu: this.selectRootMenuComponent,
-            event: $event,
-            item: node,   
-        } );
-        $event.preventDefault();
-        $event.stopPropagation();
-    }
-
-    public selectAsRoot(node: any): void {
-        if(this.attribute instanceof AttributeTerm){
-          this.attribute.setRootTerm(node.data.code);
-        }
-        
-        this.tree.treeModel.setFocusedNode(node);
-    }
-
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef,
-      private contextMenuService: ContextMenuService ) {
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private contextMenuService: ContextMenuService ) {
+      if(this.modalState){
+        console.log(this.modalState.attribute)
+      }
     }
 
     ngOnInit(): void {
-
-        this.hierarchyService.getTerms()
-	      .then( terms => {
-              this.terms = terms;
-		  
-	      }).catch(( err: any ) => {
-	        this.error( err.json() );
-          });
-
+        if(this.modalState){
+            console.log(this.modalState.attribute)
+        }
     }
 
     ngAfterViewInit() {
-      window.setTimeout(() =>{
-        if(this.tree){
-          this.tree.treeModel.expandAll();
-        }
-      }, 1000)
+   
     }
 
     ngOnDestroy(){
@@ -153,6 +82,17 @@ export class EditAttributeModalContentComponent implements OnInit {
         } ).catch(( err: any ) => {
             this.error( err.json() );
         } );
+    }
+
+    isFormValid(): boolean {
+        
+        let isAttrValid: boolean = this.attributeInputComponent.isValid();
+        
+        if(isAttrValid){
+            return true;
+        }
+
+        return false;
     }
 
     cancel(): void {

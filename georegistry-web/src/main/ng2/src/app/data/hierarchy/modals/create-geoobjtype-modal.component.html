@@ -1,4 +1,4 @@
-<form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
+<form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
   
   <div *ngIf="hierarchyType != null" class="modal-body">
     <div *ngIf="message != null" class="error-container">
@@ -16,20 +16,19 @@
     <div class="form-group">
       <div>
          <label for="codeInput"><localize key="data.property.label.code"></localize></label>
-         <input  [(ngModel)]="geoObjectType.code" name="code" type="input" class="form-control" id="codeInput" placeholder="<localize key='hierarchy.management.create.geoobjecttype.code.input.placeholder'></localize>" required>
+         <input  [(ngModel)]="geoObjectType.code" name="code" type="input" class="form-control" id="codeInput" required>
       </div>
     </div>
     <div class="form-group">
       <div>
          <label for="localizedLabelInput">Label</label>
-        <input  [(ngModel)]="geoObjectType.localizedLabel" name="localizedLabel" type="input" class="form-control" id="localizedLabelInput" placeholder="<localize key='hierarchy.management.create.geoobjecttype.label.input.placeholder'></localize>" required>
+        <input  [(ngModel)]="geoObjectType.localizedLabel" name="localizedLabel" type="input" class="form-control" id="localizedLabelInput" required>
       </div>
     </div>
     <div class="form-group">
       <div >
          <label for="localizedDescriptionInput">Description</label>
-        <input  [(ngModel)]="geoObjectType.localizedDescription" name="localizedDescription" type="input" class="form-control" id="localizedDescriptionInput" placeholder="<localize key='hierarchy.management.create.geoobjecttype.description.input.placeholder'></localize>">
-   
+        <input  [(ngModel)]="geoObjectType.localizedDescription" name="localizedDescription" type="input" class="form-control" id="localizedDescriptionInput" >
        </div>
     </div>
     
@@ -50,7 +49,7 @@
         <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
           <span class="ui-button-text"><localize key="modal.button.cancel"></localize></span>
         </button>
-        <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
+        <button type="submit" (click)="handleOnSubmit()" [disabled]="form.invalid" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
           <span class="ui-button-text"><localize key="modal.button.ok"></localize></span>
         </button>
       </div>

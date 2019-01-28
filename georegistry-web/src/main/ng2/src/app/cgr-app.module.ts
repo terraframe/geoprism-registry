@@ -33,6 +33,8 @@ import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-mo
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
 import { TermOptionInputComponent } from './data/hierarchy/form-inputs/term-option-input.component';
+import { AttributeInputComponent } from './data/hierarchy/form-inputs/attribute-input.component';
+
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -93,6 +95,7 @@ import './rxjs-extensions';
     LocalizePipe,
     EditAttributeModalContentComponent,
     TermOptionInputComponent,
+    AttributeInputComponent,
     
     // Routing components
     routedComponents
@@ -121,7 +124,8 @@ import './rxjs-extensions';
       ShapefileModalComponent, 
       SpreadsheetModalComponent,
       NewLocaleModalComponent,
-      TermOptionInputComponent
+      TermOptionInputComponent,
+      AttributeInputComponent
   ]        
 })
 export class CgrAppModule { }
