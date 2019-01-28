@@ -1,15 +1,18 @@
 package net.geoprism.georegistry.service;
 
+import java.util.List;
 import java.util.Locale;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -31,10 +34,12 @@ import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.AllowedIn;
@@ -45,10 +50,8 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.georegistry.service.ConversionService;
-import net.geoprism.georegistry.service.RegistryIdService;
-import net.geoprism.georegistry.service.RegistryService;
-import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.georegistry.conversion.TermBuilder;
+import net.geoprism.ontology.Classifier;
 
 public class HierarchyManagementServiceTest
 {
@@ -93,6 +96,10 @@ public class HierarchyManagementServiceTest
   
   private final static String             ADMINISTRATIVE_DIVISION_CODE      = "AdministrativeDivision";
   
+  private final static String             ROOT_TEST_TERM_CLASSIFIER_ID      = "TEST";
+  
+  private static String                   ROOT_TEST_TERM_KEY                = null;
+  
   @BeforeClass
   @Request
   public static void setUp()
@@ -128,6 +135,30 @@ public class HierarchyManagementServiceTest
     catch (DuplicateDataException e) {}
     
     USER_KEY = "Users."+USERNAME;
+
+    Classifier rootClassifier = Classifier.getByKey(com.runwaysdk.business.ontology.Term.ROOT_KEY);
+    
+    try
+    {
+      Classifier rootTestClassifier = new Classifier();
+      rootTestClassifier.setClassifierId(ROOT_TEST_TERM_CLASSIFIER_ID);
+      rootTestClassifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+      rootTestClassifier.getDisplayLabel().setDefaultValue("Test Root");
+      rootTestClassifier.apply();
+      
+      ROOT_TEST_TERM_KEY = rootTestClassifier.getKeyName();
+      
+      rootClassifier.addIsAChild(rootTestClassifier).apply();
+    }
+    catch (DuplicateDataException e) 
+    {
+      e.printStackTrace();
+    }
+    catch (RuntimeException e)
+    {
+      e.printStackTrace();
+    }
+    
   }
   
   @AfterClass
@@ -220,8 +251,16 @@ public class HierarchyManagementServiceTest
         MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(ADMINISTRATIVE_DIVISION_CODE));
         mdTermRelationship.delete();
       } catch (DataNotFoundException e) {} 
+      
+      try
+      {
+    	String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, ROOT_TEST_TERM_CLASSIFIER_ID);
+        Classifier rootTestClassifier = Classifier.getByKey(classifierKey);
+        rootTestClassifier.delete();
+      } catch (DataNotFoundException e) {} 
     
       GeoprismUser.getByKey(USER_KEY).delete();
+
     }
     catch (RuntimeException e)
     {
@@ -321,22 +360,19 @@ public class HierarchyManagementServiceTest
       Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
     }
   }
-  
-//AttributeType testChar = AttributeType.factory("testChar",  "testCharLocalName", "testCharLocalDescrip", AttributeCharacterType.TYPE);
-//AttributeType testDate = AttributeType.factory("testDate",  "testDateLocalName", "testDateLocalDescrip", AttributeDateType.TYPE);
-//AttributeType testInteger = AttributeType.factory("testInteger",  "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
-//AttributeType testBoolean = AttributeType.factory("testBoolean",  "testBooleanName", "testBooleanDescrip", AttributeBooleanType.TYPE);
-//AttributeType testTerm = AttributeType.factory("testTerm",  "testTermLocalName", "testTermLocalDescrip", AttributeTermType.TYPE);
 
   
   @Test
-  public void testCreateGeoObjectTypeCharacter()
+  public void testCreateGeoObjectTypeCharacter_AndUpdate()
   {  
     String sessionId = this.logInAdmin();
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry); 
+
+    String geoObjectTypeCode = province.getCode();
+    
     String gtJSON = province.toJSON().toString();
     
     AttributeType testChar = AttributeType.factory("testChar",  "testCharLocalName", "testCharLocalDescrip", AttributeCharacterType.TYPE);
@@ -344,8 +380,6 @@ public class HierarchyManagementServiceTest
     try
     {
       service.createGeoObjectType(sessionId, gtJSON);
-            
-      String geoObjectTypeCode = province.getCode();
       String attributeTypeJSON = testChar.toJSON().toString();
       testChar = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
@@ -358,6 +392,22 @@ public class HierarchyManagementServiceTest
 
     Assert.assertNotNull("A GeoObjectType did not define the attribute: "+testChar.getName(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: "+mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeCharacterDAOIF);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      testChar.setLocalizedLabel("testCharLocalName-Update");
+      testChar.setLocalizedDescription("testCharLocalDescrip-Update");
+      String attributeTypeJSON = testChar.toJSON().toString();
+      testChar = service.updateAttributeInGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    Assert.assertEquals("testCharLocalName-Update", testChar.getLocalizedLabel());
+    Assert.assertEquals("testCharLocalDescrip-Update", testChar.getLocalizedDescription());
     
     sessionId = this.logInAdmin();
     try
@@ -489,6 +539,190 @@ public class HierarchyManagementServiceTest
     try
     {
       service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testBoolean.getName());
+      service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+  }
+  
+  
+ @Test
+  public void testClassifierToTerm()
+  { 	  
+//	String classKey = RegistryConstants.TERM_CLASS+"_TestType";
+//    Term classTerm = new Term(classKey, "Test Type", "");
+//    
+//    
+//    String attributeKey = classKey+"_AttributeName";
+//    Term attributeTerm = new Term(attributeKey, "Attribute Root", "");
+//    classTerm.addChild(classTerm);
+//    
+//    Term attributeValueTerm1 = new Term(attributeTerm+"_1", "Attribute Value 1", "");
+//    attributeTerm.addChild(attributeValueTerm1);
+//    Term attributeValueTerm2 = new Term(attributeTerm+"_2", "Attribute Value 2", "");
+//    attributeTerm.addChild(attributeValueTerm2);
+//    Term attributeValueTerm3 = new Term(attributeTerm+"_3", "Attribute Value 3", "");
+//    attributeTerm.addChild(attributeValueTerm3);
+	  
+    this.buildClassifierTree();
+  }
+  
+  @Request
+  private void buildClassifierTree()
+  {
+    String className = "TestClass";
+	String attributeName = "SomeAttribute";
+	Classifier classifier = this.buildClassAttributeClassifierTree(className, attributeName);
+	
+	try
+	{
+	  TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
+	
+	  Term term = termBuilder.build();
+	  
+      String classifierId = TermBuilder.buildRootClassClassifierId(className);
+	  
+	  Assert.assertEquals(classifierId, term.getCode());
+	  
+	  int childCount = 0;
+	  
+	  OIterator<? extends Classifier> i = classifier.getAllIsAChild();
+	  while (i.hasNext())
+	  {
+        i.next();
+        childCount++;
+	  }
+
+	  Assert.assertEquals(childCount, term.getChildren().size());
+	}
+	finally
+	{
+      classifier.delete();
+	}
+  }
+  
+  @Transaction
+  private Classifier buildClassAttributeClassifierTree(String className, String attributeName)
+  {
+    Classifier rootTestClassifier = Classifier.getByKey(ROOT_TEST_TERM_KEY);
+
+	String classifierId = TermBuilder.buildRootClassClassifierId(className);
+    Classifier classTerm = this.createClassifier(classifierId, "Test Type");
+    rootTestClassifier.addIsAChild(classTerm).apply();
+    
+    String attributeKey = classifierId+"_"+attributeName;
+    Classifier attributeTerm = this.createClassifier(attributeKey, "Attribute Test Root");
+    classTerm.addIsAChild(attributeTerm).apply();
+
+    Classifier attributeValueTerm1 = this.createClassifier(attributeKey+"_Value1", "Attribute Value 1");
+    attributeTerm.addIsAChild(attributeValueTerm1).apply();
+
+    Classifier attributeValueTerm2 = this.createClassifier(attributeKey+"_Value2", "Attribute Value 2");
+    attributeTerm.addIsAChild(attributeValueTerm2).apply
+    ();
+    
+    Classifier attributeValueTerm3 = this.createClassifier(attributeKey+"_Value3", "Attribute Value 3");
+    attributeTerm.addIsAChild(attributeValueTerm3).apply();
+    
+    return classTerm;
+  }
+  
+  private Classifier createClassifier(String classifierId, String displayLabel)
+  {
+    // Create Classifier Terms
+	Classifier classifier = new Classifier();
+	classifier.setClassifierId(classifierId);
+	classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+	classifier.getDisplayLabel().setDefaultValue(displayLabel);
+	classifier.apply();
+	
+	return classifier;
+  }
+
+  
+  @Test
+  public void testCreateGeoObjectTypeTerm()
+  {  
+    String sessionId = this.logInAdmin();
+
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "", false, registry); 
+    String geoObjectTypeCode = province.getCode();
+    
+    AttributeTermType attributeTermType = (AttributeTermType)AttributeType.factory("testTerm",  "Test Term Name", "Test Term Description", AttributeTermType.TYPE);    
+    Term term = new Term(PROVINCE_CODE+"_"+"testTerm", "Test Term Name", "Test Term Description");
+    attributeTermType.setRootTerm(term);
+    
+    province.addAttribute(attributeTermType);
+
+    String gtJSON = province.toJSON().toString();
+    
+    try
+    {
+      service.createGeoObjectType(sessionId, gtJSON);
+
+      String attributeTypeJSON = attributeTermType.toJSON().toString();
+      attributeTermType = (AttributeTermType)service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = checkAttribute(PROVINCE_CODE, attributeTermType.getName());
+
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: "+attributeTermType.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: "+mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeTermDAOIF);
+    
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      Term rootTerm = attributeTermType.getRootTerm();
+      
+      Term childTerm1 = new Term("termValue1", "Term Value 1", "");
+      Term childTerm2 = new Term("termValue2", "Term Value 2", "");
+      
+      service.createTerm(sessionId, rootTerm.getCode(), childTerm1.toJSON().toString());
+      service.createTerm(sessionId, rootTerm.getCode(), childTerm2.toJSON().toString());
+      
+      attributeTermType.setLocalizedLabel("Test Term Name Update");
+      attributeTermType.setLocalizedDescription("Test Term Description Update");
+      
+      attributeTermType = (AttributeTermType)service.updateAttributeInGeoObjectType(sessionId, geoObjectTypeCode, attributeTermType.toJSON().toString());
+      
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
+    
+    Assert.assertEquals(attributeTermType.getLocalizedLabel(), "Test Term Name Update");
+    Assert.assertEquals(attributeTermType.getLocalizedDescription(), "Test Term Description Update");
+    
+    Term rootTerm = attributeTermType.getRootTerm();
+    
+    List<Term> childTerms = rootTerm.getChildren();
+    
+    Assert.assertEquals(childTerms.size(), 2);
+    
+    Term childTerm1 = childTerms.get(0);
+    Term childTerm2 = childTerms.get(1);
+    
+    Assert.assertEquals(childTerm1.getCode(), "termValue1");
+    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
+    
+    Assert.assertEquals(childTerm2.getCode(), "termValue2");
+    Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2");
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, attributeTermType.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
