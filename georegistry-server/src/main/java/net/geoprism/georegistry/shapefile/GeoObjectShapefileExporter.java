@@ -222,7 +222,7 @@ public class GeoObjectShapefileExporter
 
         if (attribute instanceof AttributeTermType)
         {
-          builder.set(GeoObjectShapefileExporter.format(name), GeoObjectUtil.convertToTermString(value));
+          builder.set(GeoObjectShapefileExporter.format(name), GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
         }
         else
         {

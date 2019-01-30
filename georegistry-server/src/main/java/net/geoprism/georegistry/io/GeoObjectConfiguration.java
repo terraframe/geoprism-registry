@@ -14,6 +14,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
@@ -33,17 +34,33 @@ public class GeoObjectConfiguration
 {
   public static final String             TARGET        = "target";
 
-  public static String                   TEXT          = "text";
+  public static final String             BASE_TYPE     = "baseType";
 
-  public static String                   LATITUDE      = "latitude";
+  public static final String             TEXT          = "text";
 
-  public static String                   LONGITUDE     = "longitude";
+  public static final String             LATITUDE      = "latitude";
 
-  public static String                   NUMERIC       = "numeric";
+  public static final String             LONGITUDE     = "longitude";
 
-  public static String                   LONGITUDE_KEY = "georegistry.longitude.label";
+  public static final String             NUMERIC       = "numeric";
 
-  public static String                   LATITUDE_KEY  = "georegistry.latitude.label";
+  public static final String             FILENAME      = "filename";
+
+  public static final String             HIERARCHIES   = "hierarchies";
+
+  public static final String             HIERARCHY     = "hierarchy";
+
+  public static final String             DIRECTORY     = "directory";
+
+  public static final String             LOCATIONS     = "locations";
+
+  public static final String             TYPE          = "type";
+
+  public static final String             SHEET         = "sheet";
+
+  public static final String             LONGITUDE_KEY = "georegistry.longitude.label";
+
+  public static final String             LATITUDE_KEY  = "georegistry.latitude.label";
 
   private Map<String, ShapefileFunction> functions;
 
@@ -206,16 +223,16 @@ public class GeoObjectConfiguration
   public JsonObject toJson()
   {
     JsonObject type = this.type.toJSON(new ImportAttributeSerializer(this.includeCoordinates));
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
+    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
     {
       JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeName = attribute.get("name").getAsString();
+      String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
 
       if (this.functions.containsKey(attributeName))
       {
-        attribute.addProperty("target", this.functions.get(attributeName).toJson());
+        attribute.addProperty(TARGET, this.functions.get(attributeName).toJson());
       }
     }
 
@@ -256,18 +273,18 @@ public class GeoObjectConfiguration
   public static GeoObjectConfiguration parse(String json, boolean includeCoordinates)
   {
     JsonObject config = new JsonParser().parse(json).getAsJsonObject();
-    JsonObject type = config.get("type").getAsJsonObject();
-    JsonArray locations = config.has("locations") ? config.get("locations").getAsJsonArray() : new JsonArray();
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
-    String code = type.get("code").getAsString();
+    JsonObject type = config.get(TYPE).getAsJsonObject();
+    JsonArray locations = config.has(LOCATIONS) ? config.get(LOCATIONS).getAsJsonArray() : new JsonArray();
+    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
+    String code = type.get(GeoObjectType.JSON_CODE).getAsString();
     GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(universal.getMdBusinessOid());
 
     GeoObjectConfiguration configuration = new GeoObjectConfiguration();
-    configuration.setDirectory(config.get("directory").getAsString());
-    configuration.setFilename(config.get("filename").getAsString());
-    configuration.setHierarchy(config.has("hierarchy") ? config.get("hierarchy").getAsString() : null);
+    configuration.setDirectory(config.get(DIRECTORY).getAsString());
+    configuration.setFilename(config.get(FILENAME).getAsString());
+    configuration.setHierarchy(config.has(HIERARCHY) ? config.get(HIERARCHY).getAsString() : null);
     configuration.setType(got);
     configuration.setMdBusiness(mdBusiness);
     configuration.setIncludeCoordinates(includeCoordinates);
@@ -278,7 +295,7 @@ public class GeoObjectConfiguration
 
       if (attribute.has(TARGET))
       {
-        String attributeName = attribute.get("name").getAsString();
+        String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
         String target = attribute.get(TARGET).getAsString();
 
         configuration.setFunction(attributeName, new BasicColumnFunction(target));
@@ -291,7 +308,7 @@ public class GeoObjectConfiguration
 
       if (location.has(TARGET))
       {
-        String pCode = location.get("code").getAsString();
+        String pCode = location.get(AttributeType.JSON_CODE).getAsString();
         GeoObjectType pType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(pCode).get();
         Universal pUniversal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(pType);
 

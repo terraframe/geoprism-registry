@@ -76,16 +76,16 @@ public class ShapefileServiceTest
     ShapefileService service = new ShapefileService();
     JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), tutil.STATE.getCode(), "cb_2017_us_state_500k.zip", istream);
 
-    JsonObject type = result.getAsJsonObject("type");
+    JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
 
     Assert.assertNotNull(type);
 
-    JsonArray tAttributes = type.get("attributes").getAsJsonArray();
+    JsonArray tAttributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     Assert.assertEquals(2, tAttributes.size());
     Assert.assertTrue(tAttributes.get(0).getAsJsonObject().get("required").getAsBoolean());
 
-    JsonArray hierarchies = result.get("hierarchies").getAsJsonArray();
+    JsonArray hierarchies = result.get(GeoObjectConfiguration.HIERARCHIES).getAsJsonArray();
 
     Assert.assertEquals(1, hierarchies.size());
 
@@ -238,7 +238,7 @@ public class ShapefileServiceTest
 
       if (attribute instanceof AttributeTermType)
       {
-        Assert.assertEquals("Attributes not equal [" + attributeName + "]", GeoObjectUtil.convertToTermString(oValue), fValue);
+        Assert.assertEquals("Attributes not equal [" + attributeName + "]", GeoObjectUtil.convertToTermString((AttributeTermType) attribute, oValue), fValue);
       }
       else
       {
@@ -313,22 +313,22 @@ public class ShapefileServiceTest
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service)
   {
     JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), tutil.STATE.getCode(), "cb_2017_us_state_500k.zip", istream);
-    JsonObject type = result.getAsJsonObject("type");
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
+    JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
+    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
     {
       JsonObject attribute = attributes.get(i).getAsJsonObject();
 
-      String attributeName = attribute.get("name").getAsString();
+      String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
 
       if (attributeName.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
       {
-        attribute.addProperty("target", "NAME");
+        attribute.addProperty(GeoObjectConfiguration.TARGET, "NAME");
       }
       else if (attributeName.equals(GeoObject.CODE))
       {
-        attribute.addProperty("target", "GEOID");
+        attribute.addProperty(GeoObjectConfiguration.TARGET, "GEOID");
       }
     }
 

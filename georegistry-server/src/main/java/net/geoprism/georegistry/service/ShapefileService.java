@@ -15,8 +15,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.opengis.feature.simple.SimpleFeature;
@@ -27,7 +27,6 @@ import org.opengis.feature.type.GeometryDescriptor;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayException;
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -36,7 +35,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
@@ -80,11 +78,11 @@ public class ShapefileService
         JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchies(geoObjectType);
 
         JsonObject object = new JsonObject();
-        object.add("type", this.getType(geoObjectType));
-        object.add("hierarchies", hierarchies);
-        object.add("sheet", this.getSheetInformation(dbfs[0]));
-        object.addProperty("directory", root.getName());
-        object.addProperty("filename", fileName);
+        object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
+        object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);
+        object.add(GeoObjectConfiguration.SHEET, this.getSheetInformation(dbfs[0]));
+        object.addProperty(GeoObjectConfiguration.DIRECTORY, root.getName());
+        object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
 
         return object;
       }
@@ -108,14 +106,14 @@ public class ShapefileService
   private JsonObject getType(GeoObjectType geoObjectType)
   {
     JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(false));
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
+    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
     {
       JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeType = attribute.get("type").getAsString();
+      String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
 
-      attribute.addProperty("baseType", GeoObjectConfiguration.getBaseType(attributeType));
+      attribute.addProperty(GeoObjectConfiguration.BASE_TYPE, GeoObjectConfiguration.getBaseType(attributeType));
     }
 
     return type;
