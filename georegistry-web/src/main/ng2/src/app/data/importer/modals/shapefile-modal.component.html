@@ -1,42 +1,12 @@
 <div class="modal-body">
   <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-  <div class="text-center">
-    <h2>
-      <localize key="io.modal.title"></localize>
-    </h2>
-    <p class="lead">
-      <localize key="io.modal.description"></localize>
-    </p>
-  </div>
 
   <div *ngIf="configuration != null && configuration">
-
-    <div class="col-md-8 order-md-1">
-      <h3 class="mb-3">
-        <localize key="shapefile.modal.heading"></localize>
-        {{configuration.sheet.name}}
-      </h3>
-      <form #form="ngForm">
-        <div class="form-group row" *ngFor="let attribute of configuration.type.attributes">
-          <label class="col-sm-2">{{attribute.localizedLabel}}</label>
-          <div class="col-sm-10">
-            <select [name]="attribute.name" class="form-control" [(ngModel)]="attribute.target" [required]="attribute.required">
-              <option></option>
-              <option *ngFor="let attr of configuration.sheet.attributes[attribute.baseType]" value={{attr}}>{{attr}}</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-sm-12 text-right">
-            <button type="button" (click)="bsModalRef.hide()" class="btn" role="button">
-              <span class="ui-button-text"><localize key="io.cancel"></localize></span>
-            </button>
-            <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-              <span class="ui-button-text"><localize key="io.ok"></localize></span>
-            </button>
-          </div>
-        </div>
-      </form>
+    <div *ngIf="state === 'MAP'">
+      <attributes-page [(configuration)]="configuration" (stateChange)="onStateChange($event)"></attributes-page>
+    </div>
+    <div *ngIf="state === 'LOCATION'">
+      <location-page [(configuration)]="configuration" (stateChange)="onStateChange($event)"></location-page>
     </div>
   </div>
 </div>

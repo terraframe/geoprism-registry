@@ -18,14 +18,11 @@
  */
 package net.geoprism.georegistry;
 
-import net.geoprism.georegistry.service.RegistryService;
-
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.commongeoregistry.adapter.Term;
-import java.util.Arrays;
-import java.util.Comparator;
-
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -50,6 +47,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
+import net.geoprism.georegistry.service.RegistryService;
 
 @Controller(url = RegistryUrls.REGISTRY_CONTROLLER_URL)
 public class RegistryController
@@ -156,22 +154,22 @@ public class RegistryController
    * @returns
    * @throws //TODO
    **/
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_UPDATE)
-   public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_UPDATE_PARAM_GEOOBJECT) String jGeoObj)
-   {
-     GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj);
-     
-     return new RestBodyResponse(geoObject.toJSON());
-   }
-   
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
-   public ResponseIF addAttributeToGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
-   {
-     AttributeType attrType = this.registryService.addAttributeToGeoObjectType(request.getSessionId(), geoObjTypeId, attributeType);
-     
-     return new RestBodyResponse(attrType.toJSON());
-   }
-   
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_UPDATE)
+  public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_UPDATE_PARAM_GEOOBJECT) String jGeoObj)
+  {
+    GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj);
+
+    return new RestBodyResponse(geoObject.toJSON());
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
+  public ResponseIF addAttributeToGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
+  {
+    AttributeType attrType = this.registryService.addAttributeToGeoObjectType(request.getSessionId(), geoObjTypeId, attributeType);
+
+    return new RestBodyResponse(attrType.toJSON());
+  }
+
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
    public ResponseIF updateAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
    {
@@ -578,6 +576,25 @@ public class RegistryController
     HierarchyType ht = this.registryService.removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
     return new RestBodyResponse(ht.toJSON());
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-ancestors")
+  public ResponseIF getTypeAncestors(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "hierarchyCode") String hierarchyCode)
+  {
+    JsonArray response = new JsonArray();
+
+    List<GeoObjectType> ancestors = this.registryService.getAncestors(request.getSessionId(), code, hierarchyCode);
+
+    for (GeoObjectType ancestor : ancestors)
+    {
+      JsonObject object = new JsonObject();
+      object.addProperty("label", ancestor.getLocalizedLabel());
+      object.addProperty("code", ancestor.getCode());
+      
+      response.add(object);
+    }
+
+    return new RestBodyResponse(response.toString());
   }
 
 }

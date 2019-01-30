@@ -8,6 +8,7 @@ import java.io.InputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
 
@@ -61,10 +62,10 @@ public class ExcelService
       reader.process(new FileInputStream(file));
 
       JsonObject object = new JsonObject();
-      object.add("type", this.getType(geoObjectType));
-      object.add("sheet", handler.getSheets().get(0).getAsJsonObject());
-      object.addProperty("directory", directory.getName());
-      object.addProperty("filename", fileName);
+      object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
+      object.add(GeoObjectConfiguration.SHEET, handler.getSheets().get(0).getAsJsonObject());
+      object.addProperty(GeoObjectConfiguration.DIRECTORY, directory.getName());
+      object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
 
       return object;
     }
@@ -88,14 +89,14 @@ public class ExcelService
   private JsonObject getType(GeoObjectType geoObjectType)
   {
     JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(true));
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
+    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
     {
       JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeType = attribute.get("type").getAsString();
+      String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
 
-      attribute.addProperty("baseType", GeoObjectConfiguration.getBaseType(attributeType));
+      attribute.addProperty(GeoObjectConfiguration.BASE_TYPE, GeoObjectConfiguration.getBaseType(attributeType));
     }
 
     return type;

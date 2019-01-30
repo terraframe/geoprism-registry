@@ -13,6 +13,7 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
 import org.junit.Assert;
@@ -61,14 +62,14 @@ public class ExcelServiceTest
 
     System.out.println(result.toString());
 
-    Assert.assertNotNull(result.getAsJsonObject("type"));
+    Assert.assertNotNull(result.getAsJsonObject(GeoObjectConfiguration.TYPE));
 
-    JsonObject sheet = result.getAsJsonObject("sheet");
+    JsonObject sheet = result.getAsJsonObject(GeoObjectConfiguration.SHEET);
 
     Assert.assertNotNull(sheet);
     Assert.assertEquals("Objects", sheet.get("name").getAsString());
 
-    JsonObject attributes = sheet.get("attributes").getAsJsonObject();
+    JsonObject attributes = sheet.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonObject();
 
     Assert.assertNotNull(attributes);
 
@@ -170,30 +171,30 @@ public class ExcelServiceTest
   private JsonObject getTestConfiguration(InputStream istream, ExcelService service)
   {
     JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), tutil.STATE.getCode(), "test-spreadsheet.xlsx", istream);
-    JsonObject type = result.getAsJsonObject("type");
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
+    JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
+    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
     {
       JsonObject attribute = attributes.get(i).getAsJsonObject();
 
-      String attributeName = attribute.get("name").getAsString();
+      String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
 
       if (attributeName.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
       {
-        attribute.addProperty("target", "Status");
+        attribute.addProperty(GeoObjectConfiguration.TARGET, "Status");
       }
       else if (attributeName.equals(GeoObject.CODE))
       {
-        attribute.addProperty("target", "Code");
+        attribute.addProperty(GeoObjectConfiguration.TARGET, "Code");
       }
       else if (attributeName.equals(GeoObjectConfiguration.LATITUDE))
       {
-        attribute.addProperty("target", "Latitude");
+        attribute.addProperty(GeoObjectConfiguration.TARGET, "Latitude");
       }
       else if (attributeName.equals(GeoObjectConfiguration.LONGITUDE))
       {
-        attribute.addProperty("target", "Longitude");
+        attribute.addProperty(GeoObjectConfiguration.TARGET, "Longitude");
       }
     }
 

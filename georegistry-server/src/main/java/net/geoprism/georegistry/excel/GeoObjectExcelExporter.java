@@ -107,7 +107,7 @@ public class GeoObjectExcelExporter
         {
           if (attribute instanceof AttributeTermType)
           {
-            cell.setCellValue(GeoObjectUtil.convertToTermString(value));
+            cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
           }
           else
           {

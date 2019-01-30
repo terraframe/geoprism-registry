@@ -4,7 +4,7 @@
   "scripts": {
     "start": "webpack-dev-server --https --inline --progress --port 8080",
     "test": "karma start",
-    "build": "rimraf dist && webpack --config config/webpack.prod.js --progress --profile"
+    "build": "rimraf dist && webpack --config config/webpack.prod.js --profile"
   },
   "dependencies": {
     "@angular/animations": "~5.2.1",

@@ -48,12 +48,16 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.GISImportLoggerIF;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.data.importer.TaskObservable;
+import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.localization.LocalizationFacade;
@@ -286,17 +290,11 @@ public class GeoObjectShapefileImporter extends TaskObservable
         throw new RuntimeException(e);
       }
 
-      if (isNew)
+      if (isNew && this.config.getHierarchy() != null)
       {
-        // List<GeoObject> parents = this.getParent(feature);
-        //
-        // for (GeoObject parent : parents)
-        // {
-        // ServiceFactory.getUtilities().entity.addLink(parent,
-        // LocatedIn.CLASS);
-        // }
-        // ServiceFactory.getUtilities().entity.addLink(parent,
-        // LocatedIn.CLASS);
+        GeoObject parent = this.getParent(row);
+
+        ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.config.getHierarchy());
       }
 
       // We must ensure that any problems created during the transaction are
@@ -350,80 +348,49 @@ public class GeoObjectShapefileImporter extends TaskObservable
     }
   }
 
-  // /**
-  // * Returns the entity as defined by the 'parent' and 'parentType' attributes
-  // * of the given feature. If an entity is not found then Earth is returned by
-  // * default. The 'parent' value of the feature must define an entity name or
-  // a
-  // * geo oid. The 'parentType' value of the feature must define the localized
-  // * display label of the universal.
-  // *
-  // * @param feature
-  // * Shapefile feature used to determine the parent
-  // * @return Parent entity
-  // */
-  // private List<GeoObject> getParent(SimpleFeature feature)
-  // {
-  // List<GeoObject> parents = new LinkedList<GeoObject>();
-  //
-  // if (this.parent != null && this.parentType != null)
-  // {
-  // List<String> _entityNames = this.parent.getValue(feature);
-  // String _type = this.parentType.getValue(feature);
-  //
-  // if (_type != null)
-  // {
-  // String type = _type.toString();
-  //
-  // for (String entityName : _entityNames)
-  // {
-  // GeoObject parent =
-  // GeoObjectShapefileImporter.getByEntityNameAndUniversal(entityName, type);
-  //
-  // if (parent != null)
-  // {
-  // parents.add(parent);
-  // }
-  // }
-  // }
-  // }
-  //
-  // if (this.parent != null)
-  // {
-  // List<String> _entityNames = this.parent.getValue(feature);
-  //
-  // for (String entityName : _entityNames)
-  // {
-  // if (this.parentCache.containsKey(entityName))
-  // {
-  // parents.add(this.parentCache.get(entityName));
-  // }
-  // else
-  // {
-  // GeoObject parent = GeoObjectShapefileImporter.getByEntityName(entityName);
-  //
-  // if (parent != null)
-  // {
-  // this.parentCache.put(entityName, parent);
-  //
-  // parents.add(this.parentCache.get(entityName));
-  // }
-  // else
-  // {
-  // System.out.println("Unable to find parent [" + entityName + "] for type ["
-  // + this.universal.getKey() + "]");
-  // }
-  // }
-  // }
-  // }
-  //
-  // if (parents.size() == 0)
-  // {
-  // parents.add(this.root);
-  // }
-  //
-  // return parents;
-  // }
+  /**
+   * Returns the entity as defined by the 'parent' and 'parentType' attributes
+   * of the given feature. If an entity is not found then Earth is returned by
+   * default. The 'parent' value of the feature must define an entity name or a
+   * geo oid. The 'parentType' value of the feature must define the localized
+   * display label of the universal.
+   *
+   * @param feature
+   *          Shapefile feature used to determine the parent
+   * @return Parent entity
+   */
+  private GeoObject getParent(FeatureRow feature)
+  {
+    List<Location> locations = this.config.getLocations();
+
+    GeoObject parent = null;
+
+    for (Location location : locations)
+    {
+      BasicColumnFunction function = location.getFunction();
+      String label = (String) function.getValue(feature);
+
+      if (label != null)
+      {
+        // Search
+        GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
+        query.setRestriction(new SynonymRestriction(label));
+
+        GeoObject result = query.getSingleResult();
+
+        if (result != null)
+        {
+          parent = result;
+        }
+        else
+        {
+          // throw new LocationProblem(label, context, parent, universal);
+        }
+      }
+    }
+
+    return parent;
+  }
 
   /**
    * @param feature
@@ -460,7 +427,7 @@ public class GeoObjectShapefileImporter extends TaskObservable
   private String getName(FeatureRow feature)
   {
     ShapefileFunction function = this.config.getFunction(GeoObject.LOCALIZED_DISPLAY_LABEL);
-    
+
     if (function == null)
     {
       RequiredMappingException ex = new RequiredMappingException();

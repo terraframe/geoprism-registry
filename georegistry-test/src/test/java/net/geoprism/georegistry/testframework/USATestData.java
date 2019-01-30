@@ -32,8 +32,8 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.generated.system.gis.geo.GeoEntityAllPathsTableQuery;
-import com.runwaysdk.generated.system.gis.geo.UniversalAllPathsTableQuery;
+import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTableQuery;
+import com.runwaysdk.generated.system.gis.geo.AllowedInAllPathsTableQuery;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -56,7 +56,7 @@ import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierAllPathsTableQuery;
+import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.GeoObjectStatus;
 
@@ -189,17 +189,17 @@ public class USATestData extends TestUtilities
     Universal.getStrategy().initialize(AllowedIn.CLASS);
     GeoEntity.getStrategy().initialize(LocatedIn.CLASS);
 
-    if (new UniversalAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    if (new AllowedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
     {
       Universal.getStrategy().reinitialize(AllowedIn.CLASS);
     }
 
-    if (new GeoEntityAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    if (new LocatedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
     {
       GeoEntity.getStrategy().reinitialize(LocatedIn.CLASS);
     }
 
-    if (new ClassifierAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+    if (new ClassifierIsARelationshipAllPathsTableQuery(new QueryFactory()).getCount() == 0)
     {
       Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
     }

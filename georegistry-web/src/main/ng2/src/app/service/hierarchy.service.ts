@@ -327,6 +327,10 @@ export class HierarchyService {
            .then( response => {
                return response.json() as Attribute;
            } )
+
+        //    	  return this.http
+	    //   .get(this.baseUrl, { search: params } )
+	    //   .map(res => res.json());
     }
 
 }

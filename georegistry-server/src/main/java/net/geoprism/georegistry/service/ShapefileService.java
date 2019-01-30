@@ -15,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -74,11 +75,14 @@ public class ShapefileService
 
       if (dbfs.length > 0)
       {
+        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchies(geoObjectType);
+
         JsonObject object = new JsonObject();
-        object.add("type", this.getType(geoObjectType));
-        object.add("sheet", this.getSheetInformation(dbfs[0]));
-        object.addProperty("directory", root.getName());
-        object.addProperty("filename", fileName);
+        object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
+        object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);
+        object.add(GeoObjectConfiguration.SHEET, this.getSheetInformation(dbfs[0]));
+        object.addProperty(GeoObjectConfiguration.DIRECTORY, root.getName());
+        object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
 
         return object;
       }
@@ -102,14 +106,14 @@ public class ShapefileService
   private JsonObject getType(GeoObjectType geoObjectType)
   {
     JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(false));
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
+    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
     {
       JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeType = attribute.get("type").getAsString();
+      String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
 
-      attribute.addProperty("baseType", GeoObjectConfiguration.getBaseType(attributeType));
+      attribute.addProperty(GeoObjectConfiguration.BASE_TYPE, GeoObjectConfiguration.getBaseType(attributeType));
     }
 
     return type;

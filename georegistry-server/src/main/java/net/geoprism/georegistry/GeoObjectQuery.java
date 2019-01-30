@@ -20,15 +20,11 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 public class GeoObjectQuery
 {
-  private GeoObjectType type;
+  private GeoObjectType        type;
 
-  private Universal     universal;
+  private Universal            universal;
 
-  private String        registryId;
-
-  private String        runwayId;
-
-  private String        code;
+  private GeoObjectRestriction restriction;
 
   public GeoObjectQuery(GeoObjectType type, Universal universal)
   {
@@ -46,34 +42,14 @@ public class GeoObjectQuery
     this.type = type;
   }
 
-  public String getRegistryId()
+  public GeoObjectRestriction getRestriction()
   {
-    return registryId;
+    return restriction;
   }
 
-  public void setRegistryId(String registryId)
+  public void setRestriction(GeoObjectRestriction restriction)
   {
-    this.registryId = registryId;
-  }
-
-  public String getCode()
-  {
-    return code;
-  }
-
-  public void setCode(String code)
-  {
-    this.code = code;
-  }
-
-  public String getRunwayId()
-  {
-    return runwayId;
-  }
-
-  public void setRunwayId(String runwayId)
-  {
-    this.runwayId = runwayId;
+    this.restriction = restriction;
   }
 
   public OIterator<GeoObject> getIterator()
@@ -93,17 +69,9 @@ public class GeoObjectQuery
 
       this.selectCustomAttributes(vQuery, bQuery);
 
-      if (this.registryId != null)
+      if (this.restriction != null)
       {
-        vQuery.WHERE(bQuery.get(RegistryConstants.UUID).EQ(this.registryId));
-      }
-      else if (this.code != null)
-      {
-        vQuery.WHERE(bQuery.get(DefaultAttribute.CODE.getName()).EQ(this.code));
-      }
-      else if (this.runwayId != null)
-      {
-        vQuery.WHERE(bQuery.get(ComponentInfo.OID).EQ(this.runwayId));
+        this.restriction.restrict(vQuery, bQuery);
       }
 
       vQuery.ORDER_BY_ASC(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
@@ -145,19 +113,12 @@ public class GeoObjectQuery
 
       this.selectCustomAttributes(vQuery, bQuery);
 
+      vQuery.WHERE(geQuery.getUniversal().EQ(universal));
       vQuery.WHERE(bQuery.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(geQuery));
 
-      if (this.registryId != null)
+      if (this.restriction != null)
       {
-        vQuery.WHERE(bQuery.get(RegistryConstants.UUID).EQ(this.registryId));
-      }
-      else if (this.code != null)
-      {
-        vQuery.WHERE(geQuery.getGeoId().EQ(this.code));
-      }
-      else if (this.runwayId != null)
-      {
-        vQuery.WHERE(geQuery.getOid().EQ(this.runwayId));
+        this.restriction.restrict(vQuery, geQuery, bQuery);
       }
 
       vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));

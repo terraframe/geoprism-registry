@@ -10,11 +10,19 @@ export class ShapefileSheet {
     }
 }
 
+export class Location {
+    label: string;
+    code: string;
+    target: string;
+}
+
 export class ShapefileConfiguration {
     type: GeoObjectType;
     sheet: ShapefileSheet;
     directory: string;
     filename: string;
+    hierarchy: string;
+    locations: Location[];
 }
 
 export class TermProblem {

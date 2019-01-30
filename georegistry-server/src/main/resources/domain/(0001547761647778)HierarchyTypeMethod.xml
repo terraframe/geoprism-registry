@@ -1,0 +1,31 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdUtil name="net.geoprism.registry.GeoRegistryUtil" label="Geo Registry Util">
+          <mdMethod name="createHierarchyType" label="Create hierarchy type" returnType="java.lang.String" static="true">
+            <mdParameter name="htJSON" label="JSON" order="0" type="java.lang.String" />
+          </mdMethod>          
+      </mdUtil>
+    </create>
+    <permissions>
+      <method methodName="createHierarchyType" type="net.geoprism.registry.GeoRegistryUtil">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="createHierarchyType">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdMethod" key="net.geoprism.registry.AttributeHierarhcy.createHierarchyType" ></object>
+    </delete>
+  </undoIt>
+</version>

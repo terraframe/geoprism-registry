@@ -1,0 +1,42 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+<!--  
+      <object key="ROOT" type="net.geoprism.ontology.Classifier">
+	    <attribute name="classifierId" value="ROOT" />
+	    <attribute name="classifierPackage" value="ROOT" />
+	    <attributeStruct name="displayLabel">
+	      <attribute name="defaultLocale" value="ROOT" />
+	    </attributeStruct>
+	  </object>
+--> 
+      <!-- This is the root node for attribute terms and any other related classifier annotation that pertains to a class -->
+	  <object key="CLASS" type="net.geoprism.ontology.Classifier">
+	    <attribute name="classifierId" value="CLASS" />
+	    <attribute name="classifierPackage" value="net.geoprism.registry" />
+	    <attributeStruct name="displayLabel">
+	      <attribute name="defaultLocale" value="Class" />
+	    </attributeStruct>
+	  </object>
+	  
+	  <relationship parentKey="ROOT" childKey="CLASS" type="net.geoprism.ontology.ClassifierIsARelationship" key="ROOT_CLASS">
+      </relationship>
+<!--   
+	  <object key="CLASS_ATTRIBUTE" type="net.geoprism.ontology.Classifier">
+	    <attribute name="classifierId" value="CLASS_ATTRIBUTE" />
+	    <attribute name="classifierPackage" value="net.geoprism.registry" />
+	    <attributeStruct name="displayLabel">
+	      <attribute name="defaultLocale" value="Class Attributes" />
+	    </attributeStruct>
+	  </object>
+-->	 
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="ROOT_CLASS" type="net.geoprism.ontology.ClassifierIsARelationship" />
+      <object key="CLASS" type="net.geoprism.ontology.Classifier" />
+    </delete>
+  </undoIt>
+</version>
