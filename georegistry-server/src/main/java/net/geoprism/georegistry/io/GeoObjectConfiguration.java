@@ -2,6 +2,8 @@ package net.geoprism.georegistry.io;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -59,10 +61,15 @@ public class GeoObjectConfiguration
 
   private boolean                        includeCoordinates;
 
+  private List<Location>                 locations;
+
+  private String                         hierarchy;
+
   public GeoObjectConfiguration()
   {
     this.functions = new HashMap<String, ShapefileFunction>();
     this.problems = new TreeSet<TermProblem>();
+    this.locations = new LinkedList<Location>();
     this.includeCoordinates = false;
   }
 
@@ -176,6 +183,26 @@ public class GeoObjectConfiguration
     this.problems.add(problem);
   }
 
+  public void addParent(Location location)
+  {
+    this.locations.add(location);
+  }
+
+  public List<Location> getLocations()
+  {
+    return this.locations;
+  }
+
+  public String getHierarchy()
+  {
+    return hierarchy;
+  }
+
+  public void setHierarchy(String hierarchy)
+  {
+    this.hierarchy = hierarchy;
+  }
+
   public JsonObject toJson()
   {
     JsonObject type = this.type.toJSON(new ImportAttributeSerializer(this.includeCoordinates));
@@ -192,10 +219,23 @@ public class GeoObjectConfiguration
       }
     }
 
+    JsonArray locations = new JsonArray();
+
+    for (Location location : this.locations)
+    {
+      locations.add(location.toJson());
+    }
+
     JsonObject config = new JsonObject();
     config.add("type", type);
+    config.add("locations", locations);
     config.addProperty("directory", this.getDirectory());
     config.addProperty("filename", this.getFilename());
+
+    if (this.hierarchy != null)
+    {
+      config.addProperty("hierarchy", this.getHierarchy());
+    }
 
     if (this.problems.size() > 0)
     {
@@ -217,6 +257,7 @@ public class GeoObjectConfiguration
   {
     JsonObject config = new JsonParser().parse(json).getAsJsonObject();
     JsonObject type = config.get("type").getAsJsonObject();
+    JsonArray locations = config.has("locations") ? config.get("locations").getAsJsonArray() : new JsonArray();
     JsonArray attributes = type.get("attributes").getAsJsonArray();
     String code = type.get("code").getAsString();
     GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
@@ -226,6 +267,7 @@ public class GeoObjectConfiguration
     GeoObjectConfiguration configuration = new GeoObjectConfiguration();
     configuration.setDirectory(config.get("directory").getAsString());
     configuration.setFilename(config.get("filename").getAsString());
+    configuration.setHierarchy(config.has("hierarchy") ? config.get("hierarchy").getAsString() : null);
     configuration.setType(got);
     configuration.setMdBusiness(mdBusiness);
     configuration.setIncludeCoordinates(includeCoordinates);
@@ -240,6 +282,22 @@ public class GeoObjectConfiguration
         String target = attribute.get(TARGET).getAsString();
 
         configuration.setFunction(attributeName, new BasicColumnFunction(target));
+      }
+    }
+
+    for (int i = 0; i < locations.size(); i++)
+    {
+      JsonObject location = locations.get(i).getAsJsonObject();
+
+      if (location.has(TARGET))
+      {
+        String pCode = location.get("code").getAsString();
+        GeoObjectType pType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(pCode).get();
+        Universal pUniversal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(pType);
+
+        String target = location.get(TARGET).getAsString();
+
+        configuration.addParent(new Location(pType, pUniversal, new BasicColumnFunction(target)));
       }
     }
 
@@ -297,5 +355,4 @@ public class GeoObjectConfiguration
   {
     return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles(LONGITUDE_KEY), "", false);
   }
-
 }

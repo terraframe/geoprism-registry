@@ -1,0 +1,36 @@
+<div>
+  <div class="text-center">
+    <h2>
+      <localize key="io.location.title"></localize>
+    </h2>
+    <p class="lead">
+      <localize key="io.location.description"></localize>
+    </p>
+  </div>
+  <div class="col-md-12 order-md-1">
+    <form #form="ngForm">
+      <div class="form-group row" *ngFor="let location of configuration.locations; let i = index;">
+        <label class="col-sm-2"> {{location.label}} </label>
+        <div class="col-sm-10">
+          <select class="select-area" [(ngModel)]="location.target" [name]="i + '-location'">
+            <option value=""></option>
+            <option *ngFor="let attr of configuration.sheet.attributes.text" [value]="attr">{{attr}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-12 text-right">
+          <button type="submit" (click)="onBack()" class="btn btn-info" role="button">
+            <span class="ui-button-text"><localize key="io.back"></localize></span>
+          </button>
+          <button type="button" (click)="onCancel()" class="btn" role="button">
+            <span class="ui-button-text"><localize key="io.cancel"></localize></span>
+          </button>
+          <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+            <span class="ui-button-text"><localize key="io.ok"></localize></span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

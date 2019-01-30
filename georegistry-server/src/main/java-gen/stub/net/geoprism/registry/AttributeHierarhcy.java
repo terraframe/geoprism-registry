@@ -57,7 +57,6 @@ public class AttributeHierarhcy extends AttributeHierarhcyBase
         }
       }
     }
-
   }
 
   public static void deleteByRelationship(MdTermRelationship mdRelationship)

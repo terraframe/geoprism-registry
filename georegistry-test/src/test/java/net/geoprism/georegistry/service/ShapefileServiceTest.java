@@ -14,6 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -33,10 +34,13 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
+import net.geoprism.georegistry.io.Location;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.testframework.USATestData;
 
@@ -81,6 +85,14 @@ public class ShapefileServiceTest
     Assert.assertEquals(2, tAttributes.size());
     Assert.assertTrue(tAttributes.get(0).getAsJsonObject().get("required").getAsBoolean());
 
+    JsonArray hierarchies = result.get("hierarchies").getAsJsonArray();
+
+    Assert.assertEquals(1, hierarchies.size());
+
+    JsonObject hierarchy = hierarchies.get(0).getAsJsonObject();
+
+    Assert.assertNotNull(hierarchy.get("label").getAsString());
+
     JsonObject sheet = result.getAsJsonObject("sheet");
 
     Assert.assertNotNull(sheet);
@@ -120,6 +132,43 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
+  }
+
+  @Test
+  @Request
+  public void testImportShapefileWithParent()
+  {
+    GeoObject geoObj = this.tutil.adapter.newGeoObjectInstance(this.tutil.COUNTRY.getCode());
+    geoObj.setCode("00");
+    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+
+    ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
+
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    JsonObject json = this.getTestConfiguration(istream, service);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
+    configuration.setHierarchy(LocatedIn.class.getSimpleName());
+    configuration.addParent(new Location(this.tutil.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.tutil.COUNTRY.getUniversal(), new BasicColumnFunction("LSAD")));
+
+    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    String sessionId = this.tutil.adminClientRequest.getSessionId();
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", tutil.STATE.getCode());
+
+    Assert.assertEquals("01", object.getCode());
+
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { this.tutil.COUNTRY.getCode() }, false);
+
+    List<ParentTreeNode> parents = nodes.getParents();
+
+    Assert.assertEquals(1, parents.size());
   }
 
   @Test

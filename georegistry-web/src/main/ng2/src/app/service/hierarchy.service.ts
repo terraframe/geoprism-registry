@@ -275,5 +275,5 @@ export class HierarchyService {
 	      .get(this.baseUrl, { search: params } )
 	      .map(res => res.json());
 	}
-
+    
 }

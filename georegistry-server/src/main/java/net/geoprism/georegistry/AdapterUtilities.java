@@ -1,5 +1,6 @@
 package net.geoprism.georegistry;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,9 +16,12 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
@@ -57,6 +61,7 @@ import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -65,6 +70,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
@@ -382,7 +388,7 @@ public class AdapterUtilities
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
 
     GeoObjectQuery query = new GeoObjectQuery(got, universal);
-    query.setRegistryId(registryId);
+    query.setRestriction(new UidRestriction(registryId));
 
     GeoObject gObject = query.getSingleResult();
 
@@ -423,7 +429,7 @@ public class AdapterUtilities
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
 
     GeoObjectQuery query = new GeoObjectQuery(got, universal);
-    query.setCode(code);
+    query.setRestriction(new CodeRestriction(code));
 
     GeoObject gObject = query.getSingleResult();
 
@@ -433,6 +439,36 @@ public class AdapterUtilities
     }
 
     return gObject;
+  }
+
+  public List<GeoObjectType> getAncestors(GeoObjectType child, String code)
+  {
+    List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
+
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(child);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
+    MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToMdTermRelationiship(hierarchyType);
+
+    OIterator<com.runwaysdk.business.ontology.Term> iterator = universal.getAllAncestors(mdTermRelationship.definesType());
+
+    try
+    {
+      while (iterator.hasNext())
+      {
+        Universal parent = (Universal) iterator.next();
+
+        if (!parent.getKeyName().equals(Universal.ROOT))
+        {
+          ancestors.add(ServiceFactory.getConversionService().universalToGeoObjectType(parent));
+        }
+      }
+    }
+    finally
+    {
+      iterator.close();
+    }
+
+    return ancestors;
   }
 
   // public HierarchyType getHierarchyTypeById(String oid)
@@ -482,8 +518,8 @@ public class AdapterUtilities
   }
 
   public void assignDefaultRolePermissions(MdBusiness mdBusiness)
-  {
-    RoleDAO adminRole = RoleDAO.findRole("geoprism.admin.Administrator").getBusinessDAO();
+  {    
+    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
     adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
     adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
     adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
@@ -752,6 +788,29 @@ public class AdapterUtilities
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
 
     return mdBusinessDAOIF.definesAttribute(attributeName);
+  }
+
+  public JsonArray getHierarchies(GeoObjectType geoObjectType)
+  {
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
+    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    JsonArray hierarchies = new JsonArray();
+
+    for (HierarchyType hierarchyType : hierarchyTypes)
+    {
+      MdTermRelationship mdTerm = ServiceFactory.getConversionService().existingHierarchyToMdTermRelationiship(hierarchyType);
+      List<? extends Business> parents = universal.getParents(mdTerm.definesType()).getAll();
+
+      if (parents.size() > 0)
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", hierarchyType.getCode());
+        object.addProperty("label", hierarchyType.getLocalizedLabel());
+
+        hierarchies.add(object);
+      }
+    }
+    return hierarchies;
   }
 
 }

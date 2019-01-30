@@ -3,7 +3,7 @@ import { Headers, Http, Response, URLSearchParams } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { ShapefileConfiguration } from '../data/importer/shapefile';
+import { ShapefileConfiguration, Location } from '../data/importer/shapefile';
 import { EventService } from '../event/event.service';
 
 declare var acp: string;
@@ -22,6 +22,19 @@ export class ShapefileService {
             } )
     }
 
+    getTypeAncestors( code: string, hierarchyCode: string ): Promise<Location[]> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'code', code );
+        params.set( 'hierarchyCode', hierarchyCode );
+
+        return this.http
+            .get( acp + '/cgr/geoobjecttype/get-ancestors', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response.json() as Location[];
+            } )
+    }
+
     importShapefile( configuration: ShapefileConfiguration ): Promise<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
@@ -36,7 +49,7 @@ export class ShapefileService {
             } )
             .toPromise()
     }
-    
+
     cancelImport( configuration: ShapefileConfiguration ): Promise<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'

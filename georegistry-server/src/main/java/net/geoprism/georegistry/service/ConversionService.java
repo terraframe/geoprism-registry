@@ -27,9 +27,14 @@ import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.ontology.InitializationStrategyIF;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.ComponentInfo;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
+import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -68,6 +73,7 @@ import com.runwaysdk.system.metadata.RelationshipCache;
 import com.runwaysdk.util.IDGenerator;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarhcy;
@@ -189,7 +195,7 @@ public class ConversionService
    * @param hierarchyType
    * @return
    */
-  protected MdTermRelationship newHierarchyToMdTermRelForUniversals(HierarchyType hierarchyType)
+  public MdTermRelationship newHierarchyToMdTermRelForUniversals(HierarchyType hierarchyType)
   {
     MdBusiness mdBusUniversal = MdBusiness.getMdBusiness(Universal.CLASS);
 
@@ -224,7 +230,7 @@ public class ConversionService
    * @param hierarchyType
    * @return
    */
-  protected MdTermRelationship newHierarchyToMdTermRelForGeoEntities(HierarchyType hierarchyType)
+  public MdTermRelationship newHierarchyToMdTermRelForGeoEntities(HierarchyType hierarchyType)
   {
     MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
 
@@ -250,13 +256,67 @@ public class ConversionService
     return mdTermRelationship;
   }
 
+  @Transaction
+  public HierarchyType createHierarchyType(HierarchyType hierarchyType)
+  {
+    InitializationStrategyIF strategy = new InitializationStrategyIF()
+    {
+      @Override
+      public void preApply(MdBusinessDAO mdBusiness)
+      {
+        mdBusiness.setValue(MdBusinessInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
+      }
+
+      @Override
+      public void postApply(MdBusinessDAO mdBusiness)
+      {
+        RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+
+        registryAdminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+        registryAdminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+        registryAdminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
+        registryAdminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+      }
+    };
+
+    MdTermRelationship mdTermRelUniversal = ServiceFactory.getConversionService().newHierarchyToMdTermRelForUniversals(hierarchyType);
+    mdTermRelUniversal.apply();
+    this.grantAdminPermissionsOnMdTermRel(mdTermRelUniversal);
+
+    Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
+
+    MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
+    mdTermRelGeoEntity.apply();
+    this.grantAdminPermissionsOnMdTermRel(mdTermRelGeoEntity);
+
+    GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
+
+    return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
+  }
+
+  private void grantAdminPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship)
+  {
+    RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+
+    registryAdminRole.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.DELETE_PARENT, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.DELETE_CHILD, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.READ_PARENT, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.READ_CHILD, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
+    registryAdminRole.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
+  }
+
   /**
    * Needs to occur in a transaction.
    * 
    * @param hierarchyType
    * @return
    */
-  protected MdTermRelationship existingHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
+  public MdTermRelationship existingHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
   {
     String mdTermRelKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
 
@@ -453,19 +513,11 @@ public class ConversionService
    */
   private boolean convertMdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
   {
-    if (mdAttribute.isSystem()
-        || mdAttribute instanceof MdAttributeStructDAOIF
-        || mdAttribute instanceof MdAttributeEncryptionDAOIF
-        || mdAttribute instanceof MdAttributeIndicatorDAOIF
-        || mdAttribute instanceof MdAttributeBlobDAOIF
-        || mdAttribute instanceof MdAttributeFileDAOIF
-        || mdAttribute instanceof MdAttributeTimeDAOIF
-        || mdAttribute instanceof MdAttributeUUIDDAOIF
-        || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
+    if (mdAttribute.isSystem() || mdAttribute instanceof MdAttributeStructDAOIF || mdAttribute instanceof MdAttributeEncryptionDAOIF || mdAttribute instanceof MdAttributeIndicatorDAOIF || mdAttribute instanceof MdAttributeBlobDAOIF || mdAttribute instanceof MdAttributeFileDAOIF || mdAttribute instanceof MdAttributeTimeDAOIF || mdAttribute instanceof MdAttributeUUIDDAOIF || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
     {
       return false;
     }
-    else if(mdAttribute.definesAttribute().equals(ComponentInfo.KEY) || mdAttribute.definesAttribute().equals(ComponentInfo.TYPE))
+    else if (mdAttribute.definesAttribute().equals(ComponentInfo.KEY) || mdAttribute.definesAttribute().equals(ComponentInfo.TYPE))
     {
       return false;
     }

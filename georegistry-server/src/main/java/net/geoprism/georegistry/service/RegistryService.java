@@ -23,14 +23,9 @@ import org.json.JSONObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
-import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
-import com.runwaysdk.dataaccess.MdTermDAOIF;
-import com.runwaysdk.dataaccess.MdTermRelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -47,9 +42,9 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
-import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.action.RegistryAction;
 import net.geoprism.registry.AttributeHierarhcy;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
 public class RegistryService
@@ -171,6 +166,14 @@ public class RegistryService
   public String[] getUIDS(String sessionId, Integer amount)
   {
     return RegistryIdService.getInstance().getUids(amount);
+  }
+
+  @Request(RequestType.SESSION)
+  public List<GeoObjectType> getAncestors(String sessionId, String code, String hierarchyCode)
+  {
+    GeoObjectType child = this.adapter.getMetadataCache().getGeoObjectType(code).get();
+
+    return ServiceFactory.getUtilities().getAncestors(child, hierarchyCode);
   }
 
   @Request(RequestType.SESSION)
@@ -391,30 +394,14 @@ public class RegistryService
     return tnRoot;
   }
 
-  private List<String> getTermRelationships(MdTermDAOIF mdTerm)
-  {
-    List<MdRelationshipDAOIF> mdRelationships = mdTerm.getAllParentMdRelationships();
-
-    List<String> relationshipTypes = new LinkedList<String>();
-
-    for (MdRelationshipDAOIF mdRelationship : mdRelationships)
-    {
-      if (mdRelationship instanceof MdTermRelationshipDAOIF)
-      {
-        relationshipTypes.add(mdRelationship.definesType());
-      }
-    }
-    return relationshipTypes;
-  }
-
   @Request(RequestType.SESSION)
   public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
-    return addChildInTransaction(sessionId, parentId, parentGeoObjectTypeCode, childId, childGeoObjectTypeCode, hierarchyCode);
+    return addChildInTransaction(parentId, parentGeoObjectTypeCode, childId, childGeoObjectTypeCode, hierarchyCode);
   }
 
   @Transaction
-  public ParentTreeNode addChildInTransaction(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
+  public ParentTreeNode addChildInTransaction(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
     GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
     GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
@@ -713,6 +700,8 @@ public class RegistryService
   {
     deleteGeoObjectTypeInTransaction(sessionId, code);
 
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
     // If we get here then it was successfully deleted
     adapter.getMetadataCache().removeGeoObjectType(code);
   }
@@ -774,46 +763,11 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public HierarchyType createHierarchyType(String sessionId, String htJSON)
   {
-    HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
-
-    hierarchyType = createHierarchyTypeTransaction(hierarchyType);
-
-    // The transaction did not error out, so it is safe to put into the cache.
-    adapter.getMetadataCache().addHierarchyType(hierarchyType);
+    String code = GeoRegistryUtil.createHierarchyType(htJSON);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-    return hierarchyType;
-  }
-
-  @Transaction
-  private HierarchyType createHierarchyTypeTransaction(HierarchyType hierarchyType)
-  {
-    MdTermRelationship mdTermRelUniversal = ServiceFactory.getConversionService().newHierarchyToMdTermRelForUniversals(hierarchyType);
-    mdTermRelUniversal.apply();
-    this.grantAdminPermissionsOnMdTermRel(mdTermRelUniversal);
-
-    MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
-    mdTermRelGeoEntity.apply();
-    this.grantAdminPermissionsOnMdTermRel(mdTermRelGeoEntity);
-
-    return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
-  }
-
-  private void grantAdminPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship)
-  {
-    RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
-
-    registryAdminRole.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.DELETE_PARENT, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.DELETE_CHILD, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.READ_PARENT, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.READ_CHILD, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
+    return adapter.getMetadataCache().getHierachyType(code).get();
   }
 
   /**
@@ -866,6 +820,8 @@ public class RegistryService
   {
     deleteHierarchyType(code);
 
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
     // No error at this point so the transaction completed successfully.
     adapter.getMetadataCache().removeHierarchyType(code);
   }
@@ -877,6 +833,8 @@ public class RegistryService
 
     MdTermRelationship mdTermRelUniversal = MdTermRelationship.getByKey(mdTermRelUniversalKey);
 
+    Universal.getStrategy().shutdown(mdTermRelUniversal.definesType());
+
     AttributeHierarhcy.deleteByRelationship(mdTermRelUniversal);
 
     mdTermRelUniversal.delete();
@@ -884,6 +842,9 @@ public class RegistryService
     String mdTermRelGeoEntityKey = ConversionService.buildMdTermRelGeoEntityKey(code);
 
     MdTermRelationship mdTermRelGeoEntity = MdTermRelationship.getByKey(mdTermRelGeoEntityKey);
+
+    GeoEntity.getStrategy().shutdown(mdTermRelGeoEntity.definesType());
+
     mdTermRelGeoEntity.delete();
   }
 

@@ -14,8 +14,8 @@ import { ShapefileService } from '../../../service/shapefile.service';
 export class ShapefileModalComponent implements OnInit {
 
     configuration: ShapefileConfiguration;
-
     message: string = null;
+    state: string = 'MAP';
 
     constructor( private service: ShapefileService, public bsModalRef: BsModalRef ) {
     }
@@ -23,7 +23,34 @@ export class ShapefileModalComponent implements OnInit {
     ngOnInit(): void {
     }
 
-    onSubmit(): void {
+    onStateChange( event: string ): void {
+        if ( event === 'BACK' ) {
+            this.handleBack();
+        }
+        else if ( event === 'NEXT' ) {
+            this.handleNext();
+        }
+        else if ( event === 'CANCEL' ) {
+            this.handleCancel();
+        }
+    }
+
+    handleBack(): void {
+        if ( this.state === 'LOCATION' ) {
+            this.state = 'MAP';
+        }
+    }
+
+    handleNext(): void {
+        if ( this.state === 'MAP' ) {
+            this.state = 'LOCATION';
+        }
+        else if ( this.state === 'LOCATION' ) {
+            this.handleSubmit();
+        }
+    }
+
+    handleSubmit(): void {
         this.service.importShapefile( this.configuration ).then( response => {
             this.bsModalRef.hide()
         } ).catch(( err: any ) => {
@@ -32,7 +59,7 @@ export class ShapefileModalComponent implements OnInit {
 
     }
 
-    onCancel(): void {
+    handleCancel(): void {
         this.service.cancelImport( this.configuration ).then( response => {
             this.bsModalRef.hide()
         } ).catch(( err: any ) => {

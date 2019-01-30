@@ -28,6 +28,8 @@ import { CreateGeoObjTypeModalComponent } from './data/hierarchy/modals/create-g
 import { ManageAttributesModalComponent } from './data/hierarchy/modals/manage-attributes-modal.component';
 import { DefineAttributeModalContentComponent } from './data/hierarchy/modals/define-attribute-modal-content.component';
 import { ShapefileModalComponent } from './data/importer/modals/shapefile-modal.component';
+import { AttributesPageComponent } from './data/importer/modals/attributes-page.component';
+import { LocationPageComponent } from './data/importer/modals/location-page.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
@@ -83,6 +85,8 @@ import './rxjs-extensions';
     DefineAttributeModalContentComponent,
     ErrorModalComponent, 
     ShapefileModalComponent,
+    AttributesPageComponent,
+    LocationPageComponent,
     SpreadsheetModalComponent,
     LoadingBarComponent,
     GeoObjectTypePipe,
