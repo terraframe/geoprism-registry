@@ -3,7 +3,7 @@
   <div *ngIf="parent != null" class="modal-body">
     <div *ngIf="message != null" class="error-container">
       <div class="label-holder">
-        <strong>Error</strong>
+        <strong><localize key="error.title"></localize></strong>
       </div>
       <div class="holder">
         <div>
@@ -15,13 +15,8 @@
     
     <div class="form-group">
     
-<!--       <div *ngIf="hierarchyType"> -->
-<!--         <label for="nameInput">Name</label> -->
-<!--         <input [(ngModel)]="hierarchyType.code" name="name" type="input" class="form-control" id="nameInput" placeholder="Name" required> -->
-<!--       </div> -->
-       
       <select class="form-control" *ngIf="allGeoObjectTypes" (change)="onSelect($event.target.value)">
-          <option disabled hidden [value]="selectUndefinedOptionValue">-- select a type to add --</option>
+          <option disabled hidden [value]="selectUndefinedOptionValue">-- <localize key="hierarchy.management.create.child.option.label.selectType"></localize> --</option>
         <option *ngFor="let geoObjType of allGeoObjectTypes | geoobjecttype:nodes" value={{geoObjType.code}}>
           {{geoObjType.localizedLabel}}
         </option>
@@ -32,10 +27,10 @@
     <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
       <div class="ui-dialog-buttonset">
         <button type="button" (click)="bsModalRef.hide()" class="btn btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text">Cancel</span>
+          <span class="ui-button-text"><localize key="modal.button.cancel"></localize></span>
         </button>
         <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text">Ok</span>
+          <span class="ui-button-text"><localize key="modal.button.ok"></localize></span>
         </button>
       </div>
     </div>

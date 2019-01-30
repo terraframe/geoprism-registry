@@ -47,8 +47,8 @@ public class ImportAttributeSerializer implements CustomSerializer
 
     if (this.includeCoordinates)
     {
-      attributes.add(0, GeoObjectConfiguration.latitude());
-      attributes.add(0, GeoObjectConfiguration.longitude());
+//      attributes.add(0, GeoObjectConfiguration.latitude());
+//      attributes.add(0, GeoObjectConfiguration.longitude());
     }
 
     return attributes;

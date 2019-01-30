@@ -54,7 +54,7 @@ declare var acp: any;
 @Injectable()
 export class HierarchyService {
 
-    baseUrl: string = acp + '/cgr/hierarchies';
+    baseUrl: string = acp + '/cgr/manage';
 
     constructor( private http: Http, private eventService: EventService ) { }
 
@@ -230,7 +230,7 @@ export class HierarchyService {
            } )
     }
 
-    deleteAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<boolean> {
+    updateAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
 
 	   let headers = new Headers( {
            'Content-Type': 'application/json'
@@ -240,7 +240,27 @@ export class HierarchyService {
 
 
        return this.http
-           .post( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .post( acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response.json() as Attribute;
+           } )
+    }
+
+    deleteAttributeType(geoObjTypeId: string, attributeName: string): Promise<boolean> {
+
+	   let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+
+       return this.http
+           .post( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeName' : attributeName } ), { headers: headers } )
            .finally(() => {
                this.eventService.complete();
            } )

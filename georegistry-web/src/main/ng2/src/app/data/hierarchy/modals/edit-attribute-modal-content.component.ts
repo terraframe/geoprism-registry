@@ -12,11 +12,9 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
-import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term, TermOption, ManageAttributeState } from '../hierarchy';
+import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term, ManageAttributeState } from '../hierarchy';
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { HierarchyService } from '../../../service/hierarchy.service';
-
-import { TermOptionInputComponent} from '../form-inputs/term-option-input.component';
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
@@ -24,13 +22,13 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
 
 
 @Component( {
-    selector: 'define-attribute-modal-content',
-    templateUrl: './define-attribute-modal-content.component.html',
+    selector: 'edit-attribute-modal-content',
+    templateUrl: './edit-attribute-modal-content.component.html',
     styleUrls: [],
     animations: [
         trigger('openClose', 
             [
-            transition(
+                transition(
                 ':enter', [
                 style({ 'opacity': 0}),
                 animate('500ms', style({ 'opacity': 1}))
@@ -46,15 +44,15 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
       )
     ]
 } )
-export class DefineAttributeModalContentComponent implements OnInit {
+export class EditAttributeModalContentComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
+    @Input() attribute: Attribute;
     @Input() modalState: ManageAttributeState;
     @Output() modalStateChange = new EventEmitter<ManageAttributeState>();
     message: string = null;
-    newAttribute: Attribute = null;
-
     terms: Term[] = [];
+
     root: string = null;
 
     /*
@@ -112,8 +110,8 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
 
     public selectAsRoot(node: any): void {
-        if(this.newAttribute instanceof AttributeTerm){
-          this.newAttribute.setRootTerm(node.data.code);
+        if(this.attribute instanceof AttributeTerm){
+          this.attribute.setRootTerm(node.data.code);
         }
         
         this.tree.treeModel.setFocusedNode(node);
@@ -124,8 +122,6 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
 
     ngOnInit(): void {
-
-        this.setAttribute("character");
 
         this.hierarchyService.getTerms()
 	      .then( terms => {
@@ -150,25 +146,15 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
     handleOnSubmit(): void {
         
-        this.hierarchyService.addAttributeType( this.geoObjectType.code, this.newAttribute ).then( data => {
-            this.geoObjectType.attributes.push(data);
-
+        this.hierarchyService.updateAttributeType( this.geoObjectType.code, this.attribute ).then( data => {
+            
+            // TODO: update attributes
             this.modalStateChange.emit({"state":"MANAGE-ATTRIBUTES", "attribute":""});
         } ).catch(( err: any ) => {
             this.error( err.json() );
         } );
     }
 
-    setAttribute(type:string): void {
-        if(type === 'term'){
-            this.newAttribute = new AttributeTerm("", type, "", "", false);
-        }
-        else{
-            this.newAttribute = new Attribute("", type, "", "", false);
-        }
-    }
-
-    
     cancel(): void {
         this.modalStateChange.emit({"state":"MANAGE-ATTRIBUTES", "attribute":""});
     }

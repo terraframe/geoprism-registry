@@ -8,7 +8,7 @@
     <div class="row">
     
       <div class="col-md-4">
-        <h3>Select Hierarchy</h3>
+        <h3><localize key="hierarchy.management.panel.title"></localize></h3>
         <hr>
         <ul class="list-group">
           <li class="list-group-item" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
@@ -17,12 +17,12 @@
         </ul>
         
         <div>
-          <button type="submit" class="btn btn-primary" (click)="createHierarchy()">Create</button>
+          <button type="submit" class="btn btn-primary" (click)="createHierarchy()"><localize key="hierarchy.management.button.create"></localize></button>
         </div>
       </div>
       
       <div class="col-md-4">
-        <h3 *ngIf="currentHierarchy"> Manage the {{currentHierarchy.localizedLabel}} hierarchy</h3>
+        <h3 *ngIf="currentHierarchy"> <localize key="hierarchy.current.management.panel.title"></localize> {{currentHierarchy.localizedLabel}}</h3>
 <!--         <h3> Manage </h3> -->
         <hr>
         <div *ngIf="nodes.length > 0" class="tree">
@@ -30,13 +30,13 @@
         </div>
         <div *ngIf="nodes.length === 0" class="tree">
           <div>
-            <button type="submit" class="btn btn-primary" (click)="addChildAndRootToHierarchy()">Add</button>
+            <button type="submit" class="btn btn-primary" (click)="addChildAndRootToHierarchy()"><localize key="hierarchy.current.management.panel.button.add"></localize></button>
           </div>
         </div>
       </div>
       
       <div class="col-md-4">
-        <h3>Available Types</h3>
+        <h3><localize key="hierarchy.types.management.panel.title"></localize></h3>
         <hr>
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes">
@@ -47,7 +47,7 @@
         </ul>
         
         <div>
-          <button type="submit" class="btn btn-primary" (click)="createGeoObjectType()">Create</button>
+          <button type="submit" class="btn btn-primary" (click)="createGeoObjectType()"><localize key="hierarchy.management.button.create"></localize></button>
         </div>
         
       </div>
@@ -61,10 +61,10 @@
 <!--       Edit {{item?.data.name}} -->
 <!--     </ng-template> -->
     <ng-template contextMenuItem let-item (execute)="addChildToHierarchy($event.item)">
-      Add relationship to this type
+        <localize key="hierarchy.management.button.addRelationship"></localize>
     </ng-template>
     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      Delete this type
+      <localize key="hierarchy.management.button.deleteType"></localize>
     </ng-template>
   </context-menu>
   
@@ -73,7 +73,7 @@
 <!--       Edit {{item?.data.name}} -->
 <!--     </ng-template> -->
     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      Delete {{item?.data.label}}
+      <localize key="hierarchy.management.button.deleteTreeNode"></localize>  {{item?.data.label}}
     </ng-template>
   </context-menu>
 

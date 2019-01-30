@@ -43,6 +43,8 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.georegistry.action.RegistryAction;
+import net.geoprism.georegistry.conversion.TermBuilder;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
@@ -610,6 +612,7 @@ public class RegistryService
    * @pre given {@link GeoObjectType} must already exist.
    * 
    * @param sessionId
+   *
    * @param geoObjectTypeCode
    *          string of the {@link GeoObjectType} to be updated.
    * @param attributeTypeJSON
@@ -619,12 +622,11 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public AttributeType addAttributeToGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
-
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
     JSONObject attrObj = new JSONObject(attributeTypeJSON);
 
-    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_NAME), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
+    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_CODE), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
 
@@ -639,7 +641,44 @@ public class RegistryService
 
     return attrType;
   }
+  
+  /**
+   * Updates an attribute in the given {@link GeoObjectType}.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   * @param geoObjectTypeCode string of the {@link GeoObjectType} to be updated.
+   * @param attributeTypeJSON AttributeType to be added to the GeoObjectType
+   * @return updated {@link AttributeType}
+   */
+  @Request(RequestType.SESSION)
+  public AttributeType updateAttributeInGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  {	  
+    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
+ 
+    JSONObject attrObj = new JSONObject(attributeTypeJSON);
+    
+    String attrTypeCode = attrObj.getString(AttributeType.JSON_CODE);
+    
+    AttributeType attrType = geoObjectType.getAttribute(attrTypeCode).get();
+    attrType.setLocalizedLabel(attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL));
+    attrType.setLocalizedDescription(attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION));
 
+    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
+    
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    
+    attrType = ServiceFactory.getUtilities().updateMdAttributeFromAttributeType(mdBusiness, attrType);
+      
+    geoObjectType.addAttribute(attrType);
+
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+	  
+    return attrType;
+  }
+  
   /**
    * Deletes an attribute from the given {@link GeoObjectType}.
    * 
@@ -671,7 +710,75 @@ public class RegistryService
 
     return true;
   }
+  
+  /**
+   * Creates a new {@link Term} object and makes it a child of the term with the given code.
+   * 
+   * @param sessionId
+   * @param parentTemCode The code of the parent [@link Term}.
+   * @param termJSON JSON of the term object.
+   * 
+   * @return Newly created {@link Term} object.
+   */
+  @Request(RequestType.SESSION)
+  public Term createTerm(String sessionId, String parentTemCode, String termJSON)
+  {
+	JSONObject termJSONobj = new JSONObject(termJSON);
+	
+	Term term = new Term(termJSONobj.getString(Term.JSON_CODE), termJSONobj.getString(Term.JSON_LOCALIZED_LABEL), "");
 
+	Classifier classifier = TermBuilder.createClassifierFromTerm(parentTemCode, term);
+	
+	TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
+	
+	Term returnTerm = termBuilder.build();
+	
+    return returnTerm;
+  }
+
+
+  /**
+   * Creates a new {@link Term} object and makes it a child of the term with the given code.
+   * 
+   * @param sessionId
+   * @param termJSON JSON of the term object.
+   * 
+   * @return Updated {@link Term} object.
+   */
+  @Request(RequestType.SESSION)
+  public Term updateTerm(String sessionId, String termJSON)
+  {
+    JSONObject termJSONobj = new JSONObject(termJSON);
+    
+    String termCode = termJSONobj.getString(Term.JSON_CODE);
+
+    String localizedLabel = termJSONobj.getString(Term.JSON_LOCALIZED_LABEL);
+    
+    Classifier classifier = TermBuilder.updateClassifier(termCode, localizedLabel);
+    
+	TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
+	
+	Term returnTerm = termBuilder.build();
+	
+    return returnTerm;
+  }
+  
+  /**
+   * Deletes the {@link Term} with the given code. All children codoe will be deleted.
+   * 
+   * @param sessionId
+   * @param geoObjectTypeCode
+   * @param attributeTypeJSON
+   */
+  @Request(RequestType.SESSION)
+  public void deleteTerm(String sessionId, String termCode)
+  {
+    String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(termCode);
+	    
+	Classifier classifier = Classifier.getByKey(classifierKey);
+	classifier.delete();
+  }
+  
   @Request(RequestType.SESSION)
   public Term[] getTerms(String sessionId)
   {
@@ -708,15 +815,22 @@ public class RegistryService
 
   @Transaction
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
-  {
+  {	  
     Universal uni = Universal.getByKey(code);
+    
+	MdBusiness mdBusiness = uni.getMdBusiness();
 
     /*
      * Delete all Attribute references
      */
     AttributeHierarhcy.deleteByUniversal(uni);
 
+    // This deletes the {@link MdBusiness} as well
     uni.delete();
+    
+	// Delete the term root
+	Classifier classRootTerm =  TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness); 
+	classRootTerm.delete();
   }
 
   /**
@@ -950,19 +1064,5 @@ public class RegistryService
     {
       ConversionService.removeParentReferenceToLeafType(hierarchyTypeCode, parent, child);
     }
-  }
-
-  @Request(RequestType.SESSION)
-  public List<String> search(String sessionId, String term)
-  {
-    List<String> results = new ArrayList<String>();
-
-    JSONObject ob = new JSONObject();
-    ob.put("test", "test");
-    results.add(ob.toString());
-
-    // List<QueryResult> results = SolrService.query(term);
-
-    return results;
   }
 }

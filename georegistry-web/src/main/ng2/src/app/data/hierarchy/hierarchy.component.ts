@@ -30,6 +30,7 @@ import { CreateChildModalComponent } from './modals/create-child-modal.component
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
 import { ManageAttributesModalComponent } from './modals/manage-attributes-modal.component';
 import { DefineAttributeModalContentComponent } from './modals/define-attribute-modal-content.component';
+import { EditAttributeModalContentComponent } from './modals/edit-attribute-modal-content.component';
 import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component';
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 

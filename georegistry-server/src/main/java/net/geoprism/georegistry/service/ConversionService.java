@@ -979,49 +979,59 @@ public class ConversionService
 
   public GeoObjectStatus termToGeoObjectStatus(Term term)
   {
-    if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code))
+    return this.termToGeoObjectStatus(term.getCode());
+  }
+  
+  public GeoObjectStatus termToGeoObjectStatus(String termCode)
+  {
+    if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code))
     {
       return GeoObjectStatus.ACTIVE;
     }
-    else if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code))
+    else if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code))
     {
       return GeoObjectStatus.INACTIVE;
     }
-    else if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.NEW.code))
+    else if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.NEW.code))
     {
       return GeoObjectStatus.NEW;
     }
-    else if (term.getCode().equals(DefaultTerms.GeoObjectStatusTerm.PENDING.code))
+    else if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.PENDING.code))
     {
       return GeoObjectStatus.PENDING;
     }
     else
     {
-      throw new ProgrammingErrorException("Unknown Status Term [" + term.getCode() + "].");
+      throw new ProgrammingErrorException("Unknown Status Term [" + termCode + "].");
     }
   }
 
   public Term geoObjectStatusToTerm(GeoObjectStatus gos)
   {
-    if (gos.getEnumName().equals(GeoObjectStatus.ACTIVE.getEnumName()))
+	return geoObjectStatusToTerm(gos.getEnumName());
+  }
+  
+  public Term geoObjectStatusToTerm(String termCode)
+  {
+    if (termCode.equals(GeoObjectStatus.ACTIVE.getEnumName()))
     {
       return getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code);
     }
-    else if (gos.getEnumName().equals(GeoObjectStatus.INACTIVE.getEnumName()))
+    else if (termCode.equals(GeoObjectStatus.INACTIVE.getEnumName()))
     {
       return getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
     }
-    else if (gos.getEnumName().equals(GeoObjectStatus.NEW.getEnumName()))
+    else if (termCode.equals(GeoObjectStatus.NEW.getEnumName()))
     {
       return getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code);
     }
-    else if (gos.getEnumName().equals(GeoObjectStatus.PENDING.getEnumName()))
+    else if (termCode.equals(GeoObjectStatus.PENDING.getEnumName()))
     {
       return getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code);
     }
     else
     {
-      throw new ProgrammingErrorException("Unknown Status [" + gos.getEnumName() + "].");
+      throw new ProgrammingErrorException("Unknown Status [" + termCode + "].");
     }
   }
 }
