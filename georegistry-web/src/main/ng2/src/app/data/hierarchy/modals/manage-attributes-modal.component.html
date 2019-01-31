@@ -48,8 +48,8 @@
                         <tbody>
                         <tr *ngFor="let attr of geoObjectType.attributes" class="fade-ngRepeat-item">
                             <td class="button-column">
-                            <a *ngIf="!attr.isDefault && attr.name !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)" title="<localize key='modal.button.edit'></localize>"></a>                             
-                            <a *ngIf="!attr.isDefault && attr.name !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)" title="<localize key='modal.button.remove'></localize>"></a>
+                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)" title="<localize key='modal.button.edit'></localize>"></a>                             
+                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)" title="<localize key='modal.button.remove'></localize>"></a>
                             </td>                  
                             <td class="submit-form">
                             <dl>

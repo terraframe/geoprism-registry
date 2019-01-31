@@ -23,7 +23,7 @@
           <attribute-input [disableCodeField]="true" [excludeDescription]="attribute.type === 'term' ? true : false" [(attribute)]="attribute" ></attribute-input>
 
           <!-- *ngIf="attribute.type === 'term' && isFormValid()" -->
-          <term-option-input *ngIf="attribute.type === 'term' && isFormValid()" [(attribute)]="attribute" ></term-option-input>
+          <term-option-input *ngIf="attribute.type === 'term' && isFormValid()" [(attribute)]="attribute" [geoObjectType]="geoObjectType" ></term-option-input>
 
          
           <div class="row-holder">

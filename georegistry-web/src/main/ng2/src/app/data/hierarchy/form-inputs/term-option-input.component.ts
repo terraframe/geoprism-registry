@@ -116,9 +116,9 @@ export class TermOptionInputComponent implements OnInit {
         let termOption: Term = new Term(this.termOptionCode, this.termOptionLabel, this.termOptionDescription);
 
 
-        this.hierarchyService.addAttributeTermTypeOption( "NEED_PARENT_TERM_CODE", termOption ).then( data => {
+        this.hierarchyService.addAttributeTermTypeOption( this.attribute.rootTerm.code, termOption ).then( data => {
             
-            this.attribute.termOptions.push(data);
+            this.attribute.rootTerm.children.push(data);
 
             this.attributeChange.emit(this.attribute);
 
@@ -134,6 +134,22 @@ export class TermOptionInputComponent implements OnInit {
     }
 
     removeTermOption(termOption: Term): void {
+
+        this.hierarchyService.deleteAttributeTermTypeOption( termOption.code ).then( data => {
+            
+            if(this.attribute.rootTerm.children.indexOf(termOption) !== -1){
+                this.attribute.rootTerm.children.splice(this.attribute.rootTerm.children.indexOf(termOption), 1);
+            }
+
+            this.attributeChange.emit(this.attribute);
+
+            this.termOptionCode = "";
+            this.termOptionLabel = "";
+            this.termOptionDescription = "";
+
+        } ).catch(( err: any ) => {
+            this.error( err );
+        } );
 
     }
 

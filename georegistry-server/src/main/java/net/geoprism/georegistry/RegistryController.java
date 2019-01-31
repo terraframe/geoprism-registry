@@ -211,9 +211,9 @@ public class RegistryController
    }
    
    @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-   public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termJSON)
+   public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
    {
-     this.registryService.deleteTerm(request.getSessionId(), termJSON);
+     this.registryService.deleteTerm(request.getSessionId(), termCode);
      
      return new RestResponse();
    }

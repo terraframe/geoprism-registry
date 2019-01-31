@@ -33,7 +33,7 @@
         </span>
     </div>
 
-    <div *ngIf="attribute.termOptions && attribute.termOptions.length > 0" [@openClose]>
+    <div *ngIf="attribute.rootTerm && attribute.rootTerm.children && attribute.rootTerm.children.length > 0" [@openClose]>
         <div class="label-holder">
             <label>
                 <localize key="term.option.input.label.existingTypes"></localize>
@@ -56,13 +56,20 @@
                             <th>
                                 <localize key="data.property.label.description"></localize>
                             </th>
+                            <th>
+
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let option of attribute.termOptions">
+                        <tr *ngFor="let option of attribute.rootTerm.children">
                             <td>{{option.code}}</td>
                             <td>{{option.localizedLabel}}</td>
                             <td>{{option.localizedDescription}}</td>
+                            <td class="button-column">
+                              <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editTermOption(option, $event)"></a>                             
+                              <a class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeTermOption(option, $event)"></a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

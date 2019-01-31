@@ -731,6 +731,8 @@ public class RegistryService
 	
 	Term returnTerm = termBuilder.build();
 	
+//	this.refreshMetadataCache();
+	
     return returnTerm;
   }
 
@@ -758,6 +760,8 @@ public class RegistryService
 	
 	Term returnTerm = termBuilder.build();
 	
+//	this.refreshMetadataCache();
+	
     return returnTerm;
   }
   
@@ -775,6 +779,8 @@ public class RegistryService
 	    
 	Classifier classifier = Classifier.getByKey(classifierKey);
 	classifier.delete();
+	
+
   }
   
   /**

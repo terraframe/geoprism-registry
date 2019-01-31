@@ -77,10 +77,10 @@ export class AttributeInputComponent implements OnInit {
     }
 
     isValid(): boolean {
-        if(this.attribute.name && this.attribute.localizedLabel) {
+        if(this.attribute.code && this.attribute.localizedLabel) {
 
             // if code has a space
-            if(this.attribute.name.indexOf(" ") !== -1){
+            if(this.attribute.code.indexOf(" ") !== -1){
                 return false;
             }
 

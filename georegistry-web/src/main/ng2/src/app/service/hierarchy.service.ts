@@ -309,7 +309,7 @@ export class HierarchyService {
            } )
     }
 
-    deleteAttributeTermTypeOption(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+    deleteAttributeTermTypeOption(termCode: string): Promise<Attribute> {
 
 	   let headers = new Headers( {
            'Content-Type': 'application/json'
@@ -319,13 +319,13 @@ export class HierarchyService {
 
 
        return this.http
-           .post( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .post( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { 'termCode': termCode } ), { headers: headers } )
            .finally(() => {
                this.eventService.complete();
            } )
            .toPromise()
            .then( response => {
-               return response.json() as Attribute;
+               return response.json();
            } )
 
         //    	  return this.http

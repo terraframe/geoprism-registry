@@ -90,9 +90,9 @@ export class GeoObjectType {
 
 export class Attribute {
 
-  constructor(public name:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
+  constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
   
-    this.name = name;
+    this.code = code;
     this.type = type;
     this.localizedLabel = localizedLabel;
     this.localizedDescription = localizedDescription;
@@ -104,15 +104,15 @@ export class Attribute {
 export class AttributeTerm extends Attribute {
     //descendants: Attribute[];
     
-    constructor(public name:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
-      super(name, type, localizedLabel, localizedDescription, isDefault);
+    constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
+      super(code, type, localizedLabel, localizedDescription, isDefault);
     }
 
-    rootTerm:string;
+    rootTerm: Term = new Term(null, null, null);
 
-    termOptions:Term[] = [];
+    termOptions :Term[] = [];
 
-    setRootTerm(term:string){
+    setRootTerm(term:Term){
         this.rootTerm = term;
     }
 }
