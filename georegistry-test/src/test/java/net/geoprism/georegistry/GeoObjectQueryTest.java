@@ -63,7 +63,7 @@ public class GeoObjectQueryTest
 
       GeoObject result = results.get(0);
 
-      Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+      Assert.assertEquals(this.tutil.COLORADO.getCode(), result.getCode());
       Assert.assertNotNull(result.getGeometry());
       Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -95,7 +95,7 @@ public class GeoObjectQueryTest
 
       GeoObject result = results.get(0);
 
-      Assert.assertEquals(this.tutil.CO_D_ONE.getGeoId(), result.getCode());
+      Assert.assertEquals(this.tutil.CO_D_ONE.getCode(), result.getCode());
       Assert.assertNotNull(result.getGeometry());
       Assert.assertEquals(this.tutil.CO_D_ONE.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -120,7 +120,7 @@ public class GeoObjectQueryTest
 
     GeoObject result = query.getSingleResult();
 
-    Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+    Assert.assertEquals(this.tutil.COLORADO.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -139,7 +139,7 @@ public class GeoObjectQueryTest
 
     GeoObject result = query.getSingleResult();
 
-    Assert.assertEquals(this.tutil.CO_D_ONE.getGeoId(), result.getCode());
+    Assert.assertEquals(this.tutil.CO_D_ONE.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(this.tutil.CO_D_ONE.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -155,11 +155,11 @@ public class GeoObjectQueryTest
     Universal universal = this.tutil.STATE.getUniversal();
 
     GeoObjectQuery query = new GeoObjectQuery(type, universal);
-    query.setRestriction(new CodeRestriction(this.tutil.COLORADO.getGeoId()));
+    query.setRestriction(new CodeRestriction(this.tutil.COLORADO.getCode()));
 
     GeoObject result = query.getSingleResult();
 
-    Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+    Assert.assertEquals(this.tutil.COLORADO.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -174,11 +174,11 @@ public class GeoObjectQueryTest
     GeoObjectType type = this.tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
     Universal universal = this.tutil.DISTRICT.getUniversal();
     GeoObjectQuery query = new GeoObjectQuery(type, universal);
-    query.setRestriction(new CodeRestriction(this.tutil.CO_D_ONE.getGeoId()));
+    query.setRestriction(new CodeRestriction(this.tutil.CO_D_ONE.getCode()));
 
     GeoObject result = query.getSingleResult();
 
-    Assert.assertEquals(this.tutil.CO_D_ONE.getGeoId(), result.getCode());
+    Assert.assertEquals(this.tutil.CO_D_ONE.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(this.tutil.CO_D_ONE.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -207,7 +207,7 @@ public class GeoObjectQueryTest
 
       GeoObject result = query.getSingleResult();
 
-      Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+      Assert.assertEquals(this.tutil.COLORADO.getCode(), result.getCode());
       Assert.assertNotNull(result.getGeometry());
       Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -232,7 +232,7 @@ public class GeoObjectQueryTest
 
     GeoObject result = query.getSingleResult();
 
-    Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+    Assert.assertEquals(this.tutil.COLORADO.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -248,11 +248,11 @@ public class GeoObjectQueryTest
     Universal universal = this.tutil.STATE.getUniversal();
 
     GeoObjectQuery query = new GeoObjectQuery(type, universal);
-    query.setRestriction(new SynonymRestriction(this.tutil.COLORADO.getGeoId()));
+    query.setRestriction(new SynonymRestriction(this.tutil.COLORADO.getCode()));
 
     GeoObject result = query.getSingleResult();
 
-    Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+    Assert.assertEquals(this.tutil.COLORADO.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
@@ -271,7 +271,7 @@ public class GeoObjectQueryTest
 
     GeoObject result = query.getSingleResult();
 
-    Assert.assertEquals(this.tutil.CO_D_ONE.getGeoId(), result.getCode());
+    Assert.assertEquals(this.tutil.CO_D_ONE.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(this.tutil.CO_D_ONE.getDisplayLabel(), result.getLocalizedDisplayLabel());
 
