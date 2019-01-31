@@ -38,9 +38,9 @@ public class LocalizationConversionExamples
     try
     {
       PropertiesFileToXMLLocalizationConverter.main(new String[] {
-          "--propertyFile=/home/rich/dev/workspace/georegistry/runwayExceptions/gisCommonExceptions.properties",
-          "--xmlFile=/home/rich/dev/workspace/georegistry/runwayExceptionsConverted/gisCommonExceptions.xml",
-          "--tagName=" + LocalizedValueStore.TAG_NAME_RUNWAY_GIS_EXCEPTIONS
+          "--propertyFile=/home/rich/dev/workspace/uasdm/messages.properties",
+          "--xmlFile=/home/rich/dev/workspace/uasdm/converted.xml",
+          "--tagName=" + LocalizedValueStore.TAG_NAME_UI_TEXT
       });
     }
     finally
