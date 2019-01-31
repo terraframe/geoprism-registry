@@ -1,5 +1,6 @@
 package net.geoprism.georegistry.service;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
@@ -226,12 +227,23 @@ public class RegistryServiceTest
   {
     JsonArray types = this.adapter.listGeoObjectTypes();
 
-    Assert.assertEquals(8, types.size());
-
-    JsonObject object = types.get(1).getAsJsonObject();
-
-    Assert.assertEquals("Commune", object.get("label").getAsString());
-    Assert.assertEquals("Cambodia_Commune", object.get("code").getAsString());
+    ArrayList<TestGeoObjectTypeInfo> expectedGots = this.testData.getManagedGeoObjectTypes();
+    for (TestGeoObjectTypeInfo got : expectedGots)
+    {
+      boolean found = false;
+      
+      for (int i = 0; i < types.size(); ++i)
+      {
+        JsonObject jo = types.get(i).getAsJsonObject();
+        
+        if (jo.get("label").getAsString().equals(got.getDisplayLabel()) && jo.get("code").getAsString().equals(got.getCode()))
+        {
+          found = true;
+        }
+      }
+      
+      Assert.assertTrue(found);
+    }
   }
 
   @Test
