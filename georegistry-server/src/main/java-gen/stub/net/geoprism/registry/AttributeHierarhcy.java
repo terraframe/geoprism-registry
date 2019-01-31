@@ -11,6 +11,7 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.georegistry.service.ServiceFactory;
@@ -35,6 +36,12 @@ public class AttributeHierarhcy extends AttributeHierarhcyBase
   public static void deleteByUniversal(Universal uni)
   {
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(uni.getMdBusinessOid());
+    
+    deleteByMdBusiness(mdBusiness);
+  }
+  
+  public static void deleteByMdBusiness(MdBusinessDAOIF mdBusiness)
+  {
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
 
     for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
