@@ -579,9 +579,9 @@ public class ConversionService
         {
           RelationshipDAOIF rel = rels.get(0);
           
-          Classifier classy = (Classifier) rel.getChild();
+          BusinessDAO classy = (BusinessDAO) rel.getChild();
           
-          TermBuilder termBuilder = new TermBuilder(classy.getKeyName());
+          TermBuilder termBuilder = new TermBuilder(classy.getKey());
           Term adapterTerm = termBuilder.build();
           
           ((AttributeTermType) testChar).setRootTerm(adapterTerm);
