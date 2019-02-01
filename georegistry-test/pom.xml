@@ -308,14 +308,12 @@
         <version>2.4</version>
         <configuration>
           <packagingExcludes>
-            <!-- Exclude all jars provided by tomcat -->
             **/catalina*.jar,
             **/servlet-api*.jar,
             **/annotations-api*.jar
           </packagingExcludes>
           <overlays>
             <overlay>
-              <!-- empty groupId/artifactId represents the current build -->
             </overlay>
             <overlay>
               <groupId>net.geoprism</groupId>

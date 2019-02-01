@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Runway SDK(tm).
+
+    Runway SDK(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Runway SDK(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" metadata-complete="true" version="3.0">
+  <display-name>Geoprism</display-name>
+  <description>
+	Geoprism
+  </description>
+  <listener>
+    <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
+  </listener>
+  <servlet>
+    <servlet-name>AxisServlet</servlet-name>
+    <servlet-class>
+        org.apache.axis.transport.http.AxisServlet
+    </servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>AdminServlet</servlet-name>
+    <servlet-class>
+        org.apache.axis.transport.http.AdminServlet
+    </servlet-class>
+    <load-on-startup>100</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>SOAPMonitorService</servlet-name>
+    <servlet-class>
+        org.apache.axis.monitor.SOAPMonitorService
+    </servlet-class>
+    <init-param>
+      <param-name>SOAPMonitorPort</param-name>
+      <param-value>5001</param-value>
+    </init-param>
+    <load-on-startup>100</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/servlet/AxisServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>*.jws</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SOAPMonitorService</servlet-name>
+    <url-pattern>/SOAPMonitor</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AdminServlet</servlet-name>
+    <url-pattern>/servlet/AdminServlet</url-pattern>
+  </servlet-mapping>
+  <mime-mapping>
+    <extension>wsdl</extension>
+    <mime-type>text/xml</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>xsd</extension>
+    <mime-type>text/xml</mime-type>
+  </mime-mapping>
+  <servlet>
+    <servlet-name>JSONControllerServlet</servlet-name>
+    <servlet-class>
+      com.runwaysdk.web.json.JSONControllerServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JSONControllerServlet</servlet-name>
+    <url-pattern>
+      /Mojo/JSONControllerServlet
+    </url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>JavascriptServlet</servlet-name>
+    <servlet-class>net.jawr.web.servlet.JawrServlet</servlet-class>
+    <init-param>
+      <param-name>configLocation</param-name>
+      <param-value>/jawr.properties</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>CSSServlet</servlet-name>
+    <servlet-class>net.jawr.web.servlet.JawrServlet</servlet-class>
+    <init-param>
+      <param-name>configLocation</param-name>
+      <param-value>/jawr.properties</param-value>
+    </init-param>
+    <init-param>
+      <param-name>type</param-name>
+      <param-value>css</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JavascriptServlet</servlet-name>
+    <url-pattern>*.js</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>CSSServlet</servlet-name>
+    <url-pattern>*.css</url-pattern>
+  </servlet-mapping>
+  <filter>
+    <filter-name>EncodingFilter</filter-name>
+    <filter-class>net.geoprism.EncodingFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>EncodingFilter</filter-name>
+    <url-pattern>*</url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>SessionFilter</filter-name>
+    <filter-class>net.geoprism.SessionFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>SessionFilter</filter-name>
+    <url-pattern>*</url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>NoExtensionFilter</filter-name>
+    <filter-class>com.runwaysdk.web.filter.NoExtensionDispatchFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>NoExtensionFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <listener>
+    <listener-class>net.geoprism.GeoprismContextListener</listener-class>
+  </listener>
+  <error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/net/geoprism/error.jsp</location>
+  </error-page>
+  <error-page>
+    <exception-type>com.runwaysdk.session.InvalidSessionExceptionDTO</exception-type>
+    <location>/net/geoprism/login/login.jsp</location>
+  </error-page>
+  <filter>
+    <filter-name>RunwayFilter</filter-name>
+    <filter-class>
+      com.runwaysdk.web.RunwayFilter
+    </filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>RunwayFilter</filter-name>
+    <url-pattern>
+      *.mojo
+    </url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>MojaxFilter</filter-name>
+    <filter-class>
+      com.runwaysdk.web.MojaxFilter
+    </filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>MojaxFilter</filter-name>
+    <url-pattern>
+      *.mojax
+    </url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>MofoFilter</filter-name>
+    <filter-class>
+      com.runwaysdk.web.MofoFilter
+    </filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>MofoFilter</filter-name>
+    <url-pattern>
+      *.mofo
+    </url-pattern>
+  </filter-mapping>
+  
+  
+  <filter>
+	  <filter-name>CorsFilter</filter-name>
+	  <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+	</filter>
+	<filter-mapping>
+	  <filter-name>CorsFilter</filter-name>
+	  <url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>https-only</web-resource-name>
+      <url-pattern>/*</url-pattern>
+      <http-method>GET</http-method>
+      <http-method>POST</http-method>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+</web-app>

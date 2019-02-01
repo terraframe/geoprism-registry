@@ -1,6 +1,5 @@
 package net.geoprism.georegistry.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -700,7 +699,7 @@ public class RegistryService
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public boolean deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attributeName)
+  public void deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attributeName)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
 
@@ -714,8 +713,6 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
-
-    return true;
   }
 
   /**
@@ -731,17 +728,19 @@ public class RegistryService
    * @return Newly created {@link Term} object.
    */
   @Request(RequestType.SESSION)
-  public Term createTerm(String sessionId, String parentTemCode, String termJSON)
+  public Term createTerm(String sessionId, String parentTermCode, String termJSON)
   {
     JSONObject termJSONobj = new JSONObject(termJSON);
 
     Term term = new Term(termJSONobj.getString(Term.JSON_CODE), termJSONobj.getString(Term.JSON_LOCALIZED_LABEL), "");
 
-    Classifier classifier = TermBuilder.createClassifierFromTerm(parentTemCode, term);
+    Classifier classifier = TermBuilder.createClassifierFromTerm(parentTermCode, term);
 
     TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
 
     Term returnTerm = termBuilder.build();
+
+    // this.refreshMetadataCache();
 
     return returnTerm;
   }
@@ -771,6 +770,8 @@ public class RegistryService
 
     Term returnTerm = termBuilder.build();
 
+    // this.refreshMetadataCache();
+
     return returnTerm;
   }
 
@@ -789,22 +790,7 @@ public class RegistryService
 
     Classifier classifier = Classifier.getByKey(classifierKey);
     classifier.delete();
-  }
 
-  @Request(RequestType.SESSION)
-  public Term[] getTerms(String sessionId)
-  {
-    Term term1 = new Term("testCode", "testLabel", "testDescription");
-    Term term2 = new Term("testCode2", "testLabel2", "testDescription2");
-    term1.addChild(term2);
-
-    ArrayList<Term> terms = new ArrayList<Term>();
-    terms.add(term1);
-
-    Term[] termsArr = new Term[terms.size()];
-    termsArr = terms.toArray(termsArr);
-
-    return termsArr;
   }
 
   /**
@@ -1113,4 +1099,5 @@ public class RegistryService
     }
 
   }
+
 }

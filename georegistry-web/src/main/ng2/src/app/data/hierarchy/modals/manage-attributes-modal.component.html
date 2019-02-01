@@ -48,13 +48,13 @@
                         <tbody>
                         <tr *ngFor="let attr of geoObjectType.attributes" class="fade-ngRepeat-item">
                             <td class="button-column">
-                            <a *ngIf="!attr.isDefault && attr.name !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)" title="<localize key='modal.button.edit'></localize>"></a>                             
-                            <a *ngIf="!attr.isDefault && attr.name !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)" title="<localize key='modal.button.remove'></localize>"></a>
+                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)" title="<localize key='modal.button.edit'></localize>"></a>                             
+                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)" title="<localize key='modal.button.remove'></localize>"></a>
                             </td>                  
                             <td class="submit-form">
                             <dl>
                                 <dd>
-                                <h4 [ngClass]="attr.isDefault || attr.name === 'keyName' ? 'disabled' : ''" >{{attr.localizedLabel}}</h4>
+                                <h4 class="disabled" >{{attr.localizedLabel}}</h4>
                                 </dd>
                             </dl>
                             </td>
@@ -75,7 +75,7 @@
                     </div>                    
                     <div class="holder">
                     <div class="button-holder">
-                        <button type="button" class="btn btn-primary" (click)="close()"><localize key="modal.button.ok"></localize></button>              
+                        <button type="button" class="btn btn-default" (click)="close()"><localize key="modal.button.close"></localize></button>              
                     </div>
                     </div>
                 </div> 

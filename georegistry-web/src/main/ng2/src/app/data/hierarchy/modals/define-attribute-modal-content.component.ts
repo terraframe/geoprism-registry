@@ -12,11 +12,12 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
-import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term, TermOption, ManageAttributeState } from '../hierarchy';
+import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term, ManageAttributeState } from '../hierarchy';
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { HierarchyService } from '../../../service/hierarchy.service';
 
 import { TermOptionInputComponent} from '../form-inputs/term-option-input.component';
+import { AttributeInputComponent} from '../form-inputs/attribute-input.component';
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
@@ -54,95 +55,19 @@ export class DefineAttributeModalContentComponent implements OnInit {
     message: string = null;
     newAttribute: Attribute = null;
 
-    terms: Term[] = [];
-    root: string = null;
-
-    /*
-    * Tree component
-    */
-    @ViewChild( TreeComponent )
-    private tree: TreeComponent;
-
-    /*
-    * Template for tree node menu
-    */
-    @ViewChild( 'selectRootMenu' ) public selectRootMenuComponent: ContextMenuComponent;
-
-    /*
-    * Template for leaf menu
-    */
-    @ViewChild( 'leafMenu' ) public leafMenuComponent: ContextMenuComponent;
+    @ViewChild(AttributeInputComponent) attributeInputComponent:AttributeInputComponent;
 
 
-     options = {
-	      displayField: "localizedLabel",
-		  actionMapping: {
-	            mouse: {
-	                click : ( tree: TreeComponent, node: TreeNode, $event: any ) => {
-	                    this.treeNodeOnClick( node, $event );
-	                },
-	                contextMenu: ( tree: any, node: any, $event: any ) => {
-	                    this.handleOnMenu( node, $event );
-	                }
-	            }
-	        }
-    };
-
-    public treeNodeOnClick( node: TreeNode, $event: any ): void {
-  	
-        //node.treeModel.setFocusedNode(node);
-        
-        if(node.treeModel.isExpanded(node)){
-            node.collapse();
-        }
-        else{
-            node.treeModel.expandAll();
-        }
-    }
-
-    public handleOnMenu( node: any, $event: any ): void {
-	  
-        this.contextMenuService.show.next( {
-            contextMenu: this.selectRootMenuComponent,
-            event: $event,
-            item: node,   
-        } );
-        $event.preventDefault();
-        $event.stopPropagation();
-    }
-
-    public selectAsRoot(node: any): void {
-        if(this.newAttribute instanceof AttributeTerm){
-          this.newAttribute.setRootTerm(node.data.code);
-        }
-        
-        this.tree.treeModel.setFocusedNode(node);
-    }
-
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef,
-      private contextMenuService: ContextMenuService ) {
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private contextMenuService: ContextMenuService ) {
+    
     }
 
     ngOnInit(): void {
-
         this.setAttribute("character");
-
-        this.hierarchyService.getTerms()
-	      .then( terms => {
-              this.terms = terms;
-		  
-	      }).catch(( err: any ) => {
-	        this.error( err.json() );
-          });
-
     }
 
     ngAfterViewInit() {
-      window.setTimeout(() =>{
-        if(this.tree){
-          this.tree.treeModel.expandAll();
-        }
-      }, 1000)
+   
     }
 
     ngOnDestroy(){
@@ -166,8 +91,20 @@ export class DefineAttributeModalContentComponent implements OnInit {
         else{
             this.newAttribute = new Attribute("", type, "", "", false);
         }
+
+        this.attributeInputComponent.animate();
     }
 
+    isFormValid(): boolean {
+        
+        let isAttrValid: boolean = this.attributeInputComponent.isValid();
+        
+        if(isAttrValid){
+            return true;
+        }
+
+        return false;
+    }
     
     cancel(): void {
         this.modalStateChange.emit({"state":"MANAGE-ATTRIBUTES", "attribute":""});

@@ -15,9 +15,6 @@ import { HierarchyService } from '../../../service/hierarchy.service';
 export class CreateGeoObjTypeModalComponent implements OnInit {
 
 	public hierarchyType: HierarchyType;
-//    public allGeoObjectTypes: GeoObjectType[];
-
-//    public selectedGeoObjectType: GeoObjectType;
 
 	geoObjectType: GeoObjectType = {"code":"","localizedLabel":"","localizedDescription":"", "geometryType":"POINT", "isLeaf":false, "attributes":[]};
 

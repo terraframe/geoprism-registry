@@ -1,0 +1,14 @@
+input[type="text"] {
+    margin: 2px 0 2px 0 !important;
+    float: none !important;
+}
+
+button {
+    margin-top: 5px;
+    float: right;
+}
+
+label {
+    color: #999;
+    font-weight: bold;
+}

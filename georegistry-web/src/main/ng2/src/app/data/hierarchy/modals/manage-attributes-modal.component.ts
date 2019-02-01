@@ -61,7 +61,7 @@ export class ManageAttributesModalComponent implements OnInit {
 
     deleteAttributeType(geoObjectTypeCode: string, attr: Attribute): void {
 
-          this.hierarchyService.deleteAttributeType( geoObjectTypeCode, attr.name ).then( data => {
+          this.hierarchyService.deleteAttributeType( geoObjectTypeCode, attr.code ).then( data => {
             this.onDeleteAttribute.next( data );
 
             if(data){

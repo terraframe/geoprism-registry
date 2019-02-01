@@ -29,19 +29,29 @@ export class TreeEntity {
 }
 
 export class Term {
-	code: string;
-    localizedLabel: string;
-    children: Term[];
-}
 
-
-export class TermOption {
     constructor(public code:string, public localizedLabel:string, public localizedDescription:string){  
         this.code = code;
         this.localizedLabel = localizedLabel;
         this.localizedDescription = localizedDescription;
     }
+	// code: string;
+    // localizedLabel: string;
+    children: Term[] = [];
+
+    addChild(term:Term) {
+      this.children.push(term);
+    }
 }
+
+
+// export class TermOption {
+//     constructor(public code:string, public localizedLabel:string, public localizedDescription:string){  
+//         this.code = code;
+//         this.localizedLabel = localizedLabel;
+//         this.localizedDescription = localizedDescription;
+//     }
+// }
 
 export class GeoObject {
 	type: string;
@@ -80,9 +90,9 @@ export class GeoObjectType {
 
 export class Attribute {
 
-  constructor(public name:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
+  constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
   
-    this.name = name;
+    this.code = code;
     this.type = type;
     this.localizedLabel = localizedLabel;
     this.localizedDescription = localizedDescription;
@@ -94,15 +104,15 @@ export class Attribute {
 export class AttributeTerm extends Attribute {
     //descendants: Attribute[];
     
-    constructor(public name:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
-      super(name, type, localizedLabel, localizedDescription, isDefault);
+    constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
+      super(code, type, localizedLabel, localizedDescription, isDefault);
     }
 
-    rootTerm:string;
+    rootTerm: Term = new Term(null, null, null);
 
-    termOptions:TermOption[] = [];
+    termOptions :Term[] = [];
 
-    setRootTerm(term:string){
+    setRootTerm(term:Term){
         this.rootTerm = term;
     }
 }

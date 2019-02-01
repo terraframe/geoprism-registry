@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && handleOnSubmit()">    
+    <form #form="ngForm" class="modal-form" (ngSubmit)="handleOnSubmit()">    
     <div class="">
       <div class="">
         <div class="heading">
@@ -34,161 +34,9 @@
         
         <fieldset>         
 
-          <div *ngIf="newAttribute.type === 'character'" [@openClose]="newAttribute.type === 'character' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.code"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
-              </span>
-            </div>
-          </div>
-          <div *ngIf="newAttribute.type === 'character'" [@openClose]="newAttribute.type === 'character' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
-              </span>
-            </div>
-          </div>
+          <attribute-input [disableCodeField]="false" [excludeDescription]="newAttribute.type === 'term' ? true : false" [(attribute)]="newAttribute" ></attribute-input>
 
-
-          <div *ngIf="newAttribute.type === 'integer'" [@openClose]="newAttribute.type === 'integer' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.code"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
-              </span>
-            </div>
-          </div>
-          <div *ngIf="newAttribute.type === 'integer'" [@openClose]="newAttribute.type === 'integer' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
-              </span>
-            </div>
-          </div>
-
-
-          <div *ngIf="newAttribute.type === 'float'" [@openClose]="newAttribute.type === 'float' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.code"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
-              </span>
-            </div>
-          </div>
-          <div *ngIf="newAttribute.type === 'float'" [@openClose]="newAttribute.type === 'float' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
-              </span>
-            </div>
-          </div>
-
-          <div *ngIf="newAttribute.type === 'boolean'" [@openClose]="newAttribute.type === 'boolean' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.code"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
-              </span>
-            </div>
-          </div>
-          <div *ngIf="newAttribute.type === 'boolean'" [@openClose]="newAttribute.type === 'boolean' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
-              </span>
-            </div>
-          </div>
-
-
-          <div *ngIf="newAttribute.type === 'date'" [@openClose]="newAttribute.type === 'date' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.code"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
-              </span>
-            </div>
-          </div>
-          <div *ngIf="newAttribute.type === 'date'" [@openClose]="newAttribute.type === 'date' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required>
-              </span>
-            </div>
-          </div>
-
-
-          <div *ngIf="newAttribute.type === 'term'" [@openClose]="newAttribute.type === 'term' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="hierarchy.management.define.attribute.term.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <!-- <span class="text">
-                <input type="text" name="label" >
-              </span> -->
-
-              <div *ngIf="terms.length > 0" class="tree">
-                <tree-root [nodes]="terms" [options]="options"></tree-root>
-              </div>
-              <input type="hidden" [ngModel]="newAttribute.rootTerm" [disabled]="false" name="root" #rootin="ngModel" required>
-              
-            </div>
-            
-            <div class="label-holder">
-              <label><localize key="hierarchy.management.define.attribute.select.root.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <h4 *ngIf="newAttribute.rootTerm" >{{newAttribute.rootTerm}}</h4>
-              <h4 *ngIf="!newAttribute.rootTerm" ><localize key="hierarchy.management.define.attribute.no.root.selected.message"></localize></h4>
-            </div>
-          </div>
-          <div *ngIf="newAttribute.type === 'term'" [@openClose]="newAttribute.type === 'term' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.code"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input autofocus type="text" [(ngModel)]="newAttribute.name" name="code" required geoObjectAttributeCode>
-              </span>
-            </div>
-          </div>
-          <div *ngIf="newAttribute.type === 'term'" [@openClose]="newAttribute.type === 'term' ? 'open' : 'closed'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="data.property.label.label"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="newAttribute.localizedLabel" name="label" required >
-              </span>
-            </div>
-          </div>
-          
-          <term-option-input *ngIf="newAttribute.type === 'term' && newAttribute.name.length > 0 && newAttribute.localizedLabel.length > 0" [@openClose]="newAttribute.type === 'term' && newAttribute.name.length > 0 && newAttribute.localizedLabel.length > 0 ? 'open' : 'closed'" [(attribute)]="newAttribute" ></term-option-input>
+          <!-- <term-option-input *ngIf="newAttribute.type === 'term' && isFormValid()" [(attribute)]="newAttribute" ></term-option-input> -->
 
           <div class="row-holder">
             <div class="label-holder">
@@ -196,7 +44,7 @@
             <div class="holder">
               <div class="button-holder">
                 <button type="button" class="btn btn-default" (click)="cancel()"><localize key="modal.button.cancel"></localize></button>
-                <button type="submit" class="btn btn-primary" [disabled]="form.invalid"><localize key="modal.button.submit"></localize></button>
+                <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()"><localize key="modal.button.submit"></localize></button>
               </div>
             </div>
           </div> 

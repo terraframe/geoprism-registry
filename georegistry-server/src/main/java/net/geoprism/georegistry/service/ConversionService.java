@@ -55,6 +55,7 @@ import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.RelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
@@ -75,7 +76,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.conversion.TermBuilder;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierTermAttributeRoot;
 import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoObjectStatus;
 
@@ -575,8 +578,38 @@ public class ConversionService
     }
     else if (mdAttribute instanceof MdAttributeEnumerationDAOIF || mdAttribute instanceof MdAttributeTermDAOIF)
     {
-      // TODO: Set the terms on the AttributeType
       testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeTermType.TYPE);
+      
+      if (mdAttribute instanceof MdAttributeEnumerationDAOIF && mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
+      {
+        Term rootStatusTerm = ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
+        
+        ((AttributeTermType) testChar).setRootTerm(rootStatusTerm);
+      }
+      else if (mdAttribute instanceof MdAttributeTermDAOIF)
+      {
+        List<RelationshipDAOIF> rels = ( (MdAttributeTermDAOIF) mdAttribute ).getAllAttributeRoots();
+        
+        if (rels.size() > 0)
+        {
+          RelationshipDAOIF rel = rels.get(0);
+          
+          BusinessDAO classy = (BusinessDAO) rel.getChild();
+          
+          TermBuilder termBuilder = new TermBuilder(classy.getKey());
+          Term adapterTerm = termBuilder.build();
+          
+          ((AttributeTermType) testChar).setRootTerm(adapterTerm);
+        }
+        else
+        {
+          throw new ProgrammingErrorException("Expected an attribute root on MdAttribute [" + mdAttribute.getKey() + "].");
+        }
+      }
+      else
+      {
+        throw new ProgrammingErrorException("Enum attributes are not supported at this time.");
+      }
     }
 
     return testChar;
