@@ -12,8 +12,8 @@
           <input [name]="index + '-name'" [(ngModel)]="entityLabel" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="name" class="form-control">
         </div>
         <div class="col-sm-2">
-          <i [ngClass]="{disabled: !hasSynonym}" class="fa fa-compress" (click)="createSynonym()" [title]="'dataUploader.createSynonymFromLocationTooltip' | localize"></i>
-          <i class="fa fa-times-circle" (click)="ignoreDataAtLocation()" [title]="'dataUploader.ignoreAtLocationTooltip' | localize"></i>
+          <i [ngClass]="{disabled: !hasSynonym}" class="text-primary fa fa-2x fa-compress" (click)="createSynonym()" [title]="'dataUploader.createSynonymFromLocationTooltip' | localize"></i>
+          <i class="text-primary fa fa-2x fa-times-circle" (click)="ignoreDataAtLocation()" [title]="'dataUploader.ignoreAtLocationTooltip' | localize"></i>
         </div>
       </div>
       <div class="col-sm-6" *ngIf="problem.resolved">

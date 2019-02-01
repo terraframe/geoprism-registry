@@ -32,7 +32,6 @@ import org.opengis.feature.type.AttributeDescriptor;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.RunwayExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
@@ -40,6 +39,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.georegistry.CodeRestriction;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
@@ -180,6 +180,38 @@ public class ShapefileServiceTest
 
   @Test
   @Request
+  public void testImportShapefileExcludeParent()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    JsonObject json = this.getTestConfiguration(istream, service);
+
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
+    configuration.addParent(new Location(this.tutil.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.tutil.COUNTRY.getUniversal(), new BasicColumnFunction("LSAD")));
+    configuration.addExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, "00");
+
+    JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    Assert.assertFalse(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
+
+    // Ensure the geo objects were not created
+    GeoObjectQuery query = new GeoObjectQuery(tutil.STATE.getGeoObjectType(GeometryType.POLYGON), tutil.STATE.getUniversal());
+    query.setRestriction(new CodeRestriction("01"));
+
+    Assert.assertNull(query.getSingleResult());
+  }
+
+  @Test
+  @Request
   public void testImportShapefileWithBadParent()
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
@@ -207,14 +239,10 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, problems.size());
 
     // Ensure the geo objects were not created
-    try
-    {
-      ServiceFactory.getRegistryService().getGeoObjectByCode(this.adminCR.getSessionId(), "01", tutil.STATE.getCode());
-    }
-    catch (RunwayExceptionDTO e)
-    {
+    GeoObjectQuery query = new GeoObjectQuery(tutil.STATE.getGeoObjectType(GeometryType.POLYGON), tutil.STATE.getUniversal());
+    query.setRestriction(new CodeRestriction("01"));
 
-    }
+    Assert.assertNull(query.getSingleResult());
   }
 
   @Test

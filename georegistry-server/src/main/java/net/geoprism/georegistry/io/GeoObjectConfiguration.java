@@ -35,6 +35,8 @@ import net.geoprism.localization.LocalizationFacade;
 
 public class GeoObjectConfiguration
 {
+  public static final String             PARENT_EXCLUSION  = "##PARENT##";
+
   public static final String             TARGET            = "target";
 
   public static final String             BASE_TYPE         = "baseType";
@@ -62,6 +64,10 @@ public class GeoObjectConfiguration
   public static final String             SHEET             = "sheet";
 
   public static final String             TERM_PROBLEMS     = "termProblems";
+
+  public static final String             EXCLUSIONS        = "exclusions";
+
+  public static final String             VALUE             = "value";
 
   public static final String             LOCATION_PROBLEMS = "locationProblems";
 
@@ -95,11 +101,12 @@ public class GeoObjectConfiguration
 
   public GeoObjectConfiguration()
   {
+    this.includeCoordinates = false;
     this.functions = new HashMap<String, ShapefileFunction>();
     this.termProblems = new TreeSet<TermProblem>();
     this.locationProblems = new TreeSet<GeoObjectLocationProblem>();
     this.locations = new LinkedList<Location>();
-    this.includeCoordinates = false;
+    this.exclusions = new HashMap<String, Set<String>>();
   }
 
   public boolean isIncludeCoordinates()
@@ -286,6 +293,23 @@ public class GeoObjectConfiguration
       config.addProperty(GeoObjectConfiguration.HIERARCHY, this.getHierarchy().getCode());
     }
 
+    if (this.exclusions.size() > 0)
+    {
+      JsonArray exclusions = new JsonArray();
+
+      this.exclusions.forEach((key, set) -> {
+        set.forEach(value -> {
+          JsonObject object = new JsonObject();
+          object.addProperty(AttributeType.JSON_CODE, key);
+          object.addProperty(VALUE, value);
+
+          exclusions.add(object);
+        });
+      });
+
+      config.add(EXCLUSIONS, exclusions);
+    }
+
     if (this.termProblems.size() > 0)
     {
       JsonArray problems = new JsonArray();
@@ -341,6 +365,20 @@ public class GeoObjectConfiguration
 
       configuration.setHierarchy(hierarchyType);
       configuration.setHierarchyRelationship(hierarchyRelationiship);
+    }
+
+    if (config.has(EXCLUSIONS))
+    {
+      JsonArray exclusions = config.get(EXCLUSIONS).getAsJsonArray();
+
+      for (int i = 0; i < exclusions.size(); i++)
+      {
+        JsonObject exclusion = exclusions.get(i).getAsJsonObject();
+        String attributeName = exclusion.get(AttributeType.JSON_CODE).getAsString();
+        String value = exclusion.get(VALUE).getAsString();
+
+        configuration.addExclusion(attributeName, value);
+      }
     }
 
     for (int i = 0; i < attributes.size(); i++)

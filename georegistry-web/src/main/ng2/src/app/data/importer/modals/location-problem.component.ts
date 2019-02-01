@@ -45,36 +45,20 @@ export class LocationProblemComponent implements OnInit {
 
     createSynonym(): void {
         if ( this.hasSynonym ) {
-            this.service.createGeoObjectSynonym( this.entityId, this.problem.label )
-                .then( response => {
-                    this.problem.resolved = true;
-                    this.problem.action = {
-                        name: 'SYNONYM',
-                        synonymId: response.synonymId,
-                        label: response.label
-                    };
-                } );
+            this.service.createGeoObjectSynonym( this.entityId, this.problem.label ).then( response => {
+                this.problem.resolved = true;
+                this.problem.action = {
+                    name: 'SYNONYM',
+                    synonymId: response.synonymId,
+                    label: response.label
+                };
+            } );
         }
-    }
-
-    createEntity(): void {
-
-        //        this.service.createGeoEntity( this.problem.parent, this.problem.type, this.problem.label )
-        //            .then( response => {
-        //                this.problem.resolved = true;
-        //                this.problem.action = {
-        //                    name: 'ENTITY',
-        //                    entityId: response.entityId
-        //                };
-        //
-        //                this.onProblemChange.emit( this.problem );
-        //            } );
     }
 
     ignoreDataAtLocation(): void {
         let locationLabel = this.problem.label;
         let universal = this.problem.type;
-        //        let oid = this.idService.generateId();
 
         this.problem.resolved = true;
 
@@ -91,29 +75,18 @@ export class LocationProblemComponent implements OnInit {
         if ( this.problem.resolved ) {
             let action = this.problem.action;
 
-            if ( action.name == 'ENTITY' ) {
-                //                this.service.deleteGeoEntity( action.entityId )
-                //                    .then( response => {
-                //                        this.problem.resolved = false;
-                //                        this.problem.action = null;
-                //                        
-                //                        this.entityLabel = null;
-                //                        this.hasSynonym = ( this.entityLabel != null );
-                //                    } );
-            }
-            else if ( action.name == 'IGNOREATLOCATION' ) {
+            if ( action.name == 'IGNOREATLOCATION' ) {
                 this.problem.resolved = false;
                 this.problem.action = null;
             }
             else if ( action.name == 'SYNONYM' ) {
-                this.service.deleteGeoObjectSynonym( action.synonymId )
-                    .then( response => {
-                        this.problem.resolved = false;
-                        this.problem.action = null;
+                this.service.deleteGeoObjectSynonym( action.synonymId ).then( response => {
+                    this.problem.resolved = false;
+                    this.problem.action = null;
 
-                        this.entityLabel = null;
-                        this.hasSynonym = ( this.entityLabel != null );
-                    } );
+                    this.entityLabel = null;
+                    this.hasSynonym = ( this.entityLabel != null );
+                } );
             }
 
         }

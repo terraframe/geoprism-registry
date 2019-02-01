@@ -58,6 +58,7 @@ import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.data.importer.TaskObservable;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.IgnoreRowException;
 import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.georegistry.io.Location;
 import net.geoprism.georegistry.io.SynonymRestriction;
@@ -223,90 +224,105 @@ public class GeoObjectShapefileImporter extends TaskObservable
    */
   private void importEntity(SimpleFeature feature) throws Exception
   {
-    FeatureRow row = new SimpleFeatureRow(feature);
-    String geoId = this.getCode(row);
-
-    GeoObject entity;
-    boolean isNew = false;
-
-    if (geoId != null && geoId.length() > 0)
+    try
     {
-      try
+      FeatureRow row = new SimpleFeatureRow(feature);
+
+      GeoObject parent = null;
+
+      /*
+       * First, try to get the parent and ensure that this row is not ignored.
+       * The getParent method will throw a IgnoreRowException if the parent is
+       * configured to be ignored.
+       */
+      if (this.config.getHierarchy() != null)
       {
-        // try an update
-        isNew = false;
-        entity = ServiceFactory.getUtilities().getGeoObjectByCode(geoId, this.config.getType().getCode());
+        parent = this.getParent(row);
       }
-      catch (DataNotFoundException e)
+
+      String geoId = this.getCode(row);
+
+      GeoObject entity;
+      boolean isNew = false;
+
+      if (geoId != null && geoId.length() > 0)
+      {
+        try
+        {
+          // try an update
+          isNew = false;
+          entity = ServiceFactory.getUtilities().getGeoObjectByCode(geoId, this.config.getType().getCode());
+        }
+        catch (DataNotFoundException e)
+        {
+          // create a new entity
+          isNew = true;
+          entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.config.getType().getCode());
+        }
+      }
+      else
       {
         // create a new entity
         isNew = true;
         entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.config.getType().getCode());
       }
-    }
-    else
-    {
-      // create a new entity
-      isNew = true;
-      entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.config.getType().getCode());
-    }
 
-    Geometry geometry = (Geometry) feature.getDefaultGeometry();
-    String entityName = this.getName(row);
+      Geometry geometry = (Geometry) feature.getDefaultGeometry();
+      String entityName = this.getName(row);
 
-    if (entityName != null)
-    {
-      entity.setWKTGeometry(geometry.toText());
-
-      if (isNew)
+      if (entityName != null)
       {
-        entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-      }
+        entity.setWKTGeometry(geometry.toText());
 
-      Map<String, org.commongeoregistry.adapter.metadata.AttributeType> attributes = this.config.getType().getAttributeMap();
-      Set<Entry<String, org.commongeoregistry.adapter.metadata.AttributeType>> entries = attributes.entrySet();
-
-      for (Entry<String, org.commongeoregistry.adapter.metadata.AttributeType> entry : entries)
-      {
-        String attributeName = entry.getKey();
-
-        ShapefileFunction function = this.config.getFunction(attributeName);
-
-        if (function != null)
+        if (isNew)
         {
-          Object value = function.getValue(row);
+          entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+        }
 
-          if (value != null)
+        Map<String, org.commongeoregistry.adapter.metadata.AttributeType> attributes = this.config.getType().getAttributeMap();
+        Set<Entry<String, org.commongeoregistry.adapter.metadata.AttributeType>> entries = attributes.entrySet();
+
+        for (Entry<String, org.commongeoregistry.adapter.metadata.AttributeType> entry : entries)
+        {
+          String attributeName = entry.getKey();
+
+          ShapefileFunction function = this.config.getFunction(attributeName);
+
+          if (function != null)
           {
-            org.commongeoregistry.adapter.metadata.AttributeType attributeType = entry.getValue();
+            Object value = function.getValue(row);
 
-            this.setValue(entity, attributeType, attributeName, value);
+            if (value != null)
+            {
+              org.commongeoregistry.adapter.metadata.AttributeType attributeType = entry.getValue();
+
+              this.setValue(entity, attributeType, attributeName, value);
+            }
           }
         }
-      }
 
-      ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
-
-      if (isNew && this.config.getHierarchy() != null)
-      {
-        GeoObject parent = this.getParent(row);
+        ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
 
         if (parent != null)
         {
           ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.config.getHierarchy().getCode());
         }
-      }
 
-      // We must ensure that any problems created during the transaction are
-      // logged now instead of when the request returns. As such, if any
-      // problems exist immediately throw a ProblemException so that normal
-      // exception handling can occur.
-      List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
+        // We must ensure that any problems created during the transaction are
+        // logged now instead of when the request returns. As such, if any
+        // problems exist immediately throw a ProblemException so that normal
+        // exception handling can occur.
+        List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
 
-      if (problems.size() != 0)
-      {
-        throw new ProblemException(null, problems);
+        if (problems.size() != 0)
+        {
+          throw new ProblemException(null, problems);
+        }
       }
+    }
+    catch (IgnoreRowException e)
+    {
+      // Do nothing
     }
   }
 
@@ -371,6 +387,13 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
       if (label != null)
       {
+        String key = parent != null ? parent.getCode() + "-" + label : label;
+
+        if (this.config.isExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, key))
+        {
+          throw new IgnoreRowException();
+        }
+
         // Search
         GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
         query.setRestriction(new SynonymRestriction(label, parent, this.config.getHierarchyRelationship()));

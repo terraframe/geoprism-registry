@@ -22,12 +22,10 @@ export class LocationProblemPageComponent implements OnInit {
     }
 
     hasProblems(): boolean {
-        if ( this.problems != null ) {
-            for ( let i = 0; i < this.problems.length; i++ ) {
+        for ( let i = 0; i < this.problems.length; i++ ) {
 
-                if ( !this.problems[i].resolved ) {
-                    return true;
-                }
+            if ( !this.problems[i].resolved ) {
+                return true;
             }
         }
 
@@ -35,6 +33,22 @@ export class LocationProblemPageComponent implements OnInit {
     }
 
     onNext(): void {
+        if ( this.configuration.exclusions == null ) {
+            this.configuration.exclusions = [];
+        }
+
+        for ( let i = 0; i < this.problems.length; i++ ) {
+            const problem = this.problems[i];
+
+            if ( problem.resolved && problem.action.name == 'IGNOREATLOCATION' ) {
+                const value = ( problem.parent != null ? problem.parent + "-" + problem.label : problem.label );
+                const exclusion = { code: '##PARENT##', value: value };
+
+                this.configuration.exclusions.push(exclusion);
+            }
+        }
+
+
         this.stateChange.emit( 'NEXT' );
     }
 

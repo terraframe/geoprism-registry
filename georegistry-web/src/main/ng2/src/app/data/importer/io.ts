@@ -35,6 +35,11 @@ export class LocationProblem {
     resolved: boolean;
 }
 
+export class Exclusion {
+    code: string;
+    value: string;
+}
+
 export class GeoObjectSynonym {
     label: string;
     synonymId: string;
@@ -49,5 +54,6 @@ export class ImportConfiguration {
     locations: Location[];
     locationProblems: LocationProblem[];
     termProblems: TermProblem[];
+    exclusions: Exclusion[];
 }
 
