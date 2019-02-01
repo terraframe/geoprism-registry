@@ -105,6 +105,23 @@ public class RegistryController
   }
 
   /**
+   * Returns an array of (label, entityId) pairs that under the given
+   * parent/hierarchy and have the given label.
+   *
+   * @pre
+   * @post
+   *
+   * @returns @throws
+   **/
+  @Endpoint(url = "geoobject/suggestions", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "hierarchy") String hierarchy)
+  {
+    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, hierarchy);
+
+    return new RestBodyResponse(response);
+  }
+
+  /**
    * Returns a GeoObject with the given code.
    *
    * @pre @post
@@ -186,15 +203,15 @@ public class RegistryController
     return new RestBodyResponse(Term.toJSON(terms));
   }
 
-   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
-   public ResponseIF updateAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
-   {
-     AttributeType attrType = this.registryService.updateAttributeInGeoObjectType(request.getSessionId(), geoObjTypeId, attributeType);
-     
-     return new RestBodyResponse(attrType.toJSON());
-   }
-   
-   /**
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
+  public ResponseIF updateAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
+  {
+    AttributeType attrType = this.registryService.updateAttributeInGeoObjectType(request.getSessionId(), geoObjTypeId, attributeType);
+
+    return new RestBodyResponse(attrType.toJSON());
+  }
+
+  /**
    * Get children of the given GeoObject
    *
    * @pre @post
@@ -566,7 +583,7 @@ public class RegistryController
       JsonObject object = new JsonObject();
       object.addProperty("label", ancestor.getLocalizedLabel());
       object.addProperty("code", ancestor.getCode());
-      
+
       response.add(object);
     }
 

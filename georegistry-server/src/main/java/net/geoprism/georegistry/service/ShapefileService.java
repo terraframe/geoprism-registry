@@ -39,6 +39,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
+import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileImporter;
 import net.geoprism.georegistry.shapefile.NullLogger;
@@ -240,7 +241,21 @@ public class ShapefileService
 
     if (dbfs.length > 0)
     {
-      this.importShapefile(configuration, dbfs[0]);
+      try
+      {
+        this.importShapefile(configuration, dbfs[0]);
+      }
+      catch (ProgrammingErrorException e)
+      {
+        if (e.getCause() instanceof ImportProblemException)
+        {
+          // Do nothing: configuration should contain the details of the problem
+        }
+        else
+        {
+          throw e;
+        }
+      }
     }
 
     return configuration.toJson();

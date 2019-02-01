@@ -26,6 +26,8 @@ public class GeoObjectQuery
 
   private GeoObjectRestriction restriction;
 
+  private Integer              limit;
+
   public GeoObjectQuery(GeoObjectType type, Universal universal)
   {
     this.type = type;
@@ -52,7 +54,17 @@ public class GeoObjectQuery
     this.restriction = restriction;
   }
 
-  public OIterator<GeoObject> getIterator()
+  public Integer getLimit()
+  {
+    return limit;
+  }
+
+  public void setLimit(Integer limit)
+  {
+    this.limit = limit;
+  }
+
+  public GeoObjectIterator getIterator()
   {
     QueryFactory factory = new QueryFactory();
     ValueQuery vQuery = new ValueQuery(factory);
@@ -122,6 +134,11 @@ public class GeoObjectQuery
       }
 
       vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
+    }
+
+    if (this.limit != null)
+    {
+      vQuery.restrictRows(this.limit, 1);
     }
 
     return new GeoObjectIterator(type, universal, vQuery.getIterator());

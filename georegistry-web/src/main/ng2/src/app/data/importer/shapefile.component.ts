@@ -7,7 +7,7 @@ import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptio
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 import { ShapefileModalComponent } from './modals/shapefile-modal.component';
 
-import { ShapefileService } from '../../service/shapefile.service';
+import { IOService } from '../../service/io.service';
 import { EventService } from '../../event/event.service';
 
 declare var acp: string;
@@ -40,7 +40,10 @@ export class ShapefileComponent implements OnInit {
      */
     private uploader: FileUploader;
 
-    constructor( private service: ShapefileService, private eventService: EventService, private modalService: BsModalService ) { }
+    @ViewChild( 'myFile' )
+    fileRef: ElementRef;
+
+    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService ) { }
 
     ngOnInit(): void {
         this.service.listGeoObjectTypes().then( types => {
@@ -64,7 +67,8 @@ export class ShapefileComponent implements OnInit {
             this.eventService.start();
         };
         this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
-            this.eventService.complete();
+            this.fileRef.nativeElement.value = "";
+            this.eventService.complete();            
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );

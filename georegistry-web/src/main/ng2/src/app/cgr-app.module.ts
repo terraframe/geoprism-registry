@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpModule, XHRBackend, RequestOptions, Http} from '@angular/http';
-import { ModalModule } from 'ngx-bootstrap/modal';
 import { TreeModule } from 'angular-tree-component';
 import { ContextMenuModule } from 'ngx-contextmenu';
+import { ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { CookieService } from 'ngx-cookie-service';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 
 import './rxjs-extensions';
@@ -31,6 +32,8 @@ import { EditAttributeModalContentComponent } from './data/hierarchy/modals/edit
 import { ShapefileModalComponent } from './data/importer/modals/shapefile-modal.component';
 import { AttributesPageComponent } from './data/importer/modals/attributes-page.component';
 import { LocationPageComponent } from './data/importer/modals/location-page.component';
+import { LocationProblemPageComponent } from './data/importer/modals/location-problem-page.component';
+import { LocationProblemComponent } from './data/importer/modals/location-problem.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
@@ -45,8 +48,7 @@ import { LocalizationService } from './core/service/localization.service';
 //import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
-import { ShapefileService } from './service/shapefile.service';
-import { ExcelService } from './service/excel.service';
+import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -69,6 +71,7 @@ import './rxjs-extensions';
     ContextMenuModule.forRoot(),
     BsDropdownModule.forRoot(),
     ButtonsModule.forRoot(),
+    TypeaheadModule.forRoot(),
     BrowserAnimationsModule
   ],
   declarations: [
@@ -88,6 +91,8 @@ import './rxjs-extensions';
     ShapefileModalComponent,
     AttributesPageComponent,
     LocationPageComponent,
+    LocationProblemPageComponent,
+    LocationProblemComponent,
     SpreadsheetModalComponent,
     LoadingBarComponent,
     GeoObjectTypePipe,
@@ -104,8 +109,7 @@ import './rxjs-extensions';
   providers: [
     HierarchyService,
     LocalizationManagerService,
-    ShapefileService,
-    ExcelService,
+    IOService,
     EventService,
     Safe,
     CookieService,

@@ -316,7 +316,7 @@ public class ConversionService
    * @param hierarchyType
    * @return
    */
-  public MdTermRelationship existingHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
+  public MdTermRelationship existingHierarchyToUniversalMdTermRelationiship(HierarchyType hierarchyType)
   {
     String mdTermRelKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
 
@@ -325,6 +325,21 @@ public class ConversionService
     return mdTermRelationship;
   }
 
+  /**
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  public MdTermRelationship existingHierarchyToGeoEntityMdTermRelationiship(HierarchyType hierarchyType)
+  {
+    String mdTermRelKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+    
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
+    
+    return mdTermRelationship;
+  }
+  
   /**
    * 
    * @param mdTermRel

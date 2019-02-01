@@ -14,8 +14,10 @@ import org.junit.Test;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.service.ServiceFactory;
@@ -149,6 +151,50 @@ public class GeoObjectQueryTest
 
   @Test
   @Request
+  public void testTreeOidRestriction()
+  {
+    GeoObjectType type = this.tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
+    Universal universal = this.tutil.STATE.getUniversal();
+
+    String oid = ServiceFactory.getIdService().registryIdToRunwayId(this.tutil.COLORADO.getRegistryId(), type);
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    query.setRestriction(new OidRestrction(oid));
+
+    GeoObject result = query.getSingleResult();
+
+    Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+    Assert.assertNotNull(result.getGeometry());
+    Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
+
+    Term expected = ServiceFactory.getConversionService().geoObjectStatusToTerm(GeoObjectStatus.ACTIVE);
+    Assert.assertEquals(expected, result.getStatus());
+  }
+
+  @Test
+  @Request
+  public void testLeafOidRestriction()
+  {
+    GeoObjectType type = this.tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    Universal universal = this.tutil.DISTRICT.getUniversal();
+
+    String oid = ServiceFactory.getIdService().registryIdToRunwayId(this.tutil.CO_D_ONE.getRegistryId(), type);
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    query.setRestriction(new OidRestrction(oid));
+
+    GeoObject result = query.getSingleResult();
+
+    Assert.assertEquals(this.tutil.CO_D_ONE.getGeoId(), result.getCode());
+    Assert.assertNotNull(result.getGeometry());
+    Assert.assertEquals(this.tutil.CO_D_ONE.getDisplayLabel(), result.getLocalizedDisplayLabel());
+
+    Term expected = ServiceFactory.getConversionService().geoObjectStatusToTerm(GeoObjectStatus.ACTIVE);
+    Assert.assertEquals(expected, result.getStatus());
+  }
+
+  @Test
+  @Request
   public void testTreeCodeRestriction()
   {
     GeoObjectType type = this.tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
@@ -262,6 +308,47 @@ public class GeoObjectQueryTest
 
   @Test
   @Request
+  public void testTreeSynonymRestrictionByCodeWithParent()
+  {
+    GeoObjectType type = this.tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
+    Universal universal = this.tutil.STATE.getUniversal();
+
+    MdTermRelationship mdRelationship = MdTermRelationship.getByKey(LocatedIn.CLASS);
+    SynonymRestriction restriction = new SynonymRestriction(this.tutil.COLORADO.getGeoId(), this.tutil.USA.getGeoObject(), mdRelationship);
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    query.setRestriction(restriction);
+
+    GeoObject result = query.getSingleResult();
+
+    Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+    Assert.assertNotNull(result.getGeometry());
+    Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
+
+    Term expected = ServiceFactory.getConversionService().geoObjectStatusToTerm(GeoObjectStatus.ACTIVE);
+    Assert.assertEquals(expected, result.getStatus());
+  }
+
+  @Test
+  @Request
+  public void testFailTreeSynonymRestrictionByCodeWithParent()
+  {
+    GeoObjectType type = this.tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
+    Universal universal = this.tutil.STATE.getUniversal();
+
+    MdTermRelationship mdRelationship = MdTermRelationship.getByKey(LocatedIn.CLASS);
+    SynonymRestriction restriction = new SynonymRestriction(this.tutil.COLORADO.getGeoId(), this.tutil.CANADA.getGeoObject(), mdRelationship);
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    query.setRestriction(restriction);
+
+    GeoObject result = query.getSingleResult();
+
+    Assert.assertNull(result);
+  }
+
+  @Test
+  @Request
   public void testLeafSynonymRestriction()
   {
     GeoObjectType type = this.tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
@@ -277,6 +364,45 @@ public class GeoObjectQueryTest
 
     Term expected = ServiceFactory.getConversionService().geoObjectStatusToTerm(GeoObjectStatus.ACTIVE);
     Assert.assertEquals(expected, result.getStatus());
+  }
+
+  @Test
+  @Request
+  public void testLookupRestriction()
+  {
+    GeoObjectType type = this.tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
+    Universal universal = this.tutil.STATE.getUniversal();
+
+    LookupRestriction restriction = new LookupRestriction("Co", this.tutil.USA.getGeoId(), LocatedIn.class.getSimpleName());
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    query.setRestriction(restriction);
+
+    GeoObject result = query.getSingleResult();
+
+    Assert.assertEquals(this.tutil.COLORADO.getGeoId(), result.getCode());
+    Assert.assertNotNull(result.getGeometry());
+    Assert.assertEquals(this.tutil.COLORADO.getDisplayLabel(), result.getLocalizedDisplayLabel());
+
+    Term expected = ServiceFactory.getConversionService().geoObjectStatusToTerm(GeoObjectStatus.ACTIVE);
+    Assert.assertEquals(expected, result.getStatus());
+  }
+
+  @Test
+  @Request
+  public void testFailLookupRestriction()
+  {
+    GeoObjectType type = this.tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
+    Universal universal = this.tutil.STATE.getUniversal();
+
+    LookupRestriction restriction = new LookupRestriction("Co", this.tutil.CANADA.getGeoId(), LocatedIn.class.getSimpleName());
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    query.setRestriction(restriction);
+
+    GeoObject result = query.getSingleResult();
+
+    Assert.assertNull(result);
   }
 
 }

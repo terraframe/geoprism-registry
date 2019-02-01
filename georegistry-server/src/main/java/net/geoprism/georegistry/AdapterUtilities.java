@@ -450,7 +450,7 @@ public class AdapterUtilities
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(child);
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
-    MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToMdTermRelationiship(hierarchyType);
+    MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
 
     OIterator<com.runwaysdk.business.ontology.Term> iterator = universal.getAllAncestors(mdTermRelationship.definesType());
 
@@ -853,7 +853,7 @@ public class AdapterUtilities
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      MdTermRelationship mdTerm = ServiceFactory.getConversionService().existingHierarchyToMdTermRelationiship(hierarchyType);
+      MdTermRelationship mdTerm = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
       List<? extends Business> parents = universal.getParents(mdTerm.definesType()).getAll();
 
       if (parents.size() > 0)

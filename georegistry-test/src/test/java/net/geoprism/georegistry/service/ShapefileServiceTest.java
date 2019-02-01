@@ -20,6 +20,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.feature.FeatureCollection;
 import org.junit.After;
 import org.junit.Assert;
@@ -31,10 +32,12 @@ import org.opengis.feature.type.AttributeDescriptor;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.RunwayExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.georegistry.GeoObjectQuery;
@@ -153,8 +156,12 @@ public class ShapefileServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service);
 
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
-    configuration.setHierarchy(LocatedIn.class.getSimpleName());
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
     configuration.addParent(new Location(this.tutil.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.tutil.COUNTRY.getUniversal(), new BasicColumnFunction("LSAD")));
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
@@ -169,6 +176,45 @@ public class ShapefileServiceTest
     List<ParentTreeNode> parents = nodes.getParents();
 
     Assert.assertEquals(1, parents.size());
+  }
+
+  @Test
+  @Request
+  public void testImportShapefileWithBadParent()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    JsonObject json = this.getTestConfiguration(istream, service);
+
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
+    configuration.addParent(new Location(this.tutil.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.tutil.COUNTRY.getUniversal(), new BasicColumnFunction("LSAD")));
+
+    JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    Assert.assertTrue(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
+
+    JsonArray problems = result.get(GeoObjectConfiguration.LOCATION_PROBLEMS).getAsJsonArray();
+
+    Assert.assertEquals(1, problems.size());
+
+    // Ensure the geo objects were not created
+    try
+    {
+      ServiceFactory.getRegistryService().getGeoObjectByCode(this.adminCR.getSessionId(), "01", tutil.STATE.getCode());
+    }
+    catch (RunwayExceptionDTO e)
+    {
+
+    }
   }
 
   @Test

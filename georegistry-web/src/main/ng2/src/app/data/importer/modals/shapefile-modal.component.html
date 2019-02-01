@@ -8,5 +8,8 @@
     <div *ngIf="state === 'LOCATION'">
       <location-page [(configuration)]="configuration" (stateChange)="onStateChange($event)"></location-page>
     </div>
+    <div *ngIf="state === 'LOCATION-PROBLEM'">
+      <location-problem-page [(configuration)]="configuration" (stateChange)="onStateChange($event)"></location-problem-page>
+    </div>
   </div>
 </div>

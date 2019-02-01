@@ -25,6 +25,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -79,6 +80,20 @@ public class RegistryServiceTest
 
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(tutil.adapter, geoObj.toJSON().toString()).toJSON().toString());
     tutil.COLORADO.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+  }
+
+  @Test
+  public void testGetGeoObjectSuggestions()
+  {
+    RestBodyResponse response = (RestBodyResponse) this.controller.getGeoObjectSuggestions(this.adminCR, "Co", tutil.STATE.getCode(), tutil.USA.getGeoId(), LocatedIn.class.getSimpleName());
+    JsonArray results = (JsonArray) response.serialize();
+
+    Assert.assertEquals(1, results.size());
+
+    JsonObject result = results.get(0).getAsJsonObject();
+
+    Assert.assertEquals(tutil.COLORADO.getDisplayLabel(), result.get("name").getAsString());
+    Assert.assertEquals(tutil.COLORADO.getOid(), result.get("id").getAsString());
   }
 
   @Test

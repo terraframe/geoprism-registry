@@ -5,13 +5,18 @@ import java.util.List;
 import java.util.Locale;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdDimensionDAOIF;
 import com.runwaysdk.dataaccess.MdLocalStructDAOIF;
+import com.runwaysdk.dataaccess.metadata.MdTermDAO;
+import com.runwaysdk.dataaccess.metadata.MdTermRelationshipDAO;
+import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable;
 import com.runwaysdk.query.Coalesce;
 import com.runwaysdk.query.F;
 import com.runwaysdk.query.LeftJoinEq;
@@ -19,20 +24,37 @@ import com.runwaysdk.query.OR;
 import com.runwaysdk.query.SelectableSingle;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.SynonymDisplayLabelQuery;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.gis.geo.SynonymRelationshipQuery;
+import com.runwaysdk.system.metadata.MdTerm;
+import com.runwaysdk.system.metadata.MdTermRelationship;
+import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
 import net.geoprism.georegistry.GeoObjectRestriction;
 
 public class SynonymRestriction implements GeoObjectRestriction
 {
-  private String label;
+  private String             label;
+
+  private GeoObject          parent;
+
+  private MdTermRelationship mdTermRelationship;
 
   public SynonymRestriction(String label)
   {
     this.label = label;
+    this.parent = null;
+    this.mdTermRelationship = null;
+  }
+
+  public SynonymRestriction(String label, GeoObject parent, MdTermRelationship mdTermRelationship)
+  {
+    this.label = label;
+    this.parent = parent;
+    this.mdTermRelationship = mdTermRelationship;
   }
 
   @Override
@@ -42,14 +64,29 @@ public class SynonymRestriction implements GeoObjectRestriction
     SynonymQuery synonymQuery = new SynonymQuery(vQuery);
     SynonymDisplayLabelQuery labelQuery = new SynonymDisplayLabelQuery(vQuery);
 
-    // query.AND(query.getOid().EQ(aptQuery.getChildTerm().getOid()));
     vQuery.WHERE(new LeftJoinEq(geQuery.getOid(), relationshipQuery.parentOid()));
-    vQuery.WHERE(new LeftJoinEq(relationshipQuery.childOid(), synonymQuery.getOid()));
-    vQuery.WHERE(new LeftJoinEq(synonymQuery.getDisplayLabel(), labelQuery.getOid()));
-    vQuery.WHERE(OR.get(geQuery.getGeoId().EQ(this.label),
-        F.TRIM(geQuery.getDisplayLabel().localize()).EQi(this.label),
-        F.TRIM(this.localize(labelQuery)).EQi(this.label))
-    );
+    vQuery.AND(new LeftJoinEq(relationshipQuery.childOid(), synonymQuery.getOid()));
+    vQuery.AND(new LeftJoinEq(synonymQuery.getDisplayLabel(), labelQuery.getOid()));
+    vQuery.AND(OR.get(geQuery.getGeoId().EQ(this.label), F.TRIM(geQuery.getDisplayLabel().localize()).EQi(this.label), F.TRIM(this.localize(labelQuery)).EQi(this.label)));
+
+    if (this.parent != null && this.mdTermRelationship != null)
+    {
+      String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
+      String typeName = DatabaseAllPathsStrategy.getTypeName(MdTermRelationshipDAO.get(this.mdTermRelationship.getOid()));
+
+      BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
+      GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
+
+      vQuery.AND(parentQuery.getGeoId().EQ(this.parent.getCode()));
+      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.PARENTTERM).EQ(parentQuery));
+      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.CHILDTERM).EQ(geQuery));
+    }
+  }
+
+  @Override
+  public void restrict(ValueQuery vQuery, BusinessQuery bQuery)
+  {
+    vQuery.WHERE(OR.get(bQuery.get(DefaultAttribute.CODE.getName()).EQ(this.label), bQuery.aLocalCharacter(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()).localize().EQi(this.label)));
   }
 
   public Coalesce localize(SynonymDisplayLabelQuery query)
@@ -109,11 +146,4 @@ public class SynonymRestriction implements GeoObjectRestriction
 
     return F.COALESCE(null, null, firstSelectable, selectableList.toArray(optionalSelectableArray));
   }
-
-  @Override
-  public void restrict(ValueQuery vQuery, BusinessQuery bQuery)
-  {
-    vQuery.WHERE(OR.get(bQuery.get(DefaultAttribute.CODE.getName()).EQ(this.label), bQuery.aLocalCharacter(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()).localize().EQi(this.label)));
-  }
-
 }

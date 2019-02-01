@@ -7,8 +7,7 @@ import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptio
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 
-import { ShapefileService } from '../../service/shapefile.service';
-import { ExcelService } from '../../service/excel.service';
+import { IOService } from '../../service/io.service';
 import { EventService } from '../../event/event.service';
 
 declare var acp: string;
@@ -41,10 +40,10 @@ export class SpreadsheetComponent implements OnInit {
      */
     private uploader: FileUploader;
 
-    constructor( private service: ExcelService, private sService: ShapefileService, private eventService: EventService, private modalService: BsModalService ) { }
+    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService ) { }
 
     ngOnInit(): void {
-        this.sService.listGeoObjectTypes().then( types => {
+        this.service.listGeoObjectTypes().then( types => {
             this.types = types;
 
         } ).catch(( err: any ) => {

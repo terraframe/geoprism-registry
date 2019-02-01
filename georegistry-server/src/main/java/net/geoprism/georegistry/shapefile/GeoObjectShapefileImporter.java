@@ -38,6 +38,8 @@ import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -56,6 +58,7 @@ import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.data.importer.TaskObservable;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.georegistry.io.Location;
 import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
@@ -195,6 +198,11 @@ public class GeoObjectShapefileImporter extends TaskObservable
       {
         store.dispose();
       }
+
+      if (this.config.hasProblems())
+      {
+        throw new ImportProblemException("Import contains problems");
+      }
     }
     catch (RuntimeException e)
     {
@@ -277,24 +285,16 @@ public class GeoObjectShapefileImporter extends TaskObservable
         }
       }
 
-      try
-      {
-        ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
-      }
-      catch (RuntimeException e)
-      {
-        throw e;
-      }
-      catch (Exception e)
-      {
-        throw new RuntimeException(e);
-      }
+      ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
 
       if (isNew && this.config.getHierarchy() != null)
       {
         GeoObject parent = this.getParent(row);
 
-        ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.config.getHierarchy());
+        if (parent != null)
+        {
+          ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.config.getHierarchy().getCode());
+        }
       }
 
       // We must ensure that any problems created during the transaction are
@@ -307,9 +307,6 @@ public class GeoObjectShapefileImporter extends TaskObservable
       {
         throw new ProblemException(null, problems);
       }
-
-      // The entity was succesfully applied without any problems or exceptions
-      this.entityIdMap.put(feature.getID(), entity.getUid());
     }
   }
 
@@ -365,6 +362,8 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
     GeoObject parent = null;
 
+    JsonArray context = new JsonArray();
+
     for (Location location : locations)
     {
       BasicColumnFunction function = location.getFunction();
@@ -374,17 +373,25 @@ public class GeoObjectShapefileImporter extends TaskObservable
       {
         // Search
         GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
-        query.setRestriction(new SynonymRestriction(label));
+        query.setRestriction(new SynonymRestriction(label, parent, this.config.getHierarchyRelationship()));
 
         GeoObject result = query.getSingleResult();
 
         if (result != null)
         {
           parent = result;
+
+          JsonObject element = new JsonObject();
+          element.addProperty("label", label);
+          element.addProperty("type", location.getType().getLocalizedLabel());
+
+          context.add(element);
         }
         else
         {
-          // throw new LocationProblem(label, context, parent, universal);
+          this.config.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
+
+          return null;
         }
       }
     }

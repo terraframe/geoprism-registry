@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { GeoObjectType } from '../../hierarchy/hierarchy';
-import { ShapefileConfiguration } from '../shapefile';
+import { ImportConfiguration } from '../io';
 
 @Component( {
     selector: 'attributes-page',
@@ -11,8 +11,8 @@ import { ShapefileConfiguration } from '../shapefile';
 } )
 export class AttributesPageComponent {
 
-    @Input() configuration: ShapefileConfiguration;
-    @Output() configurationChange = new EventEmitter<ShapefileConfiguration>();
+    @Input() configuration: ImportConfiguration;
+    @Output() configurationChange = new EventEmitter<ImportConfiguration>();
     @Output() stateChange = new EventEmitter<string>();
 
     constructor() {

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { TermProblem } from '../shapefile';
+import { TermProblem } from '../io';
 
 @Component( {
 

@@ -22,7 +22,6 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.Assert;
 
-import com.runwaysdk.util.ClasspathResource;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -32,8 +31,8 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTableQuery;
 import com.runwaysdk.generated.system.gis.geo.AllowedInAllPathsTableQuery;
+import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTableQuery;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -47,6 +46,7 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdBusinessQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
+import com.runwaysdk.util.ClasspathResource;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 
@@ -56,8 +56,8 @@ import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
 import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
 import net.geoprism.registry.GeoObjectStatus;
 
 public class USATestData extends TestUtilities
@@ -71,6 +71,8 @@ public class USATestData extends TestUtilities
   public final TestGeoObjectTypeInfo       DISTRICT           = new TestGeoObjectTypeInfo("District", true);
 
   public final TestGeoObjectInfo           USA                = new TestGeoObjectInfo("USA", COUNTRY);
+
+  public final TestGeoObjectInfo           CANADA             = new TestGeoObjectInfo("CANADA", COUNTRY);
 
   public final TestGeoObjectInfo           COLORADO           = new TestGeoObjectInfo("Colorado", STATE);
 
@@ -88,7 +90,7 @@ public class USATestData extends TestUtilities
 
   public TestGeoObjectTypeInfo[]           UNIVERSALS         = new TestGeoObjectTypeInfo[] { COUNTRY, STATE, DISTRICT };
 
-  public TestGeoObjectInfo[]               GEOENTITIES        = new TestGeoObjectInfo[] { USA, COLORADO, WASHINGTON, CO_D_ONE, CO_D_TWO, CO_D_THREE, WA_D_ONE, WA_D_TWO };
+  public TestGeoObjectInfo[]               GEOENTITIES        = new TestGeoObjectInfo[] { USA, CANADA, COLORADO, WASHINGTON, CO_D_ONE, CO_D_TWO, CO_D_THREE, WA_D_ONE, WA_D_TWO };
 
   public RegistryAdapter                   adapter;
 
@@ -168,6 +170,7 @@ public class USATestData extends TestUtilities
       }
 
       USA.getGeoEntity().addLink(GeoEntity.getRoot(), LocatedIn.CLASS);
+      CANADA.getGeoEntity().addLink(GeoEntity.getRoot(), LocatedIn.CLASS);
 
       USA.addChild(COLORADO, LocatedIn.CLASS);
       COLORADO.addChild(CO_D_ONE, LocatedIn.CLASS);
@@ -392,6 +395,8 @@ public class USATestData extends TestUtilities
 
     private String                  registryId = null;
 
+    private String                  oid;
+
     private GeoEntity               geoEntity;
 
     private Business                business;
@@ -456,6 +461,11 @@ public class USATestData extends TestUtilities
     public Business getBusiness()
     {
       return this.business;
+    }
+
+    public String getOid()
+    {
+      return oid;
     }
 
     public GeoObject getGeoObject()
@@ -681,6 +691,8 @@ public class USATestData extends TestUtilities
         geoEntity.setUniversal(this.universal.getUniversal());
         geoEntity.apply();
 
+        this.oid = geoEntity.getOid();
+
         this.setRegistryId(UUID.randomUUID().toString());
 
         MdBusiness mdBiz = this.universal.getUniversal().getMdBusiness();
@@ -709,6 +721,8 @@ public class USATestData extends TestUtilities
           this.business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, geo);
           this.business.setStructValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName(), MdAttributeLocalCharacterInfo.DEFAULT_LOCALE, this.getDisplayLabel());
           this.business.apply();
+
+          this.oid = business.getOid();
         }
         catch (ParseException e)
         {
