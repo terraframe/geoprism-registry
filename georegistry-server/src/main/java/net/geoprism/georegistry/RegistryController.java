@@ -194,30 +194,30 @@ public class RegistryController
     return new RestResponse();
   }
 
-//  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
-//  public ResponseIF createTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARAM) String termJSON)
-//  {
-//    Term term = this.registryService.createTerm(request.getSessionId(), parentTermCode, termJSON);
-//
-//    return new RestBodyResponse(term.toJSON());
-//  }
-//
-//  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
-//  public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
-//  {
-//    Term term = this.registryService.updateTerm(request.getSessionId(), termJSON);
-//
-//    return new RestBodyResponse(term.toJSON());
-//  }
-//
-//  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-//  public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
-//  {
-//    this.registryService.deleteTerm(request.getSessionId(), termCode);
-//
-//    return new RestResponse();
-//  }
-//
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
+  public ResponseIF createTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARAM) String termJSON)
+  {
+    Term term = this.registryService.createTerm(request.getSessionId(), parentTermCode, termJSON);
+
+    return new RestBodyResponse(term.toJSON());
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
+  public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
+  {
+    Term term = this.registryService.updateTerm(request.getSessionId(), termJSON);
+
+    return new RestBodyResponse(term.toJSON());
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
+  public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
+  {
+    this.registryService.deleteTerm(request.getSessionId(), termCode);
+
+    return new RestResponse();
+  }
+
   /**
    * Get children of the given GeoObject
    *

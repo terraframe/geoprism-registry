@@ -62,8 +62,12 @@ export class ShapefileModalComponent implements OnInit {
     handleSubmit(): void {
         this.service.importShapefile( this.configuration ).then( config => {
 
-            if ( config.locationProblems.length > 0 ) {
+            if ( config.locationProblems != null ) {
                 this.state = 'LOCATION-PROBLEM';
+                this.configuration = config;
+            }
+            else if ( config.termProblems != null ) {
+                this.state = 'TERM-PROBLEM';
                 this.configuration = config;
             }
             else {
