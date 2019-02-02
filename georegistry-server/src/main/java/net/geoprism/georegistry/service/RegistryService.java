@@ -1100,4 +1100,10 @@ public class RegistryService
 
   }
 
+  @Request(RequestType.SESSION)
+  public GeoObject newGeoObjectInstance(String sessionId, String geoObjectTypeCode)
+  {
+    return this.adapter.newGeoObjectInstance(geoObjectTypeCode);
+  }
+
 }

@@ -99,11 +99,7 @@ public class GeoObjectIterator implements OIterator<GeoObject>
         {
           if (attribute instanceof AttributeTermType)
           {
-            // Classifier classifier = Classifier.get(value);
-            // Term term =
-            // ServiceFactory.getConversionService().getTerm(classifier.getClassifierId());
-            //
-            // geoObj.setValue(attributeName, term);
+            gObject.setValue(attributeName, value);
           }
           else if (attribute instanceof AttributeDateType)
           {
@@ -118,7 +114,7 @@ public class GeoObjectIterator implements OIterator<GeoObject>
           }
           else if (attribute instanceof AttributeBooleanType)
           {
-            gObject.setValue(attributeName, new Boolean(value));
+            gObject.setValue(attributeName, new Boolean(value.equals("1")));
           }
           else if (attribute instanceof AttributeFloatType)
           {

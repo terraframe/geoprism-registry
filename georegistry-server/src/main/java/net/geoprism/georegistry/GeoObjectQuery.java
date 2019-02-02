@@ -5,6 +5,7 @@ import java.util.Map;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
@@ -12,11 +13,14 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.EnumerationMasterInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.query.LeftJoinEq;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
+
+import net.geoprism.ontology.ClassifierQuery;
 
 public class GeoObjectQuery
 {
@@ -93,6 +97,9 @@ public class GeoObjectQuery
       GeoEntityQuery geQuery = new GeoEntityQuery(vQuery);
       BusinessQuery bQuery = new BusinessQuery(vQuery, universal.getMdBusiness().definesType());
 
+      vQuery.WHERE(geQuery.getUniversal().EQ(universal));
+      vQuery.WHERE(bQuery.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(geQuery));
+
       vQuery.SELECT(geQuery.getOid(ComponentInfo.OID));
       vQuery.SELECT(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
       vQuery.SELECT(geQuery.getDisplayLabel().localize(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()));
@@ -125,9 +132,6 @@ public class GeoObjectQuery
 
       this.selectCustomAttributes(vQuery, bQuery);
 
-      vQuery.WHERE(geQuery.getUniversal().EQ(universal));
-      vQuery.WHERE(bQuery.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(geQuery));
-
       if (this.restriction != null)
       {
         this.restriction.restrict(vQuery, geQuery, bQuery);
@@ -152,7 +156,17 @@ public class GeoObjectQuery
 
       if (mdAttribute != null && this.isValid(attributeName))
       {
-        vQuery.SELECT(bQuery.get(attributeName));
+        if (attribute instanceof AttributeTermType)
+        {
+          ClassifierQuery classifierQuery = new ClassifierQuery(vQuery);
+
+          vQuery.WHERE(new LeftJoinEq(bQuery.get(attributeName), classifierQuery.getOid()));
+          vQuery.SELECT(classifierQuery.getClassifierId(attributeName));
+        }
+        else
+        {
+          vQuery.SELECT(bQuery.get(attributeName));
+        }
       }
     });
   }

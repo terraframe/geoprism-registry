@@ -60,9 +60,9 @@ public class TermBuilder
     classifier.getDisplayLabel().setValue(term.getLocalizedLabel());
     classifier.apply();
     
-    String parnetClassifierKey = buildClassifierKeyFromTermCode(parentTermCode);
+    String parentClassifierKey = buildClassifierKeyFromTermCode(parentTermCode);
     
-    Classifier parent = Classifier.getByKey(parnetClassifierKey);
+    Classifier parent = Classifier.getByKey(parentClassifierKey);
     
     parent.addIsAChild(classifier).apply();
     
@@ -128,11 +128,12 @@ public class TermBuilder
    * 
    * @param mdBusiness {@link MdBusiness}
    * @param mdAttributeTermOrMultiName the name of the {@link MdAttributeTerm} or a {@link MdAttributeMultiTerm}
+   * @param parent 
    * 
    * @return {@link Classifier} object as a parent of terms that pertain to
    * the given {@link MdBusiness}.
    */
-  public static Classifier buildIfNotExistAttribute(MdBusiness mdBusiness, String mdAttributeTermOrMultiName)
+  public static Classifier buildIfNotExistAttribute(MdBusiness mdBusiness, String mdAttributeTermOrMultiName, Classifier parent)
   {	    
     String attributeTermKey = buildtAtttributeKey(mdBusiness.getTypeName(), mdAttributeTermOrMultiName);
     
@@ -153,6 +154,11 @@ public class TermBuilder
       attributeTerm.getDisplayLabel().setValue(mdBusiness.getDisplayLabel().getValue());
       attributeTerm.getDisplayLabel().setDefaultValue(mdBusiness.getDisplayLabel().getDefaultValue());
       attributeTerm.apply();
+      
+      if(parent != null)
+      {
+        parent.addIsAChild(attributeTerm).apply();
+      }
     }
       
     return attributeTerm;
