@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -53,12 +54,18 @@ public class ShapefileServiceTest
 
   protected ClientRequestIF adminCR;
 
+  private AttributeTermType testTerm;
+
   @Before
   public void setUp()
   {
     this.testData = USATestData.newTestData(GeometryType.MULTIPOLYGON, false);
 
     this.adminCR = testData.adminClientRequest;
+
+    // Add a new custom attribute
+    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", "testTermLocalName", "testTermLocalDescrip", AttributeTermType.TYPE);
+    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().addAttributeToGeoObjectType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
   }
 
   @After
@@ -85,7 +92,7 @@ public class ShapefileServiceTest
 
     JsonArray tAttributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
-    Assert.assertEquals(2, tAttributes.size());
+    Assert.assertEquals(3, tAttributes.size());
     Assert.assertTrue(tAttributes.get(0).getAsJsonObject().get("required").getAsBoolean());
 
     JsonArray hierarchies = result.get(GeoObjectConfiguration.HIERARCHIES).getAsJsonArray();
@@ -124,7 +131,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    JsonObject json = this.getTestConfiguration(istream, service);
+    JsonObject json = this.getTestConfiguration(istream, service, null);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
@@ -141,7 +148,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithParent()
   {
-    GeoObject geoObj = this.testData.adapter.newGeoObjectInstance(this.testData.COUNTRY.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
     geoObj.setCode("00");
     geoObj.setLocalizedDisplayLabel("Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -154,7 +161,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    JsonObject json = this.getTestConfiguration(istream, service);
+    JsonObject json = this.getTestConfiguration(istream, service, null);
 
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
     MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
@@ -188,7 +195,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    JsonObject json = this.getTestConfiguration(istream, service);
+    JsonObject json = this.getTestConfiguration(istream, service, null);
 
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
     MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
@@ -220,7 +227,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    JsonObject json = this.getTestConfiguration(istream, service);
+    JsonObject json = this.getTestConfiguration(istream, service, null);
 
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
     MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
@@ -272,7 +279,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    JsonObject json = this.getTestConfiguration(istream, service);
+    JsonObject json = this.getTestConfiguration(istream, service, null);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
@@ -332,7 +339,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    JsonObject json = this.getTestConfiguration(istream, service);
+    JsonObject json = this.getTestConfiguration(istream, service, null);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
@@ -364,7 +371,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    JsonObject json = this.getTestConfiguration(istream, service);
+    JsonObject json = this.getTestConfiguration(istream, service, null);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
 
@@ -384,7 +391,77 @@ public class ShapefileServiceTest
     IOUtils.copy(export, new NullOutputStream());
   }
 
-  private JsonObject getTestConfiguration(InputStream istream, ShapefileService service)
+  @Test
+  @Request
+  public void testImportShapefileWithTerm()
+  {
+    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", "00", "").toJSON().toString());
+
+    try
+    {
+      InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+
+      Assert.assertNotNull(istream);
+
+      ShapefileService service = new ShapefileService();
+
+      JsonObject json = this.getTestConfiguration(istream, service, testTerm);
+
+      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+      MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+
+      GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
+      configuration.setHierarchy(hierarchyType);
+      configuration.setHierarchyRelationship(mdRelationship);
+
+      service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+      String sessionId = this.testData.adminClientRequest.getSessionId();
+      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
+
+      Assert.assertEquals("01", object.getCode());
+    }
+    finally
+    {
+      ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+    }
+  }
+
+  @Test
+  @Request
+  public void testImportShapefileWithBadTerm()
+  {
+      InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+      
+      Assert.assertNotNull(istream);
+      
+      ShapefileService service = new ShapefileService();
+      
+      JsonObject json = this.getTestConfiguration(istream, service, testTerm);
+      
+      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+      MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+      
+      GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
+      configuration.setHierarchy(hierarchyType);
+      configuration.setHierarchyRelationship(mdRelationship);
+      
+      JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+      Assert.assertTrue(result.has(GeoObjectConfiguration.TERM_PROBLEMS));
+
+      JsonArray problems = result.get(GeoObjectConfiguration.TERM_PROBLEMS).getAsJsonArray();
+
+      Assert.assertEquals(1, problems.size());
+
+      // Ensure the geo objects were not created
+      GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
+      query.setRestriction(new CodeRestriction("01"));
+
+      Assert.assertNull(query.getSingleResult());
+  }
+  
+  private JsonObject getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm)
   {
     JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "cb_2017_us_state_500k.zip", istream);
     JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
@@ -404,6 +481,11 @@ public class ShapefileServiceTest
       {
         attribute.addProperty(GeoObjectConfiguration.TARGET, "GEOID");
       }
+      else if (testTerm != null && attributeName.equals(testTerm.getName()))
+      {
+        attribute.addProperty(GeoObjectConfiguration.TARGET, "LSAD");
+      }
+
     }
 
     return result;

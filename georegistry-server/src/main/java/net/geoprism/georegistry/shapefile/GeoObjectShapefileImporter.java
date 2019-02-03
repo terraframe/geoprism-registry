@@ -330,7 +330,7 @@ public class GeoObjectShapefileImporter extends TaskObservable
   {
     if (attributeType instanceof AttributeTermType)
     {
-      if (this.config.isExclusion(attributeName, value.toString()))
+      if (!this.config.isExclusion(attributeName, value.toString()))
       {
         MdBusinessDAOIF mdBusiness = this.config.getMdBusiness();
         MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
@@ -343,15 +343,7 @@ public class GeoObjectShapefileImporter extends TaskObservable
         }
         else
         {
-          List<Term> terms = ( (AttributeTermType) attributeType ).getTerms();
-
-          for (Term term : terms)
-          {
-            if (term.getCode().equals(classifier.getClassifierId()))
-            {
-              entity.setValue(attributeName, term);
-            }
-          }
+          entity.setValue(attributeName, classifier.getClassifierId());
         }
       }
     }
