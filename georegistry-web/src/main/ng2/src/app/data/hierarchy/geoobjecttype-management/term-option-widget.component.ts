@@ -54,14 +54,12 @@ export class TermOptionWidgetComponent implements OnInit {
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeTerm;
     @Output() attributeChange = new EventEmitter<AttributeTerm>();
-    // @Input() modalState: ManageGeoObjectTypeModalState;
-    // @Output() modalStateChange = new EventEmitter<ManageGeoObjectTypeModalState>();
     message: string = null;
     termOptionCode: string = "";
     termOptionLabel: string = "";
     state: string = 'none';
     // enableTermOptionForm = false;
-    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.editTermOption, "attribute":this.attribute};
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""};
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
     }
@@ -113,15 +111,8 @@ export class TermOptionWidgetComponent implements OnInit {
         return false
     }
 
-    onModalStateChange(state: any): void {
-        console.log("state change in term option input")
-        this.modalState = state;
-    }
-
     openAddTermOptionForm(): void {
-        // this.modalState = {"state":GeoObjectTypeModalStates.editTermOption, "attribute":this.attribute};
-        // this.modalStateChange.emit(this.modalState);
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.editTermOption, "attribute":this.attribute})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
 
     }
     

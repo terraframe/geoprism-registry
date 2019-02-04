@@ -11,6 +11,8 @@
 
   <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute" ></edit-attribute-modal-content>
 
-  <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute"></edit-term-option-input>
-
- </form>
+  <manage-term-options *ngIf="modalState.state === 'MANAGE-TERM-OPTION'" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute"></manage-term-options>
+ 
+  <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute" [termOption]="modalState.termOption" ></edit-term-option-input>
+ 
+</form>

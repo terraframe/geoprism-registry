@@ -21,7 +21,7 @@ import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-m
 export class ManageGeoObjectTypeModalComponent implements OnInit {
 
     message: string = null;
-    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":""};
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
     modalStateSubscription: Subscription;
     geoObjectType: GeoObjectType;
 

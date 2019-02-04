@@ -75,6 +75,7 @@ public class TermBuilder
     String classifierKey = buildClassifierKeyFromTermCode(termCode);
     
     Classifier classifier = Classifier.getByKey(classifierKey);
+    classifier.lock();
     classifier.setClassifierId(termCode);
     classifier.getDisplayLabel().setValue(localizedLabel);
     classifier.apply();

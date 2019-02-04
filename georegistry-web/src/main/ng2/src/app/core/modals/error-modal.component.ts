@@ -5,7 +5,7 @@ import { LocalizationService } from '../service/localization.service';
 @Component( {
     selector: 'error-modal',
     templateUrl: './error-modal.component.html',
-    styleUrls: []
+    styleUrls: ['./error-modal.css']
 } )
 export class ErrorModalComponent {
     /*

@@ -5,7 +5,7 @@ import { Subject } from 'rxjs/Subject';
 import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
 
 import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
-import { Step, StepConfig } from '../../../core/modals/modal';
+import { StepConfig, ModalTypes } from '../../../core/modals/modal';
 
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
@@ -22,14 +22,12 @@ export class ManageAttributesModalComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: Attribute;
-    // @Input() modalState: ManageGeoObjectTypeModalState;
-    // @Output() modalStateChange = new EventEmitter<ManageGeoObjectTypeModalState>();
     message: string = null;
     modalStepConfig: StepConfig = {"steps": [
-        {"label":"Manage GeoObjectType", "order":1, "active":true, "enabled":false},
-        {"label":"Manage Attributes", "order":2, "active":true, "enabled":true}
+        {"label":this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.manage.attributes"), "active":true, "enabled":true}
     ]};
-    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageAttributes, "attribute":this.attribute};
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageAttributes, "attribute":this.attribute, "termOption":""};
 
     /*
      * Observable subject for TreeNode changes.  Called when create is successful 
@@ -50,13 +48,11 @@ export class ManageAttributesModalComponent implements OnInit {
     }
 
     defineAttributeModal(): void {
-        // this.modalStateChange.emit({"state":GeoObjectTypeModalStates.defineAttribute, "attribute":""});
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.defineAttribute, "attribute":""})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.defineAttribute, "attribute":"", "termOption":""})
     }
 
     editAttribute(attr: Attribute, e: any): void {
-        // this.modalStateChange.emit({"state":GeoObjectTypeModalStates.editAttribute, "attribute":attr});
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.editAttribute, "attribute":attr})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.editAttribute, "attribute":attr, "termOption":""})
     }
 
     removeAttributeType(attr: Attribute, e: any): void {
@@ -68,6 +64,8 @@ export class ManageAttributesModalComponent implements OnInit {
 	  } );
 	  this.confirmBsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + attr.localizedLabel + ']';
       this.confirmBsModalRef.content.data = {'attributeType': attr, 'geoObjectType': this.geoObjectType};
+      this.confirmBsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+      this.confirmBsModalRef.content.type = ModalTypes.danger;
 
 	  ( <ConfirmModalComponent>this.confirmBsModalRef.content ).onConfirm.subscribe( data => {
           this.deleteAttributeType( data.geoObjectType.code, data.attributeType );
@@ -88,13 +86,8 @@ export class ManageAttributesModalComponent implements OnInit {
         } );
     }
 
-    onModalStateChange(state: any): void {
-        this.modalState = state;
-    }
-
     close(): void {
-        // this.modalStateChange.emit({"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":this.attribute});
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":this.attribute})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":this.attribute, "termOption":""})
     }
 
     error( err: any ): void {

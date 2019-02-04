@@ -9,7 +9,6 @@ export class StepConfig {
 
 export class Step {
     label: string;
-    order: number;
     active: boolean;
     enabled: boolean;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import {
   trigger,
   state,
@@ -8,41 +8,29 @@ import {
 } from '@angular/animations'
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
-import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
-import { ErrorModalComponent } from '../../../core/modals/error-modal.component';
-import { LocalizationService } from '../../../core/service/localization.service';
-import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
-
-import { GeoObjectType, AttributeTerm, Term, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates} from '../hierarchy';
+import { GeoObjectType, Attribute, Term, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
 import { Step, StepConfig } from '../../../core/modals/modal';
 
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
+import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service';
+import { LocalizationService } from '../../../core/service/localization.service';
+
+import { AttributeInputComponent} from '../geoobjecttype-management/attribute-input.component';
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
-
-
+ 
 @Component( {
     selector: 'edit-term-option-input',
     templateUrl: './edit-term-option-input.component.html',
-    styleUrls: ['./edit-term-option-input.css'],
+    styleUrls: [],
     animations: [
-        trigger('toggleInputs', [
-            state('none, void', 
-                style({ 'opacity': 0})
-              ),
-              state('show', 
-                style({ 'opacity': 1})
-              ),
-              transition('none => show', animate('300ms')),
-              transition('show => none', animate('100ms'))
-        ]),
         trigger('openClose', 
             [
-            transition(
+                transition(
                 ':enter', [
                 style({ 'opacity': 0}),
                 animate('500ms', style({ 'opacity': 1}))
@@ -61,23 +49,23 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
 export class EditTermOptionInputComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() attribute: AttributeTerm;
-    @Output() attributeChange = new EventEmitter<AttributeTerm>();
+    @Input() attribute: Attribute;
+    @Input() termOption: Term;
     message: string = null;
-    termOptionCode: string = "";
-    termOptionLabel: string = "";
-    termOptionDescription: string = "";
-    state: string = 'none';
-    enableTermOptionForm = false;
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.editAttribute, "attribute":this.attribute, "termOption":""};
     modalStepConfig: StepConfig = {"steps": [
-        {"label":"Manage GeoObjectType", "order":1, "active":true, "enabled":false},
-        {"label":"Manage Attributes", "order":2, "active":true, "enabled":false},
-        {"label":"Edit Attributes", "order":3, "active":true, "enabled":false},
-        {"label":"Manage Term Options", "order":4, "active":true, "enabled":true}
+        {"label":this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.manage.attributes"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.edit.attribute"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.manage.term.options"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.edit.term.option"), "active":true, "enabled":true}
+
     ]};
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
-            private modalService: BsModalService, private localizeService: LocalizationService, private modalStepIndicatorService: ModalStepIndicatorService ) {
+    @ViewChild(AttributeInputComponent) attributeInputComponent:AttributeInputComponent;
+
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
+        private localizeService: LocalizationService ) {
     }
 
     ngOnInit(): void {
@@ -85,151 +73,44 @@ export class EditTermOptionInputComponent implements OnInit {
     }
 
     ngAfterViewInit() {
-        this.state = 'show';
-        this.cdr.detectChanges();
+   
     }
 
     ngOnDestroy(){
-    
     }
 
     handleOnSubmit(): void {
         
-    }
-
-    animate(): void {
-        this.state = "none";
-    }
-
-    onAnimationDone(event: AnimationEvent): void {
-        this.state = "show";
-    }
-
-    isValid(): boolean {
-        if(this.termOptionCode && this.termOptionLabel){
-            
-            // If code has a space
-            if(this.termOptionCode.indexOf(" ") !== -1){
-                return false;
-            }
-
-            // If label is only spaces
-            if(this.termOptionLabel.replace(/\s/g, '').length === 0) {
-                return false
-            }
-
-            return true;
-        }
-        else if(this.termOptionCode && this.termOptionCode.indexOf(" ") !== -1){
-            return false;
-        }
-            
-        return false
-    }
-
-    addTermOption(): void {
-
-        let termOption: Term = new Term(this.termOptionCode, this.termOptionLabel, this.termOptionDescription);
-
-
-        this.hierarchyService.addAttributeTermTypeOption( this.attribute.rootTerm.code, termOption ).then( data => {
-            
-            this.attribute.rootTerm.children.push(data);
-
-            this.attributeChange.emit(this.attribute);
-
-            this.clearTermOption();
-
-            this.enableTermOptionForm = false;
-
+        this.hierarchyService.updateAttributeTermTypeOption( this.termOption ).then( data => {
+            this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
         } ).catch(( err: any ) => {
-            this.error( err );
-        } );
-
-    }
-
-    updateTermOption(): void {
-
-        let termOption: Term = new Term(this.termOptionCode, this.termOptionLabel, this.termOptionDescription);
-
-
-        this.hierarchyService.updateAttributeTermTypeOption( termOption ).then( data => {
-            
-            this.attribute.rootTerm.children.push(data);
-
-            this.attributeChange.emit(this.attribute);
-
-            this.termOptionCode = "";
-            this.termOptionLabel = "";
-            this.termOptionDescription = "";
-
-        } ).catch(( err: any ) => {
-            this.error( err );
+            this.error( err.json() );
         } );
     }
 
-    deleteTermOption(termOption: Term): void {
+    isFormValid(): boolean {
+        
+        // let isAttrValid: boolean = this.attributeInputComponent.isValid();
+        
+        // if(isAttrValid){
+        //     return true;
+        // }
 
-        this.hierarchyService.deleteAttributeTermTypeOption( termOption.code ).then( data => {
-            
-            if(this.attribute.rootTerm.children.indexOf(termOption) !== -1){
-                this.attribute.rootTerm.children.splice(this.attribute.rootTerm.children.indexOf(termOption), 1);
-            }
-
-            this.attributeChange.emit(this.attribute);
-
-            this.termOptionCode = "";
-            this.termOptionLabel = "";
-            this.termOptionDescription = "";
-
-        } ).catch(( err: any ) => {
-            this.error( err );
-        } );
-
+        // return false;
+        return true
     }
 
-    removeTermOption(termOption: Term): void {
-        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-		  animated: true,
-		  backdrop: true,
-		  ignoreBackdropClick: true,
-	  } );
-	  this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + termOption.localizedLabel + ']';
-
-	  ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
-          this.deleteTermOption( termOption );
-	  } );
-    }
-
-    editTermOption(termOption: Term): void {
-        // this.modalState = 'edit';
-    }
-
-    clearTermOption(): void {
-        this.termOptionCode = "";
-        this.termOptionLabel = "";
-        this.termOptionDescription = "";
-    }
-
-    cancelTermOption(): void {
-        this.clearTermOption();
-        this.enableTermOptionForm = false;
-    }
-
-    openAddTermOptionForm(): void {
-        this.enableTermOptionForm = true;
-    }
-
-    close(): void {
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.editAttribute, "attribute":this.attribute})
+    cancel(): void {
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
     }
 
     error( err: any ): void {
-      if ( err !== null ) {
-    	  // TODO: add error modal
-          this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-          this.bsModalRef.content.message = ( err.localizedMessage || err.message );
-      }
+        // Handle error
+        if ( err !== null ) {
+            this.message = ( err.localizedMessage || err.message );
+            
+            console.log(this.message);
+        }
     }
 
 }

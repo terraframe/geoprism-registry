@@ -37,6 +37,7 @@ import { NewLocaleModalComponent } from './data/localization-manager/new-locale-
 import { TermOptionWidgetComponent } from './data/hierarchy/geoobjecttype-management/term-option-widget.component';
 import { AttributeInputComponent } from './data/hierarchy/geoobjecttype-management/attribute-input.component';
 import { EditTermOptionInputComponent } from './data/hierarchy/geoobjecttype-management/edit-term-option-input.component';
+import { ManageTermOptionsComponent } from './data/hierarchy/geoobjecttype-management/manage-term-options.component';
 import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
 
@@ -111,6 +112,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ManageGeoObjectTypeModalComponent,
     GeoObjectTypeInputComponent,
     ModalStepIndicatorComponent,
+    ManageTermOptionsComponent,
     
     // Routing components
     routedComponents
@@ -146,7 +148,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       EditTermOptionInputComponent,
       ManageGeoObjectTypeModalComponent,
       GeoObjectTypeInputComponent,
-      ModalStepIndicatorComponent
+      ModalStepIndicatorComponent,
+      ManageTermOptionsComponent
   ]        
 })
 export class CgrAppModule { }

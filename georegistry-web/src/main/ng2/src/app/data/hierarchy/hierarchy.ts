@@ -35,8 +35,6 @@ export class Term {
         this.localizedLabel = localizedLabel;
         this.localizedDescription = localizedDescription;
     }
-	// code: string;
-    // localizedLabel: string;
     children: Term[] = [];
 
     addChild(term:Term) {
@@ -121,6 +119,7 @@ export enum GeoObjectTypeModalStates {
     "manageAttributes" = "MANAGE-ATTRIBUTES",
     "editAttribute" = "EDIT-ATTRIBUTE",
     "defineAttribute" = "DEFINE-ATTRIBUTE",
+    "manageTermOption" = "MANAGE-TERM-OPTION",
     "editTermOption" = "EDIT-TERM-OPTION",
     "manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
 }
@@ -128,4 +127,5 @@ export enum GeoObjectTypeModalStates {
 export class ManageGeoObjectTypeModalState {
   state: string;
   attribute: any;
+  termOption: any;
 }

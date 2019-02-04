@@ -10,6 +10,7 @@ import { Step, StepConfig } from '../../../core/modals/modal';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
+import { LocalizationService } from '../../../core/service/localization.service';
 
 
 @Component( {
@@ -20,18 +21,16 @@ import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-m
 export class GeoObjectTypeInputComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    // @Input() modalState: ManageGeoObjectTypeModalState;
-    // @Output() modalStateChange = new EventEmitter<ManageGeoObjectTypeModalState>();
     message: string = null;
-    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":""};
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
 
 
     modalStepConfig: StepConfig = {"steps": [
-        {"label":"Manage GeoObjectType", "order":1, "active":true, "enabled":true}
+        {"label":this.localizationService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":true}
     ]};
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService, 
-        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
+        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizationService: LocalizationService ) {
     }
 
     ngOnInit(): void {
@@ -43,8 +42,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     manageAttributes(): void {
-        // this.modalStateChange.emit({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":""});
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":""})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
     }
 
     onModalStateChange(state: ManageGeoObjectTypeModalState): void {

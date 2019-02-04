@@ -15,7 +15,8 @@ import { Step, StepConfig } from '../../../core/modals/modal';
 
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
-import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
+import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service';
+import { LocalizationService } from '../../../core/service/localization.service';
 
 import { AttributeInputComponent} from '../geoobjecttype-management/attribute-input.component';
 
@@ -49,19 +50,18 @@ export class EditAttributeModalContentComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: Attribute;
-    // @Input() modalState: ManageGeoObjectTypeModalState;
-    // @Output() modalStateChange = new EventEmitter<ManageGeoObjectTypeModalState>();
     message: string = null;
-    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.editAttribute, "attribute":this.attribute};
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.editAttribute, "attribute":this.attribute, "termOption":""};
     modalStepConfig: StepConfig = {"steps": [
-        {"label":"Manage GeoObjectType", "order":1, "active":true, "enabled":false},
-        {"label":"Manage Attributes", "order":2, "active":true, "enabled":false},
-        {"label":"Edit Attribute", "order":3, "active":true, "enabled":true}
+        {"label":this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.manage.attributes"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.edit.attribute"), "active":true, "enabled":true}
     ]};
 
     @ViewChild(AttributeInputComponent) attributeInputComponent:AttributeInputComponent;
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
+        private localizeService: LocalizationService ) {
     }
 
     ngOnInit(): void {
@@ -75,17 +75,10 @@ export class EditAttributeModalContentComponent implements OnInit {
     ngOnDestroy(){
     }
 
-    onModalStateChange(state: ManageGeoObjectTypeModalState): void {
-        this.modalState = state;
-    }
-
     handleOnSubmit(): void {
         
         this.hierarchyService.updateAttributeType( this.geoObjectType.code, this.attribute ).then( data => {
-            
-            // TODO: update attributes
-            // this.modalStateChange.emit({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":""});
-            this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":""})
+            this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
         } ).catch(( err: any ) => {
             this.error( err.json() );
         } );
@@ -104,13 +97,11 @@ export class EditAttributeModalContentComponent implements OnInit {
     }
 
     cancel(): void {
-        // this.modalStateChange.emit({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":""});
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":""})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
     }
 
     back(): void {
-        // this.modalState = {"state":GeoObjectTypeModalStates.editAttribute, "attribute":this.attribute}
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":""})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
     }
 
     error( err: any ): void {
