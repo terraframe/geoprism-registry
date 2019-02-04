@@ -1,0 +1,181 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+
+    <createOrUpdate>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.close">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.close" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Close" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.actions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.actions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Actions" />
+        </attributeStruct>
+      </object>
+
+
+    <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.manageTermOptions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.manageTermOptions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Term Options" />
+        </attributeStruct>
+      </object>
+
+    <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.manage.geoobjecttype.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.manage.geoobjecttype.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage:" />
+        </attributeStruct>
+      </object>
+
+       <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.manageAttributes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.manageAttributes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Attributes" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.back">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.back" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Back" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.manage.attributes.label.displayTerms">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.manage.attributes.label.displayTerms" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Terms" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="confirm.modal.default.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="confirm.modal.default.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure?" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="error.modal.default.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="error.modal.default.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Unable to complete your action" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="confirm.modal.verify.delete">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="confirm.modal.verify.delete" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to delete" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.create">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.create" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.update">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.update" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Update" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.delete">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.delete" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Delete" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.step.indicator.manage.geoobjecttype">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.step.indicator.manage.geoobjecttype" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Geo Object Type" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.step.indicator.manage.attributes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.step.indicator.manage.attributes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Attributes" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.step.indicator.create.attribute">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.step.indicator.create.attribute" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Attribute" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.step.indicator.edit.attribute">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.step.indicator.edit.attribute" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit Attribute" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.step.indicator.manage.term.options">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.step.indicator.manage.term.options" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Term Options" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.edit.term.options.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.edit.term.options.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Term Options" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.edit.term.option.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.edit.term.option.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit Term Option" />
+        </attributeStruct>
+      </object>
+
+     <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.step.indicator.edit.term.option">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.step.indicator.edit.term.option" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit Term Option" />
+        </attributeStruct>
+      </object>
+      
+
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
