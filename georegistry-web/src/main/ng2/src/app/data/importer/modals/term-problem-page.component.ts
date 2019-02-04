@@ -12,6 +12,7 @@ export class TermProblemPageComponent implements OnInit {
     @Input() configuration: ImportConfiguration;
     @Output() stateChange = new EventEmitter<string>();
     problems: TermProblem[] = [];
+    message: string = null;
 
     constructor() { }
 
@@ -32,6 +33,13 @@ export class TermProblemPageComponent implements OnInit {
         return false;
     }
 
+    handleError( err: any ): void {
+        // Handle error
+        if ( err !== null ) {
+            this.message = ( err.localizedMessage || err.message );
+        }
+    }
+
     onNext(): void {
         if ( this.configuration.exclusions == null ) {
             this.configuration.exclusions = [];
@@ -43,7 +51,7 @@ export class TermProblemPageComponent implements OnInit {
             if ( problem.resolved && problem.action.name == 'IGNORE' ) {
                 const exclusion = { code: problem.code, value: problem.label };
 
-                this.configuration.exclusions.push(exclusion);
+                this.configuration.exclusions.push( exclusion );
             }
         }
 

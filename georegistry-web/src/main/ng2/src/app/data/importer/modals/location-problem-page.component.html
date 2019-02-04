@@ -8,12 +8,13 @@
     </p>
   </div>
   <div class="col-md-12 order-md-1">
-    <div class="row">
-      <div class="error-message">
-        <p *ngIf="hasProblems()">
-          <localize key="dataUploader.existingProblems"></localize>
-        </p>
+    <div *ngIf="hasProblems()" class="row">
+      <div class="alert alert-danger">
+        <localize key="dataUploader.existingProblems"></localize>
       </div>
+    </div>
+    <div *ngIf="message != null" class="row">
+      <div class="alert alert-danger">{{message}}</div>
     </div>
     <form #form="ngForm">
       <div class="row">
@@ -39,7 +40,7 @@
         </div>
       </div>
       <div *ngFor="let problem of problems; let i = index;">
-        <location-problem [problem]="problem" [configuration]="configuration" [index]="i"></location-problem>
+        <location-problem [problem]="problem" [configuration]="configuration" [index]="i" (onError)="handleError(e)"></location-problem>
       </div>
       <div class="row">
         <div class="col-sm-12 text-right">

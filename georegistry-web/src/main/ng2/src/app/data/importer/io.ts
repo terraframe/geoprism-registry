@@ -16,10 +16,16 @@ export class Location {
     target: string;
 }
 
+export class Term {
+    oid: string;
+    label: string;
+}
+
 
 export class TermProblem {
     label: string;
     mdAttributeId: string;
+    categoryId: string;
     code: string;
     attributeLabel: string;
     action: any;

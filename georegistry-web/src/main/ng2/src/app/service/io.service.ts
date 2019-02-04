@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { ImportConfiguration, Synonym, Location } from '../data/importer/io';
+import { ImportConfiguration, Synonym, Location, Term } from '../data/importer/io';
 import { EventService } from '../event/event.service';
 
 declare var acp: string;
@@ -189,5 +189,33 @@ export class IOService {
             .post( acp + '/uploader/deleteClassifierSynonym', data, { headers: headers } )
             .toPromise()
     }
+
+    createTerm( label: string, parentOid: string, validate: boolean ): Promise<Term> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        let option = { label: label, parentOid: parentOid, validate: validate };
+
+        return this.http
+            .post( acp + '/category/create', JSON.stringify( { option: option } ), { headers: headers } )
+            .toPromise()
+            .then(( response: any ) => {
+                return response.json() as Term;
+            } )
+    }
+
+    removeTerm( oid: string ): Promise<Response> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        return this.http
+            .post( acp + '/category/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .toPromise()
+    }
+
+
+
 
 }

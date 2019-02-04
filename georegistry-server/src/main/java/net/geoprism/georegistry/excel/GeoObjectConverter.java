@@ -161,7 +161,9 @@ public class GeoObjectConverter
 
         if (classifier == null)
         {
-          this.configuration.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          Classifier root = Classifier.findClassifierRoot(mdAttribute);
+
+          this.configuration.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
 
           return false;
         }
