@@ -39,7 +39,7 @@ export class TermProblemComponent implements OnInit {
     }
 
     typeaheadOnSelect( e: TypeaheadMatch ): void {
-        this.termId = e.item.id;
+        this.termId = e.item.value;
         this.hasSynonym = ( this.termId != null );
     }
 

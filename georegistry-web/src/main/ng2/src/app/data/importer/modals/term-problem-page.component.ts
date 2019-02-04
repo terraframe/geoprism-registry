@@ -16,7 +16,7 @@ export class TermProblemPageComponent implements OnInit {
     constructor() { }
 
     ngOnInit(): void {
-        if ( this.configuration.locationProblems != null ) {
+        if ( this.configuration.termProblems != null ) {
             this.problems = this.configuration.termProblems;
         }
     }

@@ -15,8 +15,8 @@
         <i class="fa fa-2x fa-times-circle" (click)="ignoreDataAtLocation()" [title]="'dataUploader.ignoreAtLocationTooltip' | localize"></i>
       </div>
     </div>
-    <div class="col-sm-6" *ngIf="problem.resolved">
-      <div *ngIf="problem.action.name == 'SYNONYM'">
+    <div *ngIf="problem.resolved">
+      <div class="col-sm-4" *ngIf="problem.action.name == 'SYNONYM'">
         <a (click)="toggle()"> <i class="fa fa-caret-right" aria-hidden="true"></i> <i class="fa fa-caret-down" style="display: none;" aria-hidden="true"></i> <localize key="dataUploader.resolvedSynonym"></localize> [{{problem.action.label}}]
         </a>
         <span *ngIf="show">
@@ -26,12 +26,12 @@
           </ul>
         </span>
       </div>
-      <div *ngIf="problem.action.name == 'IGNOREATLOCATION'">
+      <div class="col-sm-4" *ngIf="problem.action.name == 'IGNOREATLOCATION'">
         <localize key="dataUploader.resolvedIgnoreAtLocation"></localize>
         [{{problem.action.label}}]
       </div>
-      <div class="inline-actions">
-        <i class="fa fa-undo" (click)="undoAction()" [title]="'dataUploader.undoFixedLocationTooltip' | localize"></i>
+      <div class="col-sm-2">
+        <i class="fa fa-2x fa-undo" (click)="undoAction()" [title]="'dataUploader.undoFixedLocationTooltip' | localize"></i>
       </div>
     </div>
   </form>

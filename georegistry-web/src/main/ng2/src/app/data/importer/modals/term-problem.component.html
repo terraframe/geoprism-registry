@@ -4,28 +4,30 @@
     <div class="col-sm-2 error-message">{{problem.label}}</div>
     <div *ngIf="!problem.resolved">
       <div class="col-sm-4">
-        <input [name]="index + '-name'" [(ngModel)]="termLabel" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="name" class="form-control">
+        <input [name]="index + '-name'" [(ngModel)]="termLabel" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="label" class="form-control">
       </div>
       <div class="col-sm-2">
         <i [ngClass]="{disabled: !hasSynonym}" class="fa fa-2x fa-compress" (click)="createSynonym()" [title]="'dataUploader.createSynonymCategoryTooltip' | localize"></i>
-        <i *ngIf="format != 1" class="fa fa-2x fa-times-circle" (click)="createOption()" [title]="'dataUploader.createNewOptionTooltip' | localize"></i>        
-        <i class="fa fa-2x fa-times-circle" (click)="ignoreDataAtLocation()" [title]="'dataUploader.ignoreCategoryTooltip' | localize"></i>      
+<!-- 
+        <i class="fa fa-2x fa-plus" (click)="createOption()" [title]="'dataUploader.createNewOptionTooltip' | localize"></i>        
+ -->
+        <i class="fa fa-2x fa-times-circle" (click)="ignoreValue()" [title]="'dataUploader.ignoreCategoryTooltip' | localize"></i>      
       </div>
     </div>
     <div *ngIf="problem.resolved">
-      <div class="inline-combo" *ngIf="problem.action.name == 'OPTION'">
+      <div class="col-sm-4" *ngIf="problem.action.name == 'OPTION'">
         <localize key="dataUploader.resolvedCategoryOption"></localize>
       </div>
-      <div class="inline-combo" *ngIf="problem.action.name == 'SYNONYM'">
+      <div class="col-sm-4" *ngIf="problem.action.name == 'SYNONYM'">
         <localize key="dataUploader.resolvedSynonym"></localize>
         [{{problem.action.label}}]
       </div>
-      <div class="inline-combo" *ngIf="problem.action.name == 'IGNORE'">
+      <div class="col-sm-4" *ngIf="problem.action.name == 'IGNORE'">
         <localize key="dataUploader.resolvedIgnoreCategory"></localize>
         [{{problem.label}}]
       </div>
-      <div class="inline-actions">
-        <i class="fa fa-undo" (click)="undoAction()" [title]="'dataUploader.undoFixedCategoryTooltip' | localize"></i>
+      <div class="col-sm-2">
+        <i class="fa fa-2x fa-undo" (click)="undoAction()" [title]="'dataUploader.undoFixedCategoryTooltip' | localize"></i>
       </div>
     </div>
   </form>

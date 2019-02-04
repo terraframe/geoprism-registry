@@ -38,7 +38,7 @@
           </label>
         </div>
       </div>
-      <div *ngFor="let problem of problems.categories; let i = index;">
+      <div *ngFor="let problem of problems; let i = index;">
         <term-problem [problem]="problem" [configuration]="configuration" [index]="i"></term-problem>
       </div>
       <div class="row">
