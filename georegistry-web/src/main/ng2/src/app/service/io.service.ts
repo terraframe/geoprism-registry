@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { ImportConfiguration, GeoObjectSynonym, Location } from '../data/importer/io';
+import { ImportConfiguration, Synonym, Location } from '../data/importer/io';
 import { EventService } from '../event/event.service';
 
 declare var acp: string;
@@ -115,9 +115,7 @@ export class IOService {
             } );
     }
 
-
-
-    createGeoObjectSynonym( entityId: string, label: string ): Promise<GeoObjectSynonym> {
+    createGeoObjectSynonym( entityId: string, label: string ): Promise<Synonym> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -131,7 +129,7 @@ export class IOService {
             } )
             .toPromise()
             .then( response => {
-                return response.json() as GeoObjectSynonym;
+                return response.json() as Synonym;
             } )
     }
 
@@ -149,4 +147,47 @@ export class IOService {
             } )
             .toPromise()
     }
+
+    getTermSuggestions( mdAttributeId: string, text: string, limit: string ): Promise<Array<{ text: string, data: any }>> {
+
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'mdAttributeId', mdAttributeId );
+        params.set( 'text', text );
+        params.set( 'limit', limit );
+
+        return this.http
+            .get( acp + '/uploader/getClassifierSuggestions', { search: params } )
+            .toPromise()
+            .then(( response: any ) => {
+                return response.json() as Array<{ text: string, data: any }>;
+            } )
+    }
+
+    createTermSynonym( classifierId: string, label: string ): Promise<Synonym> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        let data = JSON.stringify( { classifierId: classifierId, label: label } );
+
+        return this.http
+            .post( acp + '/uploader/createClassifierSynonym', data, { headers: headers } )
+            .toPromise()
+            .then(( response: any ) => {
+                return response.json() as Synonym;
+            } )
+    }
+
+    deleteTermSynonym( synonymId: string ): Promise<Response> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        let data = JSON.stringify( { synonymId: synonymId } );
+
+        return this.http
+            .post( acp + '/uploader/deleteClassifierSynonym', data, { headers: headers } )
+            .toPromise()
+    }
+
 }

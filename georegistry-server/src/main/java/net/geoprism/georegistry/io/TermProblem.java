@@ -28,12 +28,15 @@ public class TermProblem implements Comparable<TermProblem>
 
   private String             mdAttributeId;
 
+  private String             code;
+
   private String             attributeLabel;
 
-  public TermProblem(String label, String mdAttributeId, String attributeLabel)
+  public TermProblem(String label, String mdAttributeId, String code, String attributeLabel)
   {
     this.label = label;
     this.mdAttributeId = mdAttributeId;
+    this.code = code;
     this.attributeLabel = attributeLabel;
   }
 
@@ -53,6 +56,7 @@ public class TermProblem implements Comparable<TermProblem>
     object.addProperty("label", label);
     object.addProperty("mdAttributeId", mdAttributeId);
     object.addProperty("attributeLabel", attributeLabel);
+    object.addProperty("code", code);
 
     return object;
   }

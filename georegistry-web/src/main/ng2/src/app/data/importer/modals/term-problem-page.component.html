@@ -1,0 +1,60 @@
+<div>
+  <div class="text-center">
+    <h2>
+      <localize key="io.termProblem.title"></localize>
+    </h2>
+    <p class="lead">
+      <localize key="io.termProblem.description"></localize>
+    </p>
+  </div>
+  <div class="col-md-12 order-md-1">
+    <div class="row">
+      <div class="error-message">
+        <p *ngIf="hasProblems()">
+          <localize key="dataUploader.existingProblems"></localize>
+        </p>
+      </div>
+    </div>
+    <form #form="ngForm">
+      <div class="row">
+        <div class="col-sm-4">
+          <label>
+            <localize key="dataUploader.categoryAttribute"></localize>
+          </label>
+        </div>
+        <div class="col-sm-2">
+          <label>
+            <localize key="dataUploader.unknownCategory"></localize>
+          </label>
+        </div>
+        <div class="col-sm-4">
+          <label>
+            <localize key="dataUploader.synonymn"></localize>
+          </label>
+        </div>
+        <div class="col-sm-2">
+          <label>
+            <localize key="dataUploader.actions"></localize>
+          </label>
+        </div>
+      </div>
+      <div *ngFor="let problem of problems.categories; let i = index;">
+        <term-problem [problem]="problem" [configuration]="configuration" [index]="i"></term-problem>
+      </div>
+      <div class="row">
+        <div class="col-sm-12 text-right">
+          <button type="button" (click)="onCancel()" class="btn" role="button">
+            <span class="ui-button-text">
+              <localize key="io.cancel"></localize>
+            </span>
+          </button>
+          <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="hasProblems()">
+            <span class="ui-button-text">
+              <localize key="io.ok"></localize>
+            </span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

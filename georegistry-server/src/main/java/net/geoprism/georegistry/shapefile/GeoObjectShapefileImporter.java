@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.geotools.data.FeatureSource;
@@ -339,7 +338,7 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
         if (classifier == null)
         {
-          this.config.addProblem(new TermProblem(value.toString(), attributeName, attributeType.getLocalizedLabel()));
+          this.config.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
         }
         else
         {

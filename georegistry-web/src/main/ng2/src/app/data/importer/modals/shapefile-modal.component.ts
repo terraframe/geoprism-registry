@@ -51,11 +51,14 @@ export class ShapefileModalComponent implements OnInit {
         else if ( this.state === 'LOCATION-PROBLEM' ) {
 
             if ( this.configuration.termProblems != null ) {
-
+                this.state = 'TERM-PROBLEM';
             }
             else {
                 this.handleSubmit();
             }
+        }
+        else if ( this.state === 'TERM-PROBLEM' ) {
+            this.handleSubmit();
         }
     }
 

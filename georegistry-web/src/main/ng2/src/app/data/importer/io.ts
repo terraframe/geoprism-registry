@@ -20,6 +20,7 @@ export class Location {
 export class TermProblem {
     label: string;
     mdAttributeId: string;
+    code: string;
     attributeLabel: string;
     action: any;
     resolved: boolean;
@@ -40,7 +41,7 @@ export class Exclusion {
     value: string;
 }
 
-export class GeoObjectSynonym {
+export class Synonym {
     label: string;
     synonymId: string;
 }
