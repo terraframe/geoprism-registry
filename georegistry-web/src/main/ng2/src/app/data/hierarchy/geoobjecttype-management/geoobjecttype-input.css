@@ -1,0 +1,15 @@
+.btn.btn-primary.full-width {
+    margin: 0 auto;
+    display: block;
+    width: 100%;
+}
+
+
+li.list-group-item {
+    font-size: inherit;
+    color: grey;
+}
+li.list-group-item:hover {
+    cursor: default;
+    background: white;
+}

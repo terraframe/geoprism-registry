@@ -1,0 +1,41 @@
+input[type="text"] {
+    margin: 2px 0 2px 0 !important;
+    float: none !important;
+}
+
+button {
+    margin-top: 5px;
+    float: right;
+}
+
+/* button.major-btn {
+    width: 90%;
+    height: 35px;
+    font-size: 19px;
+    float: none;
+    margin: 0 auto;
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 20px;
+} */
+
+.btn.btn-primary.full-width {
+    margin: 0 auto;
+    display: block;
+    width: 100%;
+}
+
+label {
+    color: #999;
+    font-weight: bold;
+}
+
+
+li.list-group-item {
+    font-size: inherit;
+    color: grey;
+}
+li.list-group-item:hover {
+    cursor: default;
+    background: white;
+}

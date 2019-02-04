@@ -22,20 +22,24 @@ import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 import { CgrHeaderComponent } from './header.component';
-import { CreateModalComponent } from './data/hierarchy/modals/create-modal.component';
-import { CreateChildModalComponent } from './data/hierarchy/modals/create-child-modal.component';
+import { CreateHierarchyTypeModalComponent } from './data/hierarchy/modals/create-hierarchy-type-modal.component';
+import { AddChildToHierarchyModalComponent } from './data/hierarchy/modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './data/hierarchy/modals/create-geoobjtype-modal.component';
-import { ManageAttributesModalComponent } from './data/hierarchy/modals/manage-attributes-modal.component';
-import { DefineAttributeModalContentComponent } from './data/hierarchy/modals/define-attribute-modal-content.component';
-import { EditAttributeModalContentComponent } from './data/hierarchy/modals/edit-attribute-modal-content.component';
+import { ManageAttributesModalComponent } from './data/hierarchy/geoobjecttype-management/manage-attributes-modal.component';
+import { DefineAttributeModalContentComponent } from './data/hierarchy/geoobjecttype-management/define-attribute-modal-content.component';
+import { EditAttributeModalContentComponent } from './data/hierarchy/geoobjecttype-management/edit-attribute-modal-content.component';
 import { ShapefileModalComponent } from './data/importer/modals/shapefile-modal.component';
 import { AttributesPageComponent } from './data/importer/modals/attributes-page.component';
 import { LocationPageComponent } from './data/importer/modals/location-page.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
-import { TermOptionInputComponent } from './data/hierarchy/form-inputs/term-option-input.component';
-import { AttributeInputComponent } from './data/hierarchy/form-inputs/attribute-input.component';
+import { TermOptionWidgetComponent } from './data/hierarchy/geoobjecttype-management/term-option-widget.component';
+import { AttributeInputComponent } from './data/hierarchy/geoobjecttype-management/attribute-input.component';
+import { EditTermOptionInputComponent } from './data/hierarchy/geoobjecttype-management/edit-term-option-input.component';
+import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
+import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
+
 
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
@@ -43,6 +47,7 @@ import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { LocalizeComponent } from './core/localize/localize.component';
 import { LocalizePipe } from './core/localize/localize.pipe';
 import { LocalizationService } from './core/service/localization.service';
+import { ModalStepIndicatorComponent } from './core/modals/modal-step-indicator.component';
 
 //import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
@@ -50,6 +55,7 @@ import { LocalizationManagerService } from './service/localization-manager.servi
 import { ShapefileService } from './service/shapefile.service';
 import { ExcelService } from './service/excel.service';
 import { EventService } from './event/event.service';
+import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -57,6 +63,7 @@ import { GeoObjectAttributeCodeValidator } from './factory/form-validation.facto
 
 
 import './rxjs-extensions';
+import { ModalStepIndicatorService } from './core/service/modal-step-indicator.service';
 
 @NgModule({
   imports: [
@@ -80,8 +87,8 @@ import './rxjs-extensions';
     FillPipe,
     Safe,
     CgrHeaderComponent,
-    CreateModalComponent,
-    CreateChildModalComponent,
+    CreateHierarchyTypeModalComponent,
+    AddChildToHierarchyModalComponent,
     CreateGeoObjTypeModalComponent,
     ConfirmModalComponent,
     ManageAttributesModalComponent,
@@ -98,8 +105,12 @@ import './rxjs-extensions';
     LocalizeComponent,
     LocalizePipe,
     EditAttributeModalContentComponent,
-    TermOptionInputComponent,
+    TermOptionWidgetComponent,
     AttributeInputComponent,
+    EditTermOptionInputComponent,
+    ManageGeoObjectTypeModalComponent,
+    GeoObjectTypeInputComponent,
+    ModalStepIndicatorComponent,
     
     // Routing components
     routedComponents
@@ -112,24 +123,30 @@ import './rxjs-extensions';
     EventService,
     Safe,
     CookieService,
-    LocalizationService
+    LocalizationService,
+    ModalStepIndicatorService,
+    GeoObjectTypeManagementService
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [
       ErrorModalComponent, 
-      CreateChildModalComponent, 
+      AddChildToHierarchyModalComponent, 
       CreateGeoObjTypeModalComponent, 
       ManageAttributesModalComponent, 
       DefineAttributeModalContentComponent,
       EditAttributeModalContentComponent,
-      CreateModalComponent, 
+      CreateHierarchyTypeModalComponent, 
       ConfirmModalComponent, 
       LoadingBarComponent,
       ShapefileModalComponent, 
       SpreadsheetModalComponent,
       NewLocaleModalComponent,
-      TermOptionInputComponent,
-      AttributeInputComponent
+      TermOptionWidgetComponent,
+      AttributeInputComponent,
+      EditTermOptionInputComponent,
+      ManageGeoObjectTypeModalComponent,
+      GeoObjectTypeInputComponent,
+      ModalStepIndicatorComponent
   ]        
 })
 export class CgrAppModule { }

@@ -1,0 +1,99 @@
+<div class="modal-body">
+    <div *ngIf="message != null" class="error-container">
+        <div class="label-holder">
+            <strong>
+                <localize key="error.title"></localize>
+            </strong>
+        </div>
+        <div class="holder">
+            <div>
+                <p class="error-message">{{message}}</p>
+            </div>
+        </div>
+    </div>
+
+    <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">
+        <div class="heading">
+            <h1>
+                <localize key="hierarchy.management.manage.attributes.title"></localize> {{geoObjectType.localizedLabel}}</h1>
+        </div>
+        <fieldset>
+
+            <div>
+                <div class="label-holder">
+                    <label>
+                        <localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize>
+                    </label>
+                </div>
+                <div class="holder dataset-attr-holder">
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <localize key="data.property.label.label"></localize>
+                                    </th>
+                                    <th class="button-column-header">
+                                        <localize key="data.property.label.actions"></localize>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let attr of geoObjectType.attributes">
+                                    <td>{{attr.localizedLabel}}</td>
+                                    <td class="button-column">
+                                        <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                                            title="<localize key='modal.button.edit'></localize>"></a>
+                                        <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
+                                            title="<localize key='modal.button.remove'></localize>"></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- <table class="list-table table table-bordered table-striped">
+                        <tbody>
+                        <tr *ngFor="let attr of geoObjectType.attributes" class="fade-ngRepeat-item">
+                            <td class="button-column">
+                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)" title="<localize key='modal.button.edit'></localize>"></a>                             
+                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)" title="<localize key='modal.button.remove'></localize>"></a>
+                            </td>                  
+                            <td class="submit-form">
+                            <dl>
+                                <dd>
+                                <h4 class="disabled" >{{attr.localizedLabel}}</h4>
+                                </dd>
+                            </dl>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table> -->
+                </div>
+            </div>
+            <div class="row-holder">
+                <div class="label-holder">
+                </div>
+                <div class="holder">
+                    <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()">
+                        <localize key="modal.button.add"></localize>
+                    </i>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                </div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" class="btn btn-default" (click)="close()">
+                            <localize key="modal.button.back"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+
+</div>
+

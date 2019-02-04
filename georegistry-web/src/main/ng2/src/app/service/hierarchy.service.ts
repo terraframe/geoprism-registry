@@ -194,6 +194,24 @@ export class HierarchyService {
                 return response.json() as TreeEntity;
             } )
     }
+
+     updateGeoObjectType( gtJSON: GeoObjectType ): Promise<GeoObjectType> {
+    	let headers = new Headers( {
+    		'Content-Type': 'application/json'
+    	} );
+
+    	this.eventService.start();
+
+    	return this.http
+    	.post( acp + '/cgr/geoobjecttype/update', JSON.stringify( { "gtJSON": gtJSON } ), { headers: headers } )
+    	.finally(() => {
+    		this.eventService.complete();
+    	} )
+    	.toPromise()
+            .then( response => {
+                return response.json() as GeoObjectType;
+            } )
+      } 
     
     deleteGeoObjectType( code: string ): Promise<Response> {
     	let headers = new Headers( {
@@ -289,7 +307,7 @@ export class HierarchyService {
            } )
     }
 
-    updateAttributeTermTypeOption(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+    updateAttributeTermTypeOption(termJSON: Term): Promise<Term> {
 
 	   let headers = new Headers( {
            'Content-Type': 'application/json'
@@ -299,13 +317,13 @@ export class HierarchyService {
 
 
        return this.http
-           .post( acp + '/cgr/geoobjecttype/addattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType' : attribute } ), { headers: headers } )
+           .post( acp + '/cgr/geoobjecttype/updateterm', JSON.stringify( { 'termJSON': termJSON } ), { headers: headers } )
            .finally(() => {
                this.eventService.complete();
            } )
            .toPromise()
            .then( response => {
-               return response.json() as Attribute;
+               return response.json() as Term;
            } )
     }
 

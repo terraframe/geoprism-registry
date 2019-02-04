@@ -117,7 +117,15 @@ export class AttributeTerm extends Attribute {
     }
 }
 
-export class ManageAttributeState {
+export enum GeoObjectTypeModalStates {
+    "manageAttributes" = "MANAGE-ATTRIBUTES",
+    "editAttribute" = "EDIT-ATTRIBUTE",
+    "defineAttribute" = "DEFINE-ATTRIBUTE",
+    "editTermOption" = "EDIT-TERM-OPTION",
+    "manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
+}
+
+export class ManageGeoObjectTypeModalState {
   state: string;
   attribute: any;
 }

@@ -1,0 +1,101 @@
+<div class="modal-body">
+    <div *ngIf="message != null" class="error-container">
+        <div class="label-holder">
+            <strong>
+                <localize key="error.title"></localize>
+            </strong>
+        </div>
+        <div class="holder">
+            <div>
+                <p class="error-message">{{message}}</p>
+            </div>
+        </div>
+    </div>
+
+    <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid">
+        <fieldset>
+            <div class="row-holder" [@toggleInputs]="state" (@toggleInputs.done)="onAnimationDone($event)">
+                <div *ngIf="attribute.rootTerm && attribute.rootTerm.children && attribute.rootTerm.children.length > 0" [@openClose]>
+                    <div class="label-holder">
+                        <label>
+                            <localize key="term.option.input.label.existingTypes"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <span class="text">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <localize key="data.property.label.code"></localize>
+                                            </th>
+                                            <th>
+                                                <localize key="data.property.label.label"></localize>
+                                            </th>
+                                            <th class="button-column-header">
+                                                <localize key="data.property.label.actions"></localize>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let option of attribute.rootTerm.children">
+                                            <td>{{option.code}}</td>
+                                            <td>{{option.localizedLabel}}</td>
+                                            <td class="button-column">
+                                                <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editTermOption(option, $event)"></a>
+                                                <a class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeTermOption(option, $event)"></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input type="text" [(ngModel)]="termOptionCode" name="termOptionCode" [required]="termOptionLabel ? true : null ">
+                                            </td>
+                                            <td>
+                                                <input type="text" [(ngModel)]="termOptionLabel" name="termOptionLabel" [required]="termOptionCode ? true : null ">
+                                            </td>
+                                            <td class="button-column">
+                                                <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="addTermOption()">
+                                                    <localize key="modal.button.add"></localize>
+                                                </button>
+                                                <!-- <a class="fa fa-plus-square ico-edit" [routerLink]="" (click)="addTermOption()"></a> -->
+                                                <!-- <a class="fa fa-trash ico-remove" [routerLink]="" (click)="cancelTermOption()"></a> -->
+                                                <!-- <button type="button" class="btn btn-default" (click)="cancelTermOption()">
+                                    <localize key="modal.button.cancel"></localize> 
+                                </button> -->
+
+                                            </td>
+                                        </tr>
+                                        <!-- <tr>
+                          <td></td>
+                          <td></td>
+                          <td class="button-column"> 
+                            <button type="button" class="btn btn-primary" *ngIf="enableTermOptionForm === false" (click)="openAddTermOptionForm()">
+                                <localize key="modal.button.add"></localize>
+                            </button>
+                          </td>
+                        </tr> -->
+                                        <!-- <a class="fa fa-plus" [routerLink]="" (click)="openAddTermOptionForm()"></a> -->
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                </div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" class="btn btn-default" (click)="close()">
+                            <localize key="modal.button.back"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
