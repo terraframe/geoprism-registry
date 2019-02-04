@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import {
   trigger,
   state,
@@ -6,20 +6,20 @@ import {
   animate,
   transition
 } from '@angular/animations'
-import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { GeoObjectType, Attribute, AttributeTerm, Term} from '../hierarchy';
+import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState} from '../hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
+import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
 
 
 @Component( {
-    selector: 'term-option-input',
-    templateUrl: './term-option-input.component.html',
-    styleUrls: ['./term-option-input.css'],
+    selector: 'term-option-widget',
+    templateUrl: './term-option-widget.component.html',
+    styleUrls: ['./term-option-widget.css'],
     animations: [
         trigger('toggleInputs', [
             state('none, void', 
@@ -49,7 +49,7 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
       )
     ]
 } )
-export class TermOptionInputComponent implements OnInit {
+export class TermOptionWidgetComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeTerm;
@@ -57,10 +57,11 @@ export class TermOptionInputComponent implements OnInit {
     message: string = null;
     termOptionCode: string = "";
     termOptionLabel: string = "";
-    termOptionDescription: string = "";
     state: string = 'none';
+    // enableTermOptionForm = false;
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""};
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef ) {
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
     }
 
     ngOnInit(): void {
@@ -89,7 +90,7 @@ export class TermOptionInputComponent implements OnInit {
     }
 
     isValid(): boolean {
-        if(this.termOptionCode && this.termOptionLabel){
+        if(this.termOptionCode && this.termOptionCode.length > 0 && this.termOptionLabel && this.termOptionLabel.length > 0){
             
             // If code has a space
             if(this.termOptionCode.indexOf(" ") !== -1){
@@ -110,51 +111,9 @@ export class TermOptionInputComponent implements OnInit {
         return false
     }
 
-    addTermOption(): void {
-    //   if(this.attribute instanceof AttributeTerm){
+    openAddTermOptionForm(): void {
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
 
-        let termOption: Term = new Term(this.termOptionCode, this.termOptionLabel, this.termOptionDescription);
-
-
-        this.hierarchyService.addAttributeTermTypeOption( this.attribute.rootTerm.code, termOption ).then( data => {
-            
-            this.attribute.rootTerm.children.push(data);
-
-            this.attributeChange.emit(this.attribute);
-
-            this.termOptionCode = "";
-            this.termOptionLabel = "";
-            this.termOptionDescription = "";
-
-        } ).catch(( err: any ) => {
-            this.error( err );
-        } );
-
-    //   }
-    }
-
-    removeTermOption(termOption: Term): void {
-
-        this.hierarchyService.deleteAttributeTermTypeOption( termOption.code ).then( data => {
-            
-            if(this.attribute.rootTerm.children.indexOf(termOption) !== -1){
-                this.attribute.rootTerm.children.splice(this.attribute.rootTerm.children.indexOf(termOption), 1);
-            }
-
-            this.attributeChange.emit(this.attribute);
-
-            this.termOptionCode = "";
-            this.termOptionLabel = "";
-            this.termOptionDescription = "";
-
-        } ).catch(( err: any ) => {
-            this.error( err );
-        } );
-
-    }
-
-    editTermOption(termOption: Term): void {
-        
     }
     
     error( err: any ): void {

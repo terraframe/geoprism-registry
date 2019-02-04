@@ -1,0 +1,27 @@
+<div class="row-holder" [@toggleInputs]="state" (@toggleInputs.done)="onAnimationDone($event)">
+
+    <div>
+        <div class="label-holder">
+            <label>
+                <localize key="hierarchy.management.manage.attributes.label.displayTerms"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <ul class="list-group list-group-flush">
+                        <li *ngFor="let term of attribute.rootTerm.children" class="list-group-item">{{term.localizedLabel}}</li>
+                    </ul>
+
+                    <button type="button" class="btn btn-primary full-width" (click)="openAddTermOptionForm()">
+                        <localize key="modal.button.manageTermOptions"></localize>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" (modalStateChange)="onModalStateChange($event)" [geoObjectType]="geoObjectType" [attribute]="attribute"></edit-term-option-input> -->
+

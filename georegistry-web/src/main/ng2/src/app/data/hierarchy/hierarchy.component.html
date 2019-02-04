@@ -41,7 +41,7 @@
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes">
             {{type.localizedLabel}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" aria-hidden="true"></i> 
-            <i class="fa fa-pencil pull-right" (click)="addAttributesToGeoObjectType(type)"></i> 
+            <i class="fa fa-pencil pull-right" (click)="manageGeoObjectType(type)"></i> 
             <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
           </li>
         </ul>

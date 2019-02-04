@@ -1,6 +1,6 @@
-<form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
+<!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons"> -->
   
-  <div class="modal-body" *ngIf="modalState.state === 'MANAGE-ATTRIBUTES'">
+  <div class="modal-body" *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
     <div *ngIf="message != null" class="error-container">
       <div class="label-holder">
         <strong><localize key="error.title"></localize></strong>
@@ -14,16 +14,27 @@
 
         <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">    
             <div class="heading">
-              <h1><localize key="hierarchy.management.manage.attributes.title"></localize></h1>
+              <h1><localize key="hierarchy.management.manage.geoobjecttype.title"></localize> {{geoObjectType.localizedLabel}}</h1>
             </div>      
             <fieldset>   
+                 <div class="row-holder">
+                    <div class="label-holder">
+                    <label><localize key="data.property.label.code"></localize></label>
+                    </div>          
+                    <div class="holder" >
+                    <span class="text">  
+                       <input type="text" [(ngModel)]="geoObjectType.code" name="code" [disabled]="true" [required]="true">
+                    </span>
+                    </div>
+                </div>
+
                 <div class="row-holder">
                     <div class="label-holder">
                     <label><localize key="data.property.label.label"></localize></label>
                     </div>          
                     <div class="holder" >
-                    <span class="text">                  
-                        <textarea [(ngModel)]="geoObjectType.localizedLabel" name="label" [disabled]="true"></textarea>
+                    <span class="text">  
+                       <input type="text" [(ngModel)]="geoObjectType.localizedLabel" name="label" [required]="true">
                     </span>
                     </div>
                 </div>
@@ -34,12 +45,45 @@
                     </div>          
                     <div class="holder" >
                     <span class="text">                  
-                        <textarea [(ngModel)]="geoObjectType.localizedDescription" name="description" [disabled]="true"></textarea>
+                        <textarea [(ngModel)]="geoObjectType.localizedDescription" name="description" [disabled]="false"></textarea>
                     </span>
                     </div>
                 </div> 
+
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label><localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize></label>
+                    </div>                    
+                    <div class="holder">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <ul class="list-group list-group-flush">
+                                    <li *ngFor="let attr of geoObjectType.attributes" class="list-group-item">{{attr.localizedLabel}}</li>
+                                </ul>
+
+                                <button type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
+                                    <localize key="modal.button.manageAttributes"></localize>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <!-- <div class="row-holder">
+                    <div class="label-holder">
+                    </div>                    
+                    <div class="holder">
+                      <div class="button-holder">
+                        <button type="button" class="btn btn-primary" (click)="manageAttributes()">
+                            <localize key="modal.button.manageAttributes"></localize>
+                        </button>
+                    </div>
+                    </div>
+                </div>  -->
                     
-                <div>
+                <!-- <div>
                     <div class="label-holder">
                     <label><localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize></label>
                     </div>          
@@ -62,30 +106,30 @@
                         </tbody>
                     </table>
                     </div>
-                </div>      
-                <div class="row-holder">
+                </div>       -->
+                
+
+                <!-- <div class="row-holder">
                     <div class="label-holder">
                     </div>                    
                     <div class="holder">
                     <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()"><localize key="modal.button.add"></localize></i>
                     </div>
-                </div>          
+                </div>           -->
                 <div class="row-holder">
                     <div class="label-holder">
                     </div>                    
                     <div class="holder">
-                    <div class="button-holder">
-                        <button type="button" class="btn btn-default" (click)="close()"><localize key="modal.button.close"></localize></button>              
+                      <div class="button-holder">
+                        <button type="button" class="btn btn-default" (click)="close()"><localize key="modal.button.cancel"></localize></button>              
+                        <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="update()">
+                            <localize key="modal.button.submit"></localize>
+                        </button>
                     </div>
                     </div>
                 </div> 
             </fieldset>
     </form>
-
   </div>
 
-  <define-attribute-modal-content *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'" (modalStateChange)="onModalStateChange($event)" [geoObjectType]="geoObjectType" ></define-attribute-modal-content>
-
-  <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" (modalStateChange)="onModalStateChange($event)" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute" ></edit-attribute-modal-content>
-
-</form>
+<!-- </form> -->

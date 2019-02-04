@@ -624,7 +624,7 @@ public class RegistryService
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public AttributeType addAttributeToGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  public AttributeType createAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
@@ -659,8 +659,8 @@ public class RegistryService
    * @return updated {@link AttributeType}
    */
   @Request(RequestType.SESSION)
-  public AttributeType updateAttributeInGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
-  {
+  public AttributeType updateAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  {	  
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
     JSONObject attrObj = new JSONObject(attributeTypeJSON);
@@ -699,7 +699,7 @@ public class RegistryService
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public void deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attributeName)
+  public void deleteAttributeType(String sessionId, String gtId, String attributeName)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
 

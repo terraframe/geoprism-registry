@@ -1,0 +1,19 @@
+.step-indicator .nav-item {
+    height: 50px;
+    background: white;
+    text-align: center;
+    vertical-align: middle;
+    border-bottom: 4px solid lightgrey;
+    font-size: 18px;
+    color: lightgrey;
+}
+.step-indicator .nav-item.active{
+    /* background: darkgrey; */
+    cursor: pointer;
+}
+.step-indicator .nav-item.active.enabled{
+    /* background: grey; */
+    border-bottom: 4px solid black;
+    font-weight: bold;
+    color: black;
+}

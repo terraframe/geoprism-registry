@@ -15,7 +15,7 @@ import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
 
-
+ 
 @Component( {
     selector: 'attribute-input',
     templateUrl: './attribute-input.component.html',

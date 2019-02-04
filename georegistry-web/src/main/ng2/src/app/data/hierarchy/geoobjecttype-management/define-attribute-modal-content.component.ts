@@ -12,12 +12,15 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
-import { TreeEntity, HierarchyType, GeoObjectType, Attribute, AttributeTerm, Term, ManageAttributeState } from '../hierarchy';
-import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
-import { HierarchyService } from '../../../service/hierarchy.service';
+import { GeoObjectType, Attribute, AttributeTerm, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
+import { Step, StepConfig } from '../../../core/modals/modal';
 
-import { TermOptionInputComponent} from '../form-inputs/term-option-input.component';
-import { AttributeInputComponent} from '../form-inputs/attribute-input.component';
+import { HierarchyService } from '../../../service/hierarchy.service';
+import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
+import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
+import { LocalizationService } from '../../../core/service/localization.service';
+
+import { AttributeInputComponent} from '../geoobjecttype-management/attribute-input.component';
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
@@ -50,20 +53,26 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
 export class DefineAttributeModalContentComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() modalState: ManageAttributeState;
-    @Output() modalStateChange = new EventEmitter<ManageAttributeState>();
     message: string = null;
     newAttribute: Attribute = null;
+    modalStepConfig: StepConfig = {"steps": [
+        {"label":this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.manage.attributes"), "active":true, "enabled":false},
+        {"label":this.localizeService.decode("modal.step.indicator.create.attribute"), "active":true, "enabled":true}
+    ]};
+    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.defineAttribute, "attribute":"", "termOption":""};
 
     @ViewChild(AttributeInputComponent) attributeInputComponent:AttributeInputComponent;
 
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private contextMenuService: ContextMenuService ) {
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, 
+        private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizeService: LocalizationService ) {
     
     }
 
     ngOnInit(): void {
         this.setAttribute("character");
+        this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
     }
 
     ngAfterViewInit() {
@@ -78,7 +87,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
         this.hierarchyService.addAttributeType( this.geoObjectType.code, this.newAttribute ).then( data => {
             this.geoObjectType.attributes.push(data);
 
-            this.modalStateChange.emit({"state":"MANAGE-ATTRIBUTES", "attribute":""});
+            this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
         } ).catch(( err: any ) => {
             this.error( err.json() );
         } );
@@ -107,7 +116,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
     
     cancel(): void {
-        this.modalStateChange.emit({"state":"MANAGE-ATTRIBUTES", "attribute":""});
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
     }
 
     error( err: any ): void {

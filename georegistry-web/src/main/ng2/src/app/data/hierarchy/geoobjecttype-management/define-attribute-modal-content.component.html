@@ -1,0 +1,79 @@
+<div class="modal-body">
+    <div *ngIf="message != null" class="error-container">
+        <div class="label-holder">
+            <strong>
+                <localize key="error.title"></localize>
+            </strong>
+        </div>
+        <div class="holder">
+            <div>
+                <p class="error-message">{{message}}</p>
+            </div>
+        </div>
+    </div>
+
+    <form #form="ngForm" class="modal-form" (ngSubmit)="handleOnSubmit()">
+        <div class="">
+            <div class="">
+                <div class="heading">
+                    <h1>
+                        <localize key="hierarchy.management.define.attribute.title"></localize>
+                    </h1>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder"></div>
+                    <div class="holder">
+                        <div class="btn-group define-attribute-btns">
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'character'}" (click)="setAttribute('character')">
+                                <localize key="data.type.label.text"></localize>
+                            </label>
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'integer'}" (click)="setAttribute('integer')">
+                                <localize key="data.type.label.integer"></localize>
+                            </label>
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'float'}" (click)="setAttribute('float')">
+                                <localize key="data.type.label.float"></localize>
+                            </label>
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'date'}" (click)="setAttribute('date')">
+                                <localize key="data.type.label.date"></localize>
+                            </label>
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'boolean'}" (click)="setAttribute('boolean')">
+                                <localize key="data.type.label.boolean"></localize>
+                            </label>
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'term'}" (click)="setAttribute('term')">
+                                <localize key="data.type.label.term"></localize>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <fieldset>
+
+                    <attribute-input [disableCodeField]="false" [excludeDescription]="newAttribute.type === 'term' ? true : false" [(attribute)]="newAttribute"></attribute-input>
+
+                    <div class="row-holder">
+                        <div class="label-holder">
+                        </div>
+                        <div class="holder">
+                            <div class="button-holder">
+                                <button type="button" class="btn btn-default" (click)="cancel()">
+                                    <localize key="modal.button.cancel"></localize>
+                                </button>
+                                <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+                                    <localize key="modal.button.submit"></localize>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+
+    <context-menu #selectRootMenu style="z-index:9999;">
+        <ng-template contextMenuItem let-item (execute)="selectAsRoot($event.item)">
+            <localize key="hierarchy.management.define.attribute.button.selectAsRoot"></localize>
+        </ng-template>
+    </context-menu>
+
+</div>
