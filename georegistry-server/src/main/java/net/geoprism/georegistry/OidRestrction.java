@@ -9,6 +9,21 @@ public class OidRestrction implements GeoObjectRestriction
 {
   private String runwayId;
 
+  public OidRestrction(String runwayId)
+  {
+    this.runwayId = runwayId;
+  }
+
+  public String getRunwayId()
+  {
+    return runwayId;
+  }
+
+  public void setRunwayId(String runwayId)
+  {
+    this.runwayId = runwayId;
+  }
+
   @Override
   public void restrict(ValueQuery vQuery, GeoEntityQuery geQuery, BusinessQuery bQuery)
   {
@@ -20,5 +35,4 @@ public class OidRestrction implements GeoObjectRestriction
   {
     vQuery.WHERE(bQuery.get(ComponentInfo.OID).EQ(this.runwayId));
   }
-
 }

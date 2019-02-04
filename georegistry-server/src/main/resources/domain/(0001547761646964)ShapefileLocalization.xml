@@ -155,6 +155,20 @@
           <attribute name="defaultLocale" value="Hierarchy" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.locationProblem.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.locationProblem.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Location Problems" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.locationProblem.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.locationProblem.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Resolve location problems discoved in the import" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

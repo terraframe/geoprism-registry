@@ -2,9 +2,9 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angula
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { GeoObjectType } from '../../hierarchy/hierarchy';
-import { ShapefileConfiguration } from '../shapefile';
+import { ImportConfiguration } from '../io';
 
-import { ExcelService } from '../../../service/excel.service';
+import { IOService } from '../../../service/io.service';
 
 @Component( {
     selector: 'spreadsheet-modal',
@@ -13,11 +13,11 @@ import { ExcelService } from '../../../service/excel.service';
 } )
 export class SpreadsheetModalComponent implements OnInit {
 
-    configuration: ShapefileConfiguration;
+    configuration: ImportConfiguration;
 
     message: string = null;
 
-    constructor( private service: ExcelService, public bsModalRef: BsModalRef ) {
+    constructor( private service: IOService, public bsModalRef: BsModalRef ) {
     }
 
     ngOnInit(): void {
@@ -33,7 +33,7 @@ export class SpreadsheetModalComponent implements OnInit {
     }
 
     onCancel(): void {
-        this.service.cancelImport( this.configuration ).then( response => {
+        this.service.cancelSpreadsheetImport( this.configuration ).then( response => {
             this.bsModalRef.hide()
         } ).catch(( err: any ) => {
             this.error( err.json() );

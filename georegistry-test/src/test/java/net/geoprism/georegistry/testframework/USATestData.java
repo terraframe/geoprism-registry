@@ -19,36 +19,39 @@ import net.geoprism.georegistry.service.RegistryService;
 
 public class USATestData extends TestDataSet
 {
-  public final String                      TEST_DATA_KEY      = "USATestData";
+  public final String                TEST_DATA_KEY = "USATestData";
 
-  public final TestGeoObjectTypeInfo       COUNTRY            = new TestGeoObjectTypeInfo("Country");
+  public final TestGeoObjectTypeInfo COUNTRY       = new TestGeoObjectTypeInfo("Country");
 
-  public final TestGeoObjectTypeInfo       STATE              = new TestGeoObjectTypeInfo("State");
+  public final TestGeoObjectTypeInfo STATE         = new TestGeoObjectTypeInfo("State");
 
-  public final TestGeoObjectTypeInfo       DISTRICT           = new TestGeoObjectTypeInfo("District", true);
+  public final TestGeoObjectTypeInfo DISTRICT      = new TestGeoObjectTypeInfo("District", true);
 
-  public final TestGeoObjectInfo           USA                = new TestGeoObjectInfo("USA", COUNTRY);
+  public final TestGeoObjectInfo     USA           = new TestGeoObjectInfo("USA", COUNTRY);
 
-  public final TestGeoObjectInfo           COLORADO           = new TestGeoObjectInfo("Colorado", STATE);
+  public final TestGeoObjectInfo     CANADA        = new TestGeoObjectInfo("CANADA", COUNTRY);
 
-  public final TestGeoObjectInfo           CO_D_ONE           = new TestGeoObjectInfo("ColoradoDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo     COLORADO      = new TestGeoObjectInfo("Colorado", STATE);
 
-  public final TestGeoObjectInfo           CO_D_TWO           = new TestGeoObjectInfo("ColoradoDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_ONE      = new TestGeoObjectInfo("ColoradoDistrictOne", DISTRICT);
 
-  public final TestGeoObjectInfo           CO_D_THREE         = new TestGeoObjectInfo("ColoradoDistrictThree", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_TWO      = new TestGeoObjectInfo("ColoradoDistrictTwo", DISTRICT);
 
-  public final TestGeoObjectInfo           WASHINGTON         = new TestGeoObjectInfo("Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
+  public final TestGeoObjectInfo     CO_D_THREE    = new TestGeoObjectInfo("ColoradoDistrictThree", DISTRICT);
 
-  public final TestGeoObjectInfo           WA_D_ONE           = new TestGeoObjectInfo("WashingtonDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo     WASHINGTON    = new TestGeoObjectInfo("Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
 
-  public final TestGeoObjectInfo           WA_D_TWO           = new TestGeoObjectInfo("WashingtonDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo     WA_D_ONE      = new TestGeoObjectInfo("WashingtonDistrictOne", DISTRICT);
+
+  public final TestGeoObjectInfo     WA_D_TWO      = new TestGeoObjectInfo("WashingtonDistrictTwo", DISTRICT);
 
   {
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(STATE);
     managedGeoObjectTypeInfos.add(DISTRICT);
-    
+
     managedGeoObjectInfos.add(USA);
+    managedGeoObjectInfos.add(CANADA);
     managedGeoObjectInfos.add(COLORADO);
     managedGeoObjectInfos.add(WASHINGTON);
     managedGeoObjectInfos.add(CO_D_ONE);
@@ -71,11 +74,11 @@ public class USATestData extends TestDataSet
     TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
 
     USATestData data = new USATestData(adapter, geometryType, includeData);
-//    data.setDebugMode(2);
+    // data.setDebugMode(2);
     data.setUp();
 
     RegistryService.getInstance().refreshMetadataCache();
-    
+
     adapter.setClientRequest(data.adminClientRequest);
     adapter.refreshMetadataCache();
     adapter.getIdSerivce().populate(1000);
@@ -134,7 +137,7 @@ public class USATestData extends TestDataSet
     {
       ConversionService.removeParentReferenceToLeafType(LocatedIn.class.getSimpleName(), STATE.getUniversal(), DISTRICT.getUniversal());
     }
-    
+
     super.cleanUpInTrans();
   }
 

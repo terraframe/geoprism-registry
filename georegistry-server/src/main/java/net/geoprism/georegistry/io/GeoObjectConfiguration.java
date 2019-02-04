@@ -16,6 +16,7 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -24,43 +25,55 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
 
 public class GeoObjectConfiguration
 {
-  public static final String             TARGET        = "target";
+  public static final String             PARENT_EXCLUSION  = "##PARENT##";
 
-  public static final String             BASE_TYPE     = "baseType";
+  public static final String             TARGET            = "target";
 
-  public static final String             TEXT          = "text";
+  public static final String             BASE_TYPE         = "baseType";
 
-  public static final String             LATITUDE      = "latitude";
+  public static final String             TEXT              = "text";
 
-  public static final String             LONGITUDE     = "longitude";
+  public static final String             LATITUDE          = "latitude";
 
-  public static final String             NUMERIC       = "numeric";
+  public static final String             LONGITUDE         = "longitude";
 
-  public static final String             FILENAME      = "filename";
+  public static final String             NUMERIC           = "numeric";
 
-  public static final String             HIERARCHIES   = "hierarchies";
+  public static final String             FILENAME          = "filename";
 
-  public static final String             HIERARCHY     = "hierarchy";
+  public static final String             HIERARCHIES       = "hierarchies";
 
-  public static final String             DIRECTORY     = "directory";
+  public static final String             HIERARCHY         = "hierarchy";
 
-  public static final String             LOCATIONS     = "locations";
+  public static final String             DIRECTORY         = "directory";
 
-  public static final String             TYPE          = "type";
+  public static final String             LOCATIONS         = "locations";
 
-  public static final String             SHEET         = "sheet";
+  public static final String             TYPE              = "type";
 
-  public static final String             LONGITUDE_KEY = "georegistry.longitude.label";
+  public static final String             SHEET             = "sheet";
 
-  public static final String             LATITUDE_KEY  = "georegistry.latitude.label";
+  public static final String             TERM_PROBLEMS     = "termProblems";
+
+  public static final String             EXCLUSIONS        = "exclusions";
+
+  public static final String             VALUE             = "value";
+
+  public static final String             LOCATION_PROBLEMS = "locationProblems";
+
+  public static final String             LONGITUDE_KEY     = "georegistry.longitude.label";
+
+  public static final String             LATITUDE_KEY      = "georegistry.latitude.label";
 
   private Map<String, ShapefileFunction> functions;
 
@@ -74,20 +87,26 @@ public class GeoObjectConfiguration
 
   private Map<String, Set<String>>       exclusions;
 
-  private Set<TermProblem>               problems;
+  private Set<TermProblem>               termProblems;
+
+  private Set<GeoObjectLocationProblem>  locationProblems;
 
   private boolean                        includeCoordinates;
 
   private List<Location>                 locations;
 
-  private String                         hierarchy;
+  private HierarchyType                  hierarchy;
+
+  private MdTermRelationship             hierarchyRelationship;
 
   public GeoObjectConfiguration()
   {
-    this.functions = new HashMap<String, ShapefileFunction>();
-    this.problems = new TreeSet<TermProblem>();
-    this.locations = new LinkedList<Location>();
     this.includeCoordinates = false;
+    this.functions = new HashMap<String, ShapefileFunction>();
+    this.termProblems = new TreeSet<TermProblem>();
+    this.locationProblems = new TreeSet<GeoObjectLocationProblem>();
+    this.locations = new LinkedList<Location>();
+    this.exclusions = new HashMap<String, Set<String>>();
   }
 
   public boolean isIncludeCoordinates()
@@ -185,19 +204,24 @@ public class GeoObjectConfiguration
     return ( this.exclusions.get(attributeName) != null && this.exclusions.get(attributeName).contains(value) );
   }
 
-  public Set<TermProblem> getProblems()
+  public Set<TermProblem> getTermProblems()
   {
-    return problems;
-  }
-
-  public void setProblems(Set<TermProblem> problems)
-  {
-    this.problems = problems;
+    return termProblems;
   }
 
   public void addProblem(TermProblem problem)
   {
-    this.problems.add(problem);
+    this.termProblems.add(problem);
+  }
+
+  public Set<GeoObjectLocationProblem> getLocationProblems()
+  {
+    return locationProblems;
+  }
+
+  public void addProblem(GeoObjectLocationProblem problem)
+  {
+    this.locationProblems.add(problem);
   }
 
   public void addParent(Location location)
@@ -210,14 +234,29 @@ public class GeoObjectConfiguration
     return this.locations;
   }
 
-  public String getHierarchy()
+  public HierarchyType getHierarchy()
   {
     return hierarchy;
   }
 
-  public void setHierarchy(String hierarchy)
+  public void setHierarchy(HierarchyType hierarchy)
   {
     this.hierarchy = hierarchy;
+  }
+
+  public MdTermRelationship getHierarchyRelationship()
+  {
+    return hierarchyRelationship;
+  }
+
+  public void setHierarchyRelationship(MdTermRelationship hierarchyRelationship)
+  {
+    this.hierarchyRelationship = hierarchyRelationship;
+  }
+
+  public boolean hasProblems()
+  {
+    return this.termProblems.size() > 0 || this.locationProblems.size() > 0;
   }
 
   public JsonObject toJson()
@@ -244,26 +283,55 @@ public class GeoObjectConfiguration
     }
 
     JsonObject config = new JsonObject();
-    config.add("type", type);
-    config.add("locations", locations);
-    config.addProperty("directory", this.getDirectory());
-    config.addProperty("filename", this.getFilename());
+    config.add(GeoObjectConfiguration.TYPE, type);
+    config.add(GeoObjectConfiguration.LOCATIONS, locations);
+    config.addProperty(GeoObjectConfiguration.DIRECTORY, this.getDirectory());
+    config.addProperty(GeoObjectConfiguration.FILENAME, this.getFilename());
 
     if (this.hierarchy != null)
     {
-      config.addProperty("hierarchy", this.getHierarchy());
+      config.addProperty(GeoObjectConfiguration.HIERARCHY, this.getHierarchy().getCode());
     }
 
-    if (this.problems.size() > 0)
+    if (this.exclusions.size() > 0)
+    {
+      JsonArray exclusions = new JsonArray();
+
+      this.exclusions.forEach((key, set) -> {
+        set.forEach(value -> {
+          JsonObject object = new JsonObject();
+          object.addProperty(AttributeType.JSON_CODE, key);
+          object.addProperty(VALUE, value);
+
+          exclusions.add(object);
+        });
+      });
+
+      config.add(EXCLUSIONS, exclusions);
+    }
+
+    if (this.termProblems.size() > 0)
     {
       JsonArray problems = new JsonArray();
 
-      for (TermProblem problem : this.problems)
+      for (TermProblem problem : this.termProblems)
       {
         problems.add(problem.toJSON());
       }
 
-      config.add("problems", problems);
+      config.add(GeoObjectConfiguration.TERM_PROBLEMS, problems);
+    }
+
+    if (this.locationProblems.size() > 0)
+    {
+      JsonArray problems = new JsonArray();
+
+      for (GeoObjectLocationProblem problem : this.locationProblems)
+      {
+        problems.add(problem.toJSON());
+      }
+
+      config.add(GeoObjectConfiguration.LOCATION_PROBLEMS, problems);
     }
 
     return config;
@@ -284,10 +352,34 @@ public class GeoObjectConfiguration
     GeoObjectConfiguration configuration = new GeoObjectConfiguration();
     configuration.setDirectory(config.get(DIRECTORY).getAsString());
     configuration.setFilename(config.get(FILENAME).getAsString());
-    configuration.setHierarchy(config.has(HIERARCHY) ? config.get(HIERARCHY).getAsString() : null);
     configuration.setType(got);
     configuration.setMdBusiness(mdBusiness);
     configuration.setIncludeCoordinates(includeCoordinates);
+
+    if (config.has(HIERARCHY))
+    {
+      String hCode = config.get(HIERARCHY).getAsString();
+
+      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
+      MdTermRelationship hierarchyRelationiship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+
+      configuration.setHierarchy(hierarchyType);
+      configuration.setHierarchyRelationship(hierarchyRelationiship);
+    }
+
+    if (config.has(EXCLUSIONS))
+    {
+      JsonArray exclusions = config.get(EXCLUSIONS).getAsJsonArray();
+
+      for (int i = 0; i < exclusions.size(); i++)
+      {
+        JsonObject exclusion = exclusions.get(i).getAsJsonObject();
+        String attributeName = exclusion.get(AttributeType.JSON_CODE).getAsString();
+        String value = exclusion.get(VALUE).getAsString();
+
+        configuration.addExclusion(attributeName, value);
+      }
+    }
 
     for (int i = 0; i < attributes.size(); i++)
     {

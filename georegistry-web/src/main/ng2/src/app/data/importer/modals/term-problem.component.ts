@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
-import { TermProblem } from '../shapefile';
+import { TermProblem } from '../io';
 
 import { TermService } from '../../../service/term.service';
 

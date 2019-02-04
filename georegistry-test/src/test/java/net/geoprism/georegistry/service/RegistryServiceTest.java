@@ -24,6 +24,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
@@ -33,6 +34,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectTypeInfo;
+import net.geoprism.georegistry.RegistryController;
 import net.geoprism.georegistry.testframework.TestRegistryAdapterClient;
 import net.geoprism.georegistry.testframework.USATestData;
 import net.geoprism.registry.GeometryTypeException;
@@ -41,7 +43,7 @@ public class RegistryServiceTest
 {
   protected TestRegistryAdapterClient adapter;
 
-  protected USATestData        testData;
+  protected USATestData               testData;
 
   @Before
   public void setUp()
@@ -114,12 +116,12 @@ public class RegistryServiceTest
 
     // 2. Test updating the one we created earlier
     GeoObject waGeoObj = this.adapter.getGeoObject(geoObj.getUid(), testUpdateGO.getGeoObjectType().getCode());
-    
+
     waGeoObj.setWKTGeometry(testData.COLORADO.getWkt());
     waGeoObj.setLocalizedDisplayLabel(testData.COLORADO.getDisplayLabel());
     testUpdateGO.setWkt(testData.COLORADO.getWkt());
     testUpdateGO.setDisplayLabel(testData.COLORADO.getDisplayLabel());
-    
+
     this.adapter.updateGeoObject(waGeoObj.toJSON().toString());
     testUpdateGO.assertApplied();
   }
@@ -159,6 +161,7 @@ public class RegistryServiceTest
 
     assertIdIssued(ids);
   }
+
   @Request
   private void assertIdIssued(Set<String> ids)
   {
@@ -166,6 +169,22 @@ public class RegistryServiceTest
     {
       Assert.assertTrue(RegistryIdService.getInstance().isIssuedId(id));
     }
+  }
+
+  @Test
+  public void testGetGeoObjectSuggestions()
+  {
+    RegistryController controller = new RegistryController();
+
+    RestBodyResponse response = (RestBodyResponse) controller.getGeoObjectSuggestions(testData.adminClientRequest, "Co", testData.STATE.getCode(), testData.USA.getCode(), LocatedIn.class.getSimpleName());
+    JsonArray results = (JsonArray) response.serialize();
+
+    Assert.assertEquals(1, results.size());
+
+    JsonObject result = results.get(0).getAsJsonObject();
+
+    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.get("name").getAsString());
+    Assert.assertEquals(testData.COLORADO.getOid(), result.get("id").getAsString());
   }
 
   @Test(expected = SmartExceptionDTO.class)
@@ -231,17 +250,17 @@ public class RegistryServiceTest
     for (TestGeoObjectTypeInfo got : expectedGots)
     {
       boolean found = false;
-      
+
       for (int i = 0; i < types.size(); ++i)
       {
         JsonObject jo = types.get(i).getAsJsonObject();
-        
+
         if (jo.get("label").getAsString().equals(got.getDisplayLabel()) && jo.get("code").getAsString().equals(got.getCode()))
         {
           found = true;
         }
       }
-      
+
       Assert.assertTrue(found);
     }
   }
@@ -440,6 +459,7 @@ public class RegistryServiceTest
 
     assertActions(testNew, NEW_DISPLAY_LABEL);
   }
+
   @Request
   private void assertActions(TestGeoObjectInfo testNew, final String NEW_DISPLAY_LABEL)
   {

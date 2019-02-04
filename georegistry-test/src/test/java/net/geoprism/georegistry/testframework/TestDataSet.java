@@ -29,7 +29,6 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.Relationship;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
-import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -55,7 +54,6 @@ import com.vividsolutions.jts.io.ParseException;
 import net.geoprism.georegistry.AdapterUtilities;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.ConversionService;
-import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
@@ -64,44 +62,54 @@ import net.geoprism.registry.GeoObjectStatus;
 
 abstract public class TestDataSet
 {
-  protected int debugMode = 0;
-  
+  protected int                              debugMode                 = 0;
+
   protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos     = new ArrayList<TestGeoObjectInfo>();
 
-  protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos     = new ArrayList<TestGeoObjectTypeInfo>();
-  
-  public TestRegistryAdapterClient         adapter;
-  
-  public ClientSession                     adminSession       = null;
+  protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos = new ArrayList<TestGeoObjectTypeInfo>();
 
-  public ClientRequestIF                   adminClientRequest = null;
-  
-  protected GeometryType                   geometryType; // TODO : This doesn't seem like it should be necessary
-  
+  public TestRegistryAdapterClient           adapter;
+
+  public ClientSession                       adminSession              = null;
+
+  public ClientRequestIF                     adminClientRequest        = null;
+
+  protected GeometryType                     geometryType;                                                      // TODO
+                                                                                                                // :
+                                                                                                                // This
+                                                                                                                // doesn't
+                                                                                                                // seem
+                                                                                                                // like
+                                                                                                                // it
+                                                                                                                // should
+                                                                                                                // be
+                                                                                                                // necessary
+
   protected boolean                          includeData;
-  
+
   abstract public String getTestDataKey();
-  
+
   {
     checkDuplicateClasspathResources();
   }
-  
+
   public ArrayList<TestGeoObjectInfo> getManagedGeoObjects()
   {
     return managedGeoObjectInfos;
   }
-  
+
   public ArrayList<TestGeoObjectTypeInfo> getManagedGeoObjectTypes()
   {
     return managedGeoObjectTypeInfos;
   }
-  
+
   @Request
   public void setUp()
   {
-    // TODO : If you move this call into the 'setupInTrans' method it exposes a bug in Runway which relates to transactions and MdAttributeLocalStructs
+    // TODO : If you move this call into the 'setupInTrans' method it exposes a
+    // bug in Runway which relates to transactions and MdAttributeLocalStructs
     cleanUp();
-    
+
     setUpInTrans();
   }
 
@@ -126,7 +134,7 @@ abstract public class TestDataSet
     adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
   }
-  
+
   private void rebuildAllpaths()
   {
     Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
@@ -173,17 +181,17 @@ abstract public class TestDataSet
       adminSession.logout();
     }
   }
-  
+
   public void setDebugMode(int level)
   {
     this.debugMode = level;
   }
-  
+
   public void assertGeoObjectStatus(GeoObject geoObj, GeoObjectStatusTerm status)
   {
     Assert.assertEquals(adapter.getMetadataCache().getTerm(status.code).get(), geoObj.getStatus());
   }
-  
+
   @Request
   public static void assertEqualsHierarchyType(String relationshipType, HierarchyType compare)
   {
@@ -195,7 +203,7 @@ abstract public class TestDataSet
 
     // compare.getRootGeoObjectTypes() // TODO
   }
-  
+
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
   {
     TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni);
@@ -228,7 +236,7 @@ abstract public class TestDataSet
 
     return info;
   }
-  
+
   public class TestGeoObjectTypeInfo
   {
     private Universal                   universal;
@@ -336,6 +344,7 @@ abstract public class TestDataSet
     {
       applyInTrans(geometryType);
     }
+
     @Transaction
     private void applyInTrans(GeometryType geometryType)
     {
@@ -343,7 +352,7 @@ abstract public class TestDataSet
       {
         System.out.println("Applying TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
-      
+
       universal = AdapterUtilities.getInstance().createGeoObjectType(this.getGeoObjectType(geometryType));
 
       this.setUid(universal.getOid());
@@ -354,6 +363,7 @@ abstract public class TestDataSet
     {
       deleteInTrans();
     }
+
     @Transaction
     private void deleteInTrans()
     {
@@ -361,7 +371,7 @@ abstract public class TestDataSet
       {
         System.out.println("Deleting TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
-      
+
       Universal uni = getUniversalIfExist(this.getCode());
       if (uni != null)
       {
@@ -373,7 +383,7 @@ abstract public class TestDataSet
         AttributeHierarhcy.deleteByMdBusiness(MdBusinessDAO.get(mdBiz.getOid()));
         deleteMdBusiness(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
       }
-      
+
       this.children.clear();
       this.universal = null;
     }
@@ -391,7 +401,7 @@ abstract public class TestDataSet
       // }
     }
   }
-  
+
   public class TestGeoObjectInfo
   {
     private String                  code;
@@ -401,6 +411,8 @@ abstract public class TestDataSet
     private String                  wkt;
 
     private String                  registryId = null;
+
+    private String                  oid;
 
     private GeoEntity               geoEntity;
 
@@ -432,7 +444,7 @@ abstract public class TestDataSet
       this.children = new LinkedList<TestGeoObjectInfo>();
       this.parents = new LinkedList<TestGeoObjectInfo>();
     }
-    
+
     public void setCode(String code)
     {
       this.code = code;
@@ -467,7 +479,7 @@ abstract public class TestDataSet
     {
       return wkt;
     }
-    
+
     public void setWkt(String wkt)
     {
       this.wkt = wkt;
@@ -483,8 +495,19 @@ abstract public class TestDataSet
       this.registryId = uid;
     }
 
+    public String getOid()
+    {
+      return oid;
+    }
+
+    public void setOid(String oid)
+    {
+      this.oid = oid;
+    }
+
     /**
-     * Returns the GeoEntity that implements this test GeoObject. Will return null if the test object has not been applied.
+     * Returns the GeoEntity that implements this test GeoObject. Will return
+     * null if the test object has not been applied.
      */
     public GeoEntity getGeoEntity()
     {
@@ -492,8 +515,9 @@ abstract public class TestDataSet
     }
 
     /**
-     * Returns the business object that implements this test GeoObject and contains the additional CGR attributes like Status.
-     * Will return null if the test object has not been applied.
+     * Returns the business object that implements this test GeoObject and
+     * contains the additional CGR attributes like Status. Will return null if
+     * the test object has not been applied.
      */
     public Business getBusiness()
     {
@@ -501,7 +525,8 @@ abstract public class TestDataSet
     }
 
     /**
-     * Constructs a new GeoObject and populates all attributes from the data contained within this test wrapper.
+     * Constructs a new GeoObject and populates all attributes from the data
+     * contained within this test wrapper.
      */
     public GeoObject asGeoObject()
     {
@@ -520,8 +545,9 @@ abstract public class TestDataSet
     }
 
     /**
-     * Returns all test GeoObject children that this test dataset is aware of. May be out of sync with the database
-     * if operations were performed outside of the test framework.
+     * Returns all test GeoObject children that this test dataset is aware of.
+     * May be out of sync with the database if operations were performed outside
+     * of the test framework.
      */
     public List<TestGeoObjectInfo> getChildren()
     {
@@ -529,8 +555,9 @@ abstract public class TestDataSet
     }
 
     /**
-     * Returns all test GeoObject parents that this test dataset is aware of. May be out of sync with the database
-     * if operations were performed outside of the test framework.
+     * Returns all test GeoObject parents that this test dataset is aware of.
+     * May be out of sync with the database if operations were performed outside
+     * of the test framework.
      */
     public List<TestGeoObjectInfo> getParents()
     {
@@ -655,10 +682,11 @@ abstract public class TestDataSet
         }
       }
     }
-    
+
     /**
-     * Asserts that the given GeoObject contains all the same data which is defined by this test object.
-     * Does not check the GeoObject status (for now...)
+     * Asserts that the given GeoObject contains all the same data which is
+     * defined by this test object. Does not check the GeoObject status (for
+     * now...)
      */
     public void assertEquals(GeoObject geoObj)
     {
@@ -666,8 +694,9 @@ abstract public class TestDataSet
     }
 
     /**
-     * Asserts that the given GeoObject contains all the same data which is defined by this test object.
-     * If status is provided we will assert it as well.
+     * Asserts that the given GeoObject contains all the same data which is
+     * defined by this test object. If status is provided we will assert it as
+     * well.
      */
     public void assertEquals(GeoObject geoObj, DefaultTerms.GeoObjectStatusTerm status)
     {
@@ -677,7 +706,7 @@ abstract public class TestDataSet
       Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
       Assert.assertEquals(this.getDisplayLabel(), geoObj.getLocalizedDisplayLabel());
       this.getGeoObjectType().assertEquals(geoObj.getType());
-      
+
       if (status != null)
       {
         Assert.assertEquals(status.code, geoObj.getStatus().getCode());
@@ -733,10 +762,14 @@ abstract public class TestDataSet
     }
 
     /**
-     * Applies the GeoObject which is represented by this test data into the database.
+     * Applies the GeoObject which is represented by this test data into the
+     * database.
      * 
-     * @postcondition Subsequent calls to this.getBusiness will return the business object which stores additional CGR attributes on this GeoObject
-     * @postcondition Subsequent calls to this.getGeoEntity will return the GeoEntity which backs this GeoObject
+     * @postcondition Subsequent calls to this.getBusiness will return the
+     *                business object which stores additional CGR attributes on
+     *                this GeoObject
+     * @postcondition Subsequent calls to this.getGeoEntity will return the
+     *                GeoEntity which backs this GeoObject
      * @postcondition The applied GeoObject's status will be equal to ACTIVE
      */
     @Request
@@ -744,6 +777,7 @@ abstract public class TestDataSet
     {
       applyInTrans();
     }
+
     @Transaction
     private void applyInTrans()
     {
@@ -751,7 +785,7 @@ abstract public class TestDataSet
       {
         System.out.println("Applying TestGeoObjectInfo [" + this.getCode() + "].");
       }
-      
+
       if (!this.geoObjectType.getIsLeaf())
       {
         geoEntity = new GeoEntity();
@@ -770,6 +804,8 @@ abstract public class TestDataSet
         this.business.setValue(DefaultAttribute.CODE.getName(), this.getCode());
         this.business.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
         this.business.apply();
+
+        this.oid = geoEntity.getOid();
       }
       else
       {
@@ -783,15 +819,17 @@ abstract public class TestDataSet
 
           MdBusiness mdBiz = this.geoObjectType.getUniversal().getMdBusiness();
           this.business = BusinessFacade.newBusiness(mdBiz.definesType());
-//          this.business = new Business(mdBiz.definesType());
+          // this.business = new Business(mdBiz.definesType());
           this.business.setValue(RegistryConstants.UUID, this.getRegistryId());
           this.business.setValue(DefaultAttribute.CODE.getName(), this.getCode());
           this.business.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
           this.business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, geo);
           this.business.setStructValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName(), MdAttributeLocalCharacterInfo.DEFAULT_LOCALE, this.getDisplayLabel());
-//          ((AttributeLocal)BusinessFacade.getEntityDAO(this.business).getAttributeIF(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName())).setDefaultValue(this.getDisplayLabel());
-          
+          // ((AttributeLocal)BusinessFacade.getEntityDAO(this.business).getAttributeIF(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName())).setDefaultValue(this.getDisplayLabel());
+
           this.business.apply();
+
+          this.oid = business.getOid();
         }
         catch (ParseException e)
         {
@@ -801,7 +839,8 @@ abstract public class TestDataSet
     }
 
     /**
-     * Cleans up all data in the database which is used to represent this GeoObject. If the
+     * Cleans up all data in the database which is used to represent this
+     * GeoObject. If the
      * 
      * @postcondition Subsequent calls to this.getGeoEntity will return null
      * @postcondition Subsequent calls to this.getBusiness will return null
@@ -811,6 +850,7 @@ abstract public class TestDataSet
     {
       deleteInTrans();
     }
+
     @Transaction
     private void deleteInTrans()
     {
@@ -818,7 +858,7 @@ abstract public class TestDataSet
       {
         System.out.println("Deleting TestGeoObjectInfo [" + this.getCode() + "].");
       }
-      
+
       // Make sure we delete the business first, otherwise when we delete the
       // geoEntity it nulls out the reference in the table.
       if (this.getGeoObjectType() != null && this.getGeoObjectType().getUniversal() != null)
@@ -832,12 +872,12 @@ abstract public class TestDataSet
           while (bit.hasNext())
           {
             Business biz = bit.next();
-            
+
             if (TestDataSet.this.debugMode >= 2)
             {
               System.out.println("Deleting Business object with key [" + biz.getKey() + "].");
             }
-            
+
             biz.delete();
           }
         }
@@ -850,13 +890,14 @@ abstract public class TestDataSet
       deleteGeoEntity(this.getCode());
 
       this.children.clear();
-      
+
       this.business = null;
       this.geoEntity = null;
     }
 
     /**
-     * Fetches all children of this test object from the database and returns them as GeoEntities.
+     * Fetches all children of this test object from the database and returns
+     * them as GeoEntities.
      */
     @Request
     public OIterator<? extends Object> getChildrenAsGeoEntity(String relationshipType)
@@ -875,8 +916,9 @@ abstract public class TestDataSet
     }
 
     /**
-     * Asserts that the GeoObject that this test wrapper represents has been applied and exists in the database with all attributes set
-     * to the values that this test object contains.
+     * Asserts that the GeoObject that this test wrapper represents has been
+     * applied and exists in the database with all attributes set to the values
+     * that this test object contains.
      */
     @Request
     public void assertApplied()
@@ -886,7 +928,7 @@ abstract public class TestDataSet
       {
         myGeo = GeoEntity.getByKey(this.getCode());
       }
-      
+
       Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(myGeo.getWkt()));
       Assert.assertEquals(this.getCode(), myGeo.getGeoId());
       Assert.assertEquals(this.getDisplayLabel(), myGeo.getDisplayLabel().getValue());
@@ -900,7 +942,7 @@ abstract public class TestDataSet
     {
       System.out.println("Deleting All GeoEntities by key [" + key + "].");
     }
-    
+
     GeoEntityQuery geq = new GeoEntityQuery(new QueryFactory());
     geq.WHERE(geq.getKeyName().EQ(key));
     OIterator<? extends GeoEntity> git = geq.getIterator();
@@ -909,12 +951,12 @@ abstract public class TestDataSet
       while (git.hasNext())
       {
         GeoEntity ge = git.next();
-        
+
         if (this.debugMode >= 2)
         {
           System.out.println("Deleting GeoEntity with geoId [" + ge.getGeoId() + "].");
         }
-        
+
         ge.delete();
       }
     }
@@ -923,7 +965,7 @@ abstract public class TestDataSet
       git.close();
     }
   }
-  
+
   public MdBusiness getMdBusinessIfExist(String pack, String type)
   {
     MdBusinessQuery mbq = new MdBusinessQuery(new QueryFactory());
@@ -941,26 +983,26 @@ abstract public class TestDataSet
     {
       it.close();
     }
-    
+
     return null;
   }
-  
+
   @Request
   public void deleteMdBusiness(String pack, String type)
   {
     MdBusiness mdBiz = getMdBusinessIfExist(pack, type);
-    
+
     if (mdBiz != null)
     {
       if (this.debugMode >= 1)
       {
         System.out.println("Deleting MdBusiness [" + pack + "." + type + "].");
       }
-      
+
       mdBiz.delete();
     }
   }
-  
+
   @Request
   public Universal getUniversalIfExist(String universalId)
   {
@@ -978,26 +1020,26 @@ abstract public class TestDataSet
     {
       it.close();
     }
-    
+
     return null;
   }
-  
+
   @Request
   public void deleteUniversal(String code)
   {
     Universal uni = getUniversalIfExist(code);
-    
+
     if (uni != null)
     {
       if (this.debugMode >= 1)
       {
         System.out.println("Deleting Universal [" + code + "].");
       }
-      
+
       uni.delete();
     }
   }
-  
+
   /**
    * Duplicate resources on the classpath may cause issues. This method checks
    * the runwaysdk directory because conflicts there are most common.

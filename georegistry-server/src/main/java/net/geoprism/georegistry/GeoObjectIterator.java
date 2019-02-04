@@ -39,6 +39,8 @@ public class GeoObjectIterator implements OIterator<GeoObject>
 
   private SimpleDateFormat       format;
 
+  private String                 oid;
+
   public GeoObjectIterator(GeoObjectType type, Universal universal, OIterator<ValueObject> iterator)
   {
     this.type = type;
@@ -56,17 +58,24 @@ public class GeoObjectIterator implements OIterator<GeoObject>
   @Override
   public GeoObject next()
   {
-    ValueObject value = this.iterator.next();
+    ValueObject vObject = this.iterator.next();
 
-    return this.convert(value);
+    return this.convert(vObject);
+  }
+
+  public String currentOid()
+  {
+    return this.oid;
   }
 
   private GeoObject convert(ValueObject vObject)
   {
+    this.oid = vObject.getValue(ComponentInfo.OID);
+
     Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(this.type);
     GeoObject gObject = new GeoObject(this.type, this.type.getGeometryType(), attributeMap);
 
-    gObject.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(vObject.getValue(ComponentInfo.OID), universal));
+    gObject.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(this.oid, universal));
 
     Map<String, AttributeType> attributes = this.type.getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
@@ -90,11 +99,7 @@ public class GeoObjectIterator implements OIterator<GeoObject>
         {
           if (attribute instanceof AttributeTermType)
           {
-            // Classifier classifier = Classifier.get(value);
-            // Term term =
-            // ServiceFactory.getConversionService().getTerm(classifier.getClassifierId());
-            //
-            // geoObj.setValue(attributeName, term);
+            gObject.setValue(attributeName, value);
           }
           else if (attribute instanceof AttributeDateType)
           {
@@ -109,7 +114,7 @@ public class GeoObjectIterator implements OIterator<GeoObject>
           }
           else if (attribute instanceof AttributeBooleanType)
           {
-            gObject.setValue(attributeName, new Boolean(value));
+            gObject.setValue(attributeName, new Boolean(value.equals("1")));
           }
           else if (attribute instanceof AttributeFloatType)
           {

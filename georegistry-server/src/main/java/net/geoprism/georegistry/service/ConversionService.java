@@ -78,7 +78,6 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.conversion.TermBuilder;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierTermAttributeRoot;
 import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoObjectStatus;
 
@@ -319,9 +318,24 @@ public class ConversionService
    * @param hierarchyType
    * @return
    */
-  public MdTermRelationship existingHierarchyToMdTermRelationiship(HierarchyType hierarchyType)
+  public MdTermRelationship existingHierarchyToUniversalMdTermRelationiship(HierarchyType hierarchyType)
   {
     String mdTermRelKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
+
+    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
+
+    return mdTermRelationship;
+  }
+
+  /**
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  public MdTermRelationship existingHierarchyToGeoEntityMdTermRelationiship(HierarchyType hierarchyType)
+  {
+    String mdTermRelKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
 
     MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
 
@@ -564,27 +578,27 @@ public class ConversionService
     else if (mdAttribute instanceof MdAttributeEnumerationDAOIF || mdAttribute instanceof MdAttributeTermDAOIF)
     {
       testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeTermType.TYPE);
-      
+
       if (mdAttribute instanceof MdAttributeEnumerationDAOIF && mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
       {
         Term rootStatusTerm = ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
-        
-        ((AttributeTermType) testChar).setRootTerm(rootStatusTerm);
+
+        ( (AttributeTermType) testChar ).setRootTerm(rootStatusTerm);
       }
       else if (mdAttribute instanceof MdAttributeTermDAOIF)
       {
         List<RelationshipDAOIF> rels = ( (MdAttributeTermDAOIF) mdAttribute ).getAllAttributeRoots();
-        
+
         if (rels.size() > 0)
         {
           RelationshipDAOIF rel = rels.get(0);
-          
+
           BusinessDAO classy = (BusinessDAO) rel.getChild();
-          
+
           TermBuilder termBuilder = new TermBuilder(classy.getKey());
           Term adapterTerm = termBuilder.build();
-          
-          ((AttributeTermType) testChar).setRootTerm(adapterTerm);
+
+          ( (AttributeTermType) testChar ).setRootTerm(adapterTerm);
         }
         else
         {
@@ -721,9 +735,8 @@ public class ConversionService
             if (attribute instanceof AttributeTermType)
             {
               Classifier classifier = Classifier.get(value);
-              Term term = this.getTerm(classifier.getClassifierId());
 
-              geoObj.setValue(attributeName, term);
+              geoObj.setValue(attributeName, classifier.getClassifierId());
             }
             else if (attribute instanceof AttributeDateType)
             {
@@ -1014,7 +1027,7 @@ public class ConversionService
   {
     return this.termToGeoObjectStatus(term.getCode());
   }
-  
+
   public GeoObjectStatus termToGeoObjectStatus(String termCode)
   {
     if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code))
@@ -1041,9 +1054,9 @@ public class ConversionService
 
   public Term geoObjectStatusToTerm(GeoObjectStatus gos)
   {
-	return geoObjectStatusToTerm(gos.getEnumName());
+    return geoObjectStatusToTerm(gos.getEnumName());
   }
-  
+
   public Term geoObjectStatusToTerm(String termCode)
   {
     if (termCode.equals(GeoObjectStatus.ACTIVE.getEnumName()))
