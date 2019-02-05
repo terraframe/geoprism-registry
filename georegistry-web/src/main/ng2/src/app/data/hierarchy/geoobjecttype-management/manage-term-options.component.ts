@@ -64,9 +64,7 @@ export class ManageTermOptionsComponent implements OnInit {
     @Input() attribute: AttributeTerm;
     @Output() attributeChange = new EventEmitter<AttributeTerm>();
     message: string = null;
-    termOptionCode: string = "";
-    termOptionLabel: string = "";
-    termOptionDescription: string = "";
+    termOption: Term = new Term("", "", "");
     state: string = 'none';
     enableTermOptionForm = false;
     modalStepConfig: StepConfig = {"steps": [
@@ -106,21 +104,21 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     isValid(): boolean {
-        if(this.termOptionCode && this.termOptionLabel){
+        if(this.termOption.code && this.termOption.code.length > 0 && this.termOption.localizedLabel && this.termOption.localizedLabel.length > 0){
             
             // If code has a space
-            if(this.termOptionCode.indexOf(" ") !== -1){
+            if(this.termOption.code.indexOf(" ") !== -1){
                 return false;
             }
 
             // If label is only spaces
-            if(this.termOptionLabel.replace(/\s/g, '').length === 0) {
+            if(this.termOption.localizedLabel.replace(/\s/g, '').length === 0) {
                 return false
             }
 
             return true;
         }
-        else if(this.termOptionCode && this.termOptionCode.indexOf(" ") !== -1){
+        else if(this.termOption.code && this.termOption.code.indexOf(" ") !== -1){
             return false;
         }
             
@@ -129,10 +127,7 @@ export class ManageTermOptionsComponent implements OnInit {
 
     addTermOption(): void {
 
-        let termOption: Term = new Term(this.termOptionCode, this.termOptionLabel, this.termOptionDescription);
-
-
-        this.hierarchyService.addAttributeTermTypeOption( this.attribute.rootTerm.code, termOption ).then( data => {
+        this.hierarchyService.addAttributeTermTypeOption( this.attribute.rootTerm.code, this.termOption ).then( data => {
             
             this.attribute.rootTerm.children.push(data);
 
@@ -178,9 +173,7 @@ export class ManageTermOptionsComponent implements OnInit {
 
             this.attributeChange.emit(this.attribute);
 
-            this.termOptionCode = "";
-            this.termOptionLabel = "";
-            this.termOptionDescription = "";
+            this.clearTermOption();
 
         } ).catch(( err: any ) => {
             this.error( err );
@@ -208,9 +201,9 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     clearTermOption(): void {
-        this.termOptionCode = "";
-        this.termOptionLabel = "";
-        this.termOptionDescription = "";
+        this.termOption.code = "";
+        this.termOption.localizedLabel = "";
+        this.termOption.localizedDescription = "";
     }
 
     cancelTermOption(): void {
