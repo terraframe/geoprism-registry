@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.jaitools.jts.CoordinateSequence2D;
@@ -182,6 +184,14 @@ public class GeoObjectConverter
         }
       }
     }
+    else if (attributeType instanceof AttributeIntegerType)
+    {
+      entity.setValue(attributeName, new Integer((String) value));
+    }
+    else if (attributeType instanceof AttributeBooleanType)
+    {
+      entity.setValue(attributeName, value);
+    }
     else
     {
       entity.setValue(attributeName, value);
@@ -295,6 +305,20 @@ public class GeoObjectConverter
         }
         else
         {
+          if (context.size() == 0)
+          {
+            GeoObject root = this.configuration.getRoot();
+
+            if (root != null)
+            {
+              JsonObject element = new JsonObject();
+              element.addProperty("label", root.getLocalizedDisplayLabel());
+              element.addProperty("type", root.getType().getLocalizedLabel());
+
+              context.add(element);
+            }
+          }
+
           this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
 
           return null;
