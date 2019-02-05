@@ -79,6 +79,14 @@ public class ExcelServiceTest
 
     Assert.assertNotNull(result.getAsJsonObject(GeoObjectConfiguration.TYPE));
 
+    JsonArray hierarchies = result.get(GeoObjectConfiguration.HIERARCHIES).getAsJsonArray();
+
+    Assert.assertEquals(1, hierarchies.size());
+
+    JsonObject hierarchy = hierarchies.get(0).getAsJsonObject();
+
+    Assert.assertNotNull(hierarchy.get("label").getAsString());
+
     JsonObject sheet = result.getAsJsonObject(GeoObjectConfiguration.SHEET);
 
     Assert.assertNotNull(sheet);

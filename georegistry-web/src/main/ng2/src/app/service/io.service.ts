@@ -14,7 +14,7 @@ export class IOService {
 
     constructor( private http: Http, private eventService: EventService ) { }
 
-    importSpreadsheet( configuration: ImportConfiguration ): Promise<Response> {
+    importSpreadsheet( configuration: ImportConfiguration ): Promise<ImportConfiguration> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -27,6 +27,9 @@ export class IOService {
                 this.eventService.complete();
             } )
             .toPromise()
+            .then( response => {
+                return response.json() as ImportConfiguration;
+            } )
     }
 
     cancelSpreadsheetImport( configuration: ImportConfiguration ): Promise<Response> {
