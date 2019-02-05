@@ -16,10 +16,17 @@ export class Location {
     target: string;
 }
 
+export class Term {
+    oid: string;
+    label: string;
+}
+
 
 export class TermProblem {
     label: string;
     mdAttributeId: string;
+    categoryId: string;
+    code: string;
     attributeLabel: string;
     action: any;
     resolved: boolean;
@@ -40,7 +47,7 @@ export class Exclusion {
     value: string;
 }
 
-export class GeoObjectSynonym {
+export class Synonym {
     label: string;
     synonymId: string;
 }

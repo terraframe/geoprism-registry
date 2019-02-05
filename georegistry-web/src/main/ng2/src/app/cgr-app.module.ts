@@ -34,6 +34,8 @@ import { AttributesPageComponent } from './data/importer/modals/attributes-page.
 import { LocationPageComponent } from './data/importer/modals/location-page.component';
 import { LocationProblemPageComponent } from './data/importer/modals/location-problem-page.component';
 import { LocationProblemComponent } from './data/importer/modals/location-problem.component';
+import { TermProblemPageComponent } from './data/importer/modals/term-problem-page.component';
+import { TermProblemComponent } from './data/importer/modals/term-problem.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
@@ -103,6 +105,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     LocationPageComponent,
     LocationProblemPageComponent,
     LocationProblemComponent,
+    TermProblemPageComponent,
+    TermProblemComponent,
     SpreadsheetModalComponent,
     LoadingBarComponent,
     GeoObjectTypePipe,

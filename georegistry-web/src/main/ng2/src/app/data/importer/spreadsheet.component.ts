@@ -40,6 +40,9 @@ export class SpreadsheetComponent implements OnInit {
      */
     private uploader: FileUploader;
 
+    @ViewChild( 'myFile' )
+    fileRef: ElementRef;
+
     constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService ) { }
 
     ngOnInit(): void {
@@ -65,6 +68,7 @@ export class SpreadsheetComponent implements OnInit {
             this.eventService.start();
         };
         this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
+            this.fileRef.nativeElement.value = "";            
             this.eventService.complete();
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {

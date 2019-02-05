@@ -419,7 +419,7 @@ public class HierarchyManagementServiceTest
     {
       service.createGeoObjectType(sessionId, gtJSON);
       String attributeTypeJSON = testChar.toJSON().toString();
-      testChar = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+      testChar = service.createAttributeType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
     finally
     {
@@ -437,7 +437,7 @@ public class HierarchyManagementServiceTest
       testChar.setLocalizedLabel("testCharLocalName-Update");
       testChar.setLocalizedDescription("testCharLocalDescrip-Update");
       String attributeTypeJSON = testChar.toJSON().toString();
-      testChar = service.updateAttributeInGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+      testChar = service.updateAttributeType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
     finally
     {
@@ -450,7 +450,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testChar.getName());
+      service.deleteAttributeType(sessionId, PROVINCE_CODE, testChar.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
@@ -477,7 +477,7 @@ public class HierarchyManagementServiceTest
 
       String geoObjectTypeCode = province.getCode();
       String attributeTypeJSON = testDate.toJSON().toString();
-      testDate = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+      testDate = service.createAttributeType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
     finally
     {
@@ -492,7 +492,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testDate.getName());
+      service.deleteAttributeType(sessionId, PROVINCE_CODE, testDate.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
@@ -519,7 +519,7 @@ public class HierarchyManagementServiceTest
 
       String geoObjectTypeCode = province.getCode();
       String attributeTypeJSON = testInteger.toJSON().toString();
-      testInteger = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+      testInteger = service.createAttributeType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
     finally
     {
@@ -534,7 +534,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testInteger.getName());
+      service.deleteAttributeType(sessionId, PROVINCE_CODE, testInteger.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
@@ -561,7 +561,7 @@ public class HierarchyManagementServiceTest
 
       String geoObjectTypeCode = province.getCode();
       String attributeTypeJSON = testBoolean.toJSON().toString();
-      testBoolean = service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+      testBoolean = service.createAttributeType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
     finally
     {
@@ -576,7 +576,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, testBoolean.getName());
+      service.deleteAttributeType(sessionId, PROVINCE_CODE, testBoolean.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally
@@ -704,7 +704,7 @@ public class HierarchyManagementServiceTest
       service.createGeoObjectType(sessionId, gtJSON);
 
       String attributeTypeJSON = attributeTermType.toJSON().toString();
-      attributeTermType = (AttributeTermType) service.addAttributeToGeoObjectType(sessionId, geoObjectTypeCode, attributeTypeJSON);
+      attributeTermType = (AttributeTermType) service.createAttributeType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
     finally
     {
@@ -730,7 +730,7 @@ public class HierarchyManagementServiceTest
       attributeTermType.setLocalizedLabel("Test Term Name Update");
       attributeTermType.setLocalizedDescription("Test Term Description Update");
 
-      attributeTermType = (AttributeTermType) service.updateAttributeInGeoObjectType(sessionId, geoObjectTypeCode, attributeTermType.toJSON().toString());
+      attributeTermType = (AttributeTermType) service.updateAttributeType(sessionId, geoObjectTypeCode, attributeTermType.toJSON().toString());
 
     }
     finally
@@ -759,7 +759,7 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      service.deleteAttributeFromGeoObjectType(sessionId, PROVINCE_CODE, attributeTermType.getName());
+      service.deleteAttributeType(sessionId, PROVINCE_CODE, attributeTermType.getName());
       service.deleteGeoObjectType(sessionId, PROVINCE_CODE);
     }
     finally

@@ -496,6 +496,7 @@ public class AdapterUtilities
   // ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(uni.getKey()).get();
   // }
 
+  @Transaction
   public Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
     Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
@@ -672,6 +673,7 @@ public class AdapterUtilities
    * 
    * @return {@link AttributeType}
    */
+  @Transaction
   public AttributeType createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
   {
     MdAttributeConcrete mdAttribute = null;

@@ -1,24 +1,24 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
-import { ImportConfiguration, LocationProblem } from '../io';
+import { ImportConfiguration, TermProblem } from '../io';
 
 @Component( {
 
-    selector: 'location-problem-page',
-    templateUrl: './location-problem-page.component.html',
+    selector: 'term-problem-page',
+    templateUrl: './term-problem-page.component.html',
     styleUrls: []
 } )
-export class LocationProblemPageComponent implements OnInit {
+export class TermProblemPageComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;
     @Output() stateChange = new EventEmitter<string>();
-    problems: LocationProblem[] = [];
+    problems: TermProblem[] = [];
     message: string = null;
 
     constructor() { }
 
     ngOnInit(): void {
-        if ( this.configuration.locationProblems != null ) {
-            this.problems = this.configuration.locationProblems;
+        if ( this.configuration.termProblems != null ) {
+            this.problems = this.configuration.termProblems;
         }
     }
 
@@ -48,14 +48,12 @@ export class LocationProblemPageComponent implements OnInit {
         for ( let i = 0; i < this.problems.length; i++ ) {
             const problem = this.problems[i];
 
-            if ( problem.resolved && problem.action.name == 'IGNOREATLOCATION' ) {
-                const value = ( problem.parent != null ? problem.parent + "-" + problem.label : problem.label );
-                const exclusion = { code: '##PARENT##', value: value };
+            if ( problem.resolved && problem.action.name == 'IGNORE' ) {
+                const exclusion = { code: problem.code, value: problem.label };
 
                 this.configuration.exclusions.push( exclusion );
             }
         }
-
 
         this.stateChange.emit( 'NEXT' );
     }

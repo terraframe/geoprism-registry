@@ -22,13 +22,11 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.geotools.data.FeatureSource;
@@ -83,11 +81,6 @@ public class GeoObjectShapefileImporter extends TaskObservable
   private GeoObjectConfiguration config;
 
   /**
-   * Map between a feature oid and its geo entity
-   */
-  private Map<String, String>    entityIdMap;
-
-  /**
    * @param url
    *          URL of the shapefile
    */
@@ -97,20 +90,11 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
     this.url = url;
     this.config = config;
-    this.entityIdMap = new HashMap<String, String>();
   }
 
   public GeoObjectShapefileImporter(File file, GeoObjectConfiguration config) throws MalformedURLException
   {
     this(file.toURI().toURL(), config);
-  }
-
-  /**
-   * @return Map between Shapefile Feature OID and the imported Entity oid.
-   */
-  public Map<String, String> getEntityIdMap()
-  {
-    return entityIdMap;
   }
 
   @Request
@@ -339,7 +323,9 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
         if (classifier == null)
         {
-          this.config.addProblem(new TermProblem(value.toString(), attributeName, attributeType.getLocalizedLabel()));
+          Classifier root = Classifier.findClassifierRoot(mdAttribute);
+
+          this.config.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
         }
         else
         {
