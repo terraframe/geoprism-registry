@@ -8,7 +8,7 @@ import {
 } from '@angular/animations'
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState} from '../hierarchy';
+import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, Term} from '../hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 
@@ -55,8 +55,9 @@ export class TermOptionWidgetComponent implements OnInit {
     @Input() attribute: AttributeTerm;
     @Output() attributeChange = new EventEmitter<AttributeTerm>();
     message: string = null;
-    termOptionCode: string = "";
-    termOptionLabel: string = "";
+    // termOptionCode: string = "";
+    // termOptionLabel: string = "";
+    // termOption: Term = new Term("", "", "");
     state: string = 'none';
     // enableTermOptionForm = false;
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""};
@@ -89,30 +90,30 @@ export class TermOptionWidgetComponent implements OnInit {
         this.state = "show";
     }
 
-    isValid(): boolean {
-        if(this.termOptionCode && this.termOptionCode.length > 0 && this.termOptionLabel && this.termOptionLabel.length > 0){
+    // isValid(): boolean {
+    //     if(this.termOption.code && this.termOption.code.length > 0 && this.termOption.localizedLabel && this.termOption.localizedLabel.length > 0){
             
-            // If code has a space
-            if(this.termOptionCode.indexOf(" ") !== -1){
-                return false;
-            }
+    //         // If code has a space
+    //         if(this.termOption.code.indexOf(" ") !== -1){
+    //             return false;
+    //         }
 
-            // If label is only spaces
-            if(this.termOptionLabel.replace(/\s/g, '').length === 0) {
-                return false
-            }
+    //         // If label is only spaces
+    //         if(this.termOption.localizedLabel.replace(/\s/g, '').length === 0) {
+    //             return false
+    //         }
 
-            return true;
-        }
-        else if(this.termOptionCode && this.termOptionCode.indexOf(" ") !== -1){
-            return false;
-        }
+    //         return true;
+    //     }
+    //     else if(this.termOption.code && this.termOption.code.indexOf(" ") !== -1){
+    //         return false;
+    //     }
             
-        return false
-    }
+    //     return false
+    // }
 
     openAddTermOptionForm(): void {
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
+        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption": ""})
 
     }
     

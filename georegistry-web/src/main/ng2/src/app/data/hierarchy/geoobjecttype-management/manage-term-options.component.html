@@ -20,7 +20,7 @@
                 </h1>
             </div>
             <div class="row-holder" [@toggleInputs]="state" (@toggleInputs.done)="onAnimationDone($event)">
-                <div *ngIf="attribute.rootTerm && attribute.rootTerm.children && attribute.rootTerm.children.length > 0" [@openClose]>
+                <div [@openClose]>
                     <div class="label-holder">
                         <label>
                             <localize key="term.option.input.label.existingTypes"></localize>
@@ -54,10 +54,10 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <input type="text" [(ngModel)]="termOptionCode" name="termOptionCode" [required]="termOptionLabel ? true : null ">
+                                                <input type="text" [(ngModel)]="termOption.code" name="termOptionCode" [required]="termOption.localizedLabel ? true : null ">
                                             </td>
                                             <td>
-                                                <input type="text" [(ngModel)]="termOptionLabel" name="termOptionLabel" [required]="termOptionCode ? true : null ">
+                                                <input type="text" [(ngModel)]="termOption.localizedLabel" name="termOptionLabel" [required]="termOption.code ? true : null ">
                                             </td>
                                             <td class="button-column">
                                                 <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="addTermOption()">

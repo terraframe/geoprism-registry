@@ -231,7 +231,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="hierarchy.management.edit.attribute.title" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Edit:" />
+          <attribute name="defaultLocale" value="Edit Attribute" />
         </attributeStruct>
       </object>
 
