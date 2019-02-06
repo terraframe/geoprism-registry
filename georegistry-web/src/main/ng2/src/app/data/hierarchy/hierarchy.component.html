@@ -39,9 +39,10 @@
         <h3><localize key="hierarchy.types.management.panel.title"></localize></h3>
         <hr>
         <ul class="list-group">
-          <li class="list-group-item" *ngFor="let type of geoObjectTypes | geoobjecttype:nodes">
-            {{type.localizedLabel}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" aria-hidden="true"></i> 
-            <i class="fa fa-pencil pull-right" (click)="manageGeoObjectType(type)"></i> 
+          <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
+          <li class="list-group-item" *ngFor="let type of geoObjectTypes">
+            {{type.localizedLabel}} <i *ngIf="type.isLeaf === true" class="fa fa-leaf" aria-hidden="true"></i> 
+            <i class="fa fa-pencil pull-right" (click)="manageGeoObjectType(type)"> </i> 
             <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
           </li>
         </ul>
@@ -64,7 +65,7 @@
         <localize key="hierarchy.management.button.addRelationship"></localize>
     </ng-template>
     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      <localize key="hierarchy.management.button.deleteType"></localize>
+      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>
     </ng-template>
   </context-menu>
   
@@ -73,7 +74,7 @@
 <!--       Edit {{item?.data.name}} -->
 <!--     </ng-template> -->
     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      <localize key="hierarchy.management.button.deleteTreeNode"></localize>  {{item?.data.label}}
+      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>  {{item?.data.label}}
     </ng-template>
   </context-menu>
 

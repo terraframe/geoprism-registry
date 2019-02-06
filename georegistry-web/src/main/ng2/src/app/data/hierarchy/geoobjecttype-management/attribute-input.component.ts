@@ -37,6 +37,7 @@ export class AttributeInputComponent implements OnInit {
 
     @Input() disableCodeField: boolean = false;
     @Input() excludeDescription: boolean = false;
+    @Input() isDecimal: boolean = false;
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: Attribute;
     @Output() attributeChange = new EventEmitter<Attribute>();

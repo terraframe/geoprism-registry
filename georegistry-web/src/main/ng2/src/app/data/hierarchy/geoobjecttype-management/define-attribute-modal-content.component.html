@@ -49,10 +49,10 @@
 
                 <fieldset>
 
-                    <attribute-input [disableCodeField]="false" [excludeDescription]="newAttribute.type === 'term' ? true : false" [(attribute)]="newAttribute"></attribute-input>
+                    <attribute-input [disableCodeField]="false" [excludeDescription]="false" [isDecimal]="newAttribute.type === 'float' ? true : false" [(attribute)]="newAttribute"></attribute-input>
 
                     <div class="row-holder">
-                        <div class="label-holder">
+                        <div class="label-holder"> 
                         </div>
                         <div class="holder">
                             <div class="button-holder">

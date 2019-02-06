@@ -115,6 +115,17 @@ export class AttributeTerm extends Attribute {
     }
 }
 
+export class AttributeDecimal extends Attribute {
+    //descendants: Attribute[];
+    
+    constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public length:number, public decimal:number, public isDefault:boolean){
+      super(code, type, localizedLabel, localizedDescription, isDefault);
+
+      this.length = length;
+      this.decimal = decimal;
+    }
+}
+
 export enum GeoObjectTypeModalStates {
     "manageAttributes" = "MANAGE-ATTRIBUTES",
     "editAttribute" = "EDIT-ATTRIBUTE",

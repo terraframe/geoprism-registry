@@ -12,8 +12,8 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
-import { GeoObjectType, Attribute, AttributeTerm, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
-import { Step, StepConfig } from '../../../core/modals/modal';
+import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
+import { StepConfig } from '../../../core/modals/modal';
 
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
@@ -96,6 +96,9 @@ export class DefineAttributeModalContentComponent implements OnInit {
     setAttribute(type:string): void {
         if(type === 'term'){
             this.newAttribute = new AttributeTerm("", type, "", "", false);
+        }
+        else if(type === 'decimal') {
+            this.newAttribute = new AttributeDecimal("", type, "", "", null, null, false);
         }
         else{
             this.newAttribute = new Attribute("", type, "", "", false);

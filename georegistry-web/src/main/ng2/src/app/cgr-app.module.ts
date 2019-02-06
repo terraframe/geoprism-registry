@@ -47,7 +47,6 @@ import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-mana
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
 
 
-
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
 import { LocalizeComponent } from './core/localize/localize.component';
@@ -65,6 +64,8 @@ import { GeoObjectTypeManagementService } from './service/geoobjecttype-manageme
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
+
+import { OnlyNumber } from './core/number-only.directive';
 
 
 import './rxjs-extensions';
@@ -122,6 +123,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectTypeInputComponent,
     ModalStepIndicatorComponent,
     ManageTermOptionsComponent,
+    OnlyNumber,
     
     // Routing components
     routedComponents

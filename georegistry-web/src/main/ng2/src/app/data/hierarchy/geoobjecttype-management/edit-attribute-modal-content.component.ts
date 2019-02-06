@@ -11,7 +11,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
-import { Step, StepConfig } from '../../../core/modals/modal';
+import { StepConfig } from '../../../core/modals/modal';
 
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
