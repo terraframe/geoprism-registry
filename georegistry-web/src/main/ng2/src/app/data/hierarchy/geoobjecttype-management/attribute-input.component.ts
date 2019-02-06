@@ -15,7 +15,7 @@ import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
 
-
+ 
 @Component( {
     selector: 'attribute-input',
     templateUrl: './attribute-input.component.html',
@@ -37,6 +37,7 @@ export class AttributeInputComponent implements OnInit {
 
     @Input() disableCodeField: boolean = false;
     @Input() excludeDescription: boolean = false;
+    @Input() isDecimal: boolean = false;
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: Attribute;
     @Output() attributeChange = new EventEmitter<Attribute>();

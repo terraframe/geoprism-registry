@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -29,6 +30,7 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
@@ -78,6 +80,8 @@ public class GeoObjectConfiguration
   private Map<String, ShapefileFunction> functions;
 
   private GeoObjectType                  type;
+
+  private GeoObject                      root;
 
   private MdBusinessDAOIF                mdBusiness;
 
@@ -169,9 +173,19 @@ public class GeoObjectConfiguration
     return this.functions.get(attributeName);
   }
 
-  private void setFunction(String attributeName, ShapefileFunction function)
+  public void setFunction(String attributeName, ShapefileFunction function)
   {
     this.functions.put(attributeName, function);
+  }
+
+  public GeoObject getRoot()
+  {
+    return root;
+  }
+
+  public void setRoot(GeoObject root)
+  {
+    this.root = root;
   }
 
   public Map<String, Set<String>> getExclusions()
@@ -362,9 +376,20 @@ public class GeoObjectConfiguration
 
       HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
       MdTermRelationship hierarchyRelationiship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+      List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got, hCode);
 
       configuration.setHierarchy(hierarchyType);
       configuration.setHierarchyRelationship(hierarchyRelationiship);
+
+      if (ancestors.size() > 0)
+      {
+        GeoObjectType rootType = ancestors.get(0);
+        Universal rootUniversal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(rootType);
+        GeoObjectQuery query = new GeoObjectQuery(rootType, rootUniversal);
+        GeoObject root = query.getSingleResult();
+
+        configuration.setRoot(root);
+      }
     }
 
     if (config.has(EXCLUSIONS))

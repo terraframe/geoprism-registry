@@ -9,6 +9,7 @@ import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component'
 
 import { IOService } from '../../service/io.service';
 import { EventService } from '../../event/event.service';
+import { LocalizationService } from '../../core/service/localization.service';
 
 declare var acp: string;
 
@@ -40,7 +41,10 @@ export class SpreadsheetComponent implements OnInit {
      */
     private uploader: FileUploader;
 
-    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService ) { }
+    @ViewChild( 'myFile' )
+    fileRef: ElementRef;
+
+    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService ) { }
 
     ngOnInit(): void {
         this.service.listGeoObjectTypes().then( types => {
@@ -65,6 +69,7 @@ export class SpreadsheetComponent implements OnInit {
             this.eventService.start();
         };
         this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
+            this.fileRef.nativeElement.value = "";
             this.eventService.complete();
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
@@ -84,9 +89,15 @@ export class SpreadsheetComponent implements OnInit {
             this.uploader.uploadAll();
         }
         else {
-            this.error( { message: 'File is required' } );
+            this.error( { message: this.localizationService.decode( 'io.missing.file' ) } );
         }
     }
+
+    onExport(): void {
+        window.location.href = acp + '/excel/export-spreadsheet?type=' + this.code;
+    }
+
+
 
     public error( err: any ): void {
         // Handle error

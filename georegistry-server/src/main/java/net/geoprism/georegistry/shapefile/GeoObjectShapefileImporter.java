@@ -1,35 +1,17 @@
-/**
- * Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Runway SDK(tm).
- *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Runway SDK(tm). If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.georegistry.shapefile;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -83,11 +65,6 @@ public class GeoObjectShapefileImporter extends TaskObservable
   private GeoObjectConfiguration config;
 
   /**
-   * Map between a feature oid and its geo entity
-   */
-  private Map<String, String>    entityIdMap;
-
-  /**
    * @param url
    *          URL of the shapefile
    */
@@ -97,20 +74,11 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
     this.url = url;
     this.config = config;
-    this.entityIdMap = new HashMap<String, String>();
   }
 
   public GeoObjectShapefileImporter(File file, GeoObjectConfiguration config) throws MalformedURLException
   {
     this(file.toURI().toURL(), config);
-  }
-
-  /**
-   * @return Map between Shapefile Feature OID and the imported Entity oid.
-   */
-  public Map<String, String> getEntityIdMap()
-  {
-    return entityIdMap;
   }
 
   @Request
@@ -339,13 +307,23 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
         if (classifier == null)
         {
-          this.config.addProblem(new TermProblem(value.toString(), attributeName, attributeType.getLocalizedLabel()));
+          Classifier root = Classifier.findClassifierRoot(mdAttribute);
+
+          this.config.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
         }
         else
         {
           entity.setValue(attributeName, classifier.getClassifierId());
         }
       }
+    }
+    else if (attributeType instanceof AttributeFloatType)
+    {
+      entity.setValue(attributeName, ( (Number) value ).doubleValue());
+    }
+    else if (attributeType instanceof AttributeIntegerType)
+    {
+      entity.setValue(attributeName, ( (Number) value ).longValue());
     }
     else
     {
@@ -404,6 +382,20 @@ public class GeoObjectShapefileImporter extends TaskObservable
         }
         else
         {
+          if (context.size() == 0)
+          {
+            GeoObject root = this.config.getRoot();
+
+            if (root != null)
+            {
+              JsonObject element = new JsonObject();
+              element.addProperty("label", root.getLocalizedDisplayLabel());
+              element.addProperty("type", root.getType().getLocalizedLabel());
+
+              context.add(element);
+            }
+          }
+
           this.config.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
 
           return null;

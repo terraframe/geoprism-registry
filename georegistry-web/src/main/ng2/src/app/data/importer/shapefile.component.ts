@@ -9,6 +9,7 @@ import { ShapefileModalComponent } from './modals/shapefile-modal.component';
 
 import { IOService } from '../../service/io.service';
 import { EventService } from '../../event/event.service';
+import { LocalizationService } from '../../core/service/localization.service';
 
 declare var acp: string;
 
@@ -43,7 +44,7 @@ export class ShapefileComponent implements OnInit {
     @ViewChild( 'myFile' )
     fileRef: ElementRef;
 
-    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService ) { }
+    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService ) { }
 
     ngOnInit(): void {
         this.service.listGeoObjectTypes().then( types => {
@@ -68,7 +69,7 @@ export class ShapefileComponent implements OnInit {
         };
         this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
             this.fileRef.nativeElement.value = "";
-            this.eventService.complete();            
+            this.eventService.complete();
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );
@@ -87,8 +88,12 @@ export class ShapefileComponent implements OnInit {
             this.uploader.uploadAll();
         }
         else {
-            this.error( { message: 'File is required' } );
+            this.error( { message: this.localizationService.decode( 'io.missing.file' ) } );
         }
+    }
+
+    onExport(): void {
+        window.location.href = acp + '/shapefile/export-shapefile?type=' + this.code;
     }
 
     public error( err: any ): void {

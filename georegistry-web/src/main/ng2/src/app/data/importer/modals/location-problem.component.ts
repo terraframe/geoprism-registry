@@ -16,6 +16,7 @@ export class LocationProblemComponent implements OnInit {
     @Input() configuration: ImportConfiguration;
     @Input() problem: LocationProblem;
     @Input() index: number;
+    @Output() onError: EventEmitter<any> = new EventEmitter<any>();
 
     //    show: boolean;
     dataSource: Observable<any>;
@@ -52,6 +53,8 @@ export class LocationProblemComponent implements OnInit {
                     synonymId: response.synonymId,
                     label: response.label
                 };
+            } ).catch( e => {
+                this.onError.emit( e );
             } );
         }
     }
@@ -86,6 +89,8 @@ export class LocationProblemComponent implements OnInit {
 
                     this.entityLabel = null;
                     this.hasSynonym = ( this.entityLabel != null );
+                } ).catch( e => {
+                    this.onError.emit( e );
                 } );
             }
 

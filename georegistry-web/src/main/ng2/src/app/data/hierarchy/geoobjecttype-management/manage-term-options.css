@@ -1,0 +1,22 @@
+.button-column {
+    text-align: right;
+}
+.button-column .fa {
+    font-size: 25px;
+    color:#bababa;
+}
+.button-column .fa.ico-remove:hover{
+    color: red;
+}
+.button-column .fa.ico-edit:hover{
+    color:#00bfff
+}
+.button-column button {
+    font-size: inherit;
+    height: 38px;
+}
+
+
+th.button-column-header{
+    text-align: right;
+}

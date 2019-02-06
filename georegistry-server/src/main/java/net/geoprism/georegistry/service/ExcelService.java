@@ -33,6 +33,7 @@ import net.geoprism.georegistry.excel.GeoObjectContentHandler;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
+import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.gis.geoserver.SessionPredicate;
 
 public class ExcelService
@@ -61,8 +62,11 @@ public class ExcelService
       ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
       reader.process(new FileInputStream(file));
 
+      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchies(geoObjectType);
+
       JsonObject object = new JsonObject();
       object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
+      object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);
       object.add(GeoObjectConfiguration.SHEET, handler.getSheets().get(0).getAsJsonObject());
       object.addProperty(GeoObjectConfiguration.DIRECTORY, directory.getName());
       object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
@@ -105,14 +109,30 @@ public class ExcelService
   @Request(RequestType.SESSION)
   public JsonObject importExcelFile(String sessionId, String config)
   {
-    return this.importExcelFile(config);
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, true);
+
+    try
+    {
+      this.importExcelFile(configuration);
+    }
+    catch (ProgrammingErrorException e)
+    {
+      if (e.getCause() instanceof ImportProblemException)
+      {
+        // Do nothing: configuration should contain the details of the problem
+      }
+      else
+      {
+        throw e;
+      }
+    }
+
+    return configuration.toJson();
   }
 
   @Transaction
-  private JsonObject importExcelFile(String config)
+  private JsonObject importExcelFile(GeoObjectConfiguration configuration)
   {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, true);
-
     String dir = configuration.getDirectory();
     String fname = configuration.getFilename();
 
@@ -137,6 +157,11 @@ public class ExcelService
     catch (Exception e)
     {
       throw new ProgrammingErrorException(e);
+    }
+
+    if (configuration.hasProblems())
+    {
+      throw new ImportProblemException("Import contains problems");
     }
 
     return configuration.toJson();
@@ -170,17 +195,14 @@ public class ExcelService
   @Transaction
   private InputStream exportSpreadsheet(String code)
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
-
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
 
     try
     {
       it = query.getIterator();
 
-      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, it);
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(query.getType(), it);
       InputStream istream = exporter.export();
 
       return istream;

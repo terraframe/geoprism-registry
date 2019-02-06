@@ -284,17 +284,14 @@ public class ShapefileService
   @Transaction
   private InputStream exportShapefile(String code)
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
-
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
 
     try
     {
       it = query.getIterator();
 
-      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, it);
+      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(query.getType(), it);
 
       return exporter.export();
     }

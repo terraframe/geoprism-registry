@@ -8,11 +8,11 @@ import { HierarchyService } from '../../../service/hierarchy.service';
 
 
 @Component( {
-    selector: 'create-child-modal',
-    templateUrl: './create-child-modal.component.html',
+    selector: 'add-child-to-hierarchy-modal',
+    templateUrl: './add-child-to-hierarchy-modal.component.html',
     styleUrls: []
 } )
-export class CreateChildModalComponent implements OnInit {
+export class AddChildToHierarchyModalComponent implements OnInit {
 
 	 /*
      * parent id of the node being created

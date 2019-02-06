@@ -159,14 +159,42 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="io.locationProblem.title" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Location Problems" />
+          <attribute name="defaultLocale" value="Parent Location Problems" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.locationProblem.description">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="io.locationProblem.description" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Resolve location problems discoved in the import" />
+          <attribute name="defaultLocale" value="Resolve parent location problems discoved in the import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.termProblem.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.termProblem.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Term Problems" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.termProblem.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.termProblem.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Resolve term problems discoved in the import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.missing.file">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.missing.file" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="File is required" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="shapefile.export">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="shapefile.export" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export shapefile" />
         </attributeStruct>
       </object>
     </createOrUpdate>

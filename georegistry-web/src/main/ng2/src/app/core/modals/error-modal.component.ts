@@ -1,19 +1,17 @@
 import { Component, Input } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
-import { TreeNode } from 'angular-tree-component';
-
+import { LocalizationService } from '../service/localization.service';
 
 @Component( {
     selector: 'error-modal',
     templateUrl: './error-modal.component.html',
-    styleUrls: []
+    styleUrls: ['./error-modal.css']
 } )
 export class ErrorModalComponent {
     /*
      * Message
      */
-    @Input() message: string = 'Unable to complete your action';
+    @Input() message: string =  this.localizeService.decode("error.modal.default.message");
 
-    constructor( public bsModalRef: BsModalRef ) { }
+    constructor( public bsModalRef: BsModalRef, private localizeService: LocalizationService ) { }
 }

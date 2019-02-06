@@ -67,7 +67,7 @@ public class TermBuilder
 
     Classifier parent = Classifier.getByKey(parentClassifierKey);
 
-    classifier.addLink(parent, ClassifierIsARelationship.CLASS).apply();
+    classifier.addLink(parent, ClassifierIsARelationship.CLASS);
 
     return classifier;
   }
@@ -78,6 +78,7 @@ public class TermBuilder
     String classifierKey = buildClassifierKeyFromTermCode(termCode);
 
     Classifier classifier = Classifier.getByKey(classifierKey);
+    classifier.lock();
     classifier.setClassifierId(termCode);
     classifier.getDisplayLabel().setValue(localizedLabel);
     classifier.apply();
@@ -121,7 +122,7 @@ public class TermBuilder
 
       Classifier rootClassTerm = Classifier.getByKey(RegistryConstants.TERM_CLASS);
 
-      classTerm.addLink(rootClassTerm, ClassifierIsARelationship.CLASS).apply();
+      classTerm.addLink(rootClassTerm, ClassifierIsARelationship.CLASS);
     }
 
     return classTerm;
@@ -166,14 +167,7 @@ public class TermBuilder
 
       if (parent != null)
       {
-        Relationship relationship = attributeTerm.addLink(parent, ClassifierIsARelationship.CLASS);
-
-        if (!relationship.isNew())
-        {
-          relationship.appLock();
-        }
-
-        relationship.apply();
+        attributeTerm.addLink(parent, ClassifierIsARelationship.CLASS);
       }
     }
 

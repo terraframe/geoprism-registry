@@ -63,7 +63,7 @@ public class ShapefileController
     return new RestBodyResponse("");
   }
 
-  @Endpoint(url = "export-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type) throws JSONException
   {
     return new InputStreamResponse(service.exportShapefile(request.getSessionId(), type), "application/zip", "shapefile.zip");

@@ -118,11 +118,11 @@ public class GeoObjectIterator implements OIterator<GeoObject>
           }
           else if (attribute instanceof AttributeFloatType)
           {
-            gObject.setValue(attributeName, new Float(value));
+            gObject.setValue(attributeName, new Double(value));
           }
           else if (attribute instanceof AttributeIntegerType)
           {
-            gObject.setValue(attributeName, new Integer(value));
+            gObject.setValue(attributeName, new Long(value));
           }
           else
           {

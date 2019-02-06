@@ -12,6 +12,7 @@ export class LocationProblemPageComponent implements OnInit {
     @Input() configuration: ImportConfiguration;
     @Output() stateChange = new EventEmitter<string>();
     problems: LocationProblem[] = [];
+    message: string = null;
 
     constructor() { }
 
@@ -32,6 +33,13 @@ export class LocationProblemPageComponent implements OnInit {
         return false;
     }
 
+    handleError( err: any ): void {
+        // Handle error
+        if ( err !== null ) {
+            this.message = ( err.localizedMessage || err.message );
+        }
+    }
+
     onNext(): void {
         if ( this.configuration.exclusions == null ) {
             this.configuration.exclusions = [];
@@ -44,7 +52,7 @@ export class LocationProblemPageComponent implements OnInit {
                 const value = ( problem.parent != null ? problem.parent + "-" + problem.label : problem.label );
                 const exclusion = { code: '##PARENT##', value: value };
 
-                this.configuration.exclusions.push(exclusion);
+                this.configuration.exclusions.push( exclusion );
             }
         }
 

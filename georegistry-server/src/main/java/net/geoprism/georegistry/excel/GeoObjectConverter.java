@@ -5,12 +5,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.jaitools.jts.CoordinateSequence2D;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -22,11 +26,17 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
+import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
+import net.geoprism.georegistry.io.IgnoreRowException;
+import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.io.RequiredMappingException;
@@ -52,107 +62,111 @@ public class GeoObjectConverter
    */
   public void create(FeatureRow row)
   {
-    String geoId = this.getCode(row);
-
-    GeoObject entity;
-    boolean isNew = false;
-
-    if (geoId != null && geoId.length() > 0)
+    try
     {
-      try
+      GeoObject parent = null;
+
+      /*
+       * First, try to get the parent and ensure that this row is not ignored.
+       * The getParent method will throw a IgnoreRowException if the parent is
+       * configured to be ignored.
+       */
+      if (this.configuration.getHierarchy() != null)
       {
-        // try an update
-        isNew = false;
-        entity = ServiceFactory.getUtilities().getGeoObjectByCode(geoId, this.configuration.getType().getCode());
+        parent = this.getParent(row);
       }
-      catch (DataNotFoundException e)
+
+      String geoId = this.getCode(row);
+
+      GeoObject entity;
+      boolean isNew = false;
+
+      if (geoId != null && geoId.length() > 0)
+      {
+        try
+        {
+          // try an update
+          isNew = false;
+          entity = ServiceFactory.getUtilities().getGeoObjectByCode(geoId, this.configuration.getType().getCode());
+        }
+        catch (DataNotFoundException e)
+        {
+          // create a new entity
+          isNew = true;
+          entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
+        }
+      }
+      else
       {
         // create a new entity
         isNew = true;
         entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
       }
-    }
-    else
-    {
-      // create a new entity
-      isNew = true;
-      entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
-    }
 
-    Geometry geometry = (Geometry) this.getGeometry(row);
-    String entityName = this.getName(row);
+      Geometry geometry = (Geometry) this.getGeometry(row);
+      String entityName = this.getName(row);
 
-    if (entityName != null)
-    {
-      entity.setWKTGeometry(geometry.toText());
-
-      if (isNew)
+      if (entityName != null)
       {
-        entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-      }
+        entity.setWKTGeometry(geometry.toText());
 
-      Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-      Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-
-      boolean valid = true;
-
-      for (Entry<String, AttributeType> entry : entries)
-      {
-        String attributeName = entry.getKey();
-
-        ShapefileFunction function = this.configuration.getFunction(attributeName);
-
-        if (function != null)
+        if (isNew)
         {
-          Object value = function.getValue(row);
+          entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+        }
 
-          if (value != null)
+        Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+        Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+        for (Entry<String, AttributeType> entry : entries)
+        {
+          String attributeName = entry.getKey();
+
+          ShapefileFunction function = this.configuration.getFunction(attributeName);
+
+          if (function != null)
           {
-            AttributeType attributeType = entry.getValue();
+            Object value = function.getValue(row);
 
-            valid = this.setValue(entity, attributeType, attributeName, value) && valid;
+            if (value != null)
+            {
+              AttributeType attributeType = entry.getValue();
+
+              this.setValue(entity, attributeType, attributeName, value);
+            }
           }
         }
-      }
 
-      try
-      {
-        if (valid)
+        ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
+
+        if (parent != null)
         {
-          ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
+          ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.configuration.getHierarchy().getCode());
+        }
+
+        // We must ensure that any problems created during the transaction are
+        // logged now instead of when the request returns. As such, if any
+        // problems exist immediately throw a ProblemException so that normal
+        // exception handling can occur.
+        List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
+
+        if (problems.size() != 0)
+        {
+          throw new ProblemException(null, problems);
         }
       }
-      catch (RuntimeException e)
-      {
-        throw e;
-      }
-      catch (Exception e)
-      {
-        throw new RuntimeException(e);
-      }
-
-      if (isNew)
-      {
-      }
-
-      // We must ensure that any problems created during the transaction are
-      // logged now instead of when the request returns. As such, if any
-      // problems exist immediately throw a ProblemException so that normal
-      // exception handling can occur.
-      List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
-
-      if (problems.size() != 0)
-      {
-        throw new ProblemException(null, problems);
-      }
+    }
+    catch (IgnoreRowException e)
+    {
+      // Do nothing
     }
   }
 
-  private boolean setValue(GeoObject entity, org.commongeoregistry.adapter.metadata.AttributeType attributeType, String attributeName, Object value)
+  private void setValue(GeoObject entity, org.commongeoregistry.adapter.metadata.AttributeType attributeType, String attributeName, Object value)
   {
     if (attributeType instanceof AttributeTermType)
     {
-      if (this.configuration.isExclusion(attributeName, value.toString()))
+      if (!this.configuration.isExclusion(attributeName, value.toString()))
       {
         MdBusinessDAOIF mdBusiness = this.configuration.getMdBusiness();
         MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
@@ -161,30 +175,32 @@ public class GeoObjectConverter
 
         if (classifier == null)
         {
-          this.configuration.addProblem(new TermProblem(value.toString(), attributeName, attributeType.getLocalizedLabel()));
+          Classifier root = Classifier.findClassifierRoot(mdAttribute);
 
-          return false;
+          this.configuration.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
         }
         else
         {
-          List<Term> terms = ( (AttributeTermType) attributeType ).getTerms();
-
-          for (Term term : terms)
-          {
-            if (term.getCode().equals(classifier.getClassifierId()))
-            {
-              entity.setValue(attributeName, term);
-            }
-          }
+          entity.setValue(attributeName, classifier.getClassifierId());
         }
       }
+    }
+    else if (attributeType instanceof AttributeIntegerType)
+    {
+      entity.setValue(attributeName, new Long((String) value));
+    }
+    else if (attributeType instanceof AttributeFloatType)
+    {
+      entity.setValue(attributeName, new Double((String) value));
+    }
+    else if (attributeType instanceof AttributeBooleanType)
+    {
+      entity.setValue(attributeName, value);
     }
     else
     {
       entity.setValue(attributeName, value);
     }
-
-    return true;
   }
 
   private Geometry getGeometry(FeatureRow row)
@@ -241,6 +257,81 @@ public class GeoObjectConverter
     }
 
     return "";
+  }
+
+  /**
+   * Returns the entity as defined by the 'parent' and 'parentType' attributes
+   * of the given feature. If an entity is not found then Earth is returned by
+   * default. The 'parent' value of the feature must define an entity name or a
+   * geo oid. The 'parentType' value of the feature must define the localized
+   * display label of the universal.
+   *
+   * @param feature
+   *          Shapefile feature used to determine the parent
+   * @return Parent entity
+   */
+  private GeoObject getParent(FeatureRow feature)
+  {
+    List<Location> locations = this.configuration.getLocations();
+
+    GeoObject parent = null;
+
+    JsonArray context = new JsonArray();
+
+    for (Location location : locations)
+    {
+      BasicColumnFunction function = location.getFunction();
+      String label = (String) function.getValue(feature);
+
+      if (label != null)
+      {
+        String key = parent != null ? parent.getCode() + "-" + label : label;
+
+        if (this.configuration.isExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, key))
+        {
+          throw new IgnoreRowException();
+        }
+
+        // Search
+        GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
+        query.setRestriction(new SynonymRestriction(label, parent, this.configuration.getHierarchyRelationship()));
+
+        GeoObject result = query.getSingleResult();
+
+        if (result != null)
+        {
+          parent = result;
+
+          JsonObject element = new JsonObject();
+          element.addProperty("label", label);
+          element.addProperty("type", location.getType().getLocalizedLabel());
+
+          context.add(element);
+        }
+        else
+        {
+          if (context.size() == 0)
+          {
+            GeoObject root = this.configuration.getRoot();
+
+            if (root != null)
+            {
+              JsonObject element = new JsonObject();
+              element.addProperty("label", root.getLocalizedDisplayLabel());
+              element.addProperty("type", root.getType().getLocalizedLabel());
+
+              context.add(element);
+            }
+          }
+
+          this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
+
+          return null;
+        }
+      }
+    }
+
+    return parent;
   }
 
   /**

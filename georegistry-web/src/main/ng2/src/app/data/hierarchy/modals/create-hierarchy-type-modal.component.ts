@@ -7,11 +7,11 @@ import { HierarchyService } from '../../../service/hierarchy.service';
 
 
 @Component( {
-    selector: 'create-modal',
-    templateUrl: './create-modal.component.html',
+    selector: 'create-hierarchy-type-modal',
+    templateUrl: './create-hierarchy-type-modal.component.html',
     styleUrls: []
 } )
-export class CreateModalComponent implements OnInit {
+export class CreateHierarchyTypeModalComponent implements OnInit {
 
     hierarchyType: HierarchyType = {"code":"","localizedLabel":"","localizedDescription":"","rootGeoObjectTypes":[]};
 

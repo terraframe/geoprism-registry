@@ -22,18 +22,22 @@ import com.google.gson.JsonObject;
 
 public class TermProblem implements Comparable<TermProblem>
 {
-  public static final String TYPE = "categories";
+  private String label;
 
-  private String             label;
+  private String mdAttributeId;
 
-  private String             mdAttributeId;
+  private String categoryId;
 
-  private String             attributeLabel;
+  private String code;
 
-  public TermProblem(String label, String mdAttributeId, String attributeLabel)
+  private String attributeLabel;
+
+  public TermProblem(String label, String mdAttributeId, String categoryId, String code, String attributeLabel)
   {
     this.label = label;
     this.mdAttributeId = mdAttributeId;
+    this.categoryId = categoryId;
+    this.code = code;
     this.attributeLabel = attributeLabel;
   }
 
@@ -52,7 +56,9 @@ public class TermProblem implements Comparable<TermProblem>
     JsonObject object = new JsonObject();
     object.addProperty("label", label);
     object.addProperty("mdAttributeId", mdAttributeId);
+    object.addProperty("categoryId", categoryId);
     object.addProperty("attributeLabel", attributeLabel);
+    object.addProperty("code", code);
 
     return object;
   }

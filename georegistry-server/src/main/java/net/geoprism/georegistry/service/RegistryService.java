@@ -526,25 +526,12 @@ public class RegistryService
     }
   }
 
-  @Request(RequestType.SESSION)
-  public void deleteGeoObject(String sessionId, String id, String typeCode)
+  public GeoObjectQuery createQuery(String typeCode)
   {
-    deleteGeoObjectInTransaction(sessionId, id, typeCode);
-  }
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
+    Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(type);
 
-  @Transaction
-  private void deleteGeoObjectInTransaction(String sessionId, String id, String typeCode)
-  {
-    GeoObject geoObject = ServiceFactory.getUtilities().getGeoObjectById(id, typeCode);
-
-    if (geoObject.getType().isLeaf())
-    {
-      throw new UnsupportedOperationException("Not implemented yet.");
-    }
-    else
-    {
-      GeoEntity.get(geoObject.getUid()).delete();
-    }
+    return new GeoObjectQuery(type, universal);
   }
 
   ///////////////////// Hierarchy Management /////////////////////
@@ -675,7 +662,7 @@ public class RegistryService
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public AttributeType addAttributeToGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  public AttributeType createAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
@@ -710,7 +697,7 @@ public class RegistryService
    * @return updated {@link AttributeType}
    */
   @Request(RequestType.SESSION)
-  public AttributeType updateAttributeInGeoObjectType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  public AttributeType updateAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
@@ -750,7 +737,7 @@ public class RegistryService
    * @return updated {@link GeoObjectType}
    */
   @Request(RequestType.SESSION)
-  public void deleteAttributeFromGeoObjectType(String sessionId, String gtId, String attributeName)
+  public void deleteAttributeType(String sessionId, String gtId, String attributeName)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
 
@@ -1118,10 +1105,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode)
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
-
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
     query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
     query.setLimit(10);
 

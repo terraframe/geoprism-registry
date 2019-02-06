@@ -35,8 +35,6 @@ export class Term {
         this.localizedLabel = localizedLabel;
         this.localizedDescription = localizedDescription;
     }
-	// code: string;
-    // localizedLabel: string;
     children: Term[] = [];
 
     addChild(term:Term) {
@@ -117,7 +115,28 @@ export class AttributeTerm extends Attribute {
     }
 }
 
-export class ManageAttributeState {
+export class AttributeDecimal extends Attribute {
+    //descendants: Attribute[];
+    
+    constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public length:number, public decimal:number, public isDefault:boolean){
+      super(code, type, localizedLabel, localizedDescription, isDefault);
+
+      this.length = length;
+      this.decimal = decimal;
+    }
+}
+
+export enum GeoObjectTypeModalStates {
+    "manageAttributes" = "MANAGE-ATTRIBUTES",
+    "editAttribute" = "EDIT-ATTRIBUTE",
+    "defineAttribute" = "DEFINE-ATTRIBUTE",
+    "manageTermOption" = "MANAGE-TERM-OPTION",
+    "editTermOption" = "EDIT-TERM-OPTION",
+    "manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
+}
+
+export class ManageGeoObjectTypeModalState {
   state: string;
   attribute: any;
+  termOption: any;
 }

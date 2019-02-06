@@ -25,16 +25,18 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
-import { CreateModalComponent } from './modals/create-modal.component';
-import { CreateChildModalComponent } from './modals/create-child-modal.component';
+import { CreateHierarchyTypeModalComponent } from './modals/create-hierarchy-type-modal.component';
+import { AddChildToHierarchyModalComponent } from './modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
-import { ManageAttributesModalComponent } from './modals/manage-attributes-modal.component';
-import { DefineAttributeModalContentComponent } from './modals/define-attribute-modal-content.component';
-import { EditAttributeModalContentComponent } from './modals/edit-attribute-modal-content.component';
+// import { ManageAttributesModalComponent } from './modals/manage-attributes-modal.component';
+import { ManageGeoObjectTypeModalComponent } from './modals/manage-geoobjecttype-modal.component';
 import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component';
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 
-import { Hierarchy, HierarchyType, HierarchyNode, GeoObjectType, TreeEntity } from './hierarchy';
+import { LocalizationService } from '../../core/service/localization.service';
+
+import { HierarchyType, HierarchyNode, GeoObjectType } from './hierarchy';
+import { ModalTypes } from '../../core/modals/modal'
 
 import { HierarchyService } from '../../service/hierarchy.service';
 
@@ -51,12 +53,12 @@ class Instance {
 })
 export class HierarchyComponent implements OnInit {
   instance : Instance = new Instance();  
-  private hierarchies: HierarchyType[];
-  private geoObjectTypes: GeoObjectType[] = [];
-  private nodes = [] as HierarchyNode[];
-  private currentHierarchy: HierarchyType = null;
-  private hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
-  private geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
+  hierarchies: HierarchyType[];
+  geoObjectTypes: GeoObjectType[] = [];
+  nodes = [] as HierarchyNode[];
+  currentHierarchy: HierarchyType = null;
+  hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
+  geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
 
   /*
    * Reference to the modal current showing
@@ -90,8 +92,8 @@ export class HierarchyComponent implements OnInit {
   current: TreeNode;
   
   
-  constructor(private router: Router, private hierarchyService: HierarchyService, private modalService: BsModalService, 
-		      private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef) { 
+  constructor(private hierarchyService: HierarchyService, private modalService: BsModalService, 
+		      private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef, private localizeService: LocalizationService) { 
 	  
   }
 
@@ -304,14 +306,14 @@ export class HierarchyComponent implements OnInit {
   }
   
   public createHierarchy(): void {
-	  this.bsModalRef = this.modalService.show( CreateModalComponent, {
+	  this.bsModalRef = this.modalService.show( CreateHierarchyTypeModalComponent, {
           animated: true,
           backdrop: true,
           ignoreBackdropClick: true,
           'class': 'upload-modal'
       } );
       
-      ( <CreateModalComponent>this.bsModalRef.content ).onHierarchytTypeCreate.subscribe( data => {
+      ( <CreateHierarchyTypeModalComponent>this.bsModalRef.content ).onHierarchytTypeCreate.subscribe( data => {
     	  
     	  // TODO: Make sure this works
     	  this.hierarchies.push(data);
@@ -324,7 +326,7 @@ export class HierarchyComponent implements OnInit {
 		  backdrop: true,
 		  ignoreBackdropClick: true,
 	  } );
-	  this.bsModalRef.content.message = 'Are you sure you want to delete [' + obj.localizedLabel + ']';
+	  this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + obj.localizedLabel + ']';
 	  this.bsModalRef.content.data = obj.code;
 
 	  ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
@@ -378,8 +380,10 @@ export class HierarchyComponent implements OnInit {
         backdrop: true,
         ignoreBackdropClick: true,
     } );
-    this.bsModalRef.content.message = 'Are you sure you want to delete [' + obj.localizedLabel + ']';
+    this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + obj.localizedLabel + ']';
     this.bsModalRef.content.data = obj.code;
+    this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+    this.bsModalRef.content.type = ModalTypes.danger;
 
     ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
         this.removeGeoObjectType( data );
@@ -409,13 +413,13 @@ export class HierarchyComponent implements OnInit {
       } );
   }
 
-   public addAttributesToGeoObjectType(geoObjectType: GeoObjectType): void {
+   public manageGeoObjectType(geoObjectType: GeoObjectType): void {
 	  
-	  this.bsModalRef = this.modalService.show( ManageAttributesModalComponent, {
+	  this.bsModalRef = this.modalService.show( ManageGeoObjectTypeModalComponent, {
           animated: true,
           backdrop: true,
           ignoreBackdropClick: true,
-          'class': 'add-attributes-modal'
+          'class': 'manage-geoobjecttype-modal'
       } );
 
       geoObjectType.attributes.sort((a, b) => {
@@ -451,7 +455,7 @@ export class HierarchyComponent implements OnInit {
   public addChildAndRootToHierarchy(): void {
 	  const that = this;
       
-      this.bsModalRef = this.modalService.show( CreateChildModalComponent, {
+      this.bsModalRef = this.modalService.show( AddChildToHierarchyModalComponent, {
           animated: true,
           backdrop: true,
           ignoreBackdropClick: true,
@@ -463,7 +467,7 @@ export class HierarchyComponent implements OnInit {
       this.bsModalRef.content.hierarchyType = this.currentHierarchy;
       this.bsModalRef.content.nodes = this.nodes;
 
-      ( <CreateChildModalComponent>this.bsModalRef.content ).onNodeChange.subscribe( hierarchyType => {
+      ( <AddChildToHierarchyModalComponent>this.bsModalRef.content ).onNodeChange.subscribe( hierarchyType => {
           
           that.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
           that.updateHierarchy(hierarchyType.code, hierarchyType.rootGeoObjectTypes)
@@ -480,7 +484,7 @@ export class HierarchyComponent implements OnInit {
 	  const that = this;
       that.current = parent;
       
-      this.bsModalRef = this.modalService.show( CreateChildModalComponent, {
+      this.bsModalRef = this.modalService.show( AddChildToHierarchyModalComponent, {
           animated: true,
           backdrop: true,
           ignoreBackdropClick: true,
@@ -492,7 +496,7 @@ export class HierarchyComponent implements OnInit {
       this.bsModalRef.content.hierarchyType = this.currentHierarchy;
       this.bsModalRef.content.nodes = this.nodes;
 
-      ( <CreateChildModalComponent>this.bsModalRef.content ).onNodeChange.subscribe( hierarchyType => {
+      ( <AddChildToHierarchyModalComponent>this.bsModalRef.content ).onNodeChange.subscribe( hierarchyType => {
           const d = that.current.data;
 
           
@@ -513,7 +517,7 @@ export class HierarchyComponent implements OnInit {
           backdrop: true,
           ignoreBackdropClick: true,
       } );
-      this.bsModalRef.content.message = 'Are you sure you want to delete [' + node.data.label + ']';
+      this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + node.data.label + ']';
       this.bsModalRef.content.data = node;
 
       ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
@@ -554,10 +558,9 @@ export class HierarchyComponent implements OnInit {
 
   public allowDrop(element:Element) {
 	    // Return true/false based on element
-	  console.log("allow drop")
 	  return true;
   }
-  
+
   public error( err: any ): void {
       // Handle error
       if ( err !== null ) {

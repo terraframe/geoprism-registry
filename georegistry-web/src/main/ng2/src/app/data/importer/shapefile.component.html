@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="form-group row">
-          <label class="col-md-2" for="code">
+          <label class="col-md-2" for="file">
             <localize key="io.shapefile"></localize>
           </label>
           <div class="col-md-6">
@@ -36,6 +36,9 @@
           <div class="col-md-8 text-right">
             <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
               <localize key="io.submit"></localize>
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onExport()">
+              <localize key="shapefile.export"></localize>
             </button>
           </div>
         </div>

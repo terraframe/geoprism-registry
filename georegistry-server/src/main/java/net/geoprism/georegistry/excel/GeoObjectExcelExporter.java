@@ -4,19 +4,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
+import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -24,17 +25,22 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.runwaysdk.query.OIterator;
+import com.vividsolutions.jts.geom.Point;
+
+import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
+import net.geoprism.georegistry.io.ImportAttributeSerializer;
 
 public class GeoObjectExcelExporter
 {
-  private static Logger       logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
+  private static Logger        logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
 
-  private GeoObjectType       type;
+  private GeoObjectType        type;
 
-  private Iterable<GeoObject> objects;
+  private OIterator<GeoObject> objects;
 
-  public GeoObjectExcelExporter(GeoObjectType type, Iterable<GeoObject> objects)
+  public GeoObjectExcelExporter(GeoObjectType type, OIterator<GeoObject> objects)
   {
     this.type = type;
     this.objects = objects;
@@ -55,7 +61,7 @@ public class GeoObjectExcelExporter
     return objects;
   }
 
-  public void setObjects(Iterable<GeoObject> objects)
+  public void setObjects(OIterator<GeoObject> objects)
   {
     this.objects = objects;
   }
@@ -65,23 +71,25 @@ public class GeoObjectExcelExporter
     Workbook workbook = new XSSFWorkbook();
     Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.type.getLocalizedLabel()));
 
+    CreationHelper createHelper = workbook.getCreationHelper();
     Font font = workbook.createFont();
     font.setBold(true);
 
     CellStyle boldStyle = workbook.createCellStyle();
     boldStyle.setFont(font);
 
+    CellStyle dateStyle = workbook.createCellStyle();
+    dateStyle.setDataFormat(createHelper.createDataFormat().getFormat(BuiltinFormats.getBuiltinFormat(14)));
+
     Row header = sheet.createRow(0);
 
-    Map<String, AttributeType> attributes = this.type.getAttributeMap();
-    Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+    boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(includeCoordinates, true).attributes(this.type);
 
     int col = 0;
 
-    for (Entry<String, AttributeType> entry : entries)
+    for (AttributeType attribute : attributes)
     {
-      AttributeType attribute = entry.getValue();
-
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
       cell.setCellValue(attribute.getLocalizedLabel());
@@ -89,43 +97,65 @@ public class GeoObjectExcelExporter
 
     int rownum = 1;
 
-    for (GeoObject object : this.objects)
+    while (this.objects.hasNext())
     {
+      GeoObject object = this.objects.next();
+
       col = 0;
 
       Row row = sheet.createRow(rownum++);
 
-      for (Entry<String, AttributeType> entry : entries)
+      for (AttributeType attribute : attributes)
       {
-        AttributeType attribute = entry.getValue();
         String name = attribute.getName();
-        Object value = object.getValue(name);
-
         Cell cell = row.createCell(col++);
 
-        if (value != null)
+        if (name.equals(GeoObjectConfiguration.LATITUDE))
         {
-          if (attribute instanceof AttributeTermType)
+          Point point = (Point) object.getGeometry();
+
+          if (point != null)
           {
-            cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
+            cell.setCellValue(point.getY());
           }
-          else
+        }
+        else if (name.equals(GeoObjectConfiguration.LONGITUDE))
+        {
+          Point point = (Point) object.getGeometry();
+          if (point != null)
           {
-            if (value instanceof String)
+            cell.setCellValue(point.getX());
+          }
+        }
+        else
+        {
+          Object value = object.getValue(name);
+
+          if (value != null)
+          {
+            if (attribute instanceof AttributeTermType)
             {
-              cell.setCellValue((String) value);
+              cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
             }
-            else if (value instanceof Date)
+            else
             {
-              cell.setCellValue((Date) value);
-            }
-            else if (value instanceof Number)
-            {
-              cell.setCellValue( ( (Number) value ).doubleValue());
-            }
-            else if (value instanceof Boolean)
-            {
-              cell.setCellValue((Boolean) value);
+              if (value instanceof String)
+              {
+                cell.setCellValue((String) value);
+              }
+              else if (value instanceof Date)
+              {
+                cell.setCellValue((Date) value);
+                cell.setCellStyle(dateStyle);
+              }
+              else if (value instanceof Number)
+              {
+                cell.setCellValue( ( (Number) value ).doubleValue());
+              }
+              else if (value instanceof Boolean)
+              {
+                cell.setCellValue((Boolean) value);
+              }
             }
           }
         }
