@@ -53,12 +53,12 @@ class Instance {
 })
 export class HierarchyComponent implements OnInit {
   instance : Instance = new Instance();  
-  private hierarchies: HierarchyType[];
-  private geoObjectTypes: GeoObjectType[] = [];
-  private nodes = [] as HierarchyNode[];
-  private currentHierarchy: HierarchyType = null;
-  private hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
-  private geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
+  hierarchies: HierarchyType[];
+  geoObjectTypes: GeoObjectType[] = [];
+  nodes = [] as HierarchyNode[];
+  currentHierarchy: HierarchyType = null;
+  hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
+  geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
 
   /*
    * Reference to the modal current showing
@@ -560,7 +560,7 @@ export class HierarchyComponent implements OnInit {
 	    // Return true/false based on element
 	  return true;
   }
-  
+
   public error( err: any ): void {
       // Handle error
       if ( err !== null ) {
