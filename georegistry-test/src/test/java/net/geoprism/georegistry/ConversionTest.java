@@ -315,6 +315,8 @@ public class ConversionTest
 
     Term term = ServiceFactory.getRegistryService().createTerm(sessionId, rootTerm.getCode(), new Term("termValue2", "Term Value 2", "").toJSON().toString());
 
+    this.testData.refreshTerms(testTerm);
+
     try
     {
       // Create a new GeoObject with the custom attribute
@@ -356,6 +358,8 @@ public class ConversionTest
     Term rootTerm = testTerm.getRootTerm();
 
     Term term = ServiceFactory.getRegistryService().createTerm(sessionId, rootTerm.getCode(), new Term("termValue2", "Term Value 2", "").toJSON().toString());
+    
+    this.testData.refreshTerms(testTerm);
 
     try
     {

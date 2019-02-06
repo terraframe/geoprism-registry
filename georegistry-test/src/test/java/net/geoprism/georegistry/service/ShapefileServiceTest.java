@@ -440,6 +440,8 @@ public class ShapefileServiceTest
 
     try
     {
+      this.testData.refreshTerms(this.testTerm);
+
       InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
 
       Assert.assertNotNull(istream);
@@ -465,6 +467,8 @@ public class ShapefileServiceTest
     finally
     {
       ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+
+      this.testData.refreshTerms(this.testTerm);
     }
   }
 

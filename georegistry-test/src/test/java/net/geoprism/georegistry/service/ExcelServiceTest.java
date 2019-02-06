@@ -268,6 +268,8 @@ public class ExcelServiceTest
 
     try
     {
+      this.testData.refreshTerms(testTerm);
+
       Calendar calendar = Calendar.getInstance();
       calendar.clear();
       calendar.set(2018, Calendar.FEBRUARY, 12, 0, 0, 0);
@@ -431,6 +433,8 @@ public class ExcelServiceTest
 
     try
     {
+      this.testData.refreshTerms(testTerm);
+
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
       Assert.assertNotNull(istream);
@@ -456,6 +460,8 @@ public class ExcelServiceTest
     finally
     {
       ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+      
+      this.testData.refreshTerms(testTerm);
     }
   }
 
