@@ -166,7 +166,7 @@ public class ConversionTest
     geoObj.setCode("000");
     geoObj.setLocalizedDisplayLabel("Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testFloat.getName(), new Float(234.2));
+    geoObj.setValue(testFloat.getName(), new Double(234.2));
 
     ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
 
@@ -191,7 +191,7 @@ public class ConversionTest
     geoObj.setCode("000");
     geoObj.setLocalizedDisplayLabel("Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testFloat.getName(), new Float(234.2));
+    geoObj.setValue(testFloat.getName(), new Double(234.2));
 
     ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
 
@@ -216,7 +216,7 @@ public class ConversionTest
     geoObj.setCode("000");
     geoObj.setLocalizedDisplayLabel("Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testInteger.getName(), new Integer(123));
+    geoObj.setValue(testInteger.getName(), new Long(123));
 
     ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
 
@@ -241,7 +241,7 @@ public class ConversionTest
     geoObj.setCode("000");
     geoObj.setLocalizedDisplayLabel("Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testInteger.getName(), new Integer(234));
+    geoObj.setValue(testInteger.getName(), new Long(234));
 
     ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
 

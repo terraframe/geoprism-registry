@@ -183,6 +183,20 @@
           <attribute name="defaultLocale" value="Resolve term problems discoved in the import" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.missing.file">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.missing.file" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="File is required" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="shapefile.export">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="shapefile.export" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export shapefile" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

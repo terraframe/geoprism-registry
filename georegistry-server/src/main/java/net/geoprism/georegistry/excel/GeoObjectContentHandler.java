@@ -19,14 +19,11 @@
 package net.geoprism.georegistry.excel;
 
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +36,6 @@ import net.geoprism.data.etl.excel.ExcelValueException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
-import net.geoprism.localization.LocalizationFacade;
 
 public class GeoObjectContentHandler implements SheetHandler
 {
@@ -49,11 +45,6 @@ public class GeoObjectContentHandler implements SheetHandler
    * Handler which handles the view object once they have been created.
    */
   private GeoObjectConverter   converter;
-
-  /**
-   * Current sheet name
-   */
-  private String               sheetName;
 
   /**
    * Column index-Column Name Map for the current sheet
@@ -76,29 +67,9 @@ public class GeoObjectContentHandler implements SheetHandler
   private Map<String, Object>  row;
 
   /**
-   * Decimal format used to remove trailing 0s from the long values
-   */
-  private DecimalFormat        nFormat;
-
-  /**
    * Format used for parsing and formatting dateTime fields
    */
   private DateFormat           dateTimeFormat;
-
-  /**
-   * Format used for parsing and formatting dateTime fields
-   */
-  private DateFormat           dateFormat;
-
-  /**
-   * Workbook containing error rows
-   */
-  private SXSSFWorkbook        workbook;
-
-  /**
-   * Date style format
-   */
-  private CellStyle            style;
 
   boolean                      isFirstSheet;
 
@@ -109,16 +80,13 @@ public class GeoObjectContentHandler implements SheetHandler
     this.converter = new GeoObjectConverter(configuration);
 
     this.map = new HashMap<Integer, String>();
-    this.nFormat = new DecimalFormat("###.#");
 
     this.dateTimeFormat = new SimpleDateFormat(ExcelDataFormatter.DATE_TIME_FORMAT);
-    this.dateFormat = new SimpleDateFormat(ExcelDataFormatter.DATE_FORMAT);
   }
 
   @Override
   public void startSheet(String sheetName)
   {
-    this.sheetName = sheetName;
     this.errorNum = 1;
   }
 
@@ -184,7 +152,6 @@ public class GeoObjectContentHandler implements SheetHandler
   {
     if (this.isFirstSheet)
     {
-
       try
       {
         if (cellType.equals(ColumnType.FORMULA))
@@ -200,20 +167,23 @@ public class GeoObjectContentHandler implements SheetHandler
           }
 
           this.setColumnName(cellReference, formattedValue);
-
-          // Store the original value in a temp map in case there is an error
-          String label = LocalizationFacade.getFromBundles("dataUploader.causeOfFailure");
-
-          if (!contentValue.equals(label))
-          {
-            this.row.put(cellReference, contentValue);
-          }
         }
         else if (this.row != null)
         {
           String columnName = this.getColumnName(cellReference);
 
-          this.row.put(columnName, formattedValue);
+          if (cellType.equals(ColumnType.DATE))
+          {
+            this.row.put(columnName, this.dateTimeFormat.parse(contentValue));
+          }
+          else if (cellType.equals(ColumnType.BOOLEAN))
+          {
+            this.row.put(columnName, new Boolean(contentValue.equals("TRUE")));
+          }
+          else
+          {
+            this.row.put(columnName, formattedValue);
+          }
         }
       }
       catch (Exception e)

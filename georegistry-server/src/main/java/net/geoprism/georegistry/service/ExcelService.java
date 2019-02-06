@@ -61,12 +61,12 @@ public class ExcelService
 
       ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
       reader.process(new FileInputStream(file));
-      
+
       JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchies(geoObjectType);
 
       JsonObject object = new JsonObject();
       object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
-      object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);      
+      object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);
       object.add(GeoObjectConfiguration.SHEET, handler.getSheets().get(0).getAsJsonObject());
       object.addProperty(GeoObjectConfiguration.DIRECTORY, directory.getName());
       object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
@@ -195,17 +195,14 @@ public class ExcelService
   @Transaction
   private InputStream exportSpreadsheet(String code)
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
-
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
 
     try
     {
       it = query.getIterator();
 
-      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, it);
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(query.getType(), it);
       InputStream istream = exporter.export();
 
       return istream;

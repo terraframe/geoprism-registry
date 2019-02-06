@@ -30,6 +30,7 @@ import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
+import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -55,11 +56,11 @@ import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeDateTime;
+import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
-import com.runwaysdk.system.metadata.MdAttributeFloat;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeInteger;
 import com.runwaysdk.system.metadata.MdAttributeLocalCharacter;
+import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
@@ -391,10 +392,7 @@ public class AdapterUtilities
    */
   public GeoObject getGeoObjectById(String registryId, String geoObjectTypeCode)
   {
-    GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-
-    GeoObjectQuery query = new GeoObjectQuery(got, universal);
+    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(geoObjectTypeCode);
     query.setRestriction(new UidRestriction(registryId));
 
     GeoObject gObject = query.getSingleResult();
@@ -432,17 +430,14 @@ public class AdapterUtilities
 
   public GeoObject getGeoObjectByCode(String code, String typeCode)
   {
-    GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-
-    GeoObjectQuery query = new GeoObjectQuery(got, universal);
+    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
     query.setRestriction(new CodeRestriction(code));
 
     GeoObject gObject = query.getSingleResult();
 
     if (gObject == null)
     {
-      throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", MdBusinessDAO.get(universal.getMdBusinessOid()));
+      throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", MdBusinessDAO.get(query.getUniversal().getMdBusinessOid()));
     }
 
     return gObject;
@@ -690,11 +685,15 @@ public class AdapterUtilities
     }
     else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
     {
-      mdAttribute = new MdAttributeInteger();
+      mdAttribute = new MdAttributeLong();
     }
     else if (attributeType.getType().equals(AttributeFloatType.TYPE))
     {
-      mdAttribute = new MdAttributeFloat();
+      mdAttribute = new MdAttributeDouble();
+
+      // TODO: Non default values
+      mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, "32");
+      mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, "8");
     }
     else if (attributeType.getType().equals(AttributeTermType.TYPE))
     {

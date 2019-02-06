@@ -37,6 +37,9 @@
             <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
               <localize key="io.submit"></localize>
             </button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onExport()">
+              <localize key="spreadsheet.export"></localize>
+            </button>
           </div>
         </div>
       </form>

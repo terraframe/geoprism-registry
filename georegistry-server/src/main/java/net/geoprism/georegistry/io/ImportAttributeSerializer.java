@@ -23,21 +23,35 @@ public class ImportAttributeSerializer implements CustomSerializer
 
   public ImportAttributeSerializer(boolean includeCoordinates)
   {
+    this(includeCoordinates, false);
+  }
+
+  public ImportAttributeSerializer(boolean includeCoordinates, boolean includeUid)
+  {
     this.includeCoordinates = includeCoordinates;
 
     this.filter = new TreeSet<String>();
-    this.filter.add(DefaultAttribute.UID.getName());
     this.filter.add(DefaultAttribute.STATUS.getName());
     this.filter.add(DefaultAttribute.LAST_UPDATE_DATE.getName());
     this.filter.add(DefaultAttribute.CREATE_DATE.getName());
     this.filter.add(DefaultAttribute.SEQUENCE.getName());
     this.filter.add(DefaultAttribute.TYPE.getName());
 
+    if (!includeUid)
+    {
+      this.filter.add(DefaultAttribute.UID.getName());
+    }
+
     this.required = new TreeSet<String>();
     this.required.add(DefaultAttribute.CODE.getName());
     this.required.add(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName());
     this.required.add(GeoObjectConfiguration.LATITUDE);
     this.required.add(GeoObjectConfiguration.LONGITUDE);
+  }
+
+  public Set<String> getFilter()
+  {
+    return filter;
   }
 
   @Override

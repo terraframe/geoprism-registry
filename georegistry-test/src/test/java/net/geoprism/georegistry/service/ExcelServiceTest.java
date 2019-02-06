@@ -2,6 +2,7 @@ package net.geoprism.georegistry.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -15,10 +16,12 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,9 +33,13 @@ import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.metadata.MdTermRelationship;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.georegistry.CodeRestriction;
+import net.geoprism.georegistry.GeoObjectIterator;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
@@ -41,11 +48,17 @@ import net.geoprism.georegistry.testframework.USATestData;
 
 public class ExcelServiceTest
 {
-  protected USATestData     testData;
+  protected USATestData        testData;
 
-  protected ClientRequestIF adminCR;
+  protected ClientRequestIF    adminCR;
 
-  private AttributeTermType testTerm;
+  private AttributeTermType    testTerm;
+
+  private AttributeIntegerType testInteger;
+
+  private AttributeDateType    testDate;
+
+  private AttributeBooleanType testBoolean;
 
   @Before
   public void setUp()
@@ -54,9 +67,17 @@ public class ExcelServiceTest
 
     this.adminCR = testData.adminClientRequest;
 
-    // Add a new custom attribute
     AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", "testTermLocalName", "testTermLocalDescrip", AttributeTermType.TYPE);
     this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
+
+    AttributeBooleanType testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", "testBooleanLocalName", "testBooleanLocalDescrip", AttributeBooleanType.TYPE);
+    this.testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testBoolean.toJSON().toString());
+
+    AttributeDateType testDate = (AttributeDateType) AttributeType.factory("testDate", "testDateLocalName", "testDateLocalDescrip", AttributeDateType.TYPE);
+    this.testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testDate.toJSON().toString());
+
+    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
+    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
   }
 
   @After
@@ -101,9 +122,9 @@ public class ExcelServiceTest
     Assert.assertEquals(4, fields.size());
     Assert.assertEquals("Name", fields.get(0).getAsString());
 
-    Assert.assertEquals(2, attributes.get(GeoObjectConfiguration.NUMERIC).getAsJsonArray().size());
-    Assert.assertEquals(0, attributes.get(AttributeBooleanType.TYPE).getAsJsonArray().size());
-    Assert.assertEquals(0, attributes.get(AttributeDateType.TYPE).getAsJsonArray().size());
+    Assert.assertEquals(4, attributes.get(GeoObjectConfiguration.NUMERIC).getAsJsonArray().size());
+    Assert.assertEquals(1, attributes.get(AttributeBooleanType.TYPE).getAsJsonArray().size());
+    Assert.assertEquals(1, attributes.get(AttributeDateType.TYPE).getAsJsonArray().size());
   }
 
   @Test
@@ -131,6 +152,79 @@ public class ExcelServiceTest
 
   @Test
   @Request
+  public void testImportSpreadsheetInteger()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+
+    JsonObject json = this.getTestConfiguration(istream, service, null);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
+
+    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "Test", testData.STATE.getCode());
+
+    Assert.assertNotNull(object);
+    Assert.assertEquals(new Long(123), object.getValue(this.testInteger.getName()));
+  }
+
+  @Test
+  @Request
+  public void testImportSpreadsheetDate()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+
+    JsonObject json = this.getTestConfiguration(istream, service, null);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    configuration.setFunction(this.testDate.getName(), new BasicColumnFunction("Test Date"));
+
+    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "Test", testData.STATE.getCode());
+
+    Calendar calendar = Calendar.getInstance();
+    calendar.clear();
+    calendar.set(2018, Calendar.FEBRUARY, 12, 0, 0, 0);
+
+    Assert.assertNotNull(object);
+    Assert.assertEquals(calendar.getTime(), object.getValue(this.testDate.getName()));
+  }
+
+  @Test
+  @Request
+  public void testImportSpreadsheetBoolean()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+
+    JsonObject json = this.getTestConfiguration(istream, service, null);
+
+    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    configuration.setFunction(this.testBoolean.getName(), new BasicColumnFunction("Test Boolean"));
+
+    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "Test", testData.STATE.getCode());
+
+    Assert.assertNotNull(object);
+    Assert.assertEquals(new Boolean(true), object.getValue(this.testBoolean.getName()));
+  }
+
+  @Test
+  @Request
   public void testCreateWorkbook() throws IOException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
@@ -147,48 +241,78 @@ public class ExcelServiceTest
 
     GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
 
-    List<GeoObject> objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator().getAll();
+    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
 
-    Assert.assertEquals(1, objects.size());
+    try
+    {
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+      Workbook workbook = exporter.createWorkbook();
 
-    GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
-    Workbook workbook = exporter.createWorkbook();
+      Assert.assertEquals(1, workbook.getNumberOfSheets());
 
-    Assert.assertEquals(1, workbook.getNumberOfSheets());
+      Sheet sheet = workbook.getSheetAt(0);
 
-    Sheet sheet = workbook.getSheetAt(0);
-
-    Assert.assertEquals(WorkbookUtil.createSafeSheetName(type.getLocalizedLabel()), sheet.getSheetName());
+      Assert.assertEquals(WorkbookUtil.createSafeSheetName(type.getLocalizedLabel()), sheet.getSheetName());
+    }
+    finally
+    {
+      objects.close();
+    }
   }
 
   @Test
   @Request
   public void testExport() throws IOException
   {
-    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", "Test Term", "").toJSON().toString());
 
-    Assert.assertNotNull(istream);
+    try
+    {
+      Calendar calendar = Calendar.getInstance();
+      calendar.clear();
+      calendar.set(2018, Calendar.FEBRUARY, 12, 0, 0, 0);
 
-    ExcelService service = new ExcelService();
+      GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+      Point point = geometryFactory.createPoint(new Coordinate(-104.991531, 39.742043));
 
-    JsonObject json = this.getTestConfiguration(istream, service, null);
+      GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode());
+      geoObj.setCode("00");
+      geoObj.setLocalizedDisplayLabel("Test Label");
+      geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+      geoObj.setGeometry(point);
+      geoObj.setValue(this.testTerm.getName(), term.getCode());
+      geoObj.setValue(this.testInteger.getName(), 23L);
+      geoObj.setValue(this.testDate.getName(), calendar.getTime());
+      geoObj.setValue(this.testBoolean.getName(), true);
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+      geoObj = ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+      InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+      Assert.assertNotNull(istream);
 
-    List<GeoObject> objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator().getAll();
+      GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
 
-    Assert.assertEquals(1, objects.size());
+      GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
 
-    GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
-    InputStream export = exporter.export();
+      try
+      {
+        GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+        InputStream export = exporter.export();
 
-    Assert.assertNotNull(export);
+        Assert.assertNotNull(export);
 
-    IOUtils.copy(export, new NullOutputStream());
+        IOUtils.copy(export, new NullOutputStream());
+      }
+      finally
+      {
+        objects.close();
+      }
+    }
+    finally
+    {
+      ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+    }
   }
 
   @Test
