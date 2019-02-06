@@ -3,11 +3,9 @@ package net.geoprism.georegistry.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,11 +40,14 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.georegistry.CodeRestriction;
+import net.geoprism.georegistry.GeoObjectIterator;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
+import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.Location;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
+import net.geoprism.georegistry.testframework.ListIterator;
 import net.geoprism.georegistry.testframework.USATestData;
 
 public class ShapefileServiceTest
@@ -99,8 +100,9 @@ public class ShapefileServiceTest
 
     Assert.assertEquals(4, tAttributes.size());
 
-    JsonObject tAttribute = tAttributes.get(0).getAsJsonObject();
+    JsonObject tAttribute = tAttributes.get(1).getAsJsonObject();
 
+    Assert.assertEquals(GeoObjectType.JSON_CODE, tAttribute.get(AttributeType.JSON_CODE).getAsString());
     Assert.assertTrue(tAttribute.has("required"));
     Assert.assertTrue(tAttribute.get("required").getAsBoolean());
 
@@ -174,7 +176,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
-    Assert.assertEquals(4592944701L, object.getValue(this.testInteger.getName()));
+    Assert.assertEquals(131174431216L, object.getValue(this.testInteger.getName()));
   }
 
   @Test
@@ -278,11 +280,6 @@ public class ShapefileServiceTest
 
     Assert.assertEquals(1, problems.size());
 
-    JsonObject problem = problems.get(0).getAsJsonObject();
-    JsonArray contex = problem.get("context").getAsJsonArray();
-
-    Assert.assertEquals(1, contex.size());
-
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
     query.setRestriction(new CodeRestriction("01"));
@@ -295,7 +292,7 @@ public class ShapefileServiceTest
   {
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(testData.STATE.getCode()).get();
 
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, new LinkedList<GeoObject>());
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, new ListIterator<>(new LinkedList<>()));
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     Assert.assertNotNull(featureType);
@@ -304,7 +301,7 @@ public class ShapefileServiceTest
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals( ( type.getAttributeMap().size() + 1 ), attributes.size());
+    Assert.assertEquals(6, attributes.size());
   }
 
   @Test
@@ -327,9 +324,7 @@ public class ShapefileServiceTest
 
     List<GeoObject> objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator().getAll();
 
-    Assert.assertEquals(56, objects.size());
-
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator());
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
@@ -344,12 +339,10 @@ public class ShapefileServiceTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    Map<String, AttributeType> attributes = type.getAttributeMap();
-    Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(false, true).attributes(type);
 
-    for (Entry<String, AttributeType> entry : entries)
+    for (AttributeType attribute : attributes)
     {
-      AttributeType attribute = entry.getValue();
       String attributeName = attribute.getName();
 
       Object oValue = object.getValue(attributeName);
@@ -385,18 +378,23 @@ public class ShapefileServiceTest
 
     GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
 
-    List<GeoObject> objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator().getAll();
+    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
 
-    Assert.assertEquals(56, objects.size());
+    try
+    {
+      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
+      File directory = exporter.writeToFile();
 
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
-    File directory = exporter.writeToFile();
+      Assert.assertTrue(directory.exists());
 
-    Assert.assertTrue(directory.exists());
+      File[] files = directory.listFiles();
 
-    File[] files = directory.listFiles();
-
-    Assert.assertEquals(5, files.length);
+      Assert.assertEquals(5, files.length);
+    }
+    finally
+    {
+      objects.close();
+    }
   }
 
   @Test
@@ -417,16 +415,21 @@ public class ShapefileServiceTest
 
     GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
 
-    List<GeoObject> objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator().getAll();
+    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
 
-    Assert.assertEquals(56, objects.size());
+    try
+    {
+      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
+      InputStream export = exporter.export();
 
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, objects);
-    InputStream export = exporter.export();
+      Assert.assertNotNull(export);
 
-    Assert.assertNotNull(export);
-
-    IOUtils.copy(export, new NullOutputStream());
+      IOUtils.copy(export, new NullOutputStream());
+    }
+    finally
+    {
+      objects.close();
+    }
   }
 
   @Test

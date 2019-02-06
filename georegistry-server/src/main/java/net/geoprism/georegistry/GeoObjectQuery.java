@@ -9,6 +9,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
+import com.runwaysdk.Pair;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.EnumerationMasterInfo;
@@ -46,6 +47,16 @@ public class GeoObjectQuery
   public void setType(GeoObjectType type)
   {
     this.type = type;
+  }
+
+  public Universal getUniversal()
+  {
+    return universal;
+  }
+
+  public void setUniversal(Universal universal)
+  {
+    this.universal = universal;
   }
 
   public GeoObjectRestriction getRestriction()
@@ -208,6 +219,33 @@ public class GeoObjectQuery
       if (it.hasNext())
       {
         return it.next();
+      }
+
+      return null;
+    }
+    finally
+    {
+      if (it != null)
+      {
+        it.close();
+      }
+    }
+  }
+
+  public Pair<String, GeoObject> getSinglePair()
+  {
+    GeoObjectIterator it = null;
+
+    try
+    {
+      it = this.getIterator();
+
+      if (it.hasNext())
+      {
+        GeoObject geoObject = it.next();
+        String oid = it.currentOid();
+
+        return new Pair<String, GeoObject>(oid, geoObject);
       }
 
       return null;

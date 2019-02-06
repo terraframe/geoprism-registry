@@ -8,6 +8,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.query.OIterator;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -54,22 +56,26 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.georegistry.io.GeoObjectUtil;
+import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.gis.geoserver.SessionPredicate;
 
 public class GeoObjectShapefileExporter
 {
-  private static Logger       logger = LoggerFactory.getLogger(GeoObjectShapefileExporter.class);
+  private static Logger             logger = LoggerFactory.getLogger(GeoObjectShapefileExporter.class);
 
-  public static final String  GEOM   = "the_geom";
+  public static final String        GEOM   = "the_geom";
 
-  private GeoObjectType       type;
+  private GeoObjectType             type;
 
-  private Iterable<GeoObject> objects;
+  private Collection<AttributeType> attributes;
 
-  public GeoObjectShapefileExporter(GeoObjectType type, Iterable<GeoObject> objects)
+  private OIterator<GeoObject>      objects;
+
+  public GeoObjectShapefileExporter(GeoObjectType type, OIterator<GeoObject> objects)
   {
     this.type = type;
     this.objects = objects;
+    this.attributes = new ImportAttributeSerializer(false, true).attributes(this.type);
   }
 
   public GeoObjectType getType()
@@ -87,7 +93,7 @@ public class GeoObjectShapefileExporter
     return objects;
   }
 
-  public void setObjects(Iterable<GeoObject> objects)
+  public void setObjects(OIterator<GeoObject> objects)
   {
     this.objects = objects;
   }
@@ -208,16 +214,17 @@ public class GeoObjectShapefileExporter
 
   public FeatureCollection<SimpleFeatureType, SimpleFeature> features(SimpleFeatureType featureType)
   {
-    Map<String, AttributeType> attributes = this.type.getAttributeMap();
-
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
-    for (GeoObject object : this.objects)
+    while (this.objects.hasNext())
     {
+      GeoObject object = this.objects.next();
+
       builder.set(GEOM, object.getGeometry());
 
-      attributes.forEach((name, attribute) -> {
+      this.attributes.forEach(attribute -> {
+        String name = attribute.getName();
         Object value = object.getValue(name);
 
         if (attribute instanceof AttributeTermType)
@@ -244,10 +251,7 @@ public class GeoObjectShapefileExporter
     builder.setCRS(DefaultGeographicCRS.WGS84);
     builder.add(GEOM, this.getShapefileType(this.type.getGeometryType()), 4326);
 
-    Map<String, AttributeType> attributes = this.type.getAttributeMap();
-    attributes.forEach((name, attribute) -> {
-      // builder.length(15).add(GeoObjectShapefileExporter.format(attribute.getName()),
-      // this.getShapefileType(attribute));
+    this.attributes.forEach(attribute -> {
       builder.add(GeoObjectShapefileExporter.format(attribute.getName()), this.getShapefileType(attribute));
     });
 

@@ -21,6 +21,7 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.Pair;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
@@ -46,6 +47,7 @@ import com.runwaysdk.system.ontology.TermUtil;
 import net.geoprism.georegistry.GeoObjectIterator;
 import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.LookupRestriction;
+import net.geoprism.georegistry.UidRestriction;
 import net.geoprism.georegistry.action.RegistryAction;
 import net.geoprism.georegistry.conversion.TermBuilder;
 import net.geoprism.ontology.Classifier;
@@ -475,25 +477,12 @@ public class RegistryService
     }
   }
 
-  @Request(RequestType.SESSION)
-  public void deleteGeoObject(String sessionId, String id, String typeCode)
+  public GeoObjectQuery createQuery(String typeCode)
   {
-    deleteGeoObjectInTransaction(sessionId, id, typeCode);
-  }
+    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
+    Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(type);
 
-  @Transaction
-  private void deleteGeoObjectInTransaction(String sessionId, String id, String typeCode)
-  {
-    GeoObject geoObject = ServiceFactory.getUtilities().getGeoObjectById(id, typeCode);
-
-    if (geoObject.getType().isLeaf())
-    {
-      throw new UnsupportedOperationException("Not implemented yet.");
-    }
-    else
-    {
-      GeoEntity.get(geoObject.getUid()).delete();
-    }
+    return new GeoObjectQuery(type, universal);
   }
 
   ///////////////////// Hierarchy Management /////////////////////
@@ -660,7 +649,7 @@ public class RegistryService
    */
   @Request(RequestType.SESSION)
   public AttributeType updateAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
-  {	  
+  {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
     JSONObject attrObj = new JSONObject(attributeTypeJSON);
@@ -1067,10 +1056,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode)
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
-
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
     query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
     query.setLimit(10);
 

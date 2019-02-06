@@ -54,17 +54,17 @@ public class ExcelImportController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(url = "export-spreadsheet", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type) throws JSONException
-  {
-    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), type), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
-  }
-
   @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration)
   {
     service.cancelImport(request.getSessionId(), configuration);
 
     return new RestBodyResponse("");
+  }
+
+  @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type) throws JSONException
+  {
+    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), type), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
 }

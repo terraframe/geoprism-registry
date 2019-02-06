@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
@@ -314,6 +316,14 @@ public class GeoObjectShapefileImporter extends TaskObservable
           entity.setValue(attributeName, classifier.getClassifierId());
         }
       }
+    }
+    else if (attributeType instanceof AttributeFloatType)
+    {
+      entity.setValue(attributeName, ( (Number) value ).doubleValue());
+    }
+    else if (attributeType instanceof AttributeIntegerType)
+    {
+      entity.setValue(attributeName, ( (Number) value ).longValue());
     }
     else
     {
