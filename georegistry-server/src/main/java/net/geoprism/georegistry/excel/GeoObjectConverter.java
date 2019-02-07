@@ -177,7 +177,7 @@ public class GeoObjectConverter
         {
           Classifier root = Classifier.findClassifierRoot(mdAttribute);
 
-          this.configuration.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          this.configuration.addProblem(new TermProblem(value.toString(), root.getOid(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
         }
         else
         {

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
 import { ImportConfiguration, TermProblem } from '../io';
 import { IOService } from '../../../service/io.service';
@@ -46,6 +47,8 @@ export class TermProblemComponent implements OnInit {
 
     createSynonym(): void {
         if ( this.hasSynonym ) {
+            this.onError.emit( null );
+
             this.service.createTermSynonym( this.termId, this.problem.label ).then( response => {
                 this.problem.resolved = true;
                 this.problem.action = {
@@ -54,20 +57,22 @@ export class TermProblemComponent implements OnInit {
                     label: response.label
                 };
             } ).catch( e => {
-                this.onError.emit( e );
+                this.onError.emit( e.json() );
             } );
         }
     }
 
     createOption(): void {
-        this.service.createTerm( this.problem.label, this.problem.categoryId, false ).then( term => {
+        this.onError.emit( null );
+        
+        this.service.createTerm( this.problem.label, uuid(), this.problem.parentCode).then( term => {
             this.problem.resolved = true;
             this.problem.action = {
                 name: 'OPTION',
-                optionId: term.oid
+                term: term
             };
         } ).catch( e => {
-            this.onError.emit( e );
+            this.onError.emit( e.json() );
         } );
     }
 
@@ -90,19 +95,23 @@ export class TermProblemComponent implements OnInit {
                 this.problem.action = null;
             }
             else if ( action.name == 'SYNONYM' ) {
+                this.onError.emit( null );
+
                 this.service.deleteTermSynonym( action.synonymId ).then( response => {
                     this.problem.resolved = false;
                     this.problem.action = null;
                 } ).catch( e => {
-                    this.onError.emit( e );
+                    this.onError.emit( e.json() );
                 } );
             }
             else if ( action.name == 'OPTION' ) {
-                this.service.removeTerm( action.optionId ).then( response => {
+                this.onError.emit( null );
+
+                this.service.removeTerm( action.term.code ).then( response => {
                     this.problem.resolved = false;
                     this.problem.action = null;
                 } ).catch( e => {
-                    this.onError.emit( e );
+                    this.onError.emit( e.json() );
                 } );
             }
         }

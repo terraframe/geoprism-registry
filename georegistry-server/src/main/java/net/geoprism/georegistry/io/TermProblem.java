@@ -26,18 +26,18 @@ public class TermProblem implements Comparable<TermProblem>
 
   private String mdAttributeId;
 
-  private String categoryId;
+  private String parentCode;
 
-  private String code;
+  private String attributeCode;
 
   private String attributeLabel;
 
-  public TermProblem(String label, String mdAttributeId, String categoryId, String code, String attributeLabel)
+  public TermProblem(String label, String parentCode, String mdAttributeId, String attributeCode, String attributeLabel)
   {
     this.label = label;
     this.mdAttributeId = mdAttributeId;
-    this.categoryId = categoryId;
-    this.code = code;
+    this.parentCode = parentCode;
+    this.attributeCode = attributeCode;
     this.attributeLabel = attributeLabel;
   }
 
@@ -55,10 +55,10 @@ public class TermProblem implements Comparable<TermProblem>
   {
     JsonObject object = new JsonObject();
     object.addProperty("label", label);
+    object.addProperty("parentCode", parentCode);
     object.addProperty("mdAttributeId", mdAttributeId);
-    object.addProperty("categoryId", categoryId);
+    object.addProperty("attributeCode", attributeCode);
     object.addProperty("attributeLabel", attributeLabel);
-    object.addProperty("code", code);
 
     return object;
   }

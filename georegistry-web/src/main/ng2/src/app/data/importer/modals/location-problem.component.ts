@@ -46,6 +46,8 @@ export class LocationProblemComponent implements OnInit {
 
     createSynonym(): void {
         if ( this.hasSynonym ) {
+            this.onError.emit( null );
+
             this.service.createGeoObjectSynonym( this.entityId, this.problem.label ).then( response => {
                 this.problem.resolved = true;
                 this.problem.action = {
@@ -54,7 +56,7 @@ export class LocationProblemComponent implements OnInit {
                     label: response.label
                 };
             } ).catch( e => {
-                this.onError.emit( e );
+                this.onError.emit( e.json() );
             } );
         }
     }
@@ -83,6 +85,8 @@ export class LocationProblemComponent implements OnInit {
                 this.problem.action = null;
             }
             else if ( action.name == 'SYNONYM' ) {
+                this.onError.emit( null );
+
                 this.service.deleteGeoObjectSynonym( action.synonymId ).then( response => {
                     this.problem.resolved = false;
                     this.problem.action = null;
@@ -90,7 +94,7 @@ export class LocationProblemComponent implements OnInit {
                     this.entityLabel = null;
                     this.hasSynonym = ( this.entityLabel != null );
                 } ).catch( e => {
-                    this.onError.emit( e );
+                    this.onError.emit( e.json() );
                 } );
             }
 

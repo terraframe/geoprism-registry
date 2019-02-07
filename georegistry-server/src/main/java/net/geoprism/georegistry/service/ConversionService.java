@@ -30,9 +30,11 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
@@ -261,6 +263,14 @@ public class ConversionService
   @Transaction
   public HierarchyType createHierarchyType(HierarchyType hierarchyType)
   {
+    /*
+     * Create a Registry Maintainer role for the new hierarchy
+     */
+    RoleDAO role = RoleDAO.newInstance();
+    role.setValue(RoleDAOIF.ROLENAME, RegistryConstants.REGISTRY_MAINTAINER_PREFIX + hierarchyType.getCode());
+    role.setStructValue(RoleDAOIF.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyType.getLocalizedLabel() + " Registry Maintainer");
+    role.apply();
+
     InitializationStrategyIF strategy = new InitializationStrategyIF()
     {
       @Override
@@ -272,25 +282,33 @@ public class ConversionService
       @Override
       public void postApply(MdBusinessDAO mdBusiness)
       {
-        RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+        RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
 
-        registryAdminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-        registryAdminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
-        registryAdminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-        registryAdminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+        adminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+        adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+        adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
+        adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+
+        role.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+        role.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+        role.grantPermission(Operation.CREATE, mdBusiness.getOid());
+        role.grantPermission(Operation.DELETE, mdBusiness.getOid());
       }
     };
 
     MdTermRelationship mdTermRelUniversal = ServiceFactory.getConversionService().newHierarchyToMdTermRelForUniversals(hierarchyType);
     mdTermRelUniversal.apply();
+
     this.grantAdminPermissionsOnMdTermRel(mdTermRelUniversal);
+    this.grantAdminPermissionsOnMdTermRel(role, mdTermRelUniversal);
 
     Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
 
     MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
     mdTermRelGeoEntity.apply();
     this.grantAdminPermissionsOnMdTermRel(mdTermRelGeoEntity);
-
+    this.grantAdminPermissionsOnMdTermRel(role, mdTermRelGeoEntity);
+    
     GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
 
     return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
@@ -298,18 +316,23 @@ public class ConversionService
 
   private void grantAdminPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship)
   {
-    RoleDAO registryAdminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
 
-    registryAdminRole.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.DELETE_PARENT, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.DELETE_CHILD, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.READ_PARENT, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.READ_CHILD, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
-    registryAdminRole.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
+    grantAdminPermissionsOnMdTermRel(adminRole, mdTermRelationship);
+  }
+
+  public void grantAdminPermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
+  {
+    role.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
+    role.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
+    role.grantPermission(Operation.DELETE_PARENT, mdTermRelationship.getOid());
+    role.grantPermission(Operation.DELETE_CHILD, mdTermRelationship.getOid());
+    role.grantPermission(Operation.READ_PARENT, mdTermRelationship.getOid());
+    role.grantPermission(Operation.READ_CHILD, mdTermRelationship.getOid());
+    role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
+    role.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
+    role.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
+    role.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
   }
 
   /**

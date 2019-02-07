@@ -17,16 +17,15 @@ export class Location {
 }
 
 export class Term {
-    oid: string;
-    label: string;
+    code: string;
+    localizedLabel: string;
 }
-
 
 export class TermProblem {
     label: string;
+    parentCode: string;
     mdAttributeId: string;
-    categoryId: string;
-    code: string;
+    attributeCode: string;
     attributeLabel: string;
     action: any;
     resolved: boolean;

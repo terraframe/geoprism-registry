@@ -30,8 +30,12 @@ public interface RegistryConstants
 
   public static final String GEO_MULTIPOLYGON_ATTRIBUTE_LABEL = "Geo MultiPolygon";
 
-  public static final String REGISTRY_ADMIN_ROLE              = "commongeoregistry.RegistryAdministrator";
-  
+  public static final String REGISTRY_ROLE_PREFIX             = "commongeoregistry.";
+
+  public static final String REGISTRY_MAINTAINER_PREFIX       = REGISTRY_ROLE_PREFIX + "registry.maintainer.";
+
+  public static final String REGISTRY_ADMIN_ROLE              = REGISTRY_ROLE_PREFIX + "RegistryAdministrator";
+
   public final static String TERM_CLASS                       = "CLASS";
 
 }

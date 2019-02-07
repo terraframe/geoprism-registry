@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -307,9 +308,9 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
         if (classifier == null)
         {
-          Classifier root = Classifier.findClassifierRoot(mdAttribute);
+          Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-          this.config.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          this.config.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
         }
         else
         {
