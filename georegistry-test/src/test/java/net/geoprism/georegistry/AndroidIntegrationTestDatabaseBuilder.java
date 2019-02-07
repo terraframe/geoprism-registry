@@ -21,13 +21,13 @@ public class AndroidIntegrationTestDatabaseBuilder
   @Request
   private static void build()
   {
-    buildInTransaction();
-  }
-  @Transaction
-  private static void buildInTransaction()
-  {
     USATestData data = USATestData.newTestData();
     
+    buildInTransaction(data);
+  }
+  @Transaction
+  private static void buildInTransaction(USATestData data)
+  {
     data.newTestGeoObjectInfo("Utah", data.STATE).delete();
     data.newTestGeoObjectInfo("California", data.STATE).delete();
     data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.DISTRICT).apply();
