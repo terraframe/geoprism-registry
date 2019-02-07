@@ -3,6 +3,7 @@ package net.geoprism.georegistry.testframework;
 import java.util.Locale;
 
 import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.constants.CommonProperties;
@@ -14,6 +15,7 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.georegistry.conversion.TermBuilder;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
 
@@ -145,5 +147,11 @@ public class USATestData extends TestDataSet
   public String getTestDataKey()
   {
     return TEST_DATA_KEY;
+  }
+
+  @Request
+  public void refreshTerms(AttributeTermType attribute)
+  {
+    attribute.setRootTerm(new TermBuilder(TermBuilder.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
   }
 }

@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -29,17 +30,20 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.IgnoreRowException;
 import net.geoprism.georegistry.io.Location;
 import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
+import net.geoprism.georegistry.query.GeoObjectQuery;
+import net.geoprism.georegistry.query.NonUniqueResultException;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.RequiredMappingException;
+import net.geoprism.registry.io.TermValueException;
 
 public class GeoObjectConverter
 {
@@ -168,20 +172,32 @@ public class GeoObjectConverter
     {
       if (!this.configuration.isExclusion(attributeName, value.toString()))
       {
-        MdBusinessDAOIF mdBusiness = this.configuration.getMdBusiness();
-        MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
-
-        Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
-
-        if (classifier == null)
+        try
         {
-          Classifier root = Classifier.findClassifierRoot(mdAttribute);
 
-          this.configuration.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          MdBusinessDAOIF mdBusiness = this.configuration.getMdBusiness();
+          MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
+
+          Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
+
+          if (classifier == null)
+          {
+            Classifier root = Classifier.findClassifierRoot(mdAttribute);
+
+            this.configuration.addProblem(new TermProblem(value.toString(), root.getOid(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          }
+          else
+          {
+            entity.setValue(attributeName, classifier.getClassifierId());
+          }
         }
-        else
+        catch (UnknownTermException e)
         {
-          entity.setValue(attributeName, classifier.getClassifierId());
+          TermValueException ex = new TermValueException();
+          ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+          ex.setCode(e.getCode());
+
+          throw e;
         }
       }
     }
@@ -296,37 +312,49 @@ public class GeoObjectConverter
         GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
         query.setRestriction(new SynonymRestriction(label, parent, this.configuration.getHierarchyRelationship()));
 
-        GeoObject result = query.getSingleResult();
-
-        if (result != null)
+        try
         {
-          parent = result;
 
-          JsonObject element = new JsonObject();
-          element.addProperty("label", label);
-          element.addProperty("type", location.getType().getLocalizedLabel());
+          GeoObject result = query.getSingleResult();
 
-          context.add(element);
-        }
-        else
-        {
-          if (context.size() == 0)
+          if (result != null)
           {
-            GeoObject root = this.configuration.getRoot();
+            parent = result;
 
-            if (root != null)
-            {
-              JsonObject element = new JsonObject();
-              element.addProperty("label", root.getLocalizedDisplayLabel());
-              element.addProperty("type", root.getType().getLocalizedLabel());
+            JsonObject element = new JsonObject();
+            element.addProperty("label", label);
+            element.addProperty("type", location.getType().getLocalizedLabel());
 
-              context.add(element);
-            }
+            context.add(element);
           }
+          else
+          {
+            if (context.size() == 0)
+            {
+              GeoObject root = this.configuration.getRoot();
 
-          this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
+              if (root != null)
+              {
+                JsonObject element = new JsonObject();
+                element.addProperty("label", root.getLocalizedDisplayLabel());
+                element.addProperty("type", root.getType().getLocalizedLabel());
 
-          return null;
+                context.add(element);
+              }
+            }
+
+            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
+
+            return null;
+          }
+        }
+        catch (NonUniqueResultException e)
+        {
+          AmbiguousParentException ex = new AmbiguousParentException();
+          ex.setParentLabel(label);
+          ex.setContext(context.toString());
+
+          throw ex;
         }
       }
     }

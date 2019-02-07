@@ -27,13 +27,13 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
-import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.excel.ExcelFieldContentsHandler;
 import net.geoprism.georegistry.excel.GeoObjectContentHandler;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.ImportProblemException;
+import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.gis.geoserver.SessionPredicate;
 
 public class ExcelService

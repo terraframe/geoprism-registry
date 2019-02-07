@@ -1,13 +1,14 @@
 package net.geoprism.georegistry.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.commongeoregistry.adapter.action.AbstractAction;
-import org.commongeoregistry.adapter.action.AddChildAction;
-import org.commongeoregistry.adapter.action.CreateAction;
-import org.commongeoregistry.adapter.action.UpdateAction;
+import org.commongeoregistry.adapter.action.AbstractActionDTO;
+import org.commongeoregistry.adapter.action.geoobject.CreateGeoObjectActionDTO;
+import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
+import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
@@ -32,9 +33,11 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
+import net.geoprism.georegistry.RegistryController;
+import net.geoprism.georegistry.action.AbstractAction;
+import net.geoprism.georegistry.action.ActionFactory;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectTypeInfo;
-import net.geoprism.georegistry.RegistryController;
 import net.geoprism.georegistry.testframework.TestRegistryAdapterClient;
 import net.geoprism.georegistry.testframework.USATestData;
 import net.geoprism.registry.GeometryTypeException;
@@ -388,34 +391,53 @@ public class RegistryServiceTest
     GeoObjectType gotDelete = testDeleteUni.getGeoObjectType(GeometryType.POLYGON);
     testData.adapter.getMetadataCache().addGeoObjectType(gotDelete);
 
-    AbstractAction[] actions = new AbstractAction[3];
+    List<AbstractActionDTO> actions = new ArrayList<AbstractActionDTO>();
     int i = 0;
 
-    // Add Child
-    AddChildAction addChild = new AddChildAction(testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), testAddChildParent.getRegistryId(), testAddChildParent.getGeoObjectType().getCode(), LocatedIn.class.getSimpleName());
+    /*
+     *  Add Child
+     */
+    AddChildActionDTO addChild = new AddChildActionDTO();
+    addChild.setChildId(testAddChild.getRegistryId());
+    addChild.setChildTypeCode(testAddChild.getGeoObjectType().getCode());
+    addChild.setParentId(testAddChildParent.getRegistryId());
+    addChild.setParentTypeCode(testAddChildParent.getGeoObjectType().getCode());
+    addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
+    
     String addChildJson = addChild.toJSON().toString();
-    String addChildJson2 = AddChildAction.fromJSON(addChildJson).toJSON().toString();
+    String addChildJson2 = AbstractActionDTO.parseAction(addChildJson).toJSON().toString();
     Assert.assertEquals(addChildJson, addChildJson2);
-    actions[i++] = addChild;
-
+    actions.add(addChild);
+    
+    // TODO Add Parent
+    
     // Remove Child ??
     // TODO
 
-    // Create a new GeoObject
-    CreateAction create = new CreateAction(goNewChild);
+    /*
+     *  Create a new GeoObject
+     */
+    CreateGeoObjectActionDTO create = new CreateGeoObjectActionDTO();
+    create.setGeoObject(goNewChild.toJSON());
+    
     String createJson = create.toJSON().toString();
-    String createJson2 = CreateAction.fromJSON(createJson).toJSON().toString();
+    String createJson2 = AbstractActionDTO.parseAction(createJson).toJSON().toString();
     Assert.assertEquals(createJson, createJson2);
-    actions[i++] = create;
+    actions.add(create);
 
-    // Update the previously created GeoObject
+    /*
+     *  Update the previously created GeoObject
+     */
     final String NEW_DISPLAY_LABEL = "NEW_DISPLAY_LABEL";
     goNewChild.setLocalizedDisplayLabel(NEW_DISPLAY_LABEL);
-    UpdateAction update = new UpdateAction(goNewChild);
+    
+    UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();
+    update.setGeoObject(goNewChild.toJSON());
+    
     String updateJson = update.toJSON().toString();
-    String updateJson2 = UpdateAction.fromJSON(updateJson).toJSON().toString();
+    String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
     Assert.assertEquals(updateJson, updateJson2);
-    actions[i++] = update;
+    actions.add(update);
 
     // Update a GeoObjectType
     // TODO : This hasn't been implemented yet in RegistryUpdateAction
@@ -443,12 +465,27 @@ public class RegistryServiceTest
     // actions[i++] = deleteGOT;
 
     // Serialize the actions
-    String sActions = AbstractAction.serializeActions(actions).toString();
-    String sActions2 = AbstractAction.serializeActions(AbstractAction.parseActions(sActions)).toString();
+    String sActions = AbstractActionDTO.serializeActions(actions).toString();
+    String sActions2 = AbstractActionDTO.serializeActions(AbstractActionDTO.parseActions(sActions)).toString();
     Assert.assertEquals(sActions, sActions2);
 
-    // Execute the actions
-    this.adapter.executeActions(actions);
+    // TODO : Submit the change request
+//    this.adapter.submitChangeRequest(actions);
+    
+    testActionsInRequest(testAddChildParent, actions, testNew, NEW_DISPLAY_LABEL);
+  }
+
+  @Request
+  private void testActionsInRequest(TestGeoObjectInfo testAddChildParent, List<AbstractActionDTO> actions, TestGeoObjectInfo testNew, final String NEW_DISPLAY_LABEL)
+  {
+    for (AbstractActionDTO actionDTO : actions)
+    {
+      AbstractAction action = AbstractAction.dtoToRegistry(actionDTO);
+      
+      action.setSessionId(testData.adminSession.getSessionId());
+      
+      action.execute();
+    }
 
     // Make sure that the database has been modified correctly
     Assert.assertEquals(1, testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
@@ -456,13 +493,7 @@ public class RegistryServiceTest
     // GeoEntityQuery delGEQ = new GeoEntityQuery(new QueryFactory());
     // delGEQ.WHERE(delGEQ.getOid().EQ(testDelete.getUid()));
     // Assert.assertEquals(0, delGEQ.getCount());
-
-    assertActions(testNew, NEW_DISPLAY_LABEL);
-  }
-
-  @Request
-  private void assertActions(TestGeoObjectInfo testNew, final String NEW_DISPLAY_LABEL)
-  {
+    
     GeoEntityQuery createGEQ = new GeoEntityQuery(new QueryFactory());
     createGEQ.WHERE(createGEQ.getGeoId().EQ(testNew.getCode()));
     Assert.assertEquals(1, createGEQ.getCount());

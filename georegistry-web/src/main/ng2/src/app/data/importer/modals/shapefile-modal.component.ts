@@ -63,6 +63,8 @@ export class ShapefileModalComponent implements OnInit {
     }
 
     handleSubmit(): void {
+        this.message = null;
+        
         this.service.importShapefile( this.configuration ).then( config => {
 
             if ( config.locationProblems != null ) {
@@ -83,6 +85,8 @@ export class ShapefileModalComponent implements OnInit {
     }
 
     handleCancel(): void {
+        this.message = null;
+        
         this.service.cancelShapefileImport( this.configuration ).then( response => {
             this.bsModalRef.hide()
         } ).catch(( err: any ) => {

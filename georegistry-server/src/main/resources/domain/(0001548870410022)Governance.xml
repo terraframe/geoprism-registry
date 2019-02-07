@@ -1,0 +1,137 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <enumerationMaster
+        name="net.geoprism.georegistry.action.GovernanceStatus"
+        label="Status"
+        generateController="false" />
+      
+      <object
+        key="ACCEPTED"
+        type="net.geoprism.georegistry.action.GovernanceStatus">
+        <attribute
+          name="enumName"
+          value="ACCEPTED" />
+        <attributeStruct
+          name="displayLabel">
+          <attribute
+            name="defaultLocale"
+            value="ACCEPTED" />
+        </attributeStruct>
+      </object>
+      
+      <object
+        key="REJECTED"
+        type="net.geoprism.georegistry.action.GovernanceStatus">
+        <attribute
+          name="enumName"
+          value="REJECTED" />
+        <attributeStruct
+          name="displayLabel">
+          <attribute
+            name="defaultLocale"
+            value="REJECTED" />
+        </attributeStruct>
+      </object>
+      
+      <object
+        key="PENDING"
+        type="net.geoprism.georegistry.action.GovernanceStatus">
+        <attribute
+          name="enumName"
+          value="PENDING" />
+        <attributeStruct
+          name="displayLabel">
+          <attribute
+            name="defaultLocale"
+            value="PENDING" />
+        </attributeStruct>
+      </object>
+      
+      <mdEnumeration
+        name="net.geoprism.georegistry.action.AllGovernanceStatus"
+        type="net.geoprism.georegistry.action.GovernanceStatus"
+        label="All Governance Statuses" exported="false" publish="false">
+        <includeAll />
+      </mdEnumeration>
+    
+      <mdBusiness name="net.geoprism.georegistry.action.ChangeRequest" exported="false" publish="false" label="Execute Actions Request">
+        <attributes>
+          <enumeration name="approvalStatus" label="Status" selectMultiple="false" type="net.geoprism.georegistry.action.AllGovernanceStatus"/>
+        </attributes>
+      </mdBusiness>
+      
+      <mdRelationship name="net.geoprism.georegistry.action.HasActionRelationship" label="Has Action Relationship" generateController="false" exported="false" publish="false">
+        <parent cardinality="1" name="net.geoprism.georegistry.action.ChangeRequest" method="Request" />
+        <child cardinality="*" name="net.geoprism.georegistry.action.AbstractAction" method="Action" />
+      </mdRelationship>
+    
+      <mdBusiness name="net.geoprism.georegistry.action.AbstractAction" isAbstract="true" exported="false" publish="false" label="Registry Action">
+        <attributes>
+          <dateTime name="createActionDate" required="true" label="The date time that the action was created (on the remote client)." />
+          <text name="apiVersion" required="true" label="Registry API Version" />
+          <enumeration name="approvalStatus" label="Status" selectMultiple="false" type="net.geoprism.georegistry.action.AllGovernanceStatus"/>
+        </attributes>
+      </mdBusiness>
+      
+      <!-- GeoObject -->
+      <mdBusiness name="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+        <attributes>
+          <text name="geoObjectJson" label="geoObjectJson" required="true" />
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+        <attributes>
+          <text name="geoObjectJson" label="geoObjectJson" required="true" />
+        </attributes>
+      </mdBusiness>
+      
+      <!-- AttributeType -->
+      <!-- TODO : RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE   has two different methods mapping to it -->
+      <!-- 
+      <mdBusiness name="net.geoprism.georegistry.action.CreateAttributeTypeAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
+      <mdBusiness name="net.geoprism.georegistry.action.UpdateAttributeTypeAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
+      <mdBusiness name="net.geoprism.georegistry.action.DeleteAttributeTypeAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
+      <mdBusiness name="net.geoprism.georegistry.action.DeleteAttributeTypeAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
+      -->
+      
+      <!-- Term -->
+      <!--
+      <mdBusiness name="net.geoprism.georegistry.action.CreateTermAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
+      <mdBusiness name="net.geoprism.georegistry.action.UpdateTermAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
+      <mdBusiness name="net.geoprism.georegistry.action.DeleteTermAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
+      -->
+      
+      <mdBusiness name="net.geoprism.georegistry.action.tree.AddChildAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+        <attributes>
+          <text name="childId" label="childId" required="true" />
+          <text name="childTypeCode" label="childTypeCode" required="true" />
+          <text name="parentId" label="parentId" required="true" />
+          <text name="parentTypeCode" label="parentTypeCode" required="true" />
+          <text name="hierarchyTypeCode" label="hierarchyTypeCode" required="true" />
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.georegistry.action.tree.RemoveChildAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+        <attributes>
+          <text name="childId" label="childId" required="true" />
+          <text name="childTypeCode" label="childTypeCode" required="true" />
+          <text name="parentId" label="parentId" required="true" />
+          <text name="parentTypeCode" label="parentTypeCode" required="true" />
+          <text name="hierarchyTypeCode" label="hierarchyTypeCode" required="true" />
+        </attributes>
+      </mdBusiness>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.georegistry.action.AllGovernanceStatus" type="com.runwaysdk.system.metadata.MdEnumeration"/>
+      <object key="net.geoprism.georegistry.action.ChangeRequest" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.georegistry.action.HasActionRelationship" type="com.runwaysdk.system.metadata.MdRelationship"/>
+      <object key="net.geoprism.georegistry.action.AbstractAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.georegistry.action.tree.AddChildAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
+    </delete>
+  </undoIt>
+</version>

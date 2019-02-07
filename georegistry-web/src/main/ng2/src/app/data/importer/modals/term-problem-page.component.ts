@@ -49,7 +49,7 @@ export class TermProblemPageComponent implements OnInit {
             const problem = this.problems[i];
 
             if ( problem.resolved && problem.action.name == 'IGNORE' ) {
-                const exclusion = { code: problem.code, value: problem.label };
+                const exclusion = { code: problem.attributeCode, value: problem.label };
 
                 this.configuration.exclusions.push( exclusion );
             }

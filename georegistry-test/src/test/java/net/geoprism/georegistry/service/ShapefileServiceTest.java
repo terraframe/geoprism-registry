@@ -39,13 +39,13 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
-import net.geoprism.georegistry.CodeRestriction;
-import net.geoprism.georegistry.GeoObjectIterator;
-import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.query.CodeRestriction;
+import net.geoprism.georegistry.query.GeoObjectIterator;
+import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.testframework.ListIterator;
 import net.geoprism.georegistry.testframework.USATestData;
@@ -440,6 +440,8 @@ public class ShapefileServiceTest
 
     try
     {
+      this.testData.refreshTerms(this.testTerm);
+
       InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
 
       Assert.assertNotNull(istream);
@@ -465,6 +467,8 @@ public class ShapefileServiceTest
     finally
     {
       ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+
+      this.testData.refreshTerms(this.testTerm);
     }
   }
 

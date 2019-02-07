@@ -193,28 +193,28 @@ export class IOService {
             .toPromise()
     }
 
-    createTerm( label: string, parentOid: string, validate: boolean ): Promise<Term> {
+    createTerm( label: string, code: string, parentTermCode: string ): Promise<Term> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
 
-        let option = { label: label, parentOid: parentOid, validate: validate };
+        let params = { parentTermCode: parentTermCode, termJSON: { localizedLabel: label, code: code } };
 
         return this.http
-            .post( acp + '/category/create', JSON.stringify( { option: option } ), { headers: headers } )
+            .post( acp + '/cgr/geoobjecttype/addterm', JSON.stringify( params ), { headers: headers } )
             .toPromise()
             .then(( response: any ) => {
                 return response.json() as Term;
             } )
     }
 
-    removeTerm( oid: string ): Promise<Response> {
+    removeTerm( termCode: string ): Promise<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
 
         return this.http
-            .post( acp + '/category/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { termCode: termCode } ), { headers: headers } )
             .toPromise()
     }
 

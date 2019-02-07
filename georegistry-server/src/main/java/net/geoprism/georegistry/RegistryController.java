@@ -68,20 +68,20 @@ public class RegistryController
   {
     return new ViewResponse(JSP_DIR + INDEX_JSP);
   }
-
+  
   /**
-   * Executes the provided actions in the order they exist in the provided json
-   * array as a single transaction.
+   * Submits a change request to the GeoRegistry. These actions will be reviewed by an Administrator and if the actions are approved they may be executed and
+   * accepted as formal changes to the GeoRegistry.
    * 
    * @param request
    * @param uid
    * @return
    * @throws JSONException
    */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.EXECUTE_ACTIONS)
-  public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = RegistryUrls.EXECUTE_ACTIONS_PARAM_ACTIONS) String actions) throws JSONException
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.SUBMIT_CHANGE_REQUEST)
+  public ResponseIF submitChangeRequest(ClientRequestIF request, @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS) String actions) throws JSONException
   {
-    this.registryService.executeActions(request.getSessionId(), actions);
+    this.registryService.submitChangeRequest(request.getSessionId(), actions);
 
     return new RestResponse();
   }
@@ -364,6 +364,22 @@ public class RegistryController
 
     return new RestBodyResponse(pn.toJSON());
   }
+  
+  /**
+   * Removes a relationship between @parentUid and @childUid.
+   *
+   * @pre Both the parent and child have already been persisted / applied
+   * @post A relationship will not exist between @parent and @child
+   *
+   * @returns
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_ADD_CHILD)
+  public ResponseIF removeChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef)
+  {
+    this.registryService.removeChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef);
+
+    return new RestResponse();
+  }
 
   /**
    * Returns an array of {@link GeoOjectType} objects that define the given list
@@ -452,7 +468,7 @@ public class RegistryController
    *          JSON of the {@link GeoObjectType} to be created.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_CREATE)
-  public ResponseIF createGeoObjectType(ClientRequestIF request, @RequestParamter(name = "gtJSON") String gtJSON) throws JSONException
+  public ResponseIF createGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_CREATE_PARAM_GOT) String gtJSON) throws JSONException
   {
     GeoObjectType geoObjectType = this.registryService.createGeoObjectType(request.getSessionId(), gtJSON);
 

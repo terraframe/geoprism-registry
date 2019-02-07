@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -38,17 +40,20 @@ import net.geoprism.data.importer.GISImportLoggerIF;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.data.importer.TaskObservable;
-import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.IgnoreRowException;
 import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.georegistry.io.Location;
 import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
+import net.geoprism.georegistry.query.GeoObjectQuery;
+import net.geoprism.georegistry.query.NonUniqueResultException;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.RequiredMappingException;
+import net.geoprism.registry.io.TermValueException;
 
 /**
  * Class responsible for importing GeoObject definitions from a shapefile.
@@ -300,20 +305,31 @@ public class GeoObjectShapefileImporter extends TaskObservable
     {
       if (!this.config.isExclusion(attributeName, value.toString()))
       {
-        MdBusinessDAOIF mdBusiness = this.config.getMdBusiness();
-        MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
-
-        Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
-
-        if (classifier == null)
+        try
         {
-          Classifier root = Classifier.findClassifierRoot(mdAttribute);
+          MdBusinessDAOIF mdBusiness = this.config.getMdBusiness();
+          MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
 
-          this.config.addProblem(new TermProblem(value.toString(), mdAttribute.getOid(), root.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
+
+          if (classifier == null)
+          {
+            Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
+
+            this.config.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          }
+          else
+          {
+            entity.setValue(attributeName, classifier.getClassifierId());
+          }
         }
-        else
+        catch (UnknownTermException e)
         {
-          entity.setValue(attributeName, classifier.getClassifierId());
+          TermValueException ex = new TermValueException();
+          ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+          ex.setCode(e.getCode());
+
+          throw e;
         }
       }
     }
@@ -368,37 +384,48 @@ public class GeoObjectShapefileImporter extends TaskObservable
         GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
         query.setRestriction(new SynonymRestriction(label, parent, this.config.getHierarchyRelationship()));
 
-        GeoObject result = query.getSingleResult();
-
-        if (result != null)
+        try
         {
-          parent = result;
+          GeoObject result = query.getSingleResult();
 
-          JsonObject element = new JsonObject();
-          element.addProperty("label", label);
-          element.addProperty("type", location.getType().getLocalizedLabel());
-
-          context.add(element);
-        }
-        else
-        {
-          if (context.size() == 0)
+          if (result != null)
           {
-            GeoObject root = this.config.getRoot();
+            parent = result;
 
-            if (root != null)
-            {
-              JsonObject element = new JsonObject();
-              element.addProperty("label", root.getLocalizedDisplayLabel());
-              element.addProperty("type", root.getType().getLocalizedLabel());
+            JsonObject element = new JsonObject();
+            element.addProperty("label", label);
+            element.addProperty("type", location.getType().getLocalizedLabel());
 
-              context.add(element);
-            }
+            context.add(element);
           }
+          else
+          {
+            if (context.size() == 0)
+            {
+              GeoObject root = this.config.getRoot();
 
-          this.config.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
+              if (root != null)
+              {
+                JsonObject element = new JsonObject();
+                element.addProperty("label", root.getLocalizedDisplayLabel());
+                element.addProperty("type", root.getType().getLocalizedLabel());
 
-          return null;
+                context.add(element);
+              }
+            }
+
+            this.config.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
+
+            return null;
+          }
+        }
+        catch (NonUniqueResultException e)
+        {
+          AmbiguousParentException ex = new AmbiguousParentException();
+          ex.setParentLabel(label);
+          ex.setContext(context.toString());
+
+          throw ex;
         }
       }
     }

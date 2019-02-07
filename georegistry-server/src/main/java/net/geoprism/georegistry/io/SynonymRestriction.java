@@ -33,7 +33,7 @@ import com.runwaysdk.system.metadata.MdTerm;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
-import net.geoprism.georegistry.GeoObjectRestriction;
+import net.geoprism.georegistry.query.GeoObjectRestriction;
 
 public class SynonymRestriction implements GeoObjectRestriction
 {

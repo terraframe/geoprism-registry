@@ -1,10 +1,11 @@
 package net.geoprism.georegistry.testframework;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.action.AbstractAction;
+import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -142,11 +143,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToParentTreeNode(this.controller.addChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef));
   }
   
-  public void executeActions(AbstractAction[] actions)
+  public void submitChangeRequest(List<AbstractActionDTO> actions)
   {
-    String sActions = AbstractAction.serializeActions(actions).toString();
+    String sActions = AbstractActionDTO.serializeActions(actions).toString();
     
-    this.controller.executeActions(this.clientRequest, sActions);
+    this.controller.submitChangeRequest(this.clientRequest, sActions);
   }
   
   protected String responseToString(ResponseIF resp)

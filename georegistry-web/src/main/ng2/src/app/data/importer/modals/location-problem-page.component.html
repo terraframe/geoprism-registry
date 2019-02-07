@@ -40,7 +40,7 @@
         </div>
       </div>
       <div *ngFor="let problem of problems; let i = index;">
-        <location-problem [problem]="problem" [configuration]="configuration" [index]="i" (onError)="handleError(e)"></location-problem>
+        <location-problem [problem]="problem" [configuration]="configuration" [index]="i" (onError)="handleError($event)"></location-problem>
       </div>
       <div class="row">
         <div class="col-sm-12 text-right">
