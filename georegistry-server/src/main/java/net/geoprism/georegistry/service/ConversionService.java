@@ -31,11 +31,9 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
@@ -265,13 +263,24 @@ public class ConversionService
   @Transaction
   public HierarchyType createHierarchyType(HierarchyType hierarchyType)
   {
-    /*
-     * Create a Registry Maintainer role for the new hierarchy
-     */
-    RoleDAO role = RoleDAO.newInstance();
-    role.setValue(RoleDAOIF.ROLENAME, RegistryConstants.REGISTRY_MAINTAINER_PREFIX + hierarchyType.getCode());
-    role.setStructValue(RoleDAOIF.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyType.getLocalizedLabel() + " Registry Maintainer");
-    role.apply();
+    // /*
+    // * Create a Registry Maintainer role for the new hierarchy
+    // */
+    // RoleDAO role = RoleDAO.newInstance();
+    // role.setValue(RoleDAOIF.ROLENAME,
+    // RegistryConstants.REGISTRY_MAINTAINER_PREFIX + hierarchyType.getCode());
+    // role.setStructValue(RoleDAOIF.DISPLAY_LABEL,
+    // MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyType.getLocalizedLabel() +
+    // " Registry Maintainer");
+    // role.apply();
+    //
+    // /*
+    // * Assign the new role has a child role of the generic registry maintainer
+    // * role
+    // */
+    // role.addAscendant(RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE));
+
+    RoleDAO role = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
 
     InitializationStrategyIF strategy = new InitializationStrategyIF()
     {

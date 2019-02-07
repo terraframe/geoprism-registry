@@ -533,6 +533,19 @@ public class AdapterUtilities
     adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
     adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
     adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+
+    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
+    maintainer.grantPermission(Operation.CREATE, mdBusiness.getOid());
+    maintainer.grantPermission(Operation.DELETE, mdBusiness.getOid());
+    maintainer.grantPermission(Operation.WRITE, mdBusiness.getOid());
+    maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+
+//    // TODO: Actual hierarchy role
+//    RoleDAO hierarchyRole = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + "LocatedIn").getBusinessDAO();
+//    hierarchyRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
+//    hierarchyRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+//    hierarchyRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
+//    hierarchyRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
   }
 
   /**

@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
-import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -44,7 +43,6 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
-import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.AbstractAction;
 import net.geoprism.georegistry.action.ChangeRequest;
 import net.geoprism.georegistry.conversion.TermBuilder;
@@ -999,10 +997,10 @@ public class RegistryService
 
     mdTermRelGeoEntity.delete();
 
-    /*
-     * Delete the Registry Maintainer role for the hierarchy
-     */
-    RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + code).getBusinessDAO().delete();
+//    /*
+//     * Delete the Registry Maintainer role for the hierarchy
+//     */
+//    RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + code).getBusinessDAO().delete();
   }
 
   /**

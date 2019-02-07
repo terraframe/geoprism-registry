@@ -112,7 +112,7 @@ public class GeoObjectConverter
 
       if (entityName != null)
       {
-        entity.setWKTGeometry(geometry.toText());
+        entity.setGeometry(geometry);
 
         if (isNew)
         {

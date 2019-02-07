@@ -36,6 +36,9 @@ public interface RegistryConstants
 
   public static final String REGISTRY_ADMIN_ROLE              = REGISTRY_ROLE_PREFIX + "RegistryAdministrator";
 
-  public final static String TERM_CLASS                       = "CLASS";
+  public static final String REGISTRY_MAINTAINER_ROLE         = REGISTRY_ROLE_PREFIX + "RegistryMaintainer";
 
+  public static final String REGISTRY_CONTRIBUTOR_ROLE        = REGISTRY_ROLE_PREFIX + "RegistryContributor";
+
+  public final static String TERM_CLASS                       = "CLASS";
 }

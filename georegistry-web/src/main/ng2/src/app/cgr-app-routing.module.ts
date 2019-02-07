@@ -8,56 +8,39 @@ import { LocalizationManagerComponent } from './data/localization-manager/locali
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 
+import { AdminGuard } from './core/auth/admin.guard';
+
 
 const routes: Routes = [
-  {
-	path: 'hierarchies',
-	component: HierarchyComponent
-  },
-  {
-	path: 'shapefile',
-	component: ShapefileComponent
-  },
-  {
-	path: 'spreadsheet',
-	component: SpreadsheetComponent
-  },
-  {
-	path: '',
-	redirectTo: '/hierarchies',
-	pathMatch: 'full'
-  },
-  {
-  path: 'localization-manager',
-  component: LocalizationManagerComponent
-  }
-//  {
-//    path: 'map/:id/:simple',
-//    component: MapComponent,
-//  },
-//  {
-//    path: 'map/:id/:simple/:props',
-//    component: MapComponent,
-//  },
-//  {
-//	  path: 'map/:id',
-//	  component: MapComponent,
-//  },
-//  {
-//    path: 'maps',
-//    component: MapsComponent
-//  },
-//  {
-//	path: 'legend/:layerId',
-//	component: MapsComponent
-//  },
+    {
+        path: 'hierarchies',
+        component: HierarchyComponent
+    },
+    {
+        path: 'shapefile',
+        component: ShapefileComponent
+    },
+    {
+        path: 'spreadsheet',
+        component: SpreadsheetComponent
+    },
+    {
+        path: '',
+        redirectTo: '/hierarchies',
+        pathMatch: 'full'
+    },
+    {
+        path: 'localization-manager',
+        component: LocalizationManagerComponent,
+        canActivate: [ AdminGuard ],          
+    }
 ];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}]
-})
+@NgModule( {
+    imports: [RouterModule.forRoot( routes )],
+    exports: [RouterModule],
+    providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }]
+} )
 export class CgrAppRoutingModule { }
 
-export const routedComponents:any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent];

@@ -21,15 +21,27 @@
     </div>
     <div class="form-group">
       <div>
-         <label for="localizedLabelInput">Label</label>
+         <label for="localizedLabelInput"><localize key="data.property.label.label"></localize></label>
         <input  [(ngModel)]="geoObjectType.localizedLabel" name="localizedLabel" type="input" class="form-control" id="localizedLabelInput" required>
       </div>
     </div>
     <div class="form-group">
       <div >
-         <label for="localizedDescriptionInput">Description</label>
+         <label for="localizedDescriptionInput"><localize key="data.property.label.description"></localize></label>
         <input  [(ngModel)]="geoObjectType.localizedDescription" name="localizedDescription" type="input" class="form-control" id="localizedDescriptionInput" >
        </div>
+    </div>
+    <div class="form-group">   
+      <label for="geometryType"><localize key="data.property.label.geometryType"></localize></label>
+      <select  class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required>
+        <option></option>
+        <option value="POINT"><localize key="georegistry.geometry.point"></localize></option>
+        <option value="LINE"><localize key="georegistry.geometry.line"></localize></option>
+        <option value="POLYGON"><localize key="georegistry.geometry.polygon"></localize></option>
+        <option value="MULTIPOINT"><localize key="georegistry.geometry.multipoint"></localize></option>
+        <option value="MULTILINE"><localize key="georegistry.geometry.multiline"></localize></option>
+        <option value="MULTIPOLYGON"><localize key="georegistry.geometry.multipolygon"></localize></option>
+      </select>
     </div>
     
     <div class="form-group">
