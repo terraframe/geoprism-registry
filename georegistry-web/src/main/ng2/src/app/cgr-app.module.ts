@@ -18,6 +18,8 @@ import { Safe } from './core/safe.html.pipe';
 import { ErrorModalComponent } from './core/modals/error-modal.component';
 import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
+import { ErrorMessageComponent } from './core/message/error-message.component';
+
 
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
@@ -125,6 +127,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ModalStepIndicatorComponent,
     ManageTermOptionsComponent,
     OnlyNumber,
+    ErrorMessageComponent,
     
     // Routing components
     routedComponents
@@ -161,7 +164,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ManageGeoObjectTypeModalComponent,
       GeoObjectTypeInputComponent,
       ModalStepIndicatorComponent,
-      ManageTermOptionsComponent
+      ManageTermOptionsComponent,
+      ErrorMessageComponent
   ]        
 })
 export class CgrAppModule { }

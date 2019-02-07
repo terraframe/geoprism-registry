@@ -119,7 +119,7 @@ export class HierarchyComponent implements OnInit {
 			  
 			  this.setNodesOnInit();
 	      })
-	  }).catch(( err: any ) => {
+	  }).catch(( err: Response ) => {
 	      this.error( err.json() );
 	  });
   }
@@ -340,7 +340,7 @@ export class HierarchyComponent implements OnInit {
     	  let pos = this.getHierarchyTypePosition(code);
     	  this.hierarchies.splice(pos, 1);
     	  
-      } ).catch(( err: any ) => {
+      } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
   }
@@ -393,8 +393,6 @@ export class HierarchyComponent implements OnInit {
   public removeGeoObjectType( code: string ): void {
       this.hierarchyService.deleteGeoObjectType( code ).then( response => {
     	  
-    	  console.log("deleted")
-    	  
     	  let pos = this.getGeoObjectTypePosition(code);
     	  this.geoObjectTypes.splice(pos, 1);
     	  
@@ -408,7 +406,7 @@ export class HierarchyComponent implements OnInit {
 //          }
 //
 //          this.tree.treeModel.update();
-      } ).catch(( err: any ) => {
+      } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
   }
@@ -540,7 +538,7 @@ export class HierarchyComponent implements OnInit {
           // Update the available GeoObjectTypes
           this.changeDetectorRef.detectChanges()
           
-      } ).catch(( err: any ) => {
+      } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
   }
