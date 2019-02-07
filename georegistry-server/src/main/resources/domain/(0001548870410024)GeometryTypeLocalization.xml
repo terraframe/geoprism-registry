@@ -50,6 +50,34 @@
           <attribute name="defaultLocale" value="Multipolygon" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.export.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.export.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export data" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.export.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.export.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select the type and format of the desired data" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.export">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.export" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.format">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.format" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Format" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

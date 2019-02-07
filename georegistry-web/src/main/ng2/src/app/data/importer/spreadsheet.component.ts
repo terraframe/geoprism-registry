@@ -93,12 +93,6 @@ export class SpreadsheetComponent implements OnInit {
         }
     }
 
-    onExport(): void {
-        window.location.href = acp + '/excel/export-spreadsheet?type=' + this.code;
-    }
-
-
-
     public error( err: any ): void {
         // Handle error
         if ( err !== null ) {

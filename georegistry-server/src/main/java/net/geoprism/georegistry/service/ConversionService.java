@@ -280,7 +280,9 @@ public class ConversionService
     // */
     // role.addAscendant(RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE));
 
-    RoleDAO role = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
+    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
+
+    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
 
     InitializationStrategyIF strategy = new InitializationStrategyIF()
     {
@@ -300,39 +302,45 @@ public class ConversionService
         adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
         adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
 
-        role.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-        role.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
-        role.grantPermission(Operation.CREATE, mdBusiness.getOid());
-        role.grantPermission(Operation.DELETE, mdBusiness.getOid());
+        maintainer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+        maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+        maintainer.grantPermission(Operation.CREATE, mdBusiness.getOid());
+        maintainer.grantPermission(Operation.DELETE, mdBusiness.getOid());
+
+        consumer.grantPermission(Operation.READ, mdBusiness.getOid());
+        consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
       }
     };
 
     MdTermRelationship mdTermRelUniversal = ServiceFactory.getConversionService().newHierarchyToMdTermRelForUniversals(hierarchyType);
     mdTermRelUniversal.apply();
 
-    this.grantAdminPermissionsOnMdTermRel(mdTermRelUniversal);
-    this.grantAdminPermissionsOnMdTermRel(role, mdTermRelUniversal);
+    this.grantWritePermissionsOnMdTermRel(mdTermRelUniversal);
+    this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelUniversal);
+    this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelUniversal);
 
     Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
 
     MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
     mdTermRelGeoEntity.apply();
-    this.grantAdminPermissionsOnMdTermRel(mdTermRelGeoEntity);
-    this.grantAdminPermissionsOnMdTermRel(role, mdTermRelGeoEntity);
+
+    this.grantWritePermissionsOnMdTermRel(mdTermRelGeoEntity);
+    this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelGeoEntity);
+    this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelGeoEntity);
 
     GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
 
     return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
   }
 
-  private void grantAdminPermissionsOnMdTermRel(MdTermRelationship mdTermRelationship)
+  private void grantWritePermissionsOnMdTermRel(MdTermRelationship mdTermRelationship)
   {
     RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
 
-    grantAdminPermissionsOnMdTermRel(adminRole, mdTermRelationship);
+    grantWritePermissionsOnMdTermRel(adminRole, mdTermRelationship);
   }
 
-  public void grantAdminPermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
+  public void grantWritePermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
   {
     role.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
     role.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
@@ -344,6 +352,12 @@ public class ConversionService
     role.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
     role.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
     role.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
+  }
+
+  public void grantReadPermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
+  {
+    role.grantPermission(Operation.READ, mdTermRelationship.getOid());
+    role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
   }
 
   /**

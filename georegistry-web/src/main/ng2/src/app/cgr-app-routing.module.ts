@@ -7,40 +7,52 @@ import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
+import { DataExportComponent } from './data/data-export/data-export.component';
 
-import { AdminGuard } from './core/auth/admin.guard';
+import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
 
 
 const routes: Routes = [
     {
         path: 'hierarchies',
-        component: HierarchyComponent
+        component: HierarchyComponent,
+        canActivate: [MaintainerGuard]
     },
     {
         path: 'shapefile',
-        component: ShapefileComponent
+        component: ShapefileComponent,
+        canActivate: [MaintainerGuard]
     },
     {
         path: 'spreadsheet',
-        component: SpreadsheetComponent
+        component: SpreadsheetComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'export',
+        component: DataExportComponent
+    },
+    {
+        path: 'localization-manager',
+        component: LocalizationManagerComponent,
+        canActivate: [AdminGuard],
     },
     {
         path: '',
         redirectTo: '/hierarchies',
         pathMatch: 'full'
     },
-    {
-        path: 'localization-manager',
-        component: LocalizationManagerComponent,
-        canActivate: [ AdminGuard ],          
-    }
 ];
 
 @NgModule( {
     imports: [RouterModule.forRoot( routes )],
     exports: [RouterModule],
-    providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }]
+    providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        AdminGuard,
+        MaintainerGuard
+    ]
 } )
 export class CgrAppRoutingModule { }
 
-export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent];

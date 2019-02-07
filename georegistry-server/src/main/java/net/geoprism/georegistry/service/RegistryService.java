@@ -456,7 +456,7 @@ public class RegistryService
       return node;
     }
   }
-  
+
   @Request(RequestType.SESSION)
   public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
@@ -468,7 +468,6 @@ public class RegistryService
   {
     GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
     GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
-    HierarchyType hierarchy = adapter.getMetadataCache().getHierachyType(hierarchyCode).get();
 
     if (goParent.getType().isLeaf())
     {
@@ -514,14 +513,14 @@ public class RegistryService
   {
     ChangeRequest cr = new ChangeRequest();
     cr.apply();
-    
+
     List<AbstractActionDTO> actionDTOs = AbstractActionDTO.parseActions(sJson);
 
     for (AbstractActionDTO actionDTO : actionDTOs)
     {
       AbstractAction ra = AbstractAction.dtoToRegistry(actionDTO);
       ra.apply();
-      
+
       cr.addAction(ra).apply();
     }
   }
@@ -997,10 +996,11 @@ public class RegistryService
 
     mdTermRelGeoEntity.delete();
 
-//    /*
-//     * Delete the Registry Maintainer role for the hierarchy
-//     */
-//    RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + code).getBusinessDAO().delete();
+    // /*
+    // * Delete the Registry Maintainer role for the hierarchy
+    // */
+    // RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX +
+    // code).getBusinessDAO().delete();
   }
 
   /**

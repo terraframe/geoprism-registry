@@ -12,11 +12,13 @@ declare var acp: any;
 export class CgrHeaderComponent {
     private context: string;
     private isAdmin: boolean;
+    private isMaintainer: boolean;
 
 
     constructor( service: AuthService ) {
         this.context = acp;
         this.isAdmin = service.isAdmin();
+        this.isMaintainer = this.isAdmin || service.isMaintainer();
     }
 
     ngOnInit(): void {

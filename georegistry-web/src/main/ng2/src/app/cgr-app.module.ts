@@ -56,7 +56,6 @@ import { LocalizePipe } from './core/localize/localize.pipe';
 import { LocalizationService } from './core/service/localization.service';
 import { ModalStepIndicatorComponent } from './core/modals/modal-step-indicator.component';
 
-//import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { IOService } from './service/io.service';

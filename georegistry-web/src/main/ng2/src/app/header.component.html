@@ -13,10 +13,11 @@
              <localize key="hierarchy-management.menu"></localize><span class="caret"></span> 
            </a>     
            <ul *dropdownMenu class="dropdown-menu"> 
-             <li role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchy-management.menu"></localize></a></li> 
+             <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchy-management.menu"></localize></a></li> 
+             <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/shapefile" routerLinkActive="active"><localize key="import-shapefile-localization-manager.menu"></localize> </a></li>
+             <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/spreadsheet" routerLinkActive="active"><localize key="import-spreadsheet-localization-manager.menu"></localize> </a></li>
+             <li role="menuitem"><a class="dropdown-item" routerLink="/export" routerLinkActive="active"><localize key="io.export.title"></localize> </a></li>
              <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li> 
-             <li role="menuitem"><a class="dropdown-item" routerLink="/shapefile" routerLinkActive="active"><localize key="import-shapefile-localization-manager.menu"></localize> </a></li>
-             <li role="menuitem"><a class="dropdown-item" routerLink="/spreadsheet" routerLinkActive="active"><localize key="import-spreadsheet-localization-manager.menu"></localize> </a></li>
              
              <!--
              <li role="menuitem"><a class="dropdown-item" href="{{context}}/session/logout"><localize key="Log_out"></localize></a></li>

@@ -40,5 +40,7 @@ public interface RegistryConstants
 
   public static final String REGISTRY_CONTRIBUTOR_ROLE        = REGISTRY_ROLE_PREFIX + "RegistryContributor";
 
+  public static final String API_CONSUMER_ROLE                = REGISTRY_ROLE_PREFIX + "APIConsumer";
+
   public final static String TERM_CLASS                       = "CLASS";
 }

@@ -33,6 +33,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
 
     // GeoprismApplication management = new GeoprismApplication();
     // management.setId("management");
@@ -52,7 +53,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     management.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     management.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
-    
 
     List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();
     applications.add(hierarchies);

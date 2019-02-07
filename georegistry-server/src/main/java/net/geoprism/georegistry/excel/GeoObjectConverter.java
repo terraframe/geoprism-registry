@@ -18,6 +18,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -145,7 +146,18 @@ public class GeoObjectConverter
 
         if (parent != null)
         {
-          ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.configuration.getHierarchy().getCode());
+          try
+          {
+            String parentTypeCode = parent.getType().getCode();
+            String typeCode = entity.getType().getCode();
+            String hierarchyCode = this.configuration.getHierarchy().getCode();
+
+            ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
+          }
+          catch (DuplicateDataException e)
+          {
+            // Ignore
+          }
         }
 
         // We must ensure that any problems created during the transaction are

@@ -540,6 +540,10 @@ public class AdapterUtilities
     maintainer.grantPermission(Operation.WRITE, mdBusiness.getOid());
     maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
 
+    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
+    consumer.grantPermission(Operation.READ, mdBusiness.getOid());
+    consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+    
 //    // TODO: Actual hierarchy role
 //    RoleDAO hierarchyRole = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + "LocatedIn").getBusinessDAO();
 //    hierarchyRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
