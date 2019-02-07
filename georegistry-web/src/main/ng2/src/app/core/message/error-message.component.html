@@ -1,0 +1,12 @@
+<div *ngIf="message != null" class="error-container">
+    <div class="">
+        <strong class="error-title">
+            <localize key="error.title"></localize>
+        </strong>
+    </div>
+    <div class="">
+        <div>
+            <p class="error-message">{{message}}</p>
+        </div>
+    </div>
+</div>

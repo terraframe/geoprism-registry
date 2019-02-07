@@ -1,16 +1,7 @@
 <!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons"> -->
   
   <div class="modal-body" *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
-    <div *ngIf="message != null" class="error-container">
-      <div class="label-holder">
-        <strong><localize key="error.title"></localize></strong>
-      </div>
-      <div class="holder">
-        <div>
-          <p class="error-message">{{message}}</p>
-        </div>
-      </div>
-    </div>
+    <error-message [message]="message"></error-message>
 
         <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">    
             <div class="heading">

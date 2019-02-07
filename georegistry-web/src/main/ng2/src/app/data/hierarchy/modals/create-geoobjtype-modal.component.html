@@ -1,17 +1,7 @@
 <form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
   
   <div *ngIf="hierarchyType != null" class="modal-body">
-    <div *ngIf="message != null" class="error-container">
-      <div class="label-holder">
-        <strong><localize key="error.title"></localize></strong>
-      </div>
-      <div class="holder">
-        <div>
-          <p class="error-message">{{message}}</p>
-        </div>
-      </div>
-    </div>
-    
+    <error-message [message]="message"></error-message>
     
     <div class="form-group">
       <div>

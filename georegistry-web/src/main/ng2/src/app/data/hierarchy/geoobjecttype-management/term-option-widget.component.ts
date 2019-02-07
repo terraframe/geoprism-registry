@@ -55,11 +55,7 @@ export class TermOptionWidgetComponent implements OnInit {
     @Input() attribute: AttributeTerm;
     @Output() attributeChange = new EventEmitter<AttributeTerm>();
     message: string = null;
-    // termOptionCode: string = "";
-    // termOptionLabel: string = "";
-    // termOption: Term = new Term("", "", "");
     state: string = 'none';
-    // enableTermOptionForm = false;
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""};
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {

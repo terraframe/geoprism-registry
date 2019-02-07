@@ -137,8 +137,8 @@ export class ManageTermOptionsComponent implements OnInit {
 
             this.enableTermOptionForm = false;
 
-        } ).catch(( err: any ) => {
-            this.error( err );
+        } ).catch(( err: Response ) => {
+            this.error( err.json() );
         } );
 
     }
@@ -222,8 +222,10 @@ export class ManageTermOptionsComponent implements OnInit {
     error( err: any ): void {
       if ( err !== null ) {
     	  // TODO: add error modal
-          this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-          this.bsModalRef.content.message = ( err.localizedMessage || err.message || err.statusText );
+        //   this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+        //   this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+
+        this.message = ( err.localizedMessage || err.message );
       }
     }
 
