@@ -77,6 +77,9 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.georegistry.conversion.TermBuilder;
+import net.geoprism.georegistry.query.CodeRestriction;
+import net.geoprism.georegistry.query.GeoObjectQuery;
+import net.geoprism.georegistry.query.UidRestriction;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;

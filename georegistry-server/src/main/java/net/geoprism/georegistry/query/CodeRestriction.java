@@ -1,4 +1,4 @@
-package net.geoprism.georegistry;
+package net.geoprism.georegistry.query;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 

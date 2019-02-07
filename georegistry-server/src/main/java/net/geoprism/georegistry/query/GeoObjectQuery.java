@@ -1,4 +1,4 @@
-package net.geoprism.georegistry;
+package net.geoprism.georegistry.query;
 
 import java.util.Map;
 
@@ -21,6 +21,7 @@ import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.ontology.ClassifierQuery;
 
 public class GeoObjectQuery
@@ -218,7 +219,14 @@ public class GeoObjectQuery
 
       if (it.hasNext())
       {
-        return it.next();
+        GeoObject result = it.next();
+
+        if (it.hasNext())
+        {
+          throw new NonUniqueResultException();
+        }
+
+        return result;
       }
 
       return null;
@@ -244,6 +252,11 @@ public class GeoObjectQuery
       {
         GeoObject geoObject = it.next();
         String oid = it.currentOid();
+
+        if (it.hasNext())
+        {
+          throw new NonUniqueResultException();
+        }
 
         return new Pair<String, GeoObject>(oid, geoObject);
       }

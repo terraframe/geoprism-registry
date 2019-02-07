@@ -38,12 +38,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.data.importer.BasicColumnFunction;
-import net.geoprism.georegistry.CodeRestriction;
-import net.geoprism.georegistry.GeoObjectIterator;
-import net.geoprism.georegistry.GeoObjectQuery;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.query.CodeRestriction;
+import net.geoprism.georegistry.query.GeoObjectIterator;
+import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.testframework.USATestData;
 
 public class ExcelServiceTest

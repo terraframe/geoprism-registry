@@ -20,6 +20,11 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.georegistry.io.SynonymRestriction;
+import net.geoprism.georegistry.query.CodeRestriction;
+import net.geoprism.georegistry.query.GeoObjectQuery;
+import net.geoprism.georegistry.query.LookupRestriction;
+import net.geoprism.georegistry.query.OidRestrction;
+import net.geoprism.georegistry.query.UidRestriction;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.testframework.USATestData;
 import net.geoprism.registry.GeoObjectStatus;

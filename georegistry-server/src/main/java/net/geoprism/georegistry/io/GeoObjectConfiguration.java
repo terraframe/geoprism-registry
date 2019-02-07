@@ -30,7 +30,7 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.georegistry.GeoObjectQuery;
+import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;

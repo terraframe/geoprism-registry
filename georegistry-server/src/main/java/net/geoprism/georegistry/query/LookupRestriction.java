@@ -1,4 +1,4 @@
-package net.geoprism.georegistry;
+package net.geoprism.georegistry.query;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;

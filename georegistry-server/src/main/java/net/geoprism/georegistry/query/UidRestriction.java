@@ -1,8 +1,10 @@
-package net.geoprism.georegistry;
+package net.geoprism.georegistry.query;
 
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
+
+import net.geoprism.georegistry.RegistryConstants;
 
 public class UidRestriction implements GeoObjectRestriction
 {

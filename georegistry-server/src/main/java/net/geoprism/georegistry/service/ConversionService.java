@@ -13,6 +13,7 @@ import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -82,6 +83,7 @@ import net.geoprism.georegistry.conversion.TermBuilder;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.io.TermValueException;
 
 public class ConversionService
 {
@@ -308,7 +310,7 @@ public class ConversionService
     mdTermRelGeoEntity.apply();
     this.grantAdminPermissionsOnMdTermRel(mdTermRelGeoEntity);
     this.grantAdminPermissionsOnMdTermRel(role, mdTermRelGeoEntity);
-    
+
     GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
 
     return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
@@ -759,7 +761,18 @@ public class ConversionService
             {
               Classifier classifier = Classifier.get(value);
 
-              geoObj.setValue(attributeName, classifier.getClassifierId());
+              try
+              {
+                geoObj.setValue(attributeName, classifier.getClassifierId());
+              }
+              catch (UnknownTermException e)
+              {
+                TermValueException ex = new TermValueException();
+                ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+                ex.setCode(e.getCode());
+
+                throw e;
+              }
             }
             else if (attribute instanceof AttributeDateType)
             {
@@ -778,11 +791,11 @@ public class ConversionService
             }
             else if (attribute instanceof AttributeFloatType)
             {
-              geoObj.setValue(attributeName, new Float(value));
+              geoObj.setValue(attributeName, new Double(value));
             }
             else if (attribute instanceof AttributeIntegerType)
             {
-              geoObj.setValue(attributeName, new Integer(value));
+              geoObj.setValue(attributeName, new Long(value));
             }
             else
             {
@@ -843,9 +856,20 @@ public class ConversionService
             if (attribute instanceof AttributeTermType)
             {
               Classifier classifier = Classifier.get(value);
-              Term term = this.getTerm(classifier.getClassifierId());
 
-              geoObj.setValue(attributeName, term);
+              try
+              {
+                geoObj.setValue(attributeName, classifier.getClassifierId());
+              }
+              catch (UnknownTermException e)
+              {
+                TermValueException ex = new TermValueException();
+                ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+                ex.setCode(e.getCode());
+
+                throw e;
+              }
+
             }
             else if (attribute instanceof AttributeDateType)
             {
@@ -864,11 +888,11 @@ public class ConversionService
             }
             else if (attribute instanceof AttributeFloatType)
             {
-              geoObj.setValue(attributeName, new Float(value));
+              geoObj.setValue(attributeName, new Double(value));
             }
             else if (attribute instanceof AttributeIntegerType)
             {
-              geoObj.setValue(attributeName, new Integer(value));
+              geoObj.setValue(attributeName, new Long(value));
             }
             else
             {
@@ -884,6 +908,11 @@ public class ConversionService
     geoObj.setGeometry((Geometry) business.getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
     return geoObj;
+  }
+
+  public Term getTerm(String code)
+  {
+    return ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
   }
 
   private Geometry getGeometry(GeoEntity geoEntity, GeometryType geometryType)
@@ -1039,11 +1068,6 @@ public class ConversionService
     businessDAO.setValue(ComponentInfo.KEY, geoEntity.getGeoId());
     businessDAO.addItem(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
     businessDAO.apply();
-  }
-
-  public Term getTerm(String code)
-  {
-    return ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
   }
 
   public GeoObjectStatus termToGeoObjectStatus(Term term)

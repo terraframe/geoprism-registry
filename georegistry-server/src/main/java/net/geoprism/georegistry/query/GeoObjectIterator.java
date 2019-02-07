@@ -1,4 +1,4 @@
-package net.geoprism.georegistry;
+package net.geoprism.georegistry.query;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,6 +11,7 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -25,9 +26,11 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.io.TermValueException;
 
 public class GeoObjectIterator implements OIterator<GeoObject>
 {
@@ -99,7 +102,18 @@ public class GeoObjectIterator implements OIterator<GeoObject>
         {
           if (attribute instanceof AttributeTermType)
           {
-            gObject.setValue(attributeName, value);
+            try
+            {
+              gObject.setValue(attributeName, value);
+            }
+            catch (UnknownTermException e)
+            {
+              TermValueException ex = new TermValueException();
+              ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+              ex.setCode(e.getCode());
+
+              throw e;
+            }
           }
           else if (attribute instanceof AttributeDateType)
           {
