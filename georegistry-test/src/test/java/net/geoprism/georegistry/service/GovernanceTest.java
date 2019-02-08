@@ -63,7 +63,7 @@ public class GovernanceTest
   }
   
   @Test
-  public void testGovernance()
+  public void testGovernance() throws InterruptedException
   {
     /*
      * CR1 : Setup
@@ -134,6 +134,8 @@ public class GovernanceTest
      * Submit CR1
      */
     this.adapter.submitChangeRequest(actionsCR1);
+    
+    Thread.sleep(3); // We need change requests to not have the same createDate so the ordering in validation is predictable
     
     /*
      * CR2 : Setup
