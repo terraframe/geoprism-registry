@@ -92,10 +92,6 @@ export class ShapefileComponent implements OnInit {
         }
     }
 
-    onExport(): void {
-        window.location.href = acp + '/shapefile/export-shapefile?type=' + this.code;
-    }
-
     public error( err: any ): void {
         // Handle error
         if ( err !== null ) {

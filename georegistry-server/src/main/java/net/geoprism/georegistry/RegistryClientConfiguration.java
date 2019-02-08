@@ -15,7 +15,7 @@ import net.geoprism.localization.LocalizationFacadeDTO;
 
 public class RegistryClientConfiguration extends DefaultClientConfiguration implements ClientConfigurationIF
 {
-  
+
   public GeoprismPatcher getPatcher()
   {
     return new GeoregistryPatcher();
@@ -30,24 +30,29 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.setSrc("net/geoprism/images/dm_icon.svg");
     hierarchies.setUrl("cgr/manage#/hierarchies");
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
-    hierarchies.addRole(RoleConstants.BUILDER_ROLE);
-    
-//    GeoprismApplication management = new GeoprismApplication();
-//    management.setId("management");
-//    management.setLabel(LocalizationFacadeDTO.getFromBundles(request, "geoprismLanding.dataManagement"));
-//    management.setSrc("net/geoprism/images/dm_icon.svg");
-//    management.setUrl("prism/home#data");
-//    management.addRole(RoleConstants.ADIM_ROLE);
-//    management.addRole(RoleConstants.BUILDER_ROLE);
-    
+    hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    hierarchies.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
+    hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
+
+    // GeoprismApplication management = new GeoprismApplication();
+    // management.setId("management");
+    // management.setLabel(LocalizationFacadeDTO.getFromBundles(request,
+    // "geoprismLanding.dataManagement"));
+    // management.setSrc("net/geoprism/images/dm_icon.svg");
+    // management.setUrl("prism/home#data");
+    // management.addRole(RoleConstants.ADIM_ROLE);
+    // management.addRole(RoleConstants.BUILDER_ROLE);
+
     GeoprismApplication management = new GeoprismApplication();
     management.setId("locations");
     management.setLabel(LocalizationFacadeDTO.getFromBundles(request, "geoprismLanding.locationManagement"));
     management.setSrc("net/geoprism/images/dm_icon.svg");
     management.setUrl("nav/management#locations");
     management.addRole(RoleConstants.ADIM_ROLE);
-    management.addRole(RoleConstants.BUILDER_ROLE);
-    
+    management.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    management.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
+    management.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
 
     List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();
     applications.add(hierarchies);

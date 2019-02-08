@@ -56,11 +56,11 @@ import { LocalizePipe } from './core/localize/localize.pipe';
 import { LocalizationService } from './core/service/localization.service';
 import { ModalStepIndicatorComponent } from './core/modals/modal-step-indicator.component';
 
-//import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
+import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -137,6 +137,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     IOService,
     EventService,
     Safe,
+    AuthService,
     CookieService,
     LocalizationService,
     ModalStepIndicatorService,

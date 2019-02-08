@@ -7,57 +7,52 @@ import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
+import { DataExportComponent } from './data/data-export/data-export.component';
+
+import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
 
 
 const routes: Routes = [
-  {
-	path: 'hierarchies',
-	component: HierarchyComponent
-  },
-  {
-	path: 'shapefile',
-	component: ShapefileComponent
-  },
-  {
-	path: 'spreadsheet',
-	component: SpreadsheetComponent
-  },
-  {
-	path: '',
-	redirectTo: '/hierarchies',
-	pathMatch: 'full'
-  },
-  {
-  path: 'localization-manager',
-  component: LocalizationManagerComponent
-  }
-//  {
-//    path: 'map/:id/:simple',
-//    component: MapComponent,
-//  },
-//  {
-//    path: 'map/:id/:simple/:props',
-//    component: MapComponent,
-//  },
-//  {
-//	  path: 'map/:id',
-//	  component: MapComponent,
-//  },
-//  {
-//    path: 'maps',
-//    component: MapsComponent
-//  },
-//  {
-//	path: 'legend/:layerId',
-//	component: MapsComponent
-//  },
+    {
+        path: 'hierarchies',
+        component: HierarchyComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'shapefile',
+        component: ShapefileComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'spreadsheet',
+        component: SpreadsheetComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'export',
+        component: DataExportComponent
+    },
+    {
+        path: 'localization-manager',
+        component: LocalizationManagerComponent,
+        canActivate: [AdminGuard],
+    },
+    {
+        path: '',
+        redirectTo: '/hierarchies',
+        pathMatch: 'full'
+    },
 ];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}]
-})
+@NgModule( {
+    imports: [RouterModule.forRoot( routes )],
+    exports: [RouterModule],
+    providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        AdminGuard,
+        MaintainerGuard
+    ]
+} )
 export class CgrAppRoutingModule { }
 
-export const routedComponents:any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent];
