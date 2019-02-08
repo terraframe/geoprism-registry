@@ -1,19 +1,22 @@
 package net.geoprism.georegistry.context;
 
+import com.runwaysdk.session.Request;
 
 import net.geoprism.context.ServerContextListener;
+import net.geoprism.georegistry.service.WMSService;
 
 public class RegistryServerContextListener implements ServerContextListener
 {
   @Override
   public void initialize()
   {
-    System.out.println("initialized");
   }
 
   @Override
+  @Request
   public void startup()
   {
+    new WMSService().createAllWMSLayers(false);
   }
 
   @Override
