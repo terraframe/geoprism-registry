@@ -7,6 +7,7 @@ import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
+import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 
 
 const routes: Routes = [
@@ -30,6 +31,10 @@ const routes: Routes = [
   {
   path: 'localization-manager',
   component: LocalizationManagerComponent
+  },
+  {
+  path: 'crtable',
+  component: ChangeRequestTableComponent
   }
 //  {
 //    path: 'map/:id/:simple',

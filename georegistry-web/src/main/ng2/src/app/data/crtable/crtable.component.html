@@ -1,0 +1,15 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+  
+  <div id="app-container" class="container">
+    <ngx-datatable class="material"
+      [rows]="rows | async"
+      [columns]="columns"
+      [columnMode]="'force'"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [rowHeight]="50">>
+    </ngx-datatable>
+  </div>
+</div>
