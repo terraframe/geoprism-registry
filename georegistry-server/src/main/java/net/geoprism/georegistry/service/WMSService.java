@@ -81,19 +81,28 @@ public class WMSService
       service.publishLayer(viewName, null);
     }
   }
-
-  public void deleteWMSLayer(GeoObjectType type)
+  
+  public void deleteWMSLayer(String geoObjectTypeCode)
   {
-    String viewName = this.getViewName(type);
+    String viewName = this.getViewName(geoObjectTypeCode);
 
     service.removeLayer(viewName);
 
-    this.deleteDatabaseView(type);
+    this.deleteDatabaseView(geoObjectTypeCode);
+  }
+  
+  public void deleteWMSLayer(GeoObjectType type)
+  {
+    String viewName = this.getViewName(type.getCode());
+
+    service.removeLayer(viewName);
+
+    this.deleteDatabaseView(type.getCode());
   }
 
-  private String getViewName(GeoObjectType type)
+  private String getViewName(String typeCode)
   {
-    String viewName = MetadataDAO.convertCamelCaseToUnderscore(type.getCode()).toLowerCase();
+    String viewName = MetadataDAO.convertCamelCaseToUnderscore(typeCode).toLowerCase();
 
     if (viewName.length() > Database.MAX_DB_IDENTIFIER_SIZE)
     {
@@ -102,11 +111,11 @@ public class WMSService
 
     return PREFIX + "_" + viewName;
   }
-
+  
   @Transaction
-  public void deleteDatabaseView(GeoObjectType type)
+  public void deleteDatabaseView(String typeCode)
   {
-    String viewName = this.getViewName(type);
+    String viewName = this.getViewName(typeCode);
 
     Database.dropView(viewName, null, false);
   }
@@ -114,7 +123,7 @@ public class WMSService
   @Transaction
   public String createDatabaseView(GeoObjectType type, boolean forceGeneration)
   {
-    String viewName = this.getViewName(type);
+    String viewName = this.getViewName(type.getCode());
 
     ValueQuery vQuery = this.generateQuery(type);
 

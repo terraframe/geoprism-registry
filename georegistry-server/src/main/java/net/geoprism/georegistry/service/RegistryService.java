@@ -612,7 +612,7 @@ public class RegistryService
 
     Universal universal = createGeoObjectType(geoObjectType);
     
-    // TODO: add create wms layer here
+    new WMSService().createWMSLayer(geoObjectType, true);
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
@@ -878,7 +878,7 @@ public class RegistryService
   {
     deleteGeoObjectTypeInTransaction(sessionId, code);
     
-   // TODO: add delete wms layer here
+    new WMSService().deleteWMSLayer(code);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
