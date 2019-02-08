@@ -24,6 +24,7 @@ import { ErrorMessageComponent } from './core/message/error-message.component';
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
+import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 import { CgrHeaderComponent } from './header.component';
 import { CreateHierarchyTypeModalComponent } from './data/hierarchy/modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './data/hierarchy/modals/add-child-to-hierarchy-modal.component';
@@ -58,6 +59,8 @@ import { ModalStepIndicatorComponent } from './core/modals/modal-step-indicator.
 
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
+import { ChangeRequestService } from './service/change-request.service';
+
 import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
 import { AuthService } from './core/auth/auth.service';
@@ -69,6 +72,8 @@ import { GeoObjectAttributeCodeValidator } from './factory/form-validation.facto
 
 import { OnlyNumber } from './core/number-only.directive';
 
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+
 
 import './rxjs-extensions';
 import { ModalStepIndicatorService } from './core/service/modal-step-indicator.service';
@@ -79,6 +84,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     FormsModule,
     HttpModule,
     CgrAppRoutingModule,
+    NgxDatatableModule,
     ReactiveFormsModule,
     FileUploadModule,
     ModalModule.forRoot(),
@@ -93,6 +99,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     CgrAppComponent,
     HierarchyComponent,
     LocalizationManagerComponent,
+    ChangeRequestTableComponent,
     FillPipe,
     Safe,
     CgrHeaderComponent,
@@ -134,6 +141,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
   providers: [
     HierarchyService,
     LocalizationManagerService,
+    ChangeRequestService,
     IOService,
     EventService,
     Safe,

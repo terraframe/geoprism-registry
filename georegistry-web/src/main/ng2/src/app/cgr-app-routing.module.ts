@@ -7,6 +7,7 @@ import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
+import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
 
 import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
@@ -35,13 +36,18 @@ const routes: Routes = [
     {
         path: 'localization-manager',
         component: LocalizationManagerComponent,
-        canActivate: [AdminGuard],
+        canActivate: [AdminGuard]
+    },
+    {
+        path: 'crtable',
+        component: ChangeRequestTableComponent,
+        canActivate: [AdminGuard]
     },
     {
         path: '',
         redirectTo: '/hierarchies',
         pathMatch: 'full'
-    },
+    }
 ];
 
 @NgModule( {
