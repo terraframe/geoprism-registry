@@ -83,6 +83,7 @@ import net.geoprism.georegistry.query.UidRestriction;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.georegistry.service.WMSService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
@@ -522,6 +523,8 @@ public class AdapterUtilities
 
     // Build the parent class term root if it does not exist.
     TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
+    
+    new WMSService().createDatabaseView(geoObjectType, true);
 
     return universal;
   }

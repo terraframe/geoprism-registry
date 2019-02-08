@@ -615,7 +615,14 @@ public class RegistryService
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-    return ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+    GeoObjectType ret = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+
+    /*
+     * Create the GeoServer WMS layers
+     */
+    new WMSService().createGeoServerLayer(ret, true);
+
+    return ret;
   }
 
   @Transaction
@@ -872,12 +879,26 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void deleteGeoObjectType(String sessionId, String code)
   {
-    deleteGeoObjectTypeInTransaction(sessionId, code);
+    GeoObjectType type = adapter.getMetadataCache().getGeoObjectType(code).get();
 
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    new WMSService().deleteWMSLayer(type);
 
-    // If we get here then it was successfully deleted
-    adapter.getMetadataCache().removeGeoObjectType(code);
+    try
+    {
+      deleteGeoObjectTypeInTransaction(sessionId, code);
+
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+      // If we get here then it was successfully deleted
+      adapter.getMetadataCache().removeGeoObjectType(code);
+    }
+    catch (RuntimeException e)
+    {
+      // An error occurred re-create the WMS layer
+      new WMSService().createWMSLayer(type, false);
+
+      throw e;
+    }
   }
 
   @Transaction

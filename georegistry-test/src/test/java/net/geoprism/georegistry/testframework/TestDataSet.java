@@ -58,6 +58,7 @@ import net.geoprism.georegistry.action.AbstractActionQuery;
 import net.geoprism.georegistry.action.ChangeRequest;
 import net.geoprism.georegistry.action.ChangeRequestQuery;
 import net.geoprism.georegistry.service.ConversionService;
+import net.geoprism.georegistry.service.WMSService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
@@ -404,6 +405,8 @@ abstract public class TestDataSet
       {
         System.out.println("Deleting TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
+      
+      new WMSService().deleteDatabaseView(this.getGeoObjectType(geometryType));
 
       Universal uni = getUniversalIfExist(this.getCode());
       if (uni != null)
