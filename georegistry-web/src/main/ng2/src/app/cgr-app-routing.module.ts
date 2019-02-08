@@ -42,12 +42,12 @@ const routes: Routes = [
         path: 'crtable',
         component: ChangeRequestTableComponent,
         canActivate: [AdminGuard]
-    }
+    },
     {
         path: '',
         redirectTo: '/hierarchies',
         pathMatch: 'full'
-    },
+    }
 ];
 
 @NgModule( {
