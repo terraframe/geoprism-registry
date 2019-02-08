@@ -120,6 +120,12 @@ public class WMSService
   }
   
   @Transaction
+  public void deleteDatabaseView(GeoObjectType type)
+  {
+    this.deleteDatabaseView(type.getCode());
+  }
+  
+  @Transaction
   public void deleteDatabaseView(String typeCode)
   {
     String viewName = this.getViewName(typeCode);
