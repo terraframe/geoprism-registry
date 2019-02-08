@@ -893,9 +893,10 @@ public class RegistryService
     Classifier classifier = Classifier.getByKey(classifierKey);
     
     List<MdAttributeConcrete> mdAttrList = this.findRootClassifier(classifier);
-    this.refreshAttributeTermTypeInCache(mdAttrList);
     
     classifier.delete();
+    
+    this.refreshAttributeTermTypeInCache(mdAttrList);
   }
   
   /**

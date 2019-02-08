@@ -772,15 +772,11 @@ public class HierarchyManagementServiceTest
       service.createTerm(sessionId, rootTerm.getCode(), childTerm1.toJSON().toString());
       service.createTerm(sessionId, rootTerm.getCode(), childTerm2.toJSON().toString());
 
-      
       province = service.getGeoObjectTypes(sessionId, new String[]{PROVINCE_CODE})[0];
-      
       AttributeTermType attributeTermType2 = (AttributeTermType)province.getAttribute("testTerm").get();
       
       // Check to see if the cache was updated.
-      checkTerms1(attributeTermType2);
-      
-      System.out.println(attributeTermType2.getRootTerm().toString());
+      checkTermsCreate(attributeTermType2);
       
       attributeTermType.setLocalizedLabel("Test Term Name Update");
       attributeTermType.setLocalizedDescription("Test Term Description Update");
@@ -796,8 +792,35 @@ public class HierarchyManagementServiceTest
     Assert.assertEquals(attributeTermType.getLocalizedLabel(), "Test Term Name Update");
     Assert.assertEquals(attributeTermType.getLocalizedDescription(), "Test Term Description Update");
 
-    checkTerms1(attributeTermType);
-
+    checkTermsCreate(attributeTermType);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      // Test updating the term
+      Term childTerm2 = new Term("termValue2", "Term Value 2a", "");
+      
+      service.updateTerm(sessionId, childTerm2.toJSON().toString());
+      
+      province = service.getGeoObjectTypes(sessionId, new String[]{PROVINCE_CODE})[0];
+      AttributeTermType attributeTermType3 = (AttributeTermType)province.getAttribute("testTerm").get();
+      
+      checkTermsUpdate(attributeTermType3);
+      
+      service.deleteTerm(sessionId, "termValue2");
+      
+      province = service.getGeoObjectTypes(sessionId, new String[]{PROVINCE_CODE})[0];
+      attributeTermType3 = (AttributeTermType)province.getAttribute("testTerm").get();
+      
+System.out.println(attributeTermType3.getRootTerm().toString());
+      
+      checkTermsDelete(attributeTermType3);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
     sessionId = this.logInAdmin();
     try
     {
@@ -810,7 +833,12 @@ public class HierarchyManagementServiceTest
     }
   }
 
-  private void checkTerms1(AttributeTermType attributeTermType)
+  /** 
+   * Method for checking the state of the {@link Term}s on an {@link AttributeTermType}
+   * 
+   * @param attributeTermType
+   */
+  private void checkTermsCreate(AttributeTermType attributeTermType)
   {
     Term rootTerm;
     Term childTerm1;
@@ -820,7 +848,7 @@ public class HierarchyManagementServiceTest
     
     List<Term> childTerms = rootTerm.getChildren();
     
-    Assert.assertEquals(childTerms.size(), 2);
+    Assert.assertEquals(2, childTerms.size());
    
     childTerm1 = childTerms.get(0);
     childTerm2 = childTerms.get(1);
@@ -830,6 +858,55 @@ public class HierarchyManagementServiceTest
 
     Assert.assertEquals(childTerm2.getCode(), "termValue2");
     Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2");
+  }
+  
+  /** 
+   * Method for checking the state of the {@link Term}s on an {@link AttributeTermType}
+   * 
+   * @param attributeTermType
+   */
+  private void checkTermsUpdate(AttributeTermType attributeTermType)
+  {
+    Term rootTerm;
+    Term childTerm1;
+    Term childTerm2;
+    
+    rootTerm = attributeTermType.getRootTerm();
+    
+    List<Term> childTerms = rootTerm.getChildren();
+    
+    Assert.assertEquals(2, childTerms.size());
+   
+    childTerm1 = childTerms.get(0);
+    childTerm2 = childTerms.get(1);
+    
+    Assert.assertEquals(childTerm1.getCode(), "termValue1");
+    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
+
+    Assert.assertEquals(childTerm2.getCode(), "termValue2");
+    Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2a");
+  }
+  
+  /** 
+   * Method for checking the state of the {@link Term}s on an {@link AttributeTermType}
+   * 
+   * @param attributeTermType
+   */
+  private void checkTermsDelete(AttributeTermType attributeTermType)
+  {
+    Term rootTerm;
+    Term childTerm1;
+    
+    rootTerm = attributeTermType.getRootTerm();
+    
+    List<Term> childTerms = rootTerm.getChildren();
+    
+    Assert.assertEquals(1, childTerms.size());
+   
+    childTerm1 = childTerms.get(0);
+    
+    Assert.assertEquals(childTerm1.getCode(), "termValue1");
+    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
   }
 
   @Request
