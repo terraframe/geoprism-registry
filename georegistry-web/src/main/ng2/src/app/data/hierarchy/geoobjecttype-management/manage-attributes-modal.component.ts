@@ -81,7 +81,7 @@ export class ManageAttributesModalComponent implements OnInit {
               this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
             }
 
-        } ).catch(( err: any ) => {
+        } ).catch(( err: Response ) => {
             this.error( err.json() );
         } );
     }

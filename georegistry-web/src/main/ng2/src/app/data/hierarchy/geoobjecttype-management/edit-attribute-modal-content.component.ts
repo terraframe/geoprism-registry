@@ -79,7 +79,7 @@ export class EditAttributeModalContentComponent implements OnInit {
         
         this.hierarchyService.updateAttributeType( this.geoObjectType.code, this.attribute ).then( data => {
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
-        } ).catch(( err: any ) => {
+        } ).catch(( err: Response ) => {
             this.error( err.json() );
         } );
     }

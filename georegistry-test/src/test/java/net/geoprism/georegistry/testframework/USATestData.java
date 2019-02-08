@@ -18,6 +18,8 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.georegistry.conversion.TermBuilder;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.gis.geoserver.GeoserverFacade;
+import net.geoprism.gis.geoserver.NullGeoserverService;
 
 public class USATestData extends TestDataSet
 {
@@ -72,6 +74,7 @@ public class USATestData extends TestDataSet
   public static USATestData newTestData(GeometryType geometryType, boolean includeData)
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
+    GeoserverFacade.setService(new NullGeoserverService());
 
     TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
 

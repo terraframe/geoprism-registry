@@ -83,6 +83,7 @@ import net.geoprism.georegistry.query.UidRestriction;
 import net.geoprism.georegistry.service.ConversionService;
 import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.georegistry.service.WMSService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
@@ -522,6 +523,8 @@ public class AdapterUtilities
 
     // Build the parent class term root if it does not exist.
     TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
+    
+    new WMSService().createDatabaseView(geoObjectType, true);
 
     return universal;
   }
@@ -533,6 +536,23 @@ public class AdapterUtilities
     adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
     adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
     adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+
+    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
+    maintainer.grantPermission(Operation.CREATE, mdBusiness.getOid());
+    maintainer.grantPermission(Operation.DELETE, mdBusiness.getOid());
+    maintainer.grantPermission(Operation.WRITE, mdBusiness.getOid());
+    maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+
+    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
+    consumer.grantPermission(Operation.READ, mdBusiness.getOid());
+    consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+    
+//    // TODO: Actual hierarchy role
+//    RoleDAO hierarchyRole = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + "LocatedIn").getBusinessDAO();
+//    hierarchyRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
+//    hierarchyRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+//    hierarchyRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
+//    hierarchyRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
   }
 
   /**

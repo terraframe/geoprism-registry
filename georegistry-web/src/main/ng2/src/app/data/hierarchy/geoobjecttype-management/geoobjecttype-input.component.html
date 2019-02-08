@@ -1,16 +1,7 @@
 <!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons"> -->
   
   <div class="modal-body" *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
-    <div *ngIf="message != null" class="error-container">
-      <div class="label-holder">
-        <strong><localize key="error.title"></localize></strong>
-      </div>
-      <div class="holder">
-        <div>
-          <p class="error-message">{{message}}</p>
-        </div>
-      </div>
-    </div>
+    <error-message [message]="message"></error-message>
 
         <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">    
             <div class="heading">
@@ -49,6 +40,23 @@
                     </span>
                     </div>
                 </div> 
+                
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label><localize key="data.property.label.geometryType"></localize></label>
+                    </div>          
+                    <div class="holder">                    
+                      <select name="geometryType" [(ngModel)]="geoObjectType.geometryType" disabled>
+                        <option></option>
+                        <option value="POINT"><localize key="georegistry.geometry.point"></localize></option>
+                        <option value="LINE"><localize key="georegistry.geometry.line"></localize></option>
+                        <option value="POLYGON"><localize key="georegistry.geometry.polygon"></localize></option>
+                        <option value="MULTIPOINT"><localize key="georegistry.geometry.multipoint"></localize></option>
+                        <option value="MULTILINE"><localize key="georegistry.geometry.multiline"></localize></option>
+                        <option value="MULTIPOLYGON"><localize key="georegistry.geometry.multipolygon"></localize></option>
+                      </select>
+                    </div>
+                </div>
 
 
                 <div class="row-holder">

@@ -51,7 +51,7 @@ public abstract class AbstractAction extends AbstractActionBase
   
   protected void buildFromDTO(AbstractActionDTO dto)
   {
-//    this.setApiVersion(dto.getApiVersion());
+    this.setApiVersion(dto.getApiVersion());
     this.setCreateActionDate(dto.getCreateActionDate());
   }
 

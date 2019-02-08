@@ -1,5 +1,9 @@
 @import '~angular-tree-component/dist/angular-tree-component.css';
 
+@import '~@swimlane/ngx-datatable/release/index.css';
+@import '~@swimlane/ngx-datatable/release/themes/material.css';
+@import '~@swimlane/ngx-datatable/release/assets/icons.css';
+
 .node-content-wrapper, .tree-children {
   position: relative;
   font-size: 18px;
@@ -139,3 +143,4 @@ i.fa.fa-sitemap:hover{
 .cdk-overlay-container{
         z-index: 5000 !important;
 }
+

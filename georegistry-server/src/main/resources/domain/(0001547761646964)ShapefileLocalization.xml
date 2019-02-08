@@ -190,13 +190,6 @@
           <attribute name="defaultLocale" value="File is required" />
         </attributeStruct>
       </object>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="shapefile.export">
-        <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="shapefile.export" />
-        <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Export shapefile" />
-        </attributeStruct>
-      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

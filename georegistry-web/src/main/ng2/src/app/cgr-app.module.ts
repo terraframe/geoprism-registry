@@ -18,10 +18,13 @@ import { Safe } from './core/safe.html.pipe';
 import { ErrorModalComponent } from './core/modals/error-modal.component';
 import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
+import { ErrorMessageComponent } from './core/message/error-message.component';
+
 
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
+import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 import { CgrHeaderComponent } from './header.component';
 import { CreateHierarchyTypeModalComponent } from './data/hierarchy/modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './data/hierarchy/modals/add-child-to-hierarchy-modal.component';
@@ -54,11 +57,13 @@ import { LocalizePipe } from './core/localize/localize.pipe';
 import { LocalizationService } from './core/service/localization.service';
 import { ModalStepIndicatorComponent } from './core/modals/modal-step-indicator.component';
 
-//import { UploadModalComponent } from './map/upload-modal/upload-modal.component';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
+import { ChangeRequestService } from './service/change-request.service';
+
 import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
+import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -66,6 +71,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
 import { OnlyNumber } from './core/number-only.directive';
+
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 
 import './rxjs-extensions';
@@ -77,6 +84,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     FormsModule,
     HttpModule,
     CgrAppRoutingModule,
+    NgxDatatableModule,
     ReactiveFormsModule,
     FileUploadModule,
     ModalModule.forRoot(),
@@ -91,6 +99,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     CgrAppComponent,
     HierarchyComponent,
     LocalizationManagerComponent,
+    ChangeRequestTableComponent,
     FillPipe,
     Safe,
     CgrHeaderComponent,
@@ -124,6 +133,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ModalStepIndicatorComponent,
     ManageTermOptionsComponent,
     OnlyNumber,
+    ErrorMessageComponent,
     
     // Routing components
     routedComponents
@@ -131,9 +141,11 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
   providers: [
     HierarchyService,
     LocalizationManagerService,
+    ChangeRequestService,
     IOService,
     EventService,
     Safe,
+    AuthService,
     CookieService,
     LocalizationService,
     ModalStepIndicatorService,
@@ -159,7 +171,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ManageGeoObjectTypeModalComponent,
       GeoObjectTypeInputComponent,
       ModalStepIndicatorComponent,
-      ManageTermOptionsComponent
+      ManageTermOptionsComponent,
+      ErrorMessageComponent
   ]        
 })
 export class CgrAppModule { }

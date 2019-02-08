@@ -1,0 +1,49 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+  <div id="app-container" class="container">
+    <div class="py-5 text-center">
+      <h2>
+        <localize key="io.export.title"></localize>
+      </h2>
+      <p class="lead">
+        <localize key="io.export.description"></localize>
+      </p>
+    </div>
+    <div class="col-md-8 order-md-1 text-center">
+      <form #form="ngForm">
+        <div class="form-group row" *ngIf="types">
+          <label class="col-md-2" for="code">
+            <localize key="io.geoObjectType"></localize>
+          </label>
+          <div class="col-md-6">
+            <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
+              <option></option>
+              <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row" *ngIf="types">
+          <label class="col-md-2" for="format">
+            <localize key="io.format"></localize>
+          </label>
+          <div class="col-md-6">
+            <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
+              <option></option>
+              <option value="EXCEL"><localize key="io.spreadsheet"></localize></option>
+              <option value="SHAPEFILE"><localize key="io.shapefile"></localize></option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-8 text-right">
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onExport()">
+              <localize key="io.export"></localize>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

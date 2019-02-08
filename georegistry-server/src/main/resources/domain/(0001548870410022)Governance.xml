@@ -57,7 +57,7 @@
     
       <mdBusiness name="net.geoprism.georegistry.action.ChangeRequest" exported="false" publish="false" label="Execute Actions Request">
         <attributes>
-          <enumeration name="approvalStatus" label="Status" selectMultiple="false" type="net.geoprism.georegistry.action.AllGovernanceStatus"/>
+          <enumeration name="approvalStatus" label="Status" selectMultiple="false" required="true" type="net.geoprism.georegistry.action.AllGovernanceStatus"/>
         </attributes>
       </mdBusiness>
       
@@ -65,22 +65,22 @@
         <parent cardinality="1" name="net.geoprism.georegistry.action.ChangeRequest" method="Request" />
         <child cardinality="*" name="net.geoprism.georegistry.action.AbstractAction" method="Action" />
       </mdRelationship>
-    
+      
       <mdBusiness name="net.geoprism.georegistry.action.AbstractAction" isAbstract="true" exported="false" publish="false" label="Registry Action">
         <attributes>
           <dateTime name="createActionDate" required="true" label="The date time that the action was created (on the remote client)." />
           <text name="apiVersion" required="true" label="Registry API Version" />
-          <enumeration name="approvalStatus" label="Status" selectMultiple="false" type="net.geoprism.georegistry.action.AllGovernanceStatus"/>
+          <enumeration name="approvalStatus" label="Status" selectMultiple="false" required="true" type="net.geoprism.georegistry.action.AllGovernanceStatus"/>
         </attributes>
       </mdBusiness>
       
       <!-- GeoObject -->
-      <mdBusiness name="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+      <mdBusiness name="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction" label="Create GeoObject" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
         <attributes>
           <text name="geoObjectJson" label="geoObjectJson" required="true" />
         </attributes>
       </mdBusiness>
-      <mdBusiness name="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+      <mdBusiness name="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction" label="Update GeoObject" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
         <attributes>
           <text name="geoObjectJson" label="geoObjectJson" required="true" />
         </attributes>
@@ -102,7 +102,7 @@
       <mdBusiness name="net.geoprism.georegistry.action.DeleteTermAction" extends="net.geoprism.georegistry.action.AbstractAction"></mdBusiness>
       -->
       
-      <mdBusiness name="net.geoprism.georegistry.action.tree.AddChildAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+      <mdBusiness name="net.geoprism.georegistry.action.tree.AddChildAction" label="Add Child" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
         <attributes>
           <text name="childId" label="childId" required="true" />
           <text name="childTypeCode" label="childTypeCode" required="true" />
@@ -111,7 +111,7 @@
           <text name="hierarchyTypeCode" label="hierarchyTypeCode" required="true" />
         </attributes>
       </mdBusiness>
-      <mdBusiness name="net.geoprism.georegistry.action.tree.RemoveChildAction" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
+      <mdBusiness name="net.geoprism.georegistry.action.tree.RemoveChildAction" label="Remove Child" exported="false" extends="net.geoprism.georegistry.action.AbstractAction">
         <attributes>
           <text name="childId" label="childId" required="true" />
           <text name="childTypeCode" label="childTypeCode" required="true" />
@@ -120,8 +120,45 @@
           <text name="hierarchyTypeCode" label="hierarchyTypeCode" required="true" />
         </attributes>
       </mdBusiness>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="crtable.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="crtable.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Change Requests" />
+        </attributeStruct>
+      </object>
     </create>
     <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.georegistry.action.GovernanceStatus">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.georegistry.action.ChangeRequest">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.georegistry.action.HasActionRelationship">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.georegistry.action.AbstractAction">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.georegistry.action.tree.AddChildAction">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.georegistry.action.tree.RemoveChildAction">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
   </doIt>
   <undoIt>
     <delete>
@@ -132,6 +169,7 @@
       <object key="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
       <object key="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
       <object key="net.geoprism.georegistry.action.tree.AddChildAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.georegistry.action.tree.RemoveChildAction" type="com.runwaysdk.system.metadata.MdBusiness"/>
     </delete>
   </undoIt>
 </version>
