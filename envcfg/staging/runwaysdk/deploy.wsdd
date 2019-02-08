@@ -1,0 +1,29 @@
+<!--
+  Copyright (c) 2013 TerraFrame, Inc. All rights reserved. 
+  
+  This file is part of Runway SDK(tm).
+  
+  Runway SDK(tm) is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+  
+  Runway SDK(tm) is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public
+  License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+-->
+<deployment xmlns="http://xml.apache.org/axis/wsdd/"
+   xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+ <service name="com.runwaysdk.facade.WebServiceAdapter" provider="java:RPC">
+  <parameter name="className" value="com.runwaysdk.facade.WebServiceAdapter"/>
+  <parameter name="allowedMethods" value="*"/>
+ </service>
+  <service name="com.runwaysdk.facade.JSONWebServiceAdapter" provider="java:RPC">
+  <parameter name="className" value="com.runwaysdk.facade.JSONWebServiceAdapter"/>
+  <parameter name="allowedMethods" value="*"/>
+ </service>
+</deployment>
