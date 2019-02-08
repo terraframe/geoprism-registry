@@ -23,6 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
@@ -454,6 +455,34 @@ public class RegistryService
       node.addParent(new ParentTreeNode(goParent, hierarchy));
 
       return node;
+    }
+  }
+
+  public Boolean exists(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
+  {
+    GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
+    GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
+
+    if (goParent.getType().isLeaf())
+    {
+      throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
+    }
+    else if (goChild.getType().isLeaf())
+    {
+      return false;
+    }
+    else
+    {
+      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
+      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
+
+      String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(hierarchyCode);
+
+      RelationshipQuery query = new QueryFactory().relationshipQuery(mdTermRelGeoEntity);
+      query.WHERE(query.parentOid().EQ(parentRunwayId));
+      query.AND(query.childOid().EQ(childRunwayId));
+
+      return ( query.getCount() > 0 );
     }
   }
 
