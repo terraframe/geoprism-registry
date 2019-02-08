@@ -8,14 +8,12 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.MdEntityInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdLocalStructDAOIF;
-import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MetadataDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.Attribute;
 import com.runwaysdk.query.AttributeCharacter;
 import com.runwaysdk.query.AttributeLocal;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.SelectableChar;
 import com.runwaysdk.query.SelectableGeometry;
@@ -43,7 +41,23 @@ public class WMSService
 
     for (GeoObjectType type : types)
     {
-      this.createWMSLayer(type, forceGeneration);
+      if (!type.getCode().equals(Universal.ROOT_KEY))
+      {
+        this.createWMSLayer(type, forceGeneration);
+      }
+    }
+  }
+
+  public void deleteAllWMSLayers()
+  {
+    GeoObjectType[] types = ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes();
+
+    for (GeoObjectType type : types)
+    {
+      if (!type.getCode().equals(Universal.ROOT_KEY))
+      {
+        this.deleteWMSLayer(type);
+      }
     }
   }
 
@@ -58,16 +72,9 @@ public class WMSService
 
     // Now that the database transaction is complete we can create the geoserver
     // layer
-    service.publishLayer(viewName, null);
-  }
-
-  public void deleteAllWMSLayers()
-  {
-    GeoObjectType[] types = ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes();
-
-    for (GeoObjectType type : types)
+    if (!service.layerExists(viewName))
     {
-      this.deleteWMSLayer(type);
+      service.publishLayer(viewName, null);
     }
   }
 
@@ -149,7 +156,7 @@ public class WMSService
       }
 
       Attribute geometry = bQuery.get(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-      geometry.setColumnAlias(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+      geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
 
       vQuery.SELECT(geometry);
 
@@ -181,42 +188,42 @@ public class WMSService
       if (type.getGeometryType().equals(GeometryType.LINE))
       {
         SelectableGeometry geometry = geQuery.getGeoLine(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-        geometry.setColumnAlias(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+        geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
 
         vQuery.SELECT(geometry);
       }
       else if (type.getGeometryType().equals(GeometryType.MULTILINE))
       {
         SelectableGeometry geometry = geQuery.getGeoMultiLine(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-        geometry.setColumnAlias(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+        geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
 
         vQuery.SELECT(geometry);
       }
       else if (type.getGeometryType().equals(GeometryType.POINT))
       {
         SelectableGeometry geometry = geQuery.getGeoPoint(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-        geometry.setColumnAlias(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+        geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
 
         vQuery.SELECT(geometry);
       }
       else if (type.getGeometryType().equals(GeometryType.MULTIPOINT))
       {
         SelectableGeometry geometry = geQuery.getGeoMultiPoint(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-        geometry.setColumnAlias(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+        geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
 
         vQuery.SELECT(geometry);
       }
       else if (type.getGeometryType().equals(GeometryType.POLYGON))
       {
         SelectableGeometry geometry = geQuery.getGeoPolygon(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-        geometry.setColumnAlias(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+        geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
 
         vQuery.SELECT(geometry);
       }
       else if (type.getGeometryType().equals(GeometryType.MULTIPOLYGON))
       {
         SelectableGeometry geometry = geQuery.getGeoMultiPolygon(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-        geometry.setColumnAlias(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+        geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
 
         vQuery.SELECT(geometry);
       }
