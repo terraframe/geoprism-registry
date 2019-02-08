@@ -19,17 +19,30 @@
           <attribute name="defaultLocale" value="API Consumer" />
         </attributeStruct>
       </object>
-      <object key="Roles.commongeoregistry.LocatedInRegistryMaintainer" type="com.runwaysdk.system.Roles">
-        <attribute name="roleName" value="commongeoregistry.LocatedInRegistryMaintainer" />
+      <object key="Roles.commongeoregistry.RegistryMaintainer" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="commongeoregistry.RegistryMaintainer" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Registry Maintainer" />
+        </attributeStruct>
+      </object>
+<!-- 
+      <object key="Roles.commongeoregistry.registry.maintainer.LocatedIn" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="commongeoregistry.registry.maintainer.LocatedIn" />
         <attributeStruct name="displayLabel">
           <attribute name="defaultLocale" value="Located In Registry Maintainer" />
         </attributeStruct>
       </object>
+ -->      
     </create>
     <permissions>
       <role roleName="commongeoregistry.RegistryAdministrator">
         <superRole roleName="geoprism.admin.Administrator" />
       </role>
+<!-- 
+      <role roleName="commongeoregistry.registry.maintainer.LocatedIn">
+        <superRole roleName="commongeoregistry.RegistryMaintainer" />
+      </role>
+ -->      
     </permissions>
     <update></update>
   </doIt>

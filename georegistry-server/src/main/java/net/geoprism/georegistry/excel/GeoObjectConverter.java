@@ -37,6 +37,7 @@ import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.query.NonUniqueResultException;
+import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
@@ -112,7 +113,7 @@ public class GeoObjectConverter
 
       if (entityName != null)
       {
-        entity.setWKTGeometry(geometry.toText());
+        entity.setGeometry(geometry);
 
         if (isNew)
         {
@@ -145,7 +146,15 @@ public class GeoObjectConverter
 
         if (parent != null)
         {
-          ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.configuration.getHierarchy().getCode());
+          String parentTypeCode = parent.getType().getCode();
+          String typeCode = entity.getType().getCode();
+          String hierarchyCode = this.configuration.getHierarchy().getCode();
+          RegistryService service = ServiceFactory.getRegistryService();
+
+          if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
+          {
+            service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
+          }
         }
 
         // We must ensure that any problems created during the transaction are

@@ -83,7 +83,7 @@ export class EditTermOptionInputComponent implements OnInit {
         
         this.hierarchyService.updateAttributeTermTypeOption( this.termOption ).then( data => {
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
-        } ).catch(( err: any ) => {
+        } ).catch(( err: Response ) => {
             this.error( err.json() );
         } );
     }

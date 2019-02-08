@@ -78,8 +78,8 @@ export class ShapefileModalComponent implements OnInit {
             else {
                 this.bsModalRef.hide()
             }
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( response:Response ) => {
+            this.error( response.json() );
         } );
 
     }

@@ -9,23 +9,19 @@ import {
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
-
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
-
 import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
 import { StepConfig } from '../../../core/modals/modal';
-
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 import { LocalizationService } from '../../../core/service/localization.service';
-
 import { AttributeInputComponent} from '../geoobjecttype-management/attribute-input.component';
-
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
+import { ErrorMessageComponent } from '../../../core/message/error-message.component';
 
 
-
+ 
 
 @Component( {
     selector: 'define-attribute-modal-content',
@@ -88,7 +84,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
             this.geoObjectType.attributes.push(data);
 
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
-        } ).catch(( err: any ) => {
+        } ).catch(( err: Response ) => {
             this.error( err.json() );
         } );
     }

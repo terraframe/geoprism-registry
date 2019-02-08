@@ -56,7 +56,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
             this.close();
 
-        } ).catch(( err: any ) => {
+        } ).catch(( err: Response ) => {
             this.error( err.json() );
         } );
     }

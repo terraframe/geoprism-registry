@@ -48,6 +48,7 @@ import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.query.NonUniqueResultException;
+import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
@@ -278,7 +279,15 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
         if (parent != null)
         {
-          ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parent.getType().getCode(), entity.getUid(), entity.getType().getCode(), this.config.getHierarchy().getCode());
+          String parentTypeCode = parent.getType().getCode();
+          String typeCode = entity.getType().getCode();
+          String hierarchyCode = this.config.getHierarchy().getCode();
+          RegistryService service = ServiceFactory.getRegistryService();
+
+          if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
+          {
+            service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
+          }
         }
 
         // We must ensure that any problems created during the transaction are

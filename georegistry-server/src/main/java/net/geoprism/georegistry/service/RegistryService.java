@@ -23,8 +23,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
-import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -44,7 +44,6 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
-import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.action.AbstractAction;
 import net.geoprism.georegistry.action.AllGovernanceStatus;
 import net.geoprism.georegistry.action.ChangeRequest;
@@ -459,7 +458,35 @@ public class RegistryService
       return node;
     }
   }
-  
+
+  public Boolean exists(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
+  {
+    GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
+    GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
+
+    if (goParent.getType().isLeaf())
+    {
+      throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
+    }
+    else if (goChild.getType().isLeaf())
+    {
+      return false;
+    }
+    else
+    {
+      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
+      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
+
+      String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(hierarchyCode);
+
+      RelationshipQuery query = new QueryFactory().relationshipQuery(mdTermRelGeoEntity);
+      query.WHERE(query.parentOid().EQ(parentRunwayId));
+      query.AND(query.childOid().EQ(childRunwayId));
+
+      return ( query.getCount() > 0 );
+    }
+  }
+
   @Request(RequestType.SESSION)
   public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
@@ -471,7 +498,6 @@ public class RegistryService
   {
     GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
     GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
-    HierarchyType hierarchy = adapter.getMetadataCache().getHierachyType(hierarchyCode).get();
 
     if (goParent.getType().isLeaf())
     {
@@ -518,7 +544,7 @@ public class RegistryService
     ChangeRequest cr = new ChangeRequest();
     cr.addApprovalStatus(AllGovernanceStatus.PENDING);
     cr.apply();
-    
+
     List<AbstractActionDTO> actionDTOs = AbstractActionDTO.parseActions(sJson);
 
     for (AbstractActionDTO actionDTO : actionDTOs)
@@ -526,7 +552,7 @@ public class RegistryService
       AbstractAction ra = AbstractAction.dtoToRegistry(actionDTO);
       ra.addApprovalStatus(AllGovernanceStatus.PENDING);
       ra.apply();
-      
+
       cr.addAction(ra).apply();
     }
   }
@@ -1002,10 +1028,11 @@ public class RegistryService
 
     mdTermRelGeoEntity.delete();
 
-    /*
-     * Delete the Registry Maintainer role for the hierarchy
-     */
-    RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + code).getBusinessDAO().delete();
+    // /*
+    // * Delete the Registry Maintainer role for the hierarchy
+    // */
+    // RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX +
+    // code).getBusinessDAO().delete();
   }
 
   /**

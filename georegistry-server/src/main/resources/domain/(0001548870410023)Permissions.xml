@@ -1,0 +1,751 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <permissions>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>
+          <!-- Administration permissions -->
+          <mdBusinessPermission type="net.geoprism.GeoprismUser">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Users">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Roles">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.SingleActor">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Actor">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.Assignments">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdViewPermission type="net.geoprism.RoleView">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdViewPermission>
+        
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNode">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNodeEntity">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNodeGeometry">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdClass">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdStructPermission type="com.runwaysdk.system.metadata.MetadataDisplayLabel">
+            <operation name="ALL" />
+          </mdStructPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttribute">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeConcrete">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeBlob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeEncryption">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeHash">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeSymmetric">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.metadata.MdAttributeGeometry">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeMultiReference">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributePrimitive">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeBoolean">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeChar">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeCharacter">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeClob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeText">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeMoment">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDate">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDateTime">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeTime">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeNumber">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDec">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDecimal">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDouble">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeFloat">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeInt">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeInteger">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLong">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeRef">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeEnumeration">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeFile">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeReference">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeTerm">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeStruct">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLocal">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLocalCharacter">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLocalText">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeVirtual">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.metadata.ClassAttributeConcrete">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.TypePermission">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+
+
+          <!-- Localization -->
+          <mdUtilPermission type="net.geoprism.localization.LocalizationFacade">
+            <operation name="ALL" />
+          </mdUtilPermission>
+
+          <!-- Geo Entity -->
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntity">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.GeoEntityTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.GeoEntityMultiTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.GeoEntityDisplayLabel">
+            <operation name="ALL" />
+          </mdStructPermission>
+          <mdViewPermission type="com.runwaysdk.system.gis.geo.GeoEntityView">
+            <operation name="ALL" />
+          </mdViewPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.IsARelationship">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.ReadableIdGenerator">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.Synonym">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.SynonymTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.SynonymMultiTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.SynonymDisplayLabel">
+            <operation name="ALL" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.SynonymRelationship">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.Universal">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.UniversalTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.UniversalMultiTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.UniversalDescription">
+            <operation name="ALL" />
+          </mdStructPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.UniversalDisplayLabel">
+            <operation name="ALL" />
+          </mdStructPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntityProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntityProblemTypeMaster">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.ontology.io.TermFileFormatMaster">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdViewPermission type="com.runwaysdk.system.gis.geo.GeoEntityProblemView">
+            <operation name="ALL" />
+          </mdViewPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.GeoEntityUtil">
+            <mdMethodPermission methodName="deleteGeoEntity">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+
+
+          <!-- Classifier -->
+          <mdBusinessPermission type="net.geoprism.ontology.Classifier">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierIsARelationshipAllPathsTable">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierMultiTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierDisplayLabel">
+            <operation name="ALL" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierHasSynonym">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierIsARelationship">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierSynonym">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymMultiTermAttributeRoot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierSynonymDisplayLabel">
+            <operation name="ALL" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="net.geoprism.TermSynonymRelationship">
+            <operation name="ALL" />
+          </mdRelationshipPermission>      
+          
+          <!-- Classifier Problem -->
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierProblemTypeMaster">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdViewPermission type="net.geoprism.ontology.ClassifierProblemView">
+            <operation name="ALL" />
+          </mdViewPermission>      
+          
+          <!-- Synonyms -->
+          <mdBusinessPermission type="net.geoprism.DataUploader">
+            <mdMethodPermission methodName="createGeoEntity">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="createGeoEntitySynonym">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="deleteGeoEntity">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="deleteGeoEntitySynonym">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="createClassifierSynonym">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="deleteClassifierSynonym">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>            
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.Classifier">
+            <mdMethodPermission methodName="createOption">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="editOption">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="applyOption">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="unlockCategory">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="deleteOption">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+          
+          <!-- Geo Object permissions -->
+          <mdBusinessPermission type="net.geoprism.georegistry.IdRecord">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+		  <mdRelationshipPermission type="net.geoprism.registry.AttributeHierarhcy">
+		     <operation name="ALL" />
+		  </mdRelationshipPermission>          
+		  
+		  <!-- Hierarchy specific permissions -->
+		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
+		     <operation name="ALL" />
+		  </mdRelationshipPermission>          
+		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.AllowedIn">
+		     <operation name="ALL" />
+		  </mdRelationshipPermission>          
+		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
+		     <operation name="ALL" />
+		  </mdBusinessPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.APIConsumer">
+        <grant>
+          <!-- Administration permissions -->
+          <mdBusinessPermission type="net.geoprism.GeoprismUser">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Users">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Roles">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.SingleActor">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Actor">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.Assignments">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdViewPermission type="net.geoprism.RoleView">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdViewPermission>
+        
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNode">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNodeEntity">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNodeGeometry">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdClass">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdStructPermission type="com.runwaysdk.system.metadata.MetadataDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttribute">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeConcrete">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeBlob">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeEncryption">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeHash">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeSymmetric">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.metadata.MdAttributeGeometry">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeMultiReference">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributePrimitive">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeBoolean">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeChar">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeCharacter">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeClob">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeText">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeMoment">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDate">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDateTime">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeTime">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeNumber">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDec">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDecimal">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeDouble">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeFloat">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeInt">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeInteger">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLong">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeRef">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeEnumeration">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeFile">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeReference">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeTerm">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeStruct">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLocal">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLocalCharacter">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeLocalText">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.MdAttributeVirtual">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.metadata.ClassAttributeConcrete">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.TypePermission">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+
+
+          <!-- Localization -->
+          <mdUtilPermission type="net.geoprism.localization.LocalizationFacade">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdUtilPermission>
+
+          <!-- Geo Entity -->
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntity">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.GeoEntityTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.GeoEntityMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.GeoEntityDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdViewPermission type="com.runwaysdk.system.gis.geo.GeoEntityView">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdViewPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.IsARelationship">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.ReadableIdGenerator">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.Synonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.SynonymTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.SynonymMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.SynonymDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.SynonymRelationship">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.Universal">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.UniversalTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.UniversalMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.UniversalDescription">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdStructPermission type="com.runwaysdk.system.gis.geo.UniversalDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntityProblem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntityProblemTypeMaster">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.ontology.io.TermFileFormatMaster">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdViewPermission type="com.runwaysdk.system.gis.geo.GeoEntityProblemView">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdViewPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.GeoEntityUtil">
+            <mdMethodPermission methodName="deleteGeoEntity">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+
+
+          <!-- Classifier -->
+          <mdBusinessPermission type="net.geoprism.ontology.Classifier">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierIsARelationshipAllPathsTable">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierHasSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierIsARelationship">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierSynonymDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="net.geoprism.TermSynonymRelationship">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>      
+          
+		  <!-- Hierarchy specific permissions -->
+		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+		  </mdRelationshipPermission>          
+		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.AllowedIn">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+		  </mdRelationshipPermission>          
+		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+		  </mdBusinessPermission>          
+        </grant>
+      </role>
+<!-- 
+      <role roleName="commongeoregistry.registry.maintainer.LocatedIn">
+        <grant>
+		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
+		     <operation name="ALL" />
+		  </mdRelationshipPermission>          
+		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.AllowedIn">
+		     <operation name="ALL" />
+		  </mdRelationshipPermission>          
+		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
+		     <operation name="ALL" />
+		  </mdBusinessPermission>          
+        </grant>
+      </role>
+ -->      
+    </permissions>
+  </doIt>
+  <undoIt>
+  </undoIt>
+</version>
