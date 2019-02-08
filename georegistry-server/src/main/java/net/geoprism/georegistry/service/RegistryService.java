@@ -612,8 +612,6 @@ public class RegistryService
 
     Universal universal = createGeoObjectType(geoObjectType);
     
-    new WMSService().createWMSLayer(geoObjectType, true);
-
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
 
@@ -883,8 +881,6 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void deleteGeoObjectType(String sessionId, String code)
   {
-    deleteGeoObjectTypeInTransaction(sessionId, code);
-    
     GeoObjectType type = adapter.getMetadataCache().getGeoObjectType(code).get();
 
     new WMSService().deleteWMSLayer(type);
