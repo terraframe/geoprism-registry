@@ -9,6 +9,7 @@ import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.CreateGeoObjectActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
 import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
+import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
@@ -26,6 +27,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
@@ -35,7 +38,13 @@ import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.georegistry.RegistryController;
 import net.geoprism.georegistry.action.AbstractAction;
+import net.geoprism.georegistry.action.AbstractActionQuery;
 import net.geoprism.georegistry.action.ActionFactory;
+import net.geoprism.georegistry.action.AllGovernanceStatus;
+import net.geoprism.georegistry.action.ChangeRequest;
+import net.geoprism.georegistry.action.ChangeRequestQuery;
+import net.geoprism.georegistry.query.CodeRestriction;
+import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectTypeInfo;
 import net.geoprism.georegistry.testframework.TestRegistryAdapterClient;
@@ -122,11 +131,24 @@ public class RegistryServiceTest
 
     waGeoObj.setWKTGeometry(testData.COLORADO.getWkt());
     waGeoObj.setLocalizedDisplayLabel(testData.COLORADO.getDisplayLabel());
+    waGeoObj.setStatus(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
     testUpdateGO.setWkt(testData.COLORADO.getWkt());
     testUpdateGO.setDisplayLabel(testData.COLORADO.getDisplayLabel());
 
-    this.adapter.updateGeoObject(waGeoObj.toJSON().toString());
+    GeoObject returnedUpdate = this.adapter.updateGeoObject(waGeoObj.toJSON().toString());
+    testUpdateGO.setRegistryId(returnedUpdate.getUid());
+    
+    // Assert that the database is applied correctly
     testUpdateGO.assertApplied();
+    
+    // Assert the GeoObject they returned to us is correct
+    testUpdateGO.assertEquals(returnedUpdate);
+    testData.assertGeoObjectStatus(returnedUpdate, DefaultTerms.GeoObjectStatusTerm.INACTIVE);
+    
+    // Assert when we fetch our own GeoObject its also correct
+    GeoObject freshFetched = this.adapter.getGeoObject(geoObj.getUid(), testUpdateGO.getGeoObjectType().getCode());
+    testUpdateGO.assertEquals(returnedUpdate);
+    testData.assertGeoObjectStatus(freshFetched, DefaultTerms.GeoObjectStatusTerm.INACTIVE);
   }
 
   // @Test
@@ -369,140 +391,5 @@ public class RegistryServiceTest
       }
     }
     Assert.assertTrue("Did not find our test object in the list of returned children", found);
-  }
-
-  @Test
-  public void testActions()
-  {
-    TestGeoObjectInfo testAddChildParent = testData.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD_PARENT", testData.STATE);
-    testAddChildParent.apply();
-
-    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD", testData.DISTRICT);
-    testAddChild.apply();
-
-    TestGeoObjectInfo testDelete = testData.newTestGeoObjectInfo("TEST_ACTIONS_DELETE_CHILD", testData.STATE);
-    testDelete.apply();
-
-    TestGeoObjectInfo testNew = testData.newTestGeoObjectInfo("TEST_ACTIONS_NEW_CHILD", testData.STATE);
-    GeoObject goNewChild = testNew.asGeoObject();
-
-    TestGeoObjectTypeInfo testDeleteUni = testData.newTestGeoObjectTypeInfo("TEST_ACTIONS_DELETE_UNI");
-    testDeleteUni.apply(GeometryType.POLYGON);
-    GeoObjectType gotDelete = testDeleteUni.getGeoObjectType(GeometryType.POLYGON);
-    testData.adapter.getMetadataCache().addGeoObjectType(gotDelete);
-
-    List<AbstractActionDTO> actions = new ArrayList<AbstractActionDTO>();
-    int i = 0;
-
-    /*
-     *  Add Child
-     */
-    AddChildActionDTO addChild = new AddChildActionDTO();
-    addChild.setChildId(testAddChild.getRegistryId());
-    addChild.setChildTypeCode(testAddChild.getGeoObjectType().getCode());
-    addChild.setParentId(testAddChildParent.getRegistryId());
-    addChild.setParentTypeCode(testAddChildParent.getGeoObjectType().getCode());
-    addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
-    
-    String addChildJson = addChild.toJSON().toString();
-    String addChildJson2 = AbstractActionDTO.parseAction(addChildJson).toJSON().toString();
-    Assert.assertEquals(addChildJson, addChildJson2);
-    actions.add(addChild);
-    
-    // TODO Add Parent
-    
-    // Remove Child ??
-    // TODO
-
-    /*
-     *  Create a new GeoObject
-     */
-    CreateGeoObjectActionDTO create = new CreateGeoObjectActionDTO();
-    create.setGeoObject(goNewChild.toJSON());
-    
-    String createJson = create.toJSON().toString();
-    String createJson2 = AbstractActionDTO.parseAction(createJson).toJSON().toString();
-    Assert.assertEquals(createJson, createJson2);
-    actions.add(create);
-
-    /*
-     *  Update the previously created GeoObject
-     */
-    final String NEW_DISPLAY_LABEL = "NEW_DISPLAY_LABEL";
-    goNewChild.setLocalizedDisplayLabel(NEW_DISPLAY_LABEL);
-    
-    UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();
-    update.setGeoObject(goNewChild.toJSON());
-    
-    String updateJson = update.toJSON().toString();
-    String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
-    Assert.assertEquals(updateJson, updateJson2);
-    actions.add(update);
-
-    // Update a GeoObjectType
-    // TODO : This hasn't been implemented yet in RegistryUpdateAction
-    // UpdateAction createGOT = new UpdateAction(data.STATE.getGeoObjectType());
-    // String createGOTJson = createGOT.toJSON().toString();
-    // String createGOTJson2 =
-    // UpdateAction.fromJSON(createGOTJson).toJSON().toString();
-    // Assert.assertEquals(createGOTJson, createGOTJson2);
-    // actions[i++] = createGOT;
-
-    // Delete a GeoObject
-    // DeleteAction deleteGO = new DeleteAction(testDelete.newGeoObject());
-    // String deleteGOJson = deleteGO.toJSON().toString();
-    // String deleteGOJson2 =
-    // DeleteAction.fromJSON(deleteGOJson).toJSON().toString();
-    // Assert.assertEquals(deleteGOJson, deleteGOJson2);
-    // actions[i++] = deleteGO;
-
-    // Delete a GeoObjectType
-    // DeleteAction deleteGOT = new DeleteAction(gotDelete);
-    // String deleteGOTJson = deleteGOT.toJSON().toString();
-    // String deleteGOTJson2 =
-    // DeleteAction.fromJSON(deleteGOTJson).toJSON().toString();
-    // Assert.assertEquals(deleteGOTJson, deleteGOTJson2);
-    // actions[i++] = deleteGOT;
-
-    // Serialize the actions
-    String sActions = AbstractActionDTO.serializeActions(actions).toString();
-    String sActions2 = AbstractActionDTO.serializeActions(AbstractActionDTO.parseActions(sActions)).toString();
-    Assert.assertEquals(sActions, sActions2);
-
-    // TODO : Submit the change request
-//    this.adapter.submitChangeRequest(actions);
-    
-    testActionsInRequest(testAddChildParent, actions, testNew, NEW_DISPLAY_LABEL);
-  }
-
-  @Request
-  private void testActionsInRequest(TestGeoObjectInfo testAddChildParent, List<AbstractActionDTO> actions, TestGeoObjectInfo testNew, final String NEW_DISPLAY_LABEL)
-  {
-    for (AbstractActionDTO actionDTO : actions)
-    {
-      AbstractAction action = AbstractAction.dtoToRegistry(actionDTO);
-      
-      action.setSessionId(testData.adminSession.getSessionId());
-      
-      action.execute();
-    }
-
-    // Make sure that the database has been modified correctly
-    Assert.assertEquals(1, testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
-
-    // GeoEntityQuery delGEQ = new GeoEntityQuery(new QueryFactory());
-    // delGEQ.WHERE(delGEQ.getOid().EQ(testDelete.getUid()));
-    // Assert.assertEquals(0, delGEQ.getCount());
-    
-    GeoEntityQuery createGEQ = new GeoEntityQuery(new QueryFactory());
-    createGEQ.WHERE(createGEQ.getGeoId().EQ(testNew.getCode()));
-    Assert.assertEquals(1, createGEQ.getCount());
-    Assert.assertEquals(NEW_DISPLAY_LABEL, createGEQ.getIterator().getAll().get(0).getDisplayLabel().getValue());
-
-    // UniversalQuery delUQ = new UniversalQuery(new QueryFactory());
-    // delUQ.WHERE(delUQ.getOid().EQ(testDeleteUni.getUid()));
-    // Assert.assertEquals(0, delUQ.getCount());
-
-    // TODO : Response architecture
   }
 }
