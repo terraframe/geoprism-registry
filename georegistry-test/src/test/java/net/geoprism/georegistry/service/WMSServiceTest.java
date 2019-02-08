@@ -45,7 +45,7 @@ public class WMSServiceTest
 
     WMSService service = new WMSService();
 
-    String viewName = service.createDatabaseView(type, false);
+    String viewName = service.createDatabaseView(type, true);
 
     try
     {
@@ -74,7 +74,7 @@ public class WMSServiceTest
 
     WMSService service = new WMSService();
 
-    String viewName = service.createDatabaseView(type, false);
+    String viewName = service.createDatabaseView(type, true);
 
     try
     {

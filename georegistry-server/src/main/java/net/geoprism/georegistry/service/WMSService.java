@@ -67,7 +67,14 @@ public class WMSService
   @Request(RequestType.SESSION)
   public void createWMSLayer(GeoObjectType type, boolean forceGeneration)
   {
-    String viewName = this.createDatabaseView(type, forceGeneration);
+    this.createDatabaseView(type, forceGeneration);
+
+    this.createGeoServerLayer(type, forceGeneration);
+  }
+
+  public void createGeoServerLayer(GeoObjectType type, boolean forceGeneration)
+  {
+    String viewName = this.getViewName(type.getCode());
 
     if (forceGeneration)
     {
