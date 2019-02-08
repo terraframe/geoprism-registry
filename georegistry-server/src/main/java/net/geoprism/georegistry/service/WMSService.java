@@ -5,6 +5,9 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
+
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.GeoserverService;
 
@@ -24,6 +27,7 @@ public class WMSService
     // this.createGeoserverLayer(type, databaseViewName);
   }
   
+  @Request(RequestType.SESSION)
   public void createWMSLayer(String type, String databaseViewName)
   {
     //service.publishLayer(layer, styleName);
