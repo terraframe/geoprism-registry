@@ -3,6 +3,12 @@ package net.geoprism.georegistry.service;
 import java.util.List;
 import java.util.Locale;
 
+import net.geoprism.GeoprismUser;
+import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.conversion.TermBuilder;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierIsARelationship;
+
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.Term;
@@ -55,6 +61,7 @@ import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
+
 
 public class HierarchyManagementServiceTest
 {
@@ -236,6 +243,9 @@ public class HierarchyManagementServiceTest
         Universal provinceTestUniversal = Universal.getByKey(PROVINCE_CODE);
         MdBusiness mdBusiness = provinceTestUniversal.getMdBusiness();
         provinceTestUniversal.delete();
+        
+//    efawe    mdBusiness.getAllAttribute();
+        
         mdBusiness.delete();
       }
       catch (DataNotFoundException e)
@@ -615,17 +625,41 @@ public class HierarchyManagementServiceTest
   @Request
   private void buildClassifierTree()
   {
+//    Classifier.getByKey("net.geoprism.registry.CLASS_VillageTest").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_ProvinceTest_testTerm").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute_Value1").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute_Value2").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute_Value3").delete();
+    
+    
     String className = "TestClass";
     String attributeName = "SomeAttribute";
-    Classifier classifier = this.buildClassAttributeClassifierTree(className, attributeName);
-
+    
+    String classifierId = TermBuilder.buildRootClassClassifierId(className);
+    
+    String key = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, classifierId);
+    
+    Classifier classifier = null;
+//    try
+//    {
+//      classifier = Classifier.getByKey(key);
+//      classifier.getAllIsAChild().forEach(c -> c.delete());
+//      classifier.delete();
+//    }
+//    catch (DataNotFoundException e)
+//    {
+//
+//    }
+    classifier = this.buildClassAttributeClassifierTree(className, attributeName);
+    
     try
     {
       TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
 
       Term term = termBuilder.build();
 
-      String classifierId = TermBuilder.buildRootClassClassifierId(className);
+      classifierId = TermBuilder.buildRootClassClassifierId(className);
 
       Assert.assertEquals(classifierId, term.getCode());
 
@@ -642,7 +676,15 @@ public class HierarchyManagementServiceTest
     }
     finally
     {
-      classifier.delete();
+      try
+      {
+        classifier.delete();
+      }
+      catch (RuntimeException e)
+      {
+        e.printStackTrace();
+        System.out.println();;
+      }
     }
   }
 
@@ -730,6 +772,12 @@ public class HierarchyManagementServiceTest
       service.createTerm(sessionId, rootTerm.getCode(), childTerm1.toJSON().toString());
       service.createTerm(sessionId, rootTerm.getCode(), childTerm2.toJSON().toString());
 
+      province = service.getGeoObjectTypes(sessionId, new String[]{PROVINCE_CODE})[0];
+      AttributeTermType attributeTermType2 = (AttributeTermType)province.getAttribute("testTerm").get();
+      
+      // Check to see if the cache was updated.
+      checkTermsCreate(attributeTermType2);
+      
       attributeTermType.setLocalizedLabel("Test Term Name Update");
       attributeTermType.setLocalizedDescription("Test Term Description Update");
 
@@ -744,21 +792,35 @@ public class HierarchyManagementServiceTest
     Assert.assertEquals(attributeTermType.getLocalizedLabel(), "Test Term Name Update");
     Assert.assertEquals(attributeTermType.getLocalizedDescription(), "Test Term Description Update");
 
-    Term rootTerm = attributeTermType.getRootTerm();
-
-    List<Term> childTerms = rootTerm.getChildren();
-
-    Assert.assertEquals(childTerms.size(), 2);
-
-    Term childTerm1 = childTerms.get(0);
-    Term childTerm2 = childTerms.get(1);
-
-    Assert.assertEquals(childTerm1.getCode(), "termValue1");
-    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
-
-    Assert.assertEquals(childTerm2.getCode(), "termValue2");
-    Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2");
-
+    checkTermsCreate(attributeTermType);
+    
+    sessionId = this.logInAdmin();
+    try
+    {
+      // Test updating the term
+      Term childTerm2 = new Term("termValue2", "Term Value 2a", "");
+      
+      service.updateTerm(sessionId, childTerm2.toJSON().toString());
+      
+      province = service.getGeoObjectTypes(sessionId, new String[]{PROVINCE_CODE})[0];
+      AttributeTermType attributeTermType3 = (AttributeTermType)province.getAttribute("testTerm").get();
+      
+      checkTermsUpdate(attributeTermType3);
+      
+      service.deleteTerm(sessionId, "termValue2");
+      
+      province = service.getGeoObjectTypes(sessionId, new String[]{PROVINCE_CODE})[0];
+      attributeTermType3 = (AttributeTermType)province.getAttribute("testTerm").get();
+      
+System.out.println(attributeTermType3.getRootTerm().toString());
+      
+      checkTermsDelete(attributeTermType3);
+    }
+    finally
+    {
+      logOutAdmin(sessionId);
+    }
+    
     sessionId = this.logInAdmin();
     try
     {
@@ -769,6 +831,82 @@ public class HierarchyManagementServiceTest
     {
       logOutAdmin(sessionId);
     }
+  }
+
+  /** 
+   * Method for checking the state of the {@link Term}s on an {@link AttributeTermType}
+   * 
+   * @param attributeTermType
+   */
+  private void checkTermsCreate(AttributeTermType attributeTermType)
+  {
+    Term rootTerm;
+    Term childTerm1;
+    Term childTerm2;
+    
+    rootTerm = attributeTermType.getRootTerm();
+    
+    List<Term> childTerms = rootTerm.getChildren();
+    
+    Assert.assertEquals(2, childTerms.size());
+   
+    childTerm1 = childTerms.get(0);
+    childTerm2 = childTerms.get(1);
+    
+    Assert.assertEquals(childTerm1.getCode(), "termValue1");
+    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
+
+    Assert.assertEquals(childTerm2.getCode(), "termValue2");
+    Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2");
+  }
+  
+  /** 
+   * Method for checking the state of the {@link Term}s on an {@link AttributeTermType}
+   * 
+   * @param attributeTermType
+   */
+  private void checkTermsUpdate(AttributeTermType attributeTermType)
+  {
+    Term rootTerm;
+    Term childTerm1;
+    Term childTerm2;
+    
+    rootTerm = attributeTermType.getRootTerm();
+    
+    List<Term> childTerms = rootTerm.getChildren();
+    
+    Assert.assertEquals(2, childTerms.size());
+   
+    childTerm1 = childTerms.get(0);
+    childTerm2 = childTerms.get(1);
+    
+    Assert.assertEquals(childTerm1.getCode(), "termValue1");
+    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
+
+    Assert.assertEquals(childTerm2.getCode(), "termValue2");
+    Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2a");
+  }
+  
+  /** 
+   * Method for checking the state of the {@link Term}s on an {@link AttributeTermType}
+   * 
+   * @param attributeTermType
+   */
+  private void checkTermsDelete(AttributeTermType attributeTermType)
+  {
+    Term rootTerm;
+    Term childTerm1;
+    
+    rootTerm = attributeTermType.getRootTerm();
+    
+    List<Term> childTerms = rootTerm.getChildren();
+    
+    Assert.assertEquals(1, childTerms.size());
+   
+    childTerm1 = childTerms.get(0);
+    
+    Assert.assertEquals(childTerm1.getCode(), "termValue1");
+    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
   }
 
   @Request
