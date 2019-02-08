@@ -18,7 +18,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -38,6 +37,7 @@ import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.query.NonUniqueResultException;
+import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
@@ -146,17 +146,14 @@ public class GeoObjectConverter
 
         if (parent != null)
         {
-          try
-          {
-            String parentTypeCode = parent.getType().getCode();
-            String typeCode = entity.getType().getCode();
-            String hierarchyCode = this.configuration.getHierarchy().getCode();
+          String parentTypeCode = parent.getType().getCode();
+          String typeCode = entity.getType().getCode();
+          String hierarchyCode = this.configuration.getHierarchy().getCode();
+          RegistryService service = ServiceFactory.getRegistryService();
 
-            ServiceFactory.getRegistryService().addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
-          }
-          catch (DuplicateDataException e)
+          if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
           {
-            // Ignore
+            service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
           }
         }
 
