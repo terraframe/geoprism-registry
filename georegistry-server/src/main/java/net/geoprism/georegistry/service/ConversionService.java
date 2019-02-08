@@ -570,7 +570,7 @@ public class ConversionService
 
   }
 
-  private AttributeType mdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
+  public AttributeType mdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
   {
     Locale locale = Session.getCurrentLocale();
 

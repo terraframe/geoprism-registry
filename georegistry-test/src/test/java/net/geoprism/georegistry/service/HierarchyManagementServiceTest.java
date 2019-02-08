@@ -3,6 +3,12 @@ package net.geoprism.georegistry.service;
 import java.util.List;
 import java.util.Locale;
 
+import net.geoprism.GeoprismUser;
+import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.conversion.TermBuilder;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierIsARelationship;
+
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.Term;
@@ -32,7 +38,6 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -48,12 +53,6 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
-
-import net.geoprism.GeoprismUser;
-import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.georegistry.conversion.TermBuilder;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
 
 public class HierarchyManagementServiceTest
 {
@@ -234,6 +233,9 @@ public class HierarchyManagementServiceTest
         Universal provinceTestUniversal = Universal.getByKey(PROVINCE_CODE);
         MdBusiness mdBusiness = provinceTestUniversal.getMdBusiness();
         provinceTestUniversal.delete();
+        
+//    efawe    mdBusiness.getAllAttribute();
+        
         mdBusiness.delete();
       }
       catch (DataNotFoundException e)
@@ -613,17 +615,41 @@ public class HierarchyManagementServiceTest
   @Request
   private void buildClassifierTree()
   {
+//    Classifier.getByKey("net.geoprism.registry.CLASS_VillageTest").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_ProvinceTest_testTerm").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute_Value1").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute_Value2").delete();
+//    Classifier.getByKey("net.geoprism.registry.CLASS_TestClass_SomeAttribute_Value3").delete();
+    
+    
     String className = "TestClass";
     String attributeName = "SomeAttribute";
-    Classifier classifier = this.buildClassAttributeClassifierTree(className, attributeName);
-
+    
+    String classifierId = TermBuilder.buildRootClassClassifierId(className);
+    
+    String key = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, classifierId);
+    
+    Classifier classifier = null;
+//    try
+//    {
+//      classifier = Classifier.getByKey(key);
+//      classifier.getAllIsAChild().forEach(c -> c.delete());
+//      classifier.delete();
+//    }
+//    catch (DataNotFoundException e)
+//    {
+//
+//    }
+    classifier = this.buildClassAttributeClassifierTree(className, attributeName);
+    
     try
     {
       TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
 
       Term term = termBuilder.build();
 
-      String classifierId = TermBuilder.buildRootClassClassifierId(className);
+      classifierId = TermBuilder.buildRootClassClassifierId(className);
 
       Assert.assertEquals(classifierId, term.getCode());
 
@@ -640,7 +666,15 @@ public class HierarchyManagementServiceTest
     }
     finally
     {
-      classifier.delete();
+      try
+      {
+        classifier.delete();
+      }
+      catch (RuntimeException e)
+      {
+        e.printStackTrace();
+        System.out.println();;
+      }
     }
   }
 
@@ -728,6 +762,16 @@ public class HierarchyManagementServiceTest
       service.createTerm(sessionId, rootTerm.getCode(), childTerm1.toJSON().toString());
       service.createTerm(sessionId, rootTerm.getCode(), childTerm2.toJSON().toString());
 
+      
+      province = service.getGeoObjectTypes(sessionId, new String[]{PROVINCE_CODE})[0];
+      
+      AttributeTermType attributeTermType2 = (AttributeTermType)province.getAttribute("testTerm").get();
+      
+      // Check to see if the cache was updated.
+      checkTerms1(attributeTermType2);
+      
+      System.out.println(attributeTermType2.getRootTerm().toString());
+      
       attributeTermType.setLocalizedLabel("Test Term Name Update");
       attributeTermType.setLocalizedDescription("Test Term Description Update");
 
@@ -742,20 +786,7 @@ public class HierarchyManagementServiceTest
     Assert.assertEquals(attributeTermType.getLocalizedLabel(), "Test Term Name Update");
     Assert.assertEquals(attributeTermType.getLocalizedDescription(), "Test Term Description Update");
 
-    Term rootTerm = attributeTermType.getRootTerm();
-
-    List<Term> childTerms = rootTerm.getChildren();
-
-    Assert.assertEquals(childTerms.size(), 2);
-
-    Term childTerm1 = childTerms.get(0);
-    Term childTerm2 = childTerms.get(1);
-
-    Assert.assertEquals(childTerm1.getCode(), "termValue1");
-    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
-
-    Assert.assertEquals(childTerm2.getCode(), "termValue2");
-    Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2");
+    checkTerms1(attributeTermType);
 
     sessionId = this.logInAdmin();
     try
@@ -767,6 +798,28 @@ public class HierarchyManagementServiceTest
     {
       logOutAdmin(sessionId);
     }
+  }
+
+  private void checkTerms1(AttributeTermType attributeTermType)
+  {
+    Term rootTerm;
+    Term childTerm1;
+    Term childTerm2;
+    
+    rootTerm = attributeTermType.getRootTerm();
+    
+    List<Term> childTerms = rootTerm.getChildren();
+    
+    Assert.assertEquals(childTerms.size(), 2);
+   
+    childTerm1 = childTerms.get(0);
+    childTerm2 = childTerms.get(1);
+    
+    Assert.assertEquals(childTerm1.getCode(), "termValue1");
+    Assert.assertEquals(childTerm1.getLocalizedLabel(), "Term Value 1");
+
+    Assert.assertEquals(childTerm2.getCode(), "termValue2");
+    Assert.assertEquals(childTerm2.getLocalizedLabel(), "Term Value 2");
   }
 
   @Request
