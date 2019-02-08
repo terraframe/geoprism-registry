@@ -4,9 +4,6 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
-
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.MdEntityInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -22,6 +19,7 @@ import com.runwaysdk.query.SelectableChar;
 import com.runwaysdk.query.SelectableGeometry;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayLabelQueryStructIF;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -78,7 +76,7 @@ public class WMSService
 
     if (forceGeneration)
     {
-      service.removeLayer(viewName);
+      service.forceRemoveLayer(viewName);
     }
 
     // Now that the database transaction is complete we can create the geoserver
@@ -93,18 +91,14 @@ public class WMSService
   {
     String viewName = this.getViewName(geoObjectTypeCode);
 
-    service.removeLayer(viewName);
+    service.forceRemoveLayer(viewName);
 
     this.deleteDatabaseView(geoObjectTypeCode);
   }
   
   public void deleteWMSLayer(GeoObjectType type)
   {
-    String viewName = this.getViewName(type.getCode());
-
-    service.removeLayer(viewName);
-
-    this.deleteDatabaseView(type.getCode());
+    this.deleteWMSLayer(type.getCode());
   }
 
   private String getViewName(String typeCode)
