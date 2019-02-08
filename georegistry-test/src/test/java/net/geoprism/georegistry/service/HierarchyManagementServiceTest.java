@@ -51,6 +51,8 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import net.geoprism.GeoprismUser;
 import net.geoprism.georegistry.RegistryConstants;
 import net.geoprism.georegistry.conversion.TermBuilder;
+import net.geoprism.gis.geoserver.GeoserverFacade;
+import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 
@@ -106,6 +108,7 @@ public class HierarchyManagementServiceTest
   public static void setUp()
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
+    GeoserverFacade.setService(new NullGeoserverService());
 
     service = RegistryService.getInstance();
 
