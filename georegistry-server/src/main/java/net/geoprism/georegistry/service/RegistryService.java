@@ -56,6 +56,8 @@ import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
+import net.geoprism.georegistry.service.WMSService;
+
 public class RegistryService
 {
   private RegistryAdapter adapter;
@@ -609,7 +611,7 @@ public class RegistryService
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
 
     Universal universal = createGeoObjectType(geoObjectType);
-
+    
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
 

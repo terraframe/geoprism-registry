@@ -4,6 +4,9 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
+import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
+
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.MdEntityInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -60,7 +63,8 @@ public class WMSService
       }
     }
   }
-
+  
+  @Request(RequestType.SESSION)
   public void createWMSLayer(GeoObjectType type, boolean forceGeneration)
   {
     this.createDatabaseView(type, forceGeneration);
@@ -70,7 +74,7 @@ public class WMSService
 
   public void createGeoServerLayer(GeoObjectType type, boolean forceGeneration)
   {
-    String viewName = this.getViewName(type);
+    String viewName = this.getViewName(type.getCode());
 
     if (forceGeneration)
     {
@@ -84,19 +88,28 @@ public class WMSService
       service.publishLayer(viewName, null);
     }
   }
-
-  public void deleteWMSLayer(GeoObjectType type)
+  
+  public void deleteWMSLayer(String geoObjectTypeCode)
   {
-    String viewName = this.getViewName(type);
+    String viewName = this.getViewName(geoObjectTypeCode);
 
     service.removeLayer(viewName);
 
-    this.deleteDatabaseView(type);
+    this.deleteDatabaseView(geoObjectTypeCode);
+  }
+  
+  public void deleteWMSLayer(GeoObjectType type)
+  {
+    String viewName = this.getViewName(type.getCode());
+
+    service.removeLayer(viewName);
+
+    this.deleteDatabaseView(type.getCode());
   }
 
-  private String getViewName(GeoObjectType type)
+  private String getViewName(String typeCode)
   {
-    String viewName = MetadataDAO.convertCamelCaseToUnderscore(type.getCode()).toLowerCase();
+    String viewName = MetadataDAO.convertCamelCaseToUnderscore(typeCode).toLowerCase();
 
     if (viewName.length() > Database.MAX_DB_IDENTIFIER_SIZE)
     {
@@ -105,11 +118,17 @@ public class WMSService
 
     return PREFIX + "_" + viewName;
   }
-
+  
   @Transaction
   public void deleteDatabaseView(GeoObjectType type)
   {
-    String viewName = this.getViewName(type);
+    this.deleteDatabaseView(type.getCode());
+  }
+  
+  @Transaction
+  public void deleteDatabaseView(String typeCode)
+  {
+    String viewName = this.getViewName(typeCode);
 
     Database.dropView(viewName, null, false);
   }
@@ -117,7 +136,7 @@ public class WMSService
   @Transaction
   public String createDatabaseView(GeoObjectType type, boolean forceGeneration)
   {
-    String viewName = this.getViewName(type);
+    String viewName = this.getViewName(type.getCode());
 
     ValueQuery vQuery = this.generateQuery(type);
 
