@@ -32,5 +32,42 @@ export class ChangeRequestService {
 
     constructor( private http: Http, private eventService: EventService ) { }
 
+    acceptAction( action: any ): Promise<Response>
+    {
+      let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+       return this.http
+           .post( acp + '/changerequest/acceptAction', JSON.stringify( {action: action} ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response;
+           } )
+    }
+    
+    rejectAction( action: any ): Promise<Response>
+    {
+      let headers = new Headers( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+       return this.http
+           .post( acp + '/changerequest/rejectAction', JSON.stringify( {action: action} ), { headers: headers } )
+           .finally(() => {
+               this.eventService.complete();
+           } )
+           .toPromise()
+           .then( response => {
+               return response;
+           } )
+    }
     
 }

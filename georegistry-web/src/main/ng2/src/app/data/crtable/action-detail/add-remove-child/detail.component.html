@@ -1,0 +1,18 @@
+
+<div class="crtable-detail-container">
+	<h3 class="action-detail-header">{{action.actionLabel}}</h3>
+	<div class="detail-content">
+	  
+	  <label class="detail-label">Child UID : </label><input class="detail-value" type="text" [(ngModel)]="action.childId">
+	  
+	  <label class="detail-label">Child TypeCode : </label><input class="detail-value" type="text" [(ngModel)]="action.childTypeCode">
+	  
+	  <label class="detail-label">Parent UID : </label><input class="detail-value" type="text" [(ngModel)]="action.parentId">
+	  
+	  <label class="detail-label">Parent TypeCode : </label><input class="detail-value" type="text" [(ngModel)]="action.parentTypeCode">
+	  
+	  <label class="detail-label">Hierarchy Code : </label><input class="detail-value" type="text" [(ngModel)]="action.hierarchyTypeCode">
+	  
+	  <button (click)="acceptAction()" class="detail-accept">Accept and Execute</button><button (click)="rejectAction()" class="detail-reject">Reject and Close</button>
+	</div>
+</div>

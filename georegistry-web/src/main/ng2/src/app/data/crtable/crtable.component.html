@@ -3,13 +3,27 @@
   <loading-bar></loading-bar>
   
   <div id="app-container" class="container">
-    <ngx-datatable class="material"
+    <ngx-datatable class="crtable-ngx material"
       [rows]="rows | async"
+      [sorts]="[
+							  {
+							    prop: 'createActionDate',
+							    dir: 'asc'
+							  }
+							]"
       [columns]="columns"
-      [columnMode]="'force'"
+      [columnMode]="'standard'"
       [headerHeight]="50"
       [footerHeight]="50"
-      [rowHeight]="50">>
+      [rowHeight]="40"
+      [limit]="5"
+      [selected]="selected"
+      [selectionType]="'single'"
+      (select)='onSelect($event)'>
     </ngx-datatable>
+    <crtable-detail-create-geo-object *ngIf="action.actionType=='net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction' || action.actionType=='net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction'" [(action)]="action" [crtable]="this">
+    </crtable-detail-create-geo-object>
+    <crtable-detail-add-remove-child *ngIf="action.actionType=='net.geoprism.georegistry.action.tree.AddChildAction' || action.actionType=='net.geoprism.georegistry.action.tree.RemoveChildAction'" [(action)]="action" [crtable]="this">
+    </crtable-detail-add-remove-child>
   </div>
 </div>

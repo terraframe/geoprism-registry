@@ -35,16 +35,20 @@ declare var acp: any;
   
   selector: 'crtable',
   templateUrl: './crtable.component.html',
-  styleUrls: []
+  styleUrls: ['./crtable.css']
 })
 export class ChangeRequestTableComponent {
 
   rows: Observable<any[]>;
+  
+  selected: any = [];
+  
+  action: any = {};
 
   columns = [
-    { name: 'label' },
-    { name: 'createActionDate' },
-    { name: 'approvalStatus' }
+    { name: 'Action', prop: 'actionLabel' },
+    { name: 'Create Date', prop: 'createActionDate' },
+    { name: 'Approval Status', prop: 'approvalStatus' }
   ];
 
   constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
@@ -54,6 +58,18 @@ export class ChangeRequestTableComponent {
         subscriber.complete();
       });
     });
+  }
+  
+  refresh() {
+    this.rows = Observable.create((subscriber: any) => {
+      this.fetch((data: any) => {
+        subscriber.next(data.splice(0, 30));
+        subscriber.complete();
+      });
+    });
+    
+    this.selected = [];
+    this.action = {};
   }
 
   fetch(cb: any) {
@@ -65,6 +81,11 @@ export class ChangeRequestTableComponent {
     };
 
     req.send();
+  }
+  
+  onSelect(selected: any)
+  {
+    this.action = selected.selected[0];
   }
    
 }

@@ -69,9 +69,9 @@ public class ChangeRequestTestDataGenerator
      */
     AddChildActionDTO addChild = new AddChildActionDTO();
     addChild.setChildId(testAddChild.getUid());
-    addChild.setChildTypeCode("Cambodia_Province");
+    addChild.setChildTypeCode(testAddChild.getType().getCode());
     addChild.setParentId(testAddChildParent.getUid());
-    addChild.setParentTypeCode("Cambodia");
+    addChild.setParentTypeCode(testAddChildParent.getType().getCode());
     addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
     addChild.setCreateActionDate(Date.from(when.minus(10, ChronoUnit.HOURS)));
     
@@ -85,9 +85,9 @@ public class ChangeRequestTestDataGenerator
      */
     RemoveChildActionDTO removeChild = new RemoveChildActionDTO();
     removeChild.setChildId(testAddChild.getUid());
-    removeChild.setChildTypeCode("Cambodia_Province");
+    removeChild.setChildTypeCode(testAddChild.getType().getCode());
     removeChild.setParentId(testAddChildParent.getUid());
-    removeChild.setParentTypeCode("Cambodia");
+    removeChild.setParentTypeCode(testAddChildParent.getType().getCode());
     removeChild.setHierarchyCode(LocatedIn.class.getSimpleName());
     removeChild.setCreateActionDate(Date.from(when.minus(9, ChronoUnit.HOURS)));
     
@@ -111,7 +111,7 @@ public class ChangeRequestTestDataGenerator
     /*
      *  Update the previously created GeoObject
      */
-    final String NEW_DISPLAY_LABEL = "NEW_DISPLAY_LABEL";
+    final String NEW_DISPLAY_LABEL = genKey + "_NEW_DISPLAY_LABEL";
     goNewChild.setLocalizedDisplayLabel(NEW_DISPLAY_LABEL);
     
     UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();

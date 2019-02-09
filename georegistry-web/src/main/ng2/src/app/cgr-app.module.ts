@@ -24,7 +24,6 @@ import { ErrorMessageComponent } from './core/message/error-message.component';
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
-import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 import { CgrHeaderComponent } from './header.component';
 import { CreateHierarchyTypeModalComponent } from './data/hierarchy/modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './data/hierarchy/modals/add-child-to-hierarchy-modal.component';
@@ -49,6 +48,9 @@ import { ManageTermOptionsComponent } from './data/hierarchy/geoobjecttype-manag
 import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
 
+import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
+import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
+import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -100,6 +102,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     HierarchyComponent,
     LocalizationManagerComponent,
     ChangeRequestTableComponent,
+    CreateUpdateGeoObjectDetailComponent,
+    AddRemoveChildDetailComponent,
     FillPipe,
     Safe,
     CgrHeaderComponent,
