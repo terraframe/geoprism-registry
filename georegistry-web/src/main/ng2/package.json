@@ -16,7 +16,7 @@
     "@angular/platform-browser": "~5.2.1",
     "@angular/platform-browser-dynamic": "~5.2.1",
     "@angular/router": "~5.2.1",
-    "@swimlane/ngx-datatable": "^14.0.0",
+    "@swimlane/ngx-datatable": "11.3.0",
     "@types/uuid": "^3.4.4",
     "angular-tree-component": "^8.0.0",
     "core-js": "^2.4.1",

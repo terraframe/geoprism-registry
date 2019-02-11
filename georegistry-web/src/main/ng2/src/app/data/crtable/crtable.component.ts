@@ -46,9 +46,9 @@ export class ChangeRequestTableComponent {
   action: any = {};
 
   columns = [
-    { name: 'Action', prop: 'actionLabel' },
-    { name: 'Create Date', prop: 'createActionDate' },
-    { name: 'Approval Status', prop: 'approvalStatus' }
+    { name: 'Action', prop: 'actionLabel', sortable: false },
+    { name: 'Create Date', prop: 'createActionDate', sortable: false },
+    { name: 'Approval Status', prop: 'approvalStatus', sortable: false }
   ];
 
   constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
