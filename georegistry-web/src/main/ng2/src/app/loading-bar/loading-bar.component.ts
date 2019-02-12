@@ -6,7 +6,7 @@ import { EventService, IEventListener } from '../event/event.service';
   
   selector: 'loading-bar',
   templateUrl: './loading-bar.component.html',
-  styleUrls: []
+  styleUrls: ['./loading-bar.css']
 })
 export class LoadingBarComponent implements OnInit, IEventListener {
   showIndicator: boolean = false;

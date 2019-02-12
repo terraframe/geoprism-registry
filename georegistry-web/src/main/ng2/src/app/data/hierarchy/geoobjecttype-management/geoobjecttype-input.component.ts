@@ -21,9 +21,17 @@ import { LocalizationService } from '../../../core/service/localization.service'
 export class GeoObjectTypeInputComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
+    @Output() geoObjectTypeChange:  EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+    editGeoObjectType: GeoObjectType;
+    @Input('setGeoObjectType') 
+    set in(geoObjectType: GeoObjectType){
+        if(geoObjectType){
+          this.editGeoObjectType = JSON.parse(JSON.stringify(geoObjectType));
+        //   this.geoObjectType = geoObjectType;
+        }
+    }
     message: string = null;
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
-
 
     modalStepConfig: StepConfig = {"steps": [
         {"label":this.localizationService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":true}
@@ -31,11 +39,16 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService, 
         private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizationService: LocalizationService ) {
+    
     }
 
     ngOnInit(): void {
+
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
         this.geoObjectTypeManagementService.setModalState(this.modalState);
+    }
+
+    ngAfterViewInit() {
     }
 
     ngOnDestroy(){
@@ -50,9 +63,11 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     update(): void {
-        this.hierarchyService.updateGeoObjectType( this.geoObjectType ).then( data => {
+        this.hierarchyService.updateGeoObjectType( this.editGeoObjectType ).then( data => {
 
-            this.geoObjectType = data;
+            // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
+            // so that the change can be updated in the template
+            this.geoObjectTypeChange.emit(this.geoObjectType);
 
             this.close();
 
@@ -61,7 +76,12 @@ export class GeoObjectTypeInputComponent implements OnInit {
         } );
     }
 
+    // resetGeoObjectType(): void {
+    //     this.geoObjectType = this.geoObjectTypeOriginal;
+    // }
+
     close(): void {
+        // this.resetGeoObjectType();
         this.bsModalRef.hide();
     }
 

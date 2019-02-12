@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
@@ -24,29 +24,30 @@ export class ManageGeoObjectTypeModalComponent implements OnInit {
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
     modalStateSubscription: Subscription;
     geoObjectType: GeoObjectType;
+    public onGeoObjectTypeSubmitted: Subject<GeoObjectType>;
 
     constructor( public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
       this.modalStateSubscription = geoObjectTypeManagementService.modalStepChange.subscribe( modalState => {
             this.modalState = modalState;
-        })
+      });
     }
 
     ngOnInit(): void {
-
+        this.onGeoObjectTypeSubmitted = new Subject();
     }
 
     ngOnDestroy(){
         this.modalStateSubscription.unsubscribe();
     }
 
-    // manageAttributes(): void {
-    //     this.modalState = {"state":AttributeModalStates.manageAttributes, "attribute":""};
-    // }
-
     onModalStateChange(state: any): void {
         this.modalState = state;
+    }
 
-        console.log("state change")
+    onGeoObjectTypeChange(data: any): void {
+        // send persisted geoobjecttype to the parent calling component (hierarchy.component) so the 
+        // updated GeoObjectType can be reflected in the template
+        this.onGeoObjectTypeSubmitted.next( data );
     }
 
     update(): void {

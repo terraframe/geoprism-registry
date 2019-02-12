@@ -1,5 +1,7 @@
 <div class="new-admin-design-main">
   <cgr-header></cgr-header>
+
+  <loading-bar></loading-bar>
   
   <div id="app-container" class="container">
   
@@ -11,7 +13,7 @@
         <h3><localize key="hierarchy.management.panel.title"></localize></h3>
         <hr>
         <ul class="list-group">
-          <li class="list-group-item" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
+          <li class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
             <i class="fa fa-sitemap"></i> {{hierarchy.localizedLabel}} <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
           </li>
         </ul>

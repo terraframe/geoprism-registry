@@ -427,9 +427,13 @@ export class HierarchyComponent implements OnInit {
       });
 	  this.bsModalRef.content.geoObjectType = geoObjectType;
 	  
-    //   ( <AddAttributesModalComponent>this.bsModalRef.content ).onAddAttributes.subscribe( data => {
-    	//   this.geoObjectTypes.push(data);
-    //   } );
+      ( <ManageGeoObjectTypeModalComponent>this.bsModalRef.content ).onGeoObjectTypeSubmitted.subscribe( data => {
+
+          let position = this.getGeoObjectTypePosition(data.code);
+          if(position){
+              this.geoObjectTypes[position] = data;
+          }
+      } );
   }
   
   private getHierarchyTypePosition(code: string): number{
@@ -447,7 +451,9 @@ export class HierarchyComponent implements OnInit {
 		  if(obj.code === code){
 			  return i;
 		  }
-	  }
+      }
+      
+      return null;
   }
   
   public addChildAndRootToHierarchy(): void {
