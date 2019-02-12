@@ -3,14 +3,8 @@
   <loading-bar></loading-bar>
   
   <div id="app-container" class="container">
-    <ngx-datatable class="crtable-ngx material"
+    <ngx-datatable class="crtable-ngx bootstrap"
       [rows]="rows | async"
-      [sorts]="[
-							  {
-							    prop: 'createActionDate',
-							    dir: 'asc'
-							  }
-							]"
       [columns]="columns"
       [columnMode]="'standard'"
       [headerHeight]="50"
@@ -18,6 +12,7 @@
       [rowHeight]="40"
       [limit]="5"
       [selected]="selected"
+      [loadingIndicator]="loading"
       [selectionType]="'single'"
       (select)='onSelect($event)'>
     </ngx-datatable>

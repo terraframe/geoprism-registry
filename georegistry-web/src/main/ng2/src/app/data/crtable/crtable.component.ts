@@ -29,6 +29,8 @@ import { ChangeRequestService } from '../../service/change-request.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
+import { ErrorModalComponent } from '../../core/modals/error-modal.component';
+
 declare var acp: any;
 
 @Component({
@@ -39,16 +41,20 @@ declare var acp: any;
 })
 export class ChangeRequestTableComponent {
 
+  private bsModalRef: BsModalRef;
+
   rows: Observable<any[]>;
   
   selected: any = [];
   
   action: any = {};
+  
+  loading: boolean = false;
 
   columns = [
-    { name: 'Action', prop: 'actionLabel' },
-    { name: 'Create Date', prop: 'createActionDate' },
-    { name: 'Approval Status', prop: 'approvalStatus' }
+    { name: 'Action', prop: 'actionLabel', sortable: false },
+    { name: 'Create Date', prop: 'createActionDate', sortable: false, width: 195 },
+    { name: 'Approval Status', prop: 'approvalStatus', sortable: false }
   ];
 
   constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
@@ -73,19 +79,28 @@ export class ChangeRequestTableComponent {
   }
 
   fetch(cb: any) {
-    const req = new XMLHttpRequest();
-    req.open('GET', `/georegistry/changerequest/getAllActions`);
-
-    req.onload = () => {
-      cb(JSON.parse(req.response));
-    };
-
-    req.send();
+    this.loading = true;
+  
+    this.changeRequestService.fetchData(cb)
+      .then( () => {
+        // Do nothing
+      }).catch(( err: any ) => {
+        console.log(err);
+        this.error( err.json() );
+      });
   }
   
   onSelect(selected: any)
   {
     this.action = selected.selected[0];
+  }
+  
+  public error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+        let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+        bsModalRef.content.message = ( err.localizedMessage || err.message );
+    }
   }
    
 }

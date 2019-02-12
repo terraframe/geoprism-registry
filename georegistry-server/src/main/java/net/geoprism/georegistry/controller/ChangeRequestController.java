@@ -34,6 +34,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -162,6 +163,7 @@ public class ChangeRequestController
     
     JSONArray actions = new JSONArray();
     AbstractActionQuery query = new AbstractActionQuery(new QueryFactory());
+    query.ORDER_BY(query.getCreateActionDate(), SortOrder.ASC);
     Iterator<? extends AbstractAction> it = query.getIterator();
     while (it.hasNext())
     {

@@ -32,6 +32,21 @@ export class ChangeRequestService {
 
     constructor( private http: Http, private eventService: EventService ) { }
 
+    fetchData(cb: any) : Promise<Response>
+    {
+      this.eventService.start();
+    
+      return this.http
+          .get( acp + '/changerequest/getAllActions', {})
+          .toPromise()
+          .then( response => {
+              cb(response.json());
+              this.eventService.complete();
+          
+              return response;
+          } )
+    }
+
     acceptAction( action: any ): Promise<Response>
     {
       let headers = new Headers( {
