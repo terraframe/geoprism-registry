@@ -1,0 +1,17 @@
+
+<div class="crtable-detail-container">
+	<h3 class="action-detail-header">{{action.actionLabel}}</h3>
+	<div class="detail-content">
+	  <label class="detail-label">Label : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.localizedDisplayLabel">
+	  
+	  <label class="detail-label">Code : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.code">
+	  
+	  <label class="detail-label">Geometry : </label><label class="detail-value">{{action.geoObjectJson.geometry.type}}</label>
+	  
+	  <label class="detail-label">GeoObjectType : </label><label class="detail-value">{{action.geoObjectJson.properties.type}}</label>
+	  
+	  <label class="detail-label">Status : </label><label class="detail-value">{{action.approvalStatus}}</label>
+	  
+	  <button (click)="acceptAction()" class="btn btn-primary detail-accept">Accept and Execute</button><button (click)="rejectAction()" class="btn detail-reject">Reject and Close</button>
+	</div>
+</div>

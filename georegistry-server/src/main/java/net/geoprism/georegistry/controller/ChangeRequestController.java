@@ -20,19 +20,21 @@ package net.geoprism.georegistry.controller;
 
 import java.util.Iterator;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -44,7 +46,6 @@ import net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.georegistry.action.tree.AddChildAction;
 import net.geoprism.georegistry.action.tree.RemoveChildAction;
-import net.geoprism.georegistry.service.RegistryService;
 
 /**
  * This controller is used by the change request table widget.
@@ -55,7 +56,95 @@ import net.geoprism.georegistry.service.RegistryService;
 @Controller(url = "changerequest")
 public class ChangeRequestController 
 {
+  private void updateActionFromJson(AbstractAction action, JSONObject joAction)
+  {
+    if (action instanceof CreateGeoObjectAction)
+    {
+      ( (CreateGeoObjectAction) action ).setGeoObjectJson(joAction.getJSONObject(CreateGeoObjectAction.GEOOBJECTJSON).toString());
+    }
+    else if (action instanceof UpdateGeoObjectAction)
+    {
+      ( (UpdateGeoObjectAction) action ).setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
+    }
+    else if (action instanceof AddChildAction)
+    {
+      AddChildAction aca = (AddChildAction) action;
+      
+      aca.setChildTypeCode(joAction.getString(AddChildAction.CHILDTYPECODE));
+      aca.setChildId(joAction.getString(AddChildAction.CHILDID));
+      aca.setParentId(joAction.getString(AddChildAction.PARENTID));
+      aca.setParentTypeCode(joAction.getString(AddChildAction.PARENTTYPECODE));
+      aca.setHierarchyTypeCode(joAction.getString(AddChildAction.HIERARCHYTYPECODE));
+    }
+    else if (action instanceof RemoveChildAction)
+    {
+      RemoveChildAction rca = (RemoveChildAction) action;
+      
+      rca.setChildTypeCode(joAction.getString(RemoveChildAction.CHILDTYPECODE));
+      rca.setChildId(joAction.getString(RemoveChildAction.CHILDID));
+      rca.setParentId(joAction.getString(RemoveChildAction.PARENTID));
+      rca.setParentTypeCode(joAction.getString(RemoveChildAction.PARENTTYPECODE));
+      rca.setHierarchyTypeCode(joAction.getString(RemoveChildAction.HIERARCHYTYPECODE));
+    }
+  }
   
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF acceptAction(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  {
+    acceptActionInRequest(request.getSessionId(), request, action);
+    
+    return new RestResponse();
+  }
+  @Request(RequestType.SESSION)
+  private void acceptActionInRequest(String sessionId, ClientRequestIF request, String sAction)
+  {
+    acceptActionInTransaction(sAction);
+  }
+  @Transaction
+  private void acceptActionInTransaction(String sAction)
+  {
+    JSONObject joAction = new JSONObject(sAction);
+    
+    AbstractAction action = AbstractAction.get(joAction.getString("oid"));
+    
+    action.appLock();
+    
+    updateActionFromJson(action, joAction);
+    
+    action.execute();
+    
+    action.clearApprovalStatus();
+    action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+    action.apply();
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF rejectAction(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  {
+    rejectActionInRequest(request.getSessionId(), request, action);
+    
+    return new RestResponse();
+  }
+  @Request(RequestType.SESSION)
+  private void rejectActionInRequest(String sessionId, ClientRequestIF request, String sAction)
+  {
+    rejectActionInTransaction(sAction);
+  }
+  @Transaction
+  private void rejectActionInTransaction(String sAction)
+  {
+    JSONObject joAction = new JSONObject(sAction);
+    
+    AbstractAction action = AbstractAction.get(joAction.getString("oid"));
+    
+    action.appLock();
+    
+    updateActionFromJson(action, joAction);
+    
+    action.clearApprovalStatus();
+    action.addApprovalStatus(AllGovernanceStatus.REJECTED);
+    action.apply();
+  }
   
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF getAllActions(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
@@ -74,12 +163,13 @@ public class ChangeRequestController
     
     JSONArray actions = new JSONArray();
     AbstractActionQuery query = new AbstractActionQuery(new QueryFactory());
+    query.ORDER_BY(query.getCreateActionDate(), SortOrder.ASC);
     Iterator<? extends AbstractAction> it = query.getIterator();
     while (it.hasNext())
     {
       AbstractAction action = it.next();
       
-      actions.put(buildAction(action));
+      actions.put(serializeAction(action));
     }
 //    changeRequest.put("actions", actions);
 //    
@@ -88,50 +178,52 @@ public class ChangeRequestController
     return actions.toString();
   }
   
-  private JSONObject buildAction(AbstractAction action)
+  private JSONObject serializeAction(AbstractAction action)
   {
     JSONObject jo = new JSONObject();
+    
+    jo.put(AbstractAction.OID, action.getOid());
+    
+    jo.put("actionType", action.getType());
+    
+    jo.put("actionLabel", action.getMdClass().getDisplayLabel(Session.getCurrentLocale()));
     
     jo.put(AbstractAction.APPROVALSTATUS, action.getApprovalStatus().get(0));
     
     jo.put(AbstractAction.CREATEACTIONDATE, action.getCreateActionDate());
     
-    jo.put("label", action.getMdClass().getDisplayLabel(Session.getCurrentLocale()));
-    
-//    if (action instanceof CreateGeoObjectAction)
-//    {
-//      String json = ( (CreateGeoObjectAction) action ).getGeoObjectJson();
-//      
-//      jo.put(CreateGeoObjectAction.GEOOBJECTJSON, new JSONObject(json));
-//    }
-//    else if (action instanceof UpdateGeoObjectAction)
-//    {
-//      String json = ( (UpdateGeoObjectAction) action ).getGeoObjectJson();
-//      
-//      jo.put(UpdateGeoObjectAction.GEOOBJECTJSON, new JSONObject(json));
-//    }
-//    else if (action instanceof AddChildAction)
-//    {
-//      AddChildAction aca = (AddChildAction) action;
-//      
-//      GeoObject child = RegistryService.getInstance().getGeoObject(Session.getCurrentSession().getOid(), aca.getChildId(), aca.getChildTypeCode());
-//      GeoObject parent = RegistryService.getInstance().getGeoObject(Session.getCurrentSession().getOid(), aca.getParentId(), aca.getParentTypeCode());
-//      
-//      jo.put("childCode", child.getCode());
-//      jo.put("parentCode", parent.getCode());
-//      jo.put("hierarchyCode", aca.getHierarchyCode());
-//    }
-//    else if (action instanceof RemoveChildAction)
-//    {
-//      RemoveChildAction rca = (RemoveChildAction) action;
-//      
-//      GeoObject child = RegistryService.getInstance().getGeoObject(Session.getCurrentSession().getOid(), rca.getChildId(), rca.getChildTypeCode());
-//      GeoObject parent = RegistryService.getInstance().getGeoObject(Session.getCurrentSession().getOid(), rca.getParentId(), rca.getParentTypeCode());
-//      
-//      jo.put("childCode", child.getCode());
-//      jo.put("parentCode", parent.getCode());
-//      jo.put("hierarchyCode", rca.getHierarchyCode());
-//    }
+    if (action instanceof CreateGeoObjectAction)
+    {
+      String json = ( (CreateGeoObjectAction) action ).getGeoObjectJson();
+      
+      jo.put(CreateGeoObjectAction.GEOOBJECTJSON, new JSONObject(json));
+    }
+    else if (action instanceof UpdateGeoObjectAction)
+    {
+      String json = ( (UpdateGeoObjectAction) action ).getGeoObjectJson();
+      
+      jo.put(UpdateGeoObjectAction.GEOOBJECTJSON, new JSONObject(json));
+    }
+    else if (action instanceof AddChildAction)
+    {
+      AddChildAction aca = (AddChildAction) action;
+      
+      jo.put(AddChildAction.CHILDID, aca.getChildId());
+      jo.put(AddChildAction.CHILDTYPECODE, aca.getChildTypeCode());
+      jo.put(AddChildAction.PARENTID, aca.getParentId());
+      jo.put(AddChildAction.PARENTTYPECODE, aca.getParentTypeCode());
+      jo.put(AddChildAction.HIERARCHYTYPECODE, aca.getHierarchyTypeCode());
+    }
+    else if (action instanceof RemoveChildAction)
+    {
+      RemoveChildAction rca = (RemoveChildAction) action;
+      
+      jo.put(RemoveChildAction.CHILDID, rca.getChildId());
+      jo.put(RemoveChildAction.CHILDTYPECODE, rca.getChildTypeCode());
+      jo.put(RemoveChildAction.PARENTID, rca.getParentId());
+      jo.put(RemoveChildAction.PARENTTYPECODE, rca.getParentTypeCode());
+      jo.put(RemoveChildAction.HIERARCHYTYPECODE, rca.getHierarchyTypeCode());
+    }
     
     return jo;
   }

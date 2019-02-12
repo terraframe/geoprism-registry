@@ -85,12 +85,12 @@ public class ShapefileServiceTest
   @Test
   public void testGetAttributeInformation()
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "cb_2017_us_state_500k.zip", istream);
+    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "cb_2017_us_state_500k.zip.test", istream);
 
     JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
 
@@ -136,7 +136,7 @@ public class ShapefileServiceTest
   @Test
   public void testImportShapefile()
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -158,7 +158,7 @@ public class ShapefileServiceTest
   @Test
   public void testImportShapefileInteger()
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -190,7 +190,7 @@ public class ShapefileServiceTest
 
     ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
 
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -224,7 +224,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileExcludeParent()
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -256,7 +256,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithBadParent()
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -308,7 +308,7 @@ public class ShapefileServiceTest
   @Request
   public void testCreateFeatures()
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -364,7 +364,7 @@ public class ShapefileServiceTest
   @Request
   public void testWriteToFile() throws IOException
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -401,7 +401,7 @@ public class ShapefileServiceTest
   @Request
   public void testExport() throws IOException
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -442,7 +442,7 @@ public class ShapefileServiceTest
     {
       this.testData.refreshTerms(this.testTerm);
 
-      InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+      InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
       Assert.assertNotNull(istream);
 
@@ -476,7 +476,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithBadTerm()
   {
-    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip");
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
@@ -508,7 +508,7 @@ public class ShapefileServiceTest
 
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm)
   {
-    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "cb_2017_us_state_500k.zip", istream);
+    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "cb_2017_us_state_500k.zip.test", istream);
     JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 

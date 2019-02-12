@@ -7,6 +7,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.action.AbstractAction;
+import net.geoprism.georegistry.action.ChangeRequest;
+import net.geoprism.georegistry.conversion.TermBuilder;
+import net.geoprism.georegistry.query.GeoObjectIterator;
+import net.geoprism.georegistry.query.GeoObjectQuery;
+import net.geoprism.georegistry.query.LookupRestriction;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.AttributeHierarhcy;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.NoChildForLeafGeoObjectType;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
@@ -14,6 +26,7 @@ import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -22,9 +35,14 @@ import org.json.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
+
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -39,6 +57,9 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
+import com.runwaysdk.system.metadata.MdAttributeConcrete;
+import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
+import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
@@ -57,6 +78,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
 import net.geoprism.georegistry.service.WMSService;
+
 
 public class RegistryService
 {
@@ -817,12 +839,13 @@ public class RegistryService
     TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
 
     Term returnTerm = termBuilder.build();
-
-    // this.refreshMetadataCache();
+    
+    List<MdAttributeConcrete> mdAttrList = this.findRootClassifier(classifier);
+    this.refreshAttributeTermTypeInCache(mdAttrList);
 
     return returnTerm;
   }
-
+  
   /**
    * Creates a new {@link Term} object and makes it a child of the term with the
    * given code.
@@ -848,7 +871,8 @@ public class RegistryService
 
     Term returnTerm = termBuilder.build();
 
-    // this.refreshMetadataCache();
+    List<MdAttributeConcrete> mdAttrList = this.findRootClassifier(classifier);
+    this.refreshAttributeTermTypeInCache(mdAttrList);
 
     return returnTerm;
   }
@@ -865,10 +889,73 @@ public class RegistryService
   public void deleteTerm(String sessionId, String termCode)
   {
     String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(termCode);
-
+    
     Classifier classifier = Classifier.getByKey(classifierKey);
+    
+    List<MdAttributeConcrete> mdAttrList = this.findRootClassifier(classifier);
+    
     classifier.delete();
+    
+    this.refreshAttributeTermTypeInCache(mdAttrList);
+  }
+  
+  /**
+   * Returns the {@link AttributeTermType}s that use the given term.
+   * 
+   * @param term
+   * @return
+   */
+  private void refreshAttributeTermTypeInCache(List<MdAttributeConcrete> mdAttrList)
+  {        
+    for (MdAttributeConcrete mdAttribute : mdAttrList)
+    {
+      String geoObjectTypeCode = mdAttribute.getDefiningMdClass().getTypeName();
+      
+      Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode);
+      
+      if (optional.isPresent())
+      {
+        GeoObjectType geoObjectType = optional.get();
 
+        AttributeType attributeType = ServiceFactory.getConversionService().mdAttributeToAttributeType((MdAttributeConcreteDAOIF)BusinessFacade.getEntityDAO(mdAttribute));
+        
+        geoObjectType.addAttribute(attributeType);
+        
+        adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+      }
+    }
+  }
+  
+  private List<MdAttributeConcrete> findRootClassifier(Classifier classifier)
+  { 
+    List<MdAttributeConcrete> mdAttributeList = new LinkedList<MdAttributeConcrete>();
+    
+    return this.findRootClassifier(classifier, mdAttributeList);
+  }
+  
+  private List<MdAttributeConcrete> findRootClassifier(Classifier classifier, List<MdAttributeConcrete> mdAttributeList)
+  { 
+    // Is this a root term for an {@link MdAttributeTerm}
+    OIterator<? extends MdAttributeTerm> attrTerm = classifier.getAllClassifierTermAttributeRoots();
+    for (MdAttributeTerm mdAttributeTerm : attrTerm)
+    {
+      mdAttributeList.add(mdAttributeTerm);
+    }
+    
+    OIterator<? extends MdAttributeMultiTerm> attrMultiTerm = classifier.getAllClassifierMultiTermAttributeRoots();
+    for (MdAttributeMultiTerm mdAttributeMultiTerm : attrMultiTerm)
+    {
+      mdAttributeList.add(mdAttributeMultiTerm);
+    }
+    
+    // Traverse up the tree
+    OIterator<? extends Classifier> parentTerms = classifier.getAllIsAParent();
+    for (Classifier parent : parentTerms)
+    {
+      return this.findRootClassifier(parent, mdAttributeList);
+    }
+    
+    return mdAttributeList;
   }
 
   /**
