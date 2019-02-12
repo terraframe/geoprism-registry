@@ -28,13 +28,13 @@ import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
 import com.vividsolutions.jts.geom.Geometry;
 
-import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.GISImportLoggerIF;
 import net.geoprism.data.importer.ShapefileFunction;
@@ -44,8 +44,11 @@ import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.IgnoreRowException;
 import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.io.LocationBuilder;
+import net.geoprism.georegistry.io.PostalCodeFactory;
 import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
+import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.query.NonUniqueResultException;
 import net.geoprism.georegistry.service.RegistryService;
@@ -209,7 +212,11 @@ public class GeoObjectShapefileImporter extends TaskObservable
        * The getParent method will throw a IgnoreRowException if the parent is
        * configured to be ignored.
        */
-      if (this.config.getHierarchy() != null)
+      if (this.config.isPostalCode() && PostalCodeFactory.isAvailable(this.config.getType()))
+      {
+        parent = this.parsePostalCode(row);
+      }
+      else if (this.config.getHierarchy() != null && this.config.getLocations().size() > 0)
       {
         parent = this.getParent(row);
       }
@@ -377,7 +384,7 @@ public class GeoObjectShapefileImporter extends TaskObservable
 
     for (Location location : locations)
     {
-      BasicColumnFunction function = location.getFunction();
+      ShapefileFunction function = location.getFunction();
       String label = (String) function.getValue(feature);
 
       if (label != null)
@@ -440,6 +447,35 @@ public class GeoObjectShapefileImporter extends TaskObservable
     }
 
     return parent;
+  }
+
+  private GeoObject parsePostalCode(FeatureRow feature)
+  {
+    LocationBuilder builder = PostalCodeFactory.get(this.config.getType());
+    Location location = builder.build(this.config.getFunction(GeoObject.CODE));
+
+    ShapefileFunction function = location.getFunction();
+    String code = (String) function.getValue(feature);
+
+    if (code != null)
+    {
+      // Search
+      GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
+      query.setRestriction(new CodeRestriction(code));
+
+      GeoObject result = query.getSingleResult();
+
+      if (result != null)
+      {
+        return result;
+      }
+      else
+      {
+        throw new ProgrammingErrorException("Unable to find parent based on parsing the postal code");
+      }
+    }
+
+    return null;
   }
 
   /**

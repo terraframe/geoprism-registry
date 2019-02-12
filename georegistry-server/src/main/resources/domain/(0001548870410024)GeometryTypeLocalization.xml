@@ -78,6 +78,13 @@
           <attribute name="defaultLocale" value="Format" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.modal.postalCode">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.modal.postalCode" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Use postal code to derive parent relationships" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

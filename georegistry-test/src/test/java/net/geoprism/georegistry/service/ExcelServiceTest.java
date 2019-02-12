@@ -32,15 +32,19 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
+import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.io.LocationBuilder;
+import net.geoprism.georegistry.io.PostalCodeFactory;
 import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectIterator;
 import net.geoprism.georegistry.query.GeoObjectQuery;
@@ -89,6 +93,8 @@ public class ExcelServiceTest
   @Test
   public void testGetAttributeInformation()
   {
+    PostalCodeFactory.remove(testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON));
+
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
     Assert.assertNotNull(istream);
@@ -96,7 +102,7 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
     JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
 
-    System.out.println(result.toString());
+    Assert.assertFalse(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
 
     Assert.assertNotNull(result.getAsJsonObject(GeoObjectConfiguration.TYPE));
 
@@ -125,6 +131,30 @@ public class ExcelServiceTest
     Assert.assertEquals(4, attributes.get(GeoObjectConfiguration.NUMERIC).getAsJsonArray().size());
     Assert.assertEquals(1, attributes.get(AttributeBooleanType.TYPE).getAsJsonArray().size());
     Assert.assertEquals(1, attributes.get(AttributeDateType.TYPE).getAsJsonArray().size());
+  }
+
+  @Test
+  public void testGetAttributeInformationPostalCode()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+
+    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
+
+    PostalCodeFactory.addPostalCode(type, new LocationBuilder()
+    {
+      @Override
+      public Location build(ShapefileFunction function)
+      {
+        return null;
+      }
+    });
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
+
+    Assert.assertTrue(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
   }
 
   @Test
@@ -460,7 +490,7 @@ public class ExcelServiceTest
     finally
     {
       ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
-      
+
       this.testData.refreshTerms(testTerm);
     }
   }

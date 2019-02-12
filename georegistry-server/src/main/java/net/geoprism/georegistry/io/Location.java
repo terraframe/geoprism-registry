@@ -6,17 +6,18 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.data.importer.ShapefileFunction;
 
 public class Location
 {
 
-  private GeoObjectType       type;
+  private GeoObjectType     type;
 
-  private Universal           universal;
+  private Universal         universal;
 
-  private BasicColumnFunction function;
+  private ShapefileFunction function;
 
-  public Location(GeoObjectType type, Universal universal, BasicColumnFunction function)
+  public Location(GeoObjectType type, Universal universal, ShapefileFunction function)
   {
     this.type = type;
     this.universal = universal;
@@ -43,7 +44,7 @@ public class Location
     this.universal = universal;
   }
 
-  public BasicColumnFunction getFunction()
+  public ShapefileFunction getFunction()
   {
     return function;
   }

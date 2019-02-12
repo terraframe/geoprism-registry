@@ -33,6 +33,7 @@ import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.ImportProblemException;
+import net.geoprism.georegistry.io.PostalCodeFactory;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.gis.geoserver.SessionPredicate;
 
@@ -70,6 +71,7 @@ public class ExcelService
       object.add(GeoObjectConfiguration.SHEET, handler.getSheets().get(0).getAsJsonObject());
       object.addProperty(GeoObjectConfiguration.DIRECTORY, directory.getName());
       object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
+      object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
 
       return object;
     }
