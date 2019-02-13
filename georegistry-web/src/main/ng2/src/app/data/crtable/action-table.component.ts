@@ -50,6 +50,13 @@ export class ActionTableComponent implements OnInit {
         } );
     }
 
+    onBack(): void {
+        this.pageChange.emit( {
+            type: 'BACK',
+            data: {}
+        } );
+    }
+
     refresh() {
         this.rows = Observable.create(( subscriber: any ) => {
             this.fetch(( data: any ) => {
