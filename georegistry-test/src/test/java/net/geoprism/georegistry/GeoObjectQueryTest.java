@@ -336,6 +336,25 @@ public class GeoObjectQueryTest
 
   @Test
   @Request
+  public void testTreeSynonymRestrictionByCodeWithAncestor()
+  {
+    GeoObjectType type = this.tutil.AREA.getGeoObjectType(GeometryType.POLYGON);
+    Universal universal = this.tutil.AREA.getUniversal();
+    
+    MdTermRelationship mdRelationship = MdTermRelationship.getByKey(LocatedIn.CLASS);
+    SynonymRestriction restriction = new SynonymRestriction(this.tutil.CO_A_ONE.getCode(), this.tutil.COLORADO.asGeoObject(), mdRelationship);
+    
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    query.setRestriction(restriction);
+    
+    GeoObject result = query.getSingleResult();
+    
+    Assert.assertEquals(this.tutil.CO_A_ONE.getCode(), result.getCode());
+    Assert.assertEquals(this.tutil.CO_A_ONE.getDisplayLabel(), result.getLocalizedDisplayLabel());
+  }
+  
+  @Test
+  @Request
   public void testFailTreeSynonymRestrictionByCodeWithParent()
   {
     GeoObjectType type = this.tutil.STATE.getGeoObjectType(GeometryType.POLYGON);

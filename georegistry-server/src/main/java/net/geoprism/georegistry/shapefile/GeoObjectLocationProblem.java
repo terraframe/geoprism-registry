@@ -21,6 +21,7 @@ public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationPro
     this.type = type;
     this.label = label;
     this.context = context;
+    this.parent = parent;
   }
 
   public String getKey()

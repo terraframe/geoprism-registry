@@ -29,6 +29,10 @@ public class USATestData extends TestDataSet
 
   public final TestGeoObjectTypeInfo STATE         = new TestGeoObjectTypeInfo("State");
 
+  public final TestGeoObjectTypeInfo COUNTY        = new TestGeoObjectTypeInfo("County");
+
+  public final TestGeoObjectTypeInfo AREA          = new TestGeoObjectTypeInfo("Area");
+
   public final TestGeoObjectTypeInfo DISTRICT      = new TestGeoObjectTypeInfo("District", true);
 
   public final TestGeoObjectInfo     USA           = new TestGeoObjectInfo("USA", COUNTRY);
@@ -43,6 +47,10 @@ public class USATestData extends TestDataSet
 
   public final TestGeoObjectInfo     CO_D_THREE    = new TestGeoObjectInfo("ColoradoDistrictThree", DISTRICT);
 
+  public final TestGeoObjectInfo     CO_C_ONE      = new TestGeoObjectInfo("ColoradoCountyOne", COUNTY);
+
+  public final TestGeoObjectInfo     CO_A_ONE      = new TestGeoObjectInfo("ColoradoAreaOne", AREA);
+
   public final TestGeoObjectInfo     WASHINGTON    = new TestGeoObjectInfo("Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
 
   public final TestGeoObjectInfo     WA_D_ONE      = new TestGeoObjectInfo("WashingtonDistrictOne", DISTRICT);
@@ -53,6 +61,8 @@ public class USATestData extends TestDataSet
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(STATE);
     managedGeoObjectTypeInfos.add(DISTRICT);
+    managedGeoObjectTypeInfos.add(COUNTY);
+    managedGeoObjectTypeInfos.add(AREA);
 
     managedGeoObjectInfos.add(USA);
     managedGeoObjectInfos.add(CANADA);
@@ -61,6 +71,8 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(CO_D_ONE);
     managedGeoObjectInfos.add(CO_D_TWO);
     managedGeoObjectInfos.add(CO_D_THREE);
+    managedGeoObjectInfos.add(CO_C_ONE);
+    managedGeoObjectInfos.add(CO_A_ONE);
     managedGeoObjectInfos.add(WA_D_ONE);
     managedGeoObjectInfos.add(WA_D_TWO);
   }
@@ -109,6 +121,8 @@ public class USATestData extends TestDataSet
     COUNTRY.getUniversal().addLink(Universal.getRoot(), AllowedIn.CLASS);
     COUNTRY.addChild(STATE, AllowedIn.CLASS);
     STATE.addChild(DISTRICT, AllowedIn.CLASS);
+    STATE.addChild(COUNTY, AllowedIn.CLASS);
+    COUNTY.addChild(AREA, AllowedIn.CLASS);
 
     ConversionService.addParentReferenceToLeafType(LocatedIn.class.getSimpleName(), STATE.getUniversal(), DISTRICT.getUniversal());
 
@@ -125,6 +139,8 @@ public class USATestData extends TestDataSet
       COLORADO.addChild(CO_D_ONE, LocatedIn.CLASS);
       COLORADO.addChild(CO_D_TWO, LocatedIn.CLASS);
       COLORADO.addChild(CO_D_THREE, LocatedIn.CLASS);
+      COLORADO.addChild(CO_C_ONE, LocatedIn.CLASS);
+      CO_C_ONE.addChild(CO_A_ONE, LocatedIn.CLASS);
 
       USA.addChild(WASHINGTON, LocatedIn.CLASS);
       WASHINGTON.addChild(WA_D_ONE, LocatedIn.CLASS);
