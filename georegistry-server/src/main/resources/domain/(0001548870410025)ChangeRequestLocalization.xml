@@ -78,6 +78,13 @@
           <attribute name="defaultLocale" value="Back to requests" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Change Request Summary" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

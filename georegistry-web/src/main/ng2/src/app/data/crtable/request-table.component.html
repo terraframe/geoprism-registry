@@ -1,14 +1,17 @@
+<div class="row text-center">
+  <h1><localize key="change.request.title"></localize></h1>
+</div>
 <div class="row">
-  <div class="col-sm-2"></div>
+  <div class="col-sm-1"></div>
   <div class="col-sm-4">
-    <ngx-datatable class="crtable-ngx bootstrap" [rows]="rows | async" [columns]="columns" [columnMode]="'standard'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="40" [limit]="5" [loadingIndicator]="loading" [selectionType]="'single'" (select)='onSelect($event)'> </ngx-datatable>
+    <div class="row">
+      <ngx-datatable class="crtable-ngx bootstrap" [rows]="rows | async" [columns]="columns" [columnMode]="'standard'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="40" [limit]="5" [loadingIndicator]="loading" [selectionType]="'single'" (select)='onSelect($event)'> </ngx-datatable>
+    </div>
   </div>
-  <div *ngIf="request != null" class="col-sm-6">
+  <div class="col-sm-1"></div>
+  <div *ngIf="request != null" class="col-sm-4">
     <div class="form-group row">
-      <label class="col-sm-2">
-        <localize key="change.request.createDate"></localize>
-      </label>
-      <div class="col-sm-10">{{request.createDate}}</div>
+      <h3>{{request.createDate}}</h3>
     </div>
     <div class="form-group row">
       <label class="col-sm-2">

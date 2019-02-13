@@ -1,11 +1,9 @@
+<div *ngIf="request != null" class="row text-center">
+  <h1>{{request.createDate}}</h1>
+</div>
 <div class="row">
-  <div class="col-sm-2"></div>
+  <div class="col-sm-1"></div>
   <div class="col-sm-4">
-    <div class="row">
-      <button type="submit" (click)="onBack()" class="btn btn-primary" role="button">
-        <localize key="change.request.back"></localize>
-      </button>
-    </div>
     <div class="row">
       <ngx-datatable class="crtable-ngx bootstrap"
         [rows]="rows | async"
@@ -21,8 +19,14 @@
         (select)='onSelect($event)'>
       </ngx-datatable>        
     </div>
+    <div class="row">
+      <button type="submit" (click)="onBack()" class="btn btn-primary" role="button">
+        <localize key="change.request.back"></localize>
+      </button>
+    </div>    
   </div>
-  <div class="col-sm-6">
+  <div class="col-sm-1"></div>
+  <div class="col-sm-4">
     <crtable-detail-create-geo-object *ngIf="action.actionType=='net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction' || action.actionType=='net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction'" [(action)]="action" [crtable]="this"> </crtable-detail-create-geo-object>
     <crtable-detail-add-remove-child *ngIf="action.actionType=='net.geoprism.georegistry.action.tree.AddChildAction' || action.actionType=='net.geoprism.georegistry.action.tree.RemoveChildAction'" [(action)]="action" [crtable]="this"> </crtable-detail-add-remove-child>
   </div>

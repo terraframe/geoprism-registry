@@ -1,5 +1,6 @@
 package net.geoprism.georegistry.action;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,12 +82,14 @@ public class ChangeRequest extends ChangeRequestBase
 
   public JSONObject toJSON()
   {
+    DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Session.getCurrentLocale());
+
     Users user = (Users) this.getCreatedBy();
     AllGovernanceStatus status = this.getApprovalStatus().get(0);
 
     JSONObject object = new JSONObject();
     object.put(ChangeRequest.OID, this.getOid());
-    object.put(ChangeRequest.CREATEDATE, this.getCreateDate());
+    object.put(ChangeRequest.CREATEDATE, format.format(this.getCreateDate()));
     object.put(ChangeRequest.CREATEDBY, user.getUsername());
     object.put(ChangeRequest.APPROVALSTATUS, status.getDisplayLabel());
 
