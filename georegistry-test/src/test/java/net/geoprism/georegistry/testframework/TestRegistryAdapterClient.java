@@ -143,6 +143,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToParentTreeNode(this.controller.addChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef));
   }
   
+  public void removeChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef)
+  {
+    this.controller.removeChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef);
+  }
+  
   public void submitChangeRequest(List<AbstractActionDTO> actions)
   {
     String sActions = AbstractActionDTO.serializeActions(actions).toString();
