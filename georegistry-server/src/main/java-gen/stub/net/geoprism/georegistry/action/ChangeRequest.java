@@ -11,6 +11,7 @@ import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 import com.runwaysdk.query.OrderBy.SortOrder;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.Users;
 
@@ -84,6 +85,39 @@ public class ChangeRequest extends ChangeRequestBase
     object.put(ChangeRequest.CREATEDATE, this.getCreateDate());
     object.put(ChangeRequest.CREATEDBY, user.getUsername());
     object.put(ChangeRequest.APPROVALSTATUS, status.getDisplayLabel());
+
+    return object;
+  }
+
+  public JSONObject getDetails()
+  {
+    int total = 0;
+    int pending = 0;
+
+    OIterator<? extends AbstractAction> it = this.getAllAction();
+
+    try
+    {
+      while (it.hasNext())
+      {
+        total++;
+
+        AbstractAction action = it.next();
+
+        if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        {
+          pending++;
+        }
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+
+    JSONObject object = this.toJSON();
+    object.put("total", total);
+    object.put("pending", pending);
 
     return object;
   }

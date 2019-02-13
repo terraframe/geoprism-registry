@@ -109,19 +109,19 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public void approveAllActions(String sessionId, String requestId)
+  public JSONObject approveAllActions(String sessionId, String requestId)
   {
-    this.setAllActionsInTransaction(requestId, AllGovernanceStatus.ACCEPTED);
+    return this.setAllActionsInTransaction(requestId, AllGovernanceStatus.ACCEPTED);
   }
 
   @Request(RequestType.SESSION)
-  public void rejectAllActions(String sessionId, String requestId)
+  public JSONObject rejectAllActions(String sessionId, String requestId)
   {
-    this.setAllActionsInTransaction(requestId, AllGovernanceStatus.REJECTED);
+    return this.setAllActionsInTransaction(requestId, AllGovernanceStatus.REJECTED);
   }
 
   @Transaction
-  public void setAllActionsInTransaction(String requestId, AllGovernanceStatus status)
+  public JSONObject setAllActionsInTransaction(String requestId, AllGovernanceStatus status)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
 
@@ -142,6 +142,8 @@ public class ChangeRequestService
     {
       it.close();
     }
+
+    return request.getDetails();
   }
 
   @Request(RequestType.SESSION)
@@ -173,37 +175,9 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public JSONObject getRequestDetails(String sessionId, String requestId)
   {
-    int total = 0;
-    int pending = 0;
-
     ChangeRequest request = ChangeRequest.get(requestId);
 
-    OIterator<? extends AbstractAction> it = request.getAllAction();
-
-    try
-    {
-      while (it.hasNext())
-      {
-        total++;
-
-        AbstractAction action = it.next();
-
-        if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
-        {
-          pending++;
-        }
-      }
-    }
-    finally
-    {
-      it.close();
-    }
-
-    JSONObject object = request.toJSON();
-    object.put("total", total);
-    object.put("pending", pending);
-
-    return object;
+    return request.getDetails();
   }
 
   private void updateActionFromJson(AbstractAction action, JSONObject joAction)

@@ -48,7 +48,8 @@ import { ManageTermOptionsComponent } from './data/hierarchy/geoobjecttype-manag
 import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
 
-import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
+import { ActionTableComponent } from './data/crtable/action-table.component';
+import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 
@@ -101,7 +102,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     CgrAppComponent,
     HierarchyComponent,
     LocalizationManagerComponent,
-    ChangeRequestTableComponent,
+    ActionTableComponent,
+    RequestTableComponent,
     CreateUpdateGeoObjectDetailComponent,
     AddRemoveChildDetailComponent,
     FillPipe,
