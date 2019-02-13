@@ -32,10 +32,15 @@ export class RequestTableComponent {
 
     constructor( private service: ChangeRequestService, private modalService: BsModalService, private localizationService: LocalizationService ) {
         this.columns = [
-            { name: localizationService.decode('change.request.user'), prop: 'createdBy', sortable: false },
-            { name: localizationService.decode('change.request.createDate'), prop: 'createDate', sortable: false, width: 195 },
-            { name: localizationService.decode('change.request.status'), prop: 'approvalStatus', sortable: false }
+            { name: localizationService.decode( 'change.request.user' ), prop: 'createdBy', sortable: false },
+            { name: localizationService.decode( 'change.request.createDate' ), prop: 'createDate', sortable: false, width: 195 },
+            { name: localizationService.decode( 'change.request.status' ), prop: 'approvalStatus', sortable: false }
         ];
+
+        this.refresh();
+    }
+
+    refresh(): void {
 
         this.rows = Observable.create(( subscriber: any ) => {
 
@@ -49,6 +54,7 @@ export class RequestTableComponent {
                 this.error( response.json() );
             } )
         } );
+
     }
 
     onClick(): void {
@@ -77,7 +83,10 @@ export class RequestTableComponent {
 
         if ( this.request != null ) {
             this.service.execute( this.request.oid ).then( request => {
-                // Do nothing
+                this.request = request;
+
+                // TODO: Determine if there is a way to update an individual record
+                this.refresh();
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
             } );
@@ -99,6 +108,9 @@ export class RequestTableComponent {
         if ( this.request != null ) {
             this.service.rejectAllActions( this.request.oid ).then( request => {
                 this.request = request;
+
+                // TODO: Determine if there is a way to update an individual record
+                this.refresh();
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
             } );

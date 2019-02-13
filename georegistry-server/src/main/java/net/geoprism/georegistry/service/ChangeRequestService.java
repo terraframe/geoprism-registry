@@ -129,10 +129,12 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public void executeActions(String sessionId, String requestId)
+  public JSONObject executeActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     request.execute();
+    
+    return request.getDetails();
   }
 
   @Request(RequestType.SESSION)
