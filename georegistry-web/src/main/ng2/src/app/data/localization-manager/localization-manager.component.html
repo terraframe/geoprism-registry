@@ -1,6 +1,10 @@
-<div class="new-admin-design-main">
+<div class="row text-center">
   <cgr-header></cgr-header>
   <loading-bar></loading-bar>
+  
+  <h2>Localization Manager</h2>
+  
+  <label><a href="https://terraframe.atlassian.net/wiki/spaces/GGR/pages/816021527/Localization">Click here to view our documentation</a> for information on how to use this page.</label>
   
   <div id="app-container" class="container">
   
@@ -9,17 +13,19 @@
 	      <button type="submit" class="btn btn-primary" (click)="exportLocalization()"><localize key="localization-manager.exportButton"></localize></button>
 	    </div>
 	    
-	    <div>
-	      <button type="submit" class="btn btn-primary" (click)="showNewLocaleModal()"><localize key="localization-manager.installLocale"></localize></button>
-	    </div>
+	    
     </div>
     
     <div class="row" style="margin:25px;">
       <div>
         <!-- <button type="submit" class="btn btn-primary" (click)="importLocalization()"><localize key="localization-manager.importButton"></localize></button> -->
         <label><localize key="localization-manager.importButton"></localize></label>
-        <input type="file" (change)="importLocalization($event)" placeholder="<localize key='localization.manager.input.placeholder.uploadFile'></localize>" accept=".xlsx,"/>
+        <input style="display: inline;" type="file" (change)="importLocalization($event)" placeholder="<localize key='localization.manager.input.placeholder.uploadFile'></localize>" accept=".xlsx,"/>
       </div>
+    </div>
+    
+    <div class="row">
+      <button type="submit" class="btn btn-primary" (click)="showNewLocaleModal()"><localize key="localization-manager.installLocale"></localize></button>
     </div>
     
   </div>
