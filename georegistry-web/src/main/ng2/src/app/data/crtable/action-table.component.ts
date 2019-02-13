@@ -37,7 +37,7 @@ export class ActionTableComponent implements OnInit {
         this.columns = [
             { name: localizationService.decode( 'change.request.action' ), prop: 'actionLabel', sortable: false },
             { name: localizationService.decode( 'change.request.createDate' ), prop: 'createActionDate', sortable: false, width: 195 },
-            { name: localizationService.decode( 'change.request.status' ), prop: 'approvalStatus', sortable: false }
+            { name: localizationService.decode( 'change.request.status' ), prop: 'statusLabel', sortable: false }
         ];
     }
 

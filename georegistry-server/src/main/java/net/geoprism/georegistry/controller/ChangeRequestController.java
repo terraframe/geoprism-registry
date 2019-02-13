@@ -122,9 +122,9 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "execute-actions", method = ServletMethod.POST)
   public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {
-    service.executeActions(request.getSessionId(), requestId);
+    JSONObject response = service.executeActions(request.getSessionId(), requestId);
 
-    return new RestResponse();
+    return new RestBodyResponse(response);
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "approve-all-actions", method = ServletMethod.POST)

@@ -5,6 +5,7 @@ export class ChangeRequest {
   createdBy: string;
   createDate: Date;
   approvalStatus: string;
+  statusCode: string;
   total: number;
   pending: number;
 }

@@ -41,7 +41,7 @@ const routes: Routes = [
     {
         path: 'crtable',
         component: RegistryViewerComponent,
-        canActivate: [AdminGuard]
+        canActivate: [MaintainerGuard]
     },
     {
         path: '',

@@ -1,5 +1,7 @@
 package net.geoprism.georegistry.action;
 
+import java.text.DateFormat;
+
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
@@ -46,6 +48,9 @@ public abstract class AbstractAction extends AbstractActionBase
 
   public JSONObject serialize()
   {
+    AllGovernanceStatus status = this.getApprovalStatus().get(0);
+    DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Session.getCurrentLocale());
+
     JSONObject jo = new JSONObject();
 
     jo.put(AbstractAction.OID, this.getOid());
@@ -54,7 +59,8 @@ public abstract class AbstractAction extends AbstractActionBase
     jo.put(AbstractAction.CREATEACTIONDATE, this.getCreateActionDate());
     jo.put(AbstractAction.CONTRIBUTORNOTES, this.getContributorNotes());
     jo.put(AbstractAction.MAINTAINERNOTES, this.getMaintainerNotes());
-    jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0).getEnumName());
+    jo.put("statusLabel", status.getDisplayLabel());
+    jo.put(AbstractAction.CREATEACTIONDATE, format.format(this.getCreateActionDate()));
 
     return jo;
   }

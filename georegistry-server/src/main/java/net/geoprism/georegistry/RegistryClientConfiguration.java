@@ -51,7 +51,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.setUrl("nav/management#locations");
     management.addRole(RoleConstants.ADIM_ROLE);
     management.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    management.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     management.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
 
     List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();

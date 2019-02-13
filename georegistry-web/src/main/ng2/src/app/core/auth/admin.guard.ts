@@ -35,3 +35,20 @@ export class MaintainerGuard implements CanActivate {
     return false;
   }
 }
+
+@Injectable()
+export class ContributerGuard implements CanActivate {
+
+  constructor(private service:AuthService, private router: Router) {}
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    
+    if (this.service.isAdmin() || this.service.isMaintainer()  || this.service.isContributer()) {
+      return true; 
+    }
+    
+    this.router.navigate([ '/export' ]);
+    
+    return false;
+  }
+}

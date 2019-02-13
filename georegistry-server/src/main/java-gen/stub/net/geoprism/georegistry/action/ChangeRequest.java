@@ -121,10 +121,12 @@ public class ChangeRequest extends ChangeRequestBase
     {
       it.close();
     }
+    AllGovernanceStatus status = this.getApprovalStatus().get(0);
 
     JSONObject object = this.toJSON();
     object.put("total", total);
     object.put("pending", pending);
+    object.put("statusCode", status.getEnumName());
 
     return object;
   }
@@ -166,15 +168,26 @@ public class ChangeRequest extends ChangeRequestBase
       {
         AbstractAction action = it.next();
 
-        action.appLock();
-        action.clearApprovalStatus();
-        action.addApprovalStatus(status);
-        action.apply();
+        if (!status.equals(AllGovernanceStatus.ACCEPTED) || action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        {
+          action.appLock();
+          action.clearApprovalStatus();
+          action.addApprovalStatus(status);
+          action.apply();
+        }
       }
     }
     finally
     {
       it.close();
+    }
+
+    if (status.equals(AllGovernanceStatus.REJECTED))
+    {
+      this.appLock();
+      this.clearApprovalStatus();
+      this.addApprovalStatus(AllGovernanceStatus.REJECTED);
+      this.apply();
     }
   }
 
