@@ -21,6 +21,7 @@ package net.geoprism.georegistry;
 import com.runwaysdk.business.ontology.OntologyStrategyBuilderIF;
 import com.runwaysdk.business.ontology.OntologyStrategyFactory;
 import com.runwaysdk.business.ontology.OntologyStrategyIF;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -30,9 +31,20 @@ import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
 import net.geoprism.GeoprismPatcher;
 import net.geoprism.GeoprismPatcherIF;
+import net.geoprism.georegistry.demo.ChangeRequestTestDataGenerator;
 
 public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatcherIF
 {
+  @Override
+  @Transaction
+  public void runWithTransaction()
+  {
+    super.runWithTransaction();
+    
+    // TODO : This is only for demos
+    ChangeRequestTestDataGenerator.main(new String[] {});
+  }
+  
   @Override
   protected void importLocationData()
   {

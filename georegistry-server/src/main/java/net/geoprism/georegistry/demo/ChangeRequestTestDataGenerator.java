@@ -33,13 +33,13 @@ import net.geoprism.georegistry.service.ServiceFactory;
  */
 public class ChangeRequestTestDataGenerator
 {
-  public static void main(String[] args) throws InterruptedException
+  public static void main(String[] args)
   {
     ChangeRequestTestDataGenerator.build();
   }
 
   @Request
-  private static void build() throws InterruptedException
+  private static void build()
   {
     ChangeRequestTestDataGenerator.deleteAllActions();
     ChangeRequestTestDataGenerator.deleteAllChangeRequests();
