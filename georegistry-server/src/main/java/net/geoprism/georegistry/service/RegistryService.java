@@ -556,6 +556,11 @@ public class RegistryService
     }
   }
 
+  /**
+   * 
+   * @param sessionId
+   * @param sJson - serialized array of AbstractActions
+   */
   @Request(RequestType.SESSION)
   public void submitChangeRequest(String sessionId, String sJson)
   {

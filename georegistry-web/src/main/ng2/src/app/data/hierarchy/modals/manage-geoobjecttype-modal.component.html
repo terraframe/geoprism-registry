@@ -2,6 +2,12 @@
 <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
      
   <modal-step-indicator></modal-step-indicator>
+
+  <input-field required
+    name="hexadecimalValue"
+    label="Value 1"
+    placeholder="Enter a hexadecimal value"
+    [(ngModel)]="test"></input-field> 
    
   <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" (geoObjectTypeChange)="onGeoObjectTypeChange($event)" [geoObjectType]="geoObjectType" [setGeoObjectType]="geoObjectType"></geoobjecttype-input>
   

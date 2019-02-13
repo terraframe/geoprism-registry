@@ -11,6 +11,7 @@ import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 
+import { InputFieldComponent } from '../../../core/form-fields/input-field/input-field.component'
 
 
 @Component( {
@@ -19,7 +20,7 @@ import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-m
     styleUrls: ['./manage-geoobjecttype-modal.css']
 } )
 export class ManageGeoObjectTypeModalComponent implements OnInit {
-
+test: string = "Junk"
     message: string = null;
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
     modalStateSubscription: Subscription;
