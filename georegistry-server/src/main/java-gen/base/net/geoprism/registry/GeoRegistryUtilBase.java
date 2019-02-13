@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1491745451)
+@com.runwaysdk.business.ClassSignature(hash = 193158924)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,7 +12,7 @@ public abstract class GeoRegistryUtilBase extends com.runwaysdk.business.Util
 {
   public final static String CLASS = "net.geoprism.registry.GeoRegistryUtil";
   public static java.lang.String OID = "oid";
-  private static final long serialVersionUID = -1491745451;
+  private static final long serialVersionUID = 193158924;
   
   public GeoRegistryUtilBase()
   {
@@ -46,6 +46,12 @@ public abstract class GeoRegistryUtilBase extends com.runwaysdk.business.Util
   }
   
   public static java.lang.String createHierarchyType(java.lang.String htJSON)
+  {
+    String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.GeoRegistryUtil.java";
+    throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
+  }
+  
+  public static void submitChangeRequest(java.lang.String sJson)
   {
     String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.GeoRegistryUtil.java";
     throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);

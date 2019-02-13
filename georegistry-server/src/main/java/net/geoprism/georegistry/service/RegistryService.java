@@ -542,26 +542,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void submitChangeRequest(String sessionId, String sJson)
   {
-    submitChangeRequestInTransaction(sessionId, sJson);
-  }
-
-  @Transaction
-  private void submitChangeRequestInTransaction(String sessionId, String sJson)
-  {
-    ChangeRequest cr = new ChangeRequest();
-    cr.addApprovalStatus(AllGovernanceStatus.PENDING);
-    cr.apply();
-
-    List<AbstractActionDTO> actionDTOs = AbstractActionDTO.parseActions(sJson);
-
-    for (AbstractActionDTO actionDTO : actionDTOs)
-    {
-      AbstractAction ra = AbstractAction.dtoToRegistry(actionDTO);
-      ra.addApprovalStatus(AllGovernanceStatus.PENDING);
-      ra.apply();
-
-      cr.addAction(ra).apply();
-    }
+    GeoRegistryUtil.submitChangeRequest(sJson);
   }
 
   public GeoObjectQuery createQuery(String typeCode)

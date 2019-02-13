@@ -283,6 +283,8 @@ public class ConversionService
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
 
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
+    RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
+
 
     InitializationStrategyIF strategy = new InitializationStrategyIF()
     {
@@ -309,6 +311,9 @@ public class ConversionService
 
         consumer.grantPermission(Operation.READ, mdBusiness.getOid());
         consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+        
+        contributor.grantPermission(Operation.READ, mdBusiness.getOid());
+        contributor.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
       }
     };
 
@@ -318,6 +323,7 @@ public class ConversionService
     this.grantWritePermissionsOnMdTermRel(mdTermRelUniversal);
     this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelUniversal);
     this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelUniversal);
+    this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelUniversal);
 
     Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
 
@@ -327,6 +333,7 @@ public class ConversionService
     this.grantWritePermissionsOnMdTermRel(mdTermRelGeoEntity);
     this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelGeoEntity);
     this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelGeoEntity);
+    this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelGeoEntity);
 
     GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
 
