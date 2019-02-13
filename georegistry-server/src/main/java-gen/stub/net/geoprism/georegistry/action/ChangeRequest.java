@@ -165,6 +165,7 @@ public class ChangeRequest extends ChangeRequestBase
       while (it.hasNext())
       {
         AbstractAction action = it.next();
+
         action.appLock();
         action.clearApprovalStatus();
         action.addApprovalStatus(status);

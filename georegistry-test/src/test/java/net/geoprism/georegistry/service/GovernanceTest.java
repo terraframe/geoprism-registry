@@ -266,8 +266,8 @@ public class GovernanceTest
     /*
      * Execute CR1
      */
-    OIterator<? extends ChangeRequest> it2 = crq.getIterator();
-    ChangeRequest cr1 = it2.next();
+    List<? extends ChangeRequest> requests = crq.getIterator().getAll();
+    ChangeRequest cr1 = requests.get(0);
     cr1.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
     cr1.execute();
 
@@ -288,9 +288,7 @@ public class GovernanceTest
     /*
      * Execute CR2
      */
-    OIterator<? extends ChangeRequest> it3 = crq.getIterator();
-    it3.next();
-    ChangeRequest cr2 = it3.next();
+    ChangeRequest cr2 = requests.get(1);
     cr2.appLock();
     cr2.clearApprovalStatus();
     cr2.addApprovalStatus(AllGovernanceStatus.PENDING);
