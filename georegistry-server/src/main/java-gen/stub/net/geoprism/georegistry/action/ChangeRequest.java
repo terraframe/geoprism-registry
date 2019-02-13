@@ -132,25 +132,27 @@ public class ChangeRequest extends ChangeRequestBase
   @Transaction
   public void execute()
   {
-    List<AbstractAction> actions = this.getOrderedActions();
-
-    for (AbstractAction action : actions)
+    if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-      if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
-      {
-        throw new ActionExecuteException("Unable to execute an action with the pending status");
-      }
-      else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
-      {
-        action.setSessionId(Session.getCurrentSession().getOid());
-        action.execute();
-      }
-    }
+      List<AbstractAction> actions = this.getOrderedActions();
 
-    this.appLock();
-    this.clearApprovalStatus();
-    this.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
-    this.apply();
+      for (AbstractAction action : actions)
+      {
+        if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        {
+          throw new ActionExecuteException("Unable to execute an action with the pending status");
+        }
+        else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
+        {
+          action.execute();
+        }
+      }
+
+      this.appLock();
+      this.clearApprovalStatus();
+      this.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+      this.apply();
+    }
   }
 
   @Transaction

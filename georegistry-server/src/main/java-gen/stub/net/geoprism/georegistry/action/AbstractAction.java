@@ -5,10 +5,6 @@ import org.json.JSONObject;
 
 import com.runwaysdk.session.Session;
 
-import net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction;
-import net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction;
-import net.geoprism.georegistry.action.tree.AddChildAction;
-import net.geoprism.georegistry.action.tree.RemoveChildAction;
 import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 
@@ -19,32 +15,18 @@ public abstract class AbstractAction extends AbstractActionBase
 
   protected RegistryService registry;
 
-  protected String          sessionId;
-
   public AbstractAction()
   {
     super();
 
     this.registry = ServiceFactory.getRegistryService();
-
-    if (Session.getCurrentSession() != null)
-    {
-      this.sessionId = Session.getCurrentSession().getOid();
-    }
   }
 
   abstract public void execute();
 
-  public AbstractAction(RegistryService registry, String sessionId)
+  public AbstractAction(RegistryService registry)
   {
     this.registry = registry;
-
-    this.sessionId = sessionId;
-  }
-
-  public void setSessionId(String sessionId)
-  {
-    this.sessionId = sessionId;
   }
 
   public static AbstractAction dtoToRegistry(AbstractActionDTO actionDTO)

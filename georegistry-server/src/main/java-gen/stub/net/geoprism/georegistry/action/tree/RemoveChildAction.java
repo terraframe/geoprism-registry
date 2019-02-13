@@ -4,8 +4,6 @@ import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
 import org.json.JSONObject;
 
-import net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction;
-
 public class RemoveChildAction extends RemoveChildActionBase
 {
   private static final long serialVersionUID = -165581118;
@@ -13,7 +11,7 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   public void execute()
   {
-    this.registry.removeChild(sessionId, this.getParentId(), this.getParentTypeCode(), this.getChildId(), this.getChildTypeCode(), this.getHierarchyTypeCode());
+    this.registry.removeChildInTransaction(this.getParentId(), this.getParentTypeCode(), this.getChildId(), this.getChildTypeCode(), this.getHierarchyTypeCode());
   }
 
   @Override

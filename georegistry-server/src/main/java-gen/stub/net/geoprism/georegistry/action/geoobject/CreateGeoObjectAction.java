@@ -18,7 +18,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   {
     String sJson = this.getGeoObjectJson();
 
-    this.registry.createGeoObject(sessionId, sJson);
+    this.registry.createGeoObjectInTransaction(sJson);
   }
 
   @Override

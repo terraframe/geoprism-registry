@@ -11,7 +11,7 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void execute()
   {
-    this.registry.addChild(sessionId, this.getParentId(), this.getParentTypeCode(), this.getChildId(), this.getChildTypeCode(), this.getHierarchyTypeCode());
+    this.registry.addChildInTransaction(this.getParentId(), this.getParentTypeCode(), this.getChildId(), this.getChildTypeCode(), this.getHierarchyTypeCode());
   }
 
   @Override

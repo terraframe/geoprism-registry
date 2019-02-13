@@ -18,7 +18,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   {
     String sJson = this.getGeoObjectJson();
 
-    this.registry.updateGeoObject(sessionId, sJson);
+    this.registry.updateGeoObjectInTransaction(sJson);
   }
 
   @Override
