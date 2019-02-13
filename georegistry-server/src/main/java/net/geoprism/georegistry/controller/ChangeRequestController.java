@@ -93,7 +93,7 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "execute-actions", method = ServletMethod.POST)
   public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {
-    // service.approveAllActions(request.getSessionId(), requestId);
+    service.executeActions(request.getSessionId(), requestId);
 
     return new RestResponse();
   }

@@ -20,7 +20,6 @@ import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.RequestState;
 import com.vividsolutions.jts.geom.Geometry;
@@ -46,6 +45,7 @@ import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.io.AmbiguousParentException;
+import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 
@@ -400,7 +400,11 @@ public class GeoObjectConverter
       }
       else
       {
-        throw new ProgrammingErrorException("Unable to find parent based on parsing the postal code");
+        PostalCodeLocationException e = new PostalCodeLocationException();
+        e.setCode(code);
+        e.setTypeLabel(location.getType().getLocalizedLabel());
+
+        throw e;
       }
     }
 

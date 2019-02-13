@@ -10,10 +10,14 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
-import com.runwaysdk.query.OrderBy.SortOrder;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Users;
+
+import net.geoprism.registry.action.ActionExecuteException;
 
 public class ChangeRequest extends ChangeRequestBase
 {
@@ -120,6 +124,52 @@ public class ChangeRequest extends ChangeRequestBase
     object.put("pending", pending);
 
     return object;
+  }
+
+  @Transaction
+  public void execute()
+  {
+    List<AbstractAction> actions = this.getOrderedActions();
+
+    for (AbstractAction action : actions)
+    {
+      if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+      {
+        throw new ActionExecuteException("Unable to execute an action with the pending status");
+      }
+      else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
+      {
+        action.setSessionId(Session.getCurrentSession().getOid());
+        action.execute();
+      }
+    }
+
+    this.appLock();
+    this.clearApprovalStatus();
+    this.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+    this.apply();
+  }
+
+  @Transaction
+  public void setAllActionsStatus(AllGovernanceStatus status)
+  {
+    OIterator<? extends AbstractAction> it = this.getAllAction();
+
+    try
+    {
+      while (it.hasNext())
+      {
+        AbstractAction action = it.next();
+        action.appLock();
+        action.clearApprovalStatus();
+        action.addApprovalStatus(status);
+        action.apply();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
   }
 
 }

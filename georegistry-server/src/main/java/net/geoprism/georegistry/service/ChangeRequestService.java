@@ -111,37 +111,17 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public JSONObject approveAllActions(String sessionId, String requestId)
   {
-    return this.setAllActionsInTransaction(requestId, AllGovernanceStatus.ACCEPTED);
+    ChangeRequest request = ChangeRequest.get(requestId);
+    request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
+
+    return request.getDetails();
   }
 
   @Request(RequestType.SESSION)
   public JSONObject rejectAllActions(String sessionId, String requestId)
   {
-    return this.setAllActionsInTransaction(requestId, AllGovernanceStatus.REJECTED);
-  }
-
-  @Transaction
-  public JSONObject setAllActionsInTransaction(String requestId, AllGovernanceStatus status)
-  {
     ChangeRequest request = ChangeRequest.get(requestId);
-
-    OIterator<? extends AbstractAction> it = request.getAllAction();
-
-    try
-    {
-      while (it.hasNext())
-      {
-        AbstractAction action = it.next();
-        action.appLock();
-        action.clearApprovalStatus();
-        action.addApprovalStatus(status);
-        action.apply();
-      }
-    }
-    finally
-    {
-      it.close();
-    }
+    request.setAllActionsStatus(AllGovernanceStatus.REJECTED);
 
     return request.getDetails();
   }
@@ -178,6 +158,13 @@ public class ChangeRequestService
     ChangeRequest request = ChangeRequest.get(requestId);
 
     return request.getDetails();
+  }
+
+  @Request(RequestType.SESSION)
+  public void executeActions(String sessionId, String requestId)
+  {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    request.execute();
   }
 
   private void updateActionFromJson(AbstractAction action, JSONObject joAction)

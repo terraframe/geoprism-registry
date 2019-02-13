@@ -32,7 +32,6 @@ import net.geoprism.georegistry.action.ActionFactory;
 import net.geoprism.georegistry.action.AllGovernanceStatus;
 import net.geoprism.georegistry.action.ChangeRequest;
 import net.geoprism.georegistry.action.ChangeRequestQuery;
-import net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
@@ -268,7 +267,8 @@ public class GovernanceTest
      */
     OIterator<? extends ChangeRequest> it2 = crq.getIterator();
     ChangeRequest cr1 = it2.next();
-    executeChangeRequest(cr1);
+    cr1.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
+    cr1.execute();
     
     /*
      * Validate CR1
@@ -288,7 +288,8 @@ public class GovernanceTest
     OIterator<? extends ChangeRequest> it3 = crq.getIterator();
     it3.next();
     ChangeRequest cr2 = it3.next();
-    executeChangeRequest(cr2);
+    cr2.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);    
+    cr2.execute();
     
     /*
      * Validate CR2
@@ -302,16 +303,5 @@ public class GovernanceTest
     List<GeoObject> createGEQCR2All = createGEQCR2.getIterator().getAll();
     Assert.assertEquals(1, createGEQCR2All.size());
     Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, createGEQCR2All.get(0).getStatus().getCode());
-  }
-  
-  private void executeChangeRequest(ChangeRequest cr)
-  {
-    List<AbstractAction> actions = cr.getOrderedActions();
-    for (AbstractAction action : actions)
-    {
-      action.setSessionId(testData.adminSession.getSessionId());
-      
-      action.execute();
-    }
-  }
+  }  
 }

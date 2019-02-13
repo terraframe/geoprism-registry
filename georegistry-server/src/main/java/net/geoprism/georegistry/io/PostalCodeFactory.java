@@ -12,6 +12,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.registry.io.PostalCodeFormatException;
 
 public class PostalCodeFactory
 {
@@ -30,14 +31,29 @@ public class PostalCodeFactory
       return typeCode;
     }
 
+    public GeoObjectType getType()
+    {
+      return ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(this.typeCode).get();
+    }
+
     protected Location location(ShapefileFunction function)
     {
-      GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(this.typeCode).get();
+      GeoObjectType type = getType();
       Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
 
       return new Location(type, universal, function);
 
     }
+
+    protected void formatException(String value)
+    {
+      PostalCodeFormatException e = new PostalCodeFormatException();
+      e.setCode(value);
+      e.setTypeLabel(this.getType().getLocalizedLabel());
+
+      throw e;
+    }
+
   }
 
   /**
@@ -60,31 +76,51 @@ public class PostalCodeFactory
     @Request
     public Location build(final ShapefileFunction function)
     {
-      AbstractShapefileFunction delegate = new AbstractShapefileFunction()
+      DelegateShapefileFunction delegate = new DelegateShapefileFunction(function)
       {
         @Override
         public Object getValue(FeatureRow feature)
         {
-          String code = (String) function.getValue(feature);
+          String code = (String) super.getValue(feature);
           String value = "855 ";
 
           if (code != null)
           {
             if (getTypeCode().equals("Cambodia_Province"))
             {
-              value += code.subSequence(0, 2);
+              if (code.length() < 2)
+              {
+                formatException(code);
+              }
+
+              value += code.substring(0, 2);
             }
             else if (getTypeCode().equals("Cambodia_District"))
             {
-              value += code.subSequence(0, 4);
+              if (code.length() < 4)
+              {
+                formatException(code);
+              }
+
+              value += code.substring(0, 4);
             }
             else if (getTypeCode().equals("Cambodia_Commune"))
             {
-              value += code.subSequence(0, 6);
+              if (code.length() < 6)
+              {
+                formatException(code);
+              }
+
+              value += code.substring(0, 6);
             }
             else if (getTypeCode().equals("Cambodia_Village"))
             {
-              value += code.subSequence(0, 9);
+              if (code.length() < 9)
+              {
+                formatException(code);
+              }
+
+              value += code.substring(0, 9);
             }
           }
 
