@@ -25,7 +25,7 @@ import net.geoprism.georegistry.action.tree.RemoveChildAction;
 public class ChangeRequestService
 {
   @Request(RequestType.SESSION)
-  public void acceptAction(String sessionId, String sAction)
+  public void applyAction(String sessionId, String sAction)
   {
     acceptActionInTransaction(sAction);
   }

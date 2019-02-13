@@ -49,23 +49,52 @@ public class ChangeRequestController
   {
     this.service = new ChangeRequestService();
   }
-
+  
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF acceptAction(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  public ResponseIF unlockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId) throws JSONException
   {
-    service.acceptAction(request.getSessionId(), action);
+    String sAction = service.unlockAction(request.getSessionId(), actionId);
+
+    return new RestBodyResponse(sAction);
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF lockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId) throws JSONException
+  {
+    String sAction = service.lockAction(request.getSessionId(), actionId);
+
+    return new RestBodyResponse(sAction);
+  }
+
+  /**
+   * Submits a serialized action to be applied to the database.
+   * 
+   * @pre The action has already been locked.
+   * @post The action will be applied
+   * @post The action will no longer be locked
+   * 
+   * @param request
+   * @param action
+   * @return
+   * @throws JSONException
+   */
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF applyAction(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  {
+    service.applyAction(request.getSessionId(), action);
 
     return new RestResponse();
   }
-
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF rejectAction(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
-  {
-    service.rejectAction(request.getSessionId(), action);
-
-    return new RestResponse();
-  }
-
+  
+  /**
+   * Gets all actions in the system ordered by createActionDate. If a requestId is provided we will fetch the actions that
+   * are relevant to that Change Request.
+   * 
+   * @param request
+   * @param requestId
+   * @return
+   * @throws JSONException
+   */
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF getAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {
@@ -89,7 +118,7 @@ public class ChangeRequestController
 
     return new RestBodyResponse(response);
   }
-
+  
   @Endpoint(error = ErrorSerialization.JSON, url = "execute-actions", method = ServletMethod.POST)
   public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {

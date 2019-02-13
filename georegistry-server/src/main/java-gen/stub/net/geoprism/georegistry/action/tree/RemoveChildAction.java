@@ -4,6 +4,8 @@ import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
 import org.json.JSONObject;
 
+import net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction;
+
 public class RemoveChildAction extends RemoveChildActionBase
 {
   private static final long serialVersionUID = -165581118;
@@ -39,5 +41,15 @@ public class RemoveChildAction extends RemoveChildActionBase
     jo.put(RemoveChildAction.HIERARCHYTYPECODE, this.getHierarchyTypeCode());
 
     return jo;
+  }
+  
+  @Override
+  public void buildFromJson(JSONObject joAction)
+  {
+    this.setChildTypeCode(joAction.getString(RemoveChildAction.CHILDTYPECODE));
+    this.setChildId(joAction.getString(RemoveChildAction.CHILDID));
+    this.setParentId(joAction.getString(RemoveChildAction.PARENTID));
+    this.setParentTypeCode(joAction.getString(RemoveChildAction.PARENTTYPECODE));
+    this.setHierarchyTypeCode(joAction.getString(RemoveChildAction.HIERARCHYTYPECODE));
   }
 }
