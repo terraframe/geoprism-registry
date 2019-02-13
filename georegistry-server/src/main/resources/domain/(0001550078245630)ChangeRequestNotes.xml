@@ -1,0 +1,27 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update>
+      <mdBusiness name="net.geoprism.georegistry.action.ChangeRequest">
+        <create>
+	        <attributes>
+	          <text name="contributorNotes" label="Contributor Notes" required="false" />
+	          <text name="maintainerNotes" label="Maintainer Notes" required="false" />
+	        </attributes>
+        </create>
+      </mdBusiness>
+      
+      <mdBusiness name="net.geoprism.georegistry.action.AbstractAction">
+        <create>
+          <attributes>
+            <text name="contributorNotes" label="Contributor Notes" required="false" />
+            <text name="maintainerNotes" label="Maintainer Notes" required="false" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -41,11 +41,6 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public String getAllActions(String sessionId, String requestId)
   {
-    // JSONObject changeRequest = new JSONObject();
-    //
-    // changeRequest.put(AbstractAction.APPROVALSTATUS,
-    // buildGovernanceStatus(AllGovernanceStatus.PENDING));
-
     JSONArray actions = new JSONArray();
     QueryFactory factory = new QueryFactory();
 
@@ -69,9 +64,6 @@ public class ChangeRequestService
 
       actions.put(action.serialize());
     }
-    // changeRequest.put("actions", actions);
-    //
-    // return changeRequest.toString();
 
     return actions.toString();
   }

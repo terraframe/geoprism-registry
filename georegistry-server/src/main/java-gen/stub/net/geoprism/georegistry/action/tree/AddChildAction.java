@@ -44,6 +44,8 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void buildFromJson(JSONObject joAction)
   {
+    super.buildFromJson(joAction);
+    
     this.setChildTypeCode(joAction.getString(AddChildAction.CHILDTYPECODE));
     this.setChildId(joAction.getString(AddChildAction.CHILDID));
     this.setParentId(joAction.getString(AddChildAction.PARENTID));

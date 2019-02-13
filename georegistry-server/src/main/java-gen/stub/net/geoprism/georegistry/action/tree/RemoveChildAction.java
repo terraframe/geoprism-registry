@@ -44,6 +44,8 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   public void buildFromJson(JSONObject joAction)
   {
+    super.buildFromJson(joAction);
+    
     this.setChildTypeCode(joAction.getString(RemoveChildAction.CHILDTYPECODE));
     this.setChildId(joAction.getString(RemoveChildAction.CHILDID));
     this.setParentId(joAction.getString(RemoveChildAction.PARENTID));

@@ -1,6 +1,6 @@
 package net.geoprism.georegistry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 2056627870)
+@com.runwaysdk.business.ClassSignature(hash = -275677999)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,6 +12,7 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.georegistry.action.ChangeRequest";
   public static java.lang.String APPROVALSTATUS = "approvalStatus";
+  public static java.lang.String CONTRIBUTORNOTES = "contributorNotes";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
@@ -19,12 +20,13 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
+  public static java.lang.String MAINTAINERNOTES = "maintainerNotes";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 2056627870;
+  private static final long serialVersionUID = -275677999;
   
   public ChangeRequestBase()
   {
@@ -67,6 +69,34 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.georegistry.action.ChangeRequest.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF)mdClassIF.definesAttribute(APPROVALSTATUS);
+  }
+  
+  public String getContributorNotes()
+  {
+    return getValue(CONTRIBUTORNOTES);
+  }
+  
+  public void validateContributorNotes()
+  {
+    this.validateAttribute(CONTRIBUTORNOTES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getContributorNotesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.georegistry.action.ChangeRequest.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(CONTRIBUTORNOTES);
+  }
+  
+  public void setContributorNotes(String value)
+  {
+    if(value == null)
+    {
+      setValue(CONTRIBUTORNOTES, "");
+    }
+    else
+    {
+      setValue(CONTRIBUTORNOTES, value);
+    }
   }
   
   public java.util.Date getCreateDate()
@@ -263,6 +293,34 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.georegistry.action.ChangeRequest.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(LOCKEDBY);
+  }
+  
+  public String getMaintainerNotes()
+  {
+    return getValue(MAINTAINERNOTES);
+  }
+  
+  public void validateMaintainerNotes()
+  {
+    this.validateAttribute(MAINTAINERNOTES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getMaintainerNotesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.georegistry.action.ChangeRequest.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(MAINTAINERNOTES);
+  }
+  
+  public void setMaintainerNotes(String value)
+  {
+    if(value == null)
+    {
+      setValue(MAINTAINERNOTES, "");
+    }
+    else
+    {
+      setValue(MAINTAINERNOTES, value);
+    }
   }
   
   public String getOid()

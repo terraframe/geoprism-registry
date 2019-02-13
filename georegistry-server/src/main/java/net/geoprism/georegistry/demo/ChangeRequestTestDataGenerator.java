@@ -33,13 +33,13 @@ import net.geoprism.georegistry.service.ServiceFactory;
  */
 public class ChangeRequestTestDataGenerator
 {
-  public static void main(String[] args)
+  public static void main(String[] args) throws InterruptedException
   {
     ChangeRequestTestDataGenerator.build();
   }
   
   @Request
-  private static void build()
+  private static void build() throws InterruptedException
   {
     ChangeRequestTestDataGenerator.deleteAllActions();
     ChangeRequestTestDataGenerator.deleteAllChangeRequests();
@@ -47,10 +47,12 @@ public class ChangeRequestTestDataGenerator
     buildInTransaction();
   }
   @Transaction
-  private static void buildInTransaction()
+  private static void buildInTransaction() throws InterruptedException
   {
     genChangeRequest("CR1", Instant.now().minus(3, ChronoUnit.DAYS));
+    Thread.sleep(1500);
     genChangeRequest("CR2", Instant.now().minus(2, ChronoUnit.DAYS));
+    Thread.sleep(1500);
     genChangeRequest("CR3", Instant.now().minus(1, ChronoUnit.DAYS));
   }
   
