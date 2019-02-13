@@ -134,7 +134,7 @@ public class GovernanceTest
      */
     this.adapter.submitChangeRequest(actionsCR1);
 
-    Thread.sleep(3); // We need change requests to not have the same createDate
+    Thread.sleep(1500); // We need change requests to not have the same createDate
                      // so the ordering in validation is predictable
 
     /*
@@ -213,7 +213,7 @@ public class GovernanceTest
      * Pre-execution Validation
      */
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
-    crq.ORDER_BY(crq.getCreateDate(), SortOrder.DESC);
+    crq.ORDER_BY(crq.getCreateDate(), SortOrder.ASC);
     Assert.assertEquals(2, crq.getCount());
 
     AbstractActionQuery aaq = new AbstractActionQuery(new QueryFactory());
