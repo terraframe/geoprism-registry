@@ -25,48 +25,20 @@ import net.geoprism.georegistry.action.tree.RemoveChildAction;
 public class ChangeRequestService
 {
   @Request(RequestType.SESSION)
-  public void acceptAction(String sessionId, String sAction)
+  public void applyAction(String sessionId, String sAction)
   {
-    acceptActionInTransaction(sAction);
+    applyActionInTransaction(sAction);
   }
 
   @Transaction
-  public void acceptActionInTransaction(String sAction)
+  public void applyActionInTransaction(String sAction)
   {
     JSONObject joAction = new JSONObject(sAction);
 
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
 
-    action.appLock();
+    action.buildFromJson(joAction);
 
-    updateActionFromJson(action, joAction);
-
-    action.execute();
-
-    action.clearApprovalStatus();
-    action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
-    action.apply();
-  }
-
-  @Request(RequestType.SESSION)
-  public void rejectAction(String sessionId, String sAction)
-  {
-    rejectActionInTransaction(sAction);
-  }
-
-  @Transaction
-  public void rejectActionInTransaction(String sAction)
-  {
-    JSONObject joAction = new JSONObject(sAction);
-
-    AbstractAction action = AbstractAction.get(joAction.getString("oid"));
-
-    action.appLock();
-
-    updateActionFromJson(action, joAction);
-
-    action.clearApprovalStatus();
-    action.addApprovalStatus(AllGovernanceStatus.REJECTED);
     action.apply();
   }
 
@@ -180,35 +152,23 @@ public class ChangeRequestService
     return request.getDetails();
   }
 
-  private void updateActionFromJson(AbstractAction action, JSONObject joAction)
+  @Request(RequestType.SESSION)
+  public String lockAction(String sessionId, String actionId)
   {
-    if (action instanceof CreateGeoObjectAction)
-    {
-      ( (CreateGeoObjectAction) action ).setGeoObjectJson(joAction.getJSONObject(CreateGeoObjectAction.GEOOBJECTJSON).toString());
-    }
-    else if (action instanceof UpdateGeoObjectAction)
-    {
-      ( (UpdateGeoObjectAction) action ).setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
-    }
-    else if (action instanceof AddChildAction)
-    {
-      AddChildAction aca = (AddChildAction) action;
+    AbstractAction action = AbstractAction.get(actionId);
+    
+    action.lock();
+    
+    return action.serialize().toString();
+  }
 
-      aca.setChildTypeCode(joAction.getString(AddChildAction.CHILDTYPECODE));
-      aca.setChildId(joAction.getString(AddChildAction.CHILDID));
-      aca.setParentId(joAction.getString(AddChildAction.PARENTID));
-      aca.setParentTypeCode(joAction.getString(AddChildAction.PARENTTYPECODE));
-      aca.setHierarchyTypeCode(joAction.getString(AddChildAction.HIERARCHYTYPECODE));
-    }
-    else if (action instanceof RemoveChildAction)
-    {
-      RemoveChildAction rca = (RemoveChildAction) action;
-
-      rca.setChildTypeCode(joAction.getString(RemoveChildAction.CHILDTYPECODE));
-      rca.setChildId(joAction.getString(RemoveChildAction.CHILDID));
-      rca.setParentId(joAction.getString(RemoveChildAction.PARENTID));
-      rca.setParentTypeCode(joAction.getString(RemoveChildAction.PARENTTYPECODE));
-      rca.setHierarchyTypeCode(joAction.getString(RemoveChildAction.HIERARCHYTYPECODE));
-    }
+  @Request(RequestType.SESSION)
+  public String unlockAction(String sessionId, String actionId)
+  {
+    AbstractAction action = AbstractAction.get(actionId);
+    
+    action.unlock();
+    
+    return action.serialize().toString();
   }
 }

@@ -5,6 +5,10 @@ import org.json.JSONObject;
 
 import com.runwaysdk.session.Session;
 
+import net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction;
+import net.geoprism.georegistry.action.tree.AddChildAction;
+import net.geoprism.georegistry.action.tree.RemoveChildAction;
 import net.geoprism.georegistry.service.RegistryService;
 import net.geoprism.georegistry.service.ServiceFactory;
 
@@ -65,10 +69,16 @@ public abstract class AbstractAction extends AbstractActionBase
     jo.put(AbstractAction.OID, this.getOid());
     jo.put("actionType", this.getType());
     jo.put("actionLabel", this.getMdClass().getDisplayLabel(Session.getCurrentLocale()));
-    jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0));
+    jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0).getEnumName());
     jo.put(AbstractAction.CREATEACTIONDATE, this.getCreateActionDate());
 
     return jo;
+  }
+  
+  public void buildFromJson(JSONObject joAction)
+  {
+    this.clearApprovalStatus();
+    this.addApprovalStatus(AllGovernanceStatus.valueOf(joAction.getString(AbstractAction.APPROVALSTATUS)));
   }
 
 }

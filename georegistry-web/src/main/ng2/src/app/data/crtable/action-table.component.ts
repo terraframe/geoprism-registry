@@ -73,7 +73,33 @@ export class ActionTableComponent implements OnInit {
     }
 
     onSelect( selected: any ) {
-        this.action = selected.selected[0];
+      var action: any = selected.selected[0];
+      
+      this.lockAction( action );
+    }
+    
+    lockAction( action: any )
+    {
+      if (this.action != null && this.action.oid != null)
+      {
+        console.log("Unlocking existing action : ", this.action);
+        
+        this.service.unlockAction(this.action.oid).then( response => {
+            
+          } ).then( () => { this.service.lockAction(action.oid); } ).then( response => {
+              this.action = action;
+          } ).catch(( err: Response ) => {
+              this.error( err.json() );
+          } );
+      }
+      else
+      {
+        this.service.lockAction(action.oid).then( response => {
+              this.action = action;
+          } ).catch(( err: Response ) => {
+              this.error( err.json() );
+          } );
+      }
     }
 
     public error( err: any ): void {

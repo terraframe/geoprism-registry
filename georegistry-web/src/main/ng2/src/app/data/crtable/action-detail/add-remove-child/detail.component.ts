@@ -17,7 +17,7 @@ declare var acp: any;
   
   selector: 'crtable-detail-add-remove-child',
   templateUrl: './detail.component.html',
-  styleUrls: ['./detail.css']
+  styleUrls: ['../all-action-detail.css']
 })
 export class AddRemoveChildDetailComponent {
 
@@ -31,20 +31,18 @@ export class AddRemoveChildDetailComponent {
 
   }
   
-  acceptAction()
+  applyAction()
   {
-    this.changeRequestService.acceptAction(this.action).then( response => {
-          this.action.approvalStatus = "REJECTED";
+    this.changeRequestService.applyAction(this.action).then( response => {
           this.crtable.refresh()
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
   }
   
-  rejectAction()
+  unlockAction()
   {
-    this.changeRequestService.rejectAction(this.action).then( response => {
-          this.action.approvalStatus = "REJECTED";
+    this.changeRequestService.unlockAction(this.action.oid).then( response => {
           this.crtable.refresh();
       } ).catch(( err: Response ) => {
           this.error( err.json() );

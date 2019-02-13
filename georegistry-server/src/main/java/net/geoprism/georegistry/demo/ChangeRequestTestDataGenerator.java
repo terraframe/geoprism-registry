@@ -1,4 +1,4 @@
-package net.geoprism.georegistry;
+package net.geoprism.georegistry.demo;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -12,17 +12,19 @@ import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
 import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.junit.Assert;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.georegistry.action.AbstractAction;
+import net.geoprism.georegistry.action.AbstractActionQuery;
 import net.geoprism.georegistry.action.AllGovernanceStatus;
 import net.geoprism.georegistry.action.ChangeRequest;
+import net.geoprism.georegistry.action.ChangeRequestQuery;
 import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.georegistry.testframework.TestDataSet;
 
 /**
  * This class generates some fake ChangeRequest data for demos and whatnot
@@ -39,8 +41,8 @@ public class ChangeRequestTestDataGenerator
   @Request
   private static void build()
   {
-    TestDataSet.deleteAllActions();
-    TestDataSet.deleteAllChangeRequests();
+    ChangeRequestTestDataGenerator.deleteAllActions();
+    ChangeRequestTestDataGenerator.deleteAllChangeRequests();
     
     buildInTransaction();
   }
@@ -77,7 +79,6 @@ public class ChangeRequestTestDataGenerator
     
     String addChildJson = addChild.toJSON().toString();
     String addChildJson2 = AbstractActionDTO.parseAction(addChildJson).toJSON().toString();
-    Assert.assertEquals(addChildJson, addChildJson2);
     actions.add(addChild);
     
     /*
@@ -93,7 +94,6 @@ public class ChangeRequestTestDataGenerator
     
     String removeChildJson = removeChild.toJSON().toString();
     String removeChildJson2 = AbstractActionDTO.parseAction(removeChildJson).toJSON().toString();
-    Assert.assertEquals(removeChildJson, removeChildJson2);
     actions.add(removeChild);
 
     /*
@@ -105,7 +105,6 @@ public class ChangeRequestTestDataGenerator
     
     String createJson = create.toJSON().toString();
     String createJson2 = AbstractActionDTO.parseAction(createJson).toJSON().toString();
-    Assert.assertEquals(createJson, createJson2);
     actions.add(create);
 
     /*
@@ -120,7 +119,6 @@ public class ChangeRequestTestDataGenerator
     
     String updateJson = update.toJSON().toString();
     String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
-    Assert.assertEquals(updateJson, updateJson2);
     actions.add(update);
 
     // Serialize the actions
@@ -144,6 +142,36 @@ public class ChangeRequestTestDataGenerator
       ra.apply();
       
       cr.addAction(ra).apply();
+    }
+  }
+  
+  
+  /**
+   * These were copied/pasted from TestDataSet because this code is to be run as part of a demo.
+   */
+  @Request
+  public static void deleteAllActions()
+  {
+    AbstractActionQuery aaq = new AbstractActionQuery(new QueryFactory());
+    
+    OIterator<? extends AbstractAction> it = aaq.getIterator();
+    
+    while (it.hasNext())
+    {
+      it.next().delete();
+    }
+  }
+  
+  @Request
+  public static void deleteAllChangeRequests()
+  {
+    ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
+    
+    OIterator<? extends ChangeRequest> it = crq.getIterator();
+    
+    while (it.hasNext())
+    {
+      it.next().delete();
     }
   }
 }

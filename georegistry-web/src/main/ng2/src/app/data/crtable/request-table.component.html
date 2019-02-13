@@ -1,5 +1,6 @@
 <div class="row">
   <div class="col-sm-6 text-center">
+    <h1>Manage Change Requests</h1>
     <ngx-datatable class="crtable-ngx bootstrap" [rows]="rows | async" [columns]="columns" [columnMode]="'standard'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="40" [limit]="5" [loadingIndicator]="loading" [selectionType]="'single'" (select)='onSelect($event)'> </ngx-datatable>
   </div>
   <div *ngIf="request != null" class="col-sm-6">

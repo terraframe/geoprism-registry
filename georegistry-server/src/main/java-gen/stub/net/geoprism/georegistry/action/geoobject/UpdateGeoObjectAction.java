@@ -38,5 +38,11 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
     object.put(UpdateGeoObjectAction.GEOOBJECTJSON, new JSONObject(this.getGeoObjectJson()));
     return object;
   }
+  
+  @Override
+  public void buildFromJson(JSONObject joAction)
+  {
+    this.setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
+  }
 
 }

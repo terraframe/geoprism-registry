@@ -40,5 +40,15 @@ public class AddChildAction extends AddChildActionBase
 
     return jo;
   }
+  
+  @Override
+  public void buildFromJson(JSONObject joAction)
+  {
+    this.setChildTypeCode(joAction.getString(AddChildAction.CHILDTYPECODE));
+    this.setChildId(joAction.getString(AddChildAction.CHILDID));
+    this.setParentId(joAction.getString(AddChildAction.PARENTID));
+    this.setParentTypeCode(joAction.getString(AddChildAction.PARENTTYPECODE));
+    this.setHierarchyTypeCode(joAction.getString(AddChildAction.HIERARCHYTYPECODE));
+  }
 
 }

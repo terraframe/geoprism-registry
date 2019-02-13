@@ -36,7 +36,7 @@ export class ChangeRequestService {
             } )
     }
 
-    acceptAction( action: any ): Promise<Response> {
+    applyAction( action: any ): Promise<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -44,7 +44,25 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post( acp + '/changerequest/acceptAction', JSON.stringify( { action: action } ), { headers: headers } )
+            .post( acp + '/changerequest/applyAction', JSON.stringify( { action: action } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response;
+            } )
+    }
+    
+    lockAction( actionId: string ): Promise<Response> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/changerequest/lockAction', JSON.stringify( { actionId: actionId } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -54,7 +72,7 @@ export class ChangeRequestService {
             } )
     }
 
-    rejectAction( action: any ): Promise<Response> {
+    unlockAction( actionId: string ): Promise<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -62,7 +80,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post( acp + '/changerequest/rejectAction', JSON.stringify( { action: action } ), { headers: headers } )
+            .post( acp + '/changerequest/unlockAction', JSON.stringify( { actionId: actionId } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
