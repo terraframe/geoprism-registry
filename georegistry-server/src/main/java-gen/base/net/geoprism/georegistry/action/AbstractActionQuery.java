@@ -1,6 +1,6 @@
 package net.geoprism.georegistry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 667719700)
+@com.runwaysdk.business.ClassSignature(hash = 1001478737)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -76,6 +76,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.georegistry.action.AbstractAction.APPROVALSTATUS);
 
     return (net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.georegistry.action.AbstractAction.APPROVALSTATUS, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getContributorNotes()
+  {
+    return getContributorNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getContributorNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.georegistry.action.AbstractAction.CONTRIBUTORNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getContributorNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.georegistry.action.AbstractAction.CONTRIBUTORNOTES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getCreateActionDate()
@@ -236,6 +253,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.georegistry.action.AbstractAction.LOCKEDBY);
 
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.georegistry.action.AbstractAction.LOCKEDBY, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes()
+  {
+    return getMaintainerNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.georegistry.action.AbstractAction.MAINTAINERNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.georegistry.action.AbstractAction.MAINTAINERNOTES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableUUID getOid()
@@ -529,6 +563,9 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus();
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias);
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getContributorNotes();
+    public com.runwaysdk.query.SelectableChar getContributorNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getContributorNotes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateActionDate();
     public com.runwaysdk.query.SelectableMoment getCreateActionDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateActionDate(String alias, String displayLabel);
@@ -553,6 +590,9 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getMaintainerNotes();
+    public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableUUID getOid();
     public com.runwaysdk.query.SelectableUUID getOid(String alias);
     public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel);
@@ -659,6 +699,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel)
   {
     return (net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF)this.get(net.geoprism.georegistry.action.AbstractAction.APPROVALSTATUS, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getContributorNotes()
+  {
+    return getContributorNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getContributorNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.CONTRIBUTORNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getContributorNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.CONTRIBUTORNOTES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getCreateActionDate()
@@ -795,6 +852,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.georegistry.action.AbstractAction.LOCKEDBY,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes()
+  {
+    return getMaintainerNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.MAINTAINERNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.MAINTAINERNOTES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableUUID getOid()
@@ -1059,6 +1133,9 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus();
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias);
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getContributorNotes();
+    public com.runwaysdk.query.SelectableChar getContributorNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getContributorNotes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateActionDate();
     public com.runwaysdk.query.SelectableMoment getCreateActionDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateActionDate(String alias, String displayLabel);
@@ -1083,6 +1160,9 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getMaintainerNotes();
+    public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableUUID getOid();
     public com.runwaysdk.query.SelectableUUID getOid(String alias);
     public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel);
@@ -1214,6 +1294,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel)
   {
     return (net.geoprism.georegistry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF)this.get(net.geoprism.georegistry.action.AbstractAction.APPROVALSTATUS, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getContributorNotes()
+  {
+    return getContributorNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getContributorNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.CONTRIBUTORNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getContributorNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.CONTRIBUTORNOTES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getCreateActionDate()
@@ -1350,6 +1447,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.georegistry.action.AbstractAction.LOCKEDBY,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes()
+  {
+    return getMaintainerNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.MAINTAINERNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getMaintainerNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.georegistry.action.AbstractAction.MAINTAINERNOTES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableUUID getOid()

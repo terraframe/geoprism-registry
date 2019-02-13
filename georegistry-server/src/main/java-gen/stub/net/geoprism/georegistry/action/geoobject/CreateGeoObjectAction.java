@@ -42,6 +42,8 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   @Override
   public void buildFromJson(JSONObject joAction)
   {
+    super.buildFromJson(joAction);
+    
     this.setGeoObjectJson(joAction.getJSONObject(CreateGeoObjectAction.GEOOBJECTJSON).toString());
   }
 

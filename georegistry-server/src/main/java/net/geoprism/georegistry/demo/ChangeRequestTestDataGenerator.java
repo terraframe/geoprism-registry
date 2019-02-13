@@ -46,7 +46,7 @@ public class ChangeRequestTestDataGenerator
 
     buildInTransaction();
   }
-
+  
   private static void buildInTransaction()
   {
     genChangeRequest("CR1", Instant.now().minus(3, ChronoUnit.DAYS), true, false);

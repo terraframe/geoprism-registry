@@ -56,7 +56,10 @@ public abstract class AbstractAction extends AbstractActionBase
     jo.put(AbstractAction.OID, this.getOid());
     jo.put("actionType", this.getType());
     jo.put("actionLabel", this.getMdClass().getDisplayLabel(Session.getCurrentLocale()));
-    jo.put(AbstractAction.APPROVALSTATUS, status.getEnumName());
+    jo.put(AbstractAction.CREATEACTIONDATE, this.getCreateActionDate());
+    jo.put(AbstractAction.CONTRIBUTORNOTES, this.getContributorNotes());
+    jo.put(AbstractAction.MAINTAINERNOTES, this.getMaintainerNotes());
+    jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0).getEnumName());
     jo.put("statusLabel", status.getDisplayLabel());
     jo.put(AbstractAction.CREATEACTIONDATE, format.format(this.getCreateActionDate()));
 
@@ -67,6 +70,10 @@ public abstract class AbstractAction extends AbstractActionBase
   {
     this.clearApprovalStatus();
     this.addApprovalStatus(AllGovernanceStatus.valueOf(joAction.getString(AbstractAction.APPROVALSTATUS)));
+    
+    this.setContributorNotes(joAction.getString(AbstractAction.CONTRIBUTORNOTES));
+    
+    this.setMaintainerNotes(joAction.getString(AbstractAction.MAINTAINERNOTES));
   }
 
 }

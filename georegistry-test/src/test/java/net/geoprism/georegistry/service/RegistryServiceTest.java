@@ -1,17 +1,10 @@
 package net.geoprism.georegistry.service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.commongeoregistry.adapter.action.AbstractActionDTO;
-import org.commongeoregistry.adapter.action.geoobject.CreateGeoObjectActionDTO;
-import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
-import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
-import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -27,24 +20,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.OrderBy.SortOrder;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.georegistry.RegistryController;
-import net.geoprism.georegistry.action.AbstractAction;
-import net.geoprism.georegistry.action.AbstractActionQuery;
-import net.geoprism.georegistry.action.ActionFactory;
-import net.geoprism.georegistry.action.AllGovernanceStatus;
-import net.geoprism.georegistry.action.ChangeRequest;
-import net.geoprism.georegistry.action.ChangeRequestQuery;
-import net.geoprism.georegistry.query.CodeRestriction;
-import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectTypeInfo;
 import net.geoprism.georegistry.testframework.TestRegistryAdapterClient;
@@ -391,5 +372,30 @@ public class RegistryServiceTest
       }
     }
     Assert.assertTrue("Did not find our test object in the list of returned children", found);
+  }
+  
+  @Test
+  public void testRemoveChild()
+  {
+    /*
+     * Remove Child
+     */
+    this.adapter.removeChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testData.COLORADO.getRegistryId(), testData.COLORADO.getGeoObjectType().getCode(), LocatedIn.class.getSimpleName());
+    
+    /*
+     * Fetch the children and validate ours was removed
+     */
+    ChildTreeNode ctnUSA2 = this.adapter.getChildGeoObjects(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), new String[] { testData.STATE.getCode() }, false);
+
+    boolean found = false;
+    for (ChildTreeNode ctnState : ctnUSA2.getChildren())
+    {
+      if (ctnState.getGeoObject().getCode().equals(testData.COLORADO.getCode()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertFalse("Did not expect Colorado to be a child of USA (because we deleted it earlier).", found);
   }
 }
