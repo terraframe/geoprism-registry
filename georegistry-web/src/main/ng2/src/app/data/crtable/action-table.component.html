@@ -1,23 +1,29 @@
 <div class="row">
-  <div class="col-sm-6 text-center">
-    <ngx-datatable class="crtable-ngx bootstrap"
-      [rows]="rows | async"
-      [columns]="columns"
-      [columnMode]="'standard'"
-      [headerHeight]="50"
-      [footerHeight]="50"
-      [rowHeight]="40"
-      [limit]="5"
-      [selected]="selected"
-      [loadingIndicator]="loading"
-      [selectionType]="'single'"
-      (select)='onSelect($event)'>
-    </ngx-datatable>
+  <div class="col-sm-2"></div>
+  <div class="col-sm-4">
+    <div class="row">
+      <button type="submit" (click)="onBack()" class="btn btn-primary" role="button">
+        <localize key="change.request.back"></localize>
+      </button>
+    </div>
+    <div class="row">
+      <ngx-datatable class="crtable-ngx bootstrap"
+        [rows]="rows | async"
+        [columns]="columns"
+        [columnMode]="'standard'"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="40"
+        [limit]="5"
+        [selected]="selected"
+        [loadingIndicator]="loading"
+        [selectionType]="'single'"
+        (select)='onSelect($event)'>
+      </ngx-datatable>        
+    </div>
   </div>
   <div class="col-sm-6">
-    <crtable-detail-create-geo-object *ngIf="action.actionType=='net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction' || action.actionType=='net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction'" [(action)]="action" [crtable]="this">
-    </crtable-detail-create-geo-object>
-    <crtable-detail-add-remove-child *ngIf="action.actionType=='net.geoprism.georegistry.action.tree.AddChildAction' || action.actionType=='net.geoprism.georegistry.action.tree.RemoveChildAction'" [(action)]="action" [crtable]="this">
-    </crtable-detail-add-remove-child>
+    <crtable-detail-create-geo-object *ngIf="action.actionType=='net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction' || action.actionType=='net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction'" [(action)]="action" [crtable]="this"> </crtable-detail-create-geo-object>
+    <crtable-detail-add-remove-child *ngIf="action.actionType=='net.geoprism.georegistry.action.tree.AddChildAction' || action.actionType=='net.geoprism.georegistry.action.tree.RemoveChildAction'" [(action)]="action" [crtable]="this"> </crtable-detail-add-remove-child>
   </div>
 </div>
