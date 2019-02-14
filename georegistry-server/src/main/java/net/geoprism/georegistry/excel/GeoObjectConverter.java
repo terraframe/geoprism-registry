@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -198,9 +199,9 @@ public class GeoObjectConverter
 
           if (classifier == null)
           {
-            Classifier root = Classifier.findClassifierRoot(mdAttribute);
+            Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-            this.configuration.addProblem(new TermProblem(value.toString(), root.getOid(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
+            this.configuration.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
           }
           else
           {
