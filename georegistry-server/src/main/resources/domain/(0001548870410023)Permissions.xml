@@ -348,10 +348,13 @@
 		  </mdRelationshipPermission>          
 		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.AllowedIn">
 		     <operation name="ALL" />
-		  </mdRelationshipPermission>          
+		  </mdRelationshipPermission>          		  
 		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
 		     <operation name="ALL" />
 		  </mdBusinessPermission>          
+          <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.AllowedInAllPathsTable">
+            <operation name="ALL" />
+          </mdBusinessPermission>		  
         </grant>
       </role>
       <role roleName="commongeoregistry.APIConsumer">
