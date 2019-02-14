@@ -5,7 +5,7 @@ import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs';
 import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
 
-import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '../../hierarchy/hierarchy';
+import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '../../../model/registry';
 // import { StepConfig, Step } from '../../../core/modals/modal';
 
 import { HierarchyService } from '../../../service/hierarchy.service';

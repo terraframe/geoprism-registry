@@ -3,8 +3,10 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { TreeNode } from 'angular-tree-component';
 
-import { TreeEntity, HierarchyType, GeoObjectType } from '../hierarchy';
+import { HierarchyType } from '../hierarchy';
+import { GeoObjectType, TreeEntity } from '../../../model/registry';
 import { HierarchyService } from '../../../service/hierarchy.service';
+import { RegistryService } from '../../../service/registry.service';
 
 
 @Component( {
@@ -25,7 +27,7 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
      */
     public onGeoObjTypeCreate: Subject<GeoObjectType>;
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) {
+    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private registryService: RegistryService ) {
     	
     }
 
@@ -36,7 +38,7 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
     handleOnSubmit(): void {
         this.message = null;
 
-        this.hierarchyService.createGeoObjectType( JSON.stringify(this.geoObjectType) ).then( data => {
+        this.registryService.createGeoObjectType( JSON.stringify(this.geoObjectType) ).then( data => {
             this.onGeoObjTypeCreate.next( data );
             this.bsModalRef.hide();
         } ).catch(( err: any ) => {

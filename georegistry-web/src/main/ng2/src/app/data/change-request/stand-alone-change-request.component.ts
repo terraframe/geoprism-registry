@@ -17,12 +17,12 @@ import { mergeMap } from 'rxjs/operators';
 
 declare var acp: string;
 
-@Component( {
-    selector: 'change-request',
-    templateUrl: './change-request.component.html',
+@Component( { 
+    selector: 'stand-alone-change-request',
+    templateUrl: './stand-alone-change-request.component.html',
     styleUrls: []
 } )
-export class ChangeRequestComponent implements OnInit {
+export class StandAloneChangeRequestComponent implements OnInit {
 
     objectKeys = Object.keys;
     

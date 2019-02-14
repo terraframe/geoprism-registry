@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { GeoObjectType, HierarchyNode } from '../hierarchy';
+import { HierarchyNode } from '../hierarchy';
+import { GeoObjectType } from '../../../model/registry';
 
 @Pipe({
   name: 'geoobjecttype',

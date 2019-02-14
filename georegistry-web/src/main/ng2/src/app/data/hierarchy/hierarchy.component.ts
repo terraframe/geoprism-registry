@@ -28,17 +28,18 @@ import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 import { CreateHierarchyTypeModalComponent } from './modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
-// import { ManageAttributesModalComponent } from './modals/manage-attributes-modal.component';
 import { ManageGeoObjectTypeModalComponent } from './modals/manage-geoobjecttype-modal.component';
 import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component';
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 
 import { LocalizationService } from '../../core/service/localization.service';
 
-import { HierarchyType, HierarchyNode, GeoObjectType } from './hierarchy';
+import { HierarchyType, HierarchyNode } from './hierarchy';
+import { GeoObjectType } from '../../model/registry';
 import { ModalTypes } from '../../core/modals/modal'
 
 import { HierarchyService } from '../../service/hierarchy.service';
+import { RegistryService } from '../../service/registry.service';
 
 class Instance {
   active: boolean;
@@ -93,12 +94,13 @@ export class HierarchyComponent implements OnInit {
   
   
   constructor(private hierarchyService: HierarchyService, private modalService: BsModalService, 
-		      private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef, private localizeService: LocalizationService) { 
+              private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef, 
+              private localizeService: LocalizationService, private registryService: RegistryService) { 
 	  
   }
 
   ngOnInit(): void {
-	  this.hierarchyService.getGeoObjectTypes([])
+	  this.registryService.getGeoObjectTypes([])
 	    .then( types => {
 		  this.geoObjectTypes = types;
 		  
@@ -391,7 +393,7 @@ export class HierarchyComponent implements OnInit {
   }
   
   public removeGeoObjectType( code: string ): void {
-      this.hierarchyService.deleteGeoObjectType( code ).then( response => {
+      this.registryService.deleteGeoObjectType( code ).then( response => {
     	  
     	  let pos = this.getGeoObjectTypePosition(code);
     	  this.geoObjectTypes.splice(pos, 1);

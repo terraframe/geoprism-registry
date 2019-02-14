@@ -8,7 +8,7 @@ import { LocalizationManagerComponent } from './data/localization-manager/locali
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
-import { ChangeRequestComponent } from './data/change-request/change-request.component';
+import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 
 import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
@@ -46,7 +46,7 @@ const routes: Routes = [
     },
     {
         path: 'change-request',
-        component: ChangeRequestComponent,
+        component: StandAloneChangeRequestComponent,
         canActivate: [AdminGuard]
     },
     {

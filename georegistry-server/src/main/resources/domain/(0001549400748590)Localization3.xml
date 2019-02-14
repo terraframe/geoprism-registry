@@ -1,0 +1,95 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+       <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.button.removeTreeNodeFromHierarchy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.button.removeTreeNodeFromHierarchy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Remove from hierarchy" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.decimal">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.decimal" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Decimal" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.length">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.length" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Length" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit Change Requests" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.page.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.page.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit A Change Request" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.page.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.page.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit a request to change a Geo Object." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="dropdown.select.geoobjecttype.option.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="dropdown.select.geoobjecttype.option.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select a Geo Object Type" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="dropdown.select.geoobjecttype.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="dropdown.select.geoobjecttype.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo Object Type" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="dropdown.select.geoobject.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="dropdown.select.geoobject.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo Object" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.reason.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.reason.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reason" />
+        </attributeStruct>
+      </object>
+
+      
+
+
+    </createOrUpdate>
+
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

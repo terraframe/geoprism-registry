@@ -4,9 +4,10 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
 
-import { GeoObjectType, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
-import { Step, StepConfig } from '../../../core/modals/modal';
+import { GeoObjectType, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
+import { StepConfig } from '../../../core/modals/modal';
 
+import { RegistryService } from '../../../service/registry.service';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
@@ -38,7 +39,8 @@ export class GeoObjectTypeInputComponent implements OnInit {
     ]};
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService, 
-        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizationService: LocalizationService ) {
+        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, 
+        private localizationService: LocalizationService, private registryService: RegistryService ) {
     
     }
 
@@ -63,7 +65,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     update(): void {
-        this.hierarchyService.updateGeoObjectType( this.editGeoObjectType ).then( data => {
+        this.registryService.updateGeoObjectType( this.editGeoObjectType ).then( data => {
 
             // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
             // so that the change can be updated in the template

@@ -15,9 +15,10 @@ import { ErrorModalComponent } from '../../../core/modals/error-modal.component'
 import { LocalizationService } from '../../../core/service/localization.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 
-import { GeoObjectType, AttributeTerm, Term, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates} from '../hierarchy';
+import { GeoObjectType, AttributeTerm, Term, GeoObjectTypeModalStates} from '../../../model/registry';
 import { ModalTypes, StepConfig } from '../../../core/modals/modal';
 
+import { RegistryService } from '../../../service/registry.service';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 
@@ -75,7 +76,8 @@ export class ManageTermOptionsComponent implements OnInit {
     ]};
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
-            private modalService: BsModalService, private localizeService: LocalizationService, private modalStepIndicatorService: ModalStepIndicatorService ) {
+            private modalService: BsModalService, private localizeService: LocalizationService, private modalStepIndicatorService: ModalStepIndicatorService,
+            private registryService: RegistryService ) {
     }
 
     ngOnInit(): void {
@@ -127,7 +129,7 @@ export class ManageTermOptionsComponent implements OnInit {
 
     addTermOption(): void {
 
-        this.hierarchyService.addAttributeTermTypeOption( this.attribute.rootTerm.code, this.termOption ).then( data => {
+        this.registryService.addAttributeTermTypeOption( this.attribute.rootTerm.code, this.termOption ).then( data => {
             
             this.attribute.rootTerm.children.push(data);
 
@@ -143,29 +145,9 @@ export class ManageTermOptionsComponent implements OnInit {
 
     }
 
-    // updateTermOption(): void {
-
-    //     let termOption: Term = new Term(this.termOptionCode, this.termOptionLabel, this.termOptionDescription);
-
-
-        // this.hierarchyService.updateAttributeTermTypeOption( termOption ).then( data => {
-            
-        //     this.attribute.rootTerm.children.push(data);
-
-        //     this.attributeChange.emit(this.attribute);
-
-        //     this.termOptionCode = "";
-        //     this.termOptionLabel = "";
-        //     this.termOptionDescription = "";
-
-        // } ).catch(( err: any ) => {
-        //     this.error( err );
-        // } );
-    // }
-
     deleteTermOption(termOption: Term): void {
 
-        this.hierarchyService.deleteAttributeTermTypeOption( termOption.code ).then( data => {
+        this.registryService.deleteAttributeTermTypeOption( termOption.code ).then( data => {
             
             if(this.attribute.rootTerm.children.indexOf(termOption) !== -1){
                 this.attribute.rootTerm.children.splice(this.attribute.rootTerm.children.indexOf(termOption), 1);

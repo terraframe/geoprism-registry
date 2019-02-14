@@ -1,4 +1,4 @@
-import { GeoObject } from '../hierarchy/hierarchy';
+import { GeoObject } from '../../model/registry';
 
 export class ChangeRequest {
   oid: string;

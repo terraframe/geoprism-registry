@@ -56,6 +56,7 @@ import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 import { ChangeRequestComponent } from './data/change-request/change-request.component';
+import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -64,6 +65,7 @@ import { LocalizePipe } from './core/localize/localize.pipe';
 import { LocalizationService } from './core/service/localization.service';
 import { ModalStepIndicatorComponent } from './core/modals/modal-step-indicator.component';
 
+import { RegistryService } from './service/registry.service';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { ChangeRequestService } from './service/change-request.service';
@@ -149,6 +151,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     InputFieldComponent,
     ValidationComponent,
     ChangeRequestComponent,
+    StandAloneChangeRequestComponent,
     
     // Routing components
     routedComponents
@@ -164,7 +167,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     CookieService,
     LocalizationService,
     ModalStepIndicatorService,
-    GeoObjectTypeManagementService
+    GeoObjectTypeManagementService,
+    RegistryService
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [
@@ -191,7 +195,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       BooleanFieldComponent,
       SelectFieldComponent,
       InputFieldComponent,
-      ChangeRequestComponent
+      ChangeRequestComponent,
+      StandAloneChangeRequestComponent
   ]        
 })
 export class CgrAppModule { }

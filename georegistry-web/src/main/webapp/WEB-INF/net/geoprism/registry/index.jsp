@@ -36,13 +36,11 @@
   
   <!-- IE required polyfills, in this exact order -->
 
-<!-- 
    <script type="text/javascript" src="https://localhost:8080/dist/cgr-polyfills.js"></script> 
    <script type="text/javascript" src="https://localhost:8080/dist/cgr-vendor.js"></script>
-   -->
 
-  <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-polyfills.js"></script>
-  <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-vendor.js"></script>
+<%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-polyfills.js"></script>   --%>
+<%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-vendor.js"></script>   --%>
 </head>
 
 <body>
@@ -54,7 +52,8 @@
     <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script>
     -->       
 
-    <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-app.js"></script>
+    <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script>       
+
 <!--   </div> -->
 </body>
   

@@ -1,0 +1,14 @@
+<!-- <ul class="list-group">
+    <li *ngFor="let value of values" 
+    (click)="selectItem(value.value)" 
+    class="list-group-item"> {{value.localizedLabel}} </li>
+</ul> -->
+
+<div>
+    <label *ngIf="label" [attr.for]="identifier">{{label}}</label>
+    <select [(ngModel)]="value" [ngClass]="{invalid: (invalid | async)}" [id]="identifier">
+        <option value="" selected *ngIf="placeholder">{{placeholder}}</option>
+        <ng-content></ng-content>
+    </select>
+    <!-- <validation *ngIf="invalid | async" [messages]="failures | async"></validation> -->
+</div>

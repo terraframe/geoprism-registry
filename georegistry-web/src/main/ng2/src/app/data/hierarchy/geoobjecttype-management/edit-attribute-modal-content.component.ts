@@ -10,9 +10,10 @@ import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
-import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
+import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
 import { StepConfig } from '../../../core/modals/modal';
 
+import { RegistryService } from '../../../service/registry.service';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service';
@@ -61,7 +62,7 @@ export class EditAttributeModalContentComponent implements OnInit {
     @ViewChild(AttributeInputComponent) attributeInputComponent:AttributeInputComponent;
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
-        private localizeService: LocalizationService ) {
+        private localizeService: LocalizationService, private registryService: RegistryService ) {
     }
 
     ngOnInit(): void {
@@ -77,7 +78,7 @@ export class EditAttributeModalContentComponent implements OnInit {
 
     handleOnSubmit(): void {
         
-        this.hierarchyService.updateAttributeType( this.geoObjectType.code, this.attribute ).then( data => {
+        this.registryService.updateAttributeType( this.geoObjectType.code, this.attribute ).then( data => {
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
         } ).catch(( err: Response ) => {
             this.error( err.json() );

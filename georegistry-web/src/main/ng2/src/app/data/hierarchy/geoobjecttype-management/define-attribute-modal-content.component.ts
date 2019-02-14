@@ -9,10 +9,10 @@ import {
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
-import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
-import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
+import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
 import { StepConfig } from '../../../core/modals/modal';
 import { HierarchyService } from '../../../service/hierarchy.service';
+import { RegistryService } from '../../../service/registry.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 import { LocalizationService } from '../../../core/service/localization.service';
@@ -62,7 +62,8 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, 
-        private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizeService: LocalizationService ) {
+        private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizeService: LocalizationService,
+        private registryService: RegistryService ) {
     
     }
 
@@ -80,7 +81,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
     handleOnSubmit(): void {
         
-        this.hierarchyService.addAttributeType( this.geoObjectType.code, this.newAttribute ).then( data => {
+        this.registryService.addAttributeType( this.geoObjectType.code, this.newAttribute ).then( data => {
             this.geoObjectType.attributes.push(data);
 
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
@@ -94,7 +95,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
             this.newAttribute = new AttributeTerm("", type, "", "", false);
         }
         else if(type === 'decimal') {
-            this.newAttribute = new AttributeDecimal("", type, "", "", null, null, false);
+            this.newAttribute = new AttributeDecimal("", type, "", "", false);
         }
         else{
             this.newAttribute = new Attribute("", type, "", "", false);

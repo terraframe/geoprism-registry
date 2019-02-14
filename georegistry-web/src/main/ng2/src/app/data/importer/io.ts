@@ -1,4 +1,4 @@
-import { GeoObjectType } from '../hierarchy/hierarchy';
+import { GeoObjectType } from '../../model/registry';
 
 export class ImportSheet {
     name: string;
