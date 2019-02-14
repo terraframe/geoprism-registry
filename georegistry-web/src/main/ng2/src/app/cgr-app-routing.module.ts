@@ -9,6 +9,7 @@ import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
+import { ChangeRequestComponent } from './data/change-request/change-request.component';
 
 import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
 
@@ -41,6 +42,11 @@ const routes: Routes = [
     {
         path: 'crtable',
         component: ChangeRequestTableComponent,
+        canActivate: [AdminGuard]
+    },
+    {
+        path: 'change-request',
+        component: ChangeRequestComponent,
         canActivate: [AdminGuard]
     },
     {

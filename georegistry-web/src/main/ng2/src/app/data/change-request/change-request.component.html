@@ -1,0 +1,54 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+  <div id="app-container" class="container">
+
+    <div class="py-5 text-center">
+      <h2>
+        <localize key="change.request.page.title"></localize>
+      </h2>
+      <p class="lead">
+        <localize key="change.request.page.description"></localize>
+      </p>
+    </div>
+
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+        <div class="row-holder">
+            <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="select-area" (change)="onSelectGeoObjectType($event)" [(ngModel)]="currentGeoObjectType" required>
+                <!-- <option> <localize key="dropdown.select.geoobjecttype.option.label"></localize> </option> -->
+                <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.localizedLabel}}</option>
+            </select>
+        </div>
+
+           <!-- <select-field
+            required
+            name="geoobjecttype-select"
+            placeholder="dropdown.select.geoobjecttype.option.label"
+            [(ngModel)]="currentGeoObjectType"
+            ngDefaultControl>
+            <option *ngFor="let got of geoObjectTypes" [value]="got.code">{{got.localizedLabel}}</option>
+            </select-field> -->
+
+        <!-- <input-field required name="geoObjectCode" [(ngModel)]="currentGeoObjectId"></input-field> -->
+
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="dropdown.select.geoobject.label"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <span class="text">
+                    <input autofocus type="text" [(ngModel)]="currentGeoObjectId" name="geoObjectId" required >
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3"></div>
+
+
+
+  </div>
+</div>

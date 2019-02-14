@@ -19,7 +19,10 @@ import { ErrorModalComponent } from './core/modals/error-modal.component';
 import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 import { ErrorMessageComponent } from './core/message/error-message.component';
-
+import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-field.component';
+import { SelectFieldComponent } from './core/form-fields/select-field/select-field.component';
+import { InputFieldComponent } from './core/form-fields/input-field/input-field.component';
+import { ValidationComponent } from './core/form-fields/base/validation.component';
 
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
@@ -51,6 +54,7 @@ import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manag
 import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
+import { ChangeRequestComponent } from './data/change-request/change-request.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 
@@ -138,6 +142,11 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ManageTermOptionsComponent,
     OnlyNumber,
     ErrorMessageComponent,
+    BooleanFieldComponent,
+    SelectFieldComponent,
+    InputFieldComponent,
+    ValidationComponent,
+    ChangeRequestComponent,
     
     // Routing components
     routedComponents
@@ -176,7 +185,11 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       GeoObjectTypeInputComponent,
       ModalStepIndicatorComponent,
       ManageTermOptionsComponent,
-      ErrorMessageComponent
+      ErrorMessageComponent,
+      BooleanFieldComponent,
+      SelectFieldComponent,
+      InputFieldComponent,
+      ChangeRequestComponent
   ]        
 })
 export class CgrAppModule { }

@@ -20,7 +20,6 @@ import { InputFieldComponent } from '../../../core/form-fields/input-field/input
     styleUrls: ['./manage-geoobjecttype-modal.css']
 } )
 export class ManageGeoObjectTypeModalComponent implements OnInit {
-test: string = "Junk"
     message: string = null;
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
     modalStateSubscription: Subscription;
