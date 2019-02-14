@@ -27,14 +27,16 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
-import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.IgnoreRowException;
 import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.io.LocationBuilder;
+import net.geoprism.georegistry.io.PostalCodeFactory;
 import net.geoprism.georegistry.io.SynonymRestriction;
 import net.geoprism.georegistry.io.TermProblem;
+import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.query.NonUniqueResultException;
 import net.geoprism.georegistry.service.RegistryService;
@@ -43,6 +45,7 @@ import net.geoprism.georegistry.shapefile.GeoObjectLocationProblem;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.io.AmbiguousParentException;
+import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 
@@ -76,7 +79,11 @@ public class GeoObjectConverter
        * The getParent method will throw a IgnoreRowException if the parent is
        * configured to be ignored.
        */
-      if (this.configuration.getHierarchy() != null)
+      if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+      {
+        parent = this.parsePostalCode(row);
+      }
+      else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
       {
         parent = this.getParent(row);
       }
@@ -305,7 +312,7 @@ public class GeoObjectConverter
 
     for (Location location : locations)
     {
-      BasicColumnFunction function = location.getFunction();
+      ShapefileFunction function = location.getFunction();
       String label = (String) function.getValue(feature);
 
       if (label != null)
@@ -369,6 +376,39 @@ public class GeoObjectConverter
     }
 
     return parent;
+  }
+
+  private GeoObject parsePostalCode(FeatureRow feature)
+  {
+    LocationBuilder builder = PostalCodeFactory.get(this.configuration.getType());
+    Location location = builder.build(this.configuration.getFunction(GeoObject.CODE));
+
+    ShapefileFunction function = location.getFunction();
+    String code = (String) function.getValue(feature);
+
+    if (code != null)
+    {
+      // Search
+      GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
+      query.setRestriction(new CodeRestriction(code));
+
+      GeoObject result = query.getSingleResult();
+
+      if (result != null)
+      {
+        return result;
+      }
+      else
+      {
+        PostalCodeLocationException e = new PostalCodeLocationException();
+        e.setCode(code);
+        e.setTypeLabel(location.getType().getLocalizedLabel());
+
+        throw e;
+      }
+    }
+
+    return null;
   }
 
   /**

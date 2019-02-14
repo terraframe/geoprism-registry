@@ -1,0 +1,8 @@
+<div>
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+  <request-table *ngIf="state === 'REQUESTS'" (pageChange)="onPageChange($event)"></request-table>
+  <action-table *ngIf="state === 'ACTIONS'" (pageChange)="onPageChange($event)" [request]="request"></action-table>
+
+</div>

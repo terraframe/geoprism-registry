@@ -10,8 +10,17 @@
 	  
 	  <label class="detail-label">GeoObjectType : </label><label class="detail-value">{{action.geoObjectJson.properties.type}}</label>
 	  
-	  <label class="detail-label">Status : </label><label class="detail-value">{{action.approvalStatus}}</label>
+	  <label class="detail-label"><localize key="change.request.status"></localize> : </label>
+	  <select [(ngModel)]="action.approvalStatus" >
+		  <option value="REJECTED"><localize key="change.request.status.rejected"></localize></option>
+		  <option value="ACCEPTED"><localize key="change.request.status.accepted"></localize></option>
+		  <option value="PENDING"><localize key="change.request.status.pending"></localize></option>
+		</select>
 	  
-	  <button (click)="acceptAction()" class="btn btn-primary detail-accept">Accept and Execute</button><button (click)="rejectAction()" class="btn detail-reject">Reject and Close</button>
+	  <label class="detail-label"><localize key="change.request.action.detail.contributorNotes"></localize> : </label><textarea class="detail-value" [(ngModel)]="action.contributorNotes" ></textarea>
+    
+    <label class="detail-label"><localize key="change.request.action.detail.maintainerNotes"></localize> : </label><textarea class="detail-value" [(ngModel)]="action.maintainerNotes" ></textarea>
+	  
+	  <button (click)="applyAction()" class="btn btn-primary detail-accept"><localize key="modal.button.submit"></localize></button><button (click)="unlockAction()" class="btn detail-reject"><localize key="modal.button.cancel"></localize></button>
 	</div>
 </div>

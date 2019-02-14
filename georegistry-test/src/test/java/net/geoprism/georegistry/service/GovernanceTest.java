@@ -32,7 +32,6 @@ import net.geoprism.georegistry.action.ActionFactory;
 import net.geoprism.georegistry.action.AllGovernanceStatus;
 import net.geoprism.georegistry.action.ChangeRequest;
 import net.geoprism.georegistry.action.ChangeRequestQuery;
-import net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
@@ -61,7 +60,7 @@ public class GovernanceTest
       testData.cleanUp();
     }
   }
-  
+
   @Test
   public void testGovernance() throws InterruptedException
   {
@@ -78,9 +77,9 @@ public class GovernanceTest
     GeoObject goNewChild = testNew.asGeoObject();
 
     List<AbstractActionDTO> actionsCR1 = new ArrayList<AbstractActionDTO>();
-    
+
     /*
-     *  CR1 : Add Child
+     * CR1 : Add Child
      */
     AddChildActionDTO addChild = new AddChildActionDTO();
     addChild.setChildId(testAddChild.getRegistryId());
@@ -89,34 +88,34 @@ public class GovernanceTest
     addChild.setParentTypeCode(testAddChildParent.getGeoObjectType().getCode());
     addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
     addChild.setCreateActionDate(Date.from(Instant.now().minus(10, ChronoUnit.HOURS)));
-    
+
     String addChildJson = addChild.toJSON().toString();
     String addChildJson2 = AbstractActionDTO.parseAction(addChildJson).toJSON().toString();
     Assert.assertEquals(addChildJson, addChildJson2);
     actionsCR1.add(addChild);
-    
+
     /*
-     *  CR1 : Create Geo Object
+     * CR1 : Create Geo Object
      */
     CreateGeoObjectActionDTO create = new CreateGeoObjectActionDTO();
     create.setGeoObject(goNewChild.toJSON());
     create.setCreateActionDate(Date.from(Instant.now().minus(9, ChronoUnit.HOURS)));
-    
+
     String createJson = create.toJSON().toString();
     String createJson2 = AbstractActionDTO.parseAction(createJson).toJSON().toString();
     Assert.assertEquals(createJson, createJson2);
     actionsCR1.add(create);
 
     /*
-     *  CR1 : Update the previously created GeoObject
+     * CR1 : Update the previously created GeoObject
      */
     final String NEW_DISPLAY_LABEL = "NEW_DISPLAY_LABEL";
     goNewChild.setLocalizedDisplayLabel(NEW_DISPLAY_LABEL);
-    
+
     UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();
     update.setGeoObject(goNewChild.toJSON());
     update.setCreateActionDate(Date.from(Instant.now().minus(8, ChronoUnit.HOURS)));
-    
+
     String updateJson = update.toJSON().toString();
     String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
     Assert.assertEquals(updateJson, updateJson2);
@@ -134,43 +133,44 @@ public class GovernanceTest
      * Submit CR1
      */
     this.adapter.submitChangeRequest(actionsCR1);
-    
-    Thread.sleep(3); // We need change requests to not have the same createDate so the ordering in validation is predictable
-    
+
+    Thread.sleep(1500); // We need change requests to not have the same createDate
+                     // so the ordering in validation is predictable
+
     /*
      * CR2 : Setup
      */
     TestGeoObjectInfo testNewCR2 = testData.newTestGeoObjectInfo("TEST_ACTIONS_NEW_CHILD_CR2", testData.STATE);
     GeoObject goNewChildCR2 = testNewCR2.asGeoObject();
-    
+
     List<AbstractActionDTO> actionsCR2 = new ArrayList<AbstractActionDTO>();
-    
+
     /*
      * CR2 : Create a GeoObject
      */
     CreateGeoObjectActionDTO cr2Create = new CreateGeoObjectActionDTO();
     cr2Create.setGeoObject(goNewChildCR2.toJSON());
     cr2Create.setCreateActionDate(Date.from(Instant.now().minus(7, ChronoUnit.HOURS)));
-    
+
     String createJsonCR2 = create.toJSON().toString();
     String createJson2CR2 = AbstractActionDTO.parseAction(createJson).toJSON().toString();
     Assert.assertEquals(createJsonCR2, createJson2CR2);
     actionsCR2.add(cr2Create);
-    
+
     /*
      * CR2 : Update a GeoObject
      */
     goNewChildCR2.setStatus(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
-    
+
     UpdateGeoObjectActionDTO cr2Update = new UpdateGeoObjectActionDTO();
     cr2Update.setGeoObject(goNewChildCR2.toJSON());
     cr2Update.setCreateActionDate(Date.from(Instant.now().minus(6, ChronoUnit.HOURS)));
-    
+
     String updateJsonCR2 = update.toJSON().toString();
     String updateJson2CR2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
     Assert.assertEquals(updateJsonCR2, updateJson2CR2);
     actionsCR2.add(cr2Update);
-    
+
     /*
      * CR2 : Remove Child
      */
@@ -181,25 +181,25 @@ public class GovernanceTest
     removeChild.setParentTypeCode(testAddChildParent.getGeoObjectType().getCode());
     removeChild.setHierarchyCode(LocatedIn.class.getSimpleName());
     removeChild.setCreateActionDate(Date.from(Instant.now().minus(5, ChronoUnit.HOURS)));
-    
+
     String removeChildJson = removeChild.toJSON().toString();
     String removeChildJson2 = AbstractActionDTO.parseAction(removeChildJson).toJSON().toString();
     Assert.assertEquals(removeChildJson, removeChildJson2);
     actionsCR2.add(removeChild);
-    
+
     /*
-     *  CR2 : Test Serialization
+     * CR2 : Test Serialization
      */
     String sActionsCR2 = AbstractActionDTO.serializeActions(actionsCR2).toString();
     String sActions2CR2 = AbstractActionDTO.serializeActions(AbstractActionDTO.parseActions(sActionsCR2)).toString();
     Assert.assertEquals(sActionsCR2, sActions2CR2);
     System.out.println("CR2:\n" + sActionsCR2);
-    
+
     /*
      * Submit CR2
      */
     this.adapter.submitChangeRequest(actionsCR2);
-    
+
     /*
      * Validation and execution
      */
@@ -213,24 +213,24 @@ public class GovernanceTest
      * Pre-execution Validation
      */
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
-    crq.ORDER_BY(crq.getCreateDate(), SortOrder.DESC);
+    crq.ORDER_BY(crq.getCreateDate(), SortOrder.ASC);
     Assert.assertEquals(2, crq.getCount());
-    
+
     AbstractActionQuery aaq = new AbstractActionQuery(new QueryFactory());
     aaq.ORDER_BY(aaq.getCreateActionDate(), SortOrder.DESC);
     Assert.assertEquals(actionsCR1.size() + actionsCR2.size(), aaq.getCount());
-    
+
     int crNum = 1;
     OIterator<? extends ChangeRequest> it = crq.getIterator();
     while (it.hasNext())
     {
       ChangeRequest cr = it.next();
-      
+
       Assert.assertEquals(1, cr.getApprovalStatus().size());
       Assert.assertEquals(AllGovernanceStatus.PENDING.getEnumName(), cr.getApprovalStatus().get(0).getEnumName());
-      
+
       List<? extends AbstractAction> actions = cr.getOrderedActions();
-      
+
       List<AbstractActionDTO> actionsDTO = null;
       if (crNum == 1)
       {
@@ -245,73 +245,71 @@ public class GovernanceTest
         Assert.fail();
       }
       Assert.assertEquals(actionsDTO.size(), actions.size());
-      
+
       int actionIndex = 0;
       for (AbstractActionDTO actionDTO : actionsDTO)
       {
         AbstractAction action = actions.get(actionIndex);
-        
+
         Assert.assertEquals(ActionFactory.newAction(actionDTO.getActionType()).getClass().getName(), action.getClass().getName());
-        
+
         Assert.assertEquals(actionDTO.getCreateActionDate(), actionDTO.getCreateActionDate());
-        
+
         Assert.assertEquals(action.getApiVersion(), actionDTO.getApiVersion());
-        
+
         actionIndex++;
       }
-      
+
       crNum++;
     }
-    
+
     /*
      * Execute CR1
      */
-    OIterator<? extends ChangeRequest> it2 = crq.getIterator();
-    ChangeRequest cr1 = it2.next();
-    executeChangeRequest(cr1);
-    
+    List<? extends ChangeRequest> requests = crq.getIterator().getAll();
+    ChangeRequest cr1 = requests.get(0);
+    cr1.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
+    cr1.execute();
+
     /*
      * Validate CR1
      */
-    // AddChild : TODO : The leaf 'getChildren' mechanism doesn't work properly in our test framework
-//    Assert.assertEquals(1, testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
+    // AddChild : TODO : The leaf 'getChildren' mechanism doesn't work properly
+    // in our test framework
+    // Assert.assertEquals(1,
+    // testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
 
     // CreateGeoObject and UpdateGeoObject
     GeoEntityQuery createGEQ = new GeoEntityQuery(new QueryFactory());
     createGEQ.WHERE(createGEQ.getGeoId().EQ(testNewCR1.getCode()));
     Assert.assertEquals(1, createGEQ.getCount());
     Assert.assertEquals(NEW_DISPLAY_LABEL, createGEQ.getIterator().getAll().get(0).getDisplayLabel().getValue());
-    
+
     /*
      * Execute CR2
      */
-    OIterator<? extends ChangeRequest> it3 = crq.getIterator();
-    it3.next();
-    ChangeRequest cr2 = it3.next();
-    executeChangeRequest(cr2);
-    
+    ChangeRequest cr2 = requests.get(1);
+    cr2.appLock();
+    cr2.clearApprovalStatus();
+    cr2.addApprovalStatus(AllGovernanceStatus.PENDING);
+    cr2.apply();
+
+    cr2.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
+    cr2.execute();
+
     /*
      * Validate CR2
      */
-    // Test RemoveChild : TODO : The leaf 'getChildren' mechanism doesn't work properly in our test framework
-//    Assert.assertEquals(0, testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
-    
+    // Test RemoveChild : TODO : The leaf 'getChildren' mechanism doesn't work
+    // properly in our test framework
+    // Assert.assertEquals(0,
+    // testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
+
     // Test CreateGeoObject and UpdateGeoObject CR2
     GeoObjectQuery createGEQCR2 = new GeoObjectQuery(testNewCR2.getGeoObjectType().getGeoObjectType(GeometryType.POLYGON), testNewCR2.getGeoObjectType().getUniversal());
     createGEQCR2.setRestriction(new CodeRestriction(testNewCR2.getCode()));
     List<GeoObject> createGEQCR2All = createGEQCR2.getIterator().getAll();
     Assert.assertEquals(1, createGEQCR2All.size());
     Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, createGEQCR2All.get(0).getStatus().getCode());
-  }
-  
-  private void executeChangeRequest(ChangeRequest cr)
-  {
-    List<AbstractAction> actions = cr.getOrderedActions();
-    for (AbstractAction action : actions)
-    {
-      action.setSessionId(testData.adminSession.getSessionId());
-      
-      action.execute();
-    }
   }
 }

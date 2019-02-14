@@ -7,18 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import net.geoprism.georegistry.RegistryConstants;
-import net.geoprism.georegistry.action.AbstractAction;
-import net.geoprism.georegistry.action.ChangeRequest;
-import net.geoprism.georegistry.conversion.TermBuilder;
-import net.geoprism.georegistry.query.GeoObjectIterator;
-import net.geoprism.georegistry.query.GeoObjectQuery;
-import net.geoprism.georegistry.query.LookupRestriction;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AttributeHierarhcy;
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.NoChildForLeafGeoObjectType;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
@@ -39,10 +27,7 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
-
-import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -76,8 +61,6 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
-
-import net.geoprism.georegistry.service.WMSService;
 
 
 public class RegistryService
@@ -170,11 +153,11 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject createGeoObject(String sessionId, String jGeoObj)
   {
-    return createGeoObjectInTransaction(sessionId, jGeoObj);
+    return createGeoObjectInTransaction(jGeoObj);
   }
 
   @Transaction
-  private GeoObject createGeoObjectInTransaction(String sessionId, String jGeoObj)
+  public GeoObject createGeoObjectInTransaction(String jGeoObj)
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
@@ -184,11 +167,11 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject updateGeoObject(String sessionId, String jGeoObj)
   {
-    return updateGeoObjectInTransaction(sessionId, jGeoObj);
+    return updateGeoObjectInTransaction(jGeoObj);
   }
 
   @Transaction
-  private GeoObject updateGeoObjectInTransaction(String sessionId, String jGeoObj)
+  public GeoObject updateGeoObjectInTransaction(String jGeoObj)
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
@@ -564,26 +547,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void submitChangeRequest(String sessionId, String sJson)
   {
-    submitChangeRequestInTransaction(sessionId, sJson);
-  }
-
-  @Transaction
-  private void submitChangeRequestInTransaction(String sessionId, String sJson)
-  {
-    ChangeRequest cr = new ChangeRequest();
-    cr.addApprovalStatus(AllGovernanceStatus.PENDING);
-    cr.apply();
-
-    List<AbstractActionDTO> actionDTOs = AbstractActionDTO.parseActions(sJson);
-
-    for (AbstractActionDTO actionDTO : actionDTOs)
-    {
-      AbstractAction ra = AbstractAction.dtoToRegistry(actionDTO);
-      ra.addApprovalStatus(AllGovernanceStatus.PENDING);
-      ra.apply();
-
-      cr.addAction(ra).apply();
-    }
+    GeoRegistryUtil.submitChangeRequest(sJson);
   }
 
   public GeoObjectQuery createQuery(String typeCode)

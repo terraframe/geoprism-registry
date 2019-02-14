@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 2123548373)
+@com.runwaysdk.business.ClassSignature(hash = -982196084)
 public abstract class GeoRegistryUtilDTOBase extends com.runwaysdk.business.UtilDTO
 {
   public final static String CLASS = "net.geoprism.registry.GeoRegistryUtil";
-  private static final long serialVersionUID = 2123548373;
+  private static final long serialVersionUID = -982196084;
   
   protected GeoRegistryUtilDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -23,6 +23,14 @@ public abstract class GeoRegistryUtilDTOBase extends com.runwaysdk.business.Util
     Object[] _parameters = new Object[]{htJSON};
     com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.GeoRegistryUtilDTO.CLASS, "createHierarchyType", _declaredTypes);
     return (java.lang.String) clientRequest.invokeMethod(_metadata, null, _parameters);
+  }
+  
+  public static final void submitChangeRequest(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String sJson)
+  {
+    String[] _declaredTypes = new String[]{"java.lang.String"};
+    Object[] _parameters = new Object[]{sJson};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.GeoRegistryUtilDTO.CLASS, "submitChangeRequest", _declaredTypes);
+    clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public static GeoRegistryUtilDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

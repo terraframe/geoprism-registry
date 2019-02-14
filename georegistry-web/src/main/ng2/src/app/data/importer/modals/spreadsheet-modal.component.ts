@@ -12,7 +12,7 @@ import { IOService } from '../../../service/io.service';
     styleUrls: []
 } )
 export class SpreadsheetModalComponent implements OnInit {
-    
+
     configuration: ImportConfiguration;
     message: string = null;
     state: string = 'MAP';
@@ -43,7 +43,12 @@ export class SpreadsheetModalComponent implements OnInit {
 
     handleNext(): void {
         if ( this.state === 'MAP' ) {
-            this.state = 'LOCATION';
+            if ( !this.configuration.postalCode ) {
+                this.state = 'LOCATION';
+            }
+            else {
+                this.handleSubmit();
+            }
         }
         else if ( this.state === 'LOCATION' ) {
             this.handleSubmit();
@@ -96,5 +101,5 @@ export class SpreadsheetModalComponent implements OnInit {
             this.message = ( err.localizedMessage || err.message );
         }
     }
-    
+
 }

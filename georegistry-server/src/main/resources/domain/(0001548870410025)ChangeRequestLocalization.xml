@@ -1,0 +1,142 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.status.rejected">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.status.rejected" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Rejected" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.status.accepted">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.status.accepted" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Approved" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.status.pending">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.status.pending" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Pending" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action.detail.contributorNotes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.action.detail.contributorNotes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Contributor Notes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action.detail.maintainerNotes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.action.detail.maintainerNotes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Maintainer Notes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.submit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.submit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Submit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.cancel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.cancel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.createDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.createDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Date" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.user">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.user" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="User" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.status">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.status" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Status" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.total">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.total" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Number of Actions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.pending">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.pending" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Actions Awaiting Approval" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.link">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.link" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View / Edit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.execute">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.execute" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Execute Approved Actions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.approveAll">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.approveAll" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Approve All Actions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.rejectAll">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.rejectAll" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reject All Actions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.action" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Action" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.back">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.back" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Back to requests" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Change Request Summary" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

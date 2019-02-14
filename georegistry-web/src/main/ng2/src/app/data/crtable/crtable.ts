@@ -1,9 +1,13 @@
 import { GeoObject } from '../hierarchy/hierarchy';
 
 export class ChangeRequest {
-  actions: AbstractAction[];
-  approvalStatus: GovernanceStatus;
-  user: string;
+  oid: string;
+  createdBy: string;
+  createDate: Date;
+  approvalStatus: string;
+  statusCode: string;
+  total: number;
+  pending: number;
 }
 
 export class AbstractAction {
@@ -39,4 +43,9 @@ export class RemoveChildAction extends AbstractAction {
 export class GovernanceStatus {
   key: string;
   label: string;
+}
+
+export class PageEvent {
+  type:string;
+  data:any;
 }

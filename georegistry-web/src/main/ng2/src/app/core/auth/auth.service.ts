@@ -34,4 +34,8 @@ export class AuthService {
     isMaintainer(): boolean {
         return this.user.roles.indexOf( "commongeoregistry.RegistryMaintainer" ) !== -1;
     }
+    
+    isContributer(): boolean {
+        return this.user.roles.indexOf( "commongeoregistry.RegistryContributor" ) !== -1;
+    }
 }

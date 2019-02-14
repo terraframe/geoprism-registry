@@ -38,6 +38,7 @@ import com.runwaysdk.session.RequestType;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.ImportProblemException;
+import net.geoprism.georegistry.io.PostalCodeFactory;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileImporter;
@@ -83,6 +84,7 @@ public class ShapefileService
         object.add(GeoObjectConfiguration.SHEET, this.getSheetInformation(dbfs[0]));
         object.addProperty(GeoObjectConfiguration.DIRECTORY, root.getName());
         object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
+        object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
 
         return object;
       }

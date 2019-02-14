@@ -7,9 +7,9 @@ import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './data/localization-manager/localization-manager.component';
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
-import { ChangeRequestTableComponent } from './data/crtable/crtable.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
 import { ChangeRequestComponent } from './data/change-request/change-request.component';
+import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 
 import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
 
@@ -41,8 +41,8 @@ const routes: Routes = [
     },
     {
         path: 'crtable',
-        component: ChangeRequestTableComponent,
-        canActivate: [AdminGuard]
+        component: RegistryViewerComponent,
+        canActivate: [MaintainerGuard]
     },
     {
         path: 'change-request',
@@ -67,4 +67,4 @@ const routes: Routes = [
 } )
 export class CgrAppRoutingModule { }
 
-export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, RegistryViewerComponent];

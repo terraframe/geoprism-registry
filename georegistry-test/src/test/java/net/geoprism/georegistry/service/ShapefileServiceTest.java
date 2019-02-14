@@ -36,13 +36,17 @@ import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
+import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.Location;
+import net.geoprism.georegistry.io.LocationBuilder;
+import net.geoprism.georegistry.io.PostalCodeFactory;
 import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectIterator;
 import net.geoprism.georegistry.query.GeoObjectQuery;
@@ -85,12 +89,16 @@ public class ShapefileServiceTest
   @Test
   public void testGetAttributeInformation()
   {
+    PostalCodeFactory.remove(testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON));
+
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
     JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "cb_2017_us_state_500k.zip.test", istream);
+
+    Assert.assertFalse(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
 
     JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
 
@@ -131,6 +139,30 @@ public class ShapefileServiceTest
     Assert.assertEquals(2, attributes.get(GeoObjectConfiguration.NUMERIC).getAsJsonArray().size());
     Assert.assertEquals(0, attributes.get(AttributeBooleanType.TYPE).getAsJsonArray().size());
     Assert.assertEquals(0, attributes.get(AttributeDateType.TYPE).getAsJsonArray().size());
+  }
+
+  @Test
+  public void testGetAttributeInformationPostalCode()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+
+    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
+
+    PostalCodeFactory.addPostalCode(type, new LocationBuilder()
+    {
+      @Override
+      public Location build(ShapefileFunction function)
+      {
+        return null;
+      }
+    });
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "cb_2017_us_state_500k.zip.test", istream);
+
+    Assert.assertTrue(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
   }
 
   @Test

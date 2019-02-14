@@ -63,6 +63,10 @@ public class GeoObjectConfiguration
 
   public static final String             TYPE              = "type";
 
+  public static final String             HAS_POSTAL_CODE   = "hasPostalCode";
+
+  public static final String             POSTAL_CODE       = "postalCode";
+
   public static final String             SHEET             = "sheet";
 
   public static final String             TERM_PROBLEMS     = "termProblems";
@@ -103,6 +107,8 @@ public class GeoObjectConfiguration
 
   private MdTermRelationship             hierarchyRelationship;
 
+  private Boolean                        postalCode;
+
   public GeoObjectConfiguration()
   {
     this.includeCoordinates = false;
@@ -111,6 +117,7 @@ public class GeoObjectConfiguration
     this.locationProblems = new TreeSet<GeoObjectLocationProblem>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
+    this.postalCode = false;
   }
 
   public boolean isIncludeCoordinates()
@@ -273,6 +280,16 @@ public class GeoObjectConfiguration
     return this.termProblems.size() > 0 || this.locationProblems.size() > 0;
   }
 
+  public Boolean isPostalCode()
+  {
+    return postalCode;
+  }
+
+  public void setPostalCode(Boolean postalCode)
+  {
+    this.postalCode = postalCode;
+  }
+
   public JsonObject toJson()
   {
     JsonObject type = this.type.toJSON(new ImportAttributeSerializer(this.includeCoordinates));
@@ -301,6 +318,7 @@ public class GeoObjectConfiguration
     config.add(GeoObjectConfiguration.LOCATIONS, locations);
     config.addProperty(GeoObjectConfiguration.DIRECTORY, this.getDirectory());
     config.addProperty(GeoObjectConfiguration.FILENAME, this.getFilename());
+    config.addProperty(GeoObjectConfiguration.POSTAL_CODE, this.isPostalCode());
 
     if (this.hierarchy != null)
     {
@@ -369,6 +387,7 @@ public class GeoObjectConfiguration
     configuration.setType(got);
     configuration.setMdBusiness(mdBusiness);
     configuration.setIncludeCoordinates(includeCoordinates);
+    configuration.setPostalCode(config.has(POSTAL_CODE) && config.get(POSTAL_CODE).getAsBoolean());
 
     if (config.has(HIERARCHY))
     {

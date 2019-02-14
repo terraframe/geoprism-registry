@@ -1,0 +1,36 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.action.ActionExecuteException" 
+                   label="Action execute exception" 
+                   description="Thrown when trying to execute an action in the PENDING status" 
+                   message="A pending action must be accepted before it can be executed">
+      </mdException>
+    
+      <mdException name="net.geoprism.registry.io.PostalCodeFormatException" 
+                   label="Postal code format exception" 
+                   description="Thrown when a code does not represent a valid postal code" 
+                   message="The code [{code}] does not represent a valid postal code for type [{typeLabel}]">
+        <attributes>
+          <text name="code" label="Code" />
+          <text name="typeLabel" label="Type" />
+        </attributes>
+      </mdException>
+    
+      <mdException name="net.geoprism.registry.io.PostalCodeLocationException" 
+                   label="Postal code location exception" 
+                   description="Thrown when a postal code does not have a known location in the system" 
+                   message="The code [{code}] does not represent a known location for type [{typeLabel}]. Please create it first">
+        <attributes>
+          <text name="code" label="Code" />
+          <text name="typeLabel" label="Type" />
+        </attributes>
+      </mdException>
+    
+    </create>
+  </doIt>
+  <undoIt>
+    <delete>
+    </delete>
+  </undoIt>
+</version>
