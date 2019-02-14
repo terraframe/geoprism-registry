@@ -116,6 +116,9 @@ abstract public class TestDataSet
     cleanUp();
 
     setUpInTrans();
+    
+    adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
+    adminClientRequest = adminSession.getRequest();
   }
 
   @Transaction
@@ -135,9 +138,6 @@ abstract public class TestDataSet
         geo.apply();
       }
     }
-
-    adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
-    adminClientRequest = adminSession.getRequest();
   }
 
   private void rebuildAllpaths()
