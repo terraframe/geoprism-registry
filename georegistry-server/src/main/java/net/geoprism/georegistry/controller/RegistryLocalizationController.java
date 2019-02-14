@@ -156,10 +156,7 @@ public class RegistryLocalizationController
   {
     ConfigurationBuilder builder = new ConfigurationBuilder();
 
-    MdAttributeLocal exceptionsLocal = (MdAttributeLocal) BusinessFacade.get(MdLocalizable.getMessageMd());
-    ArrayList<MdAttributeLocal> exceptionsLocalAL = new ArrayList<MdAttributeLocal>();
-    exceptionsLocalAL.add(exceptionsLocal);
-    builder.addAttributeLocalTab("Exceptions", exceptionsLocal.getAttributeName(), exceptionsLocalAL);
+    addRegistryExceptions(builder);
 
     builder.addLocalizedValueStoreTab("Core Exceptions", LocalizedValueStore.TAG_NAME_ALL_RUNWAY_EXCEPTIONS);
 
@@ -168,6 +165,26 @@ public class RegistryLocalizationController
     addRegistryMetadata(builder);
 
     return builder.build();
+  }
+  
+  private void addRegistryExceptions(ConfigurationBuilder builder)
+  {
+    MdAttributeLocal exceptionsLocal = (MdAttributeLocal) BusinessFacade.get(MdLocalizable.getMessageMd());
+    ArrayList<MdAttributeLocal> exceptionsLocalAL = new ArrayList<MdAttributeLocal>();
+    exceptionsLocalAL.add(exceptionsLocal);
+    AttributeLocalTabConfiguration localTabConfig = builder.addAttributeLocalTab("Exceptions", exceptionsLocal.getAttributeName(), exceptionsLocalAL);
+    
+    AttributeLocalQueryCriteria myCriteria = new AttributeLocalQueryCriteria();
+    myCriteria.definingTypeMustNotInclude(GeoEntity.CLASS);
+    myCriteria.definingTypeMustNotInclude(LocalizedValueStore.CLASS);
+    myCriteria.definingTypeMustNotInclude(PostalCode.CLASS);
+    myCriteria.definingTypeMustNotInclude(Operations.CLASS);
+    myCriteria.entityKeyMustInclude("net.geoprism.georegistry");
+    myCriteria.entityKeyMustInclude("com.runwaysdk.localization");
+    myCriteria.entityKeyMustInclude("net.geoprism.gis");
+    myCriteria.entityKeyMustInclude("net.geoprism.ontology");
+    myCriteria.entityKeyMustInclude("net.geoprism.registry"); // Yes its confusing but these are OR not AND
+    localTabConfig.addQueryCriteria(myCriteria);
   }
   
   private void addRegistryMetadata(ConfigurationBuilder builder)
