@@ -39,7 +39,7 @@
           </label>
         </div>
       </div>
-      <div *ngFor="let problem of problems; let i = index;">
+      <div *ngFor="let problem of configuration.termProblems; let i = index;">
         <term-problem [problem]="problem" [configuration]="configuration" [index]="i" (onError)="handleError($event)"></term-problem>
       </div>
       <div class="row">

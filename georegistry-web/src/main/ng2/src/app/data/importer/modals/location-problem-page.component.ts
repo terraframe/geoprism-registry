@@ -11,21 +11,17 @@ export class LocationProblemPageComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;
     @Output() stateChange = new EventEmitter<string>();
-    problems: LocationProblem[] = [];
     message: string = null;
 
     constructor() { }
 
     ngOnInit(): void {
-        if ( this.configuration.locationProblems != null ) {
-            this.problems = this.configuration.locationProblems;
-        }
     }
 
     hasProblems(): boolean {
-        for ( let i = 0; i < this.problems.length; i++ ) {
+        for ( let i = 0; i < this.configuration.locationProblems.length; i++ ) {
 
-            if ( !this.problems[i].resolved ) {
+            if ( !this.configuration.locationProblems[i].resolved ) {
                 return true;
             }
         }
@@ -45,8 +41,8 @@ export class LocationProblemPageComponent implements OnInit {
             this.configuration.exclusions = [];
         }
 
-        for ( let i = 0; i < this.problems.length; i++ ) {
-            const problem = this.problems[i];
+        for ( let i = 0; i < this.configuration.locationProblems.length; i++ ) {
+            const problem = this.configuration.locationProblems[i];
 
             if ( problem.resolved && problem.action.name == 'IGNOREATLOCATION' ) {
                 const value = ( problem.parent != null ? problem.parent + "-" + problem.label : problem.label );
