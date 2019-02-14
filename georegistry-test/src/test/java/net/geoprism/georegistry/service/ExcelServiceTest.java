@@ -589,6 +589,14 @@ public class ExcelServiceTest
     JsonArray problems = result.get(GeoObjectConfiguration.TERM_PROBLEMS).getAsJsonArray();
 
     Assert.assertEquals(1, problems.size());
+    
+    // Assert the values of the problem
+    JsonObject problem = problems.get(0).getAsJsonObject();
+    
+    Assert.assertEquals("Test Term", problem.get("label").getAsString());
+    Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.get("parentCode").getAsString());
+    Assert.assertEquals(this.testTerm.getName(), problem.get("attributeCode").getAsString());
+    Assert.assertEquals(this.testTerm.getLocalizedLabel(), problem.get("attributeLabel").getAsString());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POINT), testData.STATE.getUniversal());
