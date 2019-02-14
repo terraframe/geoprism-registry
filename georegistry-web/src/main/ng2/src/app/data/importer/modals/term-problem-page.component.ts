@@ -11,21 +11,17 @@ export class TermProblemPageComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;
     @Output() stateChange = new EventEmitter<string>();
-    problems: TermProblem[] = [];
     message: string = null;
 
     constructor() { }
 
     ngOnInit(): void {
-        if ( this.configuration.termProblems != null ) {
-            this.problems = this.configuration.termProblems;
-        }
     }
 
     hasProblems(): boolean {
-        for ( let i = 0; i < this.problems.length; i++ ) {
+        for ( let i = 0; i < this.configuration.termProblems.length; i++ ) {
 
-            if ( !this.problems[i].resolved ) {
+            if ( !this.configuration.termProblems[i].resolved ) {
                 return true;
             }
         }
@@ -45,8 +41,8 @@ export class TermProblemPageComponent implements OnInit {
             this.configuration.exclusions = [];
         }
 
-        for ( let i = 0; i < this.problems.length; i++ ) {
-            const problem = this.problems[i];
+        for ( let i = 0; i < this.configuration.termProblems.length; i++ ) {
+            const problem = this.configuration.termProblems[i];
 
             if ( problem.resolved && problem.action.name == 'IGNORE' ) {
                 const exclusion = { code: problem.attributeCode, value: problem.label };

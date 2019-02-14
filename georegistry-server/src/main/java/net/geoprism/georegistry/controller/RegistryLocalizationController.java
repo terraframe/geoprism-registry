@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -15,11 +16,14 @@ import org.json.JSONObject;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.constants.MdLocalizableInfo;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.localization.LocalizationExcelExporter;
 import com.runwaysdk.localization.LocalizationExcelImporter;
 import com.runwaysdk.localization.LocalizedValueStore;
+import com.runwaysdk.localization.configuration.AttributeLocalQueryCriteria;
+import com.runwaysdk.localization.configuration.AttributeLocalTabConfiguration;
 import com.runwaysdk.localization.configuration.ConfigurationBuilder;
 import com.runwaysdk.localization.configuration.SpreadsheetConfiguration;
 import com.runwaysdk.mvc.Controller;
@@ -30,10 +34,18 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.system.Operations;
+import com.runwaysdk.system.PostalCode;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.metadata.MdAttributeLocal;
+import com.runwaysdk.system.metadata.MdAttributeLocalQuery;
 import com.runwaysdk.system.metadata.MdLocalizable;
+import com.runwaysdk.system.metadata.Metadata;
 
 import net.geoprism.georegistry.service.WMSService;
 import net.geoprism.localization.LocalizationFacade;
@@ -119,6 +131,9 @@ public class RegistryLocalizationController
     com.runwaysdk.LocalizationFacade.install(locale);
 
     new WMSService().createAllWMSLayers(true);
+    
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();    
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
@@ -145,12 +160,73 @@ public class RegistryLocalizationController
   {
     ConfigurationBuilder builder = new ConfigurationBuilder();
 
-    builder.addAttributeLocalTab("Exceptions", (MdAttributeLocal) BusinessFacade.get(MdLocalizable.getMessageMd()));
+    addRegistryExceptions(builder);
 
     builder.addLocalizedValueStoreTab("Core Exceptions", LocalizedValueStore.TAG_NAME_ALL_RUNWAY_EXCEPTIONS);
 
     builder.addLocalizedValueStoreTab("UI Text", Arrays.asList(LocalizedValueStore.TAG_NAME_UI_TEXT));
+    
+    addRegistryMetadata(builder);
 
     return builder.build();
+  }
+  
+  private void addRegistryExceptions(ConfigurationBuilder builder)
+  {
+    MdAttributeLocal exceptionsLocal = (MdAttributeLocal) BusinessFacade.get(MdLocalizable.getMessageMd());
+    ArrayList<MdAttributeLocal> exceptionsLocalAL = new ArrayList<MdAttributeLocal>();
+    exceptionsLocalAL.add(exceptionsLocal);
+    AttributeLocalTabConfiguration localTabConfig = builder.addAttributeLocalTab("Exceptions", exceptionsLocal.getAttributeName(), exceptionsLocalAL);
+    
+    AttributeLocalQueryCriteria myCriteria = new AttributeLocalQueryCriteria();
+    myCriteria.definingTypeMustNotInclude(GeoEntity.CLASS);
+    myCriteria.definingTypeMustNotInclude(LocalizedValueStore.CLASS);
+    myCriteria.definingTypeMustNotInclude(PostalCode.CLASS);
+    myCriteria.definingTypeMustNotInclude(Operations.CLASS);
+    myCriteria.entityKeyMustInclude("net.geoprism.georegistry");
+    myCriteria.entityKeyMustInclude("com.runwaysdk.localization");
+    myCriteria.entityKeyMustInclude("net.geoprism.gis");
+    myCriteria.entityKeyMustInclude("net.geoprism.ontology");
+    myCriteria.entityKeyMustInclude("net.geoprism.registry"); // Yes its confusing but these are OR not AND
+    localTabConfig.addQueryCriteria(myCriteria);
+  }
+  
+  private void addRegistryMetadata(ConfigurationBuilder builder)
+  {
+    QueryFactory qf = new QueryFactory();
+    
+    MdAttributeLocalQuery localQuery = new MdAttributeLocalQuery(qf);
+    
+//    localQuery.WHERE(localQuery.getKeyName().LIKE("net.geoprism.georegistry%"));
+//    
+//    localQuery.WHERE(localQuery.getAttributeName().EQ("displayLabel"));
+    
+    localQuery.WHERE(localQuery.getAttributeName().NE(MdLocalizableInfo.MESSAGE));
+    localQuery.WHERE(localQuery.getAttributeName().NE(Metadata.DESCRIPTION));
+    
+    ArrayList<MdAttributeLocal> locals = new ArrayList<MdAttributeLocal>();
+    OIterator<? extends MdAttributeLocal> it = localQuery.getIterator();
+    try
+    {
+      while (it.hasNext())
+      {
+        locals.add(it.next());
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+    
+    AttributeLocalTabConfiguration localTabConfig = builder.addDynamicAttributeLocalTab("Registry Metadata", locals);
+    
+    AttributeLocalQueryCriteria myCriteria = new AttributeLocalQueryCriteria();
+    myCriteria.definingTypeMustNotInclude(GeoEntity.CLASS);
+    myCriteria.definingTypeMustNotInclude(LocalizedValueStore.CLASS);
+    myCriteria.definingTypeMustNotInclude(PostalCode.CLASS);
+    myCriteria.definingTypeMustNotInclude(Operations.CLASS);
+    myCriteria.entityKeyMustInclude("net.geoprism.georegistry");
+    myCriteria.entityKeyMustInclude("net.geoprism.registry"); // Yes its confusing but these are OR not AND
+    localTabConfig.addQueryCriteria(myCriteria);
   }
 }

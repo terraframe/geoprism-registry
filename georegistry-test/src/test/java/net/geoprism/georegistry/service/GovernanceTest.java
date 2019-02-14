@@ -34,9 +34,9 @@ import net.geoprism.georegistry.action.ChangeRequest;
 import net.geoprism.georegistry.action.ChangeRequestQuery;
 import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectQuery;
-import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
-import net.geoprism.georegistry.testframework.TestRegistryAdapterClient;
-import net.geoprism.georegistry.testframework.USATestData;
+import net.geoprism.registry.test.TestDataSet.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestRegistryAdapterClient;
+import net.geoprism.registry.test.USATestData;
 
 public class GovernanceTest
 {
@@ -199,7 +199,7 @@ public class GovernanceTest
      * Submit CR2
      */
     this.adapter.submitChangeRequest(actionsCR2);
-
+    
     /*
      * Validation and execution
      */

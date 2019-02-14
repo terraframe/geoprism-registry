@@ -22,7 +22,7 @@ import com.runwaysdk.constants.ClientRequestIF;
 
 import junit.framework.Assert;
 import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.georegistry.testframework.USATestData;
+import net.geoprism.registry.test.USATestData;
 
 public class ConversionTest
 {
@@ -346,6 +346,52 @@ public class ConversionTest
     }
   }
 
+  @Test
+  public void testUpdateLeaf()
+  {
+    String sessionId = this.adminCR.getSessionId();
+
+    // Create a new GeoObject with the custom attribute
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
+    geoObj.setCode("000");
+    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
+
+    geoObj = ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    geoObj.setLocalizedDisplayLabel("New Label");
+
+    geoObj = ServiceFactory.getRegistryService().updateGeoObject(sessionId, geoObj.toJSON().toString());
+
+    // Get the object with the custom attribute
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "000", this.testData.DISTRICT.getCode());
+
+    Assert.assertNotNull(result);
+    Assert.assertEquals("New Label", geoObj.getLocalizedDisplayLabel());
+  }
+
+  @Test
+  public void testUpdateTree()
+  {
+    String sessionId = this.adminCR.getSessionId();
+
+    // Create a new GeoObject with the custom attribute
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
+    geoObj.setCode("000");
+    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
+
+    geoObj = ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    geoObj.setLocalizedDisplayLabel("New Label");
+
+    geoObj = ServiceFactory.getRegistryService().updateGeoObject(sessionId, geoObj.toJSON().toString());
+
+    // Get the object with the custom attribute
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "000", this.testData.STATE.getCode());
+
+    Assert.assertNotNull(result);
+    Assert.assertEquals("New Label", geoObj.getLocalizedDisplayLabel());
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void testAttributeTypeTermLeaf()
@@ -358,7 +404,7 @@ public class ConversionTest
     Term rootTerm = testTerm.getRootTerm();
 
     Term term = ServiceFactory.getRegistryService().createTerm(sessionId, rootTerm.getCode(), new Term("termValue2", "Term Value 2", "").toJSON().toString());
-    
+
     this.testData.refreshTerms(testTerm);
 
     try

@@ -394,7 +394,7 @@ public class GeoObjectConfiguration
       String hCode = config.get(HIERARCHY).getAsString();
 
       HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
-      MdTermRelationship hierarchyRelationiship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+      MdTermRelationship hierarchyRelationiship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
       List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got, hCode);
 
       configuration.setHierarchy(hierarchyType);
