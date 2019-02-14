@@ -711,6 +711,9 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();    
 
     return attrType;
   }
@@ -782,6 +785,9 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();    
   }
 
   /**
