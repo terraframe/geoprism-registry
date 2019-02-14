@@ -1,0 +1,172 @@
+<loading-bar></loading-bar>
+
+<div class="modal-body">
+    <form class="modal-form" name="change-request-form">
+        <fieldset>
+            <!-- <div class="col-md-3"></div> -->
+            <div class="col-md-12">
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="dropdown.select.geoobjecttype.label"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <span class="text">
+                            <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="select-area" (change)="onSelectGeoObjectType($event)"
+                                [(ngModel)]="currentGeoObjectType" required>
+                                <!-- <option> <localize key="dropdown.select.geoobjecttype.option.label"></localize> </option> -->
+                                <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.localizedLabel}}</option>
+                            </select>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- <select-field
+                        required
+                        name="geoobjecttype-select"
+                        placeholder="dropdown.select.geoobjecttype.option.label"
+                        [(ngModel)]="currentGeoObjectType"
+                        ngDefaultControl>
+                        <option *ngFor="let got of geoObjectTypes" [value]="got.code">{{got.localizedLabel}}</option>
+                        </select-field> -->
+
+                <!-- <input-field required name="geoObjectCode" [(ngModel)]="currentGeoObjectId"></input-field> -->
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="dropdown.select.geoobject.label"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <span class="text">
+                            <input type="text" [(ngModel)]="currentGeoObjectId" name="geoObjectId" required>
+
+                            <!-- <pre class="card card-block card-header">Model: {{asyncSelected | json}}</pre> -->
+
+                            <!-- <input [(ngModel)]="asyncSelected" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadLoading)="changeTypeaheadLoading($event)"
+                                    (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="name" placeholder="Locations loaded with timeout"
+                                    class="form-control">
+                                    <div *ngIf="typeaheadLoading">Loading</div> -->
+                        </span>
+                    </div>
+
+                    <button class="btn btn-primary" (click)="onSelectGeoObject($event)">click</button>
+
+                </div>
+
+                <!-- <div *ngIf="currentGeoObject" style="max-height: 300px;overflow: auto;">
+                            <div class="row-holder" *ngFor="let prop of objectKeys(currentGeoObject.properties)">
+                                <div class="label-holder" style="display: inline-block;">
+                                    <label>
+                                        {{prop}}
+                                    </label>
+                                </div>
+                                <div class="holder" style="display: inline-block;">
+                                    <span class="text">
+                                        <input type="text" [(ngModel)]="currentGeoObject.properties[prop]" name="{{currentGeoObject.properties[prop]}}" disabled>
+
+                                        <input type="text" [(ngModel)]="modifiedCurrentGeoObject.properties[prop]" name="mod-{{modifiedCurrentGeoObject.properties[prop]}}">
+                                    </span>
+                                </div>
+                            </div>
+                        </div> -->
+
+
+
+                <div *ngIf="currentGeoObject" style="max-height: 300px;overflow: auto;">
+                    <div class="row-holder">
+                        <div class="label-holder" style="display: inline-block;">
+                            <label>
+                                Change Attr
+                            </label>
+                        </div>
+                        <div class="holder" style="display: inline-block;">
+                            <span class="text">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                test original
+                                            </th>
+                                            <th>
+                                                test changed
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="" *ngFor="let propKey of objectKeys(currentGeoObject.properties)">
+                                            <td>
+                                                <input type="text" *ngIf="!isAttribute(modifiedCurrentGeoObject.properties[propKey])" name="{{currentGeoObject.properties[propKey]}}"
+                                                    disabled>
+
+                                                <input type="text" *ngIf="isAttribute(modifiedCurrentGeoObject.properties[propKey])" name="{{currentGeoObject.properties[propKey]}}"
+                                                    disabled>
+                                                <input type="text" *ngIf="isAttribute(modifiedCurrentGeoObject.properties[propKey])" name="{{currentGeoObject.properties[propKey]}}"
+                                                    disabled>
+                                                <input type="text" *ngIf="isAttribute(modifiedCurrentGeoObject.properties[propKey])" name="{{currentGeoObject.properties[propKey]}}"
+                                                    disabled>
+                                            </td>
+                                            <td>
+                                                <input *ngIf="!isAttribute(modifiedCurrentGeoObject.properties[propKey])" type="text" [(ngModel)]="modifiedCurrentGeoObject.properties[propKey]"
+                                                    id="mod-{{propKey}}" name="mod-{{propKey}}" disabled>
+
+                                                <input *ngIf="isAttribute(modifiedCurrentGeoObject.properties[propKey])" type="text" [(ngModel)]="modifiedCurrentGeoObject.properties[propKey]"
+                                                    id="mod-{{propKey}}" name="mod-{{propKey}}" disabled>
+                                                <input *ngIf="isAttribute(modifiedCurrentGeoObject.properties[propKey])" type="text" [(ngModel)]="modifiedCurrentGeoObject.properties[propKey]"
+                                                    id="mod-{{propKey}}" name="mod-{{propKey}}" disabled>
+                                                <input *ngIf="isAttribute(modifiedCurrentGeoObject.properties[propKey])" type="text" [(ngModel)]="modifiedCurrentGeoObject.properties[propKey]"
+                                                    id="mod-{{propKey}}" name="mod-{{propKey}}" disabled>
+                                            </td>
+                                            <td class="button-column">
+                                                {{propKey}}
+                                                <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editProp(modifiedCurrentGeoObject.properties[propKey], $event)"></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <attribute-input *ngIf="modifiedAttribute" [geoObjectType]="currentGeoObjectType" [attribute]="modifiedAttribute" [isDecimal]="false"
+                                    [disableCodeField]="false" [excludeDescription]="false"></attribute-input>
+
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="change.request.reason.label"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <span class="text">
+                            <textarea rows="4" cols="50" [(ngModel)]="reason" name="reason-input"></textarea>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col-md-3"></div> -->
+
+            <div class="row-holder">
+                <div class="label-holder">
+                </div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" class="btn btn-default" (click)="cancel()">
+                            <localize key="modal.button.cancel"></localize>
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+                            <localize key="modal.button.submit"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+

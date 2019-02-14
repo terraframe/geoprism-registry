@@ -1,9 +1,9 @@
 
 <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
-    
+     
   <modal-step-indicator></modal-step-indicator>
-   
-  <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" [geoObjectType]="geoObjectType"></geoobjecttype-input>
+
+  <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" (geoObjectTypeChange)="onGeoObjectTypeChange($event)" [geoObjectType]="geoObjectType" [setGeoObjectType]="geoObjectType"></geoobjecttype-input>
   
   <manage-attributes-modal *ngIf="modalState.state === 'MANAGE-ATTRIBUTES'" [geoObjectType]="geoObjectType"></manage-attributes-modal>
   

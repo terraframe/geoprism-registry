@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, Directive } from '@angular/core';
 
 import { ImportConfiguration } from '../io';
-import { GeoObjectType } from '../../hierarchy/hierarchy';
 
 import { IOService } from '../../../service/io.service';
 

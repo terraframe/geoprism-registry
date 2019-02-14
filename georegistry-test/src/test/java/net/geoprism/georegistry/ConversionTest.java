@@ -22,7 +22,7 @@ import com.runwaysdk.constants.ClientRequestIF;
 
 import junit.framework.Assert;
 import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.georegistry.testframework.USATestData;
+import net.geoprism.registry.test.USATestData;
 
 public class ConversionTest
 {

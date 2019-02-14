@@ -7,9 +7,8 @@ import {
   transition
 } from '@angular/animations'
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { GeoObjectType, Attribute, AttributeTerm, Term} from '../hierarchy';
+import { GeoObjectType, Attribute } from '../../../model/registry';
 import { HierarchyService } from '../../../service/hierarchy.service';
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
@@ -45,7 +44,7 @@ export class AttributeInputComponent implements OnInit {
 
     state: string = 'none';
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef ) {
+    constructor( private hierarchyService: HierarchyService, private cdr: ChangeDetectorRef ) {
     }
 
     ngOnInit(): void {

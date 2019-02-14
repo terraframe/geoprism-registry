@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { GeoObjectType } from '../../hierarchy/hierarchy';
 import { ImportConfiguration } from '../io';
 
 import { IOService } from '../../../service/io.service';

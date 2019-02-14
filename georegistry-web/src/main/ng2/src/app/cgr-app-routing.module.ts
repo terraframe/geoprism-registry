@@ -8,6 +8,7 @@ import { LocalizationManagerComponent } from './data/localization-manager/locali
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
+import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 
 import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
@@ -42,6 +43,11 @@ const routes: Routes = [
         path: 'crtable',
         component: RegistryViewerComponent,
         canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'change-request',
+        component: StandAloneChangeRequestComponent,
+        canActivate: [AdminGuard]
     },
     {
         path: '',

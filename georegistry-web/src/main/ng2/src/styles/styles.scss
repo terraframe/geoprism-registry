@@ -80,7 +80,7 @@ li.list-group-item.draggable:hover{
 li.list-group-item {
   font-size: 18px;
 }
-li.list-group-item:hover {
+li.list-group-item.clickable:hover {
   background: #f2f2f2; 
   cursor: pointer;
 }

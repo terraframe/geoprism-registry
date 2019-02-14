@@ -1,16 +1,17 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs';
 import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
 
-import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '../../hierarchy/hierarchy';
+import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '../../../model/registry';
 // import { StepConfig, Step } from '../../../core/modals/modal';
 
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 
+import { InputFieldComponent } from '../../../core/form-fields/input-field/input-field.component'
 
 
 @Component( {
@@ -19,34 +20,34 @@ import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-m
     styleUrls: ['./manage-geoobjecttype-modal.css']
 } )
 export class ManageGeoObjectTypeModalComponent implements OnInit {
-
     message: string = null;
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
     modalStateSubscription: Subscription;
     geoObjectType: GeoObjectType;
+    public onGeoObjectTypeSubmitted: Subject<GeoObjectType>;
 
     constructor( public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
       this.modalStateSubscription = geoObjectTypeManagementService.modalStepChange.subscribe( modalState => {
             this.modalState = modalState;
-        })
+      });
     }
 
     ngOnInit(): void {
-
+        this.onGeoObjectTypeSubmitted = new Subject();
     }
 
     ngOnDestroy(){
         this.modalStateSubscription.unsubscribe();
     }
 
-    // manageAttributes(): void {
-    //     this.modalState = {"state":AttributeModalStates.manageAttributes, "attribute":""};
-    // }
-
     onModalStateChange(state: any): void {
         this.modalState = state;
+    }
 
-        console.log("state change")
+    onGeoObjectTypeChange(data: any): void {
+        // send persisted geoobjecttype to the parent calling component (hierarchy.component) so the 
+        // updated GeoObjectType can be reflected in the template
+        this.onGeoObjectTypeSubmitted.next( data );
     }
 
     update(): void {

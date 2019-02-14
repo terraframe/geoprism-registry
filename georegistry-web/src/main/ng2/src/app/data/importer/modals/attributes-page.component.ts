@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { GeoObjectType } from '../../hierarchy/hierarchy';
 import { ImportConfiguration } from '../io';
 
 @Component( {

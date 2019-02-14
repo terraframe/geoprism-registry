@@ -3,9 +3,9 @@
   <div class="modal-body" *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
     <error-message [message]="message"></error-message>
 
-        <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">    
+        <form #form="ngForm" *ngIf="editGeoObjectType" class="modal-form" (ngSubmit)="form.valid">    
             <div class="heading">
-              <h1><localize key="hierarchy.management.manage.geoobjecttype.title"></localize> {{geoObjectType.localizedLabel}}</h1>
+              <h1><localize key="hierarchy.management.manage.editGeoObjectType.title"></localize> {{editGeoObjectType.localizedLabel}}</h1>
             </div>      
             <fieldset>   
                  <div class="row-holder">
@@ -14,7 +14,7 @@
                     </div>          
                     <div class="holder" >
                     <span class="text">  
-                       <input type="text" [(ngModel)]="geoObjectType.code" name="code" [disabled]="true" [required]="true">
+                       <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" [disabled]="true" [required]="true">
                     </span>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                     </div>          
                     <div class="holder" >
                     <span class="text">  
-                       <input type="text" [(ngModel)]="geoObjectType.localizedLabel" name="label" [required]="true">
+                       <input type="text" [(ngModel)]="editGeoObjectType.localizedLabel" name="label" [required]="true">
                     </span>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                     </div>          
                     <div class="holder" >
                     <span class="text">                  
-                        <textarea [(ngModel)]="geoObjectType.localizedDescription" name="description" [disabled]="false"></textarea>
+                        <textarea [(ngModel)]="editGeoObjectType.localizedDescription" name="description" [disabled]="false"></textarea>
                     </span>
                     </div>
                 </div> 
@@ -46,7 +46,7 @@
                         <label><localize key="data.property.label.geometryType"></localize></label>
                     </div>          
                     <div class="holder">                    
-                      <select name="geometryType" [(ngModel)]="geoObjectType.geometryType" disabled>
+                      <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" disabled>
                         <option></option>
                         <option value="POINT"><localize key="georegistry.geometry.point"></localize></option>
                         <option value="LINE"><localize key="georegistry.geometry.line"></localize></option>
@@ -67,7 +67,7 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <ul class="list-group list-group-flush">
-                                    <li *ngFor="let attr of geoObjectType.attributes" class="list-group-item">{{attr.localizedLabel}}</li>
+                                    <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.localizedLabel}}</li>
                                 </ul>
 
                                 <button type="button" class="btn btn-primary full-width" (click)="manageAttributes()">

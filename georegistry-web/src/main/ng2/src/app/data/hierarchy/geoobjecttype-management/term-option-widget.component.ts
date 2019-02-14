@@ -8,7 +8,7 @@ import {
 } from '@angular/animations'
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, Term} from '../hierarchy';
+import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, Term} from '../../../model/registry';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 

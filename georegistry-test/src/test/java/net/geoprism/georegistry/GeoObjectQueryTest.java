@@ -26,8 +26,8 @@ import net.geoprism.georegistry.query.LookupRestriction;
 import net.geoprism.georegistry.query.OidRestrction;
 import net.geoprism.georegistry.query.UidRestriction;
 import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.georegistry.testframework.USATestData;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectQueryTest
 {

@@ -1,4 +1,4 @@
-package net.geoprism.georegistry.testframework;
+package net.geoprism.registry.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;

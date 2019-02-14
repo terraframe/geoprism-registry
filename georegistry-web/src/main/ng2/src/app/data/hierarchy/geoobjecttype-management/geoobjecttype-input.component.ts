@@ -4,9 +4,10 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
 
-import { GeoObjectType, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
-import { Step, StepConfig } from '../../../core/modals/modal';
+import { GeoObjectType, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
+import { StepConfig } from '../../../core/modals/modal';
 
+import { RegistryService } from '../../../service/registry.service';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
@@ -21,21 +22,35 @@ import { LocalizationService } from '../../../core/service/localization.service'
 export class GeoObjectTypeInputComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
+    @Output() geoObjectTypeChange:  EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+    editGeoObjectType: GeoObjectType;
+    @Input('setGeoObjectType') 
+    set in(geoObjectType: GeoObjectType){
+        if(geoObjectType){
+          this.editGeoObjectType = JSON.parse(JSON.stringify(geoObjectType));
+        //   this.geoObjectType = geoObjectType;
+        }
+    }
     message: string = null;
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":"", "termOption":""};
-
 
     modalStepConfig: StepConfig = {"steps": [
         {"label":this.localizationService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":true}
     ]};
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService, 
-        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizationService: LocalizationService ) {
+        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, 
+        private localizationService: LocalizationService, private registryService: RegistryService ) {
+    
     }
 
     ngOnInit(): void {
+
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
         this.geoObjectTypeManagementService.setModalState(this.modalState);
+    }
+
+    ngAfterViewInit() {
     }
 
     ngOnDestroy(){
@@ -50,9 +65,11 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     update(): void {
-        this.hierarchyService.updateGeoObjectType( this.geoObjectType ).then( data => {
+        this.registryService.updateGeoObjectType( this.editGeoObjectType ).then( data => {
 
-            this.geoObjectType = data;
+            // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
+            // so that the change can be updated in the template
+            this.geoObjectTypeChange.emit(this.geoObjectType);
 
             this.close();
 
@@ -61,7 +78,12 @@ export class GeoObjectTypeInputComponent implements OnInit {
         } );
     }
 
+    // resetGeoObjectType(): void {
+    //     this.geoObjectType = this.geoObjectTypeOriginal;
+    // }
+
     close(): void {
+        // this.resetGeoObjectType();
         this.bsModalRef.hide();
     }
 

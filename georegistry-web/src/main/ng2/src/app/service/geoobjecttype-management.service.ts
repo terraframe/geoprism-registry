@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 
-import {  ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../data/hierarchy/hierarchy';
+import {  ManageGeoObjectTypeModalState } from '../model/registry';
 
 
 declare var acp: string;

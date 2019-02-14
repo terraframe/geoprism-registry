@@ -15,7 +15,7 @@ import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.georegistry.testframework.USATestData;
+import net.geoprism.registry.test.USATestData;
 
 public class WMSServiceTest
 {

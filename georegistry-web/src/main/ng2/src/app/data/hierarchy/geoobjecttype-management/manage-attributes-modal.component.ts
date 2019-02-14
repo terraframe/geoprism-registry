@@ -4,9 +4,10 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 import { ConfirmModalComponent } from '../../../core/modals/confirm-modal.component';
 
-import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../hierarchy';
+import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
 import { StepConfig, ModalTypes } from '../../../core/modals/modal';
 
+import { RegistryService } from '../../../service/registry.service';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { ModalStepIndicatorService } from '../../../core/service/modal-step-indicator.service';
 import { LocalizationService } from '../../../core/service/localization.service';
@@ -35,7 +36,7 @@ export class ManageAttributesModalComponent implements OnInit {
     public onDeleteAttribute: Subject<boolean>;
 
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService, private localizeService: LocalizationService, 
-        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
+        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, private registryService: RegistryService ) {
     }
 
     ngOnInit(): void {
@@ -74,7 +75,7 @@ export class ManageAttributesModalComponent implements OnInit {
 
     deleteAttributeType(geoObjectTypeCode: string, attr: Attribute): void {
 
-          this.hierarchyService.deleteAttributeType( geoObjectTypeCode, attr.code ).then( data => {
+          this.registryService.deleteAttributeType( geoObjectTypeCode, attr.code ).then( data => {
             this.onDeleteAttribute.next( data );
 
             if(data){

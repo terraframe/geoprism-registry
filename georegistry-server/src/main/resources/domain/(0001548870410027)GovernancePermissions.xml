@@ -432,34 +432,42 @@
           <mdBusinessPermission type="net.geoprism.georegistry.action.GovernanceStatus">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.georegistry.action.ChangeRequest">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdBusinessPermission>
           <mdRelationshipPermission type="net.geoprism.georegistry.action.HasActionRelationship">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdRelationshipPermission>
           <mdBusinessPermission type="net.geoprism.georegistry.action.AbstractAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.georegistry.action.tree.AddChildAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.georegistry.action.tree.RemoveChildAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
           </mdBusinessPermission>
         </grant>
       </role>
