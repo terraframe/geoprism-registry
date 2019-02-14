@@ -38,6 +38,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Operations;
 import com.runwaysdk.system.PostalCode;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -130,6 +131,9 @@ public class RegistryLocalizationController
     com.runwaysdk.LocalizationFacade.install(locale);
 
     new WMSService().createAllWMSLayers(true);
+    
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();    
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)

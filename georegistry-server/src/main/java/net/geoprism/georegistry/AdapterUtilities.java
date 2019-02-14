@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
@@ -32,9 +33,11 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeLocalDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdLocalStructDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -253,7 +256,7 @@ public class AdapterUtilities
 
     Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
       {
         // Ignore the attributes
       }
@@ -511,9 +514,6 @@ public class AdapterUtilities
     mdBusiness.getDescription().setValue(universal.getDescription().getValue());
     mdBusiness.apply();
 
-    // Create the permissions for the new MdBusiness
-    assignDefaultRolePermissions(mdBusiness);
-
     // Add the default attributes.
     this.createDefaultAttributes(universal, mdBusiness);
 
@@ -521,42 +521,56 @@ public class AdapterUtilities
 
     universal.apply();
 
+    // Create the permissions for the new MdBusiness
+    assignDefaultRolePermissions(mdBusiness);
+
+    if (geoObjectType.isLeaf())
+    {
+      MdBusinessDAOIF mdBusinessDAO = MdBusinessDAO.get(mdBusiness.getOid());
+      MdAttributeLocalDAOIF displayLabel = (MdAttributeLocalDAOIF) mdBusinessDAO.definesAttribute(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName());
+      MdLocalStructDAOIF mdStruct = displayLabel.getMdStructDAOIF();
+
+      assignDefaultRolePermissions(mdStruct);
+    }
+
     // Build the parent class term root if it does not exist.
     TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
-    
+
     new WMSService().createDatabaseView(geoObjectType, true);
 
     return universal;
   }
 
-  public void assignDefaultRolePermissions(MdBusiness mdBusiness)
+  public void assignDefaultRolePermissions(ComponentIF component)
   {
     RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
-    adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-    adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
-    adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
-    adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+    adminRole.grantPermission(Operation.CREATE, component.getOid());
+    adminRole.grantPermission(Operation.DELETE, component.getOid());
+    adminRole.grantPermission(Operation.WRITE, component.getOid());
+    adminRole.grantPermission(Operation.WRITE_ALL, component.getOid());
 
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
-    maintainer.grantPermission(Operation.CREATE, mdBusiness.getOid());
-    maintainer.grantPermission(Operation.DELETE, mdBusiness.getOid());
-    maintainer.grantPermission(Operation.WRITE, mdBusiness.getOid());
-    maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+    maintainer.grantPermission(Operation.CREATE, component.getOid());
+    maintainer.grantPermission(Operation.DELETE, component.getOid());
+    maintainer.grantPermission(Operation.WRITE, component.getOid());
+    maintainer.grantPermission(Operation.WRITE_ALL, component.getOid());
 
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
-    consumer.grantPermission(Operation.READ, mdBusiness.getOid());
-    consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-    
+    consumer.grantPermission(Operation.READ, component.getOid());
+    consumer.grantPermission(Operation.READ_ALL, component.getOid());
+
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-    contributor.grantPermission(Operation.READ, mdBusiness.getOid());
-    contributor.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-    
-//    // TODO: Actual hierarchy role
-//    RoleDAO hierarchyRole = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX + "LocatedIn").getBusinessDAO();
-//    hierarchyRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-//    hierarchyRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
-//    hierarchyRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
-//    hierarchyRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+    contributor.grantPermission(Operation.READ, component.getOid());
+    contributor.grantPermission(Operation.READ_ALL, component.getOid());
+
+    // // TODO: Actual hierarchy role
+    // RoleDAO hierarchyRole =
+    // RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX +
+    // "LocatedIn").getBusinessDAO();
+    // hierarchyRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
+    // hierarchyRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+    // hierarchyRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
+    // hierarchyRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
   }
 
   /**
