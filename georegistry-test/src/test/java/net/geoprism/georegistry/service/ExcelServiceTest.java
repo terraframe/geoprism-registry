@@ -31,6 +31,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
@@ -84,7 +85,19 @@ public class ExcelServiceTest
 
     AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
     this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
+    
+    reload();
   }
+
+  @Request
+  public void reload()
+  {
+    /*
+     * Reload permissions for the new attributes
+     */
+    SessionFacade.getSessionForRequest(this.adminCR.getSessionId()).reloadPermissions();
+  }
+
 
   @After
   public void tearDown()
