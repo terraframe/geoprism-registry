@@ -38,7 +38,6 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     return hierarchyType.getCode();
   }
 
-  @Authenticate
   @Transaction
   public static void submitChangeRequest(String sJson)
   {

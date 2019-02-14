@@ -19,6 +19,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.controller.URLConfigurationManager;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
@@ -26,11 +27,11 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.georegistry.RegistryController;
-import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectInfo;
-import net.geoprism.georegistry.testframework.TestDataSet.TestGeoObjectTypeInfo;
-import net.geoprism.georegistry.testframework.TestRegistryAdapterClient;
-import net.geoprism.georegistry.testframework.USATestData;
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.test.TestRegistryAdapterClient;
+import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.test.TestDataSet.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestDataSet.TestGeoObjectTypeInfo;
 
 public class RegistryServiceTest
 {

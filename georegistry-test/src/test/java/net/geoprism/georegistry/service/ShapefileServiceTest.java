@@ -51,8 +51,8 @@ import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectIterator;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
-import net.geoprism.georegistry.testframework.ListIterator;
-import net.geoprism.georegistry.testframework.USATestData;
+import net.geoprism.registry.test.ListIterator;
+import net.geoprism.registry.test.USATestData;
 
 public class ShapefileServiceTest
 {
