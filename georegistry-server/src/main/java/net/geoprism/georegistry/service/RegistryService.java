@@ -62,7 +62,6 @@ import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 
-
 public class RegistryService
 {
   private RegistryAdapter adapter;
@@ -542,7 +541,8 @@ public class RegistryService
   /**
    * 
    * @param sessionId
-   * @param sJson - serialized array of AbstractActions
+   * @param sJson
+   *          - serialized array of AbstractActions
    */
   @Request(RequestType.SESSION)
   public void submitChangeRequest(String sessionId, String sJson)
@@ -602,7 +602,7 @@ public class RegistryService
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
 
     Universal universal = createGeoObjectType(geoObjectType);
-    
+
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
 
@@ -711,9 +711,9 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
-    
+
     // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();    
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     return attrType;
   }
@@ -785,9 +785,9 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(geoObjectType);
-    
+
     // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();    
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
   }
 
   /**
@@ -814,13 +814,13 @@ public class RegistryService
     TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
 
     Term returnTerm = termBuilder.build();
-    
+
     List<MdAttributeConcrete> mdAttrList = this.findRootClassifier(classifier);
     this.refreshAttributeTermTypeInCache(mdAttrList);
 
     return returnTerm;
   }
-  
+
   /**
    * Creates a new {@link Term} object and makes it a child of the term with the
    * given code.
@@ -864,16 +864,16 @@ public class RegistryService
   public void deleteTerm(String sessionId, String termCode)
   {
     String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(termCode);
-    
+
     Classifier classifier = Classifier.getByKey(classifierKey);
-    
+
     List<MdAttributeConcrete> mdAttrList = this.findRootClassifier(classifier);
-    
+
     classifier.delete();
-    
+
     this.refreshAttributeTermTypeInCache(mdAttrList);
   }
-  
+
   /**
    * Returns the {@link AttributeTermType}s that use the given term.
    * 
@@ -881,55 +881,55 @@ public class RegistryService
    * @return
    */
   private void refreshAttributeTermTypeInCache(List<MdAttributeConcrete> mdAttrList)
-  {        
+  {
     for (MdAttributeConcrete mdAttribute : mdAttrList)
     {
       String geoObjectTypeCode = mdAttribute.getDefiningMdClass().getTypeName();
-      
+
       Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode);
-      
+
       if (optional.isPresent())
       {
         GeoObjectType geoObjectType = optional.get();
 
-        AttributeType attributeType = ServiceFactory.getConversionService().mdAttributeToAttributeType((MdAttributeConcreteDAOIF)BusinessFacade.getEntityDAO(mdAttribute));
-        
+        AttributeType attributeType = ServiceFactory.getConversionService().mdAttributeToAttributeType((MdAttributeConcreteDAOIF) BusinessFacade.getEntityDAO(mdAttribute));
+
         geoObjectType.addAttribute(attributeType);
-        
+
         adapter.getMetadataCache().addGeoObjectType(geoObjectType);
       }
     }
   }
-  
+
   private List<MdAttributeConcrete> findRootClassifier(Classifier classifier)
-  { 
+  {
     List<MdAttributeConcrete> mdAttributeList = new LinkedList<MdAttributeConcrete>();
-    
+
     return this.findRootClassifier(classifier, mdAttributeList);
   }
-  
+
   private List<MdAttributeConcrete> findRootClassifier(Classifier classifier, List<MdAttributeConcrete> mdAttributeList)
-  { 
+  {
     // Is this a root term for an {@link MdAttributeTerm}
     OIterator<? extends MdAttributeTerm> attrTerm = classifier.getAllClassifierTermAttributeRoots();
     for (MdAttributeTerm mdAttributeTerm : attrTerm)
     {
       mdAttributeList.add(mdAttributeTerm);
     }
-    
+
     OIterator<? extends MdAttributeMultiTerm> attrMultiTerm = classifier.getAllClassifierMultiTermAttributeRoots();
     for (MdAttributeMultiTerm mdAttributeMultiTerm : attrMultiTerm)
     {
       mdAttributeList.add(mdAttributeMultiTerm);
     }
-    
+
     // Traverse up the tree
     OIterator<? extends Classifier> parentTerms = classifier.getAllIsAParent();
     for (Classifier parent : parentTerms)
     {
       return this.findRootClassifier(parent, mdAttributeList);
     }
-    
+
     return mdAttributeList;
   }
 
@@ -1244,6 +1244,7 @@ public class RegistryService
         JsonObject result = new JsonObject();
         result.addProperty("id", it.currentOid());
         result.addProperty("name", object.getLocalizedDisplayLabel());
+        result.addProperty(GeoObject.CODE, object.getCode());
 
         results.add(result);
       }

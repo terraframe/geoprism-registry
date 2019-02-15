@@ -192,8 +192,26 @@ public class RegistryServiceTest
 
     Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.get("name").getAsString());
     Assert.assertEquals(testData.COLORADO.getOid(), result.get("id").getAsString());
+    Assert.assertEquals(testData.COLORADO.getCode(), result.get(GeoObject.CODE).getAsString());    
   }
 
+  @Test
+  public void testGetGeoObjectSuggestionsNoParent()
+  {
+    RegistryController controller = new RegistryController();
+    
+    RestBodyResponse response = (RestBodyResponse) controller.getGeoObjectSuggestions(testData.adminClientRequest, "Co", testData.STATE.getCode(), null, null);
+    JsonArray results = (JsonArray) response.serialize();
+    
+    Assert.assertEquals(1, results.size());
+    
+    JsonObject result = results.get(0).getAsJsonObject();
+    
+    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.get("name").getAsString());
+    Assert.assertEquals(testData.COLORADO.getOid(), result.get("id").getAsString());
+    Assert.assertEquals(testData.COLORADO.getCode(), result.get(GeoObject.CODE).getAsString());
+  }
+  
   @Test(expected = SmartExceptionDTO.class)
   public void testUnissuedIdCreate()
   {
