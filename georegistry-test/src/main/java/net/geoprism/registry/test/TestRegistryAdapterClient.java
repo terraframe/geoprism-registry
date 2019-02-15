@@ -33,7 +33,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   public TestRegistryAdapterClient()
   {
     super(new TestRegistryClientIdService());
-    ((TestRegistryClientIdService)this.getIdService()).setClient(this);
+    ((TestRegistryClientIdService)this.getIdSerivce()).setClient(this);
     
     this.controller = new RegistryController();
   }

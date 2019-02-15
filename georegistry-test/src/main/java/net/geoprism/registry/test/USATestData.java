@@ -98,7 +98,7 @@ public class USATestData extends TestDataSet
 
     adapter.setClientRequest(data.adminClientRequest);
     adapter.refreshMetadataCache();
-    adapter.getIdService().populate(1000);
+    adapter.getIdSerivce().populate(1000);
 
     return data;
   }

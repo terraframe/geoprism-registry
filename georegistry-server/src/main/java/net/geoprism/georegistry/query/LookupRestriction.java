@@ -34,7 +34,7 @@ public class LookupRestriction implements GeoObjectRestriction
   {
     vQuery.AND(geQuery.getDisplayLabel().localize().LIKEi("%" + this.text + "%"));
 
-    if (this.parentCode != null && this.hierarchyCode != null)
+    if (this.parentCode != null && this.hierarchyCode != null && this.parentCode.length() > 0  && this.hierarchyCode.length() > 0)
     {
       String key = ConversionService.buildMdTermRelGeoEntityKey(this.hierarchyCode);
       MdTermRelationshipDAOIF mdTermRelationship = MdTermRelationshipDAO.getMdTermRelationshipDAO(key);
