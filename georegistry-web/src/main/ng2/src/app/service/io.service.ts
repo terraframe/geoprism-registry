@@ -107,8 +107,11 @@ export class IOService {
         let params: URLSearchParams = new URLSearchParams();
         params.set( 'text', text );
         params.set( 'type', type );
-        params.set( 'parent', parent );
-        params.set( 'hierarchy', hierarchy );
+
+        if ( parent != null && hierarchy != null ) {
+            params.set( 'parent', parent );
+            params.set( 'hierarchy', hierarchy );
+        }
 
         return this.http
             .get( acp + '/cgr/geoobject/suggestions', { search: params } )
