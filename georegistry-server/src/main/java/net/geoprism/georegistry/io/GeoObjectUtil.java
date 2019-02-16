@@ -1,9 +1,32 @@
 package net.geoprism.georegistry.io;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
+
+import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.metadata.MdTermDAO;
+import com.runwaysdk.dataaccess.metadata.MdTermRelationshipDAO;
+import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.query.ValueQuery;
+import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.GeoEntityQuery;
+import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.geo.UniversalQuery;
+import com.runwaysdk.system.metadata.MdTerm;
+import com.runwaysdk.system.metadata.MdTermRelationship;
+import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
+
+import net.geoprism.georegistry.service.ServiceFactory;
 
 public class GeoObjectUtil
 {
@@ -31,4 +54,56 @@ public class GeoObjectUtil
 
     return builder.toString();
   }
+
+  public static Map<String, ValueObject> getAncestorMap(GeoObject object, HierarchyType hierarchy)
+  {
+    Map<String, ValueObject> map = new HashMap<String, ValueObject>();
+
+    if (object.getType().isLeaf())
+    {
+      throw new java.lang.UnsupportedOperationException();
+    }
+    else
+    {
+      MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchy);
+
+      String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
+      String typeName = DatabaseAllPathsStrategy.getTypeName(MdTermRelationshipDAO.get(mdTermRelationship.getOid()));
+
+      ValueQuery vQuery = new ValueQuery(new QueryFactory());
+      BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
+      GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
+      GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
+      UniversalQuery universalQuery = new UniversalQuery(vQuery);
+
+      vQuery.SELECT(parentQuery.getGeoId());
+      vQuery.SELECT(parentQuery.getDisplayLabel().localize(GeoEntity.DISPLAYLABEL));
+      vQuery.SELECT(universalQuery.getKeyName());
+
+      vQuery.AND(childQuery.getGeoId().EQ(object.getCode()));
+      vQuery.AND(parentQuery.getUniversal().EQ(universalQuery));
+      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.PARENTTERM).EQ(parentQuery));
+      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.CHILDTERM).EQ(childQuery));
+
+      OIterator<ValueObject> it = vQuery.getIterator();
+
+      try
+      {
+        while (it.hasNext())
+        {
+          ValueObject vObject = it.next();
+          String key = vObject.getValue(Universal.KEYNAME);
+
+          map.put(key, vObject);
+        }
+      }
+      finally
+      {
+        it.close();
+      }
+    }
+
+    return map;
+  }
+
 }

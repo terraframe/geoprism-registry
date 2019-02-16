@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -47,7 +48,9 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -57,6 +60,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.georegistry.io.GeoObjectUtil;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
+import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.gis.geoserver.SessionPredicate;
 
 public class GeoObjectShapefileExporter
@@ -67,15 +71,26 @@ public class GeoObjectShapefileExporter
 
   private GeoObjectType             type;
 
+  private HierarchyType             hierarchy;
+
   private Collection<AttributeType> attributes;
+
+  private Map<String, String>       columnNames;
 
   private OIterator<GeoObject>      objects;
 
-  public GeoObjectShapefileExporter(GeoObjectType type, OIterator<GeoObject> objects)
+  public GeoObjectShapefileExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
   {
     this.type = type;
+    this.hierarchy = hierarchy;
     this.objects = objects;
     this.attributes = new ImportAttributeSerializer(false, true).attributes(this.type);
+    this.columnNames = new HashMap<String, String>();
+  }
+
+  public Map<String, String> getColumnNames()
+  {
+    return columnNames;
   }
 
   public GeoObjectType getType()
@@ -217,6 +232,16 @@ public class GeoObjectShapefileExporter
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
+    // Add the type ancestor fields
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+
+    String[] types = new String[ancestors.size()];
+
+    for (int i = 0; i < ancestors.size(); i++)
+    {
+      types[i] = ancestors.get(i).getCode();
+    }
+
     while (this.objects.hasNext())
     {
       GeoObject object = this.objects.next();
@@ -229,11 +254,26 @@ public class GeoObjectShapefileExporter
 
         if (attribute instanceof AttributeTermType)
         {
-          builder.set(GeoObjectShapefileExporter.format(name), GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
+          builder.set(this.getColumnName(name), GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
         }
         else
         {
-          builder.set(GeoObjectShapefileExporter.format(name), value);
+          builder.set(this.getColumnName(name), value);
+        }
+      });
+
+      Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
+
+      ancestors.forEach(ancestor -> {
+        String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
+        String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getName();
+
+        ValueObject vObject = map.get(ancestor.getCode());
+
+        if (vObject != null)
+        {
+          builder.set(this.getColumnName(code), vObject.getValue(GeoEntity.GEOID));
+          builder.set(this.getColumnName(label), vObject.getValue(GeoEntity.DISPLAYLABEL));
         }
       });
 
@@ -252,10 +292,72 @@ public class GeoObjectShapefileExporter
     builder.add(GEOM, this.getShapefileType(this.type.getGeometryType()), 4326);
 
     this.attributes.forEach(attribute -> {
-      builder.add(GeoObjectShapefileExporter.format(attribute.getName()), this.getShapefileType(attribute));
+      builder.add(generateColumnName(attribute.getName()), this.getShapefileType(attribute));
+    });
+
+    // Add the type ancestor fields
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+
+    ancestors.forEach(ancestor -> {
+      String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
+      String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getName();
+
+      builder.add(generateColumnName(code), String.class);
+      builder.add(generateColumnName(label), String.class);
     });
 
     return builder.buildFeatureType();
+  }
+
+  public String getColumnName(String name)
+  {
+    if (this.columnNames.containsKey(name))
+    {
+      return this.columnNames.get(name);
+    }
+
+    throw new ProgrammingErrorException("Unable to find column name with key [" + name + "]");
+  }
+
+  public String generateColumnName(String name)
+  {
+    if (!this.columnNames.containsKey(name))
+    {
+      String format = this.format(name);
+
+      int count = 1;
+
+      String value = new String(format);
+
+      while (this.columnNames.containsValue(value))
+      {
+        if (count == 1)
+        {
+          format = format.substring(0, format.length() - 1);
+        }
+
+        if (count == 10)
+        {
+          format = format.substring(0, format.length() - 1);
+        }
+
+        value = format + ( count++ );
+      }
+
+      this.columnNames.put(name, value);
+    }
+
+    return this.columnNames.get(name);
+  }
+
+  private String format(String name)
+  {
+    if (name.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
+    {
+      return "label";
+    }
+
+    return name.substring(0, Math.min(10, name.length()));
   }
 
   private Class<?> getShapefileType(AttributeType attribute)
@@ -316,15 +418,5 @@ public class GeoObjectShapefileExporter
     }
 
     throw new UnsupportedOperationException("Unsupported geometry type [" + geometryType.name() + "]");
-  }
-
-  public static String format(String name)
-  {
-    if (name.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
-    {
-      return "label";
-    }
-
-    return name.substring(0, Math.min(10, name.length()));
   }
 }

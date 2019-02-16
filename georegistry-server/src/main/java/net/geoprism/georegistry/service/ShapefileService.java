@@ -17,6 +17,7 @@ import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.opengis.feature.simple.SimpleFeature;
@@ -76,7 +77,7 @@ public class ShapefileService
 
       if (dbfs.length > 0)
       {
-        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchies(geoObjectType);
+        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType);
 
         JsonObject object = new JsonObject();
         object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
@@ -277,14 +278,15 @@ public class ShapefileService
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportShapefile(String sessionId, String code)
+  public InputStream exportShapefile(String sessionId, String code, String hierarchyCode)
   {
-    return this.exportShapefile(code);
+    return this.exportShapefile(code, hierarchyCode);
   }
 
   @Transaction
-  private InputStream exportShapefile(String code)
+  private InputStream exportShapefile(String code, String hierarchyCode)
   {
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyCode).get();
     GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
 
@@ -292,7 +294,7 @@ public class ShapefileService
     {
       it = query.getIterator();
 
-      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(query.getType(), it);
+      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(query.getType(), hierarchyType, it);
 
       return exporter.export();
     }

@@ -47,7 +47,7 @@ export class ShapefileComponent implements OnInit {
     constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService ) { }
 
     ngOnInit(): void {
-        this.service.listGeoObjectTypes().then( types => {
+        this.service.listGeoObjectTypes( true ).then( types => {
             this.types = types;
 
         } ).catch(( err: any ) => {

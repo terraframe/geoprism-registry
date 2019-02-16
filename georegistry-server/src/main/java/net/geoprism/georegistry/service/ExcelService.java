@@ -10,6 +10,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
@@ -22,7 +23,6 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
@@ -63,7 +63,7 @@ public class ExcelService
       ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
       reader.process(new FileInputStream(file));
 
-      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchies(geoObjectType);
+      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType);
 
       JsonObject object = new JsonObject();
       object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
@@ -189,14 +189,15 @@ public class ExcelService
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportSpreadsheet(String sessionId, String code)
+  public InputStream exportSpreadsheet(String sessionId, String code, String hierarchyCode)
   {
-    return this.exportSpreadsheet(code);
+    return this.exportSpreadsheet(code, hierarchyCode);
   }
 
   @Transaction
-  private InputStream exportSpreadsheet(String code)
+  private InputStream exportSpreadsheet(String code, String hierarchyCode)
   {
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyCode).get();
     GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
 
@@ -204,7 +205,7 @@ public class ExcelService
     {
       it = query.getIterator();
 
-      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(query.getType(), it);
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(query.getType(), hierarchyType, it);
       InputStream istream = exporter.export();
 
       return istream;

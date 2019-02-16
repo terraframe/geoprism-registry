@@ -85,7 +85,7 @@ public class ExcelServiceTest
 
     AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
     this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
-    
+
     reload();
   }
 
@@ -97,7 +97,6 @@ public class ExcelServiceTest
      */
     SessionFacade.getSessionForRequest(this.adminCR.getSessionId()).reloadPermissions();
   }
-
 
   @After
   public void tearDown()
@@ -285,12 +284,13 @@ public class ExcelServiceTest
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
     GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
     GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
 
     try
     {
-      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects);
       Workbook workbook = exporter.createWorkbook();
 
       Assert.assertEquals(1, workbook.getNumberOfSheets());
@@ -339,12 +339,13 @@ public class ExcelServiceTest
       Assert.assertNotNull(istream);
 
       GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
       GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
 
       try
       {
-        GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, objects);
+        GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects);
         InputStream export = exporter.export();
 
         Assert.assertNotNull(export);
@@ -602,10 +603,10 @@ public class ExcelServiceTest
     JsonArray problems = result.get(GeoObjectConfiguration.TERM_PROBLEMS).getAsJsonArray();
 
     Assert.assertEquals(1, problems.size());
-    
+
     // Assert the values of the problem
     JsonObject problem = problems.get(0).getAsJsonObject();
-    
+
     Assert.assertEquals("Test Term", problem.get("label").getAsString());
     Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.get("parentCode").getAsString());
     Assert.assertEquals(this.testTerm.getName(), problem.get("attributeCode").getAsString());

@@ -63,8 +63,8 @@ public class ExcelImportController
   }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type) throws JSONException
+  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "hierarchyType") String hierarchyType) throws JSONException
   {
-    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), type), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
+    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), type, hierarchyType), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
 }

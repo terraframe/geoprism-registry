@@ -80,9 +80,12 @@ export class IOService {
             .toPromise()
     }
 
-    listGeoObjectTypes(): Promise<{ label: string, code: string }[]> {
+    listGeoObjectTypes( includeLeafTypes: boolean ): Promise<{ label: string, code: string }[]> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'includeLeafTypes', includeLeafTypes.toString() );
+
         return this.http
-            .get( acp + '/cgr/list-geo-object-types' )
+            .get( acp + '/cgr/geoobjecttype/list-types', { params: params } )
             .toPromise()
             .then( response => {
                 return response.json() as { label: string, code: string }[];
@@ -99,6 +102,23 @@ export class IOService {
             .toPromise()
             .then( response => {
                 return response.json() as Location[];
+            } )
+    }
+
+    getHierarchiesForType( code: string ): Promise<{ label: string, code: string }[]> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'code', code );
+
+        this.eventService.start();
+
+        return this.http
+            .get( acp + '/cgr/geoobjecttype/get-hierarchies', { params: params } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as { label: string, code: string }[];
             } )
     }
 
