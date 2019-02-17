@@ -1,0 +1,12 @@
+/* form.modal-form {
+    overflow: auto;
+    height: 100vh;
+} */
+
+.modal-form .text input[type="text"] {
+    background: #f5f5f5;
+}
+
+.modal-form .text input[type="text"]:disabled {
+    background: #eee;
+}

@@ -2,7 +2,7 @@
     <cgr-header></cgr-header>
     <loading-bar></loading-bar>
 
-    <div id="app-container" class="container">
+    <div id="app-container" class="container" style="overflow: auto; max-height: 80vh;">
 
         <div class="py-5 text-center">
             <h2>
@@ -12,8 +12,10 @@
                 <localize key="change.request.page.description"></localize>
             </p>
         </div>
-
-        <change-request></change-request>
+        
+        <div class="modal-body">
+            <change-request></change-request>
+        </div>
 
     </div>
 </div>

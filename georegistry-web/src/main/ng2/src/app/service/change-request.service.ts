@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { ChangeRequest } from '../data/crtable/crtable';
 import { EventService } from '../event/event.service';
+import { GeoObject } from '../model/registry';
 
 declare var acp: any;
 
@@ -168,4 +169,26 @@ export class ChangeRequestService {
             } );
 
     }
+
+    submitChangeRequest( actions: string ): Promise<GeoObject> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'actions', actions )
+
+        this.eventService.start();
+
+        return this.http.post( acp + '/changerequest/submitChangeRequest', {params: params}, { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as GeoObject
+            } );
+
+    }
+
 }

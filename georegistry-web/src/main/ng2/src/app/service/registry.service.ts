@@ -290,4 +290,18 @@ export class RegistryService {
                 return response.json() as GeoObject;
             } )
     }
+
+    getGeoObjectSuggestionsTypeAhead( text: string, type: string ): Promise<GeoObject> {
+        let params: URLSearchParams = new URLSearchParams();
+    
+          params.set( 'text', text );
+          params.set( 'type', type );
+        
+        return this.http
+            .get( acp + '/cgr/geoobject/suggestions', {params: params} )
+            .toPromise()
+            .then( response => {
+                return response.json() as GeoObject;
+            } )
+    }
 }

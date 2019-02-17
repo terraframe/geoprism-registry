@@ -59,6 +59,7 @@ import { ChangeRequestComponent } from './data/change-request/change-request.com
 import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
+import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
 
 import { LocalizeComponent } from './core/localize/localize.component';
 import { LocalizePipe } from './core/localize/localize.pipe';
@@ -152,6 +153,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ValidationComponent,
     ChangeRequestComponent,
     StandAloneChangeRequestComponent,
+    GeoObjectAttributeExcludesPipe,
     
     // Routing components
     routedComponents
