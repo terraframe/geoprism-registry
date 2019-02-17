@@ -64,8 +64,8 @@ public class ShapefileController
   }
 
   @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type) throws JSONException
+  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "hierarchyType") String hierarchyType) throws JSONException
   {
-    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), type), "application/zip", "shapefile.zip");
+    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), type, hierarchyType), "application/zip", "shapefile.zip");
   }
 }

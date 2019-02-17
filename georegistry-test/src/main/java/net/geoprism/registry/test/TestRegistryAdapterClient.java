@@ -120,7 +120,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   
   public JsonArray listGeoObjectTypes()
   {
-    RestBodyResponse response = (RestBodyResponse) this.controller.listGeoObjectTypes(this.clientRequest);
+    RestBodyResponse response = (RestBodyResponse) this.controller.listGeoObjectTypes(this.clientRequest, true);
     return (JsonArray) response.serialize();
   }
   

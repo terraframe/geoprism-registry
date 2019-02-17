@@ -11,20 +11,31 @@
         <localize key="io.export.description"></localize>
       </p>
     </div>
-    <div class="col-md-8 order-md-1 text-center">
+    <div class="col-md-8 order-md-1 text-center" *ngIf="types">
       <form #form="ngForm">
-        <div class="form-group row" *ngIf="types">
+        <div class="form-group row">
           <label class="col-md-2" for="code">
             <localize key="io.geoObjectType"></localize>
           </label>
           <div class="col-md-6">
-            <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
+            <select id="code" name="code" class="select-area" [(ngModel)]="code" (change)="onChange($event.target.value)" required>
               <option></option>
               <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
             </select>
           </div>
         </div>
-        <div class="form-group row" *ngIf="types">
+        <div class="form-group row" *ngIf="hierarchies.length > 0">
+          <label class="col-sm-2">
+            <localize key="io.modal.hierarchy"></localize>
+          </label>
+          <div class="col-md-6">
+            <select name="hierarchy" class="select-area" [(ngModel)]="hierarchy" required>
+              <option></option>
+              <option *ngFor="let hierarchy of hierarchies" [value]="hierarchy.code">{{hierarchy.label}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
           <label class="col-md-2" for="format">
             <localize key="io.format"></localize>
           </label>

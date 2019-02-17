@@ -68,10 +68,11 @@ public class RegistryController
   {
     return new ViewResponse(JSP_DIR + INDEX_JSP);
   }
-  
+
   /**
-   * Submits a change request to the GeoRegistry. These actions will be reviewed by an Administrator and if the actions are approved they may be executed and
-   * accepted as formal changes to the GeoRegistry.
+   * Submits a change request to the GeoRegistry. These actions will be reviewed
+   * by an Administrator and if the actions are approved they may be executed
+   * and accepted as formal changes to the GeoRegistry.
    * 
    * @param request
    * @param uid
@@ -169,48 +170,72 @@ public class RegistryController
 
     return new RestBodyResponse(attrType.toJSON());
   }
-//
-//   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
-//   public ResponseIF updateAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_TYPE_PARAM) String attributeType)
-//   {
-//     AttributeType attrType = this.registryService.updateAttributeType(request.getSessionId(), geoObjTypeId, attributeType);
-//     
-//     return new RestBodyResponse(attrType.toJSON());
-//   }
-//   
-//   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
-//   public ResponseIF deleteAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_TYPE_PARAM) String attributeName)
-//   {
-//     this.registryService.deleteAttributeType(request.getSessionId(), geoObjTypeId, attributeName);
-//     
-//     return new RestResponse();
-//   }
-//   
-//   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
-//   public ResponseIF createTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARAM) String termJSON)
-//   {
-//     Term term = this.registryService.createTerm(request.getSessionId(), parentTermCode, termJSON);
-//     
-//     return new RestBodyResponse(term.toJSON());
-//   }
-//   
-//   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
-//   public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
-//   {
-//     Term term = this.registryService.updateTerm(request.getSessionId(), termJSON);
-//     
-//     return new RestBodyResponse(term.toJSON());
-//   }
-//   
-//   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-//   public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
-//   {
-//     this.registryService.deleteTerm(request.getSessionId(), termCode);
-//     
-//     return new RestResponse();
-//   }
-   
-   
+  //
+  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
+  // url=RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
+  // public ResponseIF updateAttributeType(ClientRequestIF request,
+  // @RequestParamter(name =
+  // RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_PARAM) String geoObjTypeId,
+  // @RequestParamter(name =
+  // RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_TYPE_PARAM) String
+  // attributeType)
+  // {
+  // AttributeType attrType =
+  // this.registryService.updateAttributeType(request.getSessionId(),
+  // geoObjTypeId, attributeType);
+  //
+  // return new RestBodyResponse(attrType.toJSON());
+  // }
+  //
+  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
+  // url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
+  // public ResponseIF deleteAttributeType(ClientRequestIF request,
+  // @RequestParamter(name =
+  // RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_PARAM) String geoObjTypeId,
+  // @RequestParamter(name =
+  // RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_TYPE_PARAM) String
+  // attributeName)
+  // {
+  // this.registryService.deleteAttributeType(request.getSessionId(),
+  // geoObjTypeId, attributeName);
+  //
+  // return new RestResponse();
+  // }
+  //
+  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
+  // url=RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
+  // public ResponseIF createTerm(ClientRequestIF request, @RequestParamter(name
+  // = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String
+  // parentTermCode, @RequestParamter(name =
+  // RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARAM) String termJSON)
+  // {
+  // Term term = this.registryService.createTerm(request.getSessionId(),
+  // parentTermCode, termJSON);
+  //
+  // return new RestBodyResponse(term.toJSON());
+  // }
+  //
+  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
+  // url=RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
+  // public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name
+  // = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
+  // {
+  // Term term = this.registryService.updateTerm(request.getSessionId(),
+  // termJSON);
+  //
+  // return new RestBodyResponse(term.toJSON());
+  // }
+  //
+  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
+  // url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
+  // public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name
+  // = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
+  // {
+  // this.registryService.deleteTerm(request.getSessionId(), termCode);
+  //
+  // return new RestResponse();
+  // }
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
   public ResponseIF updateAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_TYPE_PARAM) String attributeType)
   {
@@ -364,7 +389,7 @@ public class RegistryController
 
     return new RestBodyResponse(pn.toJSON());
   }
-  
+
   /**
    * Removes a relationship between @parentUid and @childUid.
    *
@@ -428,8 +453,8 @@ public class RegistryController
    *
    * @returns @throws
    **/
-  @Endpoint(url = "list-geo-object-types", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF listGeoObjectTypes(ClientRequestIF request)
+  @Endpoint(url = "geoobjecttype/list-types", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeLeafTypes") Boolean includeLeafTypes)
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null);
 
@@ -447,7 +472,7 @@ public class RegistryController
     {
       GeoObjectType geoObjectType = gots[i];
 
-      if (!geoObjectType.getCode().equals("ROOT"))
+      if (!geoObjectType.getCode().equals("ROOT") && ( includeLeafTypes == null || includeLeafTypes || !geoObjectType.isLeaf() ))
       {
         JsonObject type = new JsonObject();
         type.addProperty("label", geoObjectType.getLocalizedLabel());
@@ -644,6 +669,14 @@ public class RegistryController
     }
 
     return new RestBodyResponse(response.toString());
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-hierarchies")
+  public ResponseIF getHierarchiesForType(ClientRequestIF request, @RequestParamter(name = "code") String code)
+  {
+    JsonArray response = this.registryService.getHierarchiesForType(request.getSessionId(), code);
+
+    return new RestBodyResponse(response);
   }
 
   /**

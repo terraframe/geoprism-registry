@@ -27,6 +27,16 @@ export class DataExportComponent implements OnInit {
     private code: string = null;
 
     /*
+     * List of the hierarchies this type is part of
+     */
+    private hierarchies: { label: string, code: string }[] = [];
+
+    /*
+     * Currently selected hierarchy
+     */
+    private hierarchy: string = null;
+
+    /*
      * Currently selected format
      */
     private format: string = null;
@@ -41,7 +51,7 @@ export class DataExportComponent implements OnInit {
     constructor( private service: IOService, private modalService: BsModalService ) { }
 
     ngOnInit(): void {
-        this.service.listGeoObjectTypes().then( types => {
+        this.service.listGeoObjectTypes( false ).then( types => {
             this.types = types;
 
         } ).catch(( err: any ) => {
@@ -49,13 +59,30 @@ export class DataExportComponent implements OnInit {
         } );
     }
 
+    onChange( code: string ): void {
+
+        if ( code != null && code.length > 0 ) {
+            this.service.getHierarchiesForType( code ).then( hierarchies => {
+                this.hierarchies = hierarchies;
+                this.hierarchy = null;
+            } ).catch(( err: any ) => {
+                this.error( err.json() );
+            } );
+        }
+        else {
+            this.hierarchies = [];
+            this.hierarchy = null;
+        }
+
+    }
+
     onExport(): void {
 
         if ( this.format == 'SHAPEFILE' ) {
-            window.location.href = acp + '/shapefile/export-shapefile?type=' + this.code;
+            window.location.href = acp + '/shapefile/export-shapefile?type=' + this.code + '&hierarchyType=' + this.hierarchy;
         }
         else if ( this.format == 'EXCEL' ) {
-            window.location.href = acp + '/excel/export-spreadsheet?type=' + this.code;
+            window.location.href = acp + '/excel/export-spreadsheet?type=' + this.code + '&hierarchyType=' + this.hierarchy;
         }
     }
 

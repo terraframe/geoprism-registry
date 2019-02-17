@@ -524,7 +524,7 @@ public class ConversionService
    * @return a {@link Universal} from the code value on the given
    *         {@link GeoObjectType}.
    */
-  protected Universal getUniversalFromGeoObjectType(GeoObjectType got)
+  public Universal getUniversalFromGeoObjectType(GeoObjectType got)
   {
     Universal universal = Universal.getByKey(got.getCode());
 
