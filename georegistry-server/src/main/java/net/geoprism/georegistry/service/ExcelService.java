@@ -7,10 +7,8 @@ import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
@@ -20,7 +18,6 @@ import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -29,13 +26,12 @@ import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.georegistry.excel.ExcelFieldContentsHandler;
 import net.geoprism.georegistry.excel.GeoObjectContentHandler;
-import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
 import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.georegistry.io.PostalCodeFactory;
-import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.gis.geoserver.SessionPredicate;
+import net.geoprism.registry.GeoRegistryUtil;
 
 public class ExcelService
 {
@@ -191,35 +187,6 @@ public class ExcelService
   @Request(RequestType.SESSION)
   public InputStream exportSpreadsheet(String sessionId, String code, String hierarchyCode)
   {
-    return this.exportSpreadsheet(code, hierarchyCode);
-  }
-
-  @Transaction
-  private InputStream exportSpreadsheet(String code, String hierarchyCode)
-  {
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyCode).get();
-    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
-    OIterator<GeoObject> it = null;
-
-    try
-    {
-      it = query.getIterator();
-
-      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(query.getType(), hierarchyType, it);
-      InputStream istream = exporter.export();
-
-      return istream;
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-    finally
-    {
-      if (it != null)
-      {
-        it.close();
-      }
-    }
+    return GeoRegistryUtil.exportSpreadsheet(code, hierarchyCode);
   }
 }
