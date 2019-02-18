@@ -70,7 +70,7 @@
                                             <localize key="change.request.geoobject.update.form.original.fields.header"></localize>
                                         </th>
                                         <th>
-                                            <localize key="change.request.geoobject.update.form.original.fields.header"></localize>
+                                            <localize key="change.request.geoobject.update.form.changed.fields.header"></localize>
                                         </th>
                                     </tr>
                                 </thead>
@@ -142,17 +142,17 @@
                                                     id="mod-{{propKey}}" name="mod-{{propKey}}">
                                             </div>
 
-                                            <div *ngIf="modifiedGeoObject && isAttribute(modifiedGeoObject.properties[propKey]) && isAttributeTerm(modifiedGeoObject.properties[propKey])">
-                                                <select id="mod-{{propKey}}" name="modifiedAttributeSelect" class="select-area"
-                                                    (change)="onSelectPropertyOption($event)" [(ngModel)]="modifiedTermOption">
+                                            <div *ngIf="getTypeDefinition(propKey) === 'term'">
+
+                                                <select id="mod-{{propKey}}" name="modifiedTermOptionsSelect" class="select-area"
+                                                    (change)="onSelectPropertyOption($event)" [(ngModel)]="modifiedGeoObject.properties[propKey][0]">
                                                     <option [disabled]="true" [selected]="!modifiedTermOption">
                                                         <localize key="dropdown.select.geoobjecttype.option.label"></localize>
                                                     </option>
-                                                    <option *ngFor="let option of modifiedGeoObject.properties[propKey].children"
-                                                        [ngValue]="option">{{option.localizedLabel}}</option>
+                                                    <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(propKey)" [selected]="modifiedGeoObject.properties[propKey][0] === option.code" [ngValue]="option.code" >{{option.localizedLabel}}</option>
                                                 </select>
 
-                                                <div style="border: solid grey 1px;background: lightgrey;margin-top:10px;">
+                                                <!-- <div style="border: solid grey 1px;background: lightgrey;margin-top:10px;">
                                                     <i class="fa fa-times pull-right"></i>
                                                     <input style="margin-top: 10px;float: none;" *ngIf="modifiedTermOption"
                                                         type="text" [(ngModel)]="modifiedTermOption.localizedLabel" id="mod-{{propKey}}-label"
@@ -160,15 +160,15 @@
                                                     <input style="margin-top: 10px;float: none;" *ngIf="modifiedTermOption"
                                                         type="text" [(ngModel)]="modifiedTermOption.localizedDescription"
                                                         id="mod-{{propKey}}-description" name="mod-{{propKey}}-description">
-                                                </div>
+                                                </div> -->
 
 
-                                                <div *ngFor="let childKey of objectKeys(modifiedGeoObject.properties[propKey].children)">
+                                                <!-- <div *ngFor="let childKey of objectKeys(modifiedGeoObject.properties[propKey].children)">
                                                     {{childKey}} --
                                                     {{modifiedGeoObject.properties[propKey].children[childKey]}}
                                                     <p *ngFor="let optKey of objectKeys(childKey)">{{optKey}} ---
                                                         {{childKey[optKey]}}</p>
-                                                </div>
+                                                </div> -->
                                             </div>
                                         </td>
                                         <!-- <td class="button-column">

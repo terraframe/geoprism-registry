@@ -139,11 +139,48 @@ export class ChangeRequestComponent implements OnInit {
                     "localizedLabel": "Test Boolean",
                     "localizedDescription": "The date the object was created",
                     "isDefault": false
+                },
+                {   
+                    "code":"testTerm",
+                    "type":"term",
+                    "localizedLabel":"Test Term",
+                    "localizedDescription":"",
+                    "isDefault":false,
+                    "rootTerm":{  
+                        "code":"CLASS_testGeoObjectType_testTerm",
+                        "localizedLabel":"Test Geo Object Type",
+                        "localizedDescription":"",
+                        "children":[  
+                        {  
+                            "code":"testOption1",
+                            "localizedLabel":"Test Option 1",
+                            "localizedDescription":"",
+                            "children":[  
+
+                            ]
+                        },
+                        {  
+                            "code":"testOption2",
+                            "localizedLabel":"Test Option 2",
+                            "localizedDescription":"",
+                            "children":[  
+
+                            ]
+                        },
+                        {  
+                            "code":"testOption3",
+                            "localizedLabel":"Test Option 3",
+                            "localizedDescription":"",
+                            "children":[  
+
+                            ]
+                        }
+                        ]
+                    }
                 }
-
-
             ]
         }
+    allTermOptions = [];
     geoObjectId: string = "";
     @Input() currentGeoObject: GeoObject = null;
     modifiedGeoObject: GeoObject;
@@ -152,14 +189,13 @@ export class ChangeRequestComponent implements OnInit {
     reason: string = "";
     enabledInput: string;
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
-
     asyncSelected: string;
     typeaheadLoading: boolean;
     typeaheadNoResults: boolean;
     dataSource: Observable<any>;
 
 
-    constructor(private service: IOService, private modalService: BsModalService,
+    constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService) {
 
         this.dataSource = Observable.create((observer: any) => {
@@ -205,12 +241,12 @@ export class ChangeRequestComponent implements OnInit {
         return null;
     }
 
-    onSelectGeoObjectType(event: any): void {
-        let selectedGeoObjectTypeCode = event.target.value;
+    // onSelectGeoObjectType(event: any): void {
+    //     let selectedGeoObjectTypeCode = event.target.value;
 
-    }
+    // }
 
-    onSelectPropertyOption(event: any): void {
+    onSelectPropertyOption(event: any, option:any): void {
         this.currentTermOption = JSON.parse(JSON.stringify(this.modifiedTermOption));
     }
 
@@ -234,21 +270,54 @@ export class ChangeRequestComponent implements OnInit {
                     "testBoolean": false,
                     "testFloat": 1.111,
                     "testCharacter": "Test Character Value",
-                    // "testTerm": [
-                    //     "CGR:Status-Pending"
-                    // ],
-                    "testTerm": term,
+                    "testTerm": [
+                        "testTerm"
+                    ],
+                    // "testTerm": term,
                     "testDate": "2019-02-16 AD 17-15-38-17 -0700"
                 };
 
                 geoObject.properties = Object.assign({}, geoObject.properties, test);
 
+                // for (var key in geoObject.properties) {
+                //     if (geoObject.properties.hasOwnProperty(key)) {
+                //         console.log(key + " -> " + geoObject.properties[key]);
+                //         let def = this.getTypeDefinition(key);
+                        
+                //         if(def === "term"){
+                //           let opts = this.getGeoObjectTypeTermAttributeOptions(key);
+                //           if(opts.length > 0){
+                //             this.allTermOptions = opts;
+                //           }
+                //         //   break;
+                //         }
+                //     }
+                // }
+
                 this.currentGeoObject = geoObject;
-                this.modifiedGeoObject = JSON.parse(JSON.stringify(geoObject))
+                this.modifiedGeoObject = JSON.parse(JSON.stringify(geoObject));
 
             }).catch((err: Response) => {
                 this.error(err.json());
             });
+    }
+
+    getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {
+        for (let i=0; i<this.geoObjectType.attributes.length; i++) {
+            let attr: any = this.geoObjectType.attributes[i];
+
+            if(attr.type === "term" && attr.code === termAttributeCode){
+
+                attr = <AttributeTerm> attr;
+                let attrOpts = attr.rootTerm.children;
+
+                if(attrOpts.length > 0){
+                    return attrOpts;
+                }
+            }
+        }
+
+        return null;
     }
 
     getTypeDefinition(key: string): string {
@@ -259,7 +328,7 @@ export class ChangeRequestComponent implements OnInit {
         for(let i=0; i<this.geoObjectType.attributes.length; i++){
             let attr = this.geoObjectType.attributes[i];
 
-            if (attr.code === key) {
+         if (attr.code === key) {
                 return attr.type;
             }
         }

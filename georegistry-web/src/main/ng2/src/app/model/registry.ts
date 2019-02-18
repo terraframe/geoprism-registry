@@ -42,7 +42,7 @@ export class GeoObjectType {
   localizedDescription: string;
   geometryType: string;
   isLeaf: boolean;
-  attributes: Attribute[];
+  attributes: Array<Attribute|AttributeTerm|AttributeDecimal> = [];
 }
 
 // export class Attribute {
@@ -81,7 +81,7 @@ export class AttributeTerm extends Attribute {
 
     rootTerm: Term = new Term(null, null, null);
 
-    termOptions :Term[] = [];
+    termOptions:Term[] = [];
 
     setRootTerm(term:Term){
         this.rootTerm = term;
