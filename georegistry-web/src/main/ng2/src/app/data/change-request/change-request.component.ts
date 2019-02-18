@@ -124,20 +124,20 @@ export class ChangeRequestComponent implements OnInit {
                 // term.addChild(new Term("optCode", "opt label", "opt description"))
                 // term.addChild(new Term("optCode2", "opt label 2", "opt description 2"))
 
-                let test = {
-                    "testText": "test text",
-                    "testInteger": 3,
-                    "testBoolean": true,
-                    "testFloat": 1.111,
-                    "testCharacter": "Test Character Value",
-                    "testTerm": [
-                        "testOpt1"
-                    ],
-                    // "testTerm": term,
-                    "testDate": this.date.transform(1550475376, 'yyyy-dd-MM')
-                };
+                // let test = {
+                //     "testText": "test text",
+                //     "testInteger": 3,
+                //     "testBoolean": true,
+                //     "testFloat": 1.111,
+                //     "testCharacter": "Test Character Value",
+                //     "testTerm": [
+                //         "testOpt1"
+                //     ],
+                //     // "testTerm": term,
+                //     "testDate": this.date.transform(1550475376, 'yyyy-dd-MM')
+                // };
 
-                geoObject.properties = Object.assign({}, geoObject.properties, test);
+                // geoObject.properties = Object.assign({}, geoObject.properties, test);
 
                 // for (var key in geoObject.properties) {
                 //     if (geoObject.properties.hasOwnProperty(key)) {
