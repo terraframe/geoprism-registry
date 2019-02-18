@@ -185,7 +185,7 @@
 
 
 
-            <div class="row-holder" style="z-index: 0;">
+            <div *ngIf="standAlone" class="row-holder" style="z-index: 0;">
                 <div class="label-holder">
                     <label>
                         <localize key="change.request.reason.label"></localize>
@@ -199,7 +199,7 @@
             </div>
             <!-- <div class="col-md-3"></div> -->
 
-            <div class="row-holder">
+            <div *ngIf="standAlone" class="row-holder">
                 <div class="label-holder">
                 </div>
                 <div class="holder">

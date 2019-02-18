@@ -25,16 +25,28 @@ export class CreateUpdateGeoObjectDetailComponent {
 
   @Input() action: any;
   
+  modifiedGeoObject: any = {};
+  
   @Input() crtable: ActionTableComponent;
   
   private bsModalRef: BsModalRef;
 
   constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
-
+	  
+  }
+  
+  ngOnInit(): void {
+	  this.modifiedGeoObject = Object.assign({}, this.action.geoObjectJson)
+//	  this.modifiedGeoObject = {};
+	  
+	  console.log("action = ", this.action);
+	  console.log("modifiedGeoObject = ", this.modifiedGeoObject);
   }
   
   applyAction()
   {
+	this.action.geoObjectJson = this.modifiedGeoObject;
+	  
     this.changeRequestService.applyAction(this.action).then( response => {
           this.crtable.refresh()
       } ).catch(( err: Response ) => {

@@ -61,9 +61,9 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF lockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId) throws JSONException
   {
-    String sAction = service.lockAction(request.getSessionId(), actionId);
-
-    return new RestBodyResponse(sAction);
+    String sResponse = service.lockAction(request.getSessionId(), actionId);
+    
+    return new RestBodyResponse(sResponse);
   }
 
   /**
