@@ -150,7 +150,7 @@
                                                         <localize key="dropdown.select.geoobjecttype.option.label"></localize>
                                                     </option>
                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(propKey)" [selected]="modifiedGeoObject.properties[propKey][0] === option.code" [ngValue]="option.code" >{{option.localizedLabel}}</option>
-                                                </select>
+                                                </select> 
 
                                                 <!-- <div style="border: solid grey 1px;background: lightgrey;margin-top:10px;">
                                                     <i class="fa fa-times pull-right"></i>
