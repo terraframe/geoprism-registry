@@ -19,7 +19,7 @@
              <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/crtable" routerLinkActive="active"><localize key="crtable.menu"></localize> </a></li>
              <li role="menuitem"><a class="dropdown-item" routerLink="/export" routerLinkActive="active"><localize key="io.export.title"></localize> </a></li>
              <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li> 
-               <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/change-request" routerLinkActive="active"><localize key="change.request.menu"></localize> </a></li>
+             <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/change-request" routerLinkActive="active"><localize key="change.request.menu"></localize> </a></li>
 
              <!--
              <li role="menuitem"><a class="dropdown-item" href="{{context}}/session/logout"><localize key="Log_out"></localize></a></li>

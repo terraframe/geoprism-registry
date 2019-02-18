@@ -11,7 +11,7 @@ import { DataExportComponent } from './data/data-export/data-export.component';
 import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 
-import { AdminGuard, MaintainerGuard } from './core/auth/admin.guard';
+import { AdminGuard, MaintainerGuard, ContributerGuard } from './core/auth/admin.guard';
 
 
 const routes: Routes = [
@@ -47,7 +47,7 @@ const routes: Routes = [
     {
         path: 'change-request',
         component: StandAloneChangeRequestComponent,
-        canActivate: [AdminGuard]
+        canActivate: [ContributerGuard]
     },
     {
         path: '',
@@ -62,7 +62,8 @@ const routes: Routes = [
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         AdminGuard,
-        MaintainerGuard
+        MaintainerGuard,
+        ContributerGuard        
     ]
 } )
 export class CgrAppRoutingModule { }
