@@ -1,5 +1,6 @@
 package net.geoprism.georegistry;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -96,6 +97,7 @@ import net.geoprism.georegistry.service.RegistryIdService;
 import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.service.WMSService;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarhcy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
@@ -466,24 +468,16 @@ public class AdapterUtilities
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
     MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
 
-    OIterator<com.runwaysdk.business.ontology.Term> iterator = universal.getAllAncestors(mdTermRelationship.definesType());
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), universal, mdTermRelationship.definesType());
 
-    try
-    {
-      while (iterator.hasNext())
+    list.forEach(term -> {
+      Universal parent = (Universal) term;
+
+      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(universal.getOid()))
       {
-        Universal parent = (Universal) iterator.next();
-
-        if (!parent.getKeyName().equals(Universal.ROOT))
-        {
-          ancestors.add(ServiceFactory.getConversionService().universalToGeoObjectType(parent));
-        }
+        ancestors.add(ServiceFactory.getConversionService().universalToGeoObjectType(parent));
       }
-    }
-    finally
-    {
-      iterator.close();
-    }
+    });
 
     return ancestors;
   }
