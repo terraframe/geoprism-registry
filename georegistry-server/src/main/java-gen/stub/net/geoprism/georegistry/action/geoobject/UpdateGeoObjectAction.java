@@ -1,7 +1,11 @@
 package net.geoprism.georegistry.action.geoobject;
 
+import net.geoprism.georegistry.service.ServiceFactory;
+
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONObject;
 
 public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
@@ -36,7 +40,16 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   {
     JSONObject object = super.serialize();
     object.put(UpdateGeoObjectAction.GEOOBJECTJSON, new JSONObject(this.getGeoObjectJson()));
+    addGeoObjectType(object);
     return object;
+  }
+  
+  private void addGeoObjectType(JSONObject object)
+  {
+    GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
+    GeoObjectType got = go.getType();
+    
+    object.put("geoObjectType", new JSONObject(got.toJSON().toString()));
   }
   
   @Override

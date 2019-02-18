@@ -29,7 +29,7 @@ export class ActionTableComponent implements OnInit {
     selected: any = [];
 
     action: any = {};
-
+    
     loading: boolean = false;
     columns: any[] = [];
 
@@ -87,14 +87,16 @@ export class ActionTableComponent implements OnInit {
     
     lockAction( action: any )
     {
+      console.log("Selected action : ", action);
+    	
       if (this.action != null && this.action.oid != null)
       {
-        console.log("Unlocking existing action : ", this.action);
-        
         this.service.unlockAction(this.action.oid).then( response => {
             
           } ).then( () => { this.service.lockAction(action.oid); } ).then( response => {
-              this.action = action;
+              console.log("setting action to ", action);
+        	  this.action = action;
+              
           } ).catch(( err: Response ) => {
               this.error( err.json() );
           } );
@@ -102,7 +104,8 @@ export class ActionTableComponent implements OnInit {
       else
       {
         this.service.lockAction(action.oid).then( response => {
-              this.action = action;
+        	console.log("setting action to ", action);
+            this.action = action;
           } ).catch(( err: Response ) => {
               this.error( err.json() );
           } );

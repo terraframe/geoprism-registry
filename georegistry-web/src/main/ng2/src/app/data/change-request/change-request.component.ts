@@ -146,7 +146,7 @@ export class ChangeRequestComponent implements OnInit {
         }
     geoObjectId: string = "";
     @Input() currentGeoObject: GeoObject = null;
-    modifiedGeoObject: GeoObject;
+    @Input() modifiedGeoObject: GeoObject;
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
     reason: string = "";
@@ -338,6 +338,10 @@ export class ChangeRequestComponent implements OnInit {
         this.reason = null;
     }
 
+    public getGeoObject(): any {
+    	return this.modifiedGeoObject;
+    }
+    
     public error(err: any): void {
         // Handle error
         if (err !== null) {
