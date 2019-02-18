@@ -60,6 +60,7 @@ import { StandAloneChangeRequestComponent } from './data/change-request/stand-al
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
+import { DatePipe } from '@angular/common';
 
 import { LocalizeComponent } from './core/localize/localize.component';
 import { LocalizePipe } from './core/localize/localize.pipe';
@@ -170,7 +171,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     LocalizationService,
     ModalStepIndicatorService,
     GeoObjectTypeManagementService,
-    RegistryService
+    RegistryService,
+    DatePipe
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [

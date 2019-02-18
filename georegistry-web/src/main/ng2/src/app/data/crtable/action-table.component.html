@@ -3,7 +3,7 @@
 </div>
 <div class="row">
   <!-- <div class="col-sm-1"></div> -->
-  <div class="col-sm-7 col-md-5">
+  <div class="col-sm-7 col-md-6">
     <div class="row">
       <ngx-datatable class="crtable-ngx bootstrap"
         [rows]="rows | async"
@@ -26,7 +26,7 @@
     </div>    
   </div>
   <!-- <div class="col-sm-5"></div> -->
-  <div class="col-sm-5 col-md-5">
+  <div class="col-sm-5 col-md-6">
     <crtable-detail-create-geo-object *ngIf="action.actionType=='net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction' || action.actionType=='net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction'" [(action)]="action" [crtable]="this"> </crtable-detail-create-geo-object>
     <crtable-detail-add-remove-child *ngIf="action.actionType=='net.geoprism.georegistry.action.tree.AddChildAction' || action.actionType=='net.geoprism.georegistry.action.tree.RemoveChildAction'" [(action)]="action" [crtable]="this"> </crtable-detail-add-remove-child>
   </div>

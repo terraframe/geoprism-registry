@@ -79,56 +79,83 @@
                                             </div>
 
                                         </td> -->
-                                        <li class="list-group-item" *ngFor="let propKey of objectKeys(currentGeoObject.properties) | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
-                                            <h5>{{propKey}}</h5>
+
+                                        <!-- *ngFor="let propKey of objectKeys(currentGeoObject.properties) | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes" -->
+                                        <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
+                                            <h5>{{attr.localizedLabel}}</h5>
 
 
-                                            <div *ngIf="getTypeDefinition(propKey) === 'character'">
-                                                <input *ngIf="modifiedGeoObject && !isAttribute(propKey)" type="text"
-                                                    [(ngModel)]="modifiedGeoObject.properties[propKey]" id="mod-{{propKey}}"
-                                                    name="mod-{{propKey}}">
+                                            <div *ngIf="attr.type === 'character'">
+                                                <input *ngIf="modifiedGeoObject" type="text"
+                                                    [(ngModel)]="modifiedGeoObject.properties[attr.code]" id="mod-{{attr.code}}"
+                                                    name="mod-{{attr.code}}"> 
+
+                                                    <p class="warning-text" *ngIf="modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code]}}
+                                                    </p>
                                             </div>
 
-
-                                            <div *ngIf="getTypeDefinition(propKey) === 'date'">
-                                                <input type="date" [(ngModel)]="modifiedGeoObject.properties[propKey]"
-                                                    id="mod-{{propKey}}" name="mod-{{propKey}}">
+                                            <div *ngIf="attr.type === 'date'">
+                                                <input type="date" [ngModel]="modifiedGeoObject.properties[attr.code] | date:'MM/DD/YYYY'"
+                                                    (ngModelChange)="modifiedGeoObject.properties[attr.code] = $event" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
+                                                    
+                                                <p class="warning-text" *ngIf="modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code]}}
+                                                    </p>
                                             </div>
-                                            <div *ngIf="getTypeDefinition(propKey) === 'boolean'">
+
+                                            <div *ngIf="attr.type === 'boolean'">
                                                 <label>
-                                                    <input type="radio" [checked]="modifiedGeoObject.properties[propKey] === true"
-                                                        [(ngModel)]="modifiedGeoObject.properties[propKey]"
-                                                        [value]="true" id="mod-{{propKey}}" name="mod-{{propKey}}">
+                                                    <input type="radio" [checked]="modifiedGeoObject.properties[attr.code] === true"
+                                                        [(ngModel)]="modifiedGeoObject.properties[attr.code]"
+                                                        [value]="true" id="mod-{{attr.code}}" name="mod-{{attr.code}}">
                                                     <localize key="change.request.boolean.option.true"></localize>
                                                 </label>
 
                                                 <label>
-                                                    <input type="radio" [checked]="modifiedGeoObject.properties[propKey] === false"
-                                                        [(ngModel)]="modifiedGeoObject.properties[propKey]"
-                                                        [value]="false" id="mod-{{propKey}}" name="mod-{{propKey}}">
+                                                    <input type="radio" [checked]="modifiedGeoObject.properties[attr.code] === false"
+                                                        [(ngModel)]="modifiedGeoObject.properties[attr.code]"
+                                                        [value]="false" id="mod-{{attr.code}}" name="mod-{{attr.code}}">
                                                     <localize key="change.request.boolean.option.false"></localize>
                                                 </label>
-                                            </div>
-                                            <div *ngIf="getTypeDefinition(propKey) === 'float'">
-                                                <input type="number" [(ngModel)]="modifiedGeoObject.properties[propKey]"
-                                                    id="mod-{{propKey}}" name="mod-{{propKey}}">
-                                            </div>
-                                            <div *ngIf="getTypeDefinition(propKey) === 'integer'">
-                                                <input type="number" [(ngModel)]="modifiedGeoObject.properties[propKey]"
-                                                    id="mod-{{propKey}}" name="mod-{{propKey}}">
+
+                                                <p class="warning-text" *ngIf="modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code]}}
+                                                    </p>
                                             </div>
 
-                                            <div *ngIf="getTypeDefinition(propKey) === 'term'">
+                                            <div *ngIf="attr.type === 'float'">
+                                                <input type="number" [(ngModel)]="modifiedGeoObject.properties[attr.code]"
+                                                    id="mod-{{attr.code}}" name="mod-{{attr.code}}">
 
-                                                <select id="mod-{{propKey}}" name="modifiedTermOptionsSelect" class="select-area"
-                                                    (change)="onSelectPropertyOption($event)" [(ngModel)]="modifiedGeoObject.properties[propKey][0]">
-                                                    <option [disabled]="true" [selected]="!modifiedTermOption">
+                                                <p class="warning-text" *ngIf="modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code]}}
+                                                    </p>
+                                            </div>
+
+                                            <div *ngIf="attr.type === 'integer'">
+                                                <input type="number" [(ngModel)]="modifiedGeoObject.properties[attr.code]"
+                                                    id="mod-{{attr.code}}" name="mod-{{attr.code}}">
+
+                                                <p class="warning-text" *ngIf="modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code]}}
+                                                    </p>
+                                            </div>
+
+                                            <div *ngIf="attr.type === 'term'">
+                                                <select id="mod-{{attr.code}}" name="modifiedTermOptionsSelect" class="select-area" style="float:none;"
+                                                    (change)="onSelectPropertyOption($event)" [(ngModel)]="modifiedGeoObject.properties[attr.code]">
+                                                    <!-- <option [disabled]="true" [selected]="!modifiedTermOption">
                                                         <localize key="dropdown.select.geoobjecttype.option.label"></localize>
-                                                    </option>
-                                                    <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(propKey)" [selected]="modifiedGeoObject.properties[propKey][0] === option.code" [ngValue]="option.code" >{{option.localizedLabel}}</option>
-                                                </select> 
+                                                    </option> -->
+                                                    <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.localizedLabel}}</option>
+                                                </select>  
 
+                                                <!-- <p class="warning-text" *ngIf="modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code]}}
+                                                    </p> -->
                                             </div>
+
                                         </li>
                                     </ul>
                                 </div>

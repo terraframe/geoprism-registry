@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { DatePipe } from '@angular/common';
 
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
@@ -25,7 +26,8 @@ declare var acp: string;
 @Component({
     selector: 'change-request',
     templateUrl: './change-request.component.html',
-    styleUrls: ['./change-request.css']
+    styleUrls: ['./change-request.css'],
+    providers: [DatePipe]
 })
 
 export class ChangeRequestComponent implements OnInit {
@@ -40,14 +42,12 @@ export class ChangeRequestComponent implements OnInit {
 
     geoObjectTypes: GeoObjectType[] = [];
     @Input() geoObjectType: GeoObjectType;
-    allTermOptions = [];
     geoObjectId: string = "";
     @Input() currentGeoObject: GeoObject = null;
     @Input() modifiedGeoObject: GeoObject;
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
     reason: string = "";
-    enabledInput: string;
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
     asyncSelected: string;
     typeaheadLoading: boolean;
@@ -56,7 +56,8 @@ export class ChangeRequestComponent implements OnInit {
 
 
     constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
-        private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService) {
+        private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
+        private date: DatePipe) {
 
         this.dataSource = Observable.create((observer: any) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code).then(results => {
@@ -116,28 +117,27 @@ export class ChangeRequestComponent implements OnInit {
 
     typeaheadOnSelect(e: TypeaheadMatch): void {
 
-        // this.modifiedGeoObject = e.value ;
-
         this.registryService.getGeoObjectByCode(e.item.code, this.geoObjectType.code)
             .then(geoObject => {
 
-                let term: Term = new Term("termCode", "term label", "term description");
-                term.addChild(new Term("optCode", "opt label", "opt description"))
-                term.addChild(new Term("optCode2", "opt label 2", "opt description 2"))
+                // let term: Term = new Term("termCode", "term label", "term description");
+                // term.addChild(new Term("optCode", "opt label", "opt description"))
+                // term.addChild(new Term("optCode2", "opt label 2", "opt description 2"))
 
-                // let test = {
-                //     "testInteger": 3,
-                //     "testBoolean": false,
-                //     "testFloat": 1.111,
-                //     "testCharacter": "Test Character Value",
-                //     "testTerm": [
-                //         "testTerm"
-                //     ],
-                //     // "testTerm": term,
-                //     "testDate": "2019-02-16 AD 17-15-38-17 -0700"
-                // };
+                let test = {
+                    "testText": "test text",
+                    "testInteger": 3,
+                    "testBoolean": true,
+                    "testFloat": 1.111,
+                    "testCharacter": "Test Character Value",
+                    "testTerm": [
+                        "testOpt1"
+                    ],
+                    // "testTerm": term,
+                    "testDate": this.date.transform(1550475376, 'yyyy-dd-MM')
+                };
 
-                // geoObject.properties = Object.assign({}, geoObject.properties, test);
+                geoObject.properties = Object.assign({}, geoObject.properties, test);
 
                 // for (var key in geoObject.properties) {
                 //     if (geoObject.properties.hasOwnProperty(key)) {
@@ -196,54 +196,8 @@ export class ChangeRequestComponent implements OnInit {
         return null;
     }
 
-    isAttribute(prop: any): boolean {
-        for(let i=0; i<this.geoObjectType.attributes.length; i++){
-            let attr = this.geoObjectType.attributes[i];
-            if(attr.code === prop){
-                if(attr instanceof Attribute){
-                    // if(typeof prop === 'object' && prop != null && !Array.isArray(prop)) {
-                    //     return true;
-                    // }
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    isAttributeTerm(prop: Term): boolean {
-        // (prop instanceof Term) doesn't work when Term obj isn't instantiated in Angular
-        // so we have to check the object ourselves.
-        if (prop.children && prop != null) {
-            return true;
-        }
-
-        return false;
-    }
-
-    isArray(obj: any) {
-        return Array.isArray(obj)
-    }
-
-
     isFormValid(): boolean {
         return true;
-    }
-
-    editProp(prop: any, elementId: string, event: any): void {
-        this.enabledInput = elementId;
-
-        let elem = <HTMLInputElement>document.getElementById(elementId);
-        elem.disabled = !elem.disabled;
-
-        if (prop.type === "term") {
-            if (this.modifiedTermOption) {
-                this.modifiedTermOption = null;
-            }
-
-            this.modifiedTermOption = prop;
-        }
     }
 
     submit(): void {
@@ -255,7 +209,12 @@ export class ChangeRequestComponent implements OnInit {
             "geoObject":this.modifiedGeoObject
         }]
 
-        this.changeRequestService.submitChangeRequest(JSON.stringify(submitObj));
+        this.changeRequestService.submitChangeRequest(JSON.stringify(submitObj))
+	    .then( geoObject => {
+            this.cancel();
+	    }).catch(( err: Response ) => {
+	      this.error( err.json() );
+	    });
     }
 
     cancel(): void {

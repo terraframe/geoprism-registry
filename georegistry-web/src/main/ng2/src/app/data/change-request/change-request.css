@@ -10,3 +10,7 @@
 .modal-form .text input[type="text"]:disabled {
     background: #eee;
 }
+
+.warning-text{
+    color: orange;
+}
