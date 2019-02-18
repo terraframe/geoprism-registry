@@ -180,7 +180,7 @@ export class ChangeRequestService {
 
         this.eventService.start();
 
-        return this.http.post( acp + '/cgr/submitChangeRequest', {params: params}, { headers: headers } )
+        return this.http.post( acp + '/cgr/submitChangeRequest', {actions: actions}, { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

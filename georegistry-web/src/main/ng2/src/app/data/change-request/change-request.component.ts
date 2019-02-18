@@ -39,147 +39,7 @@ export class ChangeRequestComponent implements OnInit {
     private bsModalRef: BsModalRef;
 
     geoObjectTypes: GeoObjectType[] = [];
-    @Input() geoObjectType: GeoObjectType = {
-            "code": "Cambodia_Commune",
-            "localizedLabel": "Commune",
-            "localizedDescription": "",
-            "geometryType": "MULTIPOLYGON",
-            "isLeaf": false,
-            "attributes": [
-                {
-                    "code": "uid",
-                    "type": "character",
-                    "localizedLabel": "UID",
-                    "localizedDescription": "The internal globally unique identifier ID",
-                    "isDefault": true
-                },
-                {
-                    "code": "sequence",
-                    "type": "integer",
-                    "localizedLabel": "Sequence",
-                    "localizedDescription": "The sequence number of the GeoObject that is incremented when the object is updated",
-                    "isDefault": true
-                },
-                {
-                    "code": "code",
-                    "type": "character",
-                    "localizedLabel": "Code",
-                    "localizedDescription": "Human readable unique identified",
-                    "isDefault": true
-                },
-                {
-                    "code": "localizedDisplayLabel",
-                    "type": "character",
-                    "localizedLabel": "Localized Display Label",
-                    "localizedDescription": "Localized locaiton ",
-                    "isDefault": true
-                },
-                {
-                    "code": "lastUpdateDate",
-                    "type": "date",
-                    "localizedLabel": "Date Last Updated",
-                    "localizedDescription": "The date the object was updated",
-                    "isDefault": true
-                },
-                {
-                    "code": "type",
-                    "type": "character",
-                    "localizedLabel": "Type",
-                    "localizedDescription": "The type of the GeoObject",
-                    "isDefault": true
-                },
-                {
-                    "code": "createDate",
-                    "type": "date",
-                    "localizedLabel": "Date Created",
-                    "localizedDescription": "The date the object was created",
-                    "isDefault": true
-                },
-
-
-
-                {
-                    "code": "testCharacter",
-                    "type": "character",
-                    "localizedLabel": "Test Character",
-                    "localizedDescription": "The date the object was created",
-                    "isDefault": false
-                },
-                {
-                    "code": "testInteger",
-                    "type": "integer",
-                    "localizedLabel": "Test Integer",
-                    "localizedDescription": "The date the object was created",
-                    "isDefault": false
-                },
-                {
-                    "code": "testFloat",
-                    "type": "float",
-                    "localizedLabel": "Test Float",
-                    "localizedDescription": "The date the object was created",
-                    "isDefault": false
-                },
-                {
-                    "code": "testDate",
-                    "type": "date",
-                    "localizedLabel": "Test Date",
-                    "localizedDescription": "The date the object was created",
-                    "isDefault": false
-                },
-                {
-                    "code": "testCharacter",
-                    "type": "character",
-                    "localizedLabel": "Test Character",
-                    "localizedDescription": "The date the object was created",
-                    "isDefault": false
-                },
-                {
-                    "code": "testBoolean",
-                    "type": "boolean",
-                    "localizedLabel": "Test Boolean",
-                    "localizedDescription": "The date the object was created",
-                    "isDefault": false
-                },
-                {   
-                    "code":"testTerm",
-                    "type":"term",
-                    "localizedLabel":"Test Term",
-                    "localizedDescription":"",
-                    "isDefault":false,
-                    "rootTerm":{  
-                        "code":"CLASS_testGeoObjectType_testTerm",
-                        "localizedLabel":"Test Geo Object Type",
-                        "localizedDescription":"",
-                        "children":[  
-                        {  
-                            "code":"testOption1",
-                            "localizedLabel":"Test Option 1",
-                            "localizedDescription":"",
-                            "children":[  
-
-                            ]
-                        },
-                        {  
-                            "code":"testOption2",
-                            "localizedLabel":"Test Option 2",
-                            "localizedDescription":"",
-                            "children":[  
-
-                            ]
-                        },
-                        {  
-                            "code":"testOption3",
-                            "localizedLabel":"Test Option 3",
-                            "localizedDescription":"",
-                            "children":[  
-
-                            ]
-                        }
-                        ]
-                    }
-                }
-            ]
-        }
+    @Input() geoObjectType: GeoObjectType;
     allTermOptions = [];
     geoObjectId: string = "";
     @Input() currentGeoObject: GeoObject = null;
@@ -265,19 +125,19 @@ export class ChangeRequestComponent implements OnInit {
                 term.addChild(new Term("optCode", "opt label", "opt description"))
                 term.addChild(new Term("optCode2", "opt label 2", "opt description 2"))
 
-                let test = {
-                    "testInteger": 3,
-                    "testBoolean": false,
-                    "testFloat": 1.111,
-                    "testCharacter": "Test Character Value",
-                    "testTerm": [
-                        "testTerm"
-                    ],
-                    // "testTerm": term,
-                    "testDate": "2019-02-16 AD 17-15-38-17 -0700"
-                };
+                // let test = {
+                //     "testInteger": 3,
+                //     "testBoolean": false,
+                //     "testFloat": 1.111,
+                //     "testCharacter": "Test Character Value",
+                //     "testTerm": [
+                //         "testTerm"
+                //     ],
+                //     // "testTerm": term,
+                //     "testDate": "2019-02-16 AD 17-15-38-17 -0700"
+                // };
 
-                geoObject.properties = Object.assign({}, geoObject.properties, test);
+                // geoObject.properties = Object.assign({}, geoObject.properties, test);
 
                 // for (var key in geoObject.properties) {
                 //     if (geoObject.properties.hasOwnProperty(key)) {
