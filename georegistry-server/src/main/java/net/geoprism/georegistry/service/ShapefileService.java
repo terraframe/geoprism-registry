@@ -12,12 +12,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FilenameUtils;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.opengis.feature.simple.SimpleFeature;
@@ -32,7 +30,6 @@ import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -40,11 +37,10 @@ import net.geoprism.georegistry.io.GeoObjectConfiguration;
 import net.geoprism.georegistry.io.ImportAttributeSerializer;
 import net.geoprism.georegistry.io.ImportProblemException;
 import net.geoprism.georegistry.io.PostalCodeFactory;
-import net.geoprism.georegistry.query.GeoObjectQuery;
-import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.georegistry.shapefile.GeoObjectShapefileImporter;
 import net.geoprism.georegistry.shapefile.NullLogger;
 import net.geoprism.gis.geoserver.SessionPredicate;
+import net.geoprism.registry.GeoRegistryUtil;
 
 public class ShapefileService
 {
@@ -280,34 +276,6 @@ public class ShapefileService
   @Request(RequestType.SESSION)
   public InputStream exportShapefile(String sessionId, String code, String hierarchyCode)
   {
-    return this.exportShapefile(code, hierarchyCode);
-  }
-
-  @Transaction
-  private InputStream exportShapefile(String code, String hierarchyCode)
-  {
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyCode).get();
-    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
-    OIterator<GeoObject> it = null;
-
-    try
-    {
-      it = query.getIterator();
-
-      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(query.getType(), hierarchyType, it);
-
-      return exporter.export();
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-    finally
-    {
-      if (it != null)
-      {
-        it.close();
-      }
-    }
+    return GeoRegistryUtil.exportShapefile(code, hierarchyCode);
   }
 }

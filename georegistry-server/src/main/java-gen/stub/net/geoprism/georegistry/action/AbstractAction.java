@@ -44,8 +44,13 @@ public abstract class AbstractAction extends AbstractActionBase
   {
     this.setApiVersion(dto.getApiVersion());
     this.setCreateActionDate(dto.getCreateActionDate());
+    this.setContributorNotes(dto.getContributorNotes());
+    this.setMaintainerNotes(dto.getMaintainerNotes());
   }
 
+  /*
+   * TODO : We should be converting to a DTO and then serializing, that way we only have to have the serialization logic in one place.
+   */
   public JSONObject serialize()
   {
     AllGovernanceStatus status = this.getApprovalStatus().get(0);
@@ -66,6 +71,9 @@ public abstract class AbstractAction extends AbstractActionBase
     return jo;
   }
   
+  /*
+   * TODO : We should be converting to a DTO and then using 'buildFromDTO', that way we only have to have the serialization logic in one place.
+   */
   public void buildFromJson(JSONObject joAction)
   {
     this.clearApprovalStatus();

@@ -22,6 +22,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.jaitools.jts.CoordinateSequence2D;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,8 +37,10 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
@@ -190,8 +193,19 @@ public class ExcelServiceTest
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.STATE.getCode());
 
     Assert.assertNotNull(object);
-    Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Test", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
+
+    Geometry geometry = object.getGeometry();
+
+    Assert.assertNotNull(geometry);
+
+    Double lat = new Double(2.232343);
+    Double lon = new Double(1.134232);
+
+    GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
+    Point expected = new Point(new CoordinateSequence2D(lat, lon), factory);
+
+    Assert.assertEquals(expected, geometry);
   }
 
   @Test

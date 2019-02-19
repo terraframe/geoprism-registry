@@ -27,7 +27,7 @@ public class GeoObjectConverter extends FeatureRowImporter
   {
     super(configuration);
 
-    this.factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FIXED), 4326);
+    this.factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
   }
 
   @Override
@@ -68,7 +68,10 @@ public class GeoObjectConverter extends FeatureRowImporter
 
       if (latitude != null && longitude != null)
       {
-        return new Point(new CoordinateSequence2D(new Double(latitude.toString()), new Double(longitude.toString())), factory);
+        Double lat = new Double(latitude.toString());
+        Double lon = new Double(longitude.toString()); 
+
+        return new Point(new CoordinateSequence2D(lat, lon), factory);
       }
     }
     else if (latitudeFunction == null)

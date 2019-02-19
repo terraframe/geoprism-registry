@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 193158924)
+@com.runwaysdk.business.ClassSignature(hash = -877958073)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,7 +12,7 @@ public abstract class GeoRegistryUtilBase extends com.runwaysdk.business.Util
 {
   public final static String CLASS = "net.geoprism.registry.GeoRegistryUtil";
   public static java.lang.String OID = "oid";
-  private static final long serialVersionUID = 193158924;
+  private static final long serialVersionUID = -877958073;
   
   public GeoRegistryUtilBase()
   {
@@ -46,6 +46,18 @@ public abstract class GeoRegistryUtilBase extends com.runwaysdk.business.Util
   }
   
   public static java.lang.String createHierarchyType(java.lang.String htJSON)
+  {
+    String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.GeoRegistryUtil.java";
+    throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
+  }
+  
+  public static java.io.InputStream exportShapefile(java.lang.String code, java.lang.String hierarchyCode)
+  {
+    String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.GeoRegistryUtil.java";
+    throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
+  }
+  
+  public static java.io.InputStream exportSpreadsheet(java.lang.String code, java.lang.String hierarchyCode)
   {
     String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.GeoRegistryUtil.java";
     throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
