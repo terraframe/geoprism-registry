@@ -65,11 +65,11 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     update(): void {
-        this.registryService.updateGeoObjectType( this.editGeoObjectType ).then( data => {
+        this.registryService.updateGeoObjectType( this.editGeoObjectType ).then( geoObjectType => {
 
             // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
             // so that the change can be updated in the template
-            this.geoObjectTypeChange.emit(this.geoObjectType);
+            this.geoObjectTypeChange.emit(geoObjectType);
 
             this.close();
 
