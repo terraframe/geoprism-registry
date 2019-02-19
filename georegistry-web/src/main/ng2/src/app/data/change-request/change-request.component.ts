@@ -204,23 +204,23 @@ export class ChangeRequestComponent implements OnInit {
     submit(): void {
 
         // Convert all dates from input element (date type) format to epoch time
-        for(let i=0; i<this.geoObjectType.attributes.length; i++){
-            let attr = this.geoObjectType.attributes[i];
+        // for(let i=0; i<this.geoObjectType.attributes.length; i++){
+        //     let attr = this.geoObjectType.attributes[i];
 
-            if(attr.type === "date" && this.geoObjectAttributeExcludes.indexOf(attr.code) === -1){
-                let propInGeoObj = this.modifiedGeoObject.properties[attr.code];
+        //     if(attr.type === "date" && this.geoObjectAttributeExcludes.indexOf(attr.code) === -1){
+        //         let propInGeoObj = this.modifiedGeoObject.properties[attr.code];
 
-                if(propInGeoObj && propInGeoObj.length > 0){
-                    let formatted = new Date(propInGeoObj);
+        //         if(propInGeoObj && propInGeoObj.length > 0){
+        //             let formatted = new Date(propInGeoObj);
 
-                    let formattedStr = formatted.getFullYear() + "-" + formatted.getMonth() + "-" + formatted.getDay() + " AD " + formatted.getHours() + "-" + formatted.getMinutes() + "-" + formatted.getSeconds() + "-" + formatted.getMilliseconds() + " -" + formatted.getTimezoneOffset()
+        //             let formattedStr = formatted.getFullYear() + "-" + formatted.getMonth() + "-" + formatted.getDay() + " AD " + formatted.getHours() + "-" + formatted.getMinutes() + "-" + formatted.getSeconds() + "-" + formatted.getMilliseconds() + " -" + formatted.getTimezoneOffset()
 
-                    // Required format: yyyy-MM-dd G HH-mm-ss-SS Z 
-                    // Example = "2019-02-17 AD 15-16-29-00 -0700"
-                    this.modifiedGeoObject.properties[attr.code] = formattedStr;
-                }
-            }
-        }
+        //             // Required format: yyyy-MM-dd G HH-mm-ss-SS Z 
+        //             // Example = "2019-02-17 AD 15-16-29-00 -0700"
+        //             this.modifiedGeoObject.properties[attr.code] = formattedStr;
+        //         }
+        //     }
+        // }
 
         let toDelete = [];
         for (var key in this.modifiedGeoObject.properties) {
