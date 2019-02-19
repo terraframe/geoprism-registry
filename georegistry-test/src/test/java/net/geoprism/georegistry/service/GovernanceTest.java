@@ -32,6 +32,7 @@ import net.geoprism.georegistry.action.ActionFactory;
 import net.geoprism.georegistry.action.AllGovernanceStatus;
 import net.geoprism.georegistry.action.ChangeRequest;
 import net.geoprism.georegistry.action.ChangeRequestQuery;
+import net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.georegistry.query.CodeRestriction;
 import net.geoprism.georegistry.query.GeoObjectQuery;
 import net.geoprism.registry.test.TestDataSet.TestGeoObjectInfo;
@@ -60,6 +61,42 @@ public class GovernanceTest
       testData.cleanUp();
     }
   }
+  
+  /**
+   * Tests serialization on the DTOs and also conversion to/from DTO
+   */
+  @Test
+  public void testActionSerialization()
+  {
+    TestGeoObjectInfo testGo = testData.newTestGeoObjectInfo("GOV_TEST_SERIALIZATION", testData.STATE);
+    GeoObject go = testGo.asGeoObject();
+    testGo.setRegistryId(go.getUid());
+    
+    /*
+     * UpdateGeoObject
+     */
+    UpdateGeoObjectActionDTO updateDTO = new UpdateGeoObjectActionDTO();
+    updateDTO.setGeoObject(go.toJSON());
+    updateDTO.setCreateActionDate(Date.from(Instant.now().minus(6, ChronoUnit.HOURS)));
+    updateDTO.setContributorNotes("UPDATE_CONTRIB_NOTES");
+    updateDTO.setMaintainerNotes("UPDATE_MAINTAIN_NOTES");
+
+    String updateJson = updateDTO.toJSON().toString();
+    String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
+    Assert.assertEquals(updateJson, updateJson2);
+    
+    UpdateGeoObjectAction updateRA = (UpdateGeoObjectAction) AbstractAction.dtoToRegistry(updateDTO);
+    GeoObject updateRAGO = GeoObject.fromJSON(testData.adapter, updateRA.getGeoObjectJson());
+    testGo.assertEquals(updateRAGO);
+    Assert.assertEquals(updateDTO.getContributorNotes(), updateRA.getContributorNotes());
+    Assert.assertEquals(updateDTO.getMaintainerNotes(), updateRA.getMaintainerNotes());
+    Assert.assertEquals(updateDTO.getApiVersion(), updateRA.getApiVersion());
+//    Assert.assertEquals(updateDTO.getCreateActionDate().getTime(), updateRA.getCreateActionDate().getTime()); // TODO : Runway dates are accurate to the second, but epoch is accurate to the milisecond.
+    
+    /*
+     * TODO : The rest of the supported actions
+     */
+  }
 
   @Test
   public void testGovernance() throws InterruptedException
@@ -67,13 +104,13 @@ public class GovernanceTest
     /*
      * CR1 : Setup
      */
-    TestGeoObjectInfo testAddChildParent = testData.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD_PARENT_CR1", testData.STATE);
+    TestGeoObjectInfo testAddChildParent = testData.newTestGeoObjectInfo("GOV_TEST_ACTIONS_PARENT_CR1", testData.STATE);
     testAddChildParent.apply();
 
-    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ACTIONS_ADD_CHILD_CR1", testData.DISTRICT);
+    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("GOV_TEST_ACTIONS_CHILD_CR1", testData.DISTRICT);
     testAddChild.apply();
 
-    TestGeoObjectInfo testNew = testData.newTestGeoObjectInfo("TEST_ACTIONS_NEW_CHILD_CR1", testData.STATE);
+    TestGeoObjectInfo testNew = testData.newTestGeoObjectInfo("GOV_TEST_ACTIONS_NEW_CR1", testData.STATE);
     GeoObject goNewChild = testNew.asGeoObject();
 
     List<AbstractActionDTO> actionsCR1 = new ArrayList<AbstractActionDTO>();
@@ -140,7 +177,7 @@ public class GovernanceTest
     /*
      * CR2 : Setup
      */
-    TestGeoObjectInfo testNewCR2 = testData.newTestGeoObjectInfo("TEST_ACTIONS_NEW_CHILD_CR2", testData.STATE);
+    TestGeoObjectInfo testNewCR2 = testData.newTestGeoObjectInfo("GOV_TEST_ACTIONS_NEW_CR2", testData.STATE);
     GeoObject goNewChildCR2 = testNewCR2.asGeoObject();
 
     List<AbstractActionDTO> actionsCR2 = new ArrayList<AbstractActionDTO>();
@@ -152,8 +189,8 @@ public class GovernanceTest
     cr2Create.setGeoObject(goNewChildCR2.toJSON());
     cr2Create.setCreateActionDate(Date.from(Instant.now().minus(7, ChronoUnit.HOURS)));
 
-    String createJsonCR2 = create.toJSON().toString();
-    String createJson2CR2 = AbstractActionDTO.parseAction(createJson).toJSON().toString();
+    String createJsonCR2 = cr2Create.toJSON().toString();
+    String createJson2CR2 = AbstractActionDTO.parseAction(createJsonCR2).toJSON().toString();
     Assert.assertEquals(createJsonCR2, createJson2CR2);
     actionsCR2.add(cr2Create);
 
@@ -166,8 +203,8 @@ public class GovernanceTest
     cr2Update.setGeoObject(goNewChildCR2.toJSON());
     cr2Update.setCreateActionDate(Date.from(Instant.now().minus(6, ChronoUnit.HOURS)));
 
-    String updateJsonCR2 = update.toJSON().toString();
-    String updateJson2CR2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
+    String updateJsonCR2 = cr2Update.toJSON().toString();
+    String updateJson2CR2 = AbstractActionDTO.parseAction(updateJsonCR2).toJSON().toString();
     Assert.assertEquals(updateJsonCR2, updateJson2CR2);
     actionsCR2.add(cr2Update);
 
