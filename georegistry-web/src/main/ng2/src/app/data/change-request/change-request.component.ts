@@ -15,6 +15,7 @@ import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
 
 import { GeoObjectAttributeExcludesPipe } from '../../data/change-request/geoobject-attribute-excludes.pipe';
+import { ToEpochDateTimePipe } from '../../data/change-request/to-epoch-date-time.pipe';
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
@@ -57,7 +58,7 @@ export class ChangeRequestComponent implements OnInit {
 
     constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private date: DatePipe) {
+        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe) {
 
         this.dataSource = Observable.create((observer: any) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code).then(results => {
@@ -202,11 +203,46 @@ export class ChangeRequestComponent implements OnInit {
 
     submit(): void {
 
+        // Convert all dates from input element (date type) format to epoch time
+        for(let i=0; i<this.geoObjectType.attributes.length; i++){
+            let attr = this.geoObjectType.attributes[i];
+
+            if(attr.type === "date" && this.geoObjectAttributeExcludes.indexOf(attr.code) === -1){
+                let propInGeoObj = this.modifiedGeoObject.properties[attr.code];
+
+                if(propInGeoObj && propInGeoObj.length > 0){
+                    let formatted = new Date(propInGeoObj);
+
+                    let formattedStr = formatted.getFullYear() + "-" + formatted.getMonth() + "-" + formatted.getDay() + " AD " + formatted.getHours() + "-" + formatted.getMinutes() + "-" + formatted.getSeconds() + "-" + formatted.getMilliseconds() + " -" + formatted.getTimezoneOffset()
+
+                    // Required format: yyyy-MM-dd G HH-mm-ss-SS Z 
+                    // Example = "2019-02-17 AD 15-16-29-00 -0700"
+                    this.modifiedGeoObject.properties[attr.code] = formattedStr;
+                }
+            }
+        }
+
+        let toDelete = [];
+        for (var key in this.modifiedGeoObject.properties) {
+            if (this.modifiedGeoObject.properties.hasOwnProperty(key)) {
+                console.log(key + " -> " + this.modifiedGeoObject.properties[key]);
+                if(!this.modifiedGeoObject.properties[key] || this.modifiedGeoObject.properties[key].length < 1){
+                    toDelete.push(key);
+                }
+            }
+        }
+
+        toDelete.forEach(key => {
+            delete this.modifiedGeoObject.properties[key];
+        })
+
+
         let submitObj = [{  
             "actionType":"geoobject/update", // TODO: account for create
             "apiVersion":"1.0-SNAPSHOT", // TODO: make dynamic
             "createActionDate":new Date().getTime(), 
-            "geoObject":this.modifiedGeoObject
+            "geoObject":this.modifiedGeoObject,
+            "reason":this.reason
         }]
 
         this.changeRequestService.submitChangeRequest(JSON.stringify(submitObj))
