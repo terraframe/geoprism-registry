@@ -60,27 +60,7 @@
                             <div class="panel">
                                 <div class="panel-body">
                                     <ul class="list-group">
-                                        <!-- <td>
-                                            <h5>{{propKey}}</h5>
 
-                                            <div *ngIf="getTypeDefinition(propKey) !== 'term'">
-                                                <input type="text" [ngModel]="currentGeoObject.properties[propKey]" name="{{propKey}}" disabled>
-                                            </div>
-
-                                            <div *ngIf="getTypeDefinition(propKey) === 'term'">
-                                                <div style="border: solid grey 1px;background: lightgrey;">
-                                                    <input style="margin-top: 10px;float: none;" *ngIf="currentTermOption"
-                                                        type="text" [(ngModel)]="currentTermOption.localizedLabel" id="mod-{{propKey}}-label"
-                                                        name="mod-{{propKey}}-label">
-                                                    <input style="margin-top: 10px;float: none;" *ngIf="currentTermOption"
-                                                        type="text" [(ngModel)]="currentTermOption.localizedDescription"
-                                                        id="mod-{{propKey}}-description" name="mod-{{propKey}}-description">
-                                                </div>
-                                            </div>
-
-                                        </td> -->
-
-                                        <!-- *ngFor="let propKey of objectKeys(currentGeoObject.properties) | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes" -->
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
                                             <h5>{{attr.localizedLabel}}</h5>
 
