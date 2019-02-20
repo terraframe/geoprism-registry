@@ -10,3 +10,6 @@ The <a href="https://github.com/terraframe/common-geo-registry-specification" ta
 
 ## REST API Documentation
 https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/
+
+## Latest Unit Test Results
+https://s3-us-west-2.amazonaws.com/terraframe-sites/cgr-site/surefire-report.html
