@@ -1,4 +1,4 @@
-<form [ngClass]="standAlone ? 'modal-form' : ''" name="change-request-form" #changeRequestForm="ngForm">
+<form [ngClass]="standAlone ? 'modal-form' : ''" name="change-request-form" #changeRequestForm="ngForm" style="overflow: visible;">
     <fieldset>
         <!-- <div class="col-md-3"></div> -->
         <div class="col-md-12">
@@ -38,7 +38,7 @@
                 </div>
                 <div class="holder">
                     <span class="text">
-                        <input type="text" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId"
+                        <input type="text" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType || (geoObjectType && modifiedGeoObject)" name="geoObjectId"
                             [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)"
                             [typeaheadOptionsLimit]="7" typeaheadOptionField="name" class="form-control" autocomplete="off"
                             required>
@@ -96,7 +96,7 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'date'">
-                                                <input type="date" [ngModel]="modifiedGeoObject.properties[attr.code]"
+                                                <input type="date" [ngModel]="modifiedGeoObject.properties[attr.code] | date:'yyyy-MM-dd'"
                                                     (ngModelChange)="modifiedGeoObject.properties[attr.code] = $event" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
                                                     
                                                 <p class="warning-text" *ngIf="currentGeoObject.properties[attr.code] && modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">

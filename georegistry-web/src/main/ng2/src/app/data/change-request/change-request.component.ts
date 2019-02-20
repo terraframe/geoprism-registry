@@ -204,28 +204,27 @@ export class ChangeRequestComponent implements OnInit {
     submit(): void {
 
         // Convert all dates from input element (date type) format to epoch time
-        // for(let i=0; i<this.geoObjectType.attributes.length; i++){
-        //     let attr = this.geoObjectType.attributes[i];
+        for(let i=0; i<this.geoObjectType.attributes.length; i++){
+            let attr = this.geoObjectType.attributes[i];
 
-        //     if(attr.type === "date" && this.geoObjectAttributeExcludes.indexOf(attr.code) === -1){
-        //         let propInGeoObj = this.modifiedGeoObject.properties[attr.code];
+            if(attr.type === "date" && this.geoObjectAttributeExcludes.indexOf(attr.code) === -1){
+                let propInGeoObj = this.modifiedGeoObject.properties[attr.code];
 
-        //         if(propInGeoObj && propInGeoObj.length > 0){
-        //             let formatted = new Date(propInGeoObj);
+                if(propInGeoObj && propInGeoObj.length > 0){
+                    let formattedStr = new Date(propInGeoObj).getTime();
 
-        //             let formattedStr = formatted.getFullYear() + "-" + formatted.getMonth() + "-" + formatted.getDay() + " AD " + formatted.getHours() + "-" + formatted.getMinutes() + "-" + formatted.getSeconds() + "-" + formatted.getMilliseconds() + " -" + formatted.getTimezoneOffset()
+                    // let formattedStr = formatted.getFullYear() + "-" + formatted.getMonth() + "-" + formatted.getDay() + " AD " + formatted.getHours() + "-" + formatted.getMinutes() + "-" + formatted.getSeconds() + "-" + formatted.getMilliseconds() + " -" + formatted.getTimezoneOffset()
 
-        //             // Required format: yyyy-MM-dd G HH-mm-ss-SS Z 
-        //             // Example = "2019-02-17 AD 15-16-29-00 -0700"
-        //             this.modifiedGeoObject.properties[attr.code] = formattedStr;
-        //         }
-        //     }
-        // }
+                    // Required format: yyyy-MM-dd G HH-mm-ss-SS Z 
+                    // Example = "2019-02-17 AD 15-16-29-00 -0700"
+                    this.modifiedGeoObject.properties[attr.code] = formattedStr;
+                }
+            }
+        }
 
         let toDelete = [];
         for (var key in this.modifiedGeoObject.properties) {
             if (this.modifiedGeoObject.properties.hasOwnProperty(key)) {
-                console.log(key + " -> " + this.modifiedGeoObject.properties[key]);
                 if(!this.modifiedGeoObject.properties[key] || this.modifiedGeoObject.properties[key].length < 1){
                     toDelete.push(key);
                 }
@@ -242,7 +241,7 @@ export class ChangeRequestComponent implements OnInit {
             "apiVersion":"1.0-SNAPSHOT", // TODO: make dynamic
             "createActionDate":new Date().getTime(), 
             "geoObject":this.modifiedGeoObject,
-            "reason":this.reason
+            "contributorNotes":this.reason
         }]
 
         this.changeRequestService.submitChangeRequest(JSON.stringify(submitObj))
