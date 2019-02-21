@@ -10,7 +10,6 @@
         </attributeStruct>
       </object>
 
-          <createOrUpdate>
         <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.done">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="modal.button.done" />
