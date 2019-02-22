@@ -20,7 +20,7 @@
           <div class="col-md-6">
             <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
               <option></option>
-              <option *ngFor="let type of types" value={{type.code}}>{{type.label.localizedValue}}</option>
+              <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
             </select>
           </div>
         </div>
