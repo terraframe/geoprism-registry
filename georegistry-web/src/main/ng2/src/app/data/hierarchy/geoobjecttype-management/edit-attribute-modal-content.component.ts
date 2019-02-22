@@ -27,7 +27,7 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
 @Component( {
     selector: 'edit-attribute-modal-content',
     templateUrl: './edit-attribute-modal-content.component.html',
-    styleUrls: [],
+    styleUrls: ['./edit-attribute-modal-content.css'],
     animations: [
         trigger('openClose', 
             [

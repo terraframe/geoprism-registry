@@ -62,6 +62,7 @@ import { StandAloneChangeRequestComponent } from './data/change-request/stand-al
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
+import { ToEpochDateTimePipe } from './data/change-request/to-epoch-date-time.pipe';
 import { DatePipe } from '@angular/common';
 
 import { LocalizeComponent } from './core/localize/localize.component';
@@ -159,6 +160,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ChangeRequestComponent,
     StandAloneChangeRequestComponent,
     GeoObjectAttributeExcludesPipe,
+    ToEpochDateTimePipe,
     
     // Routing components
     routedComponents
@@ -176,7 +178,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ModalStepIndicatorService,
     GeoObjectTypeManagementService,
     RegistryService,
-    DatePipe
+    DatePipe,
+    ToEpochDateTimePipe
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [
