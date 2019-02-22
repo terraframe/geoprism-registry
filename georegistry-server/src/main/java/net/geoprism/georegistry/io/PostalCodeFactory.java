@@ -49,7 +49,7 @@ public class PostalCodeFactory
     {
       PostalCodeFormatException e = new PostalCodeFormatException();
       e.setCode(value);
-      e.setTypeLabel(this.getType().getLocalizedLabel());
+      e.setTypeLabel(this.getType().getLabel().getValue());
 
       throw e;
     }

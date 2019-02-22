@@ -156,7 +156,7 @@ public class WMSService
     if (type.isLeaf())
     {
       BusinessQuery bQuery = new BusinessQuery(vQuery, universal.getMdBusiness().definesType());
-      AttributeLocal aLocalCharacter = bQuery.aLocalCharacter(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName());
+      AttributeLocal aLocalCharacter = bQuery.aLocalCharacter(DefaultAttribute.DISPLAY_LABEL.getName());
       MdLocalStructDAOIF mdLocalStruct = aLocalCharacter.getMdStructDAOIF();
 
       AttributeCharacter code = bQuery.aCharacter(DefaultAttribute.CODE.getName());

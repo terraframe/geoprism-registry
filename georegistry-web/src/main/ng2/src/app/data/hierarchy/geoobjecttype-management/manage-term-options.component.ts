@@ -106,7 +106,7 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     isValid(): boolean {
-        if(this.termOption.code && this.termOption.code.length > 0 && this.termOption.localizedLabel && this.termOption.localizedLabel.length > 0){
+        if(this.termOption.code && this.termOption.code.length > 0 && this.termOption.label.localizedValue && this.termOption.label.localizedValue.length > 0){
             
             // If code has a space
             if(this.termOption.code.indexOf(" ") !== -1){
@@ -114,7 +114,7 @@ export class ManageTermOptionsComponent implements OnInit {
             }
 
             // If label is only spaces
-            if(this.termOption.localizedLabel.replace(/\s/g, '').length === 0) {
+            if(this.termOption.label.localizedValue.replace(/\s/g, '').length === 0) {
                 return false
             }
 
@@ -169,7 +169,7 @@ export class ManageTermOptionsComponent implements OnInit {
 		  backdrop: true,
 		  ignoreBackdropClick: true,
 	  } );
-	  this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + termOption.localizedLabel + ']';
+	  this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + termOption.label + ']';
       this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
       this.bsModalRef.content.type = ModalTypes.danger;
 
@@ -184,8 +184,8 @@ export class ManageTermOptionsComponent implements OnInit {
 
     clearTermOption(): void {
         this.termOption.code = "";
-        this.termOption.localizedLabel = "";
-        this.termOption.localizedDescription = "";
+        this.termOption.label = { localizedValue: '', localeValues: [] };
+        this.termOption.description = { localizedValue: '', localeValues: [] };
     }
 
     cancelTermOption(): void {

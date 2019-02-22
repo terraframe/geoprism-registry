@@ -13,6 +13,7 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -77,16 +78,16 @@ public class ExcelServiceTest
 
     this.adminCR = testData.adminClientRequest;
 
-    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", "testTermLocalName", "testTermLocalDescrip", AttributeTermType.TYPE);
+    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE);
     this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
 
-    AttributeBooleanType testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", "testBooleanLocalName", "testBooleanLocalDescrip", AttributeBooleanType.TYPE);
+    AttributeBooleanType testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE);
     this.testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testBoolean.toJSON().toString());
 
-    AttributeDateType testDate = (AttributeDateType) AttributeType.factory("testDate", "testDateLocalName", "testDateLocalDescrip", AttributeDateType.TYPE);
+    AttributeDateType testDate = (AttributeDateType) AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE);
     this.testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testDate.toJSON().toString());
 
-    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
+    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE);
     this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
 
     reload();
@@ -193,7 +194,7 @@ public class ExcelServiceTest
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.STATE.getCode());
 
     Assert.assertNotNull(object);
-    Assert.assertEquals("Test", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
+    Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
 
     Geometry geometry = object.getGeometry();
 
@@ -311,7 +312,7 @@ public class ExcelServiceTest
 
       Sheet sheet = workbook.getSheetAt(0);
 
-      Assert.assertEquals(WorkbookUtil.createSafeSheetName(type.getLocalizedLabel()), sheet.getSheetName());
+      Assert.assertEquals(WorkbookUtil.createSafeSheetName(type.getLabel().getValue()), sheet.getSheetName());
     }
     finally
     {
@@ -323,7 +324,7 @@ public class ExcelServiceTest
   @Request
   public void testExport() throws IOException
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", "Test Term", "").toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -555,7 +556,7 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithTerm()
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", "Test Term", "").toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -624,7 +625,7 @@ public class ExcelServiceTest
     Assert.assertEquals("Test Term", problem.get("label").getAsString());
     Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.get("parentCode").getAsString());
     Assert.assertEquals(this.testTerm.getName(), problem.get("attributeCode").getAsString());
-    Assert.assertEquals(this.testTerm.getLocalizedLabel(), problem.get("attributeLabel").getAsString());
+    Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.get("attributeLabel").getAsString());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POINT), testData.STATE.getUniversal());
@@ -645,7 +646,7 @@ public class ExcelServiceTest
 
       String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
 
-      if (attributeName.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
+      if (attributeName.equals(GeoObject.DISPLAY_LABEL))
       {
         attribute.addProperty(GeoObjectConfiguration.TARGET, "Name");
       }

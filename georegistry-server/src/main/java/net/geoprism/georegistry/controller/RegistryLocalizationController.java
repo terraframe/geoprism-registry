@@ -47,6 +47,7 @@ import com.runwaysdk.system.metadata.MdAttributeLocalQuery;
 import com.runwaysdk.system.metadata.MdLocalizable;
 import com.runwaysdk.system.metadata.Metadata;
 
+import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.georegistry.service.WMSService;
 import net.geoprism.localization.LocalizationFacade;
 
@@ -133,7 +134,10 @@ public class RegistryLocalizationController
     new WMSService().createAllWMSLayers(true);
     
     // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();    
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();   
+    
+    // Refresh the entire metadata cache
+    ServiceFactory.getRegistryService().refreshMetadataCache();    
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)

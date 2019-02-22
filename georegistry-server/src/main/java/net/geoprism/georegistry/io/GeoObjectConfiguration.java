@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -501,11 +502,11 @@ public class GeoObjectConfiguration
 
   public static AttributeFloatType latitude()
   {
-    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, LocalizationFacade.getFromBundles(LATITUDE_KEY), "", false);
+    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, new LocalizedValue(LocalizationFacade.getFromBundles(LATITUDE_KEY)), new LocalizedValue(""), false);
   }
 
   public static AttributeFloatType longitude()
   {
-    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, LocalizationFacade.getFromBundles(LONGITUDE_KEY), "", false);
+    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, new LocalizedValue(LocalizationFacade.getFromBundles(LONGITUDE_KEY)), new LocalizedValue(""), false);
   }
 }

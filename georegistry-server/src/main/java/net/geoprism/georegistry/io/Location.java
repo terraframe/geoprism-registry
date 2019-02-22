@@ -57,7 +57,7 @@ public class Location
   public JsonObject toJson()
   {
     JsonObject object = new JsonObject();
-    object.addProperty("label", this.type.getLocalizedLabel());
+    object.addProperty("label", this.type.getLabel().getValue());
     object.addProperty("code", this.type.getCode());
     object.addProperty("target", this.function.toJson());
 

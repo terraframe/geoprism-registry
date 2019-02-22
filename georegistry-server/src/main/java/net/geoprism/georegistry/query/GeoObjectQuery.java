@@ -1,5 +1,7 @@
 package net.geoprism.georegistry.query;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -13,11 +15,15 @@ import com.runwaysdk.Pair;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.EnumerationMasterInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
+import com.runwaysdk.query.AttributeLocal;
 import com.runwaysdk.query.LeftJoinEq;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
+import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayLabelQueryStructIF;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 
@@ -88,12 +94,21 @@ public class GeoObjectQuery
     if (this.type.isLeaf())
     {
       BusinessQuery bQuery = new BusinessQuery(vQuery, universal.getMdBusiness().definesType());
+      AttributeLocal label = bQuery.aLocalCharacter(DefaultAttribute.DISPLAY_LABEL.getName());
 
       vQuery.SELECT(bQuery.aUUID(ComponentInfo.OID));
       vQuery.SELECT(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
-      vQuery.SELECT(bQuery.aLocalCharacter(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()).localize(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()));
       vQuery.SELECT(bQuery.aEnumeration(DefaultAttribute.STATUS.getName()).aCharacter(EnumerationMasterInfo.NAME, DefaultAttribute.STATUS.getName()));
       vQuery.SELECT(bQuery.get(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
+      vQuery.SELECT(label.localize(DefaultAttribute.DISPLAY_LABEL.getName()));
+      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, MdAttributeLocalInfo.DEFAULT_LOCALE));
+
+      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+      for (Locale locale : locales)
+      {
+        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+      }
 
       this.selectCustomAttributes(vQuery, bQuery);
 
@@ -112,10 +127,19 @@ public class GeoObjectQuery
       vQuery.WHERE(geQuery.getUniversal().EQ(universal));
       vQuery.WHERE(bQuery.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(geQuery));
 
+      GeoEntityDisplayLabelQueryStructIF label = geQuery.getDisplayLabel();
       vQuery.SELECT(geQuery.getOid(ComponentInfo.OID));
       vQuery.SELECT(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
-      vQuery.SELECT(geQuery.getDisplayLabel().localize(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()));
       vQuery.SELECT(bQuery.aEnumeration(DefaultAttribute.STATUS.getName()).aCharacter(EnumerationMasterInfo.NAME, DefaultAttribute.STATUS.getName()));
+      vQuery.SELECT(label.localize(DefaultAttribute.DISPLAY_LABEL.getName()));
+      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, MdAttributeLocalInfo.DEFAULT_LOCALE));
+
+      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+      for (Locale locale : locales)
+      {
+        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+      }
 
       if (this.type.getGeometryType().equals(GeometryType.LINE))
       {
@@ -201,7 +225,7 @@ public class GeoObjectQuery
     {
       return false;
     }
-    else if (attributeName.equals(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()))
+    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       return false;
     }

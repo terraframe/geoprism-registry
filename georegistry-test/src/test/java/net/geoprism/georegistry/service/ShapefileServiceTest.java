@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -58,10 +59,10 @@ public class ShapefileServiceTest
 
     this.adminCR = testData.adminClientRequest;
 
-    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", "testTermLocalName", "testTermLocalDescrip", AttributeTermType.TYPE);
+    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE);
     this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
 
-    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", "testIntegerLocalName", "testIntegerLocalDescrip", AttributeIntegerType.TYPE);
+    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE);
     this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
 
     reload();
@@ -182,7 +183,7 @@ public class ShapefileServiceTest
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
-    Assert.assertEquals("Alabama", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
+    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
   }
 
   @Test
@@ -209,7 +210,7 @@ public class ShapefileServiceTest
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
-    Assert.assertEquals("Alabama", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
+    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
   }
 
   @Test
@@ -232,7 +233,7 @@ public class ShapefileServiceTest
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
-    Assert.assertEquals("Alabama", object.getValue(GeoObject.LOCALIZED_DISPLAY_LABEL));
+    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
     Assert.assertEquals(131174431216L, object.getValue(this.testInteger.getName()));
   }
 
@@ -348,7 +349,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithTerm()
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", "00", "").toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -417,7 +418,7 @@ public class ShapefileServiceTest
     Assert.assertEquals("00", problem.get("label").getAsString());
     Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.get("parentCode").getAsString());
     Assert.assertEquals(this.testTerm.getName(), problem.get("attributeCode").getAsString());
-    Assert.assertEquals(this.testTerm.getLocalizedLabel(), problem.get("attributeLabel").getAsString());
+    Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.get("attributeLabel").getAsString());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
@@ -438,7 +439,7 @@ public class ShapefileServiceTest
 
       String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
 
-      if (attributeName.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
+      if (attributeName.equals(GeoObject.DISPLAY_LABEL))
       {
         attribute.addProperty(GeoObjectConfiguration.TARGET, "NAME");
       }

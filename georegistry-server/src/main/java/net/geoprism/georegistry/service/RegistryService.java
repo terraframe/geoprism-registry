@@ -2,25 +2,30 @@ package net.geoprism.georegistry.service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.RelationshipQuery;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -382,12 +387,12 @@ public class RegistryService
 
     Universal universal = createGeoObjectType(geoObjectType);
 
-    // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    GeoObjectType ret = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-    GeoObjectType ret = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addGeoObjectType(ret);
 
     /*
      * Create the GeoServer WMS layers
@@ -438,10 +443,11 @@ public class RegistryService
   private Universal updateGeoObjectType(GeoObjectType geoObjectType)
   {
     Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(geoObjectType);
-
     universal.lock();
-    universal.getDisplayLabel().setValue(geoObjectType.getLocalizedLabel());
-    universal.getDescription().setValue(geoObjectType.getLocalizedDescription());
+
+    ServiceFactory.getConversionService().populate(universal.getDisplayLabel(), geoObjectType.getLabel());
+    ServiceFactory.getConversionService().populate(universal.getDescription(), geoObjectType.getDescription());
+
     universal.apply();
 
     MdBusiness mdBusiness = universal.getMdBusiness();
@@ -476,15 +482,21 @@ public class RegistryService
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
-    JSONObject attrObj = new JSONObject(attributeTypeJSON);
+    JsonParser parser = new JsonParser();
+    JsonObject attrObj = parser.parse(attributeTypeJSON).getAsJsonObject();
 
-    AttributeType attrType = AttributeType.factory(attrObj.getString(AttributeType.JSON_CODE), attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL), attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION), attrObj.getString(AttributeType.JSON_TYPE));
+    LocalizedValue label = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject());
+    LocalizedValue description = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_DESCRIPTION).getAsJsonObject());
+
+    AttributeType attrType = AttributeType.factory(attrObj.get(AttributeType.JSON_CODE).getAsString(), label, description, attrObj.get(AttributeType.JSON_TYPE).getAsString());
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    attrType = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
+    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
+
+    attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     geoObjectType.addAttribute(attrType);
 
@@ -514,19 +526,21 @@ public class RegistryService
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
-    JSONObject attrObj = new JSONObject(attributeTypeJSON);
+    JsonObject attrObj = new JsonParser().parse(attributeTypeJSON).getAsJsonObject();
 
-    String attrTypeCode = attrObj.getString(AttributeType.JSON_CODE);
+    LocalizedValue label = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject());
+    LocalizedValue description = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_DESCRIPTION).getAsJsonObject());
 
-    AttributeType attrType = geoObjectType.getAttribute(attrTypeCode).get();
-    attrType.setLocalizedLabel(attrObj.getString(AttributeType.JSON_LOCALIZED_LABEL));
-    attrType.setLocalizedDescription(attrObj.getString(AttributeType.JSON_LOCALIZED_DESCRIPTION));
+    AttributeType attrType = geoObjectType.getAttribute(attrObj.get(AttributeType.JSON_CODE).getAsString()).get();
+    attrType.setLabel(label);
+    attrType.setDescription(description);
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    attrType = ServiceFactory.getUtilities().updateMdAttributeFromAttributeType(mdBusiness, attrType);
+    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().updateMdAttributeFromAttributeType(mdBusiness, attrType);
+    attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     geoObjectType.addAttribute(attrType);
 
@@ -584,9 +598,13 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public Term createTerm(String sessionId, String parentTermCode, String termJSON)
   {
-    JSONObject termJSONobj = new JSONObject(termJSON);
+    JsonParser parser = new JsonParser();
 
-    Term term = new Term(termJSONobj.getString(Term.JSON_CODE), termJSONobj.getString(Term.JSON_LOCALIZED_LABEL), "");
+    JsonObject termJSONobj = parser.parse(termJSON).getAsJsonObject();
+
+    LocalizedValue label = LocalizedValue.fromJSON(termJSONobj.get(Term.JSON_LOCALIZED_LABEL).getAsJsonObject());
+
+    Term term = new Term(termJSONobj.get(Term.JSON_CODE).getAsString(), label, new LocalizedValue(""));
 
     Classifier classifier = TermBuilder.createClassifierFromTerm(parentTermCode, term);
 
@@ -613,13 +631,13 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public Term updateTerm(String sessionId, String termJSON)
   {
-    JSONObject termJSONobj = new JSONObject(termJSON);
+    JsonObject termJSONobj = new JsonParser().parse(termJSON).getAsJsonObject();
 
-    String termCode = termJSONobj.getString(Term.JSON_CODE);
+    String termCode = termJSONobj.get(Term.JSON_CODE).getAsString();
 
-    String localizedLabel = termJSONobj.getString(Term.JSON_LOCALIZED_LABEL);
+    LocalizedValue value = LocalizedValue.fromJSON(termJSONobj.get(Term.JSON_LOCALIZED_LABEL).getAsJsonObject());
 
-    Classifier classifier = TermBuilder.updateClassifier(termCode, localizedLabel);
+    Classifier classifier = TermBuilder.updateClassifier(termCode, value);
 
     TermBuilder termBuilder = new TermBuilder(classifier.getKeyName());
 
@@ -842,8 +860,9 @@ public class RegistryService
 
     mdTermRelationship.lock();
 
-    mdTermRelationship.getDisplayLabel().setValue(hierarchyType.getLocalizedLabel());
-    mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
+    ServiceFactory.getConversionService().populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
+    ServiceFactory.getConversionService().populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
+
     mdTermRelationship.apply();
 
     mdTermRelationship.unlock();
@@ -1049,5 +1068,21 @@ public class RegistryService
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(code).get();
 
     return ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getLocales(String sessionId)
+  {
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    JsonArray array = new JsonArray();
+    array.add(MdAttributeLocalInfo.DEFAULT_LOCALE);
+
+    for (Locale locale : locales)
+    {
+      array.add(locale.toString());
+    }
+
+    return array;
   }
 }

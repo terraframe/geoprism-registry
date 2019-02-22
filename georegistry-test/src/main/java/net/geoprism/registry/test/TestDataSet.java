@@ -17,6 +17,7 @@ import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -116,7 +117,7 @@ abstract public class TestDataSet
     cleanUp();
 
     setUpInTrans();
-    
+
     adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
   }
@@ -180,7 +181,7 @@ abstract public class TestDataSet
     {
       go.delete();
     }
-    
+
     deleteAllActions();
     deleteAllChangeRequests();
 
@@ -189,27 +190,27 @@ abstract public class TestDataSet
       adminSession.logout();
     }
   }
-  
+
   @Request
   public static void deleteAllActions()
   {
     AbstractActionQuery aaq = new AbstractActionQuery(new QueryFactory());
-    
+
     OIterator<? extends AbstractAction> it = aaq.getIterator();
-    
+
     while (it.hasNext())
     {
       it.next().delete();
     }
   }
-  
+
   @Request
   public static void deleteAllChangeRequests()
   {
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
-    
+
     OIterator<? extends ChangeRequest> it = crq.getIterator();
-    
+
     while (it.hasNext())
     {
       it.next().delete();
@@ -232,8 +233,8 @@ abstract public class TestDataSet
     MdRelationship allowedIn = MdRelationship.getMdRelationship(relationshipType);
 
     Assert.assertEquals(allowedIn.getTypeName(), compare.getCode());
-    Assert.assertEquals(allowedIn.getDescription().getValue(), compare.getLocalizedDescription());
-    Assert.assertEquals(allowedIn.getDisplayLabel().getValue(), compare.getLocalizedLabel());
+    Assert.assertEquals(allowedIn.getDescription().getValue(), compare.getDescription().getValue());
+    Assert.assertEquals(allowedIn.getDisplayLabel().getValue(), compare.getLabel().getValue());
 
     // compare.getRootGeoObjectTypes() // TODO
   }
@@ -277,9 +278,9 @@ abstract public class TestDataSet
 
     private String                      code;
 
-    private String                      displayLabel;
+    private LocalizedValue              displayLabel;
 
-    private String                      description;
+    private LocalizedValue              description;
 
     private String                      uid;
 
@@ -297,8 +298,8 @@ abstract public class TestDataSet
     protected TestGeoObjectTypeInfo(String genKey, boolean isLeaf)
     {
       this.code = getTestDataKey() + genKey + "Code";
-      this.displayLabel = getTestDataKey() + " " + genKey + " Display Label";
-      this.description = getTestDataKey() + " " + genKey + " Description";
+      this.displayLabel = new LocalizedValue(getTestDataKey() + " " + genKey + " Display Label");
+      this.description = new LocalizedValue(getTestDataKey() + " " + genKey + " Description");
       this.children = new LinkedList<TestGeoObjectTypeInfo>();
       this.geomType = GeometryType.POLYGON;
       this.isLeaf = isLeaf;
@@ -309,12 +310,12 @@ abstract public class TestDataSet
       return code;
     }
 
-    public String getDisplayLabel()
+    public LocalizedValue getDisplayLabel()
     {
       return displayLabel;
     }
 
-    public String getDescription()
+    public LocalizedValue getDescription()
     {
       return description;
     }
@@ -362,15 +363,15 @@ abstract public class TestDataSet
     public void assertEquals(GeoObjectType got)
     {
       Assert.assertEquals(code, got.getCode());
-      Assert.assertEquals(displayLabel, got.getLocalizedLabel());
-      Assert.assertEquals(description, got.getLocalizedDescription());
+      Assert.assertEquals(displayLabel.getValue(), got.getLabel().getValue());
+      Assert.assertEquals(description.getValue(), got.getDescription().getValue());
     }
 
     public void assertEquals(Universal uni)
     {
       Assert.assertEquals(code, uni.getKey());
-      Assert.assertEquals(displayLabel, uni.getDisplayLabel().getValue());
-      Assert.assertEquals(description, uni.getDescription().getValue());
+      Assert.assertEquals(displayLabel.getValue(), uni.getDisplayLabel().getValue());
+      Assert.assertEquals(description.getValue(), uni.getDescription().getValue());
     }
 
     @Request
@@ -405,7 +406,7 @@ abstract public class TestDataSet
       {
         System.out.println("Deleting TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
-      
+
       new WMSService().deleteDatabaseView(this.getGeoObjectType(geometryType));
 
       Universal uni = getUniversalIfExist(this.getCode());
@@ -860,8 +861,8 @@ abstract public class TestDataSet
           this.business.setValue(DefaultAttribute.CODE.getName(), this.getCode());
           this.business.setValue(DefaultAttribute.STATUS.getName(), GeoObjectStatus.ACTIVE.getOid());
           this.business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, geo);
-          this.business.setStructValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName(), MdAttributeLocalCharacterInfo.DEFAULT_LOCALE, this.getDisplayLabel());
-          // ((AttributeLocal)BusinessFacade.getEntityDAO(this.business).getAttributeIF(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName())).setDefaultValue(this.getDisplayLabel());
+          this.business.setStructValue(DefaultAttribute.DISPLAY_LABEL.getName(), MdAttributeLocalCharacterInfo.DEFAULT_LOCALE, this.getDisplayLabel());
+          // ((AttributeLocal)BusinessFacade.getEntityDAO(this.business).getAttributeIF(DefaultAttribute.DISPLAY_LABEL.getName())).setDefaultValue(this.getDisplayLabel());
 
           this.business.apply();
 

@@ -1,9 +1,9 @@
 package net.geoprism.georegistry.conversion;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
-import com.runwaysdk.business.Relationship;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -13,6 +13,7 @@ import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.georegistry.RegistryConstants;
+import net.geoprism.georegistry.service.ServiceFactory;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 
@@ -43,7 +44,9 @@ public class TermBuilder
 
   private Term buildTermFromClassifier(Classifier classifier)
   {
-    Term term = new Term(classifier.getClassifierId(), classifier.getDisplayLabel().getValue(), "");
+    LocalizedValue label = ServiceFactory.getConversionService().convert(classifier.getDisplayLabel());
+
+    Term term = new Term(classifier.getClassifierId(), label, new LocalizedValue(""));
 
     OIterator<? extends net.geoprism.ontology.Classifier> childClassifiers = classifier.getAllIsAChild();
 
@@ -60,7 +63,8 @@ public class TermBuilder
     classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
     // This will set the value of the display label to the locale of the user
     // performing the action.
-    classifier.getDisplayLabel().setValue(term.getLocalizedLabel());
+    ServiceFactory.getConversionService().populate(classifier.getDisplayLabel(), term.getLabel());
+
     classifier.apply();
 
     String parentClassifierKey = buildClassifierKeyFromTermCode(parentTermCode);
@@ -73,14 +77,16 @@ public class TermBuilder
   }
 
   @Transaction
-  public static Classifier updateClassifier(String termCode, String localizedLabel)
+  public static Classifier updateClassifier(String termCode, LocalizedValue value)
   {
     String classifierKey = buildClassifierKeyFromTermCode(termCode);
 
     Classifier classifier = Classifier.getByKey(classifierKey);
     classifier.lock();
     classifier.setClassifierId(termCode);
-    classifier.getDisplayLabel().setValue(localizedLabel);
+
+    ServiceFactory.getConversionService().populate(classifier.getDisplayLabel(), value);
+
     classifier.apply();
 
     return classifier;

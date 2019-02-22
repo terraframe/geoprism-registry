@@ -4,6 +4,7 @@ import { Subject } from 'rxjs/Subject';
 
 import { HierarchyType } from '../hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
+import { LocalizationService } from '../../../core/service/localization.service';
 
 
 @Component( {
@@ -13,7 +14,7 @@ import { HierarchyService } from '../../../service/hierarchy.service';
 } )
 export class CreateHierarchyTypeModalComponent implements OnInit {
 
-    hierarchyType: HierarchyType = {"code":"","localizedLabel":"","localizedDescription":"","rootGeoObjectTypes":[]};
+    hierarchyType: HierarchyType;
 
     message: string = null;
 
@@ -22,18 +23,25 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
      */
     public onHierarchytTypeCreate: Subject<HierarchyType>;
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
+    constructor( private lService: LocalizationService, private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
         this.onHierarchytTypeCreate = new Subject();
+
+        this.hierarchyType = {
+            "code": "",
+            "label": this.lService.create(),
+            "description": this.lService.create(),
+            "rootGeoObjectTypes": []
+        };
     }
 
     handleOnSubmit(): void {
         this.message = null;
-        
-        this.hierarchyService.createHierarchyType( JSON.stringify(this.hierarchyType) ).then( data => {
-        	this.onHierarchytTypeCreate.next( data );
-        	this.bsModalRef.hide();
+
+        this.hierarchyService.createHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
+            this.onHierarchytTypeCreate.next( data );
+            this.bsModalRef.hide();
         } ).catch(( err: any ) => {
             this.error( err.json() );
         } );
@@ -43,8 +51,8 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
         // Handle error
         if ( err !== null ) {
             this.message = ( err.localizedMessage || err.message );
-            
-            console.log(this.message);
+
+            console.log( this.message );
         }
     }
 

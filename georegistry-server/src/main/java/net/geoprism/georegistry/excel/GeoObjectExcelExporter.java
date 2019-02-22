@@ -78,7 +78,7 @@ public class GeoObjectExcelExporter
   public Workbook createWorkbook() throws IOException
   {
     Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.type.getLocalizedLabel()));
+    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.type.getLabel().getValue()));
 
     CreationHelper createHelper = workbook.getCreationHelper();
     Font font = workbook.createFont();
@@ -200,18 +200,18 @@ public class GeoObjectExcelExporter
     {
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
-      cell.setCellValue(attribute.getLocalizedLabel());
+      cell.setCellValue(attribute.getLabel().getValue());
     }
 
     for (GeoObjectType ancestor : ancestors)
     {
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
-      cell.setCellValue(ancestor.getLocalizedLabel() + " " + ancestor.getAttribute(GeoObject.CODE).get().getLocalizedLabel());
+      cell.setCellValue(ancestor.getLabel() + " " + ancestor.getAttribute(GeoObject.CODE).get().getLabel());
 
       cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
-      cell.setCellValue(ancestor.getLocalizedLabel() + " " + ancestor.getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getLocalizedLabel());
+      cell.setCellValue(ancestor.getLabel() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel());
     }
   }
 

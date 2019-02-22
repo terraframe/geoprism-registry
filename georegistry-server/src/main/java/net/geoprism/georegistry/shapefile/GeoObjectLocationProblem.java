@@ -41,7 +41,7 @@ public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationPro
     JsonObject object = new JsonObject();
     object.addProperty("label", label);
     object.addProperty("type", this.type.getCode());
-    object.addProperty("typeLabel", this.type.getLocalizedLabel());
+    object.addProperty("typeLabel", this.type.getLabel().getValue());
     object.add("context", context);
 
     if (this.parent != null)

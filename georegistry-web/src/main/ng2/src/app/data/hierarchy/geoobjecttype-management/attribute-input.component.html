@@ -11,30 +11,9 @@
             </span>
         </div>
     </div>
-    <div class="row-holder">
-        <div class="label-holder">
-            <label>
-                <localize key="data.property.label.label"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <span class="text">
-                <input type="text" [(ngModel)]="attribute.localizedLabel" name="label" required>
-            </span>
-        </div>
-    </div>
-    <div class="row-holder" *ngIf="!excludeDescription">
-        <div class="label-holder">
-            <label>
-                <localize key="data.property.label.description"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <span class="text">
-                <input type="text" [(ngModel)]="attribute.localizedDescription" name="description">
-            </span>
-        </div>
-    </div>
+    
+    <localized-input [(value)]="attribute.label" key="data.property.label.label"></localized-input>
+    <localized-text *ngIf="!excludeDescription" [(value)]="attribute.description" key="data.property.label.description"></localized-text>
     <!-- <div class="row-holder" *ngIf="isDecimal">
         <div class="label-holder">
             <label>

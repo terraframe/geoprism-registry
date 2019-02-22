@@ -221,7 +221,7 @@ export class IOService {
             'Content-Type': 'application/json'
         } );
 
-        let params = { parentTermCode: parentTermCode, termJSON: { localizedLabel: label, code: code } };
+        let params = { parentTermCode: parentTermCode, termJSON: { label: label, code: code } };
 
         return this.http
             .post( acp + '/cgr/geoobjecttype/addterm', JSON.stringify( params ), { headers: headers } )

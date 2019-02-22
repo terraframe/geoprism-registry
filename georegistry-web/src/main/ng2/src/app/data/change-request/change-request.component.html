@@ -13,7 +13,7 @@
                         <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="select-area" 
                             [(ngModel)]="geoObjectType" required>
                             <!-- <option> <localize key="dropdown.select.geoobjecttype.option.label"></localize> </option> -->
-                            <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.localizedLabel}}</option>
+                            <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.label.localizedValue}}</option>
                         </select>
                     </span>
                 </div> 
@@ -25,7 +25,7 @@
                         placeholder="dropdown.select.geoobjecttype.option.label"
                         [(ngModel)]="geoObjectType"
                         ngDefaultControl>
-                        <option *ngFor="let got of geoObjectTypes" [value]="got.code">{{got.localizedLabel}}</option>
+                        <option *ngFor="let got of geoObjectTypes" [value]="got.code">{{got.label}}</option>
                         </select-field> -->
 
             <!-- <input-field required name="geoObjectCode" [(ngModel)]="geoObjectId"></input-field> -->
@@ -70,10 +70,10 @@
                                             <div *ngIf="getTypeDefinition(propKey) === 'term'">
                                                 <div style="border: solid grey 1px;background: lightgrey;">
                                                     <input style="margin-top: 10px;float: none;" *ngIf="currentTermOption"
-                                                        type="text" [(ngModel)]="currentTermOption.localizedLabel" id="mod-{{propKey}}-label"
+                                                        type="text" [(ngModel)]="currentTermOption.label" id="mod-{{propKey}}-label"
                                                         name="mod-{{propKey}}-label">
                                                     <input style="margin-top: 10px;float: none;" *ngIf="currentTermOption"
-                                                        type="text" [(ngModel)]="currentTermOption.localizedDescription"
+                                                        type="text" [(ngModel)]="currentTermOption.description"
                                                         id="mod-{{propKey}}-description" name="mod-{{propKey}}-description">
                                                 </div>
                                             </div>
@@ -82,7 +82,7 @@
 
                                         <!-- *ngFor="let propKey of objectKeys(currentGeoObject.properties) | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes" -->
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
-                                            <h5>{{attr.localizedLabel}}</h5>
+                                            <h5>{{attr.label.localizedValue}}</h5>
 
 
                                             <div *ngIf="attr.type === 'character'">
@@ -93,6 +93,19 @@
                                                     <p class="warning-text" *ngIf="currentGeoObject.properties[attr.code] && modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">
                                                         <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code]}}
                                                     </p>
+                                            </div>
+                                            
+                                            <div *ngIf="attr.type === 'local'">
+                                              <ul class="list-group">
+                                                <li class="list-group-item" *ngFor="let localeValue of modifiedGeoObject.properties[attr.code].localeValues">
+                                                  <h5>{{localeValue.locale}}</h5>
+                                                  <input *ngIf="modifiedGeoObject" type="text" [(ngModel)]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale"> 
+
+                                                  <p class="warning-text" *ngIf="currentGeoObject.properties[attr.code].localeValues[localeValue.locale] && modifiedGeoObject.properties[attr.code].localeValues[localeValue.locale] !== currentGeoObject.properties[attr.code].localeValues[localeValue.locale]">
+                                                    <localize key="change.request.changed.value.prefix"></localize> {{currentGeoObject.properties[attr.code].localeValues[localeValue.locale]}}
+                                                  </p>
+                                                </li>
+                                              </ul>                                            
                                             </div>
 
                                             <div *ngIf="attr.type === 'date'">
@@ -148,7 +161,7 @@
                                                     <!-- <option [disabled]="true" [selected]="!modifiedTermOption">
                                                         <localize key="dropdown.select.geoobjecttype.option.label"></localize>
                                                     </option> -->
-                                                    <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.localizedLabel}}</option>
+                                                    <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
                                                 </select>  
 
                                                 <!-- <p class="warning-text" *ngIf="currentGeoObject.properties[attr.code] && modifiedGeoObject.properties[attr.code] !== currentGeoObject.properties[attr.code]">

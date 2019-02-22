@@ -198,7 +198,7 @@ public abstract class FeatureRowImporter
     if (function == null)
     {
       RequiredMappingException ex = new RequiredMappingException();
-      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.CODE).get().getLocalizedLabel());
+      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.CODE).get().getLabel().getValue());
       throw ex;
     }
 
@@ -260,7 +260,7 @@ public abstract class FeatureRowImporter
 
             JsonObject element = new JsonObject();
             element.addProperty("label", label);
-            element.addProperty("type", location.getType().getLocalizedLabel());
+            element.addProperty("type", location.getType().getLabel().getValue());
 
             context.add(element);
           }
@@ -274,7 +274,7 @@ public abstract class FeatureRowImporter
               {
                 JsonObject element = new JsonObject();
                 element.addProperty("label", root.getLocalizedDisplayLabel());
-                element.addProperty("type", root.getType().getLocalizedLabel());
+                element.addProperty("type", root.getType().getLabel().getValue());
 
                 context.add(element);
               }
@@ -323,7 +323,7 @@ public abstract class FeatureRowImporter
       {
         PostalCodeLocationException e = new PostalCodeLocationException();
         e.setCode(code);
-        e.setTypeLabel(location.getType().getLocalizedLabel());
+        e.setTypeLabel(location.getType().getLabel().getValue());
 
         throw e;
       }
@@ -338,12 +338,12 @@ public abstract class FeatureRowImporter
    */
   private String getName(FeatureRow row)
   {
-    ShapefileFunction function = this.configuration.getFunction(GeoObject.LOCALIZED_DISPLAY_LABEL);
+    ShapefileFunction function = this.configuration.getFunction(GeoObject.DISPLAY_LABEL);
 
     if (function == null)
     {
       RequiredMappingException ex = new RequiredMappingException();
-      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getLocalizedLabel());
+      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel().getValue());
       throw ex;
     }
 
@@ -372,7 +372,7 @@ public abstract class FeatureRowImporter
         {
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-          this.configuration.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLocalizedLabel()));
+          this.configuration.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
         }
         else
         {
@@ -382,7 +382,7 @@ public abstract class FeatureRowImporter
       catch (UnknownTermException e)
       {
         TermValueException ex = new TermValueException();
-        ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
         ex.setCode(e.getCode());
 
         throw e;

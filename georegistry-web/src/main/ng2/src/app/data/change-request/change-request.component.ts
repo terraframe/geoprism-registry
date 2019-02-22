@@ -73,8 +73,8 @@ export class ChangeRequestComponent implements OnInit {
                 this.geoObjectTypes = types;
 
                 this.geoObjectTypes.sort((a, b) => {
-                    if (a.localizedLabel.toLowerCase() < b.localizedLabel.toLowerCase()) return -1;
-                    else if (a.localizedLabel.toLowerCase() > b.localizedLabel.toLowerCase()) return 1;
+                    if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
+                    else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
                     else return 0;
                 });
 

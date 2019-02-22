@@ -23,6 +23,8 @@ import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-
 import { SelectFieldComponent } from './core/form-fields/select-field/select-field.component';
 import { InputFieldComponent } from './core/form-fields/input-field/input-field.component';
 import { ValidationComponent } from './core/form-fields/base/validation.component';
+import { LocalizedInputComponent } from './core/form-fields/localized-input/localized-input.component';
+import { LocalizedTextComponent } from './core/form-fields/localized-text/localized-text.component';
 
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
@@ -152,6 +154,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     SelectFieldComponent,
     InputFieldComponent,
     ValidationComponent,
+    LocalizedInputComponent,    
+    LocalizedTextComponent,    
     ChangeRequestComponent,
     StandAloneChangeRequestComponent,
     GeoObjectAttributeExcludesPipe,
@@ -196,9 +200,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ModalStepIndicatorComponent,
       ManageTermOptionsComponent,
       ErrorMessageComponent,
-      BooleanFieldComponent,
-      SelectFieldComponent,
-      InputFieldComponent,
       ChangeRequestComponent,
       StandAloneChangeRequestComponent
   ]        

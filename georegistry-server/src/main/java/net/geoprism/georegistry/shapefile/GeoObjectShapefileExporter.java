@@ -20,11 +20,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -256,6 +258,10 @@ public class GeoObjectShapefileExporter
         {
           builder.set(this.getColumnName(name), GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
         }
+        else if (attribute instanceof AttributeLocalType)
+        {
+          builder.set(this.getColumnName(name), ( (LocalizedValue) value ).getValue());
+        }
         else
         {
           builder.set(this.getColumnName(name), value);
@@ -266,7 +272,7 @@ public class GeoObjectShapefileExporter
 
       ancestors.forEach(ancestor -> {
         String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
-        String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getName();
+        String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getName();
 
         ValueObject vObject = map.get(ancestor.getCode());
 
@@ -287,7 +293,7 @@ public class GeoObjectShapefileExporter
   public SimpleFeatureType createFeatureType()
   {
     SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-    builder.setName(this.type.getLocalizedLabel());
+    builder.setName(this.type.getLabel().getValue());
     builder.setCRS(DefaultGeographicCRS.WGS84);
     builder.add(GEOM, this.getShapefileType(this.type.getGeometryType()), 4326);
 
@@ -300,7 +306,7 @@ public class GeoObjectShapefileExporter
 
     ancestors.forEach(ancestor -> {
       String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
-      String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getName();
+      String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getName();
 
       builder.add(generateColumnName(code), String.class);
       builder.add(generateColumnName(label), String.class);
@@ -352,7 +358,7 @@ public class GeoObjectShapefileExporter
 
   private String format(String name)
   {
-    if (name.equals(GeoObject.LOCALIZED_DISPLAY_LABEL))
+    if (name.equals(GeoObject.DISPLAY_LABEL))
     {
       return "label";
     }
@@ -383,6 +389,10 @@ public class GeoObjectShapefileExporter
       return Long.class;
     }
     else if (attribute instanceof AttributeTermType)
+    {
+      return String.class;
+    }
+    else if (attribute instanceof AttributeLocalType)
     {
       return String.class;
     }

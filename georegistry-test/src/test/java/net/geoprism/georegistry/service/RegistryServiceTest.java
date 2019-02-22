@@ -280,7 +280,7 @@ public class RegistryServiceTest
       {
         JsonObject jo = types.get(i).getAsJsonObject();
 
-        if (jo.get("label").getAsString().equals(got.getDisplayLabel()) && jo.get("code").getAsString().equals(got.getCode()))
+        if (jo.get("label").getAsString().equals(got.getDisplayLabel().getValue()) && jo.get("code").getAsString().equals(got.getCode()))
         {
           found = true;
         }

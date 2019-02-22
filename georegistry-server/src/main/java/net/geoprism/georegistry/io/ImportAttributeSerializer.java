@@ -44,7 +44,7 @@ public class ImportAttributeSerializer implements CustomSerializer
 
     this.required = new TreeSet<String>();
     this.required.add(DefaultAttribute.CODE.getName());
-    this.required.add(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName());
+    this.required.add(DefaultAttribute.DISPLAY_LABEL.getName());
     this.required.add(GeoObjectConfiguration.LATITUDE);
     this.required.add(GeoObjectConfiguration.LONGITUDE);
   }

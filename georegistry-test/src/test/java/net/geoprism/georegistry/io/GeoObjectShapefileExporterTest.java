@@ -12,6 +12,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -147,6 +149,10 @@ public class GeoObjectShapefileExporterTest
       {
         Assert.assertEquals("Attributes not equal [" + attributeName + "]", GeoObjectUtil.convertToTermString((AttributeTermType) attribute, oValue), fValue);
       }
+      else if (attribute instanceof AttributeLocalType)
+      {
+        Assert.assertEquals("Attributes not equal [" + attributeName + "]", ( (LocalizedValue) oValue ).getValue(), fValue);
+      }
       else
       {
         Assert.assertEquals("Attributes not equal [" + attributeName + "]", oValue, fValue);
@@ -160,7 +166,7 @@ public class GeoObjectShapefileExporterTest
     GeoObjectType ancestor = ancestors.get(0);
 
     String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
-    String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.LOCALIZED_DISPLAY_LABEL).get().getName();
+    String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getName();
 
     Assert.assertEquals(testData.USA.getCode(), feature.getAttribute(exporter.getColumnName(code)));
     Assert.assertEquals(testData.USA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName(label)));

@@ -13,12 +13,14 @@ import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -28,12 +30,14 @@ import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
@@ -49,6 +53,7 @@ import com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeFileDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeIndicatorDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeLocalDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeStructDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -58,6 +63,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.RelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
@@ -207,8 +213,8 @@ public class ConversionService
 
     mdTermRelationship.setTypeName(hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
     mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
-    mdTermRelationship.getDisplayLabel().setValue(hierarchyType.getLocalizedLabel());
-    mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
+    this.populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
+    this.populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
     mdTermRelationship.setIsAbstract(false);
     mdTermRelationship.setGenerateSource(false);
     mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_EVERYTHING);
@@ -223,6 +229,23 @@ public class ConversionService
     mdTermRelationship.setChildMethod("Children");
 
     return mdTermRelationship;
+  }
+
+  public void populate(LocalStruct struct, LocalizedValue label)
+  {
+    struct.setValue(label.getValue());
+    struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    for (Locale locale : locales)
+    {
+      if (label.contains(locale))
+      {
+        struct.setValue(locale, label.getValue(locale));
+      }
+    }
+
   }
 
   /**
@@ -242,8 +265,8 @@ public class ConversionService
 
     mdTermRelationship.setTypeName(hierarchyType.getCode());
     mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
-    mdTermRelationship.getDisplayLabel().setValue(hierarchyType.getLocalizedLabel());
-    mdTermRelationship.getDescription().setValue(hierarchyType.getLocalizedDescription());
+    this.populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
+    this.populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
     mdTermRelationship.setIsAbstract(false);
     mdTermRelationship.setGenerateSource(false);
     mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_NOTHING);
@@ -270,7 +293,7 @@ public class ConversionService
     // role.setValue(RoleDAOIF.ROLENAME,
     // RegistryConstants.REGISTRY_MAINTAINER_PREFIX + hierarchyType.getCode());
     // role.setStructValue(RoleDAOIF.DISPLAY_LABEL,
-    // MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyType.getLocalizedLabel() +
+    // MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyType.getLabel() +
     // " Registry Maintainer");
     // role.apply();
     //
@@ -284,7 +307,6 @@ public class ConversionService
 
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-
 
     InitializationStrategyIF strategy = new InitializationStrategyIF()
     {
@@ -311,7 +333,7 @@ public class ConversionService
 
         consumer.grantPermission(Operation.READ, mdBusiness.getOid());
         consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-        
+
         contributor.grantPermission(Operation.READ, mdBusiness.getOid());
         contributor.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
       }
@@ -406,19 +428,19 @@ public class ConversionService
   {
     String hierarchyKey = buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
 
-    String displayLabel;
-    String description;
+    LocalizedValue displayLabel;
+    LocalizedValue description;
 
     if (mdTermRel.definesType().equals(AllowedIn.CLASS))
     {
       MdTermRelationship locatedInMdTermRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(LocatedIn.CLASS);
-      displayLabel = locatedInMdTermRel.getDisplayLabel().getValue();
-      description = locatedInMdTermRel.getDescription().getValue();
+      displayLabel = this.convert(locatedInMdTermRel.getDisplayLabel());
+      description = this.convert(locatedInMdTermRel.getDescription());
     }
     else
     {
-      displayLabel = mdTermRel.getDisplayLabel().getValue();
-      description = mdTermRel.getDescription().getValue();
+      displayLabel = this.convert(mdTermRel.getDisplayLabel());
+      description = this.convert(mdTermRel.getDescription());
     }
 
     HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description);
@@ -504,8 +526,8 @@ public class ConversionService
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
     universal.setIsLeafType(got.isLeaf());
-    universal.getDisplayLabel().setValue(got.getLocalizedLabel());
-    universal.getDescription().setValue(got.getLocalizedDescription());
+    this.populate(universal.getDisplayLabel(), got.getLabel());
+    this.populate(universal.getDescription(), got.getDescription());
 
     com.runwaysdk.system.gis.geo.GeometryType geometryType = convertAdapterToRegistryPolygonType(got.getGeometryType());
 
@@ -537,11 +559,43 @@ public class ConversionService
 
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = this.convertRegistryToAdapterPolygonType(geoPrismgeometryType);
 
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, uni.getDisplayLabel().getValue(), uni.getDescription().getValue(), uni.getIsLeafType(), ServiceFactory.getAdapter());
+    LocalizedValue label = this.convert(uni.getDisplayLabel());
+    LocalizedValue description = this.convert(uni.getDescription());
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, label, description, uni.getIsLeafType(), ServiceFactory.getAdapter());
 
     geoObjType = convertAttributeTypes(uni, geoObjType);
 
     return geoObjType;
+  }
+
+  public LocalizedValue convert(LocalStruct localStruct)
+  {
+    LocalizedValue label = new LocalizedValue(localStruct.getValue());
+    label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, localStruct.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    for (Locale locale : locales)
+    {
+      label.setValue(locale, localStruct.getValue(locale));
+    }
+
+    return label;
+  }
+
+  public LocalizedValue convert(String value, Map<String, String> map)
+  {
+    LocalizedValue localizedValue = new LocalizedValue(value);
+    localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, map.get(MdAttributeLocalInfo.DEFAULT_LOCALE));
+
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    for (Locale locale : locales)
+    {
+      localizedValue.setValue(locale, map.get(locale.toString()));
+    }
+
+    return localizedValue;
   }
 
   private GeoObjectType convertAttributeTypes(Universal uni, GeoObjectType gt)
@@ -605,14 +659,18 @@ public class ConversionService
     Locale locale = Session.getCurrentLocale();
 
     String attributeName = mdAttribute.definesAttribute();
-    String displayLabel = mdAttribute.getDisplayLabel(locale);
-    String description = mdAttribute.getDescription(locale);
+    LocalizedValue displayLabel = this.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
+    LocalizedValue description = this.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
 
     AttributeType testChar = null;
 
     if (mdAttribute instanceof MdAttributeBooleanDAOIF)
     {
       testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeBooleanType.TYPE);
+    }
+    else if (mdAttribute instanceof MdAttributeLocalDAOIF)
+    {
+      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeLocalType.TYPE);
     }
     else if (mdAttribute instanceof MdAttributeCharacterDAOIF)
     {
@@ -798,7 +856,7 @@ public class ConversionService
               catch (UnknownTermException e)
               {
                 TermValueException ex = new TermValueException();
-                ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+                ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
                 ex.setCode(e.getCode());
 
                 throw e;
@@ -894,7 +952,7 @@ public class ConversionService
               catch (UnknownTermException e)
               {
                 TermValueException ex = new TermValueException();
-                ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+                ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
                 ex.setCode(e.getCode());
 
                 throw e;
@@ -934,7 +992,7 @@ public class ConversionService
     }
 
     geoObj.setCode(business.getValue(DefaultAttribute.CODE.getName()));
-    geoObj.setLocalizedDisplayLabel(business.getStructValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName(), MdAttributeLocalCharacterInfo.DEFAULT_LOCALE));
+    geoObj.setLocalizedDisplayLabel(business.getStructValue(DefaultAttribute.DISPLAY_LABEL.getName(), MdAttributeLocalCharacterInfo.DEFAULT_LOCALE));
     geoObj.setGeometry((Geometry) business.getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
     return geoObj;

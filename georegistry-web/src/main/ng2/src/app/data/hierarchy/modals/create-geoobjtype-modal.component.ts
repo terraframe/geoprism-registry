@@ -1,12 +1,11 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
-import { TreeNode } from 'angular-tree-component';
 
-import { HierarchyType } from '../hierarchy';
-import { GeoObjectType, TreeEntity } from '../../../model/registry';
-import { HierarchyService } from '../../../service/hierarchy.service';
+import { GeoObjectType } from '../../../model/registry';
+
 import { RegistryService } from '../../../service/registry.service';
+import { LocalizationService } from '../../../core/service/localization.service';
 
 
 @Component( {
@@ -16,9 +15,7 @@ import { RegistryService } from '../../../service/registry.service';
 } )
 export class CreateGeoObjTypeModalComponent implements OnInit {
 
-	public hierarchyType: HierarchyType;
-
-	geoObjectType: GeoObjectType = {"code":"","localizedLabel":"","localizedDescription":"", "geometryType":"POINT", "isLeaf":false, "attributes":[]};
+    geoObjectType: GeoObjectType;
 
     message: string = null;
 
@@ -27,36 +24,43 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
      */
     public onGeoObjTypeCreate: Subject<GeoObjectType>;
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private registryService: RegistryService ) {
-    	
-    }
+    constructor( private lService: LocalizationService, private registryService: RegistryService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
         this.onGeoObjTypeCreate = new Subject();
+
+        this.geoObjectType = {
+            "code": "",
+            "label": this.lService.create(),
+            "description": this.lService.create(),
+            "geometryType": "POINT",
+            "isLeaf": false,
+            "attributes": []
+        };
     }
-    
+
     handleOnSubmit(): void {
         this.message = null;
 
-        this.registryService.createGeoObjectType( JSON.stringify(this.geoObjectType) ).then( data => {
+        this.registryService.createGeoObjectType( JSON.stringify( this.geoObjectType ) ).then( data => {
             this.onGeoObjTypeCreate.next( data );
             this.bsModalRef.hide();
         } ).catch(( err: any ) => {
             this.error( err.json() );
         } );
-        
+
     }
-    
+
     toggleIsLeaf(): void {
-    	this.geoObjectType.isLeaf = !this.geoObjectType.isLeaf;
+        this.geoObjectType.isLeaf = !this.geoObjectType.isLeaf;
     }
 
     error( err: any ): void {
         // Handle error
         if ( err !== null ) {
             this.message = ( err.localizedMessage || err.message );
-            
-            console.log(this.message);
+
+            console.log( this.message );
         }
     }
 }

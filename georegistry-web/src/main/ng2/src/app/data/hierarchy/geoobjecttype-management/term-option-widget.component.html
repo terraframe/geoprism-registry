@@ -10,7 +10,7 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <ul class="list-group list-group-flush">
-                        <li *ngFor="let term of attribute.rootTerm.children" class="list-group-item">{{term.localizedLabel}}</li>
+                        <li *ngFor="let term of attribute.rootTerm.children" class="list-group-item">{{term.label.localizedValue}}</li>
                     </ul>
 
                     <button type="button" class="btn btn-primary full-width" (click)="openAddTermOptionForm()">

@@ -86,7 +86,7 @@ public class SynonymRestriction implements GeoObjectRestriction
   @Override
   public void restrict(ValueQuery vQuery, BusinessQuery bQuery)
   {
-    vQuery.WHERE(OR.get(bQuery.get(DefaultAttribute.CODE.getName()).EQ(this.label), bQuery.aLocalCharacter(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()).localize().EQi(this.label)));
+    vQuery.WHERE(OR.get(bQuery.get(DefaultAttribute.CODE.getName()).EQ(this.label), bQuery.aLocalCharacter(DefaultAttribute.DISPLAY_LABEL.getName()).localize().EQi(this.label)));
   }
 
   public Coalesce localize(SynonymDisplayLabelQuery query)

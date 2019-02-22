@@ -14,6 +14,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -144,7 +145,7 @@ public class AdapterUtilities
 
     if (geoObject.getLocalizedDisplayLabel() != null)
     {
-      ( (LocalStruct) biz.getStruct(GeoObject.LOCALIZED_DISPLAY_LABEL) ).setValue(geoObject.getLocalizedDisplayLabel());
+      ( (LocalStruct) biz.getStruct(GeoObject.DISPLAY_LABEL) ).setValue(geoObject.getLocalizedDisplayLabel());
     }
 
     Geometry geom = geoObject.getGeometry();
@@ -265,7 +266,7 @@ public class AdapterUtilities
 
     Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
       {
         // Ignore the attributes
       }
@@ -529,7 +530,7 @@ public class AdapterUtilities
     if (geoObjectType.isLeaf())
     {
       MdBusinessDAOIF mdBusinessDAO = MdBusinessDAO.get(mdBusiness.getOid());
-      MdAttributeLocalDAOIF displayLabel = (MdAttributeLocalDAOIF) mdBusinessDAO.definesAttribute(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName());
+      MdAttributeLocalDAOIF displayLabel = (MdAttributeLocalDAOIF) mdBusinessDAO.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName());
       MdLocalStructDAOIF mdStruct = displayLabel.getMdStructDAOIF();
 
       assignDefaultRolePermissions(mdStruct);
@@ -614,7 +615,7 @@ public class AdapterUtilities
     MdAttributeCharacter codeMdAttr = new MdAttributeCharacter();
     codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
     codeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
-    codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultLocalizedDescription());
+    codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultDescription());
     codeMdAttr.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
     codeMdAttr.setDefiningMdClass(definingMdBusiness);
     codeMdAttr.setRequired(true);
@@ -635,7 +636,7 @@ public class AdapterUtilities
     MdAttributeEnumeration objStatusNdAttrEnum = new MdAttributeEnumeration();
     objStatusNdAttrEnum.setAttributeName(DefaultAttribute.STATUS.getName());
     objStatusNdAttrEnum.getDisplayLabel().setValue(DefaultAttribute.STATUS.getDefaultLocalizedName());
-    objStatusNdAttrEnum.getDescription().setValue(DefaultAttribute.STATUS.getDefaultLocalizedDescription());
+    objStatusNdAttrEnum.getDescription().setValue(DefaultAttribute.STATUS.getDefaultDescription());
     objStatusNdAttrEnum.setRequired(true);
     objStatusNdAttrEnum.setMdEnumeration(geoObjectStatusEnum);
     objStatusNdAttrEnum.setSelectMultiple(false);
@@ -646,9 +647,9 @@ public class AdapterUtilities
     {
       // DefaultAttribute.DISPLAY_LABEL
       MdAttributeLocalCharacter labelMdAttr = new MdAttributeLocalCharacter();
-      labelMdAttr.setAttributeName(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName());
-      labelMdAttr.getDisplayLabel().setValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getDefaultLocalizedName());
-      labelMdAttr.getDescription().setValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getDefaultLocalizedDescription());
+      labelMdAttr.setAttributeName(DefaultAttribute.DISPLAY_LABEL.getName());
+      labelMdAttr.getDisplayLabel().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
+      labelMdAttr.getDescription().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
       labelMdAttr.setDefiningMdClass(definingMdBusiness);
       labelMdAttr.setRequired(true);
       labelMdAttr.apply();
@@ -712,7 +713,7 @@ public class AdapterUtilities
    * @return {@link AttributeType}
    */
   @Transaction
-  public AttributeType createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  public MdAttributeConcrete createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
   {
     MdAttributeConcrete mdAttribute = null;
 
@@ -760,8 +761,10 @@ public class AdapterUtilities
     }
 
     mdAttribute.setAttributeName(attributeType.getName());
-    mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
-    mdAttribute.getDescription().setValue(attributeType.getLocalizedDescription());
+
+    ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+    ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+
     mdAttribute.setDefiningMdClass(mdBusiness);
     mdAttribute.apply();
 
@@ -780,7 +783,9 @@ public class AdapterUtilities
 
       AttributeTermType attributeTermType = (AttributeTermType) attributeType;
 
-      Term term = new Term(attributeTermRoot.getClassifierId(), attributeTermRoot.getDisplayLabel().getValue(), "");
+      LocalizedValue label = ServiceFactory.getConversionService().convert(attributeTermRoot.getDisplayLabel());
+
+      Term term = new Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
       attributeTermType.setRootTerm(term);
 
       // MdAttributeMultiTerm mdAttributeMultiTerm =
@@ -805,7 +810,7 @@ public class AdapterUtilities
       // attributeTermType.setRootTerm(term);
     }
 
-    return attributeType;
+    return mdAttribute;
   }
 
   /**
@@ -821,7 +826,7 @@ public class AdapterUtilities
    * 
    * @return {@link AttributeType}
    */
-  public AttributeType updateMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  public MdAttributeConcrete updateMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
   {
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType.getName());
 
@@ -832,26 +837,29 @@ public class AdapterUtilities
       mdAttribute.lock();
       // The name cannot be updated
       // mdAttribute.setAttributeName(attributeType.getName());
-      mdAttribute.getDisplayLabel().setValue(attributeType.getLocalizedLabel());
-      mdAttribute.getDescription().setValue(attributeType.getLocalizedDescription());
+      ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+      ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+
       mdAttribute.apply();
 
       mdAttribute.unlock();
+
+      if (attributeType instanceof AttributeTermType)
+      {
+        // Refresh the terms
+        AttributeTermType attributeTermType = (AttributeTermType) attributeType;
+
+        Term getRootTerm = attributeTermType.getRootTerm();
+        String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(getRootTerm.getCode());
+
+        TermBuilder termBuilder = new TermBuilder(classifierKey);
+        attributeTermType.setRootTerm(termBuilder.build());
+      }
+      
+      return mdAttribute;
     }
 
-    if (attributeType instanceof AttributeTermType)
-    {
-      // Refresh the terms
-      AttributeTermType attributeTermType = (AttributeTermType) attributeType;
-
-      Term getRootTerm = attributeTermType.getRootTerm();
-      String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(getRootTerm.getCode());
-
-      TermBuilder termBuilder = new TermBuilder(classifierKey);
-      attributeTermType.setRootTerm(termBuilder.build());
-    }
-
-    return attributeType;
+    return null;
   }
 
   /**
@@ -916,7 +924,7 @@ public class AdapterUtilities
       {
         JsonObject object = new JsonObject();
         object.addProperty("code", hierarchyType.getCode());
-        object.addProperty("label", hierarchyType.getLocalizedLabel());
+        object.addProperty("label", hierarchyType.getLabel().getValue());
 
         hierarchies.add(object);
       }

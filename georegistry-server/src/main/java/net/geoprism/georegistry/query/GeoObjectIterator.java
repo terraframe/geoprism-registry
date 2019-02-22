@@ -5,12 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -21,7 +23,9 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.runwaysdk.constants.ComponentInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Geometry;
@@ -109,7 +113,7 @@ public class GeoObjectIterator implements OIterator<GeoObject>
             catch (UnknownTermException e)
             {
               TermValueException ex = new TermValueException();
-              ex.setAttributeLabel(e.getAttribute().getLocalizedLabel());
+              ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
               ex.setCode(e.getCode());
 
               throw e;
@@ -146,8 +150,20 @@ public class GeoObjectIterator implements OIterator<GeoObject>
       }
     });
 
+    LocalizedValue label = new LocalizedValue(vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+    label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, vObject.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    for (Locale locale : locales)
+    {
+      String value = vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString());
+
+      label.setValue(locale, value);
+    }
+
     gObject.setCode(vObject.getValue(DefaultAttribute.CODE.getName()));
-    gObject.setLocalizedDisplayLabel(vObject.getValue(DefaultAttribute.LOCALIZED_DISPLAY_LABEL.getName()));
+    gObject.setValue(DefaultAttribute.DISPLAY_LABEL.getName(), label);
     gObject.setGeometry((Geometry) vObject.getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
     return gObject;

@@ -13,11 +13,11 @@ declare var acp: string;
 
 export class SelectValue {
     value: string;
-    localizedLabel: string;
+    label: string;
 
     constructor(value: string, label: string) {
         this.value = value;
-        this.localizedLabel = label;
+        this.label = label;
     }
 }
 

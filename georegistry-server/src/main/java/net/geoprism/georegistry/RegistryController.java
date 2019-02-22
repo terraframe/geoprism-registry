@@ -463,11 +463,12 @@ public class RegistryController
       @Override
       public int compare(GeoObjectType o1, GeoObjectType o2)
       {
-        return o1.getLocalizedLabel().compareTo(o2.getLocalizedLabel());
+        return o1.getLabel().getValue().compareTo(o2.getLabel().getValue());
       }
     });
 
     JsonArray jarray = new JsonArray();
+
     for (int i = 0; i < gots.length; ++i)
     {
       GeoObjectType geoObjectType = gots[i];
@@ -475,7 +476,7 @@ public class RegistryController
       if (!geoObjectType.getCode().equals("ROOT") && ( includeLeafTypes == null || includeLeafTypes || !geoObjectType.isLeaf() ))
       {
         JsonObject type = new JsonObject();
-        type.addProperty("label", geoObjectType.getLocalizedLabel());
+        type.addProperty("label", geoObjectType.getLabel().getValue());
         type.addProperty("code", geoObjectType.getCode());
 
         jarray.add(type);
@@ -662,7 +663,7 @@ public class RegistryController
     for (GeoObjectType ancestor : ancestors)
     {
       JsonObject object = new JsonObject();
-      object.addProperty("label", ancestor.getLocalizedLabel());
+      object.addProperty("label", ancestor.getLabel().getValue());
       object.addProperty("code", ancestor.getCode());
 
       response.add(object);
@@ -695,4 +696,45 @@ public class RegistryController
 
     return new RestBodyResponse(response);
   }
+
+  /**
+   * Returns an array of {@link GeoOjectType} objects that define the given list
+   * of types.
+   *
+   * @pre @post
+   *
+   * @param types
+   *          A serialized json array of GeoObjectType codes. If blank then all
+   *          GeoObjectType objects are returned.
+   *
+   * @returns @throws
+   **/
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "init")
+  public ResponseIF init(ClientRequestIF request)
+  {
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null);
+    HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), null);
+
+    JsonArray types = new JsonArray();
+
+    for (GeoObjectType got : gots)
+    {
+      types.add(got.toJSON());
+    }
+
+    JsonArray hierarchies = new JsonArray();
+
+    for (HierarchyType ht : hts)
+    {
+      hierarchies.add(ht.toJSON());
+    }
+
+    JsonObject response = new JsonObject();
+    response.add("types", types);
+    response.add("hierarchies", hierarchies);
+    response.add("locales", this.registryService.getLocales(request.getSessionId()));
+
+    return new RestBodyResponse(response);
+  }
+
 }

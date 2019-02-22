@@ -48,7 +48,7 @@ public class GeoObjectUtil
         builder.append(",");
       }
 
-      builder.append(term.getLocalizedLabel());
+      builder.append(term.getLabel());
       first = false;
     }
 

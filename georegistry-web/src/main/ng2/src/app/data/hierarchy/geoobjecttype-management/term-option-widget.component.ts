@@ -87,7 +87,7 @@ export class TermOptionWidgetComponent implements OnInit {
     }
 
     // isValid(): boolean {
-    //     if(this.termOption.code && this.termOption.code.length > 0 && this.termOption.localizedLabel && this.termOption.localizedLabel.length > 0){
+    //     if(this.termOption.code && this.termOption.code.length > 0 && this.termOption.label && this.termOption.label.length > 0){
             
     //         // If code has a space
     //         if(this.termOption.code.indexOf(" ") !== -1){
@@ -95,7 +95,7 @@ export class TermOptionWidgetComponent implements OnInit {
     //         }
 
     //         // If label is only spaces
-    //         if(this.termOption.localizedLabel.replace(/\s/g, '').length === 0) {
+    //         if(this.termOption.label.replace(/\s/g, '').length === 0) {
     //             return false
     //         }
 
