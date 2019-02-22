@@ -53,7 +53,7 @@
                                                 <input type="text" [(ngModel)]="termOption.code" name="termOptionCode" [required]="termOption.label ? true : null ">
                                             </td>
                                             <td>
-                                                <input type="text" [(ngModel)]="termOption.label" name="termOptionLabel" [required]="termOption.code ? true : null ">
+                                                <input type="text" [(ngModel)]="termOption.label.localizedValue" name="termOptionLabel" [required]="termOption.code ? true : null ">
                                             </td>
                                             <td class="button-column">
                                                 <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="addTermOption()">

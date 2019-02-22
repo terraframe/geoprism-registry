@@ -143,10 +143,7 @@ public class AdapterUtilities
       biz.setValue(GeoObject.CODE, geoObject.getCode());
     }
 
-    if (geoObject.getLocalizedDisplayLabel() != null)
-    {
-      ( (LocalStruct) biz.getStruct(GeoObject.DISPLAY_LABEL) ).setValue(geoObject.getLocalizedDisplayLabel());
-    }
+    ServiceFactory.getConversionService().populate((LocalStruct) biz.getStruct(GeoObject.DISPLAY_LABEL), geoObject.getDisplayLabel());
 
     Geometry geom = geoObject.getGeometry();
     if (geom != null)
@@ -186,10 +183,7 @@ public class AdapterUtilities
       ge.setGeoId(geoObject.getCode());
     }
 
-    if (geoObject.getLocalizedDisplayLabel() != null)
-    {
-      ge.getDisplayLabel().setValue(geoObject.getLocalizedDisplayLabel());
-    }
+    ServiceFactory.getConversionService().populate(ge.getDisplayLabel(), geoObject.getDisplayLabel());
 
     Geometry geom = geoObject.getGeometry();
     if (geom != null)
@@ -855,7 +849,7 @@ public class AdapterUtilities
         TermBuilder termBuilder = new TermBuilder(classifierKey);
         attributeTermType.setRootTerm(termBuilder.build());
       }
-      
+
       return mdAttribute;
     }
 
