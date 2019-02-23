@@ -12,12 +12,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -48,10 +50,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -86,7 +91,7 @@ public class GeoObjectShapefileExporter
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
-    this.attributes = new ImportAttributeSerializer(false, true).attributes(this.type);
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true).attributes(this.type);
     this.columnNames = new HashMap<String, String>();
   }
 
@@ -233,6 +238,7 @@ public class GeoObjectShapefileExporter
   {
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     // Add the type ancestor fields
     List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
@@ -272,14 +278,18 @@ public class GeoObjectShapefileExporter
 
       ancestors.forEach(ancestor -> {
         String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
-        String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getName();
 
         ValueObject vObject = map.get(ancestor.getCode());
 
         if (vObject != null)
         {
           builder.set(this.getColumnName(code), vObject.getValue(GeoEntity.GEOID));
-          builder.set(this.getColumnName(label), vObject.getValue(GeoEntity.DISPLAYLABEL));
+          builder.set(this.getColumnName(ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+
+          for (Locale locale : locales)
+          {
+            builder.set(this.getColumnName(ancestor.getCode() + " " + locale.toString()), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+          }
         }
       });
 
@@ -303,13 +313,19 @@ public class GeoObjectShapefileExporter
 
     // Add the type ancestor fields
     List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     ancestors.forEach(ancestor -> {
-      String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
-      String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getName();
 
+      String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
       builder.add(generateColumnName(code), String.class);
-      builder.add(generateColumnName(label), String.class);
+
+      builder.add(generateColumnName(ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), String.class);
+
+      for (Locale locale : locales)
+      {
+        builder.add(generateColumnName(ancestor.getCode() + " " + locale.toString()), String.class);
+      }
     });
 
     return builder.buildFeatureType();

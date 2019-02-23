@@ -2,23 +2,29 @@ package net.geoprism.georegistry.io;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.MdTermDAO;
 import com.runwaysdk.dataaccess.metadata.MdTermRelationshipDAO;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayLabelQueryStructIF;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
@@ -75,10 +81,19 @@ public class GeoObjectUtil
       GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
       GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
       UniversalQuery universalQuery = new UniversalQuery(vQuery);
+      
+      GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
 
       vQuery.SELECT(parentQuery.getGeoId());
-      vQuery.SELECT(parentQuery.getDisplayLabel().localize(GeoEntity.DISPLAYLABEL));
       vQuery.SELECT(universalQuery.getKeyName());
+      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
+
+      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+      for (Locale locale : locales)
+      {
+        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+      }
 
       vQuery.AND(childQuery.getGeoId().EQ(object.getCode()));
       vQuery.AND(parentQuery.getUniversal().EQ(universalQuery));

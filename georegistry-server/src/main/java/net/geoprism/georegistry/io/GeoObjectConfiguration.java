@@ -27,6 +27,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
@@ -294,7 +295,7 @@ public class GeoObjectConfiguration
 
   public JsonObject toJson()
   {
-    JsonObject type = this.type.toJSON(new ImportAttributeSerializer(this.includeCoordinates));
+    JsonObject type = this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)

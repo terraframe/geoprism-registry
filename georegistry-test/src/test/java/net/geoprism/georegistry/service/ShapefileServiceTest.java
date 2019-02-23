@@ -107,11 +107,22 @@ public class ShapefileServiceTest
 
     Assert.assertEquals(4, tAttributes.size());
 
-    JsonObject tAttribute = tAttributes.get(1).getAsJsonObject();
+    boolean hasCode = false;
 
-    Assert.assertEquals(GeoObjectType.JSON_CODE, tAttribute.get(AttributeType.JSON_CODE).getAsString());
-    Assert.assertTrue(tAttribute.has("required"));
-    Assert.assertTrue(tAttribute.get("required").getAsBoolean());
+    for (int i = 0; i < tAttributes.size(); i++)
+    {
+      JsonObject tAttribute = tAttributes.get(i).getAsJsonObject();
+      String code = tAttribute.get(AttributeType.JSON_CODE).getAsString();
+
+      if (code.equals(GeoObjectType.JSON_CODE))
+      {
+        hasCode = true;
+        Assert.assertTrue(tAttribute.has("required"));
+        Assert.assertTrue(tAttribute.get("required").getAsBoolean());
+      }
+    }
+    
+    Assert.assertTrue(hasCode);
 
     JsonArray hierarchies = result.get(GeoObjectConfiguration.HIERARCHIES).getAsJsonArray();
 

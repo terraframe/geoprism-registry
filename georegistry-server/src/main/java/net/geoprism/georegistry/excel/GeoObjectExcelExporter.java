@@ -7,6 +7,7 @@ import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -19,8 +20,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -28,8 +32,11 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Point;
 
@@ -93,12 +100,13 @@ public class GeoObjectExcelExporter
     Row header = sheet.createRow(0);
 
     boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(includeCoordinates, true).attributes(this.type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true).attributes(this.type);
 
     // Get the ancestors of the type
     List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
-    this.writeHeader(boldStyle, header, attributes, ancestors);
+    this.writeHeader(boldStyle, header, attributes, ancestors, locales);
 
     int rownum = 1;
 
@@ -108,13 +116,13 @@ public class GeoObjectExcelExporter
 
       Row row = sheet.createRow(rownum++);
 
-      this.writeRow(row, object, attributes, ancestors, dateStyle);
+      this.writeRow(row, object, attributes, ancestors, locales, dateStyle);
     }
 
     return workbook;
   }
 
-  public void writeRow(Row row, GeoObject object, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, CellStyle dateStyle)
+  public void writeRow(Row row, GeoObject object, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales, CellStyle dateStyle)
   {
     int col = 0;
     // Write the row
@@ -150,6 +158,10 @@ public class GeoObjectExcelExporter
           {
             cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
           }
+          else if (attribute instanceof AttributeLocalType)
+          {
+            cell.setCellValue( ( (LocalizedValue) value ).getValue());
+          }
           else
           {
             if (value instanceof String)
@@ -184,15 +196,28 @@ public class GeoObjectExcelExporter
       Cell codeCell = row.createCell(col++);
       Cell labelCell = row.createCell(col++);
 
+      for (int i = 0; i < locales.size(); i++)
+      {
+        row.createCell(col++);
+      }
+
       if (vObject != null)
       {
         codeCell.setCellValue(vObject.getValue(GeoEntity.GEOID));
-        labelCell.setCellValue(vObject.getValue(GeoEntity.DISPLAYLABEL));
+        labelCell.setCellValue(vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+
+        for (int i = 0; i < locales.size(); i++)
+        {
+          Locale locale = locales.get(i);
+
+          Cell cell = row.getCell(labelCell.getColumnIndex() + i + 1);
+          cell.setCellValue(vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+        }
       }
     }
   }
 
-  public void writeHeader(CellStyle boldStyle, Row header, Collection<AttributeType> attributes, List<GeoObjectType> ancestors)
+  public void writeHeader(CellStyle boldStyle, Row header, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales)
   {
     int col = 0;
 
@@ -207,11 +232,18 @@ public class GeoObjectExcelExporter
     {
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
-      cell.setCellValue(ancestor.getLabel() + " " + ancestor.getAttribute(GeoObject.CODE).get().getLabel());
+      cell.setCellValue(ancestor.getLabel().getValue() + " " + ancestor.getAttribute(GeoObject.CODE).get().getLabel().getValue());
 
       cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
-      cell.setCellValue(ancestor.getLabel() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel());
+      cell.setCellValue(ancestor.getLabel().getValue() + " (" + MdAttributeLocalInfo.DEFAULT_LOCALE + ")");
+
+      for (Locale locale : locales)
+      {
+        cell = header.createCell(col++);
+        cell.setCellStyle(boldStyle);
+        cell.setCellValue(ancestor.getLabel().getValue() + " (" + locale.toString() + ")");
+      }
     }
   }
 

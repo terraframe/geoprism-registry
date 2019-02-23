@@ -28,6 +28,7 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -441,8 +442,8 @@ public class HierarchyManagementServiceTest
     sessionId = this.logInAdmin();
     try
     {
-      testChar.setLabel("testCharLocalName-Update");
-      testChar.setDescription("testCharLocalDescrip-Update");
+      testChar.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalName-Update");
+      testChar.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalDescrip-Update");
       String attributeTypeJSON = testChar.toJSON().toString();
       testChar = service.updateAttributeType(sessionId, geoObjectTypeCode, attributeTypeJSON);
     }
@@ -772,8 +773,8 @@ public class HierarchyManagementServiceTest
       // Check to see if the cache was updated.
       checkTermsCreate(attributeTermType2);
 
-      attributeTermType.setLabel("Test Term Name Update");
-      attributeTermType.setDescription("Test Term Description Update");
+      attributeTermType.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Term Name Update");
+      attributeTermType.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Term Description Update");
 
       attributeTermType = (AttributeTermType) service.updateAttributeType(sessionId, geoObjectTypeCode, attributeTermType.toJSON().toString());
 
@@ -1211,8 +1212,8 @@ public class HierarchyManagementServiceTest
     {
       province = service.getGeoObjectTypes(sessionId, new String[] { PROVINCE_CODE })[0];
 
-      province.setLabel(new LocalizedValue("Province Test 2"));
-      province.setDescription(new LocalizedValue("Some Description 2"));
+      province.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Province Test 2");
+      province.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Some Description 2");
 
       gtJSON = province.toJSON().toString();
       service.updateGeoObjectType(sessionId, gtJSON);

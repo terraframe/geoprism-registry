@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
@@ -102,7 +103,9 @@ public class RegistryController
   {
     GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), id, typeCode);
 
-    return new RestBodyResponse(geoObject.toJSON());
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(geoObject.toJSON(serializer));
   }
 
   /**
@@ -119,8 +122,9 @@ public class RegistryController
   public ResponseIF getGeoObjectByCode(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_TYPE_CODE) String typeCode) throws JSONException
   {
     GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(geoObject.toJSON());
+    return new RestBodyResponse(geoObject.toJSON(serializer));
   }
 
   /**
@@ -139,8 +143,9 @@ public class RegistryController
   public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_CREATE_PARAM_GEOOBJECT) String jGeoObj)
   {
     GeoObject geoObject = this.registryService.createGeoObject(request.getSessionId(), jGeoObj);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(geoObject.toJSON());
+    return new RestBodyResponse(geoObject.toJSON(serializer));
   }
 
   /**
@@ -159,8 +164,9 @@ public class RegistryController
   public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_UPDATE_PARAM_GEOOBJECT) String jGeoObj)
   {
     GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(geoObject.toJSON());
+    return new RestBodyResponse(geoObject.toJSON(serializer));
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
@@ -421,6 +427,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types)
   {
+    
     String[] aTypes = null;
     if (types != null)
     {
@@ -434,11 +441,12 @@ public class RegistryController
     }
 
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray jarray = new JsonArray();
     for (int i = 0; i < gots.length; ++i)
     {
-      jarray.add(gots[i].toJSON());
+      jarray.add(gots[i].toJSON(serializer));
     }
 
     return new RestBodyResponse(jarray);
@@ -497,8 +505,9 @@ public class RegistryController
   public ResponseIF createGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_CREATE_PARAM_GOT) String gtJSON) throws JSONException
   {
     GeoObjectType geoObjectType = this.registryService.createGeoObjectType(request.getSessionId(), gtJSON);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(geoObjectType.toJSON());
+    return new RestBodyResponse(geoObjectType.toJSON(serializer));
   }
 
   /**
@@ -512,8 +521,9 @@ public class RegistryController
   public ResponseIF updateGeoObjectType(ClientRequestIF request, @RequestParamter(name = "gtJSON") String gtJSON) throws JSONException
   {
     GeoObjectType geoObjectType = this.registryService.updateGeoObjectType(request.getSessionId(), gtJSON);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(geoObjectType.toJSON());
+    return new RestBodyResponse(geoObjectType.toJSON(serializer));
   }
 
   /**
@@ -555,11 +565,12 @@ public class RegistryController
     }
 
     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), aTypes);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray jarray = new JsonArray();
     for (int i = 0; i < hts.length; ++i)
     {
-      jarray.add(hts[i].toJSON());
+      jarray.add(hts[i].toJSON(serializer));
     }
 
     return new RestBodyResponse(jarray);
@@ -576,8 +587,9 @@ public class RegistryController
   public ResponseIF createHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
   {
     HierarchyType hierarchyType = this.registryService.createHierarchyType(request.getSessionId(), htJSON);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(hierarchyType.toJSON());
+    return new RestBodyResponse(hierarchyType.toJSON(serializer));
   }
 
   /**
@@ -591,8 +603,9 @@ public class RegistryController
   public ResponseIF updateHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
   {
     HierarchyType hierarchyType = this.registryService.updateHierarchyType(request.getSessionId(), htJSON);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(hierarchyType.toJSON());
+    return new RestBodyResponse(hierarchyType.toJSON(serializer));
   }
 
   /**
@@ -628,8 +641,9 @@ public class RegistryController
   public ResponseIF addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
   {
     HierarchyType ht = this.registryService.addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(ht.toJSON());
+    return new RestBodyResponse(ht.toJSON(serializer));
   }
 
   /**
@@ -649,8 +663,9 @@ public class RegistryController
   public ResponseIF removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
   {
     HierarchyType ht = this.registryService.removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(ht.toJSON());
+    return new RestBodyResponse(ht.toJSON(serializer));
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-ancestors")
@@ -714,19 +729,20 @@ public class RegistryController
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null);
     HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), null);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray types = new JsonArray();
 
     for (GeoObjectType got : gots)
     {
-      types.add(got.toJSON());
+      types.add(got.toJSON(serializer));
     }
 
     JsonArray hierarchies = new JsonArray();
 
     for (HierarchyType ht : hts)
     {
-      hierarchies.add(ht.toJSON());
+      hierarchies.add(ht.toJSON(serializer));
     }
 
     JsonObject response = new JsonObject();

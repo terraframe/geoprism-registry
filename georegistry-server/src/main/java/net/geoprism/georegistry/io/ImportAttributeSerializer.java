@@ -2,6 +2,7 @@ package net.geoprism.georegistry.io;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -13,7 +14,9 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonObject;
 
-public class ImportAttributeSerializer implements CustomSerializer
+import net.geoprism.georegistry.service.LocaleSerializer;
+
+public class ImportAttributeSerializer extends LocaleSerializer implements CustomSerializer
 {
   private Set<String> filter;
 
@@ -21,13 +24,15 @@ public class ImportAttributeSerializer implements CustomSerializer
 
   private boolean     includeCoordinates;
 
-  public ImportAttributeSerializer(boolean includeCoordinates)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates)
   {
-    this(includeCoordinates, false);
+    this(locale, includeCoordinates, false);
   }
 
-  public ImportAttributeSerializer(boolean includeCoordinates, boolean includeUid)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid)
   {
+    super(locale);
+
     this.includeCoordinates = includeCoordinates;
 
     this.filter = new TreeSet<String>();
@@ -73,5 +78,4 @@ public class ImportAttributeSerializer implements CustomSerializer
   {
     json.addProperty("required", this.required.contains(attributeType.getName()));
   }
-
 }

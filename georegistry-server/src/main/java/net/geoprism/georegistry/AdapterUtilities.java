@@ -125,16 +125,18 @@ public class AdapterUtilities
   {
     if (geoObject.getType().isLeaf())
     {
-      return this.applyLeafObject(geoObject, isNew);
+      this.applyLeafObject(geoObject, isNew);
     }
     else
     {
 
-      return this.applyTreeObject(geoObject, isNew);
+      this.applyTreeObject(geoObject, isNew);
     }
+
+    return this.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
   }
 
-  private GeoObject applyLeafObject(GeoObject geoObject, boolean isNew)
+  private void applyLeafObject(GeoObject geoObject, boolean isNew)
   {
     Business biz = this.constructLeafObject(geoObject, isNew);
 
@@ -171,10 +173,9 @@ public class AdapterUtilities
      */
     geoObject.setStatus(status);
 
-    return geoObject;
   }
 
-  private GeoObject applyTreeObject(GeoObject geoObject, boolean isNew)
+  private void applyTreeObject(GeoObject geoObject, boolean isNew)
   {
     GeoEntity ge = this.constructGeoEntity(geoObject, isNew);
 
@@ -239,8 +240,6 @@ public class AdapterUtilities
      * Update the returned GeoObject
      */
     geoObject.setStatus(statusTerm);
-
-    return geoObject;
   }
 
   @SuppressWarnings("unchecked")

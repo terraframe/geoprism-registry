@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -19,7 +20,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.controller.URLConfigurationManager;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
@@ -28,10 +29,10 @@ import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.georegistry.RegistryController;
 import net.geoprism.registry.GeometryTypeException;
-import net.geoprism.registry.test.TestRegistryAdapterClient;
-import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.test.TestDataSet.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestDataSet.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestRegistryAdapterClient;
+import net.geoprism.registry.test.USATestData;
 
 public class RegistryServiceTest
 {
@@ -110,10 +111,13 @@ public class RegistryServiceTest
 
     // 2. Test updating the one we created earlier
     GeoObject waGeoObj = this.adapter.getGeoObject(geoObj.getUid(), testUpdateGO.getGeoObjectType().getCode());
+    LocalizedValue displayLabel = waGeoObj.getDisplayLabel();
+    displayLabel.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
 
     waGeoObj.setWKTGeometry(testData.COLORADO.getWkt());
-    waGeoObj.setLocalizedDisplayLabel(testData.COLORADO.getDisplayLabel());
+    waGeoObj.setDisplayLabel(displayLabel);
     waGeoObj.setStatus(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
+    
     testUpdateGO.setWkt(testData.COLORADO.getWkt());
     testUpdateGO.setDisplayLabel(testData.COLORADO.getDisplayLabel());
 

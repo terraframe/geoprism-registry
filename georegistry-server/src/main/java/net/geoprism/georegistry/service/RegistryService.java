@@ -13,6 +13,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
@@ -1084,5 +1085,13 @@ public class RegistryService
     }
 
     return array;
+  }
+
+  @Request(RequestType.SESSION)
+  public CustomSerializer serializer(String sessionId)
+  {
+    Locale locale = Session.getCurrentLocale();
+
+    return new LocaleSerializer(locale);
   }
 }

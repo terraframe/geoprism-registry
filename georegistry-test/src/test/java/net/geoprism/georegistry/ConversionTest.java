@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 
 import junit.framework.Assert;
 import net.geoprism.georegistry.service.ServiceFactory;
@@ -356,11 +357,11 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
 
     geoObj = ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
-    geoObj.setLocalizedDisplayLabel("New Label");
+    geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "New Label");
 
     geoObj = ServiceFactory.getRegistryService().updateGeoObject(sessionId, geoObj.toJSON().toString());
 
@@ -379,11 +380,11 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
 
     geoObj = ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
-    geoObj.setLocalizedDisplayLabel("New Label");
+    geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "New Label");
 
     geoObj = ServiceFactory.getRegistryService().updateGeoObject(sessionId, geoObj.toJSON().toString());
 

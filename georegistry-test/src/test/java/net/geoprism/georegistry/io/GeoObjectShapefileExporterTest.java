@@ -28,8 +28,10 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
@@ -95,6 +97,7 @@ public class GeoObjectShapefileExporterTest
   }
 
   @Test
+  @Request
   public void testCreateFeatureType()
   {
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(testData.STATE.getCode()).get();
@@ -136,7 +139,7 @@ public class GeoObjectShapefileExporterTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(false, true).attributes(type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true).attributes(type);
 
     for (AttributeType attribute : attributes)
     {
@@ -166,7 +169,7 @@ public class GeoObjectShapefileExporterTest
     GeoObjectType ancestor = ancestors.get(0);
 
     String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
-    String label = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.DISPLAY_LABEL).get().getName();
+    String label = ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE;
 
     Assert.assertEquals(testData.USA.getCode(), feature.getAttribute(exporter.getColumnName(code)));
     Assert.assertEquals(testData.USA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName(label)));
