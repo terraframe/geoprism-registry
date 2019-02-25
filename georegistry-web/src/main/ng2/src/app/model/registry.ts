@@ -20,10 +20,10 @@ export class Term {
     label: LocalizedValue;
     description: LocalizedValue;
 
-    constructor( code: string, label: string, description: string ) {
+    constructor( code: string, label: LocalizedValue, description: LocalizedValue ) {
         this.code = code;
-        this.label = { localizedValue: label, localeValues: [] };
-        this.description = { localizedValue: description, localeValues: [] };
+        this.label = label;
+        this.description = description;
     }
     children: Term[] = [];
 
