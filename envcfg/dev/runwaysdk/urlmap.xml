@@ -12,6 +12,6 @@
   <map uri="app" forward="/index.jsp"/>
   
   <!-- GeoRegistry URLs -->  
-  <package name="net.geoprism.georegistry"/>  
+  <package name="net.geoprism.registry"/>  
   
 </mappings>

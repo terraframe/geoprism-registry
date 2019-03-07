@@ -15,9 +15,9 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.georegistry.conversion.TermBuilder;
-import net.geoprism.georegistry.service.ConversionService;
-import net.geoprism.georegistry.service.RegistryService;
+import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.service.ConversionService;
+import net.geoprism.registry.service.RegistryService;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
 

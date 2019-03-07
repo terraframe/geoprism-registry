@@ -14,7 +14,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
-import net.geoprism.georegistry.service.ServiceFactory;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class AttributeHierarhcy extends AttributeHierarhcyBase
 {

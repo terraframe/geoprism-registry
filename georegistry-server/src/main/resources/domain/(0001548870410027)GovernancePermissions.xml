@@ -30,28 +30,28 @@
             </mdMethodPermission>
           </mdBusinessPermission>
         
-          <mdBusinessPermission type="net.geoprism.georegistry.action.GovernanceStatus">
+          <mdBusinessPermission type="net.geoprism.registry.action.GovernanceStatus">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.ChangeRequest">
+          <mdBusinessPermission type="net.geoprism.registry.action.ChangeRequest">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.georegistry.action.HasActionRelationship">
+          <mdRelationshipPermission type="net.geoprism.registry.action.HasActionRelationship">
             <operation name="ALL" />
           </mdRelationshipPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.AbstractAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.AbstractAction">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.CreateGeoObjectAction">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.UpdateGeoObjectAction">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.tree.AddChildAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.AddChildAction">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.tree.RemoveChildAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.RemoveChildAction">
             <operation name="ALL" />
           </mdBusinessPermission>
         </grant>
@@ -429,42 +429,42 @@
             </mdMethodPermission>
           </mdBusinessPermission>
         
-          <mdBusinessPermission type="net.geoprism.georegistry.action.GovernanceStatus">
+          <mdBusinessPermission type="net.geoprism.registry.action.GovernanceStatus">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.ChangeRequest">
+          <mdBusinessPermission type="net.geoprism.registry.action.ChangeRequest">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.georegistry.action.HasActionRelationship">
+          <mdRelationshipPermission type="net.geoprism.registry.action.HasActionRelationship">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
           </mdRelationshipPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.AbstractAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.AbstractAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.CreateGeoObjectAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.CreateGeoObjectAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.geoobject.UpdateGeoObjectAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.UpdateGeoObjectAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.tree.AddChildAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.AddChildAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.georegistry.action.tree.RemoveChildAction">
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.RemoveChildAction">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
             <operation name="CREATE" />
