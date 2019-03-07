@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-public class AttributeHierarhcyDTO extends AttributeHierarhcyDTOBase
+public class AttributeHierarchyDTO extends AttributeHierarchyDTOBase
 {
   private static final long serialVersionUID = 946015442;
   
-  public AttributeHierarhcyDTO(com.runwaysdk.constants.ClientRequestIF clientRequest)
+  public AttributeHierarchyDTO(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(clientRequest);
   }
@@ -15,7 +15,7 @@ public class AttributeHierarhcyDTO extends AttributeHierarhcyDTOBase
   * @param businessDTO The BusinessDTO to duplicate
   * @param clientRequest The clientRequest this DTO should use to communicate with the server.
   */
-  protected AttributeHierarhcyDTO(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected AttributeHierarchyDTO(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(businessDTO, clientRequest);
   }

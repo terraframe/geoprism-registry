@@ -1,12 +1,12 @@
 package net.geoprism.registry;
 
 @com.runwaysdk.business.ClassSignature(hash = 1468774671)
-public abstract class AttributeHierarhcyDTOBase extends com.runwaysdk.business.BusinessDTO
+public abstract class AttributeHierarchyDTOBase extends com.runwaysdk.business.BusinessDTO
 {
-  public final static String CLASS = "net.geoprism.registry.AttributeHierarhcy";
+  public final static String CLASS = "net.geoprism.registry.AttributeHierarchy";
   private static final long serialVersionUID = 1468774671;
   
-  protected AttributeHierarhcyDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected AttributeHierarchyDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(clientRequest);
   }
@@ -17,7 +17,7 @@ public abstract class AttributeHierarhcyDTOBase extends com.runwaysdk.business.B
   * @param businessDTO The BusinessDTO to duplicate
   * @param clientRequest The clientRequest this DTO should use to communicate with the server.
   */
-  protected AttributeHierarhcyDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected AttributeHierarchyDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(businessDTO, clientRequest);
   }
@@ -485,11 +485,11 @@ public abstract class AttributeHierarhcyDTOBase extends com.runwaysdk.business.B
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
   }
   
-  public static net.geoprism.registry.AttributeHierarhcyDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
+  public static net.geoprism.registry.AttributeHierarchyDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
   {
     com.runwaysdk.business.EntityDTO dto = (com.runwaysdk.business.EntityDTO)clientRequest.get(oid);
     
-    return (net.geoprism.registry.AttributeHierarhcyDTO) dto;
+    return (net.geoprism.registry.AttributeHierarchyDTO) dto;
   }
   
   public void apply()
@@ -508,9 +508,9 @@ public abstract class AttributeHierarhcyDTOBase extends com.runwaysdk.business.B
     getRequest().delete(this.getOid());
   }
   
-  public static net.geoprism.registry.AttributeHierarhcyQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
+  public static net.geoprism.registry.AttributeHierarchyQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
   {
-    return (net.geoprism.registry.AttributeHierarhcyQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.AttributeHierarhcyDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
+    return (net.geoprism.registry.AttributeHierarchyQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.AttributeHierarchyDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
   }
   
   public void lock()
@@ -518,12 +518,12 @@ public abstract class AttributeHierarhcyDTOBase extends com.runwaysdk.business.B
     getRequest().lock(this);
   }
   
-  public static net.geoprism.registry.AttributeHierarhcyDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.AttributeHierarchyDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.AttributeHierarhcyDTO.CLASS, "lock", _declaredTypes);
-    return (net.geoprism.registry.AttributeHierarhcyDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.AttributeHierarchyDTO.CLASS, "lock", _declaredTypes);
+    return (net.geoprism.registry.AttributeHierarchyDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public void unlock()
@@ -531,12 +531,12 @@ public abstract class AttributeHierarhcyDTOBase extends com.runwaysdk.business.B
     getRequest().unlock(this);
   }
   
-  public static net.geoprism.registry.AttributeHierarhcyDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.AttributeHierarchyDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.AttributeHierarhcyDTO.CLASS, "unlock", _declaredTypes);
-    return (net.geoprism.registry.AttributeHierarhcyDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.AttributeHierarchyDTO.CLASS, "unlock", _declaredTypes);
+    return (net.geoprism.registry.AttributeHierarchyDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
 }

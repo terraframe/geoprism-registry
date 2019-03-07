@@ -92,7 +92,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.AttributeHierarhcy;
+import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.conversion.TermBuilder;
@@ -993,7 +993,7 @@ public class AdapterUtilities
             }
             else
             {
-              HierarchyType ht = AttributeHierarhcy.getHierarchyType(mdAttribute.getKey());
+              HierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
 
               tnParent = new ParentTreeNode(goParent, ht);
             }
@@ -1089,7 +1089,7 @@ public class AdapterUtilities
 
           for (MdAttributeDAOIF mdAttribute : mdAttributes)
           {
-            HierarchyType ht = AttributeHierarhcy.getHierarchyType(mdAttribute.getKey());
+            HierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
 
             BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
             query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parentRunwayId));

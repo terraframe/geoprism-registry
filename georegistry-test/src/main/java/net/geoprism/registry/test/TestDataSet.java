@@ -63,7 +63,7 @@ import net.geoprism.registry.service.WMSService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
-import net.geoprism.registry.AttributeHierarhcy;
+import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 
 abstract public class TestDataSet
@@ -417,7 +417,7 @@ abstract public class TestDataSet
       MdBusiness mdBiz = getMdBusinessIfExist(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
       if (mdBiz != null)
       {
-        AttributeHierarhcy.deleteByMdBusiness(MdBusinessDAO.get(mdBiz.getOid()));
+        AttributeHierarchy.deleteByMdBusiness(MdBusinessDAO.get(mdBiz.getOid()));
         deleteMdBusiness(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
       }
 

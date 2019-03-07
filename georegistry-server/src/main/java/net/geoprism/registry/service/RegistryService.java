@@ -45,7 +45,7 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AttributeHierarhcy;
+import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.conversion.TermBuilder;
@@ -765,7 +765,7 @@ public class RegistryService
     /*
      * Delete all Attribute references
      */
-    AttributeHierarhcy.deleteByUniversal(uni);
+    AttributeHierarchy.deleteByUniversal(uni);
 
     // This deletes the {@link MdBusiness} as well
     uni.delete();
@@ -892,7 +892,7 @@ public class RegistryService
 
     Universal.getStrategy().shutdown(mdTermRelUniversal.definesType());
 
-    AttributeHierarhcy.deleteByRelationship(mdTermRelUniversal);
+    AttributeHierarchy.deleteByRelationship(mdTermRelUniversal);
 
     mdTermRelUniversal.delete();
 

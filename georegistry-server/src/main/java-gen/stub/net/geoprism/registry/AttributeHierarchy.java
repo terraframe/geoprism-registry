@@ -11,23 +11,22 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.registry.service.ServiceFactory;
 
-public class AttributeHierarhcy extends AttributeHierarhcyBase
+public class AttributeHierarchy extends AttributeHierarchyBase
 {
   private static final long serialVersionUID = -1818416302;
 
-  public AttributeHierarhcy()
+  public AttributeHierarchy()
   {
     super();
   }
 
   public static HierarchyType getHierarchyType(String key)
   {
-    AttributeHierarhcy hierarchy = AttributeHierarhcy.getByKey(key);
+    AttributeHierarchy hierarchy = AttributeHierarchy.getByKey(key);
     MdTermRelationship mdTermRelationship = hierarchy.getMdTermRelationship();
 
     return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelationship);
@@ -52,12 +51,12 @@ public class AttributeHierarhcy extends AttributeHierarhcyBase
 
         if (referencedMdBusiness.definesType().equals(GeoEntity.CLASS))
         {
-          AttributeHierarhcyQuery query = new AttributeHierarhcyQuery(new QueryFactory());
+          AttributeHierarchyQuery query = new AttributeHierarchyQuery(new QueryFactory());
           query.WHERE(query.getMdAttribute().EQ(mdAttribute.getOid()));
 
-          List<? extends AttributeHierarhcy> hierarchies = query.getIterator().getAll();
+          List<? extends AttributeHierarchy> hierarchies = query.getIterator().getAll();
 
-          for (AttributeHierarhcy hierarchy : hierarchies)
+          for (AttributeHierarchy hierarchy : hierarchies)
           {
             hierarchy.delete();
           }
@@ -68,12 +67,12 @@ public class AttributeHierarhcy extends AttributeHierarhcyBase
 
   public static void deleteByRelationship(MdTermRelationship mdRelationship)
   {
-    AttributeHierarhcyQuery query = new AttributeHierarhcyQuery(new QueryFactory());
+    AttributeHierarchyQuery query = new AttributeHierarchyQuery(new QueryFactory());
     query.WHERE(query.getMdTermRelationship().EQ(mdRelationship));
 
-    List<? extends AttributeHierarhcy> hierarchies = query.getIterator().getAll();
+    List<? extends AttributeHierarchy> hierarchies = query.getIterator().getAll();
 
-    for (AttributeHierarhcy hierarchy : hierarchies)
+    for (AttributeHierarchy hierarchy : hierarchies)
     {
       hierarchy.delete();
     }
