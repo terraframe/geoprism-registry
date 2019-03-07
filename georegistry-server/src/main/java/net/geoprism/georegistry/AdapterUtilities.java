@@ -37,6 +37,7 @@ import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
+import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
@@ -726,11 +727,11 @@ public class AdapterUtilities
     }
     else if (attributeType.getType().equals(AttributeFloatType.TYPE))
     {
-      mdAttribute = new MdAttributeDouble();
+      AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
 
-      // TODO: Non default values
-      mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, "32");
-      mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, "8");
+      mdAttribute = new MdAttributeDouble();
+      mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
+      mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
     }
     else if (attributeType.getType().equals(AttributeTermType.TYPE))
     {
@@ -754,6 +755,12 @@ public class AdapterUtilities
     }
 
     mdAttribute.setAttributeName(attributeType.getName());
+    mdAttribute.setValue(MdAttributeConcreteInfo.REQUIRED, Boolean.toString(attributeType.isRequired()));
+
+    if (attributeType.isUnique())
+    {
+      mdAttribute.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
+    }
 
     ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
     ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
@@ -819,6 +826,7 @@ public class AdapterUtilities
    * 
    * @return {@link AttributeType}
    */
+  @Transaction
   public MdAttributeConcrete updateMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
   {
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType.getName());
@@ -828,14 +836,29 @@ public class AdapterUtilities
       // Get the type safe version
       MdAttributeConcrete mdAttribute = (MdAttributeConcrete) BusinessFacade.get(mdAttributeConcreteDAOIF);
       mdAttribute.lock();
-      // The name cannot be updated
-      // mdAttribute.setAttributeName(attributeType.getName());
-      ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-      ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
 
-      mdAttribute.apply();
+      try
+      {
+        // The name cannot be updated
+        // mdAttribute.setAttributeName(attributeType.getName());
+        ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+        ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
 
-      mdAttribute.unlock();
+        if (attributeType instanceof AttributeFloatType)
+        {
+          // Refresh the terms
+          AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
+
+          mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
+          mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
+        }
+
+        mdAttribute.apply();
+      }
+      finally
+      {
+        mdAttribute.unlock();
+      }
 
       if (attributeType instanceof AttributeTermType)
       {

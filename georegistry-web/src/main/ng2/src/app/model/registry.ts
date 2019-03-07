@@ -76,14 +76,18 @@ export class Attribute {
     label: LocalizedValue;
     description: LocalizedValue;
     isDefault: boolean;
+    required: boolean;
+    unique: boolean;
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean ) {
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
 
         this.code = code;
         this.type = type;
         this.label = label;
         this.description = description;
         this.isDefault = isDefault;
+        this.required = required;
+        this.unique = unique;
     }
 
 }
@@ -91,8 +95,8 @@ export class Attribute {
 export class AttributeTerm extends Attribute {
     //descendants: Attribute[];
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean ) {
-        super( code, type, label, description, isDefault );
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
+        super( code, type, label, description, isDefault, required, unique );
     }
 
     rootTerm: Term = new Term( null, null, null );
@@ -105,10 +109,11 @@ export class AttributeTerm extends Attribute {
 }
 
 export class AttributeDecimal extends Attribute {
-    //descendants: Attribute[];
+    precision: number = 32;
+    scale: number = 8;
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean ) {
-        super( code, type, label, description, isDefault );
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
+        super( code, type, label, description, isDefault, required, unique );
     }
 }
 

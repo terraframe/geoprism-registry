@@ -486,10 +486,7 @@ public class RegistryService
     JsonParser parser = new JsonParser();
     JsonObject attrObj = parser.parse(attributeTypeJSON).getAsJsonObject();
 
-    LocalizedValue label = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject());
-    LocalizedValue description = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_DESCRIPTION).getAsJsonObject());
-
-    AttributeType attrType = AttributeType.factory(attrObj.get(AttributeType.JSON_CODE).getAsString(), label, description, attrObj.get(AttributeType.JSON_TYPE).getAsString());
+    AttributeType attrType = AttributeType.parse(attrObj);
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
 
@@ -529,12 +526,7 @@ public class RegistryService
 
     JsonObject attrObj = new JsonParser().parse(attributeTypeJSON).getAsJsonObject();
 
-    LocalizedValue label = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject());
-    LocalizedValue description = LocalizedValue.fromJSON(attrObj.get(AttributeType.JSON_LOCALIZED_DESCRIPTION).getAsJsonObject());
-
-    AttributeType attrType = geoObjectType.getAttribute(attrObj.get(AttributeType.JSON_CODE).getAsString()).get();
-    attrType.setLabel(label);
-    attrType.setDescription(description);
+    AttributeType attrType = AttributeType.parse(attrObj);
 
     Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
 

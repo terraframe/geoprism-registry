@@ -504,11 +504,17 @@ public class GeoObjectConfiguration
 
   public static AttributeFloatType latitude()
   {
-    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, new LocalizedValue(LocalizationFacade.getFromBundles(LATITUDE_KEY)), new LocalizedValue(""), false);
+    LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LATITUDE_KEY));
+    LocalizedValue description = new LocalizedValue("");
+
+    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, label, description, false, true, false);
   }
 
   public static AttributeFloatType longitude()
   {
-    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, new LocalizedValue(LocalizationFacade.getFromBundles(LONGITUDE_KEY)), new LocalizedValue(""), false);
+    LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LONGITUDE_KEY));
+    LocalizedValue description = new LocalizedValue("");
+
+    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, label, description, false, true, false);
   }
 }

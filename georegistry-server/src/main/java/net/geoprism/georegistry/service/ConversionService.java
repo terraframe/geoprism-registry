@@ -66,6 +66,7 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
+import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
@@ -639,7 +640,16 @@ public class ConversionService
    */
   private boolean convertMdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
   {
-    if (mdAttribute.isSystem() || mdAttribute instanceof MdAttributeStructDAOIF || mdAttribute instanceof MdAttributeEncryptionDAOIF || mdAttribute instanceof MdAttributeIndicatorDAOIF || mdAttribute instanceof MdAttributeBlobDAOIF || mdAttribute instanceof MdAttributeFileDAOIF || mdAttribute instanceof MdAttributeTimeDAOIF || mdAttribute instanceof MdAttributeUUIDDAOIF || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
+    if (mdAttribute.isSystem() 
+        || mdAttribute instanceof MdAttributeStructDAOIF 
+        || mdAttribute instanceof MdAttributeEncryptionDAOIF 
+        || mdAttribute instanceof MdAttributeIndicatorDAOIF 
+        || mdAttribute instanceof MdAttributeBlobDAOIF 
+        || mdAttribute instanceof MdAttributeGeometryDAOIF
+        || mdAttribute instanceof MdAttributeFileDAOIF 
+        || mdAttribute instanceof MdAttributeTimeDAOIF 
+        || mdAttribute instanceof MdAttributeUUIDDAOIF 
+        || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
     {
       return false;
     }
@@ -661,42 +671,48 @@ public class ConversionService
     String attributeName = mdAttribute.definesAttribute();
     LocalizedValue displayLabel = this.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
     LocalizedValue description = this.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
-
-    AttributeType testChar = null;
+    boolean required = mdAttribute.isRequired();
+    boolean unique = mdAttribute.isUnique();
 
     if (mdAttribute instanceof MdAttributeBooleanDAOIF)
     {
-      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeBooleanType.TYPE);
+      return AttributeType.factory(attributeName, displayLabel, description, AttributeBooleanType.TYPE, required, unique);
     }
     else if (mdAttribute instanceof MdAttributeLocalDAOIF)
     {
-      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeLocalType.TYPE);
+      return AttributeType.factory(attributeName, displayLabel, description, AttributeLocalType.TYPE, required, unique);
     }
     else if (mdAttribute instanceof MdAttributeCharacterDAOIF)
     {
-      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeCharacterType.TYPE);
+      return AttributeType.factory(attributeName, displayLabel, description, AttributeCharacterType.TYPE, required, unique);
     }
     else if (mdAttribute instanceof MdAttributeDateDAOIF || mdAttribute instanceof MdAttributeDateTimeDAOIF)
     {
-      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeDateType.TYPE);
+      return AttributeType.factory(attributeName, displayLabel, description, AttributeDateType.TYPE, required, unique);
     }
     else if (mdAttribute instanceof MdAttributeDecDAOIF)
     {
-      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeFloatType.TYPE);
+      MdAttributeDecDAOIF mdAttributeDec = (MdAttributeDecDAOIF) mdAttribute;
+
+      AttributeFloatType attributeType = (AttributeFloatType) AttributeType.factory(attributeName, displayLabel, description, AttributeFloatType.TYPE, required, unique);
+      attributeType.setPrecision(Integer.parseInt(mdAttributeDec.getLength()));
+      attributeType.setScale(Integer.parseInt(mdAttributeDec.getDecimal()));
+
+      return attributeType;
     }
     else if (mdAttribute instanceof MdAttributeIntegerDAOIF || mdAttribute instanceof MdAttributeLongDAOIF)
     {
-      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeIntegerType.TYPE);
+      return AttributeType.factory(attributeName, displayLabel, description, AttributeIntegerType.TYPE, required, unique);
     }
     else if (mdAttribute instanceof MdAttributeEnumerationDAOIF || mdAttribute instanceof MdAttributeTermDAOIF)
     {
-      testChar = AttributeType.factory(attributeName, displayLabel, description, AttributeTermType.TYPE);
+      AttributeTermType attributeType = (AttributeTermType) AttributeType.factory(attributeName, displayLabel, description, AttributeTermType.TYPE, required, unique);
 
       if (mdAttribute instanceof MdAttributeEnumerationDAOIF && mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
       {
         Term rootStatusTerm = ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
 
-        ( (AttributeTermType) testChar ).setRootTerm(rootStatusTerm);
+        attributeType.setRootTerm(rootStatusTerm);
       }
       else if (mdAttribute instanceof MdAttributeTermDAOIF)
       {
@@ -711,7 +727,7 @@ public class ConversionService
           TermBuilder termBuilder = new TermBuilder(classy.getKey());
           Term adapterTerm = termBuilder.build();
 
-          ( (AttributeTermType) testChar ).setRootTerm(adapterTerm);
+          attributeType.setRootTerm(adapterTerm);
         }
         else
         {
@@ -722,9 +738,11 @@ public class ConversionService
       {
         throw new ProgrammingErrorException("Enum attributes are not supported at this time.");
       }
+
+      return attributeType;
     }
 
-    return testChar;
+    throw new UnsupportedOperationException("Unsupported attribute type [" + mdAttribute.getClass().getSimpleName() + "]");
   }
 
   /**

@@ -12,15 +12,11 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.google.gson.JsonObject;
-
 import net.geoprism.georegistry.service.LocaleSerializer;
 
 public class ImportAttributeSerializer extends LocaleSerializer implements CustomSerializer
 {
   private Set<String> filter;
-
-  private Set<String> required;
 
   private boolean     includeCoordinates;
 
@@ -46,12 +42,6 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     {
       this.filter.add(DefaultAttribute.UID.getName());
     }
-
-    this.required = new TreeSet<String>();
-    this.required.add(DefaultAttribute.CODE.getName());
-    this.required.add(DefaultAttribute.DISPLAY_LABEL.getName());
-    this.required.add(GeoObjectConfiguration.LATITUDE);
-    this.required.add(GeoObjectConfiguration.LONGITUDE);
   }
 
   public Set<String> getFilter()
@@ -71,11 +61,5 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     }
 
     return attributes;
-  }
-
-  @Override
-  public void configure(AttributeType attributeType, JsonObject json)
-  {
-    json.addProperty("required", this.required.contains(attributeType.getName()));
   }
 }
