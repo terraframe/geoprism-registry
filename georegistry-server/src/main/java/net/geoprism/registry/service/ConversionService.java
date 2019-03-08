@@ -62,6 +62,7 @@ import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.RelationshipDAOIF;
+import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -913,7 +914,7 @@ public class ConversionService
     }
 
     geoObj.setCode(geoEntity.getGeoId());
-    geoObj.setLocalizedDisplayLabel(geoEntity.getDisplayLabel().getValue());
+    geoObj.getDisplayLabel().setValue(geoEntity.getDisplayLabel().getValue());
     geoObj.setGeometry(this.getGeometry(geoEntity, got.getGeometryType()));
 
     return geoObj;
@@ -1010,7 +1011,10 @@ public class ConversionService
     }
 
     geoObj.setCode(business.getValue(DefaultAttribute.CODE.getName()));
-    geoObj.setLocalizedDisplayLabel(business.getStructValue(DefaultAttribute.DISPLAY_LABEL.getName(), MdAttributeLocalCharacterInfo.DEFAULT_LOCALE));
+    
+    String localizedValue = ((AttributeLocal)BusinessFacade.getEntityDAO(business).getAttributeIF(DefaultAttribute.DISPLAY_LABEL.getName())).getValue(Session.getCurrentLocale());
+    geoObj.getDisplayLabel().setValue(localizedValue);
+    
     geoObj.setGeometry((Geometry) business.getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
     return geoObj;

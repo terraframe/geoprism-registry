@@ -12,6 +12,7 @@ import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
 import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -81,7 +82,7 @@ public class ChangeRequestTestDataGenerator
   {
     GeoObject goNewChild = ServiceFactory.getAdapter().newGeoObjectInstance("Cambodia_District");
     goNewChild.setCode(genKey + "_CODE");
-    goNewChild.setLocalizedDisplayLabel(genKey + "_LABEL");
+    goNewChild.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, genKey + "_LABEL");
     goNewChild.setWKTGeometry("MULTIPOLYGON (((10000 10000, 12300 40000, 16800 50000, 12354 60000, 13354 60000, 17800 50000, 13300 40000, 11000 10000, 10000 10000)))");
 
     GeoObject testAddChildParent = ServiceFactory.getUtilities().getGeoObjectByCode("855 01", "Cambodia_Province");
@@ -102,8 +103,6 @@ public class ChangeRequestTestDataGenerator
       removeChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       removeChild.setCreateActionDate(Date.from(when.minus(9, ChronoUnit.HOURS)));
 
-      String removeChildJson = removeChild.toJSON().toString();
-      String removeChildJson2 = AbstractActionDTO.parseAction(removeChildJson).toJSON().toString();
       actions.add(removeChild);
     }
 
@@ -120,8 +119,6 @@ public class ChangeRequestTestDataGenerator
       addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       addChild.setCreateActionDate(Date.from(when.minus(10, ChronoUnit.HOURS)));
 
-      String addChildJson = addChild.toJSON().toString();
-      String addChildJson2 = AbstractActionDTO.parseAction(addChildJson).toJSON().toString();
       actions.add(addChild);
     }
 
@@ -132,22 +129,18 @@ public class ChangeRequestTestDataGenerator
     create.setGeoObject(goNewChild.toJSON());
     create.setCreateActionDate(Date.from(when.minus(8, ChronoUnit.HOURS)));
 
-    String createJson = create.toJSON().toString();
-    String createJson2 = AbstractActionDTO.parseAction(createJson).toJSON().toString();
     actions.add(create);
 
     /*
      * Update the previously created GeoObject
      */
     final String NEW_DISPLAY_LABEL = genKey + "_NEW_DISPLAY_LABEL";
-    goNewChild.setLocalizedDisplayLabel(NEW_DISPLAY_LABEL);
+    goNewChild.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, NEW_DISPLAY_LABEL);
 
     UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();
     update.setGeoObject(goNewChild.toJSON());
     update.setCreateActionDate(Date.from(when.minus(7, ChronoUnit.HOURS)));
 
-    String updateJson = update.toJSON().toString();
-    String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
     actions.add(update);
 
     // Serialize the actions

@@ -571,7 +571,8 @@ abstract public class TestDataSet
 
       geoObj.setWKTGeometry(this.getWkt());
       geoObj.setCode(this.getCode());
-      geoObj.setLocalizedDisplayLabel(this.getDisplayLabel());
+      geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
+      geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
 
       if (registryId != null)
       {

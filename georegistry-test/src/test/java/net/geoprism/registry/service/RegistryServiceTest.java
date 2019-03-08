@@ -75,7 +75,7 @@ public class RegistryServiceTest
     GeoObject geoObj = this.adapter.newGeoObjectInstance(testData.STATE.getCode());
     geoObj.setGeometry(point);
     geoObj.setCode(testData.WASHINGTON.getCode());
-    geoObj.setLocalizedDisplayLabel(testData.WASHINGTON.getDisplayLabel());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.WASHINGTON.getDisplayLabel());
 
     try
     {
@@ -216,31 +216,31 @@ public class RegistryServiceTest
     Assert.assertEquals(testData.COLORADO.getCode(), result.get(GeoObject.CODE).getAsString());
   }
   
+  /**
+   * Test to make sure we can't just provide random ids, they actually have to be issued by our id service
+   */
   @Test(expected = SmartExceptionDTO.class)
   public void testUnissuedIdCreate()
   {
-    // Test to make sure we can't just provide random ids, they actually have to
-    // be issued by our id service
-
     // Create
     GeoObject geoObj = testData.adapter.newGeoObjectInstance(testData.STATE.getCode());
     geoObj.setWKTGeometry(testData.WASHINGTON.getWkt());
     geoObj.setCode(testData.WASHINGTON.getCode());
-    geoObj.setLocalizedDisplayLabel(testData.WASHINGTON.getDisplayLabel());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.WASHINGTON.getDisplayLabel());
     geoObj.setUid(UUID.randomUUID().toString());
     this.adapter.createGeoObject(geoObj.toJSON().toString());
   }
 
+  /**
+   * Test to make sure we can't just provide random ids, they actually have to be issued by our id service
+   */
   @Test(expected = SmartExceptionDTO.class)
   public void testUnissuedIdUpdate()
   {
-    // Test to make sure we can't just provide random ids, they actually have to
-    // be issued by our id service
-
     // Update
     GeoObject waGeoObj = this.adapter.getGeoObject(testData.WASHINGTON.getRegistryId(), testData.WASHINGTON.getGeoObjectType().getCode());
     waGeoObj.setWKTGeometry(testData.COLORADO.getWkt());
-    waGeoObj.setLocalizedDisplayLabel(testData.COLORADO.getDisplayLabel());
+    waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
     waGeoObj.setUid(UUID.randomUUID().toString());
     this.adapter.updateGeoObject(waGeoObj.toJSON().toString());
   }
