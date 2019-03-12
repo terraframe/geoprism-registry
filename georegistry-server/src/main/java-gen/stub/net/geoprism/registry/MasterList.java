@@ -2,44 +2,62 @@ package net.geoprism.registry;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.BusinessInfo;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
+import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdTableInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
-import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
-import com.runwaysdk.query.Selectable;
-import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.MdAttributeBoolean;
+import com.runwaysdk.system.metadata.MdAttributeCharacter;
+import com.runwaysdk.system.metadata.MdAttributeConcrete;
+import com.runwaysdk.system.metadata.MdAttributeDateTime;
+import com.runwaysdk.system.metadata.MdAttributeDouble;
+import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 
-import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -72,6 +90,117 @@ public class MasterList extends MasterListBase
     }
   }
 
+  @Transaction
+  public void publish()
+  {
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    Universal universal = this.getUniversal();
+    GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+
+    // Add the type ancestor fields
+    // Map<String, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
+    //
+    // String[] types = new String[ancestors.size()];
+    //
+    // for (int i = 0; i < ancestors.size(); i++)
+    // {
+    // types[i] = ancestors.get(i).getCode();
+    // }
+
+    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectIterator objects = query.getIterator();
+
+    Collection<AttributeType> attributes = type.getAttributeMap().values();
+
+    try
+    {
+      while (objects.hasNext())
+      {
+        Business business = new Business(mdBusiness.definesType());
+
+        GeoObject object = objects.next();
+
+        // builder.set(GEOM, object.getGeometry());
+
+        attributes.forEach(attribute -> {
+
+          String name = attribute.getName();
+
+          if (this.isValid(attribute))
+          {
+            Object value = object.getValue(name);
+
+            if (attribute instanceof AttributeTermType)
+            {
+              Iterator<String> codes = (Iterator<String>) value;
+
+              if (codes.hasNext())
+              {
+                String code = codes.next();
+
+                Term term = ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
+                LocalizedValue label = term.getLabel();
+
+                business.setValue(name, term.getCode());
+                business.setValue(name + "DefaultLocale", label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+                for (Locale locale : locales)
+                {
+                  business.setValue(name + locale.toString(), label.getValue(locale));
+                }
+              }
+            }
+            else if (attribute instanceof AttributeLocalType)
+            {
+              // business.setValue(name,
+              // GeoObjectUtil.convertToTermString((AttributeTermType)
+              // attribute, value));
+            }
+            else
+            {
+              System.out.println("Setting value [" + name + "] : [" + value + "]");
+
+              business.setValue(name, value);
+            }
+          }
+        });
+
+        // Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object,
+        // this.hierarchy);
+        //
+        // ancestors.forEach(ancestor -> {
+        // String code = ancestor.getCode() + " " +
+        // ancestor.getAttribute(GeoObject.CODE).get().getName();
+        //
+        // ValueObject vObject = map.get(ancestor.getCode());
+        //
+        // if (vObject != null)
+        // {
+        // builder.set(this.getColumnName(code),
+        // vObject.getValue(GeoEntity.GEOID));
+        // builder.set(this.getColumnName(ancestor.getCode() + " " +
+        // MdAttributeLocalInfo.DEFAULT_LOCALE),
+        // vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+        //
+        // for (Locale locale : locales)
+        // {
+        // builder.set(this.getColumnName(ancestor.getCode() + " " +
+        // locale.toString()),
+        // vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" +
+        // locale.toString()));
+        // }
+        // }
+        // });
+      }
+    }
+    finally
+    {
+      objects.close();
+    }
+  }
+
   private MdBusiness createTable()
   {
     Locale currentLocale = Session.getCurrentLocale();
@@ -87,82 +216,20 @@ public class MasterList extends MasterListBase
     mdTableDAO.setValue(MdTableInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     mdTableDAO.apply();
 
-    MdBusinessDAOIF mdClassifier = MdBusinessDAO.getMdBusinessDAO(Classifier.CLASS);
-    MdAttributeConcreteDAOIF mdClassifierId = mdClassifier.definesAttribute(Classifier.CLASSIFIERID);
+    MdBusiness mdBusiness = (MdBusiness) BusinessFacade.get(mdTableDAO);
 
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     Universal universal = this.getUniversal();
     GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
 
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(universal.getMdBusinessOid());
+    Collection<AttributeType> attributeTypes = type.getAttributeMap().values();
 
-    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
-
-    for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+    for (AttributeType attributeType : attributeTypes)
     {
-      if (isValid(mdAttribute))
+      if (this.isValid(attributeType))
       {
-        if (mdAttribute instanceof MdAttributeReferenceDAOIF)
-        {
-          MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
-
-          if (referenceMdBusiness.getOid().equals(mdClassifier.getOid()))
-          {
-            String label = mdAttribute.getDisplayLabel(Session.getCurrentLocale());
-
-            MdAttributeDAO cloneAttribute = (MdAttributeDAO) mdClassifierId.getBusinessDAO().copy();
-            cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, mdAttribute.definesAttribute());
-            cloneAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-            cloneAttribute.apply();
-
-            MdAttributeDAO mdAttributeDefaultLocale = MdAttributeCharacterDAO.newInstance();
-            mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, mdAttribute.definesAttribute() + "DefaultLocale");
-            mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-            mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-            mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label);
-            mdAttributeDefaultLocale.apply();
-
-            for (Locale locale : locales)
-            {
-              MdAttributeDAO mdAttributeLocale = MdAttributeCharacterDAO.newInstance();
-              mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, mdAttribute.definesAttribute() + locale.toString());
-              mdAttributeLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-              mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-              mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (" + locale + ")");
-              mdAttributeLocale.apply();
-            }
-          }
-        }
-        else
-        {
-          MdAttributeDAO cloneAttribute = (MdAttributeDAO) mdAttribute.getBusinessDAO().copy();
-          cloneAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-          cloneAttribute.apply();
-        }
-      }
-    }
-
-    if (!type.isLeaf())
-    {
-      String name = DefaultAttribute.DISPLAY_LABEL.getName();
-      String label = DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName();
-
-      MdAttributeDAO mdAttributeDefaultLocale = MdAttributeCharacterDAO.newInstance();
-      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, name + "DefaultLocale");
-      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-      mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label);
-      mdAttributeDefaultLocale.apply();
-
-      for (Locale locale : locales)
-      {
-        MdAttributeDAO mdAttributeLocale = MdAttributeCharacterDAO.newInstance();
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, name + locale.toString());
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-        mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (" + locale + ")");
-        mdAttributeLocale.apply();
+        this.createMdAttributeFromAttributeType(mdBusiness, attributeType, locales);
       }
     }
 
@@ -214,8 +281,117 @@ public class MasterList extends MasterListBase
       }
     }
 
-    return (MdBusiness) BusinessFacade.get(mdTableDAO);
+    return mdBusiness;
+  }
 
+  public void createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType, List<Locale> locales)
+  {
+    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeLocalType ))
+    {
+      MdAttributeConcrete mdAttribute = null;
+
+      if (attributeType.getType().equals(AttributeCharacterType.TYPE))
+      {
+        mdAttribute = new MdAttributeCharacter();
+        MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
+        mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
+      }
+      else if (attributeType.getType().equals(AttributeDateType.TYPE))
+      {
+        mdAttribute = new MdAttributeDateTime();
+      }
+      else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
+      {
+        mdAttribute = new MdAttributeLong();
+      }
+      else if (attributeType.getType().equals(AttributeFloatType.TYPE))
+      {
+        AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
+
+        mdAttribute = new MdAttributeDouble();
+        mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
+        mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
+      }
+      else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
+      {
+        mdAttribute = new MdAttributeBoolean();
+      }
+      else
+      {
+        throw new UnsupportedOperationException("Unsupported type [" + attributeType.getType() + "]");
+      }
+
+      mdAttribute.setAttributeName(attributeType.getName());
+
+      ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+      ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+
+      mdAttribute.setDefiningMdClass(mdBusiness);
+      mdAttribute.apply();
+    }
+
+    if (attributeType.getType().equals(AttributeTermType.TYPE))
+    {
+      MdAttributeCharacter cloneAttribute = new MdAttributeCharacter();
+      cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getName());
+      cloneAttribute.setValue(MdAttributeCharacterInfo.SIZE, "255");
+      ServiceFactory.getConversionService().populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
+      ServiceFactory.getConversionService().populate(cloneAttribute.getDescription(), attributeType.getDescription());
+      cloneAttribute.setDefiningMdClass(mdBusiness);
+      cloneAttribute.apply();
+
+      MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
+      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + "DefaultLocale");
+      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
+      mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
+      ServiceFactory.getConversionService().populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
+      ServiceFactory.getConversionService().populate(cloneAttribute.getDescription(), attributeType.getDescription());
+      mdAttributeDefaultLocale.apply();
+
+      for (Locale locale : locales)
+      {
+        MdAttributeCharacter mdAttributeLocale = new MdAttributeCharacter();
+        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
+        mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
+        mdAttributeLocale.setDefiningMdClass(mdBusiness);
+        ServiceFactory.getConversionService().populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
+        ServiceFactory.getConversionService().populate(cloneAttribute.getDescription(), attributeType.getDescription());
+        mdAttributeLocale.apply();
+      }
+    }
+  }
+
+  public JsonArray getHierarchiesAsJson()
+  {
+    if (this.getHierarchies() != null && this.getHierarchies().length() > 0)
+    {
+      return new JsonParser().parse(this.getHierarchies()).getAsJsonArray();
+    }
+
+    return new JsonArray();
+  }
+
+  private Map<String, List<GeoObjectType>> getAncestorMap(GeoObjectType type)
+  {
+    Map<String, List<GeoObjectType>> map = new HashMap<>();
+
+    JsonArray hierarchies = this.getHierarchiesAsJson();
+
+    for (int i = 0; i < hierarchies.size(); i++)
+    {
+      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
+
+      List<String> pCodes = this.getParentCodes(hierarchy);
+
+      if (pCodes.size() > 0)
+      {
+        String hCode = hierarchy.get("code").getAsString();
+
+        map.put(hCode, ServiceFactory.getUtilities().getAncestors(type, hCode));
+      }
+    }
+
+    return map;
   }
 
   private List<String> getParentCodes(JsonObject hierarchy)
@@ -237,24 +413,29 @@ public class MasterList extends MasterListBase
     return list;
   }
 
-  public boolean isValid(MdAttributeConcreteDAOIF mdAttribute)
+  public boolean isValid(AttributeType attributeType)
   {
-    if (mdAttribute.isSystem())
+    if (attributeType.getName().equals(DefaultAttribute.UID.getName()))
     {
       return false;
     }
 
-    if (mdAttribute.definesAttribute().equals(ComponentInfo.KEY))
+    if (attributeType.getName().equals(DefaultAttribute.SEQUENCE.getName()))
     {
       return false;
     }
 
-    if (mdAttribute.definesAttribute().equals(BusinessInfo.DOMAIN))
+    if (attributeType.getName().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
     {
       return false;
     }
 
-    if (mdAttribute.definesAttribute().equals(BusinessInfo.OWNER))
+    if (attributeType.getName().equals(DefaultAttribute.CREATE_DATE.getName()))
+    {
+      return false;
+    }
+
+    if (attributeType.getName().equals(DefaultAttribute.TYPE.getName()))
     {
       return false;
     }
@@ -276,40 +457,6 @@ public class MasterList extends MasterListBase
     }
 
     return name;
-  }
-
-  public ValueQuery getValueQuery(JsonArray hierarchies)
-  {
-    ConversionService service = ServiceFactory.getConversionService();
-
-    Universal universal = this.getUniversal();
-    GeoObjectType type = service.universalToGeoObjectType(this.getUniversal());
-
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
-    ValueQuery vQuery = query.getValueQuery();
-
-    ValueQuery outer = new ValueQuery(new QueryFactory());
-    outer.setDependentPreSqlStatements(vQuery.getDependentPreSqlStatements());
-    outer.FROM("(" + vQuery.getSQLWithoutDependentPreSql() + ")", "original_query");
-
-    for (Selectable s : vQuery.getSelectableRefs())
-    {
-      Selectable c = outer.aSQLCharacter(s.getColumnAlias(), s.getColumnAlias());
-
-      outer.SELECT(c);
-    }
-
-    return outer;
-  }
-
-  public JsonArray getHierarchiesAsJson()
-  {
-    if (this.getHierarchies() != null && this.getHierarchies().length() > 0)
-    {
-      return new JsonParser().parse(this.getHierarchies()).getAsJsonArray();
-    }
-
-    return new JsonArray();
   }
 
   public JsonObject toJSON()

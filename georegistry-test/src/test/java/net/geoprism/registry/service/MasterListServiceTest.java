@@ -148,6 +148,42 @@ public class MasterListServiceTest
 
   @Test
   @Request
+  public void testPublishEntity()
+  {
+    JsonObject json = getJson(testData.STATE);
+
+    MasterList test = MasterList.create(json);
+
+    try
+    {
+      test.publish();
+    }
+    finally
+    {
+      test.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testPublishLeaf()
+  {
+    JsonObject json = getJson(testData.DISTRICT);
+
+    MasterList test = MasterList.create(json);
+
+    try
+    {
+      test.publish();
+    }
+    finally
+    {
+      test.delete();
+    }
+  }
+
+  @Test
+  @Request
   public void testCreateMultiple()
   {
     JsonObject json = getJson(testData.STATE);
