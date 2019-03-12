@@ -1,0 +1,76 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdUtil name="net.geoprism.registry.GeoRegistryUtil">
+        <create>
+          <mdMethod name="exportShapefile" label="Export Shapefile" returnType="java.io.InputStream" static="true">
+            <mdParameter name="code" label="Code" order="0" type="java.lang.String" />
+            <mdParameter name="hierarchyCode" label="Hierarchy Code" order="1" type="java.lang.String" />
+          </mdMethod>          
+          <mdMethod name="exportSpreadsheet" label="Export Spreadsheet" returnType="java.io.InputStream" static="true">
+            <mdParameter name="code" label="Code" order="0" type="java.lang.String" />
+            <mdParameter name="hierarchyCode" label="Hierarchy Code" order="1" type="java.lang.String" />
+          </mdMethod>          
+        </create>
+      </mdUtil>
+    </update>
+    <permissions>
+      <method methodName="exportShapefile" type="net.geoprism.registry.GeoRegistryUtil">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <method methodName="exportSpreadsheet" type="net.geoprism.registry.GeoRegistryUtil">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="exportShapefile">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="exportSpreadsheet">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="exportShapefile">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="exportSpreadsheet">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="exportShapefile">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="exportSpreadsheet">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="exportShapefile">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="exportSpreadsheet">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+  </undoIt>
+</version>

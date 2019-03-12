@@ -25,7 +25,7 @@
   </doIt>
   <undoIt>
     <delete>
-      <object type="com.runwaysdk.system.metadata.MdMethod" key="net.geoprism.registry.AttributeHierarhcy.createHierarchyType" ></object>
+      <object type="com.runwaysdk.system.metadata.MdMethod" key="net.geoprism.registry.AttributeHierarchy.createHierarchyType" ></object>
     </delete>
   </undoIt>
 </version>

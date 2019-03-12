@@ -8,7 +8,7 @@ import org.commongeoregistry.adapter.HttpRegistryClient;
 import org.commongeoregistry.adapter.id.AdapterIdServiceIF;
 import org.commongeoregistry.adapter.id.EmptyIdCacheException;
 
-import net.geoprism.georegistry.RegistryController;
+import net.geoprism.registry.RegistryController;
 
 public class TestRegistryClientIdService implements AdapterIdServiceIF
 {

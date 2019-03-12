@@ -23,6 +23,8 @@ import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-
 import { SelectFieldComponent } from './core/form-fields/select-field/select-field.component';
 import { InputFieldComponent } from './core/form-fields/input-field/input-field.component';
 import { ValidationComponent } from './core/form-fields/base/validation.component';
+import { LocalizedInputComponent } from './core/form-fields/localized-input/localized-input.component';
+import { LocalizedTextComponent } from './core/form-fields/localized-text/localized-text.component';
 
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
@@ -50,6 +52,8 @@ import { EditTermOptionInputComponent } from './data/hierarchy/geoobjecttype-man
 import { ManageTermOptionsComponent } from './data/hierarchy/geoobjecttype-management/manage-term-options.component';
 import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
+import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
+import { PublishModalComponent } from './data/master-list/publish-modal.component';
 
 import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
@@ -60,6 +64,8 @@ import { StandAloneChangeRequestComponent } from './data/change-request/stand-al
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
+import { ToEpochDateTimePipe } from './data/change-request/to-epoch-date-time.pipe';
+import { DatePipe } from '@angular/common';
 
 import { LocalizeComponent } from './core/localize/localize.component';
 import { LocalizePipe } from './core/localize/localize.pipe';
@@ -151,9 +157,16 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     SelectFieldComponent,
     InputFieldComponent,
     ValidationComponent,
+    LocalizedInputComponent,    
+    LocalizedTextComponent,    
     ChangeRequestComponent,
     StandAloneChangeRequestComponent,
     GeoObjectAttributeExcludesPipe,
+    ToEpochDateTimePipe,
+    
+    // Master List screens
+    MasterListManagerComponent,
+    PublishModalComponent,
     
     // Routing components
     routedComponents
@@ -170,7 +183,9 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     LocalizationService,
     ModalStepIndicatorService,
     GeoObjectTypeManagementService,
-    RegistryService
+    RegistryService,
+    DatePipe,
+    ToEpochDateTimePipe
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [
@@ -194,11 +209,9 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ModalStepIndicatorComponent,
       ManageTermOptionsComponent,
       ErrorMessageComponent,
-      BooleanFieldComponent,
-      SelectFieldComponent,
-      InputFieldComponent,
       ChangeRequestComponent,
-      StandAloneChangeRequestComponent
+      StandAloneChangeRequestComponent,
+      PublishModalComponent
   ]        
 })
 export class CgrAppModule { }

@@ -20,7 +20,7 @@ import com.runwaysdk.mvc.AbstractRestResponse;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
-import net.geoprism.georegistry.RegistryController;
+import net.geoprism.registry.RegistryController;
 
 public class TestRegistryAdapterClient extends RegistryAdapter
 {
@@ -33,7 +33,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   public TestRegistryAdapterClient()
   {
     super(new TestRegistryClientIdService());
-    ((TestRegistryClientIdService)this.getIdSerivce()).setClient(this);
+    ((TestRegistryClientIdService)this.getIdService()).setClient(this);
     
     this.controller = new RegistryController();
   }

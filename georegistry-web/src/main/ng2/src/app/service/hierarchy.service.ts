@@ -19,14 +19,8 @@
 
 import { Injectable } from '@angular/core';
 import { Headers, Http, Response, URLSearchParams } from '@angular/http';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
-
-import { Observable } from 'rxjs/Observable';
 
 import { HierarchyType } from '../data/hierarchy/hierarchy';
 import { TreeEntity } from '../model/registry';
@@ -34,18 +28,8 @@ import { EventService } from '../event/event.service';
 
 declare var acp: any;
 
-
-//import { EventService, BasicService } from '../core/service/core.service';
-//import { EventHttpService } from '../../core/service/event-http.service';
-
-import { TreeNode } from 'angular-tree-component';
-
-declare var acp: any;
-
 @Injectable()
 export class HierarchyService {
-
-    baseUrl: string = acp + '/cgr/manage';
 
     constructor( private http: Http, private eventService: EventService ) { }
 

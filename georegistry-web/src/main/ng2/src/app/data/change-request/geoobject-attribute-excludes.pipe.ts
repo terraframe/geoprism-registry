@@ -10,6 +10,6 @@ export class GeoObjectAttributeExcludesPipe implements PipeTransform {
             return items;
         }
        
-        return items.filter(item => filter.indexOf(item) === -1)
+        return items.filter(item => filter.indexOf(item.code) === -1)
     }
 }

@@ -10,3 +10,11 @@
 .modal-form .text input[type="text"]:disabled {
     background: #eee;
 }
+
+li.list-group-item {
+    font-size: 18px;
+}
+
+.warning-text{
+    color: orange;
+}

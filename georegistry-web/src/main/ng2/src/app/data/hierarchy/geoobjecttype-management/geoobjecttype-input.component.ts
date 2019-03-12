@@ -24,6 +24,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
     @Input() geoObjectType: GeoObjectType;
     @Output() geoObjectTypeChange:  EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
     editGeoObjectType: GeoObjectType;
+    
     @Input('setGeoObjectType') 
     set in(geoObjectType: GeoObjectType){
         if(geoObjectType){
@@ -65,11 +66,11 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     update(): void {
-        this.registryService.updateGeoObjectType( this.editGeoObjectType ).then( data => {
+        this.registryService.updateGeoObjectType( this.editGeoObjectType ).then( geoObjectType => {
 
             // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
             // so that the change can be updated in the template
-            this.geoObjectTypeChange.emit(this.geoObjectType);
+            this.geoObjectTypeChange.emit(geoObjectType);
 
             this.close();
 
@@ -88,7 +89,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     isValid(): boolean {
-        // if(this.attribute.code && this.attribute.localizedLabel) {
+        // if(this.attribute.code && this.attribute.label) {
 
         //     // if code has a space
         //     if(this.attribute.code.indexOf(" ") !== -1){
@@ -96,7 +97,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
         //     }
 
         //     // If label is only spaces
-        //     if(this.attribute.localizedLabel.replace(/\s/g, '').length === 0) {
+        //     if(this.attribute.label.replace(/\s/g, '').length === 0) {
         //         return false
         //     }
 

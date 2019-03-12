@@ -16,13 +16,6 @@
         </attributeStruct>
       </object>
     
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.pagetitle">
-        <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="localization-manager.pagetitle" />
-        <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Localization Manager" />
-        </attributeStruct>
-      </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.menu">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="localization-manager.menu" />

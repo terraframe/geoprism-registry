@@ -18,7 +18,7 @@ export class Location {
 
 export class Term {
     code: string;
-    localizedLabel: string;
+    label: string;
 }
 
 export class TermProblem {

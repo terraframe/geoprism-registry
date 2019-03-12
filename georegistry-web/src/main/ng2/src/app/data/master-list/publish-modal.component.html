@@ -1,0 +1,189 @@
+
+<div class="modal-body">
+  <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+  <div class="text-center">
+    <h2>
+      <localize key="type.publish.title"></localize>
+    </h2>
+    <p class="lead">
+      <localize key="type.publish.description"></localize>
+    </p>
+  </div>
+  <div class="col-md-12 order-md-1">
+    <form #form="ngForm">
+      <div class="form-group row" *ngFor="let localeValue of master.displayLabel.localeValues">
+        <label class="col-sm-2">
+          <localize key="masterlist.label"></localize>
+          ({{localeValue.locale}})
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [required]="localeValue.locale === 'defaultLocale'" />
+        </div>
+      </div>
+      <div class="form-group row" *ngIf="types">
+        <label class="col-md-2" for="typeCode">
+          <localize key="io.geoObjectType"></localize>
+        </label>
+        <div class="col-md-6">
+          <select id="code" name="code" class="select-area" [(ngModel)]="master.typeCode" (change)="onChange($event)" required>
+            <option></option>
+            <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.code"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.code" name="code" type="text" class="form-control" required/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.representativityDate"></localize>
+        </label>
+        <div class="col-md-2">
+          <input [(ngModel)]="master.representativityDate" name="representativityDate" type="date" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.publishDate"></localize>
+        </label>
+        <div class="col-md-2">
+          <input [(ngModel)]="master.publishDate" name="publishDate" type="date" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.listAbstract"></localize>
+        </label>
+        <div class="col-md-6">
+          <textarea [(ngModel)]="master.listAbstract" name="listAbstract" class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.process"></localize>
+        </label>
+        <div class="col-md-6">
+          <textarea [(ngModel)]="master.process" name="process" class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.progress"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.progress" name="progress" type="text" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.accessConstraints"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.accessConstraints" name="accessConstraints" type="text" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.useConstraints"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.useConstraints" name="useConstraints" type="text" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.acknowledgements"></localize>
+        </label>
+        <div class="col-md-6">
+          <textarea [(ngModel)]="master.acknowledgements" name="acknowledgements" class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.disclaimer"></localize>
+        </label>
+        <div class="col-md-6">
+          <textarea [(ngModel)]="master.disclaimer" name="disclaimer" class="form-control"></textarea>
+        </div>
+      </div>
+      <hr />
+      <div class="form-group row">
+        <h4 class="col-sm-2">
+          <localize key="masterlist.contact"></localize>
+        </h4>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.contactName"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.contactName" name="contactName" type="text" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.organization"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.organization" name="organization" type="text" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.telephoneNumber"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.telephoneNumber" name="telephoneNumber" type="text" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-2">
+          <localize key="masterlist.email"></localize>
+        </label>
+        <div class="col-md-6">
+          <input [(ngModel)]="master.email" name="email" type="email" class="form-control" />
+        </div>
+      </div>
+      <hr />
+      <div class="form-group row" *ngIf="master.hierarchies.length > 0">
+        <h4 class="col-sm-2">
+          <localize key="masterlist.parents"></localize>
+        </h4>
+      </div>
+      <div *ngFor="let hierarchy of master.hierarchies">
+        <div class="form-group row">
+          <label class="col-sm-2"> {{hierarchy.label}} </label>
+          <div class="col-md-6">
+            <div class="row" *ngFor="let parent of hierarchy.parents">
+              <div class="col-md-2">
+                <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" />
+              </div>
+              <div class="col-md-6">{{parent.label}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-sm-8 text-right">
+          <button type="button" (click)="onCancel()" class="btn" role="button">
+            <span class="ui-button-text">
+              <localize key="io.cancel"></localize>
+            </span>
+          </button>
+          <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+            <span class="ui-button-text">
+              <localize key="io.ok"></localize>
+            </span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

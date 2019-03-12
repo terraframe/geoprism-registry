@@ -92,13 +92,13 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
     setAttribute(type:string): void {
         if(type === 'term'){
-            this.newAttribute = new AttributeTerm("", type, "", "", false);
+            this.newAttribute = new AttributeTerm("", type, this.localizeService.create(), this.localizeService.create(), false, false, false);
         }
-        else if(type === 'decimal') {
-            this.newAttribute = new AttributeDecimal("", type, "", "", false);
+        else if(type === 'float') {
+            this.newAttribute = new AttributeDecimal("", type, this.localizeService.create(), this.localizeService.create(), false, false, false);
         }
         else{
-            this.newAttribute = new Attribute("", type, "", "", false);
+            this.newAttribute = new Attribute("", type, this.localizeService.create(), this.localizeService.create(), false, false, false);
         }
 
         this.attributeInputComponent.animate();

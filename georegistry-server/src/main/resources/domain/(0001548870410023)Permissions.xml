@@ -335,10 +335,10 @@
           </mdBusinessPermission>
           
           <!-- Geo Object permissions -->
-          <mdBusinessPermission type="net.geoprism.georegistry.IdRecord">
+          <mdBusinessPermission type="net.geoprism.registry.IdRecord">
             <operation name="ALL" />
           </mdBusinessPermission>
-		  <mdRelationshipPermission type="net.geoprism.registry.AttributeHierarhcy">
+		  <mdRelationshipPermission type="net.geoprism.registry.AttributeHierarchy">
 		     <operation name="ALL" />
 		  </mdRelationshipPermission>          
 		  

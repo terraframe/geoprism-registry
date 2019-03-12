@@ -14,7 +14,7 @@
         <hr>
         <ul class="list-group">
           <li class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
-            <i class="fa fa-sitemap"></i> {{hierarchy.localizedLabel}} <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
+            <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
           </li>
         </ul>
         
@@ -24,7 +24,7 @@
       </div>
       
       <div class="col-md-4">
-        <h3 *ngIf="currentHierarchy"> <localize key="hierarchy.current.management.panel.title"></localize> {{currentHierarchy.localizedLabel}}</h3>
+        <h3 *ngIf="currentHierarchy"> <localize key="hierarchy.current.management.panel.title"></localize> {{currentHierarchy.label.localizedValue}}</h3>
 <!--         <h3> Manage </h3> -->
         <hr>
         <div *ngIf="nodes.length > 0" class="tree">
@@ -43,7 +43,7 @@
         <ul class="list-group">
           <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
           <li class="list-group-item" *ngFor="let type of geoObjectTypes">
-            {{type.localizedLabel}} <i *ngIf="type.isLeaf === true" class="fa fa-leaf" aria-hidden="true"></i> 
+            {{type.label.localizedValue}} <i *ngIf="type.isLeaf === true" class="fa fa-leaf" aria-hidden="true"></i> 
             <i class="fa fa-pencil pull-right" (click)="manageGeoObjectType(type)"> </i> 
             <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
           </li>
@@ -76,7 +76,7 @@
 <!--       Edit {{item?.data.name}} -->
 <!--     </ng-template> -->
     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>  {{item?.data.label}}
+      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>  {{item?.data.label.localizedValue}}
     </ng-template>
   </context-menu>
 
