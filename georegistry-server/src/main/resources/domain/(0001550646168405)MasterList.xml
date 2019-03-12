@@ -1,0 +1,66 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.MasterList" label="Master List" generateController="false">
+        <attributes>
+          <reference name="mdBusiness" type="com.runwaysdk.system.metadata.MdBusiness" required="true" label="MdTable" />
+          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" required="true" label="Universal" />
+          <localChar name="displayLabel" label="Label" required="true" />
+          <char name="code" label="Code" size="255" required="true" indexType="unique index" />
+          <date name="representativityDate" label="Representativity Date" />
+          <date name="publishDate" label="Publish Date" />
+          <text name="listAbstract" label="Abstract" />
+          <text name="process" label="Process" />
+          <text name="progress" label="Progress" />
+          <text name="accessConstraints" label="Access Constraints" />
+          <text name="useConstraints" label="Use Constraints" />
+          <text name="acknowledgements" label="Acknowledgements" />
+          <text name="disclaimer" label="Disclaimer" />
+          <text name="contactName" label="Contact name" />
+          <text name="organization" label="Organization" />
+          <text name="telephoneNumber" label="Telephone Number" />
+          <text name="email" label="Email Address" />
+          <text name="hierarchies" label="Hierarchies" />
+        </attributes>
+      </mdBusiness>
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterList">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterList">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterList">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterList">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.MasterList" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+    </delete>
+  </undoIt>
+</version>

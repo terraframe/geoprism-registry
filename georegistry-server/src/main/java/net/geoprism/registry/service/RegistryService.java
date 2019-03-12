@@ -47,6 +47,7 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.GeoObjectIterator;
@@ -1056,11 +1057,11 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getHierarchiesForType(String sessionId, String code)
+  public JsonArray getHierarchiesForType(String sessionId, String code, Boolean includeTypes)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(code).get();
 
-    return ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType);
+    return ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, includeTypes);
   }
 
   @Request(RequestType.SESSION)

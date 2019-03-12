@@ -60,7 +60,7 @@ public class ExcelService
       ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
       reader.process(new FileInputStream(file));
 
-      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType);
+      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
 
       JsonObject object = new JsonObject();
       object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));

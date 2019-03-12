@@ -6,6 +6,8 @@ public interface RegistryConstants
 
   public static final String UNIVERSAL_MDBUSINESS_PACKAGE     = REGISTRY_PACKAGE + ".universal";
 
+  public static final String TABLE_PACKAGE                    = REGISTRY_PACKAGE + ".table";
+
   public static final String UNIVERSAL_RELATIONSHIP_POST      = "Metadata";
 
   public static final String GEO_ENTITY_ATTRIBUTE_NAME        = "geoEntity";

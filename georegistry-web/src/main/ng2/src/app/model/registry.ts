@@ -131,3 +131,24 @@ export class ManageGeoObjectTypeModalState {
     attribute: any;
     termOption: any;
 }
+
+export class MasterList {
+    oid: string;
+    typeCode: string;
+    displayLabel: LocalizedValue;
+    code: string;
+    representativityDate: Date;
+    publishDate: Date;
+    listAbstract: string;
+    process: string;
+    progress: string;
+    accessConstraints: string;
+    useConstraints: string;
+    acknowledgements: string;
+    disclaimer: string;
+    contactName: string;
+    organization: string;
+    telephoneNumber: string;
+    email: string;
+    hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+}

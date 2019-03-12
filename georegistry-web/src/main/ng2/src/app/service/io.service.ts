@@ -105,9 +105,10 @@ export class IOService {
             } )
     }
 
-    getHierarchiesForType( code: string ): Promise<{ label: string, code: string }[]> {
+    getHierarchiesForType( code: string, includeTypes: boolean ): Promise<{ label: string, code: string, parents: { label: string, code: string }[] }[]> {
         let params: URLSearchParams = new URLSearchParams();
         params.set( 'code', code );
+        params.set( 'includeTypes', includeTypes.toString() );
 
         this.eventService.start();
 
@@ -118,7 +119,7 @@ export class IOService {
             } )
             .toPromise()
             .then( response => {
-                return response.json() as { label: string, code: string }[];
+                return response.json() as { label: string, code: string, parents: { label: string, code: string }[] }[];
             } )
     }
 

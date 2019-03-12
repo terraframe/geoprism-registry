@@ -925,22 +925,47 @@ public class AdapterUtilities
     return mdBusinessDAOIF.definesAttribute(attributeName);
   }
 
-  public JsonArray getHierarchiesForType(GeoObjectType geoObjectType)
+  public JsonArray getHierarchiesForType(GeoObjectType geoObjectType, Boolean includeTypes)
   {
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
+    ConversionService service = ServiceFactory.getConversionService();
+
+    Universal universal = service.geoObjectTypeToUniversal(geoObjectType);
     HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
+    Universal root = Universal.getRoot();
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      MdTermRelationship mdTerm = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
-      List<? extends Business> parents = universal.getParents(mdTerm.definesType()).getAll();
+      MdTermRelationship mdTerm = service.existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+
+      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, universal, mdTerm.definesType());
 
       if (parents.size() > 0)
       {
         JsonObject object = new JsonObject();
         object.addProperty("code", hierarchyType.getCode());
         object.addProperty("label", hierarchyType.getLabel().getValue());
+
+        if (includeTypes)
+        {
+          JsonArray pArray = new JsonArray();
+
+          for (Object parent : parents)
+          {
+            GeoObjectType pType = service.universalToGeoObjectType((Universal) parent);
+
+            if (!pType.getCode().equals(geoObjectType.getCode()))
+            {
+              JsonObject pObject = new JsonObject();
+              pObject.addProperty("code", pType.getCode());
+              pObject.addProperty("label", pType.getLabel().getValue());
+
+              pArray.add(pObject);
+            }
+          }
+
+          object.add("parents", pArray);
+        }
 
         hierarchies.add(object);
       }

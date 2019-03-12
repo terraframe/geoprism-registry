@@ -52,6 +52,8 @@ import { EditTermOptionInputComponent } from './data/hierarchy/geoobjecttype-man
 import { ManageTermOptionsComponent } from './data/hierarchy/geoobjecttype-management/manage-term-options.component';
 import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
+import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
+import { PublishModalComponent } from './data/master-list/publish-modal.component';
 
 import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
@@ -162,6 +164,10 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     
+    // Master List screens
+    MasterListManagerComponent,
+    PublishModalComponent,
+    
     // Routing components
     routedComponents
   ],
@@ -204,7 +210,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ManageTermOptionsComponent,
       ErrorMessageComponent,
       ChangeRequestComponent,
-      StandAloneChangeRequestComponent
+      StandAloneChangeRequestComponent,
+      PublishModalComponent
   ]        
 })
 export class CgrAppModule { }

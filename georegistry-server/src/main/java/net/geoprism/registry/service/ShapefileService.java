@@ -74,7 +74,7 @@ public class ShapefileService
 
       if (dbfs.length > 0)
       {
-        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType);
+        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
 
         JsonObject object = new JsonObject();
         object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));

@@ -10,6 +10,7 @@ import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
 import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
+import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 
 import { AdminGuard, MaintainerGuard, ContributerGuard } from './core/auth/admin.guard';
 
@@ -42,6 +43,11 @@ const routes: Routes = [
     {
         path: 'crtable',
         component: RegistryViewerComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'master-lists',
+        component: MasterListManagerComponent,
         canActivate: [MaintainerGuard]
     },
     {

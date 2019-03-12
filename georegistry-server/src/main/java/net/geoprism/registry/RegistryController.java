@@ -427,7 +427,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
   public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types)
   {
-    
+
     String[] aTypes = null;
     if (types != null)
     {
@@ -688,9 +688,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-hierarchies")
-  public ResponseIF getHierarchiesForType(ClientRequestIF request, @RequestParamter(name = "code") String code)
+  public ResponseIF getHierarchiesForType(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "includeTypes") Boolean includeTypes)
   {
-    JsonArray response = this.registryService.getHierarchiesForType(request.getSessionId(), code);
+    JsonArray response = this.registryService.getHierarchiesForType(request.getSessionId(), code, includeTypes);
 
     return new RestBodyResponse(response);
   }
@@ -713,17 +713,12 @@ public class RegistryController
   }
 
   /**
-   * Returns an array of {@link GeoOjectType} objects that define the given list
-   * of types.
-   *
-   * @pre @post
-   *
-   * @param types
-   *          A serialized json array of GeoObjectType codes. If blank then all
-   *          GeoObjectType objects are returned.
-   *
-   * @returns @throws
-   **/
+   * Returns a map with a list of all the types, all of the hierarchies, and all
+   * of the locales currently installed in the system
+   * 
+   * @param request
+   * @return
+   */
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "init")
   public ResponseIF init(ClientRequestIF request)
   {
@@ -752,5 +747,4 @@ public class RegistryController
 
     return new RestBodyResponse(response);
   }
-
 }

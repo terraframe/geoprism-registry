@@ -52,7 +52,13 @@ import com.runwaysdk.util.ClasspathResource;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
 import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
@@ -60,11 +66,6 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.WMSService;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
-import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
-import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.GeoObjectStatus;
 
 abstract public class TestDataSet
 {
@@ -1072,6 +1073,8 @@ abstract public class TestDataSet
       {
         System.out.println("Deleting Universal [" + code + "].");
       }
+
+      MasterList.deleteAll(uni);
 
       uni.delete();
     }

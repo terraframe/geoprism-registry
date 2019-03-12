@@ -22,7 +22,7 @@ import { Headers, Http, Response, URLSearchParams } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term } from '../model/registry';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../data/hierarchy/hierarchy';
 import { EventService } from '../event/event.service';
 
@@ -300,4 +300,50 @@ export class RegistryService {
                 return response.json() as GeoObject;
             } )
     }
+
+    getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string }[] }> {
+        let params: URLSearchParams = new URLSearchParams();
+
+        return this.http
+            .get( acp + '/master-list/list-all', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response.json() as { locales: string[], lists: { label: string, oid: string }[] };
+            } )
+    }
+
+    createMasterList( list: MasterList ): Promise<MasterList> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/master-list/create', JSON.stringify( { list: list } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as MasterList;
+            } )
+    }
+
+    deleteMasterList( oid: string ): Promise<Response> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/master-list/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+    }
+
+
 }
