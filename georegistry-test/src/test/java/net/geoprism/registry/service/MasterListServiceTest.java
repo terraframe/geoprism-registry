@@ -169,7 +169,7 @@ public class MasterListServiceTest
   @Request
   public void testPublishLeaf()
   {
-    JsonObject json = getJson(testData.DISTRICT);
+    JsonObject json = getJson(testData.DISTRICT, testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 

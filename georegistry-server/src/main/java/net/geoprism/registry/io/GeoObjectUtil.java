@@ -10,6 +10,7 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.BusinessFacade;
@@ -28,10 +29,12 @@ import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayL
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
+import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTerm;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
+import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectUtil
@@ -67,7 +70,61 @@ public class GeoObjectUtil
 
     if (object.getType().isLeaf())
     {
-      throw new java.lang.UnsupportedOperationException();
+      MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchy);
+      MdTermRelationship universalRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchy);
+
+      GeoObjectType type = object.getType();
+      Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(type);
+      MdBusiness mdBusiness = universal.getMdBusiness();
+
+      Universal parentUniversal = (Universal) universal.getParents(universalRelationship.definesType()).getAll().get(0);
+      String refAttributeName = ConversionService.getParentReferenceAttributeName(hierarchy.getCode(), parentUniversal);
+
+      String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
+      String typeName = DatabaseAllPathsStrategy.getTypeName(MdTermRelationshipDAO.get(mdTermRelationship.getOid()));
+
+      ValueQuery vQuery = new ValueQuery(new QueryFactory());
+      BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
+      GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
+      GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
+      UniversalQuery universalQuery = new UniversalQuery(vQuery);
+      BusinessQuery leafQuery = new BusinessQuery(vQuery, mdBusiness.definesType());
+
+      GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
+
+      vQuery.SELECT(parentQuery.getGeoId());
+      vQuery.SELECT(universalQuery.getKeyName());
+      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
+
+      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+      for (Locale locale : locales)
+      {
+        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+      }
+
+      vQuery.AND(leafQuery.get(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
+      vQuery.AND(leafQuery.aReference(refAttributeName).EQ(childQuery));
+      vQuery.AND(parentQuery.getUniversal().EQ(universalQuery));
+      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.PARENTTERM).EQ(parentQuery));
+      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.CHILDTERM).EQ(childQuery));
+
+      OIterator<ValueObject> it = vQuery.getIterator();
+
+      try
+      {
+        while (it.hasNext())
+        {
+          ValueObject vObject = it.next();
+          String key = vObject.getValue(Universal.KEYNAME);
+
+          map.put(key, vObject);
+        }
+      }
+      finally
+      {
+        it.close();
+      }
     }
     else
     {
@@ -81,7 +138,7 @@ public class GeoObjectUtil
       GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
       GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
       UniversalQuery universalQuery = new UniversalQuery(vQuery);
-      
+
       GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
 
       vQuery.SELECT(parentQuery.getGeoId());
