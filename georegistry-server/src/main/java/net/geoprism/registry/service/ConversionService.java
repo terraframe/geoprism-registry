@@ -36,7 +36,6 @@ import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
-import com.runwaysdk.constants.MdAttributeLocalCharacterInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
@@ -247,7 +246,22 @@ public class ConversionService
         struct.setValue(locale, label.getValue(locale));
       }
     }
+  }
 
+  public void populate(LocalStruct struct, LocalizedValue label, String suffix)
+  {
+    struct.setValue(label.getValue());
+    struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    for (Locale locale : locales)
+    {
+      if (label.contains(locale))
+      {
+        struct.setValue(locale, label.getValue(locale) + suffix);
+      }
+    }
   }
 
   /**
@@ -641,16 +655,7 @@ public class ConversionService
    */
   private boolean convertMdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
   {
-    if (mdAttribute.isSystem() 
-        || mdAttribute instanceof MdAttributeStructDAOIF 
-        || mdAttribute instanceof MdAttributeEncryptionDAOIF 
-        || mdAttribute instanceof MdAttributeIndicatorDAOIF 
-        || mdAttribute instanceof MdAttributeBlobDAOIF 
-        || mdAttribute instanceof MdAttributeGeometryDAOIF
-        || mdAttribute instanceof MdAttributeFileDAOIF 
-        || mdAttribute instanceof MdAttributeTimeDAOIF 
-        || mdAttribute instanceof MdAttributeUUIDDAOIF 
-        || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
+    if (mdAttribute.isSystem() || mdAttribute instanceof MdAttributeStructDAOIF || mdAttribute instanceof MdAttributeEncryptionDAOIF || mdAttribute instanceof MdAttributeIndicatorDAOIF || mdAttribute instanceof MdAttributeBlobDAOIF || mdAttribute instanceof MdAttributeGeometryDAOIF || mdAttribute instanceof MdAttributeFileDAOIF || mdAttribute instanceof MdAttributeTimeDAOIF || mdAttribute instanceof MdAttributeUUIDDAOIF || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
     {
       return false;
     }
@@ -1011,10 +1016,10 @@ public class ConversionService
     }
 
     geoObj.setCode(business.getValue(DefaultAttribute.CODE.getName()));
-    
-    String localizedValue = ((AttributeLocal)BusinessFacade.getEntityDAO(business).getAttributeIF(DefaultAttribute.DISPLAY_LABEL.getName())).getValue(Session.getCurrentLocale());
+
+    String localizedValue = ( (AttributeLocal) BusinessFacade.getEntityDAO(business).getAttributeIF(DefaultAttribute.DISPLAY_LABEL.getName()) ).getValue(Session.getCurrentLocale());
     geoObj.getDisplayLabel().setValue(localizedValue);
-    
+
     geoObj.setGeometry((Geometry) business.getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
     return geoObj;
