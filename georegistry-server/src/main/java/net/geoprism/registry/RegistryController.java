@@ -300,29 +300,20 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_CHILDREN)
   public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE) Boolean recursive)
   {
-
-    JSONArray childrenTypesJSON = null;
-    String[] childrenTypesArray = null;
-    try
+    String[] aChildTypes = null;
+    
+    if (childrenTypes != null)
     {
-      childrenTypesJSON = new JSONArray(childrenTypes);
-    }
-    catch (JSONException e)
-    {
-      // TODO Replace with more specific exception
-      throw new ProgrammingErrorException(childrenTypes.concat(" can't be parsed."), e);
-    }
-
-    if (childrenTypesJSON != null)
-    {
-      childrenTypesArray = new String[childrenTypesJSON.length()];
-      for (int i = 0; i < childrenTypesJSON.length(); i++)
+      JSONArray jaChildTypes = new JSONArray(childrenTypes);
+      
+      aChildTypes = new String[jaChildTypes.length()];
+      for (int i = 0; i < jaChildTypes.length(); i++)
       {
-        childrenTypesArray[i] = childrenTypesJSON.getString(i);
+        aChildTypes[i] = jaChildTypes.getString(i);
       }
     }
-
-    TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentId, parentTypeCode, childrenTypesArray, recursive);
+    
+    TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentId, parentTypeCode, aChildTypes, recursive);
 
     return new RestBodyResponse(tn.toJSON());
   }
@@ -345,12 +336,17 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_PARENTS)
   public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE) Boolean recursive)
   {
-    JSONArray jaParentTypes = new JSONArray(parentTypes);
-
-    String[] aParentTypes = new String[jaParentTypes.length()];
-    for (int i = 0; i < jaParentTypes.length(); i++)
+    String[] aParentTypes = null;
+    
+    if (parentTypes != null)
     {
-      aParentTypes[i] = jaParentTypes.getString(i);
+      JSONArray jaParentTypes = new JSONArray(parentTypes);
+  
+      aParentTypes = new String[jaParentTypes.length()];
+      for (int i = 0; i < jaParentTypes.length(); i++)
+      {
+        aParentTypes[i] = jaParentTypes.getString(i);
+      }
     }
 
     TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childId, childTypeCode, aParentTypes, recursive);

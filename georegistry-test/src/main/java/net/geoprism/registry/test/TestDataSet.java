@@ -59,6 +59,7 @@ import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.service.ConversionService;
+import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.WMSService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
@@ -73,6 +74,10 @@ abstract public class TestDataSet
   protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos     = new ArrayList<TestGeoObjectInfo>();
 
   protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos = new ArrayList<TestGeoObjectTypeInfo>();
+  
+  protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfosExtras     = new ArrayList<TestGeoObjectInfo>();
+
+  protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfosExtras = new ArrayList<TestGeoObjectTypeInfo>();
 
   public TestRegistryAdapterClient           adapter;
 
@@ -92,6 +97,10 @@ abstract public class TestDataSet
                                                                                                                 // necessary
 
   protected boolean                          includeData;
+  
+  public static final String ADMIN_USER_NAME = "admin";
+  
+  public static final String ADMIN_PASSWORD = "_nm8P4gfdWxGqNRQ#8";
 
   abstract public String getTestDataKey();
 
@@ -101,37 +110,76 @@ abstract public class TestDataSet
 
   public ArrayList<TestGeoObjectInfo> getManagedGeoObjects()
   {
-    return managedGeoObjectInfos;
+    ArrayList<TestGeoObjectInfo> all = new ArrayList<TestGeoObjectInfo>();
+    
+    all.addAll(managedGeoObjectInfos);
+    all.addAll(managedGeoObjectInfosExtras);
+    
+    return all;
   }
 
   public ArrayList<TestGeoObjectTypeInfo> getManagedGeoObjectTypes()
   {
-    return managedGeoObjectTypeInfos;
+    ArrayList<TestGeoObjectTypeInfo> all = new ArrayList<TestGeoObjectTypeInfo>();
+    
+    all.addAll(managedGeoObjectTypeInfos);
+    all.addAll(managedGeoObjectTypeInfosExtras);
+    
+    return all;
   }
 
   @Request
   public void setUp()
   {
+    setUpClass();
+    
+    setUpTest();
+  }
+  
+  @Request
+  public void cleanUp()
+  {
+    cleanUpClass();
+    
+    cleanUpTest();
+  }
+  
+  @Request
+  public void setUpClass()
+  {
     // TODO : If you move this call into the 'setupInTrans' method it exposes a
     // bug in Runway which relates to transactions and MdAttributeLocalStructs
-    cleanUp();
-
-    setUpInTrans();
-
-    adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
-    adminClientRequest = adminSession.getRequest();
+    cleanUpClass();
+    
+    setUpClassInTrans();
   }
-
   @Transaction
-  protected void setUpInTrans()
+  protected void setUpClassInTrans()
   {
-    // rebuildAllpaths();
-
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
       uni.apply(this.geometryType);
     }
-
+    
+    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
+    adminClientRequest = adminSession.getRequest();
+  }
+  
+  @Request
+  public void setUpTest()
+  {
+    cleanUpTest();
+    setUpTestInTrans();
+    
+    RegistryService.getInstance().refreshMetadataCache();
+    
+    adapter.setClientRequest(this.adminClientRequest);
+    adapter.refreshMetadataCache();
+    adapter.getIdService().populate(1000);
+  }
+  @Transaction
+  protected void setUpTestInTrans()
+  {
     if (this.includeData)
     {
       for (TestGeoObjectInfo geo : managedGeoObjectInfos)
@@ -139,6 +187,49 @@ abstract public class TestDataSet
         geo.apply();
       }
     }
+  }
+  
+  @Request
+  public void cleanUpClass()
+  {
+    cleanUpClassInTrans();
+  }
+  @Transaction
+  protected void cleanUpClassInTrans()
+  {
+    for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfos)
+    {
+      got.delete();
+    }
+    
+    if (adminSession != null)
+    {
+      adminSession.logout();
+    }
+  }
+  
+  @Request
+  public void cleanUpTest()
+  {
+    cleanUpTestInTrans();
+  }
+  @Transaction
+  protected void cleanUpTestInTrans()
+  {
+    for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfosExtras)
+    {
+      got.delete();
+    }
+    
+    for (TestGeoObjectInfo go : this.getManagedGeoObjects())
+    {
+      go.delete();
+    }
+    
+    deleteAllActions();
+    deleteAllChangeRequests();
+
+    managedGeoObjectInfosExtras = new ArrayList<TestGeoObjectInfo>();
   }
 
   private void rebuildAllpaths()
@@ -160,34 +251,6 @@ abstract public class TestDataSet
     if (new ClassifierIsARelationshipAllPathsTableQuery(new QueryFactory()).getCount() == 0)
     {
       Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
-    }
-  }
-
-  @Request
-  public void cleanUp()
-  {
-    cleanUpInTrans();
-  }
-
-  @Transaction
-  public void cleanUpInTrans()
-  {
-    for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfos)
-    {
-      got.delete();
-    }
-
-    for (TestGeoObjectInfo go : managedGeoObjectInfos)
-    {
-      go.delete();
-    }
-
-    deleteAllActions();
-    deleteAllChangeRequests();
-
-    if (adminSession != null)
-    {
-      adminSession.logout();
     }
   }
 
@@ -245,7 +308,7 @@ abstract public class TestDataSet
 
     info.delete();
 
-    this.managedGeoObjectInfos.add(info);
+    this.managedGeoObjectInfosExtras.add(info);
 
     return info;
   }
@@ -256,7 +319,7 @@ abstract public class TestDataSet
 
     info.delete();
 
-    this.managedGeoObjectInfos.add(info);
+    this.managedGeoObjectInfosExtras.add(info);
 
     return info;
   }
@@ -267,7 +330,7 @@ abstract public class TestDataSet
 
     info.delete();
 
-    this.managedGeoObjectTypeInfos.add(info);
+    this.managedGeoObjectTypeInfosExtras.add(info);
 
     return info;
   }
@@ -613,7 +676,7 @@ abstract public class TestDataSet
       int numChildren = 0;
       for (TestGeoObjectInfo testChild : this.children)
       {
-        if (ArrayUtils.contains(childrenTypes, testChild.getGeoObjectType().getCode()))
+        if (childrenTypes == null || ArrayUtils.contains(childrenTypes, testChild.getGeoObjectType().getCode()))
         {
           numChildren++;
         }
@@ -626,7 +689,7 @@ abstract public class TestDataSet
       {
         String code = compareChild.getGeoObject().getType().getCode();
 
-        if (!ArrayUtils.contains(childrenTypes, code))
+        if (childrenTypes != null && !ArrayUtils.contains(childrenTypes, code))
         {
           Assert.fail("Unexpected child with code [" + code + "]. Does not match expected childrenTypes array [" + StringUtils.join(childrenTypes, ", ") + "].");
         }
@@ -634,7 +697,7 @@ abstract public class TestDataSet
 
       for (TestGeoObjectInfo testChild : this.children)
       {
-        if (ArrayUtils.contains(childrenTypes, testChild.getGeoObjectType().getCode()))
+        if (childrenTypes == null || ArrayUtils.contains(childrenTypes, testChild.getGeoObjectType().getCode()))
         {
           ChildTreeNode tnChild = null;
           for (ChildTreeNode compareChild : tnChildren)
@@ -673,7 +736,7 @@ abstract public class TestDataSet
       int numParents = 0;
       for (TestGeoObjectInfo testParent : this.parents)
       {
-        if (ArrayUtils.contains(parentTypes, testParent.getGeoObjectType().getCode()))
+        if (parentTypes == null || ArrayUtils.contains(parentTypes, testParent.getGeoObjectType().getCode()))
         {
           numParents++;
         }
@@ -681,19 +744,22 @@ abstract public class TestDataSet
       Assert.assertEquals(numParents, tnParents.size());
 
       // Check to make sure all the children match types in our type array
-      for (ParentTreeNode compareParent : tnParents)
+      if (parentTypes != null)
       {
-        String code = compareParent.getGeoObject().getType().getCode();
-
-        if (!ArrayUtils.contains(parentTypes, code))
+        for (ParentTreeNode compareParent : tnParents)
         {
-          Assert.fail("Unexpected child with code [" + code + "]. Does not match expected childrenTypes array [" + StringUtils.join(parentTypes, ", ") + "].");
+          String code = compareParent.getGeoObject().getType().getCode();
+  
+          if (!ArrayUtils.contains(parentTypes, code))
+          {
+            Assert.fail("Unexpected child with code [" + code + "]. Does not match expected childrenTypes array [" + StringUtils.join(parentTypes, ", ") + "].");
+          }
         }
       }
 
       for (TestGeoObjectInfo testParent : this.parents)
       {
-        if (ArrayUtils.contains(parentTypes, testParent.getCode()))
+        if (parentTypes == null || ArrayUtils.contains(parentTypes, testParent.getCode()))
         {
           ParentTreeNode tnParent = null;
           for (ParentTreeNode compareParent : tnParents)

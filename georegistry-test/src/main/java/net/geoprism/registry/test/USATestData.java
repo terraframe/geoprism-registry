@@ -28,17 +28,17 @@ public class USATestData extends TestDataSet
   public final TestGeoObjectTypeInfo COUNTRY       = new TestGeoObjectTypeInfo("Country");
 
   public final TestGeoObjectTypeInfo STATE         = new TestGeoObjectTypeInfo("State");
-
+  
   public final TestGeoObjectTypeInfo COUNTY        = new TestGeoObjectTypeInfo("County");
 
   public final TestGeoObjectTypeInfo AREA          = new TestGeoObjectTypeInfo("Area");
-
+  
   public final TestGeoObjectTypeInfo DISTRICT      = new TestGeoObjectTypeInfo("District", true);
 
   public final TestGeoObjectInfo     USA           = new TestGeoObjectInfo("USA", COUNTRY);
 
   public final TestGeoObjectInfo     CANADA        = new TestGeoObjectInfo("CANADA", COUNTRY);
-
+  
   public final TestGeoObjectInfo     COLORADO      = new TestGeoObjectInfo("Colorado", STATE);
 
   public final TestGeoObjectInfo     CO_D_ONE      = new TestGeoObjectInfo("ColoradoDistrictOne", DISTRICT);
@@ -56,6 +56,26 @@ public class USATestData extends TestDataSet
   public final TestGeoObjectInfo     WA_D_ONE      = new TestGeoObjectInfo("WashingtonDistrictOne", DISTRICT);
 
   public final TestGeoObjectInfo     WA_D_TWO      = new TestGeoObjectInfo("WashingtonDistrictTwo", DISTRICT);
+  
+  /**
+   * The Mexico Hierarchy cannot have any leaf nodes in it.
+   */
+  
+  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT   = new TestGeoObjectTypeInfo("Mexico_City_GOT");
+  
+  public final TestGeoObjectTypeInfo MEXICO_STATE      = new TestGeoObjectTypeInfo("Mexico_State_GOT");
+  
+  public final TestGeoObjectInfo     MEXICO            = new TestGeoObjectInfo("Mexico", COUNTRY);
+  
+  public final TestGeoObjectInfo     MEXICO_CITY_ONE   = new TestGeoObjectInfo("Mexico City One", MEXICO_CITY_GOT);
+  
+  public final TestGeoObjectInfo     MEXICO_CITY_TWO   = new TestGeoObjectInfo("Mexico City Two", MEXICO_CITY_GOT);
+  
+  public final TestGeoObjectInfo     MEXICO_STATE_ONE  = new TestGeoObjectInfo("Mexico State One", MEXICO_STATE);
+  
+  public final TestGeoObjectInfo     MEXICO_STATE_TWO  = new TestGeoObjectInfo("Mexico State Two", MEXICO_STATE);
+  
+  
 
   {
     managedGeoObjectTypeInfos.add(COUNTRY);
@@ -75,6 +95,26 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(CO_A_ONE);
     managedGeoObjectInfos.add(WA_D_ONE);
     managedGeoObjectInfos.add(WA_D_TWO);
+    
+    managedGeoObjectTypeInfos.add(MEXICO_STATE);
+    managedGeoObjectTypeInfos.add(MEXICO_CITY_GOT);
+    managedGeoObjectInfos.add(MEXICO);
+    managedGeoObjectInfos.add(MEXICO_CITY_ONE);
+    managedGeoObjectInfos.add(MEXICO_CITY_TWO);
+    managedGeoObjectInfos.add(MEXICO_STATE_ONE);
+    managedGeoObjectInfos.add(MEXICO_STATE_TWO);
+  }
+  
+  public static USATestData newTestDataForClass()
+  {
+    LocalProperties.setSkipCodeGenAndCompile(true);
+    GeoserverFacade.setService(new NullGeoserverService());
+
+    TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
+
+    USATestData data = new USATestData(adapter, GeometryType.POLYGON, true);
+    
+    return data;
   }
 
   public static USATestData newTestData()
@@ -109,9 +149,15 @@ public class USATestData extends TestDataSet
     this.geometryType = geometryType;
     this.includeData = includeData;
   }
-
+  
+  public void setGeometryType(GeometryType geometryType)
+  {
+    this.geometryType = geometryType;
+  }
+  
   @Transaction
-  protected void setUpInTrans()
+  @Override
+  protected void setUpClassInTrans()
   {
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
@@ -123,9 +169,20 @@ public class USATestData extends TestDataSet
     STATE.addChild(DISTRICT, AllowedIn.CLASS);
     STATE.addChild(COUNTY, AllowedIn.CLASS);
     COUNTY.addChild(AREA, AllowedIn.CLASS);
+    
+    COUNTRY.addChild(MEXICO_STATE, AllowedIn.CLASS);
+    MEXICO_STATE.addChild(MEXICO_CITY_GOT, AllowedIn.CLASS);
 
     ConversionService.addParentReferenceToLeafType(LocatedIn.class.getSimpleName(), STATE.getUniversal(), DISTRICT.getUniversal());
+    
+    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
+    adminClientRequest = adminSession.getRequest();
+  }
 
+  @Transaction
+  @Override
+  protected void setUpTestInTrans()
+  {
     if (this.includeData)
     {
       for (TestGeoObjectInfo geo : managedGeoObjectInfos)
@@ -145,21 +202,28 @@ public class USATestData extends TestDataSet
       USA.addChild(WASHINGTON, LocatedIn.CLASS);
       WASHINGTON.addChild(WA_D_ONE, LocatedIn.CLASS);
       WASHINGTON.addChild(WA_D_TWO, LocatedIn.CLASS);
+      
+      
+      MEXICO.addChild(MEXICO_STATE_ONE, LocatedIn.CLASS);
+      MEXICO.addChild(MEXICO_STATE_TWO, LocatedIn.CLASS);
+      MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, LocatedIn.CLASS);
+      MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, LocatedIn.CLASS);
     }
 
-    adminSession = ClientSession.createUserSession("admin", "_nm8P4gfdWxGqNRQ#8", new Locale[] { CommonProperties.getDefaultLocale() });
+    adminSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
   }
 
   @Transaction
-  public void cleanUpInTrans()
+  @Override
+  public void cleanUpClassInTrans()
   {
     if (STATE.getUniversal() != null && DISTRICT.getUniversal() != null)
     {
       ConversionService.removeParentReferenceToLeafType(LocatedIn.class.getSimpleName(), STATE.getUniversal(), DISTRICT.getUniversal());
     }
 
-    super.cleanUpInTrans();
+    super.cleanUpClassInTrans();
   }
 
   @Override
