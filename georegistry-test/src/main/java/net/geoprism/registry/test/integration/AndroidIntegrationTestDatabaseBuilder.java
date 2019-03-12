@@ -15,16 +15,23 @@ public class AndroidIntegrationTestDatabaseBuilder
 {
   public static void main(String[] args)
   {
-    AndroidIntegrationTestDatabaseBuilder.build();
+    AndroidIntegrationTestDatabaseBuilder.buildFromMain();
   }
   
   @Request
-  private static void build()
+  private static void buildFromMain()
   {
     USATestData data = USATestData.newTestData();
     
+    build(data);
+  }
+  
+  @Request
+  public static void build(USATestData data)
+  {
     buildInTransaction(data);
   }
+  
   @Transaction
   private static void buildInTransaction(USATestData data)
   {

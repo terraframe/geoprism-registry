@@ -62,7 +62,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testDate.getName(), calendar.getTime());
 
@@ -91,7 +91,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testDate.getName(), calendar.getTime());
 
@@ -116,7 +116,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testBoolean.getName(), new Boolean(true));
 
@@ -141,7 +141,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testBoolean.getName(), new Boolean(true));
 
@@ -166,7 +166,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testFloat.getName(), new Double(234.2));
 
@@ -191,7 +191,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testFloat.getName(), new Double(234.2));
 
@@ -216,7 +216,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testInteger.getName(), new Long(123));
 
@@ -241,7 +241,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testInteger.getName(), new Long(234));
 
@@ -266,7 +266,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testCharacter.getName(), "ABC");
 
@@ -291,7 +291,7 @@ public class ConversionTest
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
     geoObj.setCode("000");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testCharacter.getName(), "ABCZ");
 
@@ -325,7 +325,7 @@ public class ConversionTest
       // Create a new GeoObject with the custom attribute
       GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());
       geoObj.setCode("000");
-      geoObj.setLocalizedDisplayLabel("Test Label");
+      geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
       geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
       geoObj.setValue(testTerm.getName(), term.getCode());
 
@@ -415,7 +415,7 @@ public class ConversionTest
       // Create a new GeoObject with the custom attribute
       GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
       geoObj.setCode("000");
-      geoObj.setLocalizedDisplayLabel("Test Label");
+      geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
       geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
       geoObj.setValue(testTerm.getName(), term.getCode());
 

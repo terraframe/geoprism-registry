@@ -254,7 +254,7 @@ public class ShapefileServiceTest
   {
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
     geoObj.setCode("00");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServiceFactory.getUtilities().applyGeoObject(geoObj, true);

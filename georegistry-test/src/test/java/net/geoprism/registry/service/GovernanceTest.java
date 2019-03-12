@@ -14,6 +14,7 @@ import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -147,7 +148,7 @@ public class GovernanceTest
      * CR1 : Update the previously created GeoObject
      */
     final String NEW_DISPLAY_LABEL = "NEW_DISPLAY_LABEL";
-    goNewChild.setLocalizedDisplayLabel(NEW_DISPLAY_LABEL);
+    goNewChild.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, NEW_DISPLAY_LABEL);
 
     UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();
     update.setGeoObject(goNewChild.toJSON());

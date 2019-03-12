@@ -339,7 +339,7 @@ public class ExcelServiceTest
 
       GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode());
       geoObj.setCode("00");
-      geoObj.setLocalizedDisplayLabel("Test Label");
+      geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
       geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
       geoObj.setGeometry(point);
       geoObj.setValue(this.testTerm.getName(), term.getCode());
@@ -384,7 +384,7 @@ public class ExcelServiceTest
   {
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
     geoObj.setCode("00");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
@@ -450,7 +450,7 @@ public class ExcelServiceTest
 
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
     geoObj.setCode("00");
-    geoObj.setLocalizedDisplayLabel("Test Label");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
