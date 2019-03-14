@@ -1,9 +1,12 @@
 package net.geoprism.registry;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -104,8 +107,12 @@ public class MasterList extends MasterListBase
 
   @SuppressWarnings("unchecked")
   @Transaction
-  public void publish()
+  public JsonObject publish()
   {
+    this.appLock();
+    this.setPublishDate(new Date());
+    this.apply();
+
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     mdBusiness.deleteAllRecords();
 
@@ -208,6 +215,8 @@ public class MasterList extends MasterListBase
     {
       objects.close();
     }
+
+    return this.toJSON();
   }
 
   private MdBusiness createTable()
@@ -238,7 +247,7 @@ public class MasterList extends MasterListBase
     {
       if (this.isValid(attributeType))
       {
-        this.createMdAttributeFromAttributeType(mdBusiness, attributeType, locales);
+        this.createMdAttributeFromAttributeType(mdBusiness, attributeType, type, locales);
       }
     }
 
@@ -293,7 +302,7 @@ public class MasterList extends MasterListBase
     return mdBusiness;
   }
 
-  public void createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType, List<Locale> locales)
+  public void createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType, GeoObjectType type, List<Locale> locales)
   {
     if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeLocalType ))
     {
@@ -369,11 +378,13 @@ public class MasterList extends MasterListBase
     }
     else if (attributeType instanceof AttributeLocalType)
     {
+      boolean isDisplayLabel = attributeType.getName().equals(DefaultAttribute.DISPLAY_LABEL.getName());
+
       MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + "DefaultLocale");
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      ServiceFactory.getConversionService().populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel());
+      ServiceFactory.getConversionService().populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel());
       ServiceFactory.getConversionService().populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription());
       mdAttributeDefaultLocale.apply();
 
@@ -383,7 +394,7 @@ public class MasterList extends MasterListBase
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        ServiceFactory.getConversionService().populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
+        ServiceFactory.getConversionService().populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.toString() + ")");
         ServiceFactory.getConversionService().populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
       }
@@ -409,6 +420,15 @@ public class MasterList extends MasterListBase
     {
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
+
+      Collections.sort(mdAttributes, new Comparator<MdAttributeConcreteDAOIF>()
+      {
+        @Override
+        public int compare(MdAttributeConcreteDAOIF o1, MdAttributeConcreteDAOIF o2)
+        {
+          return o1.definesAttribute().compareTo(o2.definesAttribute());
+        }
+      });
 
       for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
       {
@@ -562,7 +582,8 @@ public class MasterList extends MasterListBase
 
   public JsonObject data(Integer pageNumber, Integer pageSize, String filter)
   {
-    DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
+    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
+    NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
 
     JsonArray results = new JsonArray();
 
@@ -597,7 +618,11 @@ public class MasterList extends MasterListBase
             if (value != null)
             {
 
-              if (value instanceof Number)
+              if (value instanceof Double)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), numberFormat.format((Double) value));
+              }
+              else if (value instanceof Number)
               {
                 object.addProperty(mdAttribute.definesAttribute(), (Number) value);
               }
@@ -615,7 +640,7 @@ public class MasterList extends MasterListBase
               }
               else if (value instanceof Date)
               {
-                object.addProperty(mdAttribute.definesAttribute(), format.format((Date) value));
+                object.addProperty(mdAttribute.definesAttribute(), dateFormat.format((Date) value));
               }
             }
           }

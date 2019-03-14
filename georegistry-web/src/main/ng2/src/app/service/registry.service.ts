@@ -345,7 +345,7 @@ export class RegistryService {
             .toPromise()
     }
 
-    publishMasterList( oid: string ): Promise<Response> {
+    publishMasterList( oid: string ): Promise<MasterList> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -358,6 +358,9 @@ export class RegistryService {
                 this.eventService.complete();
             } )
             .toPromise()
+            .then( response => {
+                return response.json() as MasterList;
+            } )
     }
 
     getMasterList( oid: string ): Promise<MasterList> {

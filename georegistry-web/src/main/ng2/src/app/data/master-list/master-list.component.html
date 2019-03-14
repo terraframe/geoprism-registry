@@ -11,13 +11,16 @@
       </h2>
     </div>
     <div *ngIf="list != null">
-      <div class="row">
+      <div class="row form-group">
         <div class="col-sm-1">
           <label>
             <localize key="masterlist.field"></localize>
           </label>
         </div>
-        <div class="col-sm-7">{{list.displayLabel.localizedValue}}</div>
+        <div class="col-sm-1">{{list.displayLabel.localizedValue}}</div>
+        <div class="col-sm-6">
+          <a href="#" (click)="onView($event)">View</a>
+        </div>
         <div class="col-sm-2">
           <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
             <span class="ui-button-text">
@@ -33,7 +36,7 @@
           </button>
         </div>
       </div>
-      <div class="row">
+      <div class="row form-group">
         <div class="col-sm-1">
           <label>
             <localize key="masterlist.search"></localize>
@@ -51,25 +54,32 @@
 
         </div>
         <div class="col-sm-4"></div>
-        <div class="col-sm-2"></div>
-      </div>
-      <div class="row">
-        <div class="list-table-wrapper">
-          <table class="list-table table table-bordered table-striped">
-            <thead>
-              <tr>
-                <th *ngFor="let attribute of list.attributes" class="label-column">{{attribute.label}}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
-                <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="col-sm-1">
+          <label>
+            <localize key="masterlist.publishDate"></localize>
+          </label>
         </div>
+        <div class="col-sm-1">{{list.publishDate}}</div>
+      </div>
+      <div class="row form-group">
         <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-
+      </div>
+      <div class="row form-group">
+        <table class="list-table table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th *ngFor="let attribute of list.attributes" class="label-column">{{attribute.label}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
+              <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row form-group">
+        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
       </div>
     </div>
   </div>

@@ -60,9 +60,9 @@ public class MasterListController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
   public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
-    this.service.publish(request.getSessionId(), oid);
+    JsonObject response = this.service.publish(request.getSessionId(), oid);
 
-    return new RestResponse();
+    return new RestBodyResponse(response);
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")

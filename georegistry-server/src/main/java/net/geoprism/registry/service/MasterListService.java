@@ -71,9 +71,9 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public void publish(String sessionId, String oid)
+  public JsonObject publish(String sessionId, String oid)
   {
-    MasterList.get(oid).publish();
+    return MasterList.get(oid).publish();
   }
 
   @Request(RequestType.SESSION)

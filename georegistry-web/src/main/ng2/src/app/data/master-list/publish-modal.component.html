@@ -18,10 +18,10 @@
           ({{localeValue.locale}})
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [required]="localeValue.locale === 'defaultLocale'" />
+          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
         </div>
       </div>
-      <div class="form-group row" *ngIf="types">
+      <div class="form-group row" *ngIf="types && !readonly">
         <label class="col-md-2" for="typeCode">
           <localize key="io.geoObjectType"></localize>
         </label>
@@ -37,7 +37,7 @@
           <localize key="masterlist.code"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.code" name="code" type="text" class="form-control" required/>
+          <input [(ngModel)]="master.code" name="code" type="text" class="form-control" [disabled]="readonly" required/>
         </div>
       </div>
       <div class="form-group row">
@@ -45,7 +45,7 @@
           <localize key="masterlist.representativityDate"></localize>
         </label>
         <div class="col-md-2">
-          <input [(ngModel)]="master.representativityDate" name="representativityDate" type="date" class="form-control" />
+          <input [(ngModel)]="master.representativityDate" name="representativityDate" type="date" class="form-control" [disabled]="readonly" />
         </div>
       </div>
       <div class="form-group row">
@@ -53,7 +53,7 @@
           <localize key="masterlist.publishDate"></localize>
         </label>
         <div class="col-md-2">
-          <input [(ngModel)]="master.publishDate" name="publishDate" type="date" class="form-control" />
+          <input [(ngModel)]="master.publishDate" name="publishDate" type="date" class="form-control" [disabled]="readonly"/>
         </div>
       </div>
       <div class="form-group row">
@@ -61,7 +61,7 @@
           <localize key="masterlist.listAbstract"></localize>
         </label>
         <div class="col-md-6">
-          <textarea [(ngModel)]="master.listAbstract" name="listAbstract" class="form-control"></textarea>
+          <textarea [(ngModel)]="master.listAbstract" name="listAbstract" class="form-control" [disabled]="readonly"></textarea>
         </div>
       </div>
       <div class="form-group row">
@@ -69,7 +69,7 @@
           <localize key="masterlist.process"></localize>
         </label>
         <div class="col-md-6">
-          <textarea [(ngModel)]="master.process" name="process" class="form-control"></textarea>
+          <textarea [(ngModel)]="master.process" name="process" class="form-control" [disabled]="readonly"></textarea>
         </div>
       </div>
       <div class="form-group row">
@@ -77,7 +77,7 @@
           <localize key="masterlist.progress"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.progress" name="progress" type="text" class="form-control" />
+          <input [(ngModel)]="master.progress" name="progress" type="text" class="form-control" [disabled]="readonly"/>
         </div>
       </div>
       <div class="form-group row">
@@ -85,7 +85,7 @@
           <localize key="masterlist.accessConstraints"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.accessConstraints" name="accessConstraints" type="text" class="form-control" />
+          <input [(ngModel)]="master.accessConstraints" name="accessConstraints" type="text" class="form-control" [disabled]="readonly" />
         </div>
       </div>
       <div class="form-group row">
@@ -93,7 +93,7 @@
           <localize key="masterlist.useConstraints"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.useConstraints" name="useConstraints" type="text" class="form-control" />
+          <input [(ngModel)]="master.useConstraints" name="useConstraints" type="text" class="form-control" [disabled]="readonly" />
         </div>
       </div>
       <div class="form-group row">
@@ -101,7 +101,7 @@
           <localize key="masterlist.acknowledgements"></localize>
         </label>
         <div class="col-md-6">
-          <textarea [(ngModel)]="master.acknowledgements" name="acknowledgements" class="form-control"></textarea>
+          <textarea [(ngModel)]="master.acknowledgements" name="acknowledgements" class="form-control" [disabled]="readonly"></textarea>
         </div>
       </div>
       <div class="form-group row">
@@ -109,7 +109,7 @@
           <localize key="masterlist.disclaimer"></localize>
         </label>
         <div class="col-md-6">
-          <textarea [(ngModel)]="master.disclaimer" name="disclaimer" class="form-control"></textarea>
+          <textarea [(ngModel)]="master.disclaimer" name="disclaimer" class="form-control" [disabled]="readonly"></textarea>
         </div>
       </div>
       <hr />
@@ -123,7 +123,7 @@
           <localize key="masterlist.contactName"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.contactName" name="contactName" type="text" class="form-control" />
+          <input [(ngModel)]="master.contactName" name="contactName" type="text" class="form-control" [disabled]="readonly"/>
         </div>
       </div>
       <div class="form-group row">
@@ -131,7 +131,7 @@
           <localize key="masterlist.organization"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.organization" name="organization" type="text" class="form-control" />
+          <input [(ngModel)]="master.organization" name="organization" type="text" class="form-control"[disabled]="readonly" />
         </div>
       </div>
       <div class="form-group row">
@@ -139,7 +139,7 @@
           <localize key="masterlist.telephoneNumber"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.telephoneNumber" name="telephoneNumber" type="text" class="form-control" />
+          <input [(ngModel)]="master.telephoneNumber" name="telephoneNumber" type="text" class="form-control" [disabled]="readonly"/>
         </div>
       </div>
       <div class="form-group row">
@@ -147,7 +147,7 @@
           <localize key="masterlist.email"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.email" name="email" type="email" class="form-control" />
+          <input [(ngModel)]="master.email" name="email" type="email" class="form-control" [disabled]="readonly"/>
         </div>
       </div>
       <hr />
@@ -162,7 +162,7 @@
           <div class="col-md-6">
             <div class="row" *ngFor="let parent of hierarchy.parents">
               <div class="col-md-2">
-                <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" />
+                <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" [disabled]="readonly"/>
               </div>
               <div class="col-md-6">{{parent.label}}</div>
             </div>
@@ -174,10 +174,10 @@
         <div class="col-sm-8 text-right">
           <button type="button" (click)="onCancel()" class="btn" role="button">
             <span class="ui-button-text">
-              <localize key="io.cancel"></localize>
+              <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
             </span>
           </button>
-          <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+          <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
             <span class="ui-button-text">
               <localize key="io.ok"></localize>
             </span>
