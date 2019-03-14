@@ -42,7 +42,7 @@
                                                 <input *ngIf="postGeoObject" type="text"
                                                     [(ngModel)]="postGeoObject.properties[attr.code]" id="mod-{{attr.code}}"
                                                     name="mod-{{attr.code}}"
-                                                    [disabled]="attr.code === 'code'"> 
+                                                    [disabled]="attr.code === 'code' && !allowCodeEdit"> 
 
                                                     <p class="warning-text" *ngIf="this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code] !== this.preGeoObject.properties[attr.code]">
                                                         <localize key="change.request.changed.value.prefix"></localize> {{this.preGeoObject.properties[attr.code]}}

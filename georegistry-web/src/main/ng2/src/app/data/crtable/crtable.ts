@@ -14,6 +14,8 @@ export class AbstractAction {
   approvalStatus: GovernanceStatus;
   createActionDate: Date;
   label: string;
+  oid: string;
+  actionType: string;
 }
 
 export class UpdateGeoObjectAction extends AbstractAction {

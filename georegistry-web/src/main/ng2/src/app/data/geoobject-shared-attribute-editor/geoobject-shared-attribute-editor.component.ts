@@ -64,6 +64,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     
     @Output() valid = new EventEmitter<boolean>();
     
+    @Input() allowCodeEdit: boolean = false;
+    
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
