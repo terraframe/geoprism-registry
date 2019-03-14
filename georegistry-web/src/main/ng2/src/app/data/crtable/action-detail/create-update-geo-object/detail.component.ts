@@ -13,6 +13,10 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ErrorModalComponent } from '../../../../core/modals/error-modal.component';
 
+import { GeoObject, GeoObjectType } from '../../../../model/registry';
+
+import { RegistryService } from '../../../../service/registry.service';
+
 declare var acp: any;
 
 @Component({
@@ -25,27 +29,39 @@ export class CreateUpdateGeoObjectDetailComponent {
 
   @Input() action: any;
   
-  modifiedGeoObject: any = {};
+  preGeoObject: GeoObject = null;
+  
+  postGeoObject: GeoObject = null;
+  
+  geoObjectType : GeoObjectType = null;
   
   @Input() crtable: ActionTableComponent;
   
   private bsModalRef: BsModalRef;
 
-  constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
+  constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService) { 
 	  
   }
   
   ngOnInit(): void {
-	  this.modifiedGeoObject = Object.assign({}, this.action.geoObjectJson)
-//	  this.modifiedGeoObject = {};
 	  
-	  console.log("action = ", this.action);
-	  console.log("modifiedGeoObject = ", this.modifiedGeoObject);
+	console.log("action = ", this.action);
+	  
+	this.postGeoObject = this.action.geoObjectJson;
+	this.geoObjectType = this.action.geoObjectType;
+	  
+	this.registryService.getGeoObjectByCode(this.postGeoObject.properties.code, this.geoObjectType.code)
+      .then(geoObject => {
+          this.preGeoObject = geoObject;
+
+      }).catch((err: Response) => {
+          this.error(err.json());
+      });
   }
   
   applyAction()
   {
-	this.action.geoObjectJson = this.modifiedGeoObject;
+//	this.action.geoObjectJson = this.modifiedGeoObject;
 	  
     this.changeRequestService.applyAction(this.action).then( response => {
           this.crtable.refresh()

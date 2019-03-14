@@ -59,8 +59,8 @@ import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
-import { ChangeRequestComponent } from './data/change-request/change-request.component';
-import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
+import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
+import { SubmitChangeRequestComponent } from './data/change-request/submit-change-request.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
@@ -159,8 +159,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ValidationComponent,
     LocalizedInputComponent,    
     LocalizedTextComponent,    
-    ChangeRequestComponent,
-    StandAloneChangeRequestComponent,
+    GeoObjectSharedAttributeEditorComponent,
+    SubmitChangeRequestComponent,
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     
@@ -209,8 +209,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ModalStepIndicatorComponent,
       ManageTermOptionsComponent,
       ErrorMessageComponent,
-      ChangeRequestComponent,
-      StandAloneChangeRequestComponent,
+      GeoObjectSharedAttributeEditorComponent,
+      SubmitChangeRequestComponent,
       PublishModalComponent
   ]        
 })
