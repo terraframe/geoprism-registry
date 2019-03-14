@@ -1,8 +1,10 @@
 package net.geoprism.registry;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -28,14 +30,20 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.constants.BusinessInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdTableInfo;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
@@ -44,6 +52,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -56,6 +65,7 @@ import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -68,6 +78,8 @@ public class MasterList extends MasterListBase
   private static final long serialVersionUID = 190790165;
 
   public static String      TYPE_CODE        = "typeCode";
+
+  public static String      ATTRIBUTES       = "attributes";
 
   public static String      PREFIX           = "ml_";
 
@@ -94,7 +106,9 @@ public class MasterList extends MasterListBase
   @Transaction
   public void publish()
   {
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+    MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+    mdBusiness.deleteAllRecords();
+
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     Universal universal = this.getUniversal();
@@ -386,6 +400,32 @@ public class MasterList extends MasterListBase
     return new JsonArray();
   }
 
+  private JsonArray getAttributesAsJson()
+  {
+    JsonArray attributes = new JsonArray();
+    String mdBusinessId = this.getMdBusinessOid();
+
+    if (mdBusinessId != null && mdBusinessId.length() > 0)
+    {
+      MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
+      List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
+
+      for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+      {
+        if (this.isValid(mdAttribute))
+        {
+          JsonObject attribute = new JsonObject();
+          attribute.addProperty("name", mdAttribute.definesAttribute());
+          attribute.addProperty("label", mdAttribute.getDisplayLabel(Session.getCurrentLocale()));
+
+          attributes.add(attribute);
+        }
+      }
+    }
+
+    return attributes;
+  }
+
   private Map<HierarchyType, List<GeoObjectType>> getAncestorMap(GeoObjectType type)
   {
     Map<HierarchyType, List<GeoObjectType>> map = new HashMap<>();
@@ -429,7 +469,7 @@ public class MasterList extends MasterListBase
     return list;
   }
 
-  public boolean isValid(AttributeType attributeType)
+  private boolean isValid(AttributeType attributeType)
   {
     if (attributeType.getName().equals(DefaultAttribute.UID.getName()))
     {
@@ -459,6 +499,51 @@ public class MasterList extends MasterListBase
     return true;
   }
 
+  private boolean isValid(MdAttributeConcreteDAOIF mdAttribute)
+  {
+    if (mdAttribute.isSystem() || mdAttribute.definesAttribute().equals(DefaultAttribute.UID.getName()))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(DefaultAttribute.SEQUENCE.getName()))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(DefaultAttribute.CREATE_DATE.getName()))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(DefaultAttribute.TYPE.getName()))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(BusinessInfo.OWNER))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(BusinessInfo.KEY))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(BusinessInfo.DOMAIN))
+    {
+      return false;
+    }
+
+    return true;
+  }
+
   private String getTableName()
   {
     int count = 0;
@@ -473,6 +558,85 @@ public class MasterList extends MasterListBase
     }
 
     return name;
+  }
+
+  public JsonObject data(Integer pageNumber, Integer pageSize, String filter)
+  {
+    DateFormat format = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
+
+    JsonArray results = new JsonArray();
+
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
+
+    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+
+    if (filter != null && filter.length() > 0)
+    {
+      query.WHERE(query.aCharacter(DefaultAttribute.CODE.getName()).LIKEi("%" + filter + "%"));
+    }
+
+    query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
+
+    OIterator<Business> iterator = query.getIterator(pageSize, pageNumber);
+
+    try
+    {
+      while (iterator.hasNext())
+      {
+        Business row = iterator.next();
+        JsonObject object = new JsonObject();
+
+        for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+        {
+          if (this.isValid(mdAttribute))
+          {
+            String attributeName = mdAttribute.definesAttribute();
+            Object value = row.getObjectValue(attributeName);
+
+            if (value != null)
+            {
+
+              if (value instanceof Number)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (Number) value);
+              }
+              else if (value instanceof Boolean)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (Boolean) value);
+              }
+              else if (value instanceof String)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (String) value);
+              }
+              else if (value instanceof Character)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (Character) value);
+              }
+              else if (value instanceof Date)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), format.format((Date) value));
+              }
+            }
+          }
+        }
+
+        results.add(object);
+      }
+    }
+    finally
+    {
+      iterator.close();
+    }
+
+    JsonObject page = new JsonObject();
+    page.addProperty("pageNumber", pageNumber);
+    page.addProperty("pageSize", pageSize);
+    page.addProperty("filter", filter);
+    page.addProperty("count", query.getCount());
+    page.add("results", results);
+
+    return page;
   }
 
   public JsonObject toJSON()
@@ -513,6 +677,8 @@ public class MasterList extends MasterListBase
     {
       object.addProperty(MasterList.PUBLISHDATE, format.format(this.getPublishDate()));
     }
+
+    object.add(MasterList.ATTRIBUTES, this.getAttributesAsJson());
 
     return object;
   }
@@ -588,7 +754,32 @@ public class MasterList extends MasterListBase
     list.setMdBusiness(mdTable);
     list.apply();
 
+    MasterList.assignDefaultRolePermissions(mdTable);
+
     return list;
+  }
+
+  private static void assignDefaultRolePermissions(ComponentIF component)
+  {
+    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+    adminRole.grantPermission(Operation.CREATE, component.getOid());
+    adminRole.grantPermission(Operation.DELETE, component.getOid());
+    adminRole.grantPermission(Operation.WRITE, component.getOid());
+    adminRole.grantPermission(Operation.WRITE_ALL, component.getOid());
+
+    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
+    maintainer.grantPermission(Operation.CREATE, component.getOid());
+    maintainer.grantPermission(Operation.DELETE, component.getOid());
+    maintainer.grantPermission(Operation.WRITE, component.getOid());
+    maintainer.grantPermission(Operation.WRITE_ALL, component.getOid());
+
+    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
+    consumer.grantPermission(Operation.READ, component.getOid());
+    consumer.grantPermission(Operation.READ_ALL, component.getOid());
+
+    RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
+    contributor.grantPermission(Operation.READ, component.getOid());
+    contributor.grantPermission(Operation.READ_ALL, component.getOid());
   }
 
   @Transaction

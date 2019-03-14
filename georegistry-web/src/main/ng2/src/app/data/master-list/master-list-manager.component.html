@@ -3,6 +3,8 @@
   <loading-bar></loading-bar>
 
   <div id="app-container" class="container">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+ 
 
     <div class="py-5 text-center">
       <h2>
@@ -19,7 +21,9 @@
       </div>
       <div class="row">
         <ul class="list-group">
-          <li class="list-group-item" *ngFor="let list of lists">{{list.label}} <i class="fa fa-times delete-btn pull-right" (click)="deleteMasterList(list)"></i>
+          <li class="list-group-item" *ngFor="let list of lists">
+             <a [routerLink]="'/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
+             <i class="fa fa-times delete-btn pull-right" (click)="deleteMasterList(list)"></i>
           </li>
         </ul>
       </div>

@@ -1,0 +1,76 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+  <div id="app-container" class="container">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="py-5 text-center">
+      <h2>
+        <localize key="masterlist.title"></localize>
+      </h2>
+    </div>
+    <div *ngIf="list != null">
+      <div class="row">
+        <div class="col-sm-1">
+          <label>
+            <localize key="masterlist.field"></localize>
+          </label>
+        </div>
+        <div class="col-sm-7">{{list.displayLabel.localizedValue}}</div>
+        <div class="col-sm-2">
+          <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+            <span class="ui-button-text">
+              <localize key="io.export"></localize>
+            </span>
+          </button>
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
+            <span class="ui-button-text">
+              <localize key="masterlist.publish"></localize>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">
+          <label>
+            <localize key="masterlist.search"></localize>
+          </label>
+        </div>
+        <div class="col-sm-5">
+          <div class="input-group">
+            <input [(ngModel)]="current" name="current" type="text" class="form-control" />
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit" (click)="onSearch()">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
+
+        </div>
+        <div class="col-sm-4"></div>
+        <div class="col-sm-2"></div>
+      </div>
+      <div class="row">
+        <div class="list-table-wrapper">
+          <table class="list-table table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th *ngFor="let attribute of list.attributes" class="label-column">{{attribute.label}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
+                <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+
+      </div>
+    </div>
+  </div>
+</div>
