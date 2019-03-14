@@ -29,6 +29,11 @@ export class PublishModalComponent implements OnInit {
      */
     private types: { label: string, code: string }[]
 
+    /*
+     * List of geo object types from the system
+     */
+    private readonly: boolean = false;
+
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
 
@@ -36,32 +41,35 @@ export class PublishModalComponent implements OnInit {
 
         this.onMasterListChange = new Subject();
 
-        this.iService.listGeoObjectTypes( true ).then( types => {
-            this.types = types;
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
-        } );
+        if ( this.master == null || !this.readonly ) {
+            this.iService.listGeoObjectTypes( true ).then( types => {
+                this.types = types;
+            } ).catch(( err: any ) => {
+                this.error( err.json() );
+            } );
 
-        this.master = {
-            oid: '',
-            typeCode: '',
-            displayLabel: this.lService.create(),
-            code: '',
-            representativityDate: null,
-            publishDate: null,
-            listAbstract: '',
-            process: '',
-            progress: '',
-            accessConstraints: '',
-            useConstraints: '',
-            acknowledgements: '',
-            disclaimer: '',
-            contactName: '',
-            organization: '',
-            telephoneNumber: '',
-            email: '',
-            hierarchies: []
-        };
+            this.master = {
+                oid: '',
+                typeCode: '',
+                displayLabel: this.lService.create(),
+                code: '',
+                representativityDate: null,
+                publishDate: null,
+                listAbstract: '',
+                process: '',
+                progress: '',
+                accessConstraints: '',
+                useConstraints: '',
+                acknowledgements: '',
+                disclaimer: '',
+                contactName: '',
+                organization: '',
+                telephoneNumber: '',
+                email: '',
+                hierarchies: []
+            };
+        }
+
 
     }
 

@@ -345,5 +345,59 @@ export class RegistryService {
             .toPromise()
     }
 
+    publishMasterList( oid: string ): Promise<MasterList> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/master-list/publish', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as MasterList;
+            } )
+    }
+
+    getMasterList( oid: string ): Promise<MasterList> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'oid', oid );
+
+        return this.http
+            .get( acp + '/master-list/get', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response.json() as MasterList;
+            } )
+    }
+
+    data( oid: string, pageNumber: number, pageSize: number, filter: string ): Promise<any> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'oid', oid );
+
+        if ( pageNumber != null ) {
+            params.set( 'pageNumber', pageNumber.toString() );
+        }
+
+        if ( pageSize != null ) {
+            params.set( 'pageSize', pageSize.toString() );
+        }
+
+        if ( filter != null ) {
+            params.set( 'filter', filter );
+        }
+
+        return this.http
+            .get( acp + '/master-list/data', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response.json() as any;
+            } )
+    }
+
 
 }

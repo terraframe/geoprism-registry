@@ -10,6 +10,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 import './rxjs-extensions';
 
@@ -109,6 +110,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     BsDropdownModule.forRoot(),
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
+    NgxPaginationModule,    
     BrowserAnimationsModule
   ],
   declarations: [

@@ -47,7 +47,6 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.MasterList;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.GeoObjectIterator;

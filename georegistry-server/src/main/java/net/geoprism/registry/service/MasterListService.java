@@ -69,4 +69,22 @@ public class MasterListService
       // Do nothing
     }
   }
+
+  @Request(RequestType.SESSION)
+  public JsonObject publish(String sessionId, String oid)
+  {
+    return MasterList.get(oid).publish();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject get(String sessionId, String oid)
+  {
+    return MasterList.get(oid).toJSON();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter)
+  {
+    return MasterList.get(oid).data(pageNumber, pageSize, filter);
+  }
 }

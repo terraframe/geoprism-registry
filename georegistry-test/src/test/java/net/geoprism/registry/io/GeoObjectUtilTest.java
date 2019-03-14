@@ -92,7 +92,7 @@ public class GeoObjectUtilTest
   }
 
   @Request
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void testGetAncestorMapForTreeLeaf()
   {
     GeoObjectType type = testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
@@ -100,6 +100,23 @@ public class GeoObjectUtilTest
 
     GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_D_ONE.getCode(), type.getCode());
 
-    GeoObjectUtil.getAncestorMap(object, hierarchy);
+    Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchy);
+
+    // Validate the state values
+    Assert.assertTrue(map.containsKey(testData.STATE.getCode()));
+
+    ValueObject vObject = map.get(testData.STATE.getCode());
+
+    Assert.assertEquals(testData.COLORADO.getCode(), vObject.getValue(GeoEntity.GEOID));
+    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), vObject.getValue(GeoEntity.DISPLAYLABEL));
+
+    // Validate the country values
+    Assert.assertTrue(map.containsKey(testData.COUNTRY.getCode()));
+
+    vObject = map.get(testData.COUNTRY.getCode());
+
+    Assert.assertEquals(testData.USA.getCode(), vObject.getValue(GeoEntity.GEOID));
+    Assert.assertEquals(testData.USA.getDisplayLabel(), vObject.getValue(GeoEntity.DISPLAYLABEL));
+
   }
 }

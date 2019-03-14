@@ -21,6 +21,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.test.TestDataSet.TestGeoObjectTypeInfo;
@@ -110,7 +111,7 @@ public class MasterListServiceTest
   @Request
   public void testCreateEntity() throws SQLException
   {
-    JsonObject json = getJson(testData.STATE);
+    JsonObject json = getJson(testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -130,7 +131,7 @@ public class MasterListServiceTest
   @Request
   public void testCreateLeaf() throws SQLException
   {
-    JsonObject json = getJson(testData.DISTRICT);
+    JsonObject json = getJson(testData.DISTRICT, testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -150,7 +151,7 @@ public class MasterListServiceTest
   @Request
   public void testPublishEntity()
   {
-    JsonObject json = getJson(testData.STATE);
+    JsonObject json = getJson(testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -168,7 +169,7 @@ public class MasterListServiceTest
   @Request
   public void testPublishLeaf()
   {
-    JsonObject json = getJson(testData.DISTRICT);
+    JsonObject json = getJson(testData.DISTRICT, testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -238,8 +239,25 @@ public class MasterListServiceTest
   }
 
   @Request
-  public JsonObject getJson(TestGeoObjectTypeInfo info)
+  public JsonObject getJson(TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
   {
+    JsonArray pArray = new JsonArray();
+    for (TestGeoObjectTypeInfo parent : parents)
+    {
+      JsonObject object = new JsonObject();
+      object.addProperty("code", parent.getCode());
+      object.addProperty("selected", true);
+
+      pArray.add(object);
+    }
+
+    JsonObject hierarchy = new JsonObject();
+    hierarchy.addProperty("code", LocatedIn.class.getSimpleName());
+    hierarchy.add("parents", pArray);
+
+    JsonArray array = new JsonArray();
+    array.add(hierarchy);
+
     MasterList list = new MasterList();
     list.setUniversal(info.getUniversal());
     list.getDisplayLabel().setValue("Test List");
@@ -257,6 +275,7 @@ public class MasterListServiceTest
     list.setOrganization("Organization");
     list.setTelephoneNumber("Telephone Number");
     list.setEmail("Email");
+    list.setHierarchies(array.toString());
 
     JsonObject listJson = list.toJSON();
     return listJson;

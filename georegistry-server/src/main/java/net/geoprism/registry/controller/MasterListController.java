@@ -57,4 +57,27 @@ public class MasterListController
     return new RestResponse();
   }
 
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
+  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonObject response = this.service.publish(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
+  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonObject response = this.service.get(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "data")
+  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "filter") String filter)
+  {
+    JsonObject response = this.service.data(request.getSessionId(), oid, pageNumber, pageSize, filter);
+
+    return new RestBodyResponse(response);
+  }
 }

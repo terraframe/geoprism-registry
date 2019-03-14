@@ -251,7 +251,7 @@ public class ConversionService
   public void populate(LocalStruct struct, LocalizedValue label, String suffix)
   {
     struct.setValue(label.getValue());
-    struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+    struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE) + suffix);
 
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
