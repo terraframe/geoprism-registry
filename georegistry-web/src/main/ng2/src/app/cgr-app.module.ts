@@ -169,6 +169,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     // Master List screens
     MasterListManagerComponent,
     PublishModalComponent,
+    ExportFormatModalComponent,
     
     // Routing components
     routedComponents
@@ -213,7 +214,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ErrorMessageComponent,
       GeoObjectSharedAttributeEditorComponent,
       SubmitChangeRequestComponent,
-      PublishModalComponent
+      PublishModalComponent,
+      ExportFormatModalComponent
   ]        
 })
 export class CgrAppModule { }
