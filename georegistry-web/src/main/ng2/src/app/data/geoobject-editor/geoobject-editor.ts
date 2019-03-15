@@ -34,7 +34,7 @@ declare var acp: string;
 /**
  * This component is used in the master list when editing a row.
  */
-export class GeoObjectSharedAttributeEditorComponent implements OnInit {
+export class GeoObjectEditorComponent implements OnInit {
 
     /*
      * Reference to the modal current showing
@@ -62,62 +62,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
     
     ngOnInit(): void {
-		if (this.postGeoObject == null)
-	    {
-	      this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
-	    }
-		
-		this.attributeForm.statusChanges.subscribe(result => {
-  			  this.isValid = (result === "VALID");
-  			  this.valid.emit(this.isValid);
-        }
-  		);
-    }
-
-    onSelectPropertyOption(event: any, option:any): void {
-        this.currentTermOption = JSON.parse(JSON.stringify(this.modifiedTermOption));
-    }
-
-    getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {
-        for (let i=0; i<this.geoObjectType.attributes.length; i++) {
-            let attr: any = this.geoObjectType.attributes[i];
-
-            if(attr.type === "term" && attr.code === termAttributeCode){
-
-                attr = <AttributeTerm> attr;
-                let attrOpts = attr.rootTerm.children;
-
-                if(attrOpts.length > 0){
-                    return attrOpts;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    getTypeDefinition(key: string): string {
-        // let attrs = this.geoObjectType.attributes;
-
-
-        // attrs.attributes.forEach(attr => {
-        for(let i=0; i<this.geoObjectType.attributes.length; i++){
-            let attr = this.geoObjectType.attributes[i];
-
-         if (attr.code === key) {
-                return attr.type;
-            }
-        }
-
-        return null;
-    }
-
-    isFormValid(): boolean {
-        return this.isValid;
-    }
-
-    public getGeoObject(): any {
-    	return this.postGeoObject;
     }
     
     public error(err: any): void {
