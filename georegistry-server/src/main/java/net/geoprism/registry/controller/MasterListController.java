@@ -1,5 +1,7 @@
 package net.geoprism.registry.controller;
 
+import org.json.JSONException;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -7,6 +9,7 @@ import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
+import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
@@ -80,4 +83,17 @@ public class MasterListController
 
     return new RestBodyResponse(response);
   }
+
+  @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  {
+    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid), "application/zip", "shapefile.zip");
+  }
+
+  @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  {
+    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
+  }
+
 }

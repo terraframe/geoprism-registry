@@ -6,10 +6,12 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { MasterList } from '../../model/registry';
 
 import { PublishModalComponent } from './publish-modal.component';
+import { ExportFormatModalComponent } from './export-format-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../core/service/localization.service';
 
+declare var acp: string;
 
 @Component( {
     selector: 'master-list',
@@ -82,9 +84,23 @@ export class MasterListComponent implements OnInit {
         } );
         this.bsModalRef.content.readonly = true;
         this.bsModalRef.content.master = this.list;
-
     }
 
+    onExport(): void {
+        this.bsModalRef = this.modalService.show( ExportFormatModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+        this.bsModalRef.content.onFormat.subscribe( format => {
+            if ( format == 'SHAPEFILE' ) {
+                window.location.href = acp + '/master-list/export-shapefile?oid=' + this.list.oid;
+            }
+            else if ( format == 'EXCEL' ) {
+                window.location.href = acp + '/master-list/export-spreadsheet?oid=' + this.list.oid;
+            }
+        } );
+    }
 
 
     error( err: any ): void {

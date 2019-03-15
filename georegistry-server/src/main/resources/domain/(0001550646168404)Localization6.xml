@@ -177,6 +177,62 @@
           <attribute name="defaultLocale" value="Parents" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View master list" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publish">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publish" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publish">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publish" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.search">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.search" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.field">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.field" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master List" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.view">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export-modal.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export-modal.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select the export format" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export-modal.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export-modal.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master List Export" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

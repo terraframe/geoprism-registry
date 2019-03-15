@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -60,6 +61,13 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
+import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
+import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
+import com.runwaysdk.system.gis.metadata.MdAttributeMultiPoint;
+import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
+import com.runwaysdk.system.gis.metadata.MdAttributePoint;
+import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
@@ -137,7 +145,7 @@ public class MasterList extends MasterListBase
 
         GeoObject object = objects.next();
 
-        // builder.set(GEOM, object.getGeometry());
+        business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, object.getGeometry());
 
         attributes.forEach(attribute -> {
 
@@ -240,6 +248,8 @@ public class MasterList extends MasterListBase
 
     Universal universal = this.getUniversal();
     GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+
+    this.createMdAttributeFromAttributeType(mdBusiness, type.getGeometryType());
 
     Collection<AttributeType> attributeTypes = type.getAttributeMap().values();
 
@@ -401,6 +411,42 @@ public class MasterList extends MasterListBase
     }
   }
 
+  public void createMdAttributeFromAttributeType(MdBusiness mdBusiness, GeometryType attributeType)
+  {
+    MdAttributeGeometry mdAttribute = null;
+
+    if (attributeType.equals(GeometryType.POINT))
+    {
+      mdAttribute = new MdAttributePoint();
+    }
+    else if (attributeType.equals(GeometryType.MULTIPOINT))
+    {
+      mdAttribute = new MdAttributeMultiPoint();
+    }
+    else if (attributeType.equals(GeometryType.LINE))
+    {
+      mdAttribute = new MdAttributeLineString();
+    }
+    else if (attributeType.equals(GeometryType.MULTILINE))
+    {
+      mdAttribute = new MdAttributeMultiLineString();
+    }
+    else if (attributeType.equals(GeometryType.POLYGON))
+    {
+      mdAttribute = new MdAttributePolygon();
+    }
+    else if (attributeType.equals(GeometryType.MULTIPOLYGON))
+    {
+      mdAttribute = new MdAttributeMultiPolygon();
+    }
+
+    mdAttribute.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    mdAttribute.getDisplayLabel().setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    mdAttribute.setDefiningMdClass(mdBusiness);
+    mdAttribute.setSrid(4326);
+    mdAttribute.apply();
+  }
+
   public JsonArray getHierarchiesAsJson()
   {
     if (this.getHierarchies() != null && this.getHierarchies().length() > 0)
@@ -519,7 +565,7 @@ public class MasterList extends MasterListBase
     return true;
   }
 
-  private boolean isValid(MdAttributeConcreteDAOIF mdAttribute)
+  public boolean isValid(MdAttributeConcreteDAOIF mdAttribute)
   {
     if (mdAttribute.isSystem() || mdAttribute.definesAttribute().equals(DefaultAttribute.UID.getName()))
     {
@@ -542,6 +588,11 @@ public class MasterList extends MasterListBase
     }
 
     if (mdAttribute.definesAttribute().equals(DefaultAttribute.TYPE.getName()))
+    {
+      return false;
+    }
+
+    if (mdAttribute.definesAttribute().equals(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
     {
       return false;
     }

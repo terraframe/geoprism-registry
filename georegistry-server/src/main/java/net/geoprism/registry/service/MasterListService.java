@@ -1,5 +1,7 @@
 package net.geoprism.registry.service;
 
+import java.io.InputStream;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -8,6 +10,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
 
@@ -86,5 +89,17 @@ public class MasterListService
   public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter)
   {
     return MasterList.get(oid).data(pageNumber, pageSize, filter);
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream exportShapefile(String sessionId, String oid)
+  {
+    return GeoRegistryUtil.exportMasterListShapefile(oid);
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream exportSpreadsheet(String sessionId, String oid)
+  {
+    return GeoRegistryUtil.exportMasterListExcel(oid);
   }
 }
