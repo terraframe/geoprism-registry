@@ -55,14 +55,13 @@ import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-mana
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { PublishModalComponent } from './data/master-list/publish-modal.component';
-import { ExportFormatModalComponent } from './data/master-list/export-format-modal.component';
 
 import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
-import { ChangeRequestComponent } from './data/change-request/change-request.component';
-import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
+import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
+import { SubmitChangeRequestComponent } from './data/change-request/submit-change-request.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
@@ -162,8 +161,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ValidationComponent,
     LocalizedInputComponent,    
     LocalizedTextComponent,    
-    ChangeRequestComponent,
-    StandAloneChangeRequestComponent,
+    GeoObjectSharedAttributeEditorComponent,
+    SubmitChangeRequestComponent,
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     
@@ -213,8 +212,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ModalStepIndicatorComponent,
       ManageTermOptionsComponent,
       ErrorMessageComponent,
-      ChangeRequestComponent,
-      StandAloneChangeRequestComponent,
+      GeoObjectSharedAttributeEditorComponent,
+      SubmitChangeRequestComponent,
       PublishModalComponent,
       ExportFormatModalComponent
   ]        

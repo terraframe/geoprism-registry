@@ -8,7 +8,7 @@
 	  <label class="detail-label">Code : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.code">
 	  -->
 	  
-	  <change-request [standAlone]="false" [geoObjectType]="action.geoObjectType" [modifiedGeoObject]="modifiedGeoObject" [currentGeoObject]="action.geoObjectJson"></change-request>
+	  <geoobject-shared-attribute-editor *ngIf="preGeoObject" [allowCodeEdit]="true" [geoObjectType]="geoObjectType" [postGeoObject]="postGeoObject" [preGeoObject]="preGeoObject"></geoobject-shared-attribute-editor>
 	  
 	  <label class="detail-label">Geometry : </label><label class="detail-value">{{action.geoObjectJson.geometry.type}}</label>
 	  
