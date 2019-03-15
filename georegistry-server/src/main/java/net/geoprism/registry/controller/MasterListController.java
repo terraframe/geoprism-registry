@@ -96,4 +96,11 @@ public class MasterListController
     return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "progress")
+  public ResponseIF progress(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonObject response = this.service.progress(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
 }

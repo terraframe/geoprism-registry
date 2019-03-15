@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { Observable } from 'rxjs';
+import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/finally';
 
 import { MasterList } from '../../model/registry';
 
@@ -9,7 +12,7 @@ import { PublishModalComponent } from './publish-modal.component';
 import { ExportFormatModalComponent } from './export-format-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
-import { LocalizationService } from '../../core/service/localization.service';
+import { ProgressService } from '../../service/progress.service';
 
 declare var acp: string;
 
@@ -37,7 +40,7 @@ export class MasterListComponent implements OnInit {
     private bsModalRef: BsModalRef;
 
 
-    constructor( public service: RegistryService, private route: ActivatedRoute, private router: Router, private modalService: BsModalService ) { }
+    constructor( public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router, private modalService: BsModalService ) { }
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );
@@ -64,14 +67,30 @@ export class MasterListComponent implements OnInit {
     }
 
     onPublish(): void {
-        this.service.publishMasterList( this.list.oid ).then( list => {
-            this.list = list;
-
-            // Refresh the resultSet
-            this.onPageChange( 1 );
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        let subscription = Observable.interval( 1000 ).subscribe(() => {
+            this.service.progress( this.list.oid ).then( progress => {
+                this.pService.progress( progress );
+            } );
         } );
+
+        this.service.publishMasterList( this.list.oid ).finally(() => {
+            subscription.unsubscribe();
+
+            this.pService.complete();
+        } ).toPromise()
+            .then( response => {
+                return response.json() as MasterList;
+            } )
+            .then( list => {
+                this.list = list;
+
+                // Refresh the resultSet
+                this.onPageChange( 1 );
+            } ).catch(( err: Response ) => {
+                this.error( err.json() );
+            } );
+        
+        this.pService.start();
     }
 
     onView( event: any ): void {

@@ -11,6 +11,10 @@ import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+
 
 import './rxjs-extensions';
 
@@ -63,6 +67,7 @@ import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-deta
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
 import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
+import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
@@ -78,20 +83,16 @@ import { RegistryService } from './service/registry.service';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { ChangeRequestService } from './service/change-request.service';
-
+import { ProgressService } from './service/progress.service';
 import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
 import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
 import { OnlyNumber } from './core/number-only.directive';
-
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-
 
 import './rxjs-extensions';
 import { ModalStepIndicatorService } from './core/service/modal-step-indicator.service';
@@ -111,6 +112,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     BsDropdownModule.forRoot(),
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
+    ProgressbarModule.forRoot(),       
     NgxPaginationModule,    
     BrowserAnimationsModule
   ],
@@ -166,6 +168,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     SubmitChangeRequestComponent,
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
+    ProgressBarComponent,
     
     // Master List screens
     MasterListManagerComponent,
@@ -188,6 +191,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ModalStepIndicatorService,
     GeoObjectTypeManagementService,
     RegistryService,
+    ProgressService,
     DatePipe,
     ToEpochDateTimePipe
   ],
