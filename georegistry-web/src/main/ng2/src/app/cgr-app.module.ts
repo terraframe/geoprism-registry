@@ -55,17 +55,18 @@ import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-mana
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { PublishModalComponent } from './data/master-list/publish-modal.component';
+import { ExportFormatModalComponent } from './data/master-list/export-format-modal.component';
 
 import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
-import { SubmitChangeRequestComponent } from './data/change-request/submit-change-request.component';
+import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
-import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
-import { ToEpochDateTimePipe } from './data/change-request/to-epoch-date-time.pipe';
+import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
+import { ToEpochDateTimePipe } from './data/submit-change-request/to-epoch-date-time.pipe';
 import { DatePipe } from '@angular/common';
 
 import { LocalizeComponent } from './core/localize/localize.component';

@@ -119,7 +119,6 @@ export class ActionTableComponent implements OnInit {
       else
       {
         this.service.lockAction(action.oid).then( response => {
-        	console.log("setting action to ", action);
             this.action = action;
           } ).catch(( err: Response ) => {
               this.error( err.json() );
