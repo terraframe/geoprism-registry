@@ -1,0 +1,241 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.required">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.required" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Required" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.unique">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.unique" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Unique" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="type.publish.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="type.publish.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish Geo Object Type" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="type.publish.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="type.publish.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish the master list of a Geo Object Type" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.manager.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.manager.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Master Lists" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Label" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.representativityDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.representativityDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Representativity Date" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publishDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publishDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish Date" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.listAbstract">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.listAbstract" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Abstract" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.process">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.process" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Process" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.progress">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.progress" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Progress" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.accessConstraints">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.accessConstraints" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Access Constraints" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.useConstraints">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.useConstraints" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Use Constraints" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.acknowledgements">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.acknowledgements" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Acknowledgements" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.disclaimer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.disclaimer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Disclaimer" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.contactName">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.contactName" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Contact name" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.organization">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.organization" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Organization" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.telephoneNumber">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.telephoneNumber" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Telephone Number" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.email">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.email" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Email Address" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.code">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.code" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.contact">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.contact" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Primary contact" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.parents">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.parents" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Parents" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View master list" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publish">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publish" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publish">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publish" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.search">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.search" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.field">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.field" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master List" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.view">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export-modal.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export-modal.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select the export format" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export-modal.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export-modal.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master List Export" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

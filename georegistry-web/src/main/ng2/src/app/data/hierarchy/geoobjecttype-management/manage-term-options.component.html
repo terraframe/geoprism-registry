@@ -12,7 +12,7 @@
                 
             <div class="heading">
                 <h1>
-                    <localize key="hierarchy.management.edit.term.options.title">: {{attribute.localizedLabel}}</localize>
+                    <localize key="hierarchy.management.edit.term.options.title">: {{attribute.label.localizedValue}}</localize>
                 </h1>
             </div>
             <div class="row-holder" [@toggleInputs]="state" (@toggleInputs.done)="onAnimationDone($event)">
@@ -31,8 +31,8 @@
                                             <th>
                                                 <localize key="data.property.label.code"></localize>
                                             </th>
-                                            <th>
-                                                <localize key="data.property.label.label"></localize>
+                                            <th *ngFor="let localeValue of termOption.label.localeValues">
+                                                <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
                                             </th>
                                             <th class="button-column-header">
                                                 <localize key="data.property.label.actions"></localize>
@@ -42,7 +42,7 @@
                                     <tbody>
                                         <tr *ngFor="let option of attribute.rootTerm.children">
                                             <td>{{option.code}}</td>
-                                            <td>{{option.localizedLabel}}</td>
+                                            <td *ngFor="let localeValue of option.label.localeValues">{{localeValue.value}}</td>
                                             <td class="button-column">
                                                 <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editTermOption(option, $event)"></a>
                                                 <a class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeTermOption(option, $event)"></a>
@@ -50,10 +50,10 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <input type="text" [(ngModel)]="termOption.code" name="termOptionCode" [required]="termOption.localizedLabel ? true : null ">
+                                                <input type="text" [(ngModel)]="termOption.code" name="termOptionCode" [required]="termOption.label ? true : null ">
                                             </td>
-                                            <td>
-                                                <input type="text" [(ngModel)]="termOption.localizedLabel" name="termOptionLabel" [required]="termOption.code ? true : null ">
+                                            <td *ngFor="let localeValue of termOption.label.localeValues">
+                                                <input type="text" [(ngModel)]="localeValue.value" [name]="'termOptionLabel-' + localeValue.locale" [required]="termOption.code ? true : null ">
                                             </td>
                                             <td class="button-column">
                                                 <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="addTermOption()">

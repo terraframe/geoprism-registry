@@ -1,7 +1,9 @@
+import { LocalizedValue } from "../../model/registry";
+
 export class HierarchyType {
   code: string;
-  localizedDescription: string;
-  localizedLabel: string;
+  description: LocalizedValue;
+  label: LocalizedValue;
   rootGeoObjectTypes: HierarchyNode[];
 }
 

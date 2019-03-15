@@ -4,7 +4,7 @@
 	<doIt>
 		<create>
 			<mdBusiness
-				name="net.geoprism.registry.AttributeHierarhcy"
+				name="net.geoprism.registry.AttributeHierarchy"
 				label="Attribute Hierarchy" generateController="false"
 				cacheAlgorithm="everything">
 				<attributes>
@@ -21,7 +21,7 @@
 			<role roleName="geoprism.admin.Administrator">
 				<grant>
 					<mdRelationshipPermission
-						type="net.geoprism.registry.AttributeHierarhcy">
+						type="net.geoprism.registry.AttributeHierarchy">
 						<operation name="ALL" />
 					</mdRelationshipPermission>
 				</grant>

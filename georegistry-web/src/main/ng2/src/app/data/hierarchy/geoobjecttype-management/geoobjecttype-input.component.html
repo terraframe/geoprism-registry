@@ -5,7 +5,7 @@
 
         <form #form="ngForm" *ngIf="editGeoObjectType" class="modal-form" (ngSubmit)="form.valid">    
             <div class="heading">
-              <h1><localize key="hierarchy.management.manage.editGeoObjectType.title"></localize> {{editGeoObjectType.localizedLabel}}</h1>
+              <h1><localize key="hierarchy.management.manage.editGeoObjectType.title"></localize> {{editGeoObjectType.label.localizedValue}}</h1>
             </div>      
             <fieldset>   
                  <div class="row-holder">
@@ -14,32 +14,13 @@
                     </div>          
                     <div class="holder" >
                     <span class="text">  
-                       <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" [disabled]="true" [required]="true">
-                    </span>
-                    </div>
-                </div>
-
-                <div class="row-holder">
-                    <div class="label-holder">
-                    <label><localize key="data.property.label.label"></localize></label>
-                    </div>          
-                    <div class="holder" >
-                    <span class="text">  
-                       <input type="text" [(ngModel)]="editGeoObjectType.localizedLabel" name="label" [required]="true">
+                       <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" disabled required>
                     </span>
                     </div>
                 </div>
                 
-                <div class="row-holder">
-                    <div class="label-holder">
-                    <label><localize key="data.property.label.description"></localize></label>
-                    </div>          
-                    <div class="holder" >
-                    <span class="text">                  
-                        <textarea [(ngModel)]="editGeoObjectType.localizedDescription" name="description" [disabled]="false"></textarea>
-                    </span>
-                    </div>
-                </div> 
+                <localized-input [(value)]="editGeoObjectType.label" key="data.property.label.label"></localized-input>
+                <localized-text [(value)]="editGeoObjectType.description" key="data.property.label.description"></localized-text>
                 
                 <div class="row-holder">
                     <div class="label-holder">
@@ -67,7 +48,7 @@
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <ul class="list-group list-group-flush">
-                                    <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.localizedLabel}}</li>
+                                    <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li>
                                 </ul>
 
                                 <button type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
@@ -106,7 +87,7 @@
                             <td class="submit-form">
                             <dl>
                                 <dd>
-                                <h4 class="disabled" >{{attr.localizedLabel}}</h4>
+                                <h4 class="disabled" >{{attr.label}}</h4>
                                 </dd>
                             </dl>
                             </td>

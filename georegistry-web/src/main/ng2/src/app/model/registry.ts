@@ -1,4 +1,3 @@
-import { sequence } from "@angular/core/src/animation/dsl";
 
 export class TreeEntity {
     id: string;
@@ -6,51 +5,63 @@ export class TreeEntity {
     hasChildren: boolean;
 }
 
-export class Term {
+export class LocaleValue {
+    locale: string;
+    value: string;
+}
 
-    constructor(public code:string, public localizedLabel:string, public localizedDescription:string){  
+export class LocalizedValue {
+    localizedValue: string;
+    localeValues: LocaleValue[];
+}
+
+export class Term {
+    code: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+
+    constructor( code: string, label: LocalizedValue, description: LocalizedValue ) {
         this.code = code;
-        this.localizedLabel = localizedLabel;
-        this.localizedDescription = localizedDescription;
+        this.label = label;
+        this.description = description;
     }
     children: Term[] = [];
 
-    addChild(term:Term) {
-      this.children.push(term);
+    addChild( term: Term ) {
+        this.children.push( term );
     }
 }
 
 export class GeoObject {
-	type: string;
-	geometry: any;
-	properties: {
-	  uid: string,
-	  code: string,
-	  localizedDisplayLabel: string,
-	  type: string,
-      status: string[],
-      sequence: string
-      createDate: string,
-      lastUpdateDate: string,
-      [key: string]: any
-	};
+    type: string;
+    geometry: any;
+    properties: {
+        uid: string,
+        code: string,
+        displayLabel: LocalizedValue,
+        type: string,
+        status: string[],
+        sequence: string
+        createDate: string,
+        lastUpdateDate: string,
+    };
 }
 
 export class GeoObjectType {
-  code: string;
-  localizedLabel: string;
-  localizedDescription: string;
-  geometryType: string;
-  isLeaf: boolean;
-  attributes: Array<Attribute|AttributeTerm|AttributeDecimal> = [];
+    code: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    geometryType: string;
+    isLeaf: boolean;
+    attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 }
 
 // export class Attribute {
-    
+
 //   name: string;
 //   type: string;
-//   localizedLabel: string;
-//   localizedDescription: string;
+//   label: string;
+//   description: string;
 //   isDefault: boolean;
 // }
 
@@ -60,39 +71,49 @@ export class GeoObjectType {
 // }
 
 export class Attribute {
+    code: string;
+    type: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    isDefault: boolean;
+    required: boolean;
+    unique: boolean;
 
-  constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
-  
-    this.code = code;
-    this.type = type;
-    this.localizedLabel = localizedLabel;
-    this.localizedDescription = localizedDescription;
-    this.isDefault = isDefault;
-  }
-  
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
+
+        this.code = code;
+        this.type = type;
+        this.label = label;
+        this.description = description;
+        this.isDefault = isDefault;
+        this.required = required;
+        this.unique = unique;
+    }
+
 }
 
 export class AttributeTerm extends Attribute {
     //descendants: Attribute[];
-    
-    constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
-      super(code, type, localizedLabel, localizedDescription, isDefault);
+
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
+        super( code, type, label, description, isDefault, required, unique );
     }
 
-    rootTerm: Term = new Term(null, null, null);
+    rootTerm: Term = new Term( null, null, null );
 
-    termOptions:Term[] = [];
+    termOptions: Term[] = [];
 
-    setRootTerm(term:Term){
+    setRootTerm( term: Term ) {
         this.rootTerm = term;
     }
 }
 
 export class AttributeDecimal extends Attribute {
-    //descendants: Attribute[];
-    
-    constructor(public code:string, public type:string, public localizedLabel:string, public localizedDescription:string, public isDefault:boolean){
-      super(code, type, localizedLabel, localizedDescription, isDefault);
+    precision: number = 32;
+    scale: number = 8;
+
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
+        super( code, type, label, description, isDefault, required, unique );
     }
 }
 
@@ -106,7 +127,28 @@ export enum GeoObjectTypeModalStates {
 }
 
 export class ManageGeoObjectTypeModalState {
-  state: string;
-  attribute: any;
-  termOption: any;
+    state: string;
+    attribute: any;
+    termOption: any;
+}
+
+export class MasterList {
+    oid: string;
+    typeCode: string;
+    displayLabel: LocalizedValue;
+    code: string;
+    representativityDate: Date;
+    publishDate: Date;
+    listAbstract: string;
+    process: string;
+    progress: string;
+    accessConstraints: string;
+    useConstraints: string;
+    acknowledgements: string;
+    disclaimer: string;
+    contactName: string;
+    organization: string;
+    telephoneNumber: string;
+    email: string;
+    hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
 }

@@ -8,8 +8,10 @@ import { LocalizationManagerComponent } from './data/localization-manager/locali
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
-import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
+import { SubmitChangeRequestComponent } from './data/change-request/submit-change-request.component';
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
+import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
+import { MasterListComponent } from './data/master-list/master-list.component';
 
 import { AdminGuard, MaintainerGuard, ContributerGuard } from './core/auth/admin.guard';
 
@@ -45,8 +47,18 @@ const routes: Routes = [
         canActivate: [MaintainerGuard]
     },
     {
+        path: 'master-lists',
+        component: MasterListManagerComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'master-list/:oid',
+        component: MasterListComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
         path: 'change-request',
-        component: StandAloneChangeRequestComponent,
+        component: SubmitChangeRequestComponent,
         canActivate: [ContributerGuard]
     },
     {
@@ -68,4 +80,4 @@ const routes: Routes = [
 } )
 export class CgrAppRoutingModule { }
 
-export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, RegistryViewerComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, RegistryViewerComponent, MasterListComponent];

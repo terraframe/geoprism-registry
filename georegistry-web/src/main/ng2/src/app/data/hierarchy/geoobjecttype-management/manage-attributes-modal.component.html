@@ -4,7 +4,7 @@
     <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">
         <div class="heading">
             <h1>
-                <localize key="hierarchy.management.manage.attributes.title"></localize> {{geoObjectType.localizedLabel}}</h1>
+                <localize key="hierarchy.management.manage.attributes.title"></localize> {{geoObjectType.label.localizedValue}}</h1>
         </div>
         <fieldset>
 
@@ -30,7 +30,7 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let attr of geoObjectType.attributes">
-                                    <td>{{attr.localizedLabel}}</td>
+                                    <td>{{attr.label.localizedValue}}</td>
                                     <td class="button-column">
                                         <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
                                             title="<localize key='modal.button.edit'></localize>"></a>
@@ -51,7 +51,7 @@
                             <td class="submit-form">
                             <dl>
                                 <dd>
-                                <h4 class="disabled" >{{attr.localizedLabel}}</h4>
+                                <h4 class="disabled" >{{attr.label}}</h4>
                                 </dd>
                             </dl>
                             </td>

@@ -10,6 +10,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 import './rxjs-extensions';
 
@@ -23,6 +24,8 @@ import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-
 import { SelectFieldComponent } from './core/form-fields/select-field/select-field.component';
 import { InputFieldComponent } from './core/form-fields/input-field/input-field.component';
 import { ValidationComponent } from './core/form-fields/base/validation.component';
+import { LocalizedInputComponent } from './core/form-fields/localized-input/localized-input.component';
+import { LocalizedTextComponent } from './core/form-fields/localized-text/localized-text.component';
 
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
@@ -50,13 +53,15 @@ import { EditTermOptionInputComponent } from './data/hierarchy/geoobjecttype-man
 import { ManageTermOptionsComponent } from './data/hierarchy/geoobjecttype-management/manage-term-options.component';
 import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
+import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
+import { PublishModalComponent } from './data/master-list/publish-modal.component';
 
 import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
-import { ChangeRequestComponent } from './data/change-request/change-request.component';
-import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
+import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
+import { SubmitChangeRequestComponent } from './data/change-request/submit-change-request.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
@@ -105,6 +110,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     BsDropdownModule.forRoot(),
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
+    NgxPaginationModule,    
     BrowserAnimationsModule
   ],
   declarations: [
@@ -153,10 +159,17 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     SelectFieldComponent,
     InputFieldComponent,
     ValidationComponent,
-    ChangeRequestComponent,
-    StandAloneChangeRequestComponent,
+    LocalizedInputComponent,    
+    LocalizedTextComponent,    
+    GeoObjectSharedAttributeEditorComponent,
+    SubmitChangeRequestComponent,
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
+    
+    // Master List screens
+    MasterListManagerComponent,
+    PublishModalComponent,
+    ExportFormatModalComponent,
     
     // Routing components
     routedComponents
@@ -199,11 +212,10 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ModalStepIndicatorComponent,
       ManageTermOptionsComponent,
       ErrorMessageComponent,
-      BooleanFieldComponent,
-      SelectFieldComponent,
-      InputFieldComponent,
-      ChangeRequestComponent,
-      StandAloneChangeRequestComponent
+      GeoObjectSharedAttributeEditorComponent,
+      SubmitChangeRequestComponent,
+      PublishModalComponent,
+      ExportFormatModalComponent
   ]        
 })
 export class CgrAppModule { }

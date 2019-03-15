@@ -13,6 +13,12 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ErrorModalComponent } from '../../../../core/modals/error-modal.component';
 
+import { GeoObject, GeoObjectType } from '../../../../model/registry';
+
+import { RegistryService } from '../../../../service/registry.service';
+
+import { AbstractAction } from '../../crtable';
+
 declare var acp: any;
 
 @Component({
@@ -25,33 +31,52 @@ export class CreateUpdateGeoObjectDetailComponent {
 
   @Input() action: any;
   
-  modifiedGeoObject: any = {};
+  preGeoObject: GeoObject = null;
+  
+  postGeoObject: GeoObject = null;
+  
+  geoObjectType : GeoObjectType = null;
   
   @Input() crtable: ActionTableComponent;
   
   private bsModalRef: BsModalRef;
 
-  constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
+  constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService) { 
 	  
   }
   
   ngOnInit(): void {
-	  this.modifiedGeoObject = Object.assign({}, this.action.geoObjectJson)
-//	  this.modifiedGeoObject = {};
-	  
-	  console.log("action = ", this.action);
-	  console.log("modifiedGeoObject = ", this.modifiedGeoObject);
+    this.onSelect(this.action);
   }
   
   applyAction()
   {
-	this.action.geoObjectJson = this.modifiedGeoObject;
-	  
     this.changeRequestService.applyAction(this.action).then( response => {
           this.crtable.refresh()
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
+  }
+  
+  onSelect(action: AbstractAction)
+  {
+    this.action = action;
+    
+    this.postGeoObject = this.action.geoObjectJson;
+    this.geoObjectType = this.action.geoObjectType;
+    
+    
+    
+    this.preGeoObject = JSON.parse(JSON.stringify(this.postGeoObject));
+    
+    // TODO : If we decide we want the diffing logic to diff based on what exists currently in the DB, use this code instead to set the preGeoObject:  
+    //this.registryService.getGeoObjectByCode(this.postGeoObject.properties.code, this.geoObjectType.code)
+    //    .then(geoObject => {
+    //        this.preGeoObject = geoObject;
+    //
+    //    }).catch((err: Response) => {
+    //        this.error(err.json());
+    //    });
   }
   
   unlockAction()

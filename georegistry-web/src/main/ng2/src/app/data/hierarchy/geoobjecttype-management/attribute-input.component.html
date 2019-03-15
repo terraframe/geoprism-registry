@@ -1,62 +1,69 @@
 <div [@toggleInputs]="state" (@toggleInputs.done)="onAnimationDone($event)">
-    <div class="row-holder">
-        <div class="label-holder">
-            <label>
-                <localize key="data.property.label.code"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <span class="text">
-                <input autofocus type="text" [disabled]="disableCodeField" [(ngModel)]="attribute.code" name="code" required geoObjectAttributeCode>
-            </span>
-        </div>
+  <div class="row-holder">
+    <div class="label-holder">
+      <label>
+        <localize key="data.property.label.code"></localize>
+      </label>
     </div>
-    <div class="row-holder">
-        <div class="label-holder">
-            <label>
-                <localize key="data.property.label.label"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <span class="text">
-                <input type="text" [(ngModel)]="attribute.localizedLabel" name="label" required>
-            </span>
-        </div>
+    <div class="holder">
+      <span class="text">
+        <input autofocus type="text" [disabled]="disableCodeField" [(ngModel)]="attribute.code" name="code" required geoObjectAttributeCode>
+      </span>
     </div>
-    <div class="row-holder" *ngIf="!excludeDescription">
-        <div class="label-holder">
-            <label>
-                <localize key="data.property.label.description"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <span class="text">
-                <input type="text" [(ngModel)]="attribute.localizedDescription" name="description">
-            </span>
-        </div>
+  </div>
+
+  <localized-input [(value)]="attribute.label" key="data.property.label.label"></localized-input>
+  <localized-text *ngIf="!excludeDescription" [(value)]="attribute.description" key="data.property.label.description"></localized-text>
+
+  <div class="row-holder">
+    <div class="label-holder">
+      <label>
+        <localize key="data.property.label.required"></localize>
+      </label>
     </div>
-    <!-- <div class="row-holder" *ngIf="isDecimal">
-        <div class="label-holder">
-            <label>
-                <localize key="data.property.label.length"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <span class="text">
-                <input type="text" [(ngModel)]="attribute.length" name="length" OnlyNumber="true" required>
-            </span>
-        </div>
+    <div class="holder">
+      <span>
+        <input type="checkbox" [(ngModel)]="attribute.required" [disabled]="disableCodeField" name="required">
+      </span>
     </div>
-    <div class="row-holder" *ngIf="isDecimal">
-        <div class="label-holder">
-            <label>
-                <localize key="data.property.label.decimal"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <span class="text">
-                <input type="text" [(ngModel)]="attribute.decimal" name="decimal" OnlyNumber="true" required>
-            </span>
-        </div>
-    </div> -->
+  </div>
+
+  <div class="row-holder">
+    <div class="label-holder">
+      <label>
+        <localize key="data.property.label.unique"></localize>
+      </label>
+    </div>
+    <div class="holder">
+      <span>
+        <input type="checkbox" [(ngModel)]="attribute.unique" [disabled]="disableCodeField" name="unique">
+      </span>
+    </div>
+  </div>
+
+  <div class="row-holder" *ngIf="isDecimal">
+    <div class="label-holder">
+      <label>
+        <localize key="data.property.label.length"></localize>        
+      </label>
+    </div>
+    <div class="holder">
+      <span class="text">
+        <input type="text" [(ngModel)]="attribute.precision" name="precision" OnlyNumber="true" required>
+      </span>
+    </div>
+  </div>
+
+  <div class="row-holder" *ngIf="isDecimal">
+    <div class="label-holder">
+      <label>
+        <localize key="data.property.label.decimal"></localize>      
+      </label>
+    </div>
+    <div class="holder">
+      <span class="text">
+        <input type="text" [(ngModel)]="attribute.scale" name="scale" OnlyNumber="true" required>
+      </span>
+    </div>
+  </div>
 </div>

@@ -3,6 +3,7 @@ package net.geoprism.registry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
@@ -10,17 +11,22 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.rbac.Authenticate;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 
-import net.geoprism.georegistry.action.AbstractAction;
-import net.geoprism.georegistry.action.AllGovernanceStatus;
-import net.geoprism.georegistry.action.ChangeRequest;
-import net.geoprism.georegistry.excel.GeoObjectExcelExporter;
-import net.geoprism.georegistry.query.GeoObjectQuery;
-import net.geoprism.georegistry.service.ServiceFactory;
-import net.geoprism.georegistry.shapefile.GeoObjectShapefileExporter;
+import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.excel.GeoObjectExcelExporter;
+import net.geoprism.registry.excel.MasterListExcelExporter;
+import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
+import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 
 public class GeoRegistryUtil extends GeoRegistryUtilBase
 {
@@ -64,7 +70,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       cr.addAction(ra).apply();
     }
   }
-  
+
   @Authenticate
   @Transaction
   public static InputStream exportShapefile(String code, String hierarchyCode)
@@ -93,7 +99,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       }
     }
   }
-  
+
   @Authenticate
   @Transaction
   public static InputStream exportSpreadsheet(String code, String hierarchyCode)
@@ -123,6 +129,45 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       }
     }
   }
-  
 
+  @Transaction
+  public static InputStream exportMasterListShapefile(String oid)
+  {
+    MasterList list = MasterList.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
+
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> list.isValid(mdAttribute)).collect(Collectors.toList());
+
+    try
+    {
+      MasterListShapefileExporter exporter = new MasterListShapefileExporter(list, mdBusiness, mdAttributes);
+
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
+  @Transaction
+  public static InputStream exportMasterListExcel(String oid)
+  {
+    MasterList list = MasterList.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
+    
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> list.isValid(mdAttribute)).collect(Collectors.toList());
+    
+    try
+    {
+      MasterListExcelExporter exporter = new MasterListExcelExporter(list, mdBusiness, mdAttributes);
+      
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+  
 }
