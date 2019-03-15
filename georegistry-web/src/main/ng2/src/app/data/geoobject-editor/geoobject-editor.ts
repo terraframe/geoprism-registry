@@ -14,7 +14,7 @@ import { ChangeRequestService } from '../../service/change-request.service';
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
 
-import { GeoObjectAttributeExcludesPipe } from './geoobject-attribute-excludes.pipe';
+import { GeoObjectAttributeExcludesPipe } from '../../data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
 import { ToEpochDateTimePipe } from '../../data/submit-change-request/to-epoch-date-time.pipe';
 
 import { Observable } from 'rxjs';
@@ -25,22 +25,20 @@ declare var acp: string;
 
 
 @Component({
-    selector: 'geoobject-shared-attribute-editor',
-    templateUrl: './geoobject-shared-attribute-editor.component.html',
-    styleUrls: ['./geoobject-shared-attribute-editor.css'],
+    selector: 'geoobject-editor',
+    templateUrl: './geoobject-editor.component.html',
+    styleUrls: ['./geoobject-editor.css'],
     providers: [DatePipe]
 })
 
 /**
- * This component is shared between:
- * - crtable (create-update-geo-object action detail)
- * - change-request (for submitting change requests)
- * - master list geoobject editing widget
- * 
- * Be wary of changing this component for one usecase and breaking other usecases!
+ * This component is used in the master list when editing a row.
  */
 export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
+    /*
+     * Reference to the modal current showing
+     */
     private bsModalRef: BsModalRef;
     
     /*
@@ -55,18 +53,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
     
-    @Input() isValid: boolean = true;
-    
-    @Output() valid = new EventEmitter<boolean>();
-    
-    @Input() allowCodeEdit: boolean = false;
-    
-    @Input() attributeExcludes: string[] = [];
-    
-    modifiedTermOption: Term = null;
-    currentTermOption: Term = null;
-    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
-    
     @ViewChild("attributeForm") attributeForm;
 
     constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
@@ -76,21 +62,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
     
     ngOnInit(): void {
-  		if (this.postGeoObject == null)
-  	    {
-  	      this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
-  	    }
-  		
-  		this.attributeForm.statusChanges.subscribe(result => {
-    			  this.isValid = (result === "VALID");
-    			  this.valid.emit(this.isValid);
-          }
-    		);
-    		
-    	if (this.attributeExcludes != null)
-    	{
-    	  this.geoObjectAttributeExcludes.push.apply(this.geoObjectAttributeExcludes, this.attributeExcludes);
-    	}
+		if (this.postGeoObject == null)
+	    {
+	      this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
+	    }
+		
+		this.attributeForm.statusChanges.subscribe(result => {
+  			  this.isValid = (result === "VALID");
+  			  this.valid.emit(this.isValid);
+        }
+  		);
     }
 
     onSelectPropertyOption(event: any, option:any): void {

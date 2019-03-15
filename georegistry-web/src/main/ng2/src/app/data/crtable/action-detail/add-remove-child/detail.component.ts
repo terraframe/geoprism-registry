@@ -44,7 +44,6 @@ export class AddRemoveChildDetailComponent {
   
   onSelect(action: AbstractAction)
   {
-    console.log("ar onSelect called");
     this.action = action;
   }
   

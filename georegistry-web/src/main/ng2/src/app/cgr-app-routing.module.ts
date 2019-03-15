@@ -8,7 +8,7 @@ import { LocalizationManagerComponent } from './data/localization-manager/locali
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
-import { SubmitChangeRequestComponent } from './data/change-request/submit-change-request.component';
+import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { MasterListComponent } from './data/master-list/master-list.component';
