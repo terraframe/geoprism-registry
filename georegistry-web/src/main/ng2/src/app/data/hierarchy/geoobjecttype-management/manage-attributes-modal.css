@@ -9,14 +9,14 @@ li.list-group-item {
 }
 .button-column .fa {
     font-size: 25px;
-    color:#bababa;
+    /* color:#bababa; */
 }
-.button-column .fa.ico-remove:hover{
+/* .button-column .fa.ico-remove:hover{
     color: red;
-}
-.button-column .fa.ico-edit:hover{
+} */
+/* .button-column .fa.ico-edit:hover{
     color:#00bfff
-}
+} */
 .button-column button {
     font-size: inherit;
 }

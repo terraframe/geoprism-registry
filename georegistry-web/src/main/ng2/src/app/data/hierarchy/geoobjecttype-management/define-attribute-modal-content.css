@@ -1,0 +1,20 @@
+.btn-group.define-attribute-btns {
+    /* width: 50%; */
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 100px;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button {
+    width: 16%;
+    background: var(--theme-button-color);
+    color: var(--theme-button-text-color);  
+    border-color: var(--theme-button-color-border);
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button:active{
+    background: var(--theme-submit-button-color-light) !important;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button.active,
+.btn-group.define-attribute-btns .btn.full-width-radio-button:focus{
+    color: var(--theme-button-color-hover) !important;
+    box-shadow: none;
+}

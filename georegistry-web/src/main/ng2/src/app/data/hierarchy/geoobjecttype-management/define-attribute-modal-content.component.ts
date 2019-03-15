@@ -26,7 +26,7 @@ import { ErrorMessageComponent } from '../../../core/message/error-message.compo
 @Component( {
     selector: 'define-attribute-modal-content',
     templateUrl: './define-attribute-modal-content.component.html',
-    styleUrls: [],
+    styleUrls: ['./define-attribute-modal-content.css'],
     animations: [
         trigger('openClose', 
             [

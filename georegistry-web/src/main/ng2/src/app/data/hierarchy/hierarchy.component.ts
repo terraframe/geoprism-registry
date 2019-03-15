@@ -50,7 +50,7 @@ class Instance {
   
   selector: 'hierarchies',
   templateUrl: './hierarchy.component.html',
-  styleUrls: []
+  styleUrls: ['./hierarchy.css']
 })
 export class HierarchyComponent implements OnInit {
   instance : Instance = new Instance();  

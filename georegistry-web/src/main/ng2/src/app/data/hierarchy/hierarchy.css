@@ -1,0 +1,3 @@
+li.list-group-item.active {
+    background: var(--theme-primary-color-light)
+}
