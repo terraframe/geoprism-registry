@@ -55,6 +55,7 @@ import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-mana
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { PublishModalComponent } from './data/master-list/publish-modal.component';
+import { ExportFormatModalComponent } from './data/master-list/export-format-modal.component';
 
 import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
