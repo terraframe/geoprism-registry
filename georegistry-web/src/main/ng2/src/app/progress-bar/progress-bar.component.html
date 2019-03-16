@@ -1,0 +1,5 @@
+<div *ngIf="showIndicator" class="progress-overlay" style="height: 100%; width: 100%;">
+  <div class="progress-div">
+    <progressbar class="progress-striped active" [max]="prog.total" [value]="prog.current"><i>{{prog.description}}</i></progressbar>
+  </div>
+</div>

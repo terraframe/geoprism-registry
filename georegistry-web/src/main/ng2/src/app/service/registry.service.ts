@@ -19,11 +19,13 @@
 
 import { Injectable } from '@angular/core';
 import { Headers, Http, Response, URLSearchParams } from '@angular/http';
+import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
 import { GeoObject, GeoObjectType, Attribute, Term, MasterList, ChildTreeNode, ParentTreeNode } from '../model/registry';
 import { HierarchyType } from '../data/hierarchy/hierarchy';
+import { Progress } from '../progress-bar/progress';
 import { EventService } from '../event/event.service';
 
 declare var acp: any;
@@ -362,22 +364,12 @@ export class RegistryService {
             .toPromise()
     }
 
-    publishMasterList( oid: string ): Promise<MasterList> {
+    publishMasterList( oid: string ): Observable<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
 
-        this.eventService.start();
-
-        return this.http
-            .post( acp + '/master-list/publish', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise()
-            .then( response => {
-                return response.json() as MasterList;
-            } )
+        return this.http.post( acp + '/master-list/publish', JSON.stringify( { oid: oid } ), { headers: headers } );
     }
 
     getMasterList( oid: string ): Promise<MasterList> {
@@ -434,6 +426,18 @@ export class RegistryService {
             .toPromise()
             .then( response => {
                 return response.json() as any;
+            } )
+    }
+
+    progress( oid: string ): Promise<Progress> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'oid', oid );
+
+        return this.http
+            .get( acp + '/master-list/progress', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response.json() as Progress;
             } )
     }
 

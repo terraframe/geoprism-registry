@@ -14,7 +14,7 @@ import { RegistryService } from '../../service/registry.service';
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
 
-import { ToEpochDateTimePipe } from '../../data/submit-change-request/to-epoch-date-time.pipe';
+import { ToEpochDateTimePipe } from './to-epoch-date-time.pipe';
 
 import { Observable} from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';

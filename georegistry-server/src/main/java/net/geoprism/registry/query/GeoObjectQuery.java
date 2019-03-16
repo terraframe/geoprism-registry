@@ -316,4 +316,8 @@ public class GeoObjectQuery
     }
   }
 
+  public Long getCount()
+  {
+    return this.getValueQuery().getCount();
+  }
 }
