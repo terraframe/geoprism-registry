@@ -63,6 +63,7 @@ import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-deta
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
 import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
+import { GeoObjectEditorComponent } from './data/geoobject-editor/geoobject-editor.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
@@ -164,6 +165,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     LocalizedTextComponent,    
     GeoObjectSharedAttributeEditorComponent,
     SubmitChangeRequestComponent,
+    GeoObjectEditorComponent,
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     
@@ -215,6 +217,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ErrorMessageComponent,
       GeoObjectSharedAttributeEditorComponent,
       SubmitChangeRequestComponent,
+      GeoObjectEditorComponent,
       PublishModalComponent,
       ExportFormatModalComponent
   ]        

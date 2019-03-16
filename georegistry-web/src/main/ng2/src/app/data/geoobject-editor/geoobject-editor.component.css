@@ -1,7 +1,12 @@
-/* form.modal-form {
-    overflow: auto;
-    height: 100vh;
-} */
+
+.geobject-editor-tab-holder {
+	margin: 0 auto;
+	margin-bottom: 20px;
+}
+
+.geobject-editor-tab-holder .btn.full-width-radio-button.active {
+    background: #009edc !important;
+}
 
 .modal-form .text input[type="text"] {
     background: #f5f5f5;

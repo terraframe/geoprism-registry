@@ -22,8 +22,8 @@ import { Headers, Http, Response, URLSearchParams } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList } from '../model/registry';
-import { HierarchyNode, HierarchyType } from '../data/hierarchy/hierarchy';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, ChildTreeNode, ParentTreeNode } from '../model/registry';
+import { HierarchyType } from '../data/hierarchy/hierarchy';
 import { EventService } from '../event/event.service';
 
 declare var acp: any;
@@ -57,10 +57,27 @@ export class RegistryService {
             } )
     }
 
-    getChildGeoObjects( parentUid: string, childrenTypes: any, recursive: boolean ): Promise<HierarchyNode> {
+    getParentGeoObjects( childId: string, childTypeCode: string, parentTypes: any, recursive: boolean ): Promise<ParentTreeNode> {
         let params: URLSearchParams = new URLSearchParams();
 
-        params.set( 'parentUid', parentUid )
+        params.set( 'childId', childId )
+        params.set( 'childTypeCode', childTypeCode )
+        params.set( 'parentTypes', JSON.stringify( parentTypes ) )
+        params.set( 'recursive', JSON.stringify( recursive ) );
+
+        return this.http
+            .get( acp + '/cgr/geoobject/get-parent-geoobjects', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response.json() as ParentTreeNode;
+            } )
+    }
+
+    getChildGeoObjects( parentId: string, parentTypeCode: string, childrenTypes: any, recursive: boolean ): Promise<ChildTreeNode> {
+        let params: URLSearchParams = new URLSearchParams();
+
+        params.set( 'parentId', parentId )
+        params.set( 'parentTypeCode', parentTypeCode )
         params.set( 'childrenTypes', JSON.stringify( childrenTypes ) )
         params.set( 'recursive', JSON.stringify( recursive ) );
 
@@ -68,7 +85,7 @@ export class RegistryService {
             .get( acp + '/cgr/geoobject/getchildren', { params: params } )
             .toPromise()
             .then( response => {
-                return response.json() as HierarchyNode;
+                return response.json() as ChildTreeNode;
             } )
     }
 
@@ -372,6 +389,27 @@ export class RegistryService {
             .toPromise()
             .then( response => {
                 return response.json() as MasterList;
+            } )
+    }
+    
+    /*
+     * Not really part of the RegistryService
+     */
+    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject ): Promise<Response> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response;
             } )
     }
 

@@ -10,6 +10,9 @@ import { ChangeRequest, PageEvent } from './crtable';
 import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../core/service/localization.service';
 
+// TODO : @jsmethie Delete this import
+import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
+
 @Component( {
 
     selector: 'request-table',
@@ -38,6 +41,9 @@ export class RequestTableComponent {
         ];
 
         this.refresh();
+        
+        // TODO : @jsmethie Delete this code
+        this.modalService.show(GeoObjectEditorComponent, { backdrop: true });
     }
 
     refresh(): void {
