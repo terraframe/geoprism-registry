@@ -81,11 +81,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
   	      this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
   	    }
   		
-  		this.attributeForm.statusChanges.subscribe(result => {
-    			  this.isValid = (result === "VALID");
-    			  this.valid.emit(this.isValid);
-          }
-    		);
+  		// this.attributeForm.statusChanges.subscribe(result => {
+    	// 		  this.isValid = (result === "VALID");
+    	// 		  this.valid.emit(this.isValid);
+        //   }
+    	// 	);
     		
     	if (this.attributeExcludes != null)
     	{

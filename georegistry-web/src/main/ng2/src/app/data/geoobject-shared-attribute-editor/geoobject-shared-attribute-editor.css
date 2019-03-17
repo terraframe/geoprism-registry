@@ -18,3 +18,12 @@ li.list-group-item {
 .warning-text{
     color: orange;
 }
+
+
+form.modal-form {
+    overflow: visible;
+}
+
+fieldset {
+    width: 100% !important;
+}

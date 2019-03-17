@@ -93,7 +93,8 @@ export class SubmitChangeRequestComponent implements OnInit {
 	
 	    }).catch((err: Response) => {
 	        this.error(err.json());
-	    });
+        });
+        
     }
     
     
