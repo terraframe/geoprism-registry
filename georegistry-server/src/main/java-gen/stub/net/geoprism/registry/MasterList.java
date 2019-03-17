@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -78,6 +80,8 @@ import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
+import net.geoprism.registry.progress.Progress;
+import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.service.ConversionService;
@@ -117,114 +121,147 @@ public class MasterList extends MasterListBase
   @Transaction
   public JsonObject publish()
   {
-    this.appLock();
-    this.setPublishDate(new Date());
-    this.apply();
-
-    MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    mdBusiness.deleteAllRecords();
-
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-    Universal universal = this.getUniversal();
-    GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
-
-    // Add the type ancestor fields
-    Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
-
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
-    GeoObjectIterator objects = query.getIterator();
-
-    Collection<AttributeType> attributes = type.getAttributeMap().values();
+    this.lock();
 
     try
     {
-      while (objects.hasNext())
+      MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+      mdBusiness.deleteAllRecords();
+
+      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+      Universal universal = this.getUniversal();
+      GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+
+      // Add the type ancestor fields
+      Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
+
+      GeoObjectQuery query = new GeoObjectQuery(type, universal);
+
+      Long count = query.getCount();
+      long current = 0;
+
+      ProgressService.put(this.getOid(), new Progress(0L, count, ""));
+
+      try
       {
-        Business business = new Business(mdBusiness.definesType());
 
-        GeoObject object = objects.next();
+        GeoObjectIterator objects = query.getIterator();
 
-        business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, object.getGeometry());
+        Collection<AttributeType> attributes = type.getAttributeMap().values();
 
-        attributes.forEach(attribute -> {
-
-          String name = attribute.getName();
-
-          if (this.isValid(attribute))
+        try
+        {
+          while (objects.hasNext())
           {
-            Object value = object.getValue(name);
+            Business business = new Business(mdBusiness.definesType());
 
-            if (attribute instanceof AttributeTermType)
+            GeoObject object = objects.next();
+
+            business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, object.getGeometry());
+
+            for (AttributeType attribute : attributes)
             {
-              Iterator<String> codes = (Iterator<String>) value;
+              String name = attribute.getName();
 
-              if (codes.hasNext())
+              if (this.isValid(attribute))
               {
-                String code = codes.next();
+                Object value = object.getValue(name);
 
-                Term term = ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
-                LocalizedValue label = term.getLabel();
-
-                business.setValue(name, term.getCode());
-                business.setValue(name + "DefaultLocale", label.getValue(LocalizedValue.DEFAULT_LOCALE));
-
-                for (Locale locale : locales)
+                if (attribute instanceof AttributeTermType)
                 {
-                  business.setValue(name + locale.toString(), label.getValue(locale));
+                  Iterator<String> codes = (Iterator<String>) value;
+
+                  if (codes.hasNext())
+                  {
+                    String code = codes.next();
+
+                    Term term = ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
+                    LocalizedValue label = term.getLabel();
+
+                    business.setValue(name, term.getCode());
+                    business.setValue(name + "DefaultLocale", label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+                    for (Locale locale : locales)
+                    {
+                      business.setValue(name + locale.toString(), label.getValue(locale));
+                    }
+                  }
+                }
+                else if (attribute instanceof AttributeLocalType)
+                {
+                  LocalizedValue label = (LocalizedValue) value;
+
+                  business.setValue(name + "DefaultLocale", label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+                  for (Locale locale : locales)
+                  {
+                    business.setValue(name + locale.toString(), label.getValue(locale));
+                  }
+                }
+                else
+                {
+                  business.setValue(name, value);
                 }
               }
             }
-            else if (attribute instanceof AttributeLocalType)
+
+            Set<Entry<HierarchyType, List<GeoObjectType>>> entries = ancestorMap.entrySet();
+
+            for (Entry<HierarchyType, List<GeoObjectType>> entry : entries)
             {
-              LocalizedValue label = (LocalizedValue) value;
+              HierarchyType hierarchy = entry.getKey();
+              // List<GeoObjectType> parents = entry.getValue();
+              Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchy);
 
-              business.setValue(name + "DefaultLocale", label.getValue(LocalizedValue.DEFAULT_LOCALE));
+              Set<Entry<String, ValueObject>> locations = map.entrySet();
 
-              for (Locale locale : locales)
+              for (Entry<String, ValueObject> location : locations)
               {
-                business.setValue(name + locale.toString(), label.getValue(locale));
+                String pCode = location.getKey();
+                ValueObject vObject = location.getValue();
+
+                if (vObject != null)
+                {
+                  String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
+                  if (business.hasAttribute(attributeName))
+                  {
+                    business.setValue(attributeName, vObject.getValue(GeoEntity.GEOID));
+                    business.setValue(attributeName + "DefaultLocale", vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+
+                    for (Locale locale : locales)
+                    {
+                      business.setValue(attributeName + locale.toString(), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+                    }
+                  }
+                }
               }
             }
-            else
-            {
-              business.setValue(name, value);
-            }
+
+            business.apply();
+
+            ProgressService.put(this.getOid(), new Progress(current++, count, ""));
           }
-        });
+        }
+        finally
+        {
+          objects.close();
+        }
 
-        ancestorMap.forEach((hierarchy, parents) -> {
-          Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchy);
+        this.setPublishDate(new Date());
+        this.apply();
 
-          map.forEach((pCode, vObject) -> {
-
-            if (vObject != null)
-            {
-              String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
-              if (business.hasAttribute(attributeName))
-              {
-                business.setValue(attributeName, vObject.getValue(GeoEntity.GEOID));
-                business.setValue(attributeName + "DefaultLocale", vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
-
-                for (Locale locale : locales)
-                {
-                  business.setValue(attributeName + locale.toString(), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
-                }
-              }
-            }
-          });
-
-        });
-
-        business.apply();
+        return this.toJSON();
+      }
+      finally
+      {
+        ProgressService.remove(this.getOid());
       }
     }
     finally
     {
-      objects.close();
+      this.unlock();
     }
-
-    return this.toJSON();
   }
 
   private MdBusiness createTable()

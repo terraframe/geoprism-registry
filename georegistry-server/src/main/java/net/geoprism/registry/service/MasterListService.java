@@ -9,10 +9,12 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
+import net.geoprism.registry.progress.ProgressService;
 
 public class MasterListService
 {
@@ -57,6 +59,9 @@ public class MasterListService
   public JsonObject create(String sessionId, JsonObject list)
   {
     MasterList mList = MasterList.create(list);
+
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
     return mList.toJSON();
   }
 
@@ -66,6 +71,8 @@ public class MasterListService
     try
     {
       MasterList.get(oid).delete();
+
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
     catch (DataNotFoundException e)
     {
@@ -101,5 +108,11 @@ public class MasterListService
   public InputStream exportSpreadsheet(String sessionId, String oid)
   {
     return GeoRegistryUtil.exportMasterListExcel(oid);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject progress(String sessionId, String oid)
+  {
+    return ProgressService.progress(oid).toJson();
   }
 }
