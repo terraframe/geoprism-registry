@@ -100,7 +100,7 @@ public class GeoObjectExcelExporter
     Row header = sheet.createRow(0);
 
     boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true).attributes(this.type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, SupportedLocaleDAO.getSupportedLocales()).attributes(this.type);
 
     // Get the ancestors of the type
     List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());

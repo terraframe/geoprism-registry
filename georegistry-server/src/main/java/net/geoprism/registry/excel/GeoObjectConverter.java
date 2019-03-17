@@ -2,6 +2,7 @@ package net.geoprism.registry.excel;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -15,9 +16,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.io.RequiredMappingException;
 
 public class GeoObjectConverter extends FeatureRowImporter
 {
@@ -45,6 +44,10 @@ public class GeoObjectConverter extends FeatureRowImporter
     {
       entity.setValue(attributeName, new Double((String) value));
     }
+    else if (attributeType instanceof AttributeCharacterType)
+    {
+      entity.setValue(attributeName, value.toString());
+    }
     else if (attributeType instanceof AttributeBooleanType)
     {
       entity.setValue(attributeName, value);
@@ -69,22 +72,10 @@ public class GeoObjectConverter extends FeatureRowImporter
       if (latitude != null && longitude != null)
       {
         Double lat = new Double(latitude.toString());
-        Double lon = new Double(longitude.toString()); 
+        Double lon = new Double(longitude.toString());
 
         return new Point(new CoordinateSequence2D(lat, lon), factory);
       }
-    }
-    else if (latitudeFunction == null)
-    {
-      RequiredMappingException ex = new RequiredMappingException();
-      ex.setAttributeLabel(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
-      throw ex;
-    }
-    else if (longitudeFunction == null)
-    {
-      RequiredMappingException ex = new RequiredMappingException();
-      ex.setAttributeLabel(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
-      throw ex;
     }
 
     return null;

@@ -309,6 +309,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
         String baseType = field.getBaseType();
 
         attributes.get(baseType).getAsJsonArray().add(name);
+
+        if (baseType.equals(GeoObjectConfiguration.NUMERIC))
+        {
+          attributes.get(GeoObjectConfiguration.TEXT).getAsJsonArray().add(name);
+        }
       }
 
       JsonObject sheet = new JsonObject();

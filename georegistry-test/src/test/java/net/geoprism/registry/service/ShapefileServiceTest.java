@@ -143,7 +143,7 @@ public class ShapefileServiceTest
 
     JsonArray fields = attributes.get(GeoObjectConfiguration.TEXT).getAsJsonArray();
 
-    Assert.assertEquals(7, fields.size());
+    Assert.assertEquals(9, fields.size());
     Assert.assertEquals("STATEFP", fields.get(0).getAsString());
 
     Assert.assertEquals(2, attributes.get(GeoObjectConfiguration.NUMERIC).getAsJsonArray().size());

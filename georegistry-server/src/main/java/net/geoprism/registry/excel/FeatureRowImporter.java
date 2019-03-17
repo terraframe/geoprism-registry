@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -115,7 +116,7 @@ public abstract class FeatureRowImporter
       }
 
       Geometry geometry = (Geometry) this.getGeometry(row);
-      String entityName = this.getName(row);
+      Object entityName = this.getName(row);
 
       if (entityName != null)
       {
@@ -234,11 +235,11 @@ public abstract class FeatureRowImporter
     for (Location location : locations)
     {
       ShapefileFunction function = location.getFunction();
-      String label = (String) function.getValue(feature);
+      Object label = function.getValue(feature);
 
       if (label != null)
       {
-        String key = parent != null ? parent.getCode() + "-" + label : label;
+        String key = parent != null ? parent.getCode() + "-" + label : label.toString();
 
         if (this.configuration.isExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, key))
         {
@@ -247,7 +248,7 @@ public abstract class FeatureRowImporter
 
         // Search
         GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
-        query.setRestriction(new SynonymRestriction(label, parent, this.configuration.getHierarchyRelationship()));
+        query.setRestriction(new SynonymRestriction(label.toString(), parent, this.configuration.getHierarchyRelationship()));
 
         try
         {
@@ -259,7 +260,7 @@ public abstract class FeatureRowImporter
             parent = result;
 
             JsonObject element = new JsonObject();
-            element.addProperty("label", label);
+            element.addProperty("label", label.toString());
             element.addProperty("type", location.getType().getLabel().getValue());
 
             context.add(element);
@@ -280,7 +281,7 @@ public abstract class FeatureRowImporter
               }
             }
 
-            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label, parent, context));
+            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
 
             return null;
           }
@@ -288,7 +289,7 @@ public abstract class FeatureRowImporter
         catch (NonUniqueResultException e)
         {
           AmbiguousParentException ex = new AmbiguousParentException();
-          ex.setParentLabel(label);
+          ex.setParentLabel(label.toString());
           ex.setContext(context.toString());
 
           throw ex;
@@ -336,7 +337,7 @@ public abstract class FeatureRowImporter
    * @param feature
    * @return The entityName as defined by the 'name' attribute of the feature
    */
-  private String getName(FeatureRow row)
+  private LocalizedValue getName(FeatureRow row)
   {
     ShapefileFunction function = this.configuration.getFunction(GeoObject.DISPLAY_LABEL);
 
@@ -351,7 +352,7 @@ public abstract class FeatureRowImporter
 
     if (attribute != null)
     {
-      return attribute.toString();
+      return (LocalizedValue) attribute;
     }
 
     return null;

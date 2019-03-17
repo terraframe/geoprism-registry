@@ -176,7 +176,7 @@ public class MasterList extends MasterListBase
                   {
                     String code = codes.next();
 
-                    Term term = ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
+                    Term term = ( (AttributeTermType) attribute ).getTermByCode(code).get();
                     LocalizedValue label = term.getLabel();
 
                     business.setValue(name, term.getCode());

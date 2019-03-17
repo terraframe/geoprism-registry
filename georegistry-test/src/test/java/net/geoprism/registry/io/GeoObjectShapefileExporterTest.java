@@ -30,6 +30,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
@@ -139,7 +140,7 @@ public class GeoObjectShapefileExporterTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true).attributes(type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, SupportedLocaleDAO.getSupportedLocales()).attributes(type);
 
     for (AttributeType attribute : attributes)
     {

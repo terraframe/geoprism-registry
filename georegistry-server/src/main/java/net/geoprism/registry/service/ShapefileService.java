@@ -29,6 +29,7 @@ import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -105,7 +106,7 @@ public class ShapefileService
 
   private JsonObject getType(GeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false));
+    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
@@ -153,6 +154,11 @@ public class ShapefileService
               String baseType = GeoObjectConfiguration.getBaseType(descriptor.getType());
 
               attributes.get(baseType).getAsJsonArray().add(name);
+
+              if (baseType.equals(GeoObjectConfiguration.NUMERIC))
+              {
+                attributes.get(GeoObjectConfiguration.TEXT).getAsJsonArray().add(name);
+              }
             }
           }
 
