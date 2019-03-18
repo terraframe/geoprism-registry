@@ -68,6 +68,14 @@ export class AttributeInputComponent implements OnInit {
         
     }
 
+    toggleIsUnique():void {
+        this.attribute.unique = !this.attribute.unique;
+    }
+
+    toggleIsRequired():void {
+        this.attribute.required = !this.attribute.required;
+    }
+
     animate(): void {
         this.state = "none";
     }

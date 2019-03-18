@@ -23,6 +23,21 @@ const routes: Routes = [
         canActivate: [MaintainerGuard]
     },
     {
+        path: 'lists',
+        redirectTo: '/master-lists',
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'requests',
+        redirectTo: '/crtable',
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'uploads',
+        redirectTo: '/shapefile',
+        canActivate: [MaintainerGuard]
+    },
+    {
         path: 'shapefile',
         component: ShapefileComponent,
         canActivate: [MaintainerGuard]

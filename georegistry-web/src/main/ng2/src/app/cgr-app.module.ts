@@ -90,6 +90,10 @@ import { EventService } from './event/event.service';
 import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
+import { ChangeRequestHeaderComponent } from './app-specific-headers/change-request-header.component';
+import { HierarchyHeaderComponent } from './app-specific-headers/hierarchy-header.component';
+import { ImportExportHeaderComponent } from './app-specific-headers/import-export-header.component';
+import { MasterListHeaderComponent } from './app-specific-headers/master-list-header.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -171,6 +175,10 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     ProgressBarComponent,
+    ChangeRequestHeaderComponent,
+    HierarchyHeaderComponent,
+    ImportExportHeaderComponent,
+    MasterListHeaderComponent,
     
     // Master List screens
     MasterListManagerComponent,
