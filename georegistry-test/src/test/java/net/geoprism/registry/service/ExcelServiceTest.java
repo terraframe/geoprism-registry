@@ -204,7 +204,7 @@ public class ExcelServiceTest
     Double lon = new Double(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    Point expected = new Point(new CoordinateSequence2D(lat, lon), factory);
+    Point expected = new Point(new CoordinateSequence2D(lon, lat), factory);
 
     Assert.assertEquals(expected, geometry);
   }
