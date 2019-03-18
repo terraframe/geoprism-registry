@@ -93,6 +93,7 @@ public class GeoObjectContentHandler implements SheetHandler
   @Override
   public void endSheet()
   {
+    this.isFirstSheet = false;
   }
 
   @Override

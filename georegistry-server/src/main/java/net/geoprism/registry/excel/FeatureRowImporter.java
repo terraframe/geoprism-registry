@@ -107,75 +107,69 @@ public abstract class FeatureRowImporter
           isNew = true;
           entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
         }
-      }
-      else
-      {
-        // create a new entity
-        isNew = true;
-        entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
-      }
 
-      Geometry geometry = (Geometry) this.getGeometry(row);
-      Object entityName = this.getName(row);
+        Geometry geometry = (Geometry) this.getGeometry(row);
+        Object entityName = this.getName(row);
 
-      if (entityName != null)
-      {
-        if (geometry != null)
+        if (entityName != null)
         {
-          entity.setGeometry(geometry);
-        }
-
-        if (isNew)
-        {
-          entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-        }
-
-        Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-        Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-
-        for (Entry<String, AttributeType> entry : entries)
-        {
-          String attributeName = entry.getKey();
-
-          ShapefileFunction function = this.configuration.getFunction(attributeName);
-
-          if (function != null)
+          if (geometry != null)
           {
-            Object value = function.getValue(row);
+            entity.setGeometry(geometry);
+          }
 
-            if (value != null)
+          if (isNew)
+          {
+            entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+          }
+
+          Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+          Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+          for (Entry<String, AttributeType> entry : entries)
+          {
+            String attributeName = entry.getKey();
+
+            ShapefileFunction function = this.configuration.getFunction(attributeName);
+
+            if (function != null)
             {
-              AttributeType attributeType = entry.getValue();
+              Object value = function.getValue(row);
 
-              this.setValue(entity, attributeType, attributeName, value);
+              if (value != null)
+              {
+                AttributeType attributeType = entry.getValue();
+
+                this.setValue(entity, attributeType, attributeName, value);
+              }
             }
           }
-        }
 
-        ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
+          ServiceFactory.getUtilities().applyGeoObject(entity, isNew);
 
-        if (parent != null)
-        {
-          String parentTypeCode = parent.getType().getCode();
-          String typeCode = entity.getType().getCode();
-          String hierarchyCode = this.configuration.getHierarchy().getCode();
-          RegistryService service = ServiceFactory.getRegistryService();
-
-          if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
+          if (parent != null)
           {
-            service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
+            String parentTypeCode = parent.getType().getCode();
+            String typeCode = entity.getType().getCode();
+            String hierarchyCode = this.configuration.getHierarchy().getCode();
+            RegistryService service = ServiceFactory.getRegistryService();
+
+            if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
+            {
+              service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
+            }
           }
-        }
 
-        // We must ensure that any problems created during the transaction are
-        // logged now instead of when the request returns. As such, if any
-        // problems exist immediately throw a ProblemException so that normal
-        // exception handling can occur.
-        List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
+          // We must ensure that any problems created during the transaction are
+          // logged now instead of when the request returns. As such, if any
+          // problems exist immediately throw a ProblemException so that normal
+          // exception handling can occur.
+          List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
 
-        if (problems.size() != 0)
-        {
-          throw new ProblemException(null, problems);
+          if (problems.size() != 0)
+          {
+            throw new ProblemException(null, problems);
+          }
         }
       }
     }
@@ -210,7 +204,7 @@ public abstract class FeatureRowImporter
       return geoId.toString();
     }
 
-    return "";
+    return null;
   }
 
   /**
