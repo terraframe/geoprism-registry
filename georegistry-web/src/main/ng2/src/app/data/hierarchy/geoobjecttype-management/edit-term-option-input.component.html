@@ -23,19 +23,8 @@
                             </span>
                         </div>
                     </div>
-                    <div class="row-holder">
-                        <div class="label-holder">
-                            <label>
-                                <localize key="data.property.label.label"></localize>
-                            </label>
-                        </div>
-                        <div class="holder">
-                            <span class="text">
-                                <input type="text" [(ngModel)]="termOption.label" name="label" required>
-                            </span>
-                        </div>
-                    </div>
-
+                    <localized-input [(value)]="termOption.label" key="data.property.label.label"></localized-input>
+                    
                     <div class="row-holder">
                         <div class="label-holder">
                         </div>

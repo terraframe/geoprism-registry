@@ -188,14 +188,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="masterlist.publish" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Publish" />
-        </attributeStruct>
-      </object>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publish">
-        <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="masterlist.publish" />
-        <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Publish" />
+          <attribute name="defaultLocale" value="Refresh" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.search">

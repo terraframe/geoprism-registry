@@ -33,6 +33,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -240,6 +241,12 @@ public class RegistryService
       GeoEntity geChild = GeoEntity.get(childRunwayId);
 
       String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(hierarchyCode);
+      String universalRelationshipType = ConversionService.buildMdTermRelUniversalKey(hierarchyCode);
+
+      if (!universalRelationshipType.equals(AllowedIn.CLASS))
+      {
+        GeoEntity.validateUniversalRelationship(geChild.getUniversal(), geParent.getUniversal(), universalRelationshipType);
+      }
 
       geChild.addLink(geParent, mdTermRelGeoEntity);
 

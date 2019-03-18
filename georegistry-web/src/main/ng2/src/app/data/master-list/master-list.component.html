@@ -69,11 +69,19 @@
         <table class="list-table table table-bordered table-striped">
           <thead>
             <tr>
+<!-- 
+              <th class="label-column"></th>
+ -->            
               <th *ngFor="let attribute of list.attributes" class="label-column">{{attribute.label}}</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
+<!-- 
+              <td>
+                <i class="fa fa-pencil pull-right" (click)="edit(result)"> </i>
+              </td>
+ -->            
               <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
             </tr>
           </tbody>
