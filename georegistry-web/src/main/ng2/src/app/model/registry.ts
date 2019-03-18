@@ -126,6 +126,19 @@ export enum GeoObjectTypeModalStates {
     "manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
 }
 
+export class TreeNode {
+    geoObject: GeoObject;
+    hierarchyType: string;
+}
+
+export class ChildTreeNode extends TreeNode {
+    children: ChildTreeNode[];
+}
+
+export class ParentTreeNode extends TreeNode {
+    parents: ParentTreeNode[];
+}
+
 export class ManageGeoObjectTypeModalState {
     state: string;
     attribute: any;
