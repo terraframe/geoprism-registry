@@ -304,7 +304,7 @@ export class HierarchyComponent implements OnInit {
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + '[' + obj.label + ']';
+        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + obj.label.localizedValue + ']';
         this.bsModalRef.content.data = obj.code;
 
         ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
@@ -358,7 +358,7 @@ export class HierarchyComponent implements OnInit {
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + '[' + obj.label + ']';
+        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + obj.label.localizedValue + ']';
         this.bsModalRef.content.data = obj.code;
         this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
         this.bsModalRef.content.type = ModalTypes.danger;
@@ -399,8 +399,8 @@ export class HierarchyComponent implements OnInit {
         } );
 
         geoObjectType.attributes.sort(( a, b ) => {
-            if ( a.label < b.label ) return -1;
-            else if ( a.label > b.label ) return 1;
+            if ( a.label.localizedValue < b.label.localizedValue ) return -1;
+            else if ( a.label.localizedValue > b.label.localizedValue ) return 1;
             else return 0;
         } );
         this.bsModalRef.content.geoObjectType = geoObjectType;
@@ -499,7 +499,7 @@ export class HierarchyComponent implements OnInit {
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + '[' + node.data.label + ']';
+        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + node.data.label + ']';
         this.bsModalRef.content.data = node;
 
         ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
