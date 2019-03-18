@@ -43,6 +43,7 @@ import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDateDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDoubleDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTextDAOIF;
@@ -339,6 +340,10 @@ public class MasterListShapefileExporter
       return String.class;
     }
     else if (mdAttribute instanceof MdAttributeDateDAOIF)
+    {
+      return Date.class;
+    }
+    else if (mdAttribute instanceof MdAttributeDateTimeDAOIF)
     {
       return Date.class;
     }

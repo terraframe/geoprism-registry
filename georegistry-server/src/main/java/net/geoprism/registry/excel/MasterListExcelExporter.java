@@ -26,14 +26,11 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
-import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.MasterList;
-import net.geoprism.registry.RegistryConstants;
 
 public class MasterListExcelExporter
 {
@@ -79,9 +76,9 @@ public class MasterListExcelExporter
 
     Row header = sheet.createRow(0);
 
-    MdAttributeGeometryDAOIF geometryAttribute = (MdAttributeGeometryDAOIF) this.mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-
-    boolean includeCoordinates = ( geometryAttribute instanceof MdAttributePointDAOIF );
+//    MdAttributeGeometryDAOIF geometryAttribute = (MdAttributeGeometryDAOIF) this.mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+//
+//    boolean includeCoordinates = ( geometryAttribute instanceof MdAttributePointDAOIF );
 
     this.writeHeader(boldStyle, header);
 
