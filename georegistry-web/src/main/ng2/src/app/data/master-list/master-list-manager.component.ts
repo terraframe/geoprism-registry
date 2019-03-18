@@ -13,7 +13,7 @@ import { LocalizationService } from '../../core/service/localization.service';
 @Component( {
     selector: 'master-list-manager',
     templateUrl: './master-list-manager.component.html',
-    styleUrls: []
+    styleUrls: ['./master-list-manager.css']
 } )
 export class MasterListManagerComponent implements OnInit {
     message: string = null;

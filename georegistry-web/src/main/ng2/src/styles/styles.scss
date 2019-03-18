@@ -1,5 +1,11 @@
 @import '~angular-tree-component/dist/angular-tree-component.css';
 
+// *{
+//   font-family: var(--font-family-default);
+// }
+// h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6{
+//   font-family: var(--font-family-default);
+// }
 
 .node-content-wrapper, .tree-children {
   position: relative;
@@ -43,9 +49,6 @@ tree-node:last-child > .tree-node > .tree-children::after {
   z-index: 1;
 }
 
-
-
-
 .node-content-wrapper{
   //background-color: lightgrey;
 }
@@ -69,85 +72,3 @@ tree-loading-component {
   }
 
 
-.dropdown-menu {
-  font-size: 18px;
-}
-
-
-li.list-group-item.draggable:hover{
-  cursor: grab;
-}
-li.list-group-item {
-  font-size: 18px;
-}
-li.list-group-item.clickable:hover {
-  background: #f2f2f2; 
-  cursor: pointer;
-}
-li.list-group-item.active {
-  background: #f2f2f2; 
-}
-
-i.fa.fa-sitemap{
-  font-size: 20px;
-  margin-right: 10px;
-}
-i.fa.fa-sitemap:hover{
-  color:  #bababa;
-}
-
-.delete-btn{
-  font-size: 20px;
-}
-.delete-btn:hover {
-  color:red !important;
-}
-
-.modal-body .form-group select {
-  float: none !important;
-}
-
-.modal-content {
-    padding: 0;
-}
-
-.submit-form input[type="text"][disabled] {
-    color: #999;
-}
-
-
-.btn-group.define-attribute-btns {
-    // width: 50%;
-    margin: 0 auto;
-    display: block;
-    margin-bottom: 100px;
-}
-.btn-group.define-attribute-btns .btn.full-width-radio-button {
-    width: 16%;
-}
-.btn-group.define-attribute-btns .btn.full-width-radio-button:active{
-    background: #009edc !important;
-}
-.btn-group.define-attribute-btns .btn.full-width-radio-button:focus{
-  background: #009edc !important;
-}
-.btn-group.define-attribute-btns .btn.full-width-radio-button.active{
-    background: #009edc !important;
-}
-
-
-
-.cdk-overlay-container{
-        z-index: 5000 !important;
-}
-
-
-
-#innerFrameHtml {
-   height: 100% !important;
-}
-
-#main {
-    overflow: auto;
-    height: 100% !important;
-}

@@ -1,8 +1,8 @@
-<form [ngClass]="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
+<!-- <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
     <fieldset>
         <div class="col-md-12">
-            <div *ngIf="preGeoObject">
-                <div class="row-holder">
+            <div *ngIf="preGeoObject"> -->
+                <div class="row-holder"> 
                     <div class="label-holder" style="display: inline-block;">
                         <label>
                             <localize key="change.request.geoobject.update.form.label"></localize>
@@ -19,8 +19,7 @@
 
                                             <div *ngIf="attr.type === 'character'">
                                                 <input *ngIf="postGeoObject" type="text"
-                                                    [(ngModel)]="postGeoObject.properties[attr.code]" id="mod-{{attr.code}}"
-                                                    name="mod-{{attr.code}}"
+                                                    [(ngModel)]="postGeoObject.properties[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}"
                                                     [disabled]="attr.code === 'code' && !allowCodeEdit"> 
 
                                                     <p class="warning-text" *ngIf="this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code] !== this.preGeoObject.properties[attr.code]">
@@ -107,8 +106,8 @@
                                 </div>
                             </div>
                     </div>
-                </div>
-            </div>
+                 </div>
+           <!-- </div>
         </div>
     </fieldset>
-</form>
+</form> -->

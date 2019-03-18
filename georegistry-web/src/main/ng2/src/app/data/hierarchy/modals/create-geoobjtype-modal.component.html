@@ -6,7 +6,7 @@
     <div class="form-group">
       <div>
          <label for="codeInput"><localize key="data.property.label.code"></localize></label>
-         <input  [(ngModel)]="geoObjectType.code" name="code" type="input" class="form-control" id="codeInput" required>
+         <input  [(ngModel)]="geoObjectType.code" name="code" type="text" class="form-control" id="codeInput" required>
       </div>
     </div>
     <div class="form-group" *ngFor="let localeValue of geoObjectType.label.localeValues">

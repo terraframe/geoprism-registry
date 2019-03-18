@@ -27,12 +27,13 @@ class Instance {
     label: string;
 }
 
-@Component( {
+@Component({
+  
+  selector: 'hierarchies',
+  templateUrl: './hierarchy.component.html',
+  styleUrls: ['./hierarchy.css']
+})
 
-    selector: 'hierarchies',
-    templateUrl: './hierarchy.component.html',
-    styleUrls: []
-} )
 export class HierarchyComponent implements OnInit {
     instance: Instance = new Instance();
     hierarchies: HierarchyType[];
