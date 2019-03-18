@@ -74,7 +74,7 @@ public class GeoObjectConverter extends FeatureRowImporter
         Double lat = new Double(latitude.toString());
         Double lon = new Double(longitude.toString());
 
-        return new Point(new CoordinateSequence2D(lat, lon), factory);
+        return new Point(new CoordinateSequence2D(lon, lat), factory);
       }
     }
 
