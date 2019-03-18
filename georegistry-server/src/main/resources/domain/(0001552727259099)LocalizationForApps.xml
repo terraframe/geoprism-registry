@@ -1,0 +1,90 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+    
+    	<object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlists.landing">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="masterlists.landing" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="MASTER LIST MANAGER" />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlists.landing.description">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="masterlists.landing.description" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Create, view, or export master lists." />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="requests.landing">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="requests.landing" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="REQUEST MANAGER" />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="requests.landing.description">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="requests.landing.description" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Approve, reject, or edit requests to update data submitted by team members." />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.landing">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="hierarchies.landing" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="HIERARCHY MANAGER" />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.landing.description">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="hierarchies.landing.description" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Create, delete, or update hierarchies used throughout the Common Geospatial Registry." />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="navigator.landing">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="navigator.landing" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="NAVIGATOR" />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="navigator.landing.description">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="navigator.landing.description" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Explore, create, or update location boundaries and properties." />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="uploads.landing">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="uploads.landing" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="UPLOAD MANAGER" />
+	      </attributeStruct>
+	    </object>
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="uploads.landing.description">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="uploads.landing.description" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Import or export system data that can be used to build hierarchies and master lists." />
+	      </attributeStruct>
+	    </object>
+    </createOrUpdate>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
