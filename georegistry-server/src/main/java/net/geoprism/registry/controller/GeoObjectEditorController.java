@@ -50,7 +50,7 @@ public class GeoObjectEditorController
     GeoObject child = ptn.getGeoObject();
     
     // First remove all existing parents
-    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents(); // TODO : Leaf nodes
+    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();
     for (ParentTreeNode childDbParent : childDbParents)
     {
       RegistryService.getInstance().removeChild(sessionId, childDbParent.getGeoObject().getUid(), childDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), childDbParent.getHierachyType().getCode());
@@ -63,8 +63,6 @@ public class GeoObjectEditorController
       GeoObject parent = ptnParent.getGeoObject();
       
       RegistryService.getInstance().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
-      
-      applyPtn(sessionId, ptnParent);
     }
   }
 }
