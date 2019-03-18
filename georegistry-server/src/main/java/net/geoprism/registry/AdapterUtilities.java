@@ -975,10 +975,14 @@ public class AdapterUtilities
 
   public ParentTreeNode getParentGeoObjects(String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive)
   {
+    return internalGetParentGeoObjects(childId, childGeoObjectTypeCode, parentTypes, recursive, null);
+  }
+  private ParentTreeNode internalGetParentGeoObjects(String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, HierarchyType htIn)
+  {
     GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
     String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
 
-    ParentTreeNode tnRoot = new ParentTreeNode(goChild, null);
+    ParentTreeNode tnRoot = new ParentTreeNode(goChild, htIn);
 
     if (goChild.getType().isLeaf())
     {
@@ -1011,15 +1015,15 @@ public class AdapterUtilities
           if (parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()))
           {
             ParentTreeNode tnParent;
+            
+            HierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
 
             if (recursive)
             {
-              tnParent = this.getParentGeoObjects(goParent.getUid(), goParent.getType().getCode(), parentTypes, recursive);
+              tnParent = this.internalGetParentGeoObjects(goParent.getUid(), goParent.getType().getCode(), parentTypes, recursive, ht);
             }
             else
             {
-              HierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
-
               tnParent = new ParentTreeNode(goParent, ht);
             }
 
@@ -1050,7 +1054,7 @@ public class AdapterUtilities
           ParentTreeNode tnParent;
           if (recursive)
           {
-            tnParent = this.getParentGeoObjects(goParent.getUid(), goParent.getType().getCode(), parentTypes, recursive);
+            tnParent = this.internalGetParentGeoObjects(goParent.getUid(), goParent.getType().getCode(), parentTypes, recursive, ht);
           }
           else
           {
@@ -1067,6 +1071,11 @@ public class AdapterUtilities
 
   public ChildTreeNode getChildGeoObjects(String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
   {
+    return internalGetChildGeoObjects(parentUid, parentGeoObjectTypeCode, childrenTypes, recursive, null);
+  }
+  private ChildTreeNode internalGetChildGeoObjects(String parentUid, String parentGeoObjectTypeCode,
+      String[] childrenTypes, Boolean recursive, HierarchyType htIn)
+  {
     GeoObject goParent = this.getGeoObjectById(parentUid, parentGeoObjectTypeCode);
 
     if (goParent.getType().isLeaf())
@@ -1081,7 +1090,7 @@ public class AdapterUtilities
     GeoEntity parent = GeoEntity.get(parentRunwayId);
 
     GeoObject goRoot = ServiceFactory.getConversionService().geoEntityToGeoObject(parent);
-    ChildTreeNode tnRoot = new ChildTreeNode(goRoot, null);
+    ChildTreeNode tnRoot = new ChildTreeNode(goRoot, htIn);
 
     /*
      * Handle leaf node children
@@ -1162,7 +1171,7 @@ public class AdapterUtilities
         ChildTreeNode tnChild;
         if (recursive)
         {
-          tnChild = this.getChildGeoObjects(goChild.getUid(), goChild.getType().getCode(), childrenTypes, recursive);
+          tnChild = this.internalGetChildGeoObjects(goChild.getUid(), goChild.getType().getCode(), childrenTypes, recursive, ht);
         }
         else
         {
