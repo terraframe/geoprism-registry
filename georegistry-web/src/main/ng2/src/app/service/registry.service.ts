@@ -387,7 +387,7 @@ export class RegistryService {
     /*
      * Not really part of the RegistryService
      */
-    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject ): Promise<Response> {
+    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject, masterListId: string ): Promise<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -395,7 +395,7 @@ export class RegistryService {
         this.eventService.start();
 
         return this.http
-            .post( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject } ), { headers: headers } )
+            .post( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject, masterListId: masterListId } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

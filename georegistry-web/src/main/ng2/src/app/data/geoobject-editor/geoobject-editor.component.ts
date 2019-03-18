@@ -58,6 +58,10 @@ export class GeoObjectEditorComponent implements OnInit {
     parentTreeNode: ParentTreeNode;
     
     private dataSource: Observable<any>;
+    
+    private masterListId: string;
+    
+    @Input() onSuccessCallback: Function;
 
     constructor(private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
             private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
@@ -71,6 +75,16 @@ export class GeoObjectEditorComponent implements OnInit {
         // this.fetchGeoObject("855 01090201", "Cambodia_Village");
         // this.fetchGeoObjectType("Cambodia_Village");
       }
+    }
+    
+    setMasterListId(id: string)
+    {
+      this.masterListId = id;
+    }
+    
+    setOnSuccessCallback(func: Function)
+    {
+      this.onSuccessCallback = func;
     }
     
     private fetchGeoObject(code: string, typeCode: string)
@@ -158,10 +172,13 @@ export class GeoObjectEditorComponent implements OnInit {
     public submit(): void {
       this.bsModalRef.hide();
       
-      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.postGeoObject)
+      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.postGeoObject, this.masterListId)
           .then( () => {
           
-              // Nothing to do?
+              if (this.onSuccessCallback != null)
+              {
+                this.onSuccessCallback();
+              }
 
             }).catch((err: Response) => {
                 this.error(err.json());
