@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -293,9 +294,10 @@ public class GeoObjectConfiguration
     this.postalCode = postalCode;
   }
 
+  @Request
   public JsonObject toJson()
   {
-    JsonObject type = this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates));
+    JsonObject type = this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
@@ -305,7 +307,23 @@ public class GeoObjectConfiguration
 
       if (this.functions.containsKey(attributeName))
       {
-        attribute.addProperty(TARGET, this.functions.get(attributeName).toJson());
+        ShapefileFunction function = this.functions.get(attributeName);
+
+        if (function instanceof LocalizedValueFunction)
+        {
+          String locale = attribute.get("locale").getAsString();
+
+          ShapefileFunction localeFunction = ( (LocalizedValueFunction) function ).getFunction(locale);
+
+          if (localeFunction != null)
+          {
+            attribute.addProperty(TARGET, localeFunction.toJson());
+          }
+        }
+        else
+        {
+          attribute.addProperty(TARGET, function.toJson());
+        }
       }
     }
 
@@ -437,7 +455,22 @@ public class GeoObjectConfiguration
         String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
         String target = attribute.get(TARGET).getAsString();
 
-        configuration.setFunction(attributeName, new BasicColumnFunction(target));
+        if (attribute.has("locale"))
+        {
+          String locale = attribute.get("locale").getAsString();
+
+          if (configuration.getFunction(attributeName) == null)
+          {
+            configuration.setFunction(attributeName, new LocalizedValueFunction());
+          }
+
+          LocalizedValueFunction function = (LocalizedValueFunction) configuration.getFunction(attributeName);
+          function.add(locale, new BasicColumnFunction(target));
+        }
+        else
+        {
+          configuration.setFunction(attributeName, new BasicColumnFunction(target));
+        }
       }
     }
 
@@ -507,7 +540,7 @@ public class GeoObjectConfiguration
     LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LATITUDE_KEY));
     LocalizedValue description = new LocalizedValue("");
 
-    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, label, description, false, true, false);
+    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, label, description, false, false, false);
   }
 
   public static AttributeFloatType longitude()
@@ -515,6 +548,6 @@ public class GeoObjectConfiguration
     LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LONGITUDE_KEY));
     LocalizedValue description = new LocalizedValue("");
 
-    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, label, description, false, true, false);
+    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, label, description, false, false, false);
   }
 }

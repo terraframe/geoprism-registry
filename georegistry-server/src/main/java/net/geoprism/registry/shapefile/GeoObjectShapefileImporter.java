@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -146,8 +147,8 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
   @Override
   protected Geometry getGeometry(FeatureRow row)
   {
-    Object geometry = ((SimpleFeatureRow) row).getFeature().getDefaultGeometry();
-    
+    Object geometry = ( (SimpleFeatureRow) row ).getFeature().getDefaultGeometry();
+
     return (Geometry) geometry;
   }
 
@@ -165,6 +166,10 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
     else if (attributeType instanceof AttributeIntegerType)
     {
       entity.setValue(attributeName, ( (Number) value ).longValue());
+    }
+    else if (attributeType instanceof AttributeCharacterType)
+    {
+      entity.setValue(attributeName, value.toString());
     }
     else
     {

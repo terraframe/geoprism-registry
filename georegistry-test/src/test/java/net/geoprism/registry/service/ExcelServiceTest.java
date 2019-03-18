@@ -143,8 +143,8 @@ public class ExcelServiceTest
 
     JsonArray fields = attributes.get(GeoObjectConfiguration.TEXT).getAsJsonArray();
 
-    Assert.assertEquals(4, fields.size());
-    Assert.assertEquals("Name", fields.get(0).getAsString());
+    Assert.assertEquals(8, fields.size());
+    Assert.assertEquals("Longitude", fields.get(0).getAsString());
 
     Assert.assertEquals(4, attributes.get(GeoObjectConfiguration.NUMERIC).getAsJsonArray().size());
     Assert.assertEquals(1, attributes.get(AttributeBooleanType.TYPE).getAsJsonArray().size());

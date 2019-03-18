@@ -5,7 +5,6 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;

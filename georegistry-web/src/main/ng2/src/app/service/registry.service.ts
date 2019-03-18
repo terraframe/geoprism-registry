@@ -23,9 +23,9 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList, ChildTreeNode, ParentTreeNode } from '../model/registry';
-import { HierarchyType } from '../data/hierarchy/hierarchy';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, ParentTreeNode, ChildTreeNode } from '../model/registry';
 import { Progress } from '../progress-bar/progress';
+import { HierarchyNode, HierarchyType } from '../data/hierarchy/hierarchy';
 import { EventService } from '../event/event.service';
 
 declare var acp: any;

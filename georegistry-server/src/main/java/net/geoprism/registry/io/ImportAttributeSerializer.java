@@ -8,28 +8,35 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import net.geoprism.registry.service.LocaleSerializer;
 
 public class ImportAttributeSerializer extends LocaleSerializer implements CustomSerializer
 {
-  private Set<String> filter;
+  private Set<String>  filter;
 
-  private boolean     includeCoordinates;
+  private boolean      includeCoordinates;
 
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates)
+  private List<Locale> locales;
+
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, List<Locale> locales)
   {
-    this(locale, includeCoordinates, false);
+    this(locale, includeCoordinates, false, locales);
   }
 
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, List<Locale> locales)
   {
     super(locale);
 
     this.includeCoordinates = includeCoordinates;
+    this.locales = locales;
 
     this.filter = new TreeSet<String>();
     this.filter.add(DefaultAttribute.STATUS.getName());
@@ -37,6 +44,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     this.filter.add(DefaultAttribute.CREATE_DATE.getName());
     this.filter.add(DefaultAttribute.SEQUENCE.getName());
     this.filter.add(DefaultAttribute.TYPE.getName());
+    this.filter.add(DefaultAttribute.DISPLAY_LABEL.getName());
 
     if (!includeUid)
     {
@@ -47,6 +55,47 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
   public Set<String> getFilter()
   {
     return filter;
+  }
+
+  @Override
+  public JsonArray serialize(GeoObjectType type, Collection<AttributeType> attributes)
+  {
+    JsonArray attrs = super.serialize(type, attributes);
+
+    /*
+     * Add a display label attribute for each locale
+     */
+    AttributeType displayLabel = type.getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
+
+    attrs.add(this.serializeLocaleAttribute(displayLabel, LocalizedValue.DEFAULT_LOCALE));
+
+    for (Locale locale : this.locales)
+    {
+      String key = locale.toString();
+
+      attrs.add(this.serializeLocaleAttribute(displayLabel, key));
+    }
+
+    return attrs;
+  }
+
+  public JsonObject serializeLocaleAttribute(AttributeType displayLabel, String key)
+  {
+    JsonObject attribute = displayLabel.toJSON(this);
+    attribute.addProperty("locale", key);
+    attribute.addProperty(AttributeType.JSON_CODE, displayLabel.getName());
+
+    if (key.equals(LocalizedValue.DEFAULT_LOCALE))
+    {
+      attribute.addProperty(AttributeType.JSON_REQUIRED, false);
+    }
+
+    JsonObject label = attribute.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject();
+    String value = label.get(LocalizedValue.LOCALIZED_VALUE).getAsString();
+    value += " (" + key + ")";
+
+    label.addProperty(LocalizedValue.LOCALIZED_VALUE, value);
+    return attribute;
   }
 
   @Override
