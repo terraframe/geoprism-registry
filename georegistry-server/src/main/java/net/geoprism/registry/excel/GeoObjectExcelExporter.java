@@ -84,6 +84,8 @@ public class GeoObjectExcelExporter
 
   public Workbook createWorkbook() throws IOException
   {
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
     Workbook workbook = new XSSFWorkbook();
     Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.type.getLabel().getValue()));
 
@@ -100,11 +102,10 @@ public class GeoObjectExcelExporter
     Row header = sheet.createRow(0);
 
     boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, SupportedLocaleDAO.getSupportedLocales()).attributes(this.type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type);
 
     // Get the ancestors of the type
     List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     this.writeHeader(boldStyle, header, attributes, ancestors, locales);
 

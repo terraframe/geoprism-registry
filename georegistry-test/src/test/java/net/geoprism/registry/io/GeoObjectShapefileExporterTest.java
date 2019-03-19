@@ -77,6 +77,7 @@ public class GeoObjectShapefileExporterTest
   }
 
   @Test
+  @Request
   public void testGenerateName()
   {
     GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(testData.STATE.getCode()).get();
@@ -113,7 +114,7 @@ public class GeoObjectShapefileExporterTest
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals(6, attributes.size());
+    Assert.assertEquals(5, attributes.size());
   }
 
   @Test

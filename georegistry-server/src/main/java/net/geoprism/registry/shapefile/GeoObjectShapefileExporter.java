@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -88,10 +89,15 @@ public class GeoObjectShapefileExporter
 
   public GeoObjectShapefileExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
   {
+    this(type, hierarchy, objects, new LinkedList<Locale>());
+  }
+
+  public GeoObjectShapefileExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects, List<Locale> locales)
+  {
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, SupportedLocaleDAO.getSupportedLocales()).attributes(this.type);
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, locales).attributes(this.type);
     this.columnNames = new HashMap<String, String>();
   }
 
