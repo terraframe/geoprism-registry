@@ -1,4 +1,4 @@
-<div class="modal-body text-center">
+<div style="height:600px;" class="modal-body text-center">
   <div class="row-holder">
 	   <div class="label-holder"></div>
 	   <div class="holder">
@@ -19,8 +19,8 @@
   
   <!-- Tab One -->
   <div *ngIf="this.tabIndex === 1">
-    <div style="padding-bottom:20px;" *ngFor="let ptn of this.parents">
-      <label>{{ptn.geoObject.properties.type}}</label>
+    <div style="padding-bottom:20px;" *ngFor="let ptn of this.parentTreeNode.parents">
+      <label>{{ptn.hierarchyType}}</label>
       
       <input type="text" [(ngModel)]="ptn.geoObject.properties.displayLabel.localizedValue" name="ptn.geoObject.properties.code + '-input'"
                         [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(ptn.geoObject.properties.displayLabel.localizedValue, ptn.geoObject.properties.type)" (typeaheadOnSelect)="typeaheadOnSelect($event, ptn)"

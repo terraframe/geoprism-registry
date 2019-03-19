@@ -3,6 +3,7 @@ package net.geoprism.registry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -15,6 +16,7 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 
@@ -78,12 +80,13 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyCode).get();
     GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     try
     {
       it = query.getIterator();
 
-      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(query.getType(), hierarchyType, it);
+      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(query.getType(), hierarchyType, it, locales);
 
       return exporter.export();
     }
@@ -155,13 +158,13 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   {
     MasterList list = MasterList.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
-    
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> list.isValid(mdAttribute)).collect(Collectors.toList());
-    
+
     try
     {
       MasterListExcelExporter exporter = new MasterListExcelExporter(list, mdBusiness, mdAttributes);
-      
+
       return exporter.export();
     }
     catch (IOException e)
@@ -169,5 +172,5 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
 }

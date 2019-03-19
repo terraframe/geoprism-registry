@@ -14,6 +14,8 @@ import { ExportFormatModalComponent } from './export-format-modal.component';
 import { RegistryService } from '../../service/registry.service';
 import { ProgressService } from '../../service/progress.service';
 
+import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
+
 declare var acp: string;
 
 @Component( {
@@ -64,6 +66,17 @@ export class MasterListComponent implements OnInit {
         this.filter = this.current;
 
         this.onPageChange( 1 );
+    }
+    
+    onEdit(data): void {
+      let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true });
+      editModal.content.fetchGeoObject(data.code, this.list.typeCode);
+      editModal.content.fetchGeoObjectType(this.list.typeCode);
+      editModal.content.setMasterListId(this.list.oid);
+      editModal.content.setOnSuccessCallback(() => {
+        // Refresh the page
+        this.onPageChange(this.page.pageNumber);
+      });
     }
 
     onPublish(): void {

@@ -186,8 +186,12 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -204,7 +208,7 @@ public class ExcelServiceTest
     Double lon = new Double(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    Point expected = new Point(new CoordinateSequence2D(lat, lon), factory);
+    Point expected = new Point(new CoordinateSequence2D(lon, lat), factory);
 
     Assert.assertEquals(expected, geometry);
   }
@@ -220,9 +224,13 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -243,9 +251,13 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testDate.getName(), new BasicColumnFunction("Test Date"));
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -270,9 +282,13 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testBoolean.getName(), new BasicColumnFunction("Test Boolean"));
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -293,13 +309,16 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    configuration.setHierarchy(hierarchyType);
+    configuration.setHierarchyRelationship(mdRelationship);
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
     GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
     GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
 

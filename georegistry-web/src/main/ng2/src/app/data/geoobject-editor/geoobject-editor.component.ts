@@ -55,15 +55,13 @@ export class GeoObjectEditorComponent implements OnInit {
     
     tabIndex: number = 0;
     
-    /*
-     * A flattened ParentTreeNode structure used for display in the html
-     *   
-     */
-    parents: ParentTreeNode[] = [];
-    
     parentTreeNode: ParentTreeNode;
     
     private dataSource: Observable<any>;
+    
+    private masterListId: string;
+    
+    @Input() onSuccessCallback: Function;
 
     constructor(private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
             private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
@@ -74,9 +72,19 @@ export class GeoObjectEditorComponent implements OnInit {
       // TODO : Remove this code when its actually being used for real
       if (this.preGeoObject == null)
       {
-        this.fetchGeoObject("855 01090201", "Cambodia_Village");
-        this.fetchGeoObjectType("Cambodia_Village");
+        // this.fetchGeoObject("855 01090201", "Cambodia_Village");
+        // this.fetchGeoObjectType("Cambodia_Village");
       }
+    }
+    
+    setMasterListId(id: string)
+    {
+      this.masterListId = id;
+    }
+    
+    setOnSuccessCallback(func: Function)
+    {
+      this.onSuccessCallback = func;
     }
     
     private fetchGeoObject(code: string, typeCode: string)
@@ -111,33 +119,11 @@ export class GeoObjectEditorComponent implements OnInit {
           if (ptn != null && ptn.parents != null && ptn.parents.length > 0)
           {
             this.parentTreeNode = ptn;
-          
-            // The current ParentTreeNode represents our current GeoObject, so only process the parents.
-            for (var i = 0; i < ptn.parents.length; ++i)
-            {
-              this.flattenTreeNode(ptn.parents[i]);
-            }
           }
           
         }).catch((err: Response) => {
             this.error(err.json());
         });
-    }
-    
-    private flattenTreeNode(ptn: ParentTreeNode)
-    {
-      if (ptn != null)
-      {
-        this.parents.push(ptn);
-        
-        if (ptn.parents != null && ptn.parents.length > 0)
-        {
-          for (var i = 0; i < ptn.parents.length; ++i)
-          {
-            this.flattenTreeNode(ptn.parents[i]);
-          }
-        }
-      }
     }
     
     getTypeAheadObservable(text, typeCode)
@@ -186,10 +172,13 @@ export class GeoObjectEditorComponent implements OnInit {
     public submit(): void {
       this.bsModalRef.hide();
       
-      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.postGeoObject)
+      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.postGeoObject, this.masterListId)
           .then( () => {
           
-              // Nothing to do?
+              if (this.onSuccessCallback != null)
+              {
+                this.onSuccessCallback();
+              }
 
             }).catch((err: Response) => {
                 this.error(err.json());

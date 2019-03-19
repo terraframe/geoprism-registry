@@ -292,7 +292,15 @@ public class MasterList extends MasterListBase
 
     for (Business record : records)
     {
-      this.publish(object, record, attributes, ancestorMap, locales);
+      record.appLock();
+      try
+      {
+        this.publish(object, record, attributes, ancestorMap, locales);
+      }
+      finally
+      {
+        record.unlock();
+      }
     }
   }
 

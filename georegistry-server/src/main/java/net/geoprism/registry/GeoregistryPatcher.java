@@ -42,7 +42,7 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
     super.runWithTransaction();
     
     // TODO : This is only for demos
-    ChangeRequestTestDataGenerator.main(new String[] {});
+//    ChangeRequestTestDataGenerator.main(new String[] {});
   }
   
   @Override
