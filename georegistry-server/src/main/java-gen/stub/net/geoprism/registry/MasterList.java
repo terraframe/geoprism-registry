@@ -881,7 +881,16 @@ public class MasterList extends MasterListBase
       {
         if (!object.get(MasterList.REPRESENTATIVITYDATE).isJsonNull())
         {
-          list.setRepresentativityDate(format.parse(object.get(MasterList.REPRESENTATIVITYDATE).getAsString()));
+          String date = object.get(MasterList.REPRESENTATIVITYDATE).getAsString();
+
+          if (date.length() > 0)
+          {
+            list.setRepresentativityDate(format.parse(date));
+          }
+          else
+          {
+            list.setRepresentativityDate(null);
+          }
         }
         else
         {
@@ -893,7 +902,16 @@ public class MasterList extends MasterListBase
       {
         if (!object.get(MasterList.PUBLISHDATE).isJsonNull())
         {
-          list.setPublishDate(format.parse(object.get(MasterList.PUBLISHDATE).getAsString()));
+          String date = object.get(MasterList.PUBLISHDATE).getAsString();
+
+          if (date.length() > 0)
+          {
+            list.setPublishDate(format.parse(date));
+          }
+          else
+          {
+            list.setPublishDate(null);
+          }
         }
         else
         {
