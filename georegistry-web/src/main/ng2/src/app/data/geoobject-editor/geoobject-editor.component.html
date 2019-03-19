@@ -16,21 +16,22 @@
             </div>
         </div>
 
-        <!-- Tab Zero -->
+        <!-- Attributes tab -->
         <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.preGeoObject && this.postGeoObject"
             #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)" [geoObjectType]="this.geoObjectType"
             [preGeoObject]="this.preGeoObject" [(postGeoObject)]="this.postGeoObject"></geoobject-shared-attribute-editor>
 
 
-        <!-- Tab One -->
+        <!-- Parents tab -->
         <div *ngIf="this.tabIndex === 1">
             <div style="padding-bottom:20px;" *ngFor="let ptn of this.parentTreeNode.parents">
                 <label>{{ptn.hierarchyType}}</label>
 
-                <input type="text" [(ngModel)]="ptn.geoObject.properties.displayLabel.localizedValue" name="ptn.geoObject.properties.code + '-input'"
+                <input type="text" [(ngModel)]="ptn.geoObject.properties.displayLabel.localizedValue" [name]="ptn.geoObject.properties.code + '-input'"
                     [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(ptn.geoObject.properties.displayLabel.localizedValue, ptn.geoObject.properties.type)"
                     (typeaheadOnSelect)="typeaheadOnSelect($event, ptn)" [typeaheadOptionsLimit]="7"
                     typeaheadOptionField="name" class="form-control" autocomplete="off" required>
+                    
             </div>
         </div>
 
