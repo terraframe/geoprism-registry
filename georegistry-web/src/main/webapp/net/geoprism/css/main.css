@@ -40,6 +40,7 @@ body{
 }
 
 .new-admin-design-main {
+    height: 100%;
     overflow-y: auto;
 }
 
@@ -1908,6 +1909,7 @@ option[selected]{ font-weight:bold}
     padding: 10px;
     height: calc(100% - 144px);
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #location-explorer-map {
@@ -2804,6 +2806,10 @@ a.navbar-brand {
 .dropdown-menu > li > a:hover,
 .dropdown-item:hover {
     color:white;
+}
+
+.form-group label {
+    line-height: 40px;
 }
 
 .modal-body .form-group select {

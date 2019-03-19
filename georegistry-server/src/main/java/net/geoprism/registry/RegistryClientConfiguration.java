@@ -27,7 +27,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     GeoprismApplication hierarchies = new GeoprismApplication();
     hierarchies.setId("hierarchies");
     hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
-    hierarchies.setSrc("net/geoprism/images/dm_icon.svg");
+    hierarchies.setSrc("net/geoprism/images/hierarchy-icon-modified.svg");
     hierarchies.setUrl("cgr/manage#/hierarchies");
     hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
@@ -39,7 +39,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     GeoprismApplication masterLists = new GeoprismApplication();
     masterLists.setId("lists");
     masterLists.setLabel(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing"));
-    masterLists.setSrc("net/geoprism/images/dm_icon.svg");
+    masterLists.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
     masterLists.setUrl("cgr/manage#/lists");
     masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADIM_ROLE);
@@ -51,7 +51,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     GeoprismApplication requests = new GeoprismApplication();
     requests.setId("requests");
     requests.setLabel(LocalizationFacadeDTO.getFromBundles(request, "requests.landing"));
-    requests.setSrc("net/geoprism/images/dm_icon.svg");
+    requests.setSrc("net/geoprism/images/update-icon-modified.svg");
     requests.setUrl("cgr/manage#/requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
