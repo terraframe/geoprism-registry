@@ -55,13 +55,13 @@ public class GeoObjectEditorController
     List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();
     
     // Remove all existing relationships which aren't what we're trying to create
-    for (ParentTreeNode childDbParent : childDbParents)
+    for (ParentTreeNode ptnDbParent : childDbParents)
     {
       boolean shouldRemove = true;
       
       for (ParentTreeNode ptnParent : ptn.getParents())
       {
-        if (ptnParent.equals(childDbParent) && ptnParent.getHierachyType().getCode().equals(childDbParent.getHierachyType().getCode()))
+        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
         {
           shouldRemove = false;
         }
@@ -69,7 +69,7 @@ public class GeoObjectEditorController
       
       if (shouldRemove)
       {
-        RegistryService.getInstance().removeChild(sessionId, childDbParent.getGeoObject().getUid(), childDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), childDbParent.getHierachyType().getCode());
+        RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
       }
     }
     
@@ -80,7 +80,7 @@ public class GeoObjectEditorController
       
       for (ParentTreeNode ptnDbParent : childDbParents)
       {
-        if (ptnParent.equals(ptnDbParent) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
+        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
         {
           alreadyExists = true;
         }
