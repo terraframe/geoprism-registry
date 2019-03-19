@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.json.JSONException;
@@ -25,6 +26,7 @@ import org.json.JSONObject;
 
 import com.runwaysdk.business.ValueObjectDTO;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -40,6 +42,7 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityDTO;
 import com.runwaysdk.transport.conversion.business.MutableDTOToMutable;
 import com.runwaysdk.util.IDGenerator;
+import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ExcludeConfiguration;
 import net.geoprism.ontology.GeoEntityUtilDTO;
@@ -116,6 +119,34 @@ public class RegistryLocationController
 
     GeoObject go = ConversionService.getInstance().geoEntityToGeoObject(entity);
     go.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(statusCode).get());
+
+    if (joEntity.has("wkt"))
+    {
+      try
+      {
+        GeometryHelper geometryHelper = new GeometryHelper();
+
+        Geometry geo = geometryHelper.parseGeometry(joEntity.getString("wkt"));
+
+        if (go.getGeometryType().equals(GeometryType.MULTIPOLYGON))
+        {
+          go.setGeometry(geometryHelper.getGeoMultiPolygon(geo));
+        }
+        else if (go.getGeometryType().equals(GeometryType.POINT))
+        {
+          go.setGeometry(geometryHelper.getGeoPoint(geo));
+        }
+        else
+        {
+          go.setGeometry(geo);
+        }
+
+      }
+      catch (Exception e)
+      {
+        // Ignore
+      }
+    }
 
     if (entityDTO.isNewInstance())
     {
