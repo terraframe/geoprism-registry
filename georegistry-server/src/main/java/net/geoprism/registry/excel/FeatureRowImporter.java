@@ -20,6 +20,7 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.RequestState;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -158,6 +159,13 @@ public abstract class FeatureRowImporter
             {
               service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
             }
+          }
+          else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
+          {
+            GeoEntity child = GeoEntity.getByKey(entity.getCode());
+            GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
+
+            child.addLink(root, this.configuration.getHierarchyRelationship().definesType());
           }
 
           // We must ensure that any problems created during the transaction are
