@@ -47,9 +47,7 @@ export class RegistryService {
     getGeoObjectTypes( types: any ): Promise<GeoObjectType[]> {
         let params: URLSearchParams = new URLSearchParams();
 
-        if ( types.length < 1 ) {
-            params.set( 'types', JSON.stringify( types ) );
-        }
+        params.set( 'types', JSON.stringify( types ) );
 
         return this.http
             .get( acp + '/cgr/geoobjecttype/get-all', { params: params } )

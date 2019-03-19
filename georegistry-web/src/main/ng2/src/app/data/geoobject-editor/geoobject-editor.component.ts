@@ -95,6 +95,7 @@ export class GeoObjectEditorComponent implements OnInit {
                 this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
                 
                 this.fetchParents(geoObject);
+                console.log("Fetched GeoObj", geoObject);
             }).catch((err: Response) => {
                 this.error(err.json());
             });
@@ -102,10 +103,11 @@ export class GeoObjectEditorComponent implements OnInit {
     
     private fetchGeoObjectType(code: string)
     {
+      console.log("fetching type", code);
       this.registryService.getGeoObjectTypes([code])
             .then(geoObjectType => {
                 this.geoObjectType = geoObjectType[0];
-
+                console.log("Fetched GOTs", geoObjectType);
             }).catch((err: Response) => {
                 this.error(err.json());
             });
