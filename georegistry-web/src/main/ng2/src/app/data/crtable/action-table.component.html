@@ -26,7 +26,7 @@
     </div>    
   </div>
   <!-- <div class="col-sm-5"></div> -->
-  <div class="col-sm-5 col-md-6">
+  <div style="height:600px;overflow-y: auto" class="col-sm-5 col-md-6">
     <crtable-detail-create-geo-object #cuDetail *ngIf="action != null && (action.actionType.endsWith('CreateGeoObjectAction') || action.actionType.endsWith('UpdateGeoObjectAction'))" [(action)]="action" [crtable]="this"> </crtable-detail-create-geo-object>
     <crtable-detail-add-remove-child #arDetail *ngIf="action != null && (action.actionType.endsWith('AddChildAction') || action.actionType.endsWith('RemoveChildAction'))" [(action)]="action" [crtable]="this"> </crtable-detail-add-remove-child>
   </div>
