@@ -2808,6 +2808,10 @@ a.navbar-brand {
     color:white;
 }
 
+.form-group label {
+    line-height: 40px;
+}
+
 .modal-body .form-group select {
   float: none !important;
 }
