@@ -23,6 +23,7 @@
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let list of lists">
              <a [routerLink]="'/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
+             <i class="fa fa-pencil pull-right" (click)="onEdit(list)"> </i> 
              <i class="fa fa-times delete-btn pull-right" (click)="deleteMasterList(list)"></i>
           </li>
         </ul>

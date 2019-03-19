@@ -34,6 +34,11 @@ export class PublishModalComponent implements OnInit {
      */
     private readonly: boolean = false;
 
+    /*
+     * List of geo object types from the system
+     */
+    private edit: boolean = false;
+
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
 
@@ -49,7 +54,7 @@ export class PublishModalComponent implements OnInit {
             } );
 
             this.master = {
-                oid: '',
+                oid: null,
                 typeCode: '',
                 displayLabel: this.lService.create(),
                 code: '',

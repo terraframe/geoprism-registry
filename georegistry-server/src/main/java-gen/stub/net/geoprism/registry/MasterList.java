@@ -815,7 +815,12 @@ public class MasterList extends MasterListBase
     GeoObjectType type = service.universalToGeoObjectType(this.getUniversal());
 
     JsonObject object = new JsonObject();
-    object.addProperty(MasterList.OID, this.getOid());
+
+    if (this.isAppliedToDB())
+    {
+      object.addProperty(MasterList.OID, this.getOid());
+    }
+
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.add(MasterList.DISPLAYLABEL, service.convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
@@ -860,7 +865,19 @@ public class MasterList extends MasterListBase
 
       LocalizedValue label = LocalizedValue.fromJSON(object.get(MasterList.DISPLAYLABEL).getAsJsonObject());
 
-      MasterList list = new MasterList();
+      MasterList list = null;
+
+      if (object.has("oid") && !object.get("oid").isJsonNull())
+      {
+        String oid = object.get("oid").getAsString();
+
+        list = MasterList.lock(oid);
+      }
+      else
+      {
+        list = new MasterList();
+      }
+
       list.setUniversal(universal);
       ServiceFactory.getConversionService().populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
@@ -931,12 +948,20 @@ public class MasterList extends MasterListBase
   public static MasterList create(JsonObject object)
   {
     MasterList list = MasterList.fromJSON(object);
-    MdBusiness mdTable = list.createTable();
 
-    list.setMdBusiness(mdTable);
+    if (list.isNew())
+    {
+      MdBusiness mdTable = list.createTable();
+
+      list.setMdBusiness(mdTable);
+    }
+
     list.apply();
 
-    MasterList.assignDefaultRolePermissions(mdTable);
+    if (list.isNew())
+    {
+      MasterList.assignDefaultRolePermissions(list.getMdBusiness());
+    }
 
     return list;
   }

@@ -21,7 +21,7 @@
           <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
         </div>
       </div>
-      <div class="form-group row" *ngIf="types && !readonly">
+      <div class="form-group row" *ngIf="types && !(readonly || edit)">
         <label class="col-md-2" for="typeCode">
           <localize key="io.geoObjectType"></localize>
         </label>
@@ -37,7 +37,7 @@
           <localize key="masterlist.code"></localize>
         </label>
         <div class="col-md-6">
-          <input [(ngModel)]="master.code" name="code" type="text" class="form-control" [disabled]="readonly" required/>
+          <input [(ngModel)]="master.code" name="code" type="text" class="form-control" [disabled]="readonly || edit" required/>
         </div>
       </div>
       <div class="form-group row">
@@ -162,7 +162,7 @@
           <div class="col-md-6">
             <div class="row" *ngFor="let parent of hierarchy.parents">
               <div class="col-md-2">
-                <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" [disabled]="readonly"/>
+                <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" [disabled]="readonly || edit"/>
               </div>
               <div class="col-md-6">{{parent.label}}</div>
             </div>
