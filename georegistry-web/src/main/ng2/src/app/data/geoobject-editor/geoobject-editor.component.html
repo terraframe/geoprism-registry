@@ -1,6 +1,6 @@
 <div class="modal-body text-center">
     <form class="modal-form">
-        <div class="col-md-12">
+        <!-- <div class="col-md-12"> -->
             <div class="row-holder">
                 <div class="label-holder"></div>
                 <div class="holder">
@@ -14,7 +14,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        <!-- </div> -->
 
         <!-- Attributes tab -->
         <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.preGeoObject && this.postGeoObject"
@@ -24,14 +24,17 @@
 
         <!-- Parents tab -->
         <div *ngIf="this.tabIndex === 1">
-            <div style="padding-bottom:20px;" *ngFor="let ptn of this.parentTreeNode.parents">
-                <label>{{ptn.hierarchyType}}</label>
+            <div *ngFor="let ptn of this.parentTreeNode.parents">
+                <div class="label-holder">
+                    <label>{{ptn.hierarchyType}}</label>
+                </div>
 
-                <input type="text" [(ngModel)]="ptn.geoObject.properties.displayLabel.localizedValue" [name]="ptn.geoObject.properties.code + '-input'"
+                <div class="holder">
+                    <input type="text" [(ngModel)]="ptn.geoObject.properties.displayLabel.localizedValue" name="ptn.geoObject.properties.code + '-input'"
                     [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(ptn.geoObject.properties.displayLabel.localizedValue, ptn.geoObject.properties.type)"
                     (typeaheadOnSelect)="typeaheadOnSelect($event, ptn)" [typeaheadOptionsLimit]="7"
                     typeaheadOptionField="name" class="form-control" autocomplete="off" required>
-                    
+                </div>
             </div>
         </div>
 
@@ -39,7 +42,7 @@
         <div class="row-holder">
             <div class="label-holder"></div>
             <div class="holder">
-                <div class="button-holder">
+                <div class="button-holder text-left">
                     <button type="button" class="btn btn-default" (click)="cancel()">
                         <localize key="modal.button.cancel"></localize>
                     </button>

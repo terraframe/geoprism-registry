@@ -354,7 +354,7 @@ i {
 	color:#333;
 	width: 225px;
 }
-.submit-form div.net-geoprism-form-TooltipLabel
+/* .submit-form div.net-geoprism-form-TooltipLabel
 {
   float:left;
 }
@@ -363,24 +363,23 @@ i {
 }
 .submit-form .net-geoprism-form-TooltipLabel i {
    padding-right:10px;
+} */
+.submit-form input[type="text"].search-input{
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
-.submit-form input[type="text"]{
-	float:left;
-	width:269px;
-	height:32px;
-	margin:0 11px 0 0;
-	padding:6px 10px;
-	font-size:14px;
-	line-height:18px;
-	color:#333;
-	border:1px solid #bbb;
-	background:#eee;
-	outline:none;
+.search-input-button{
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-color: #767676;
+    border-color: var(--theme-input-text-border);
 }
-.submit-form input[type="password"]{
+/* .submit-form input[type="password"]{
   float:left;
   width:135px;
-  height:32px;
+  height:40px;
   margin:0 11px 0 0;
   padding:6px 10px;
   font-size:14px;
@@ -388,7 +387,7 @@ i {
   color:#333;
   border:1px solid #bbb;
   background:#eee;
-}
+} */
 .submit-form ::-webkit-input-placeholder{color:red;}
 .submit-form :-ms-input-placeholder{color:#999;}
 .submit-form :-moz-placeholder{color:#999;}
@@ -1196,10 +1195,10 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 	box-shadow:none;
 }
 .modal-content{
-	background:none;
+	background: white;
+    border: 1px solid #aaa;
 	border-radius:0;
 	box-shadow:none;
-	border:none;
 	color:#333;
     /* padding:17px 50px 0 0; */
     overflow-x:hidden;
@@ -2168,7 +2167,7 @@ a.opener-link.checkbox-label{
 
 
 .ng-invalid {
-   border-color:#e09999;
+   border-color:#e09999 !important;
 }
  
  
@@ -2635,7 +2634,7 @@ input[type=button],
 input[type=submit],
 button.btn {
     min-width: 104px;
-    height: 36px;
+    height: 40px;
 }
 input[type=button]:focus,
 input[type=button]:active,
@@ -2696,6 +2695,7 @@ button.btn-default:hover,
 button.btn.btn-default:hover {
     color: #6BA542; /* IE fallback */
     color: var(--theme-cancel-button-color-hover);
+    background: #f8f8f8;
 }
 
 i.fa.fa-sitemap{
@@ -2783,6 +2783,7 @@ input[type="textarea"]{
     overflow-y: scroll;
     resize: none;
     max-height: 150px;
+    border-radius: 8px;
 }
 .modal-form .text input[type="textarea"]::-moz-placeholder{
 	color:#333;

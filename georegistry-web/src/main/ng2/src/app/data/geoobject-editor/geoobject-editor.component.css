@@ -27,13 +27,13 @@ li.list-group-item {
 .btn-group.geobject-editor-tab-holder {
     margin: 0 auto;
     display: block;
-    margin-bottom: 100px;
+    margin-bottom: 50px;
 }
 .btn-group.geobject-editor-tab-holder .btn.full-width-radio-button {
     width: 50%;
     background: white; /* IE fallback */
     background: var(--theme-button-color);
-    
+
     color: #767676; /* IE fallback */
     color: var(--theme-button-text-color);  
     border-color: var(--theme-button-color-border);

@@ -1,16 +1,16 @@
 <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
     <fieldset>
-        <div class="col-md-12">
+        <!-- <div class="col-md-12"> -->
             <div *ngIf="preGeoObject">
                 <div class="row-holder"> 
-                    <div class="label-holder" style="display: inline-block;">
+                    <div class="label-holder">
                         <label>
                             <localize key="change.request.geoobject.update.form.label"></localize>
                         </label>
                     </div>
                     <div class="holder">
                         <span class="text"></span>
-                            <div class="panel">
+                            <div class="panel" style="box-shadow: none;">
                                 <div class="panel-body">
                                     <ul class="list-group">
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
@@ -108,6 +108,6 @@
                     </div>
                  </div>
            </div>
-        </div>
+        <!-- </div> -->
     </fieldset>
 </form>
