@@ -5,8 +5,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,6 +56,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
@@ -77,8 +76,11 @@ import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -543,16 +545,24 @@ public class MasterList extends MasterListBase
     if (mdBusinessId != null && mdBusinessId.length() > 0)
     {
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
-      List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
+      List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
 
-      Collections.sort(mdAttributes, new Comparator<MdAttributeConcreteDAOIF>()
+      MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+
+      if (mdGeometry instanceof MdAttributePointDAOIF)
       {
-        @Override
-        public int compare(MdAttributeConcreteDAOIF o1, MdAttributeConcreteDAOIF o2)
-        {
-          return o1.definesAttribute().compareTo(o2.definesAttribute());
-        }
-      });
+        JsonObject longitude = new JsonObject();
+        longitude.addProperty("name", "longitude");
+        longitude.addProperty("label", LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
+
+        attributes.add(longitude);
+
+        JsonObject latitude = new JsonObject();
+        latitude.addProperty("name", "latitude");
+        latitude.addProperty("label", LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
+
+        attributes.add(latitude);
+      }
 
       for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
       {
@@ -746,6 +756,19 @@ public class MasterList extends MasterListBase
       {
         Business row = iterator.next();
         JsonObject object = new JsonObject();
+
+        MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+
+        if (mdGeometry instanceof MdAttributePointDAOIF)
+        {
+          Point point = (Point) row.getObjectValue(mdGeometry.definesAttribute());
+
+          if (point != null)
+          {
+            object.addProperty("longitude", point.getX());
+            object.addProperty("latitude", point.getY());
+          }
+        }
 
         for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
         {

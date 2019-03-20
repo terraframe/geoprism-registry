@@ -26,11 +26,16 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
+import com.vividsolutions.jts.geom.Point;
 
+import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.io.GeoObjectConfiguration;
 
 public class MasterListExcelExporter
 {
@@ -76,9 +81,11 @@ public class MasterListExcelExporter
 
     Row header = sheet.createRow(0);
 
-//    MdAttributeGeometryDAOIF geometryAttribute = (MdAttributeGeometryDAOIF) this.mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-//
-//    boolean includeCoordinates = ( geometryAttribute instanceof MdAttributePointDAOIF );
+    // MdAttributeGeometryDAOIF geometryAttribute = (MdAttributeGeometryDAOIF)
+    // this.mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    //
+    // boolean includeCoordinates = ( geometryAttribute instanceof
+    // MdAttributePointDAOIF );
 
     this.writeHeader(boldStyle, header);
 
@@ -115,24 +122,18 @@ public class MasterListExcelExporter
     int col = 0;
     // Write the row
 
-    // if (name.equals(GeoObjectConfiguration.LATITUDE))
-    // {
-    // Point point = (Point) object.getGeometry();
-    //
-    // if (point != null)
-    // {
-    // cell.setCellValue(point.getX());
-    // }
-    // }
-    // else if (name.equals(GeoObjectConfiguration.LONGITUDE))
-    // {
-    // Point point = (Point) object.getGeometry();
-    // if (point != null)
-    // {
-    // cell.setCellValue(point.getY());
-    // }
-    // }
-    //
+    MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+
+    if (mdGeometry instanceof MdAttributePointDAOIF)
+    {
+      Point point = (Point) object.getObjectValue(mdGeometry.definesAttribute());
+
+      if (point != null)
+      {
+        row.createCell(col++).setCellValue(point.getX());
+        row.createCell(col++).setCellValue(point.getY());
+      }
+    }
 
     for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
     {
@@ -168,6 +169,19 @@ public class MasterListExcelExporter
   {
     int col = 0;
     Locale locale = Session.getCurrentLocale();
+
+    MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+
+    if (mdGeometry instanceof MdAttributePointDAOIF)
+    {
+      Cell longitude = header.createCell(col++);
+      longitude.setCellStyle(boldStyle);
+      longitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
+
+      Cell latitude = header.createCell(col++);
+      latitude.setCellStyle(boldStyle);
+      latitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
+    }
 
     for (MdAttributeConcreteDAOIF mdAttribute : this.mdAttributes)
     {
