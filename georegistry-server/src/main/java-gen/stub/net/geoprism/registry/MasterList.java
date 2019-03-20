@@ -5,8 +5,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,6 +56,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
@@ -77,8 +76,11 @@ import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -543,16 +545,24 @@ public class MasterList extends MasterListBase
     if (mdBusinessId != null && mdBusinessId.length() > 0)
     {
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
-      List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
+      List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
 
-      Collections.sort(mdAttributes, new Comparator<MdAttributeConcreteDAOIF>()
+      MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+
+      if (mdGeometry instanceof MdAttributePointDAOIF)
       {
-        @Override
-        public int compare(MdAttributeConcreteDAOIF o1, MdAttributeConcreteDAOIF o2)
-        {
-          return o1.definesAttribute().compareTo(o2.definesAttribute());
-        }
-      });
+        JsonObject longitude = new JsonObject();
+        longitude.addProperty("name", "longitude");
+        longitude.addProperty("label", LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
+
+        attributes.add(longitude);
+
+        JsonObject latitude = new JsonObject();
+        latitude.addProperty("name", "latitude");
+        latitude.addProperty("label", LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
+
+        attributes.add(latitude);
+      }
 
       for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
       {
@@ -747,6 +757,19 @@ public class MasterList extends MasterListBase
         Business row = iterator.next();
         JsonObject object = new JsonObject();
 
+        MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+
+        if (mdGeometry instanceof MdAttributePointDAOIF)
+        {
+          Point point = (Point) row.getObjectValue(mdGeometry.definesAttribute());
+
+          if (point != null)
+          {
+            object.addProperty("longitude", point.getX());
+            object.addProperty("latitude", point.getY());
+          }
+        }
+
         for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
         {
           if (this.isValid(mdAttribute))
@@ -815,7 +838,12 @@ public class MasterList extends MasterListBase
     GeoObjectType type = service.universalToGeoObjectType(this.getUniversal());
 
     JsonObject object = new JsonObject();
-    object.addProperty(MasterList.OID, this.getOid());
+
+    if (this.isAppliedToDB())
+    {
+      object.addProperty(MasterList.OID, this.getOid());
+    }
+
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.add(MasterList.DISPLAYLABEL, service.convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
@@ -860,7 +888,19 @@ public class MasterList extends MasterListBase
 
       LocalizedValue label = LocalizedValue.fromJSON(object.get(MasterList.DISPLAYLABEL).getAsJsonObject());
 
-      MasterList list = new MasterList();
+      MasterList list = null;
+
+      if (object.has("oid") && !object.get("oid").isJsonNull())
+      {
+        String oid = object.get("oid").getAsString();
+
+        list = MasterList.lock(oid);
+      }
+      else
+      {
+        list = new MasterList();
+      }
+
       list.setUniversal(universal);
       ServiceFactory.getConversionService().populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
@@ -881,7 +921,16 @@ public class MasterList extends MasterListBase
       {
         if (!object.get(MasterList.REPRESENTATIVITYDATE).isJsonNull())
         {
-          list.setRepresentativityDate(format.parse(object.get(MasterList.REPRESENTATIVITYDATE).getAsString()));
+          String date = object.get(MasterList.REPRESENTATIVITYDATE).getAsString();
+
+          if (date.length() > 0)
+          {
+            list.setRepresentativityDate(format.parse(date));
+          }
+          else
+          {
+            list.setRepresentativityDate(null);
+          }
         }
         else
         {
@@ -893,7 +942,16 @@ public class MasterList extends MasterListBase
       {
         if (!object.get(MasterList.PUBLISHDATE).isJsonNull())
         {
-          list.setPublishDate(format.parse(object.get(MasterList.PUBLISHDATE).getAsString()));
+          String date = object.get(MasterList.PUBLISHDATE).getAsString();
+
+          if (date.length() > 0)
+          {
+            list.setPublishDate(format.parse(date));
+          }
+          else
+          {
+            list.setPublishDate(null);
+          }
         }
         else
         {
@@ -913,12 +971,20 @@ public class MasterList extends MasterListBase
   public static MasterList create(JsonObject object)
   {
     MasterList list = MasterList.fromJSON(object);
-    MdBusiness mdTable = list.createTable();
 
-    list.setMdBusiness(mdTable);
+    if (list.isNew())
+    {
+      MdBusiness mdTable = list.createTable();
+
+      list.setMdBusiness(mdTable);
+    }
+
     list.apply();
 
-    MasterList.assignDefaultRolePermissions(mdTable);
+    if (list.isNew())
+    {
+      MasterList.assignDefaultRolePermissions(list.getMdBusiness());
+    }
 
     return list;
   }

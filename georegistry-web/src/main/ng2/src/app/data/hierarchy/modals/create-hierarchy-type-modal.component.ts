@@ -18,6 +18,8 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
 
     message: string = null;
 
+    edit: boolean = false;
+
     /*
      * Observable subject for TreeNode changes.  Called when create is successful 
      */
@@ -39,12 +41,22 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
     handleOnSubmit(): void {
         this.message = null;
 
-        this.hierarchyService.createHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
-            this.onHierarchytTypeCreate.next( data );
-            this.bsModalRef.hide();
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
-        } );
+        if ( this.edit ) {
+            this.hierarchyService.updateHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
+                this.onHierarchytTypeCreate.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: any ) => {
+                this.error( err.json() );
+            } );
+        }
+        else {
+            this.hierarchyService.createHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
+                this.onHierarchytTypeCreate.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: any ) => {
+                this.error( err.json() );
+            } );
+        }
     }
 
     error( err: any ): void {

@@ -14,7 +14,9 @@
         <hr>
         <ul class="list-group">
           <li class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
-            <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
+            <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
+            <i class="fa fa-pencil pull-right" (click)="editHierarchyType(hierarchy)"> </i>            
+            <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
           </li>
         </ul>
         

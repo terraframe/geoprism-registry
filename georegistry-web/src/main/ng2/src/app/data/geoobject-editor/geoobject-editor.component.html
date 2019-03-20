@@ -16,13 +16,13 @@
             </div>
         <!-- </div> -->
 
-        <!-- Tab Zero -->
+        <!-- Attributes tab -->
         <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.preGeoObject && this.postGeoObject"
             #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)" [geoObjectType]="this.geoObjectType"
             [preGeoObject]="this.preGeoObject" [(postGeoObject)]="this.postGeoObject"></geoobject-shared-attribute-editor>
 
 
-        <!-- Tab One -->
+        <!-- Parents tab -->
         <div *ngIf="this.tabIndex === 1">
             <div *ngFor="let ptn of this.parentTreeNode.parents">
                 <div class="label-holder">

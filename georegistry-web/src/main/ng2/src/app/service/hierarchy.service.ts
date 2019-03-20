@@ -102,6 +102,25 @@ export class HierarchyService {
             } )
     }
     
+    updateHierarchyType( htJSON: string): Promise<HierarchyType> {
+
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        });
+        
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/cgr/hierarchytype/update', JSON.stringify({ 'htJSON': htJSON }), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as HierarchyType;
+            } )
+    }
+    
     deleteHierarchyType( code: string ): Promise<TreeEntity> {
 
         let headers = new Headers( {

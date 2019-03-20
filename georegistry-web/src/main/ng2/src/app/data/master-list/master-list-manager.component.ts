@@ -47,6 +47,25 @@ export class MasterListManagerComponent implements OnInit {
         } );
     }
 
+    onEdit( pair: { label: string, oid: string } ): void {
+        this.service.getMasterList( pair.oid ).then( list => {
+
+            this.bsModalRef = this.modalService.show( PublishModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true,
+            } );
+            this.bsModalRef.content.edit = true;
+            this.bsModalRef.content.master = list;
+            this.bsModalRef.content.onMasterListChange.subscribe( ret => {
+                pair.label = ret.displayLabel.localizedValue;
+            } );
+        } ).catch(( err: Response ) => {
+            this.error( err.json() );
+        } );
+    }
+
+
     deleteMasterList( list: { label: string, oid: string } ): void {
         this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
             animated: true,

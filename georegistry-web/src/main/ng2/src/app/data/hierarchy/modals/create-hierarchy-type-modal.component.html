@@ -6,7 +6,7 @@
 
     <div class="form-group">
       <label for="codeInput"><localize key="data.property.label.code"></localize></label>
-      <input  [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput" required>
+      <input  [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput" [disabled]="edit" required>
     </div>
     <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues">
       <label for="labelInput"><localize key="data.property.label.label"></localize> ({{localeValue.locale}})</label>
