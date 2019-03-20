@@ -41,21 +41,30 @@
     controller.load = function(data) {
       console.log("LocationController.load");
       
-      $scope.children = data.children.resultSet;
-      $scope.layers = data.layers;
-      
-      $scope.entity = data.entity;
-      $scope.universal = {
-        value : data.universal,
-        options : data.universals
-      };
-      
-      var layers = [
-//        {name:'context-multipolygon', config: {id: data.entity.oid, type:"LM_CONTEXT"}},
-        {name:'target-multipolygon', config: {oid: data.entity.oid, universalId: data.universal, type:"LM"}, bbox:data.bbox}
-      ];
-      
-      $scope.$broadcast('sharedGeoData', layers);
+	      $scope.children = data.children != null ? data.children.resultSet : [];
+	      $scope.layers = data.layers;
+	      
+	      $scope.entity = data.entity;
+	      $scope.universal = {
+	        value : data.universal,
+	        options : data.universals
+	      };
+	      
+	      var config = {
+	        oid: data.entity.oid, 
+	        universalId: data.universal,
+	    	type:"LM",
+  	    	targetGeom:data.childType,
+  	    	contextGeom:data.geometryType	    		
+	      };
+	      
+	      var layers = [
+	//        {name:'context-multipolygon', config: {id: data.entity.oid, type:"LM_CONTEXT"}},
+	    	  
+	        {name:'target-multipolygon', config:config, bbox:data.bbox}
+	      ];
+	      
+	      $scope.$broadcast('sharedGeoData', layers);
     }
     
     controller.select = function(entity, event) {
@@ -119,11 +128,20 @@
       var connection = {
         elementId : '#innerFrameHtml',
         onSuccess : function(data) {          
-          $scope.children = data.children.resultSet;
+          $scope.children = data.children != null ? data.children.resultSet : [];
           $scope.layers = data.layers;
+          
+	      var config = {
+  	        oid: data.entity.oid, 
+  	        universalId: data.universal,
+  	    	type:"LM",
+  	    	targetGeom:data.childType,
+  	    	contextGeom:data.geometryType	    		
+ 	      };
+
       
           var layers = [
-            {name:'target-multipolygon', config: {oid: $scope.entity.oid, universalId: $scope.universal.value, type:"LM"}, bbox:'[]'}
+            {name:'target-multipolygon', config: config, bbox:'[]'}
           ];
       
           $scope.$broadcast('sharedGeoData', layers);
