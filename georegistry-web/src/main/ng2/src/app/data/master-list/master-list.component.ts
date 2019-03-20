@@ -13,6 +13,7 @@ import { ExportFormatModalComponent } from './export-format-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
 import { ProgressService } from '../../service/progress.service';
+import { LocalizationService } from '../../core/service/localization.service';
 
 import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
 
@@ -41,8 +42,14 @@ export class MasterListComponent implements OnInit {
     */
     private bsModalRef: BsModalRef;
 
+    public searchPlaceholder = "";
 
-    constructor( public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router, private modalService: BsModalService ) { }
+
+    constructor( public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router, 
+        private modalService: BsModalService, private localizeService: LocalizationService ) {
+
+            this.searchPlaceholder = localizeService.decode("masterlist.search");
+         }
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );

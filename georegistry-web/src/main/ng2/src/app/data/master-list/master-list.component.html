@@ -13,55 +13,60 @@
     </div>
     <div *ngIf="list != null">
       <div class="row form-group">
-        <div class="col-sm-1">
+        <!-- <div class="col-sm-1">
           <label>
             <localize key="masterlist.field"></localize>
           </label>
+        </div> -->
+        <div class="col-md-8">
+            <h4>
+                <localize key="masterlist.field"></localize> : <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> {{list.displayLabel.localizedValue}}</a> </b>
+            </h4>
+
+            <h4>
+                <localize key="masterlist.publishDate"></localize> : {{list.publishDate}}
+            </h4>
         </div>
-        <div class="col-sm-1">{{list.displayLabel.localizedValue}}</div>
-        <div class="col-sm-6">
-          <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize></a>
-        </div>
-        <div class="col-sm-2">
-          <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-            <span class="ui-button-text">
-              <localize key="io.export"></localize>
-            </span>
-          </button>
-        </div>
-        <div class="col-sm-2">
-          <button type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
-            <span class="ui-button-text">
-              <localize key="masterlist.publish"></localize>
-            </span>
-          </button>
+        <!-- <div class="col-md-4"> -->
+          <!-- <div class="button-holder"> -->
+            <!-- <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize></a> -->
+            <!-- <button class="btn btn-primary" (click)="onView($event)"><localize key="masterlist.view"></localize></button> -->
+          <!-- </div> -->
+        <!-- </div> -->
+        <div class="col-md-4" style="text-align: right;">
+            <!-- <h4>Master List Controls</h4> -->
+            <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                <localize key="io.export"></localize>
+            </button>
+            <button type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
+                <localize key="masterlist.publish"></localize>
+            </button>
         </div>
       </div>
+
+
       <div class="row form-group">
-        <div class="col-sm-1">
+        <!-- <div class="col-sm-1">
           <label>
             <localize key="masterlist.search"></localize>
           </label>
-        </div>
-        <div class="col-sm-5">
+        </div> -->
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
           <div class="input-group">
-            <input [(ngModel)]="current" name="current" type="text" class="form-control" />
+            <div class="submit-form">
+                <input [(ngModel)]="current" name="current" type="text" class="form-control search-input" placeholder="{{searchPlaceholder}}..." />
+            </div>
             <span class="input-group-btn">
-              <button class="btn btn-default" type="submit" (click)="onSearch()">
+              <button class="btn btn-default search-input-button" type="submit" (click)="onSearch()">
                 <i class="fa fa-search"></i>
               </button>
             </span>
           </div>
-
         </div>
-        <div class="col-sm-4"></div>
-        <div class="col-sm-1">
-          <label>
-            <localize key="masterlist.publishDate"></localize>
-          </label>
-        </div>
-        <div class="col-sm-1">{{list.publishDate}}</div>
+        <!-- <div class="col-md-2"></div> -->
       </div>
+
       <div class="row form-group">
         <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
       </div>
