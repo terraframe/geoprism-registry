@@ -36,6 +36,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.IsARelationship;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
@@ -857,6 +858,11 @@ public class RegistryService
   private HierarchyType updateHierarchyTypeTransaction(HierarchyType hierarchyType)
   {
     MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+
+    if (mdTermRelationship.definesType().equals(AllowedIn.CLASS))
+    {
+      mdTermRelationship = (MdTermRelationship) MdTermRelationship.getMdRelationship(LocatedIn.CLASS);
+    }
 
     mdTermRelationship.lock();
 

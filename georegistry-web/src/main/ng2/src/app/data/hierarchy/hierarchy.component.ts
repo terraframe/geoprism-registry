@@ -27,12 +27,12 @@ class Instance {
     label: string;
 }
 
-@Component({
-  
-  selector: 'hierarchies',
-  templateUrl: './hierarchy.component.html',
-  styleUrls: ['./hierarchy.css']
-})
+@Component( {
+
+    selector: 'hierarchies',
+    templateUrl: './hierarchy.component.html',
+    styleUrls: ['./hierarchy.css']
+} )
 
 export class HierarchyComponent implements OnInit {
     instance: Instance = new Instance();
@@ -293,7 +293,6 @@ export class HierarchyComponent implements OnInit {
 
         ( <CreateHierarchyTypeModalComponent>this.bsModalRef.content ).onHierarchytTypeCreate.subscribe( data => {
 
-            // TODO: Make sure this works
             this.hierarchies.push( data );
         } );
     }
@@ -309,6 +308,23 @@ export class HierarchyComponent implements OnInit {
 
         ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
             this.removeHierarchyType( data );
+        } );
+    }
+
+    public editHierarchyType( obj: HierarchyType ): void {
+        this.bsModalRef = this.modalService.show( CreateHierarchyTypeModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+            'class': 'upload-modal'
+        } );
+        this.bsModalRef.content.edit = true;
+        this.bsModalRef.content.hierarchyType = obj;
+        this.bsModalRef.content.onHierarchytTypeCreate.subscribe( data => {
+            let pos = this.getHierarchyTypePosition( data.code );
+            
+            this.hierarchies[pos].label = data.label;
+            this.hierarchies[pos].description = data.description;
         } );
     }
 
