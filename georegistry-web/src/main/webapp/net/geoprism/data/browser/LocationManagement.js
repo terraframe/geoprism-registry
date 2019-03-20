@@ -164,9 +164,9 @@
             
             $.each(resultSet, function( index, result ) {
               var label = result.displayLabel;
-              var id = result.id;
+              var oid = result.oid;
               
-              results.push({'label':label, 'value':label, 'id':id});
+              results.push({'label':label, 'value':label, 'id':oid});
             });
             
             response( results );
