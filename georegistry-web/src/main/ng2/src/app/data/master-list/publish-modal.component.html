@@ -25,7 +25,7 @@
                             [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
                     </div>
                 </div>
-                <div class="row-holder" *ngIf="types && !readonly">
+                <div class="row-holder" *ngIf="types && !(readonly || edit)">
                     <div class="label-holder">
                         <label for="typeCode">
                             <localize key="io.geoObjectType"></localize>
@@ -46,8 +46,7 @@
                         </label>
                     </div>
                     <div class="holder">
-                        <input [(ngModel)]="master.code" name="code" type="text" class="form-control" [disabled]="readonly"
-                            required />
+                        <input [(ngModel)]="master.code" name="code" type="text" class="form-control" [disabled]="readonly || edit" required/>
                     </div>
                 </div>
                 <div class="row-holder">
@@ -226,8 +225,7 @@
 
                                     <label style="margin: 3px 10px;">{{parent.label}}</label> -->
 
-                                    <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox"
-                                        class="form-check" [disabled]="readonly" />
+                                    <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" [disabled]="readonly || edit"/>
                                 </div>
                                 <div class="holder">{{parent.label}}</div>
                                 <!-- </div> -->
