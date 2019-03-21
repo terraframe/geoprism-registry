@@ -187,6 +187,19 @@ public class GeoObjectExcelExporter
       }
     }
 
+    {
+      LocalizedValue value = (LocalizedValue) object.getValue(DefaultAttribute.DISPLAY_LABEL.getName());
+
+      Cell cell = row.createCell(col++);
+      cell.setCellValue(value.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+      for (Locale locale : locales)
+      {
+        cell = row.createCell(col++);
+        cell.setCellValue(value.getValue(locale));
+      }
+    }
+
     // Write the parent values
     Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
 
@@ -227,6 +240,21 @@ public class GeoObjectExcelExporter
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
       cell.setCellValue(attribute.getLabel().getValue());
+    }
+
+    {
+      AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
+
+      Cell cell = header.createCell(col++);
+      cell.setCellStyle(boldStyle);
+      cell.setCellValue(attribute.getLabel().getValue() + " (" + MdAttributeLocalInfo.DEFAULT_LOCALE + ")");
+
+      for (Locale locale : locales)
+      {
+        cell = header.createCell(col++);
+        cell.setCellStyle(boldStyle);
+        cell.setCellValue(attribute.getLabel().getValue() + " (" + locale.toString() + ")");
+      }
     }
 
     for (GeoObjectType ancestor : ancestors)

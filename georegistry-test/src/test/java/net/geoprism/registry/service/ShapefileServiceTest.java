@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -200,6 +201,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+    Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
   }
 
   @Test
@@ -273,7 +275,7 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
+    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 

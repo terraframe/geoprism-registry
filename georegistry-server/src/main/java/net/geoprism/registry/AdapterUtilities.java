@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -120,24 +121,26 @@ public class AdapterUtilities
    * 
    * @param geoObject
    * @param isNew
+   * @param statusCode
+   *          TODO
    * @return
    */
-  public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew)
+  public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew, String statusCode)
   {
     if (geoObject.getType().isLeaf())
     {
-      this.applyLeafObject(geoObject, isNew);
+      this.applyLeafObject(geoObject, isNew, statusCode);
     }
     else
     {
 
-      this.applyTreeObject(geoObject, isNew);
+      this.applyTreeObject(geoObject, isNew, statusCode);
     }
 
     return this.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
   }
 
-  private void applyLeafObject(GeoObject geoObject, boolean isNew)
+  private void applyLeafObject(GeoObject geoObject, boolean isNew, String statusCode)
   {
     Business biz = this.constructLeafObject(geoObject, isNew);
 
@@ -165,7 +168,7 @@ public class AdapterUtilities
       }
     }
 
-    Term status = this.populateBusiness(geoObject, isNew, biz, null);
+    Term status = this.populateBusiness(geoObject, isNew, biz, null, statusCode);
 
     biz.apply();
 
@@ -176,7 +179,7 @@ public class AdapterUtilities
 
   }
 
-  private void applyTreeObject(GeoObject geoObject, boolean isNew)
+  private void applyTreeObject(GeoObject geoObject, boolean isNew, String statusCode)
   {
     GeoEntity ge = this.constructGeoEntity(geoObject, isNew);
 
@@ -233,7 +236,7 @@ public class AdapterUtilities
       biz.appLock();
     }
 
-    Term statusTerm = populateBusiness(geoObject, isNew, biz, ge);
+    Term statusTerm = populateBusiness(geoObject, isNew, biz, ge, statusCode);
 
     biz.apply();
 
@@ -244,10 +247,14 @@ public class AdapterUtilities
   }
 
   @SuppressWarnings("unchecked")
-  private Term populateBusiness(GeoObject geoObject, boolean isNew, Business business, GeoEntity entity)
+  private Term populateBusiness(GeoObject geoObject, boolean isNew, Business business, GeoEntity entity, String statusCode)
   {
     GeoObjectStatus gos = isNew ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(geoObject.getStatus());
-    Term status = isNew ? ConversionService.getInstance().geoObjectStatusToTerm(GeoObjectStatus.PENDING) : geoObject.getStatus();
+
+    if (statusCode != null)
+    {
+      gos = ConversionService.getInstance().termToGeoObjectStatus(statusCode);
+    }
 
     business.setValue(RegistryConstants.UUID, geoObject.getUid());
     business.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
@@ -300,7 +307,7 @@ public class AdapterUtilities
       }
     });
 
-    return status;
+    return ConversionService.getInstance().geoObjectStatusToTerm(gos);
   }
 
   private Business constructLeafObject(GeoObject geoObject, boolean isNew)

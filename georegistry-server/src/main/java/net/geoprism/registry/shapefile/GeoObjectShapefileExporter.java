@@ -280,6 +280,17 @@ public class GeoObjectShapefileExporter
         }
       });
 
+      AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
+
+      LocalizedValue value = (LocalizedValue) object.getValue(DefaultAttribute.DISPLAY_LABEL.getName());
+
+      builder.set(this.getColumnName(attribute.getName() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), value.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+      for (Locale locale : locales)
+      {
+        builder.set(this.getColumnName(attribute.getName() + " " + locale.toString()), value.getValue(locale));
+      }
+
       Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
 
       ancestors.forEach(ancestor -> {
@@ -308,6 +319,8 @@ public class GeoObjectShapefileExporter
 
   public SimpleFeatureType createFeatureType()
   {
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
     SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
     builder.setName(this.type.getLabel().getValue());
     builder.setCRS(DefaultGeographicCRS.WGS84);
@@ -317,9 +330,17 @@ public class GeoObjectShapefileExporter
       builder.add(generateColumnName(attribute.getName()), this.getShapefileType(attribute));
     });
 
+    AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
+
+    builder.add(generateColumnName(attribute.getName() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), String.class);
+
+    for (Locale locale : locales)
+    {
+      builder.add(generateColumnName(attribute.getName() + " " + locale.toString()), String.class);
+    }
+
     // Add the type ancestor fields
     List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     ancestors.forEach(ancestor -> {
 

@@ -153,7 +153,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    return ServiceFactory.getUtilities().applyGeoObject(geoObject, true);
+    return ServiceFactory.getUtilities().applyGeoObject(geoObject, true, null);
   }
 
   @Request(RequestType.SESSION)
@@ -167,7 +167,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    return ServiceFactory.getUtilities().applyGeoObject(geoObject, false);
+    return ServiceFactory.getUtilities().applyGeoObject(geoObject, false, null);
   }
 
   @Request(RequestType.SESSION)
@@ -222,7 +222,11 @@ public class RegistryService
       Business child = Business.get(childRunwayId);
 
       Universal parentUniversal = parent.getUniversal();
+      Universal childUniversal = ConversionService.getInstance().geoObjectTypeToUniversal(goChild.getType());
       String refAttrName = ConversionService.getParentReferenceAttributeName(hierarchyCode, parentUniversal);
+      String universalRelationshipType = ConversionService.buildMdTermRelUniversalKey(hierarchyCode);
+
+      GeoEntity.validateUniversalRelationship(childUniversal, parentUniversal, universalRelationshipType);
 
       child.appLock();
       child.setValue(refAttrName, parent.getOid());
