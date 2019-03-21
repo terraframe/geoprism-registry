@@ -497,26 +497,96 @@
     }
         
     controller.load = function(data) {
-      if(data.entity == null) {
+      if(data.entity == null) { // Used when creating a new GeoObject
         $scope.entity = {
           type : 'com.runwaysdk.system.gis.geo.GeoEntity',
           wkt : data.wkt,
           universal : data.universal.value
-        };        
+        };
+        
+        locationService.editNewGeoObject({
+          elementId : '#innerFrameHtml',
+          onSuccess : function(resp) {
+            $scope.preGeoObject = resp.newGeoObject;
+            $scope.postGeoObject = JSON.parse(JSON.stringify(resp.newGeoObject));
+            controller.setGeoObjectType(resp.geoObjectType);
+            $scope.show = true;
+            console.log(resp);
+          },
+          onFailure : function(e){
+            $scope.errors.push(e.localizedMessage);
+          }
+        }, data.universal.value);
       }
-      else {
-        $scope.entity = data.entity;        
+      else { // Editing an existing GeoObject
+        $scope.entity = data.entity;
+        
+        locationService.fetchGeoObjectFromGeoEntity({
+          elementId : '#innerFrameHtml',
+          onSuccess : function(resp) {
+            $scope.preGeoObject = resp.geoObject;
+            $scope.postGeoObject = JSON.parse(JSON.stringify(resp.geoObject));
+            $scope.parentTreeNode = resp.parentTreeNode;
+            controller.setGeoObjectType(resp.geoObjectType);
+            $scope.show = true;
+            console.log(resp);
+          },
+          onFailure : function(e){
+            $scope.errors.push(e.localizedMessage);
+          }                
+        }, data.entity.oid);
       }
       
+      $scope.tabIndex = 0;
+      $scope.errors = [];
       $scope.universals = data.universal.options;
       $scope.parent = data.parent;
-      $scope.show = true;
+      $scope.show = false;
+    }
+    
+    controller.setTabIndex = function(index)
+    {
+      $scope.tabIndex = index;
+    }
+    
+    controller.getGeoObjectTypeTermAttributeOptions = function(termAttributeCode) {
+      for (var i=0; i < $scope.geoObjectType.attributes.length; i++) {
+        var attr = $scope.geoObjectType.attributes[i];
+
+        if (attr.type === "term" && attr.code === termAttributeCode){
+          var attrOpts = attr.rootTerm.children;
+  
+          if(attrOpts.length > 0){
+            return attrOpts;
+          }
+        }
+      }
+
+      return null;
     }
         
     controller.clear = function() { 
       $scope.entity = undefined;
       $scope.parent = undefined;
       $scope.show = false;
+    }
+    
+    controller.setGeoObjectType = function(got)
+    {
+      var filter = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
+      
+      // https://stackoverflow.com/questions/9882284/looping-through-array-and-removing-items-without-breaking-for-loop
+      for (var i = got.attributes.length - 1; i >= 0; --i)
+      {
+        var attr = got.attributes[i];
+        
+        if (filter.indexOf(attr.code) !== -1)
+        {
+          got.attributes.splice(i, 1);
+        }
+      }
+      
+      $scope.geoObjectType = got;
     }
     
     controller.cancel = function() {
@@ -568,7 +638,7 @@
                               
       $scope.errors = [];
           
-      locationService.apply(connection, $scope.entity, $scope.parent.oid, $scope.layers);        
+      locationService.apply(connection, $scope.entity, $scope.parent.oid, $scope.layers);
     }
       
     $rootScope.$on('locationEdit', function(event, data) {
