@@ -54,7 +54,7 @@ public class GeoObjectEditorController
     
     return go;
   }
-  private void applyPtn(String sessionId, ParentTreeNode ptn)
+  public void applyPtn(String sessionId, ParentTreeNode ptn)
   {
     GeoObject child = ptn.getGeoObject();
     List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();

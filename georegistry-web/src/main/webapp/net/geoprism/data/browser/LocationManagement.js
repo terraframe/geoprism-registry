@@ -563,7 +563,7 @@
         	
             $scope.preGeoObject = resp.newGeoObject;
             $scope.postGeoObject = JSON.parse(JSON.stringify(resp.newGeoObject));
-            $scope.parentTreeNode = null;
+            $scope.parentTreeNode = resp.parentTreeNode;
             controller.setGeoObjectType(resp.geoObjectType);
             $scope.show = true;
             console.log(resp);
