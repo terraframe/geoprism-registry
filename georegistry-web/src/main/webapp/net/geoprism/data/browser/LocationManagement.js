@@ -528,88 +528,207 @@
   function LocationModalController($scope, $rootScope, locationService) {
     var locationController = controller;
     var controller = this;
-
+        
     controller.init = function() {
       $scope.show = false;
     }
-
+        
     controller.load = function(data) {
-      if (data.entity == null) {
+      if(data.entity == null) { // Used when creating a new GeoObject
         $scope.entity = {
-          type: 'com.runwaysdk.system.gis.geo.GeoEntity',
-          wkt: data.wkt,
-          universal: data.universal.value
+          type : 'com.runwaysdk.system.gis.geo.GeoEntity',
+          wkt : data.wkt,
+          universal : data.universal.value
         };
-      } else {
-        $scope.entity = data.entity;
+        
+        locationService.editNewGeoObject({
+          elementId : '#innerFrameHtml',
+          onSuccess : function(resp) {
+            $scope.preGeoObject = resp.newGeoObject;
+            $scope.postGeoObject = JSON.parse(JSON.stringify(resp.newGeoObject));
+            controller.setGeoObjectType(resp.geoObjectType);
+            $scope.show = true;
+            console.log(resp);
+          },
+          onFailure : function(e){
+            $scope.errors.push(e.localizedMessage);
+          }
+        }, data.universal.value);
       }
-
+      else { // Editing an existing GeoObject
+        $scope.entity = data.entity;
+        
+        locationService.fetchGeoObjectFromGeoEntity({
+          elementId : '#innerFrameHtml',
+          onSuccess : function(resp) {
+            $scope.preGeoObject = resp.geoObject;
+            $scope.postGeoObject = JSON.parse(JSON.stringify(resp.geoObject));
+            $scope.parentTreeNode = resp.parentTreeNode;
+            controller.setGeoObjectType(resp.geoObjectType);
+            $scope.show = true;
+            console.log(resp);
+          },
+          onFailure : function(e){
+            $scope.errors.push(e.localizedMessage);
+          }                
+        }, data.entity.oid);
+      }
+      
+      $scope.tabIndex = 0;
+      $scope.errors = [];
       $scope.universals = data.universal.options;
       $scope.parent = data.parent;
-      $scope.show = true;
+      $scope.show = false;
     }
+    
+    controller.getParentSearchFunction = function(ptn) {
+      var ctrl = this;
+      
+      return function(req, resp){ctrl.getGeoObjectSuggestions(req,resp,ptn);}
+    }
+    
+    controller.getGeoObjectSuggestions = function( request, response, ptn ) {
+      var limit = 20;
+      
+      if(request.term && request.term.length > 0) {
+        
+        var connection = {
+          onSuccess : function(data){
+            var results = [];
+            
+            $.each(data, function( index, result ) {
+              results.push({'label':result.name, 'value':result.name, 'id':result.code});
+            });
+            
+            response( results );
+          }
+        };
+      
+        var text = request.term;
+        
+        locationService.getGeoObjectSuggestions(connection, text, ptn.geoObject.properties.type);
+      }
+    }
+    
+    controller.getParentSearchOpenFunction = function(ptn) {
+      return function(code){
+        if(code && code.length > 0) {
+          
+          locationService.getGeoObjectByCode({
+            elementId : '#innerFrameHtml',
+            onSuccess : function(geoObject) {
+              ptn.geoObject = geoObject;
+            },
+            onFailure : function(e){
+              $scope.errors.push(e.localizedMessage);
+            }
+          }, code, ptn.geoObject.properties.type);
+        }
+      }
+    }
+    
+    controller.setTabIndex = function(index)
+    {
+      $scope.tabIndex = index;
+    }
+    
+    controller.getGeoObjectTypeTermAttributeOptions = function(termAttributeCode) {
+      for (var i=0; i < $scope.geoObjectType.attributes.length; i++) {
+        var attr = $scope.geoObjectType.attributes[i];
 
-    controller.clear = function() {
+        if (attr.type === "term" && attr.code === termAttributeCode){
+          var attrOpts = attr.rootTerm.children;
+  
+          if(attrOpts.length > 0){
+            return attrOpts;
+          }
+        }
+      }
+
+      return null;
+    }
+        
+    controller.clear = function() { 
       $scope.entity = undefined;
       $scope.parent = undefined;
       $scope.show = false;
     }
-
+    
+    controller.setGeoObjectType = function(got)
+    {
+      var filter = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
+      
+      // https://stackoverflow.com/questions/9882284/looping-through-array-and-removing-items-without-breaking-for-loop
+      for (var i = got.attributes.length - 1; i >= 0; --i)
+      {
+        var attr = got.attributes[i];
+        
+        if (filter.indexOf(attr.code) !== -1)
+        {
+          got.attributes.splice(i, 1);
+        }
+      }
+      
+      $scope.geoObjectType = got;
+    }
+    
     controller.cancel = function() {
-      if ($scope.entity.oid !== undefined) {
+      if($scope.entity.oid !== undefined) {
         var connection = {
-          elementId: '#innerFrameHtml',
-          onSuccess: function(entity) {
+          elementId : '#innerFrameHtml',
+          onSuccess : function(entity) {
             controller.clear();
-
+            
             $scope.$emit('locationCancel', {});
           },
-          onFailure: function(e) {
+          onFailure : function(e){
             $scope.errors.push(e.localizedMessage);
-          }
+          }                
         };
-
+                                        
         $scope.errors = [];
-
-        locationService.unlock(connection, $scope.entity.oid);
-      } else {
+                    
+        locationService.unlock(connection, $scope.entity.oid);                      
+      }
+      else {
         controller.clear();
-
-        $scope.$emit('locationCancel', {});
+        
+        $scope.$emit('locationCancel', {});        
       }
     }
-
+    
     controller.apply = function() {
       var connection = {
-        elementId: '#innerFrameHtml',
-        onSuccess: function(entity) {
-
-          if (controller.afterApply != null) {
+        elementId : '#innerFrameHtml',
+        onSuccess : function(entity) {
+          
+          if (controller.afterApply != null)
+          {
             controller.afterApply();
           }
-
+          
           controller.clear();
-
+          
           $scope.$emit('locationChange', {
-            entity: entity
+            entity : entity  
           });
           $scope.$emit('locationReloadCurrent');
         },
-        onFailure: function(e) {
+        onFailure : function(e){
           $scope.errors.push(e.localizedMessage);
-        }
+        }                
       };
-
+                              
       $scope.errors = [];
-
-      locationService.apply(connection, $scope.entity, $scope.parent.oid, $scope.layers, $scope.$parent.hierarchy.value);
+          
+      locationService.apply(connection, $scope.entity.newInstance, $scope.postGeoObject, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
     }
-
+      
     $rootScope.$on('locationEdit', function(event, data) {
       controller.afterApply = data.afterApply;
       controller.load(data);
     });
-
+       
     controller.init();
   }
 

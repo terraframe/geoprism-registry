@@ -49,27 +49,66 @@
       runwayService.execute(req, connection);      
     }
     
-    service.getGeoEntitySuggestions = function(connection, text, limit) {
+    service.getGeoObjectByCode = function(connection, code, typeCode) {
       var req = {
-        method: 'POST',
-        url: com.runwaysdk.__applicationContextPath + '/location/suggestions',
-        data : {
-          text : text,
-          limit : limit
+        method: 'GET',
+        url: com.runwaysdk.__applicationContextPath + '/cgr/geoobject/get-code',
+        params : {
+          code: code,
+          typeCode: typeCode
         }
-      }      
-              
-      runwayService.execute(req, connection);      
+      }
+      
+      runwayService.execute(req, connection);
     }
     
-    service.apply = function(connection, entity, parentOid, existingLayers) {
+    service.fetchGeoObjectFromGeoEntity = function(connection, entityId) {
+      var req = {
+        method: 'POST',
+        url: com.runwaysdk.__applicationContextPath + '/registrylocation/fetchGeoObjectFromGeoEntity',
+        data : {
+          entityId: entityId
+        }
+      }
+      
+      runwayService.execute(req, connection);
+    }
+    
+    service.editNewGeoObject = function(connection, universalId) {
+      var req = {
+        method: 'POST',
+        url: com.runwaysdk.__applicationContextPath + '/registrylocation/editNewGeoObject',
+        data : {
+          universalId: universalId
+        }
+      }
+      
+      runwayService.execute(req, connection);
+    }
+    
+    service.getGeoObjectSuggestions = function(connection, text, geoObjectType) {
+      var req = {
+        method: 'POST',
+        url: com.runwaysdk.__applicationContextPath + '/cgr/geoobject/suggestions',
+        data : {
+          text : text,
+          type : geoObjectType
+        }
+      }      
+      
+      runwayService.execute(req, connection);
+    }
+    
+    service.apply = function(connection, isNew, geoObject, parentOid, existingLayers, ptn, mdRelationshipId) {
       var req = {
         method: 'POST',
         url: com.runwaysdk.__applicationContextPath + '/registrylocation/apply',
         data : {
-          entity : entity,
+          isNew : isNew,
+          geoObject : geoObject,
           parentOid : parentOid,          
           existingLayers : existingLayers,
+          parentTreeNode: ptn,
           mdRelationshipId : mdRelationshipId          
         }
       }      
