@@ -69,7 +69,8 @@
         data : {
           entity : entity,
           parentOid : parentOid,          
-          existingLayers : existingLayers
+          existingLayers : existingLayers,
+          mdRelationshipId : mdRelationshipId          
         }
       }      
       

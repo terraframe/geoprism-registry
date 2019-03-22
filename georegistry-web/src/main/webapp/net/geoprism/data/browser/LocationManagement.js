@@ -404,7 +404,7 @@
 
       $scope.errors = [];
 
-      locationService.apply(connection, $scope.entity, $scope.parent.id, $scope.layers);
+      locationService.apply(connection, $scope.entity, $scope.parent.id, $scope.layers, $scope.hierarchy.value);
     }
 
     controller.init();
@@ -602,7 +602,7 @@
 
       $scope.errors = [];
 
-      locationService.apply(connection, $scope.entity, $scope.parent.oid, $scope.layers);
+      locationService.apply(connection, $scope.entity, $scope.parent.oid, $scope.layers, $scope.$parent.hierarchy.value);
     }
 
     $rootScope.$on('locationEdit', function(event, data) {
