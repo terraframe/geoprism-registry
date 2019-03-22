@@ -33,12 +33,12 @@ public class GeoObjectEditorController
   }
   
   @Request(RequestType.SESSION)
-  private void apply(String sessionId, String ptn, String go, String masterListId)
+  public GeoObject apply(String sessionId, String ptn, String go, String masterListId)
   {
-    applyInTransaction(sessionId, ptn, go, masterListId);
+    return applyInTransaction(sessionId, ptn, go, masterListId);
   }
   @Transaction
-  private void applyInTransaction(String sessionId, String sPtn, String sGo, String masterListId)
+  private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, String masterListId)
   {
     GeoObject go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
     
@@ -47,7 +47,12 @@ public class GeoObjectEditorController
     applyPtn(sessionId, ptn);
     
     // Update the master list record
-    MasterList.get(masterListId).updateRecord(go);
+    if (masterListId != null)
+    {
+      MasterList.get(masterListId).updateRecord(go);
+    }
+    
+    return go;
   }
   private void applyPtn(String sessionId, ParentTreeNode ptn)
   {

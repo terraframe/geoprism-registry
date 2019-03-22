@@ -544,6 +544,52 @@
       $scope.show = false;
     }
     
+    controller.getParentSearchFunction = function(ptn) {
+      var ctrl = this;
+      
+      return function(req, resp){ctrl.getGeoObjectSuggestions(req,resp,ptn);}
+    }
+    
+    controller.getGeoObjectSuggestions = function( request, response, ptn ) {
+      var limit = 20;
+      
+      if(request.term && request.term.length > 0) {
+        
+        var connection = {
+          onSuccess : function(data){
+            var results = [];
+            
+            $.each(data, function( index, result ) {
+              results.push({'label':result.name, 'value':result.name, 'id':result.code});
+            });
+            
+            response( results );
+          }
+        };
+      
+        var text = request.term;
+        
+        locationService.getGeoObjectSuggestions(connection, text, ptn.geoObject.properties.type);
+      }
+    }
+    
+    controller.getParentSearchOpenFunction = function(ptn) {
+      return function(code){
+        if(code && code.length > 0) {
+          
+          locationService.getGeoObjectByCode({
+            elementId : '#innerFrameHtml',
+            onSuccess : function(geoObject) {
+              ptn.geoObject = geoObject;
+            },
+            onFailure : function(e){
+              $scope.errors.push(e.localizedMessage);
+            }
+          }, code, ptn.geoObject.properties.type);
+        }
+      }
+    }
+    
     controller.setTabIndex = function(index)
     {
       $scope.tabIndex = index;
@@ -638,7 +684,7 @@
                               
       $scope.errors = [];
           
-      locationService.apply(connection, $scope.entity, $scope.parent.oid, $scope.layers);
+      locationService.apply(connection, $scope.entity.newInstance, $scope.postGeoObject, $scope.parent.oid, $scope.layers, $scope.parentTreeNode);
     }
       
     $rootScope.$on('locationEdit', function(event, data) {

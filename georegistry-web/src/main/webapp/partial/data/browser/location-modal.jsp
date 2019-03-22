@@ -160,8 +160,8 @@
 			          </div>
 			  
 			          <div class="holder">
-			            <input type="text" ng-model="ptn.geoObject.properties.displayLabel.localizedValue" name="{{ptn.geoObject.properties.code}}-input"
-			             class="form-control" required>
+			             <input type="text" ng-model="ptn.geoObject.properties.displayLabel.localizedValue" autocomplete="off" callback-auto-complete=""
+			             source="ctrl.getParentSearchFunction(ptn)" setter="ctrl.getParentSearchOpenFunction(ptn)" class="ng-isolate-scope ui-autocomplete-input ui-autocomplete-loading">
 			          </div>
 			        </div>
 			      </div>
