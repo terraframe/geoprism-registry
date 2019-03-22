@@ -359,6 +359,7 @@
     $scope.$on('locationEditNew', function(event, data) {
       $scope.$emit('locationEdit', {
         wkt: data.wkt || '',
+        geojson: data.geojson,
         universal: $scope.universal,
         parent: $scope.entity,
         afterApply: data.afterApply
@@ -553,6 +554,13 @@
         locationService.editNewGeoObject({
           elementId : '#innerFrameHtml',
           onSuccess : function(resp) {
+        	resp.newGeoObject.geometry = data.geojson.geometry;
+            if (data.geojson.geometry.type === "Polygon")
+            {
+	          resp.newGeoObject.geometry.type = "MultiPolygon";
+	          resp.newGeoObject.geometry.coordinates = [resp.newGeoObject.geometry.coordinates];
+            }
+        	
             $scope.preGeoObject = resp.newGeoObject;
             $scope.postGeoObject = JSON.parse(JSON.stringify(resp.newGeoObject));
             $scope.parentTreeNode = null;
