@@ -1,4 +1,4 @@
-import { Input, Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Input, Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { Headers, Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
@@ -25,7 +25,8 @@ declare var acp: any;
   
   selector: 'crtable-detail-create-geo-object',
   templateUrl: './detail.component.html',
-  styleUrls: ['../all-action-detail.css']
+  styleUrls: ['./crtable-detail-create-geo-object.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class CreateUpdateGeoObjectDetailComponent {
 
@@ -66,17 +67,33 @@ export class CreateUpdateGeoObjectDetailComponent {
     this.geoObjectType = this.action.geoObjectType;
     
     
-    
-    this.preGeoObject = JSON.parse(JSON.stringify(this.postGeoObject));
-    
-    // TODO : If we decide we want the diffing logic to diff based on what exists currently in the DB, use this code instead to set the preGeoObject:  
-    //this.registryService.getGeoObjectByCode(this.postGeoObject.properties.code, this.geoObjectType.code)
-    //    .then(geoObject => {
-    //        this.preGeoObject = geoObject;
+    // There are multiple ways we could show a diff of an object.
     //
-    //    }).catch((err: Response) => {
-    //        this.error(err.json());
-    //    });
+    // This line will show a diff only when a person is typing so as to show the
+    // change they are creating.
+    //
+    // The method below (getGeoObjectByCode) will compare what is in the database
+    // at that time with the change request. This will only track state compared to
+    // what is currently in the database which isn't necessarily the original change.
+    // 
+    // A third option which is NOT implemented yet would store the state of a geoobject
+    // (original and target) with the change request so as to manage state at time of 
+    // the change request submission.
+    //
+    // Display diff when a user is changing a value
+    // this.preGeoObject = JSON.parse(JSON.stringify(this.postGeoObject));
+    
+    // Display diff of what's in the database
+    if(this.action.actionType === "net.geoprism.registry.action.geoobject.UpdateGeoObjectAction"
+       && typeof this.postGeoObject.properties.createDate !== 'undefined') {
+        this.registryService.getGeoObjectByCode(this.postGeoObject.properties.code, this.geoObjectType.code)
+            .then(geoObject => {
+                this.preGeoObject = geoObject;
+            
+            }).catch((err: Response) => {
+                this.error(err.json());
+            });
+    }
   }
   
   unlockAction()

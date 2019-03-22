@@ -34,7 +34,7 @@
 
 html, body{height:100%;}
 body{
-	min-width:1030px;
+	/* min-width:1030px; */
     overflow: hidden;
     background: white;
 }
@@ -1202,7 +1202,8 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 	color:#333;
     /* padding:17px 50px 0 0; */
     overflow-x:hidden;
-	overflow-y:auto;
+    /* overflow-y:auto; */
+    overflow: visible;
 	/* height:calc(95vh - 52px); */
 }
 .modal-content .heading{
@@ -1215,7 +1216,10 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 	margin:0;
 	color:#333;
 }
-.modal-form{overflow:hidden;}
+.modal-form{
+    overflow:hidden;
+    /* min-height: 50vh; */
+}
 .modal-form .row-holder{
 	position:relative;
 	overflow:hidden;
@@ -2043,7 +2047,8 @@ div.gdb-maincontent-busy {
 
 .ui-autocomplete.ui-front.ui-menu.ui-widget.ui-widget-content.ui-corner-all{
 	overflow-y: auto;
-	max-height: 100px;
+    max-height: 250px;
+    /* top: 185px; */
 }
 
 div.alert.alertbox {
@@ -2418,15 +2423,20 @@ i.fa.fa-cloud-upload{
 
 .navbar-header {
     padding: 46px 0 46px 0;
+    float: left;
 }
 .navbar-default .navbar-header > a > img {
     height: 50px;
     margin-right: 20px;
 }
 
+.nav.navbar-nav.navbar-right {
+    float: right;
+}
+
 .dropdown-toggle {
-    line-height: 144px !important;
-    padding: 0 !important;
+    line-height: 144px !important; 
+    padding: 0 !important; 
 }
 
 .navbar-default .navbar-header > a:first-child.navbar-brand {

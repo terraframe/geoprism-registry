@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -14,7 +14,8 @@ import { LocalizationService } from '../../core/service/localization.service';
 
     selector: 'request-table',
     templateUrl: './request-table.component.html',
-    styleUrls: ['./crtable.css']
+    styleUrls: ['./crtable.css'],
+    encapsulation: ViewEncapsulation.None
 } )
 export class RequestTableComponent {
 

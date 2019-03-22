@@ -78,6 +78,17 @@ export class PublishModalComponent implements OnInit {
 
     }
 
+    getIsDisabled(event):boolean {
+        let elClasses = event.target.classList;
+        for(let i=0; i<elClasses.length; i++){
+            let c = elClasses[i];
+            if(c === 'disabled'){
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     onChange(): void {
 

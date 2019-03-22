@@ -4,6 +4,10 @@
 	margin-bottom: 20px;
 }
 
+.modal-content {
+    overflow-y: visible !important;
+}
+
 /* .geobject-editor-tab-holder .btn.full-width-radio-button.active {
     background: #009edc !important;
 }

@@ -1,4 +1,13 @@
 .crtable-ngx {
-	display:inline-block;
+    display:inline-block;
+    overflow-x: auto !important;
 }
 
+
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row:hover {
+    cursor: pointer;
+    background-color: #EDF4E8;
+}
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row.active {
+    background-color: #A29BAB !important;
+}
