@@ -69,7 +69,7 @@
 		                              <div ng-if="attr.type === 'character'">
 		                                  <input ng-if="postGeoObject" type="text"
 		                                      ng-model="postGeoObject.properties[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}"
-		                                      disabled="attr.code === 'code' && !allowCodeEdit"> 
+		                                      ng-disabled="attr.code === 'code' && !entity.newInstance" ng-required="attr.code === 'code'"> 
 		
 		                                      <p class="warning-text" ng-if="this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code] !== this.preGeoObject.properties[attr.code]">
 		                                          <localize key="change.request.changed.value.prefix"></localize> {{this.preGeoObject.properties[attr.code]}}
