@@ -130,6 +130,8 @@ export class GeoObjectEditorComponent implements OnInit {
     
     getTypeAheadObservable(text, typeCode)
     {
+      console.log("getTypeAheadObservable", text, typeCode);
+      
       return Observable.create((observer: any) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead(text, typeCode).then(results => {
                 observer.next(results);
@@ -138,6 +140,8 @@ export class GeoObjectEditorComponent implements OnInit {
     }
     
     typeaheadOnSelect(e: TypeaheadMatch, ptn: ParentTreeNode): void {
+    	console.log("typeaheadOnSelect", e, ptn);
+    	
         this.registryService.getGeoObjectByCode(e.item.code, ptn.geoObject.properties.type)
             .then(geoObject => {
             

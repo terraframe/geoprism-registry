@@ -18,14 +18,22 @@
  */
 package net.geoprism.registry.controller;
 
+import net.geoprism.ExcludeConfiguration;
+import net.geoprism.ontology.GeoEntityUtilDTO;
+import net.geoprism.registry.service.ConversionService;
+import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServiceFactory;
+
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.runwaysdk.business.ValueObjectDTO;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
@@ -40,15 +48,10 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityDTO;
+import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.transport.conversion.business.MutableDTOToMutable;
 import com.runwaysdk.util.IDGenerator;
 import com.vividsolutions.jts.geom.Geometry;
-
-import net.geoprism.ExcludeConfiguration;
-import net.geoprism.ontology.GeoEntityUtilDTO;
-import net.geoprism.registry.service.ConversionService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServiceFactory;
 
 /**
  * This controller is used by the location manager widget.
@@ -59,6 +62,51 @@ import net.geoprism.registry.service.ServiceFactory;
 @Controller(url = "registrylocation")
 public class RegistryLocationController
 {
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF fetchGeoObjectFromGeoEntity(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
+  {
+    GeoEntityDTO entity = GeoEntityDTO.get(request, entityId);
+    
+    JSONObject joResp = new JSONObject();
+    
+    GeoObject go = getGeoObject(request.getSessionId(), entity.getOid());
+    
+    ParentTreeNode ptn = RegistryService.getInstance().getParentGeoObjects(request.getSessionId(), go.getUid(), go.getType().getCode(), null, false);
+    
+    // Add the GeoObject to the response
+    joResp.put("geoObject", serializeGo(request.getSessionId(), go));
+    joResp.put("geoObjectType", new JSONObject(go.getType().toJSON().toString()));
+    joResp.put("parentTreeNode", new JSONObject(ptn.toJSON().toString()));
+    
+    return new RestBodyResponse(joResp.toString());
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF editNewGeoObject(ClientRequestIF request, @RequestParamter(name = "universalId") String universalId) throws JSONException
+  {
+    String resp = editNewGeoObjectInReq(request.getSessionId(), universalId);
+    
+    return new RestBodyResponse(resp);
+  }
+  
+  @Request(RequestType.SESSION)
+  private String editNewGeoObjectInReq(String sessionId, String universalId)
+  {
+    Universal uni = Universal.get(universalId);
+    
+    String gotCode = ConversionService.getInstance().universalToGeoObjectType(uni).getCode();
+    
+    GeoObject newGo = ServiceFactory.getAdapter().newGeoObjectInstance(gotCode);
+    
+    JSONObject joResp = new JSONObject();
+    
+    // Add the GeoObject to the response
+    joResp.put("newGeoObject", serializeGo(sessionId, newGo));
+    joResp.put("geoObjectType", new JSONObject(newGo.getType().toJSON().toString()));
+    
+    return joResp.toString();
+  }
+  
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
   {
@@ -77,7 +125,9 @@ public class RegistryLocationController
   @Request(RequestType.SESSION)
   private GeoObject getGeoObject(String sessionId, String id)
   {
-    return ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(id));
+    GeoObject go = ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(id));
+    
+    return RegistryService.getInstance().getGeoObjectByCode(sessionId, go.getCode(), go.getType().getCode());
   }
 
   private JSONObject serializeGo(String sessionId, GeoObject go)
@@ -90,79 +140,39 @@ public class RegistryLocationController
   }
 
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "entity") String sEntity, @RequestParamter(name = "parentOid") String parentOid, @RequestParamter(name = "existingLayers") String existingLayers) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "geoObject") String sjsGO, @RequestParamter(name = "parentOid") String parentOid, @RequestParamter(name = "existingLayers") String existingLayers, @RequestParamter(name = "parentTreeNode") String sjsPTN) throws JSONException
   {
-    return applyInRequest(request.getSessionId(), request, sEntity, parentOid, existingLayers);
+    return applyInRequest(request.getSessionId(), request, isNew, sjsGO, parentOid, existingLayers, sjsPTN);
   }
 
   @Request(RequestType.SESSION)
-  private ResponseIF applyInRequest(String sessionId, ClientRequestIF request, String sEntity, String parentOid, String existingLayers)
+  private ResponseIF applyInRequest(String sessionId, ClientRequestIF request, Boolean isNew, String sjsGO, String parentOid, String existingLayers, String sjsPTN)
   {
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
 
-    BasicJSONToComponentDTO converter = BasicJSONToComponentDTO.getConverter(request.getSessionId(), Session.getCurrentLocale(), GeoEntityDTO.CLASS + "DTO", sEntity);
-    GeoEntityDTO entityDTO = (GeoEntityDTO) converter.populate();
+    GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), sjsGO);
 
-    MutableDTOToMutable dtoToComponent = MutableDTOToMutable.getConverter(request.getSessionId(), entityDTO);
-    GeoEntity entity = (GeoEntity) dtoToComponent.populate();
+    // TODO
+//    if (entityDTO.getGeoId() == null || entityDTO.getGeoId().length() == 0)
+//    {
+//      entityDTO.setGeoId(IDGenerator.nextID());
+//    }
 
-    if (entityDTO.getGeoId() == null || entityDTO.getGeoId().length() == 0)
-    {
-      entityDTO.setGeoId(IDGenerator.nextID());
-    }
-
-    JSONObject joEntity = new JSONObject(sEntity);
-    JSONObject geoObject = joEntity.getJSONObject("geoObject");
-    JSONObject properties = geoObject.getJSONObject("properties");
-
-    String statusCode = properties.getJSONObject("status").getString("code");
-
-    GeoObject go = ConversionService.getInstance().geoEntityToGeoObject(entity);
-    go.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(statusCode).get());
-
-    if (joEntity.has("wkt"))
-    {
-      try
-      {
-        GeometryHelper geometryHelper = new GeometryHelper();
-
-        Geometry geo = geometryHelper.parseGeometry(joEntity.getString("wkt"));
-
-        if (go.getGeometryType().equals(GeometryType.MULTIPOLYGON))
-        {
-          go.setGeometry(geometryHelper.getGeoMultiPolygon(geo));
-        }
-        else if (go.getGeometryType().equals(GeometryType.POINT))
-        {
-          go.setGeometry(geometryHelper.getGeoPoint(geo));
-        }
-        else
-        {
-          go.setGeometry(geo);
-        }
-
-      }
-      catch (Exception e)
-      {
-        // Ignore
-      }
-    }
-
-    if (entityDTO.isNewInstance())
+    GeoEntityUtilDTO.refreshViews(request, existingLayers);
+    
+    if (isNew)
     {
       GeoObject goChild = RegistryService.getInstance().createGeoObject(request.getSessionId(), go.toJSON(serializer).toString());
 
       GeoObject goParent = getGeoObject(request.getSessionId(), parentOid);
       RegistryService.getInstance().addChild(request.getSessionId(), goParent.getUid(), goParent.getType().getCode(), goChild.getUid(), goChild.getType().getCode(), "LocatedIn");
 
-      GeoEntityUtilDTO.refreshViews(request, existingLayers);
-
       JSONObject object = new JSONObject();
       object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-      object.put(GeoEntityDTO.OID, entityDTO.getOid());
-      object.put(GeoEntityDTO.DISPLAYLABEL, entityDTO.getDisplayLabel().getValue());
-      object.put(GeoEntityDTO.GEOID, entityDTO.getGeoId());
-      object.put(GeoEntityDTO.UNIVERSAL, entityDTO.getUniversal().getDisplayLabel().getValue());
+      object.put(GeoEntityDTO.OID, goChild.getUid());
+      object.put(GeoEntityDTO.DISPLAYLABEL, goChild.getDisplayLabel().getValue());
+      object.put(GeoEntityDTO.GEOID, goChild.getCode());
+      object.put(GeoEntityDTO.UNIVERSAL, goChild.getType().getLabel().getValue());
 
       object.put("geoObject", serializeGo(sessionId, goChild));
 
@@ -170,19 +180,14 @@ public class RegistryLocationController
     }
     else
     {
-      String oid = entityDTO.getOid();
-
-      RegistryService.getInstance().updateGeoObject(request.getSessionId(), go.toJSON(serializer).toString());
-
-      GeoEntityUtilDTO.refreshViews(request, existingLayers);
+      go = new GeoObjectEditorController().apply(sessionId, sjsPTN, go.toJSON(serializer).toString(), null);
 
       JSONObject object = new JSONObject();
       object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-      object.put(GeoEntityDTO.OID, entityDTO.getOid());
-      object.put(GeoEntityDTO.DISPLAYLABEL, entityDTO.getDisplayLabel().getValue());
-      object.put(GeoEntityDTO.GEOID, entityDTO.getGeoId());
-      object.put(GeoEntityDTO.UNIVERSAL, entityDTO.getUniversal().getDisplayLabel().getValue());
-      object.put("oid", oid);
+      object.put(GeoEntityDTO.OID, go.getUid());
+      object.put(GeoEntityDTO.DISPLAYLABEL, go.getDisplayLabel().getValue());
+      object.put(GeoEntityDTO.GEOID, go.getCode());
+      object.put(GeoEntityDTO.UNIVERSAL, go.getType().getLabel().getValue());
 
       object.put("geoObject", serializeGo(sessionId, go));
 

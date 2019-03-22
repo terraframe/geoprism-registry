@@ -366,7 +366,7 @@ public class ExcelServiceTest
       geoObj.setValue(this.testDate.getName(), calendar.getTime());
       geoObj.setValue(this.testBoolean.getName(), true);
 
-      geoObj = ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
+      geoObj = ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -406,7 +406,7 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
+    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -472,7 +472,7 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true);
+    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
