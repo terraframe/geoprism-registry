@@ -189,7 +189,7 @@
       locationService.select(connection, "", "", "", $scope.hierarchy.value);
     }
 
-    controller.getGeoObjectSuggestions = function(request, response) {
+    controller.getGeoEntitySuggestions = function(request, response) {
       var limit = 20;
 
       if (request.term && request.term.length > 0) {
@@ -217,7 +217,7 @@
 
         var text = request.term;
 
-        locationService.getGeoObjectSuggestions(connection, text, limit);
+        locationService.getGeoEntitySuggestions(connection, text, limit);
       }
     }
 
