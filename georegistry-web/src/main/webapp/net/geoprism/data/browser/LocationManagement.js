@@ -555,7 +555,7 @@
           elementId : '#innerFrameHtml',
           onSuccess : function(resp) {
         	resp.newGeoObject.geometry = data.geojson.geometry;
-            if (data.geojson.geometry.type === "Polygon")
+            if (data.geojson.geometry.type === "Polygon" && resp.geoObjectType.geometryType.toLowerCase() === "multipolygon")
             {
 	          resp.newGeoObject.geometry.type = "MultiPolygon";
 	          resp.newGeoObject.geometry.coordinates = [resp.newGeoObject.geometry.coordinates];
@@ -734,10 +734,30 @@
         },
         onFailure : function(e){
           $scope.errors.push(e.localizedMessage);
-        }                
+        }
       };
                               
       $scope.errors = [];
+      
+      for (var i = 0; i < $scope.parentTreeNode.parents.length; ++i)
+      {
+        var ptn = $scope.parentTreeNode.parents[i];
+        
+        if (ptn.geoObject.properties.displayLabel.localizedValue == "")
+        {
+		  
+        }
+      }
+      
+      for (var i = $scope.parentTreeNode.parents.length - 1; i >= 0; --i)
+      {
+        var ptn = $scope.parentTreeNode.parents[i];
+        
+        if (ptn.geoObject.properties.displayLabel.localizedValue == "")
+        {
+          $scope.parentTreeNode.parents.splice(i, 1);
+        }
+      }
           
       locationService.apply(connection, $scope.entity.newInstance, $scope.postGeoObject, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
     }

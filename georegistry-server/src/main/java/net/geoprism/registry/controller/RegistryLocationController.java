@@ -33,6 +33,7 @@ import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.ValueObjectDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -168,6 +169,12 @@ public class RegistryLocationController
 
   @Request(RequestType.SESSION)
   private ResponseIF applyInRequest(String sessionId, ClientRequestIF request, Boolean isNew, String sjsGO, String parentOid, String existingLayers, String sjsPTN)
+  {
+    return applyInTrans(request.getSessionId(), request, isNew, sjsGO, parentOid, existingLayers, sjsPTN);
+  }
+  
+  @Transaction
+  private ResponseIF applyInTrans(String sessionId, ClientRequestIF request, Boolean isNew, String sjsGO, String parentOid, String existingLayers, String sjsPTN)
   {
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
 
