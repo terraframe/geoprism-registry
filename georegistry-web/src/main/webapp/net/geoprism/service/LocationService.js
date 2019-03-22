@@ -49,6 +49,19 @@
       runwayService.execute(req, connection);      
     }
     
+    service.getGeoEntitySuggestions = function(connection, text, limit) {
+      var req = {
+        method: 'POST',
+        url: com.runwaysdk.__applicationContextPath + '/location/suggestions',
+        data : {
+          text : text,
+          limit : limit
+        }
+      }      
+                
+      runwayService.execute(req, connection);      
+    }    
+    
     service.getGeoObjectByCode = function(connection, code, typeCode) {
       var req = {
         method: 'GET',
