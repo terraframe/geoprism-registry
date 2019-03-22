@@ -74,12 +74,13 @@
       runwayService.execute(req, connection);
     }
     
-    service.editNewGeoObject = function(connection, universalId) {
+    service.editNewGeoObject = function(connection, universalId, parent) {
       var req = {
         method: 'POST',
         url: com.runwaysdk.__applicationContextPath + '/registrylocation/editNewGeoObject',
         data : {
-          universalId: universalId
+          universalId: universalId,
+          jsParent: parent
         }
       }
       

@@ -18,40 +18,39 @@
  */
 package net.geoprism.registry.controller;
 
-import net.geoprism.ExcludeConfiguration;
-import net.geoprism.ontology.GeoEntityUtilDTO;
-import net.geoprism.registry.service.ConversionService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServiceFactory;
+import java.util.List;
+import java.util.Locale;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.ValueObjectDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.conversion.BasicJSONToComponentDTO;
 import com.runwaysdk.mvc.conversion.ComponentDTOIFToBasicJSON;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityDTO;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.transport.conversion.business.MutableDTOToMutable;
-import com.runwaysdk.util.IDGenerator;
-import com.vividsolutions.jts.geom.Geometry;
+
+import net.geoprism.ExcludeConfiguration;
+import net.geoprism.ontology.GeoEntityUtilDTO;
+import net.geoprism.registry.service.ConversionService;
+import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServiceFactory;
 
 /**
  * This controller is used by the location manager widget.
@@ -82,15 +81,15 @@ public class RegistryLocationController
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF editNewGeoObject(ClientRequestIF request, @RequestParamter(name = "universalId") String universalId) throws JSONException
+  public ResponseIF editNewGeoObject(ClientRequestIF request, @RequestParamter(name = "universalId") String universalId, @RequestParamter(name = "jsParent") String sjsParent) throws JSONException
   {
-    String resp = editNewGeoObjectInReq(request.getSessionId(), universalId);
+    String resp = editNewGeoObjectInReq(request.getSessionId(), universalId, sjsParent);
     
     return new RestBodyResponse(resp);
   }
   
   @Request(RequestType.SESSION)
-  private String editNewGeoObjectInReq(String sessionId, String universalId)
+  private String editNewGeoObjectInReq(String sessionId, String universalId, String sjsParent)
   {
     Universal uni = Universal.get(universalId);
     
@@ -98,11 +97,33 @@ public class RegistryLocationController
     
     GeoObject newGo = ServiceFactory.getAdapter().newGeoObjectInstance(gotCode);
     
+    List<Locale> locales = LocalizationFacade.getInstalledLocales();
+    for (Locale locale : locales)
+    {
+      newGo.setDisplayLabel(locale.toString(), "");
+    }
+    newGo.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "");
+    
     JSONObject joResp = new JSONObject();
     
     // Add the GeoObject to the response
     joResp.put("newGeoObject", serializeGo(sessionId, newGo));
     joResp.put("geoObjectType", new JSONObject(newGo.getType().toJSON().toString()));
+    
+    // Add parent information
+    JSONObject jsParent = new JSONObject(sjsParent);
+    GeoObject goParent = ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(jsParent.getString("oid")));
+//    GeoObject goParent = RegistryService.getInstance().getGeoObjectByCode(sessionId, jsParent.getString("geoId"), jsParent.getString("universal"));
+    ParentTreeNode ptnChild = new ParentTreeNode(newGo, null);
+    
+    HierarchyType[] hts = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    for (HierarchyType ht : hts)
+    {
+      ParentTreeNode ptnParent = new ParentTreeNode(goParent, ht);
+      ptnChild.addParent(ptnParent);
+    }
+    
+    joResp.put("parentTreeNode", new JSONObject(ptnChild.toJSON().toString()));
     
     return joResp.toString();
   }

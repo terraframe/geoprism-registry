@@ -17,25 +17,33 @@
  * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 (function() {
-  function LocationController($scope, $rootScope, locationService, localizationService, widgetService) {
+  function LocationController($scope, $rootScope, $routeParams, locationService, localizationService, widgetService) {
     var controller = this;
 
     controller.init = function() {
-      var connection = {
-        elementId: '#innerFrameHtml',
-        onSuccess: function(data) {
-          $scope.previous.push(data.entity);
-
-          controller.load(data);
-        }
-      };
-
-      $scope.children = [];
-      $scope.previous = [];
-
-      locationService.select(connection, "", "", "", "");
-
-      console.log("LocationController.init");
+    	
+      var oid = $routeParams.oid; 
+      
+	  $scope.children = [];
+	  $scope.previous = [];	       
+    	
+      if(oid == null) {
+    	  var connection = {
+    			  elementId: '#innerFrameHtml',
+    			  onSuccess: function(data) {
+    				  $scope.previous.push(data.entity);
+    				  
+    				  controller.load(data);
+    			  }
+    	  };
+    	  
+    	  locationService.select(connection, "", "", "", "");
+    	  
+    	  console.log("LocationController.init");    	  
+      }
+      else {
+    	  controller.open(oid);
+      }
     }
 
     controller.load = function(data) {
@@ -538,7 +546,8 @@
         $scope.entity = {
           type : 'com.runwaysdk.system.gis.geo.GeoEntity',
           wkt : data.wkt,
-          universal : data.universal.value
+          universal : data.universal.value,
+          newInstance: true
         };
         
         locationService.editNewGeoObject({
@@ -546,6 +555,7 @@
           onSuccess : function(resp) {
             $scope.preGeoObject = resp.newGeoObject;
             $scope.postGeoObject = JSON.parse(JSON.stringify(resp.newGeoObject));
+            $scope.parentTreeNode = null;
             controller.setGeoObjectType(resp.geoObjectType);
             $scope.show = true;
             console.log(resp);
@@ -553,7 +563,7 @@
           onFailure : function(e){
             $scope.errors.push(e.localizedMessage);
           }
-        }, data.universal.value);
+        }, data.universal.value, data.parent);
       }
       else { // Editing an existing GeoObject
         $scope.entity = data.entity;

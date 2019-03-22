@@ -45,11 +45,11 @@ export class MasterListComponent implements OnInit {
     public searchPlaceholder = "";
 
 
-    constructor( public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router, 
+    constructor( public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router,
         private modalService: BsModalService, private localizeService: LocalizationService ) {
 
-            this.searchPlaceholder = localizeService.decode("masterlist.search");
-         }
+        this.searchPlaceholder = localizeService.decode( "masterlist.search" );
+    }
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );
@@ -74,16 +74,25 @@ export class MasterListComponent implements OnInit {
 
         this.onPageChange( 1 );
     }
-    
-    onEdit(data): void {
-      let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true });
-      editModal.content.fetchGeoObject(data.code, this.list.typeCode);
-      editModal.content.fetchGeoObjectType(this.list.typeCode);
-      editModal.content.setMasterListId(this.list.oid);
-      editModal.content.setOnSuccessCallback(() => {
-        // Refresh the page
-        this.onPageChange(this.page.pageNumber);
-      });
+
+    onEdit( data ): void {
+        let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
+        editModal.content.fetchGeoObject( data.code, this.list.typeCode );
+        editModal.content.fetchGeoObjectType( this.list.typeCode );
+        editModal.content.setMasterListId( this.list.oid );
+        editModal.content.setOnSuccessCallback(() => {
+            // Refresh the page
+            this.onPageChange( this.page.pageNumber );
+        } );
+    }
+
+    onGoto( data ): void {
+        const oid = data.originalOid;
+
+        if ( oid != null && oid.length > 0 ) {
+            window.open( acp + "/nav/management#/locations/" + oid, '_blank' );
+        }
+
     }
 
     onPublish(): void {
@@ -109,7 +118,7 @@ export class MasterListComponent implements OnInit {
             } ).catch(( err: Response ) => {
                 this.error( err.json() );
             } );
-        
+
         this.pService.start();
     }
 

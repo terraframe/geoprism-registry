@@ -53,6 +53,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -94,6 +95,10 @@ public class MasterList extends MasterListBase
 {
   private static final long serialVersionUID = 190790165;
 
+  public static String      LEAF             = "leaf";
+
+  public static String      ORIGINAL_OID     = "originalOid";
+
   public static String      TYPE_CODE        = "typeCode";
 
   public static String      ATTRIBUTES       = "attributes";
@@ -115,6 +120,9 @@ public class MasterList extends MasterListBase
 
     if (mdTable != null)
     {
+      MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+      mdBusiness.deleteAllRecords();
+
       mdTable.delete();
     }
   }
@@ -158,7 +166,7 @@ public class MasterList extends MasterListBase
 
             GeoObject object = objects.next();
 
-            publish(object, business, attributes, ancestorMap, locales);
+            publish(object, business, attributes, ancestorMap, locales, objects.currentOid());
 
             ProgressService.put(this.getOid(), new Progress(current++, count, ""));
           }
@@ -185,13 +193,15 @@ public class MasterList extends MasterListBase
   }
 
   @SuppressWarnings("unchecked")
-  private void publish(GeoObject object, Business business, Collection<AttributeType> attributes, Map<HierarchyType, List<GeoObjectType>> ancestorMap, List<Locale> locales)
+  private void publish(GeoObject object, Business business, Collection<AttributeType> attributes, Map<HierarchyType, List<GeoObjectType>> ancestorMap, List<Locale> locales, String runwayId)
   {
     business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, object.getGeometry());
 
     for (AttributeType attribute : attributes)
     {
       String name = attribute.getName();
+
+      business.setValue(ORIGINAL_OID, runwayId);
 
       if (this.isValid(attribute))
       {
@@ -282,6 +292,7 @@ public class MasterList extends MasterListBase
 
     Universal universal = this.getUniversal();
     GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+    String runwayId = ServiceFactory.getIdService().registryIdToRunwayId(object.getUid(), type);
 
     // Add the type ancestor fields
     Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
@@ -297,7 +308,7 @@ public class MasterList extends MasterListBase
       record.appLock();
       try
       {
-        this.publish(object, record, attributes, ancestorMap, locales);
+        this.publish(object, record, attributes, ancestorMap, locales, runwayId);
       }
       finally
       {
@@ -322,6 +333,12 @@ public class MasterList extends MasterListBase
     mdTableDAO.apply();
 
     MdBusiness mdBusiness = (MdBusiness) BusinessFacade.get(mdTableDAO);
+
+    MdAttributeUUIDDAO mdAttributeOriginalId = MdAttributeUUIDDAO.newInstance();
+    mdAttributeOriginalId.setValue(MdAttributeCharacterInfo.NAME, ORIGINAL_OID);
+    mdAttributeOriginalId.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
+    mdAttributeOriginalId.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Original oid");
+    mdAttributeOriginalId.apply();
 
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
@@ -690,6 +707,11 @@ public class MasterList extends MasterListBase
       return false;
     }
 
+    if (mdAttribute.definesAttribute().equals(ORIGINAL_OID))
+    {
+      return false;
+    }
+
     if (mdAttribute.definesAttribute().equals(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
     {
       return false;
@@ -769,6 +791,7 @@ public class MasterList extends MasterListBase
             object.addProperty("latitude", point.getY());
           }
         }
+        object.addProperty(ORIGINAL_OID, row.getValue(ORIGINAL_OID));
 
         for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
         {
@@ -845,6 +868,7 @@ public class MasterList extends MasterListBase
     }
 
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
+    object.addProperty(MasterList.LEAF, type.isLeaf());
     object.add(MasterList.DISPLAYLABEL, service.convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
     object.addProperty(MasterList.LISTABSTRACT, this.getListAbstract());
