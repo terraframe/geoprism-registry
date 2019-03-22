@@ -546,7 +546,8 @@
         $scope.entity = {
           type : 'com.runwaysdk.system.gis.geo.GeoEntity',
           wkt : data.wkt,
-          universal : data.universal.value
+          universal : data.universal.value,
+          newInstance: true
         };
         
         locationService.editNewGeoObject({
@@ -554,6 +555,7 @@
           onSuccess : function(resp) {
             $scope.preGeoObject = resp.newGeoObject;
             $scope.postGeoObject = JSON.parse(JSON.stringify(resp.newGeoObject));
+            $scope.parentTreeNode = null;
             controller.setGeoObjectType(resp.geoObjectType);
             $scope.show = true;
             console.log(resp);
@@ -561,7 +563,7 @@
           onFailure : function(e){
             $scope.errors.push(e.localizedMessage);
           }
-        }, data.universal.value);
+        }, data.universal.value, data.parent);
       }
       else { // Editing an existing GeoObject
         $scope.entity = data.entity;
