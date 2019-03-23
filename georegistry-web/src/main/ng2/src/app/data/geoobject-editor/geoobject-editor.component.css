@@ -1,20 +1,6 @@
-
-.geobject-editor-tab-holder {
-	margin: 0 auto;
-	margin-bottom: 20px;
-}
-
 .modal-content {
     overflow-y: visible !important;
 }
-
-/* .geobject-editor-tab-holder .btn.full-width-radio-button.active {
-    background: #009edc !important;
-}
-
-.modal-form .text input[type="text"] {
-    background: #f5f5f5;
-} */
 
 .modal-form .text input[type="text"]:disabled {
     background: #eee;
@@ -26,29 +12,4 @@ li.list-group-item {
 
 .warning-text{
     color: orange;
-}
-
-.btn-group.geobject-editor-tab-holder {
-    margin: 0 auto;
-    display: block;
-    margin-bottom: 50px;
-}
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button {
-    width: 50%;
-    background: white; /* IE fallback */
-    background: var(--theme-button-color);
-
-    color: #767676; /* IE fallback */
-    color: var(--theme-button-text-color);  
-    border-color: var(--theme-button-color-border);
-}
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button:active{
-    background: #EDF4E8 !important; /* IE fallback */
-    background: var(--theme-submit-button-color-light) !important;
-}
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button.active,
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button:focus{
-    color: #6BA542 !important; /* IE fallback */
-    color: var(--theme-button-color-hover) !important;
-    box-shadow: none;
 }

@@ -777,8 +777,14 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 .ui-widget-content .ui-state-disabled,
 .ui-widget-header .ui-state-disabled{
 	opacity:1;
-	color:#ccc;
+    color:#ccc;
 }
+
+.ui-state-focus {
+    background: #f4fcef !important;
+}
+
+
 /* popover styles */
 .submit-form .btn-popover{
 	float:left;
@@ -1187,6 +1193,8 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 	background:#fff;
 	opacity:0.9;
 }
+
+/* .modal .modal-dialog .modal-content .modal-body */
 .modal-dialog{
 	width:1000px;
 	margin:0 auto 30px;
@@ -1848,6 +1856,38 @@ option[selected]{ font-weight:bold}
 }
 
 
+/* Geo Object Editor specific */
+.geobject-editor-tab-holder {
+	margin: 0 auto;
+	margin-bottom: 20px;
+}
+
+.btn-group.geobject-editor-tab-holder {
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 50px;
+}
+.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button {
+    width: 50%;
+    background: white; /* IE fallback */
+    background: var(--theme-button-color);
+
+    color: #767676; /* IE fallback */
+    color: var(--theme-button-text-color);  
+    border-color: var(--theme-button-color-border);
+}
+.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button:active{
+    background: #EDF4E8 !important; /* IE fallback */
+    background: var(--theme-submit-button-color-light) !important;
+}
+.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button.active,
+.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button:focus{
+    color: #6BA542 !important; /* IE fallback */
+    color: var(--theme-button-color-hover) !important;
+    box-shadow: none;
+}
+
+
 .modal-form .table.table-bordered {
     font-size: 12px;
 }
@@ -1936,21 +1976,26 @@ ul.location-management-list {
 
 .location-management-widget-section > input[type="text"]{
 	width:100%;
-	height:32px;
+	height:40px;
 	margin:0 11px 0 0;
 	padding:6px 10px;
 	font-size:14px;
 	line-height:18px;
 	color:#333;
 	border:1px solid #bbb;
-	background:#eee;
+	background:white;
 	outline:none;
 }
 .location-management-widget-section > input[type="text"]:focus,
-.location-management-widget-section > input[type="text"]:active{border-color:#019edc;}
-.location-management-list-container .hover {
-  background: #B2BEB5;
+.location-management-widget-section > input[type="text"]:active{
+    border-color:#019edc;
 }
+.location-management-widget-section.location-management-list-container .list-group a.list-group-item:hover {
+    background: #f4fcef;
+}
+/* .location-management-list-container .hover {
+  background: #B2BEB5;
+} */
 
 
 .none{display:none;}
@@ -2781,6 +2826,9 @@ input[type="text"]:-moz-placeholder{color:#333;}
 } */
 input[type="text"]:disabled {
     color: #999;
+    box-shadow: none;
+    border-color: #767676;
+    border-color: var(--theme-input-text-border);
 }
 
 input[type="textarea"]{

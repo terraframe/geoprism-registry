@@ -1,11 +1,13 @@
 <div *ngIf="request != null" class="heading text-center">
-  <h2>LOCALIZE - Change Request Actions</h2>
+  <h2><localize key="action.table.title"></localize></h2>
 </div>
 <div class="row">
   <div class="col-md-6">
     <div class="row">
 
-      <h3 class="action-detail-header">TODO: LOCALIZE Actions</h3>
+      <h3 class="action-detail-header">
+          <localize key="action.table.table.heading"></localize>
+      </h3>
 
       <ngx-datatable class="crtable-ngx bootstrap"
         style="display:block;"
