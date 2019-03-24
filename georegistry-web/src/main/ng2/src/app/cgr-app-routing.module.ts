@@ -25,11 +25,11 @@ const routes: Routes = [
     {
         path: 'lists',
         redirectTo: '/master-lists',
-        canActivate: [MaintainerGuard]
+        canActivate: [ContributerGuard]
     },
     {
         path: 'requests',
-        redirectTo: '/crtable',
+        redirectTo: '/change-request',
         canActivate: [MaintainerGuard]
     },
     {
@@ -64,12 +64,12 @@ const routes: Routes = [
     {
         path: 'master-lists',
         component: MasterListManagerComponent,
-        canActivate: [MaintainerGuard]
+        canActivate: [ContributerGuard]
     },
     {
         path: 'master-list/:oid',
         component: MasterListComponent,
-        canActivate: [MaintainerGuard]
+        canActivate: [ContributerGuard]
     },
     {
         path: 'change-request',
@@ -78,7 +78,7 @@ const routes: Routes = [
     },
     {
         path: '',
-        redirectTo: '/hierarchies',
+        redirectTo: '/',
         pathMatch: 'full'
     }
 ];

@@ -32,7 +32,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    hierarchies.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
 
@@ -56,7 +55,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    requests.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     requests.addRole(RegistryConstants.API_CONSUMER_ROLE);
     
@@ -68,7 +66,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
     uploads.addRole(RoleConstants.ADIM_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    uploads.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     uploads.addRole(RegistryConstants.API_CONSUMER_ROLE);
     
@@ -90,6 +87,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.addRole(RoleConstants.ADIM_ROLE);
     management.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     management.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    management.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
 
     List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();
     applications.add(hierarchies);

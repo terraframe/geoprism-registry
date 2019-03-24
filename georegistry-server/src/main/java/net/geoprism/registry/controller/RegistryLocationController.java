@@ -33,6 +33,7 @@ import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.ValueObjectDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -169,6 +170,12 @@ public class RegistryLocationController
   @Request(RequestType.SESSION)
   private ResponseIF applyInRequest(String sessionId, ClientRequestIF request, Boolean isNew, String sjsGO, String parentOid, String existingLayers, String sjsPTN)
   {
+    return applyInTrans(request.getSessionId(), request, isNew, sjsGO, parentOid, existingLayers, sjsPTN);
+  }
+  
+  @Transaction
+  private ResponseIF applyInTrans(String sessionId, ClientRequestIF request, Boolean isNew, String sjsGO, String parentOid, String existingLayers, String sjsPTN)
+  {
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
 
     GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), sjsGO);
@@ -183,36 +190,28 @@ public class RegistryLocationController
     
     if (isNew)
     {
-      GeoObject goChild = RegistryService.getInstance().createGeoObject(request.getSessionId(), go.toJSON(serializer).toString());
-
-      GeoObject goParent = getGeoObject(request.getSessionId(), parentOid);
-      RegistryService.getInstance().addChild(request.getSessionId(), goParent.getUid(), goParent.getType().getCode(), goChild.getUid(), goChild.getType().getCode(), "LocatedIn");
-
-      JSONObject object = new JSONObject();
-      object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-      object.put(GeoEntityDTO.OID, goChild.getUid());
-      object.put(GeoEntityDTO.DISPLAYLABEL, goChild.getDisplayLabel().getValue());
-      object.put(GeoEntityDTO.GEOID, goChild.getCode());
-      object.put(GeoEntityDTO.UNIVERSAL, goChild.getType().getLabel().getValue());
-
-      object.put("geoObject", serializeGo(sessionId, goChild));
-
-      return new RestBodyResponse(object);
+      go = RegistryService.getInstance().createGeoObject(request.getSessionId(), go.toJSON(serializer).toString());
+      
+//      GeoObject goParent = getGeoObject(request.getSessionId(), parentOid);
+//      RegistryService.getInstance().addChild(request.getSessionId(), goParent.getUid(), goParent.getType().getCode(), goChild.getUid(), goChild.getType().getCode(), "LocatedIn");
+      
+      ParentTreeNode ptn = ParentTreeNode.fromJSON(sjsPTN, ServiceFactory.getAdapter());
+      new GeoObjectEditorController().applyPtn(sessionId, ptn);
     }
     else
     {
       go = new GeoObjectEditorController().apply(sessionId, sjsPTN, go.toJSON(serializer).toString(), null);
-
-      JSONObject object = new JSONObject();
-      object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
-      object.put(GeoEntityDTO.OID, go.getUid());
-      object.put(GeoEntityDTO.DISPLAYLABEL, go.getDisplayLabel().getValue());
-      object.put(GeoEntityDTO.GEOID, go.getCode());
-      object.put(GeoEntityDTO.UNIVERSAL, go.getType().getLabel().getValue());
-
-      object.put("geoObject", serializeGo(sessionId, go));
-
-      return new RestBodyResponse(object);
     }
+    
+    JSONObject object = new JSONObject();
+    object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
+    object.put(GeoEntityDTO.OID, go.getUid());
+    object.put(GeoEntityDTO.DISPLAYLABEL, go.getDisplayLabel().getValue());
+    object.put(GeoEntityDTO.GEOID, go.getCode());
+    object.put(GeoEntityDTO.UNIVERSAL, go.getType().getLabel().getValue());
+
+    object.put("geoObject", serializeGo(sessionId, go));
+
+    return new RestBodyResponse(object);
   }
 }

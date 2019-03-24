@@ -1,74 +1,112 @@
 <div class="row text-center">
-    <div class="py-5 text-center">
+    <div class="text-center">
         <h2>
             <localize key="change.request.title"></localize>
         </h2>
     </div>
 </div>
+
+<div class="row text-center">
+    <div class="col-md-12 text-left" style="margin-top: 40px;">
+        <h3>
+            <localize key="change.request.table.title"></localize>
+        </h3>
+    </div>
+</div>
 <div class="row">
-  <div class="col-sm-1"></div>
-  <div class="col-sm-4">
-    <div class="row">
-      <ngx-datatable class="crtable-ngx bootstrap" [rows]="rows | async" [columns]="columns" [columnMode]="'standard'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="40" [limit]="5" [loadingIndicator]="loading" [selectionType]="'single'" (select)='onSelect($event)'> </ngx-datatable>
-    </div>
-  </div>
-  <div class="col-sm-1"></div>
-  <div *ngIf="request != null" class="col-sm-4">
-    <div class="form-group row">
-      <h3>{{request.createDate}}</h3>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-2">
-        <localize key="change.request.user"></localize>
-      </label>
-      <div class="col-sm-10">{{request.createdBy}}</div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-2">
-        <localize key="change.request.status"></localize>
-      </label>
-      <div class="col-sm-10">{{request.approvalStatus}}</div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-2">
-        <localize key="change.request.total"></localize>
-      </label>
-      <div class="col-sm-10">{{request.total}}</div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-2">
-        <localize key="change.request.pending"></localize>
-      </label>
-      <div class="col-sm-2">{{request.pending}}</div>
-      <div class="col-sm-6 text-left">
-        <a (click)="onClick($event)"><localize key="change.request.link"></localize></a>
-      </div>
-    </div>
-    <div *ngIf="request.statusCode === 'PENDING'">
-      <div class="form-group row">
-        <label class="col-sm-2"></label>
-        <div class="col-sm-10">
-          <button type="submit" (click)="onExecute()" class="btn btn-primary" role="button" [disabled]="request.pending > 0">
-            <localize key="change.request.execute"></localize>
-          </button>
+    <div class="col-md-12">
+        <div class="row">
+            <ngx-datatable class="crtable-ngx bootstrap" 
+                [rows]="rows | async" 
+                [columns]="columns" 
+                [columnMode]="'force'"
+                [headerHeight]="50" 
+                [footerHeight]="false" 
+                [rowHeight]="40" 
+                [limit]="5" 
+                [loadingIndicator]="loading"
+                [selectionType]="'single'" (select)='onSelect($event)'>
+            </ngx-datatable>
         </div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2"></label>
-        <div class="col-sm-10">
-          <button type="submit" (click)="onApproveAll()" class="btn btn-primary" role="button">
-            <localize key="change.request.approveAll"></localize>
-          </button>
-        </div>
-      </div>
-      <div class="form-group row">
-        <label class="col-sm-2"></label>
-        <div class="col-sm-10">
-          <button type="submit" (click)="onRejectAll()" class="btn btn-primary" role="button">
-            <localize key="change.request.rejectAll"></localize>
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
+
+<!-- <div *ngIf="request != null" class="row text-center">
+    <div class="col-md-12 text-left" style="margin-top: 40px;">
+        <h3>
+            Change request detail
+        </h3>
+    </div>
+</div> -->
+
+<div *ngIf="request != null" class="row">
+
+    <div class="col-md-12" style="margin-top:40px;padding:20px;border:solid 1px lightgrey;background:#fafafa;">
+        <h3>
+            <localize key="change.request.detail.title"></localize>
+        </h3>
+        <table class="table table-bordered table-striped">
+            <!-- <caption>Change request detail</caption> -->
+            <thead>
+                <tr>
+                    <th>Create Date</th>
+                    <th>
+                        <localize key="change.request.user"></localize>
+                    </th>
+                    <th>
+                        <localize key="change.request.status"></localize>
+                    </th>
+                    <th>
+                        <localize key="change.request.total"></localize>
+                    </th>
+                    <th>
+                        <localize key="change.request.pending"></localize>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{request.createDate}}</td>
+                    <td>{{request.createdBy}}</td>
+                    <td>{{request.approvalStatus}}</td>
+                    <td>{{request.total}}
+                        <button type="submit" (click)="onClick($event)" class="btn btn-primary" style="height: 25px;padding: 0;margin-left: 10px;"
+                            role="button">
+                            <localize key="change.request.link"></localize>
+                        </button>
+                    </td>
+                    <td>{{request.pending}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <div *ngIf="request.statusCode === 'PENDING'">
+
+            <!-- <a (click)="onClick($event)">
+                            <localize key="change.request.link"></localize>
+                        </a> -->
+
+            <div class="form-group button-row">
+                <!-- <button type="submit" (click)="onClick($event)" class="btn btn-primary" role="button">
+                        <localize key="change.request.link"></localize>
+                    </button> -->
+
+                <div class="">
+                    <div style="background:#f1f1f1;padding: 10px;width: fit-content;">
+                        <h3 style="margin-top: 5px;"> <localize key="change.request.detail.bulk.action.label"></localize> </h3>
+                        <button type="submit" (click)="onExecute()" class="btn btn-primary" role="button" [disabled]="request.pending > 0">
+                            <localize key="change.request.execute"></localize>
+                        </button>
+                        <button type="submit" (click)="onApproveAll()" class="btn btn-primary" role="button">
+                            <localize key="change.request.approveAll"></localize>
+                        </button>
+                        <button type="submit" (click)="onRejectAll()" class="btn btn-primary" role="button">
+                            <localize key="change.request.rejectAll"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

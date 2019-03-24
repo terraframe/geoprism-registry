@@ -1,0 +1,47 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+     <createOrUpdate>
+    
+    	<object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.title">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.table.title" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Change requests" />
+	      </attributeStruct>
+	    </object>
+
+    	<object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.detail.title">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.detail.title" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Change request details" />
+	      </attributeStruct>
+	    </object>
+
+    	<object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.detail.bulk.action.label">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.detail.bulk.action.label" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Bulk actions" />
+	      </attributeStruct>
+	    </object>
+
+
+
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="requests.landing">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="requests.landing" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="CHANGE REQUEST MANAGER" />
+	      </attributeStruct>
+	    </object>
+
+
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

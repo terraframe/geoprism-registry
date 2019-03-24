@@ -19,7 +19,7 @@ declare var acp: any;
   
   selector: 'crtable-detail-add-remove-child',
   templateUrl: './detail.component.html',
-  styleUrls: ['../all-action-detail.css']
+  styleUrls: []
 })
 export class AddRemoveChildDetailComponent {
 

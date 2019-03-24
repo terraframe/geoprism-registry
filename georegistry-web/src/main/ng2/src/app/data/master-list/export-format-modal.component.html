@@ -1,29 +1,50 @@
-<div class="confirm-modal ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons" tabindex="-1" role="dialog">
-  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
-    <span id="ui-id-1" class="ui-dialog-title">
-      <localize key="export-modal.title"></localize>
-    </span>
-  </div>
-  <div class="confirm-text ui-dialog-content ui-widget-content">
-    <localize key="export-modal.message"></localize>
-    <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
-      <option></option>
-      <option value="EXCEL"><localize key="io.spreadsheet"></localize></option>
-      <option value="SHAPEFILE"><localize key="io.shapefile"></localize></option>
-    </select>
-  </div>
-  <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
-    <div class="ui-dialog-buttonset">
-      <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-        <span class="ui-button-text">
-          <localize key="modal.button.cancel"></localize>
-        </span>
-      </button>
-      <button type="button" (click)="confirm()" [disabled]="format == null || format == ''" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"  style="padding: 4px 18px;">
-        <span class="ui-button-text">
-          <localize key="modal.button.submit"></localize>
-        </span>
-      </button>
+<div class="modal-body" tabindex="-1" role="dialog">
+    <div class="heading">
+        <h2>
+            <localize key="export-modal.title"></localize>
+        </h2>
     </div>
-  </div>
+
+    <form class="modal-form" name="export-form">
+        <fieldset>
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label>
+                        <localize key="export-modal.message"></localize>
+                    </label>
+                </div>
+                <div class="holder">
+                    <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
+                        <option></option>
+                        <option value="EXCEL">
+                            <localize key="io.spreadsheet"></localize>
+                        </option>
+                        <option value="SHAPEFILE">
+                            <localize key="io.shapefile"></localize>
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder"></div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                            role="button" aria-disabled="false" style="padding: 4px 18px;">
+                            <span class="ui-button-text">
+                                <localize key="modal.button.cancel"></localize>
+                            </span>
+                        </button>
+                        <button type="button" (click)="confirm()" [disabled]="format == null || format == ''" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                            role="button" style="padding: 4px 18px;">
+                            <span class="ui-button-text">
+                                <localize key="modal.button.submit"></localize>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
 </div>

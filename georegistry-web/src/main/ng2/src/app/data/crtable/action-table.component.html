@@ -1,16 +1,21 @@
-<div *ngIf="request != null" class="row text-center">
-  <h1>{{request.createDate}}</h1>
+<div *ngIf="request != null" class="heading text-center">
+  <h2><localize key="action.table.title"></localize></h2>
 </div>
 <div class="row">
-  <!-- <div class="col-sm-1"></div> -->
-  <div class="col-sm-7 col-md-6">
+  <div class="col-md-6">
     <div class="row">
+
+      <h3 class="action-detail-header">
+          <localize key="action.table.table.heading"></localize>
+      </h3>
+
       <ngx-datatable class="crtable-ngx bootstrap"
+        style="display:block;"
         [rows]="rows | async"
         [columns]="columns"
-        [columnMode]="'standard'"
+        [columnMode]="'force'"
         [headerHeight]="50"
-        [footerHeight]="50"
+        [footerHeight]="false"
         [rowHeight]="40"
         [limit]="5"
         [selected]="selected"
@@ -19,14 +24,14 @@
         (select)='onSelect($event)'>
       </ngx-datatable>        
     </div>
-    <div class="row">
-      <button type="submit" (click)="onBack()" class="btn btn-primary" role="button">
+    <div class="row button-holder">
+      <button style="margin-top: 10px;" type="submit" (click)="onBack()" class="btn btn-default" role="button">
         <localize key="change.request.back"></localize>
       </button>
     </div>    
   </div>
   <!-- <div class="col-sm-5"></div> -->
-  <div style="height:600px;overflow-y: auto" class="col-sm-5 col-md-6">
+  <div class="col-md-6">
     <crtable-detail-create-geo-object #cuDetail *ngIf="action != null && (action.actionType.endsWith('CreateGeoObjectAction') || action.actionType.endsWith('UpdateGeoObjectAction'))" [(action)]="action" [crtable]="this"> </crtable-detail-create-geo-object>
     <crtable-detail-add-remove-child #arDetail *ngIf="action != null && (action.actionType.endsWith('AddChildAction') || action.actionType.endsWith('RemoveChildAction'))" [(action)]="action" [crtable]="this"> </crtable-detail-add-remove-child>
   </div>

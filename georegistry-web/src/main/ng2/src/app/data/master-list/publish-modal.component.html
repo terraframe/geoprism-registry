@@ -198,9 +198,8 @@
                     </div>
                 </div>
 
-                <div class="row-holder">
-                    <div class="label-holder" *ngIf="master.hierarchies.length > 0">
-                    </div>
+                <div class="row-holder" *ngIf="master.hierarchies.length > 0">
+                    <div class="label-holder"></div>
                     <div class="holder">
                         <localize key="masterlist.parents"></localize>
                     </div>
@@ -218,16 +217,16 @@
                                 <div class="check-block" style="margin: 10px;">
 
                                     <!-- To enable add: (click)="parent.selected = !parent.selected" -->
-                                    <!-- <div [ngClass]="{'chk-checked' : parent.selected}" style="margin:0;" class="jcf-unselectable chk-area"
-                                        name="unique">
+                                    <div (click)="getIsDisabled($event) ? null : parent.selected = !parent.selected" [ngClass]="{'chk-checked' : parent.selected, 'disabled' : readonly || edit}" style="margin:0;" class="jcf-unselectable chk-area"
+                                        name="unique" >
                                         <span></span>
                                     </div>
 
-                                    <label style="margin: 3px 10px;">{{parent.label}}</label> -->
+                                    <label style="margin: 3px 10px;">{{parent.label}}</label>
 
-                                    <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" [disabled]="readonly || edit"/>
+                                    <!-- <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" [disabled]="readonly || edit"/> -->
                                 </div>
-                                <div class="holder">{{parent.label}}</div>
+                                <!-- <div class="holder">{{parent.label}}</div> -->
                                 <!-- </div> -->
                             </div>
                         </div>
