@@ -978,6 +978,23 @@ public class AdapterUtilities
         hierarchies.add(object);
       }
     }
+
+    if (hierarchies.size() == 0)
+    {
+      /*
+       * This is a root type so include all hierarchies
+       */
+
+      for (HierarchyType hierarchyType : hierarchyTypes)
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", hierarchyType.getCode());
+        object.addProperty("label", hierarchyType.getLabel().getValue());
+
+        hierarchies.add(object);
+      }
+    }
+
     return hierarchies;
   }
 
