@@ -32,7 +32,7 @@
                         </label>
                     </div>
                     <div class="holder">
-                        <select id="code" name="code" class="select-area" [(ngModel)]="master.typeCode" (change)="onChange($event)"
+                        <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="master.typeCode" (change)="onChange($event)"
                             required>
                             <option></option>
                             <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>

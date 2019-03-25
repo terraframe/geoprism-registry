@@ -305,6 +305,8 @@ export class HierarchyComponent implements OnInit {
         } );
         this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + obj.label.localizedValue + ']';
         this.bsModalRef.content.data = obj.code;
+        this.bsModalRef.content.type = "DANGER";
+        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
 
         ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
             this.removeHierarchyType( data );

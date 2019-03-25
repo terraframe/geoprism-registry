@@ -990,6 +990,7 @@ public class AdapterUtilities
         JsonObject object = new JsonObject();
         object.addProperty("code", hierarchyType.getCode());
         object.addProperty("label", hierarchyType.getLabel().getValue());
+        object.add("parents", new JsonArray());
 
         hierarchies.add(object);
       }
