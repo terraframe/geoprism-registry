@@ -27,7 +27,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -36,6 +35,7 @@ import net.geoprism.registry.io.LocationBuilder;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
+import net.geoprism.registry.io.SridException;
 import net.geoprism.registry.io.SynonymRestriction;
 import net.geoprism.registry.io.TermProblem;
 import net.geoprism.registry.io.TermValueException;
@@ -118,7 +118,14 @@ public abstract class FeatureRowImporter
         {
           if (geometry != null)
           {
-            entity.setGeometry(geometry);
+            if (geometry.isValid() && geometry.getSRID() == 4326)
+            {
+              entity.setGeometry(geometry);
+            }
+            else
+            {
+              throw new SridException();
+            }
           }
 
           if (isNew)
