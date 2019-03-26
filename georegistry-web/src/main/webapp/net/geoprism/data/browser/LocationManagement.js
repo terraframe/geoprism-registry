@@ -228,7 +228,8 @@
           $scope.$emit('locationEdit', {
             universal: $scope.universal,
             parent: $scope.entity,
-            entity: entity
+            entity: entity,
+            hierarchy: $scope.hierarchy
           });
         }
       };
@@ -362,7 +363,8 @@
         geojson: data.geojson,
         universal: $scope.universal,
         parent: $scope.entity,
-        afterApply: data.afterApply
+        afterApply: data.afterApply,
+        hierarchy: $scope.hierarchy
       });
       $scope.$apply();
     });
@@ -571,7 +573,7 @@
           onFailure : function(e){
             $scope.errors.push(e.localizedMessage);
           }
-        }, data.universal.value, data.parent);
+        }, data.universal.value, data.parent, data.hierarchy.value);
       }
       else { // Editing an existing GeoObject
         $scope.entity = data.entity;
@@ -582,7 +584,7 @@
         	controller.setGeoObjectType(resp.geoObjectType);
         	$scope.preGeoObject = resp.geoObject;
             $scope.postGeoObject = JSON.parse(JSON.stringify(resp.geoObject));
-        	  
+        	
         	// Angular front-end uses the Javascript Date type. Our backend expects dates in epoch format.
 	        for (var i = 0; i < $scope.geoObjectType.attributes.length; ++i)
 	        {
@@ -594,7 +596,7 @@
 	            $scope.postGeoObject.properties[attr.code] = new Date(resp.geoObject.properties[attr.code]);
 	          }
 	        }
-        	  
+        	
             $scope.parentTreeNode = resp.parentTreeNode;
             $scope.show = true;
             console.log(resp);
@@ -610,6 +612,26 @@
       $scope.universals = data.universal.options;
       $scope.parent = data.parent;
       $scope.show = false;
+    }
+    
+    controller.isParentsInvalid = function() {
+      if ($scope.parentTreeNode == null) { return false; }
+      
+      var parents = $scope.parentTreeNode.parents;
+      if (parents == null || parents.length == 0) { return false; }
+      
+      // enforce that we have at least one valid parent
+      for (var i = 0; i < parents.length; ++i)
+      {
+        var ptnParent = parents[i];
+        
+        if (ptnParent.geoObject != null && ptnParent.geoObject.properties.displayLabel.localizedValue != null && ptnParent.geoObject.properties.displayLabel.localizedValue.length > 0)
+        {
+          return false;
+        }
+      }
+      
+      return true;
     }
     
     controller.onDateChange = function(key, props) {
@@ -762,7 +784,7 @@
       {
         var ptn = $scope.parentTreeNode.parents[i];
         
-        if (ptn.geoObject.properties.displayLabel.localizedValue == "")
+        if (ptn.geoObject == null || ptn.geoObject.properties.displayLabel.localizedValue == "")
         {
           $scope.parentTreeNode.parents.splice(i, 1);
         }
