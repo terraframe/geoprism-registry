@@ -105,7 +105,7 @@
       }
     }
 
-    controller.open = function(entityId) {
+    controller.open = function(entityId, mdRelationshipId) {
       if (entityId && entityId.length > 0) {
         $scope.$broadcast('cancelEditLocation', {
           id: entityId
@@ -122,7 +122,7 @@
 
         $scope.children = [];
         $scope.previous = [];
-        locationService.open(connection, entityId, $scope.layers);
+        locationService.open(connection, entityId, $scope.layers, mdRelationshipId);
       }
     }
 
@@ -345,11 +345,11 @@
 
 
       $scope.$on('locationFocus', function(event, data) {
-        controller.open(data.id);
+        controller.open(data.id, $scope.hierarchy.value);
       });
 
     $scope.$on('locationReloadCurrent', function(event) {
-      controller.open($scope.previous[$scope.previous.length - 1].oid);
+      controller.open($scope.previous[$scope.previous.length - 1].oid, $scope.hierarchy.value);
     });
 
     $scope.$on('hoverChange', function(event, data) {
