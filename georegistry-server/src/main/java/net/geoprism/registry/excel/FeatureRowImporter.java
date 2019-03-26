@@ -118,7 +118,8 @@ public abstract class FeatureRowImporter
         {
           if (geometry != null)
           {
-            if (geometry.isValid() && geometry.getSRID() == 4326)
+            // if (geometry.isValid() && geometry.getSRID() == 4326)
+            if (geometry.isValid())
             {
               entity.setGeometry(geometry);
             }
@@ -203,7 +204,7 @@ public abstract class FeatureRowImporter
    * @return The geoId as defined by the 'oid' attribute on the feature. If the
    *         geoId is null then a blank geoId is returned.
    */
-  private String getCode(FeatureRow row)
+  protected String getCode(FeatureRow row)
   {
     ShapefileFunction function = this.configuration.getFunction(GeoObject.CODE);
 
@@ -245,8 +246,7 @@ public abstract class FeatureRowImporter
 
     for (Location location : locations)
     {
-      ShapefileFunction function = location.getFunction();
-      Object label = function.getValue(feature);
+      Object label = getParentCode(feature, location);
 
       if (label != null)
       {
@@ -309,6 +309,26 @@ public abstract class FeatureRowImporter
     }
 
     return parent;
+  }
+
+  protected Object getParentCode(FeatureRow feature, Location location)
+  {
+    ShapefileFunction function = location.getFunction();
+    Object value = function.getValue(feature);
+
+    if (value != null && ( value instanceof String ) && location.getType().getCode().equals("Village"))
+    {
+      String code = (String) value;
+
+      // Convert NCDD codes into CNM codes
+      if (code.length() == 10)
+      {
+        // CNM code
+        return code.substring(0, 8);
+      }
+    }
+
+    return value;
   }
 
   private GeoObject parsePostalCode(FeatureRow feature)
