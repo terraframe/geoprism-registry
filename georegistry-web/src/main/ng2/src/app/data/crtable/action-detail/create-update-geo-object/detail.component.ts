@@ -38,6 +38,8 @@ export class CreateUpdateGeoObjectDetailComponent {
   
   geoObjectType : GeoObjectType = null;
   
+  @ViewChild("attributeEditor") attributeEditor;
+  
   @Input() crtable: ActionTableComponent;
   
   private bsModalRef: BsModalRef;
@@ -52,7 +54,10 @@ export class CreateUpdateGeoObjectDetailComponent {
   
   applyAction()
   {
-    this.changeRequestService.applyAction(this.action).then( response => {
+    var action = JSON.parse(JSON.stringify(this.action));
+    action.geoObjectJson = this.attributeEditor.getGeoObject();
+  
+    this.changeRequestService.applyAction(action).then( response => {
           this.crtable.refresh()
       } ).catch(( err: Response ) => {
           this.error( err.json() );

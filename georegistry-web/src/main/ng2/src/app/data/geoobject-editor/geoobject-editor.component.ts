@@ -178,7 +178,7 @@ export class GeoObjectEditorComponent implements OnInit {
     public submit(): void {
       this.bsModalRef.hide();
       
-      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.postGeoObject, this.masterListId)
+      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.attributeEditor.getGeoObject(), this.masterListId)
           .then( () => {
           
               if (this.onSuccessCallback != null)

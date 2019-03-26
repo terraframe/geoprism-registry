@@ -36,13 +36,14 @@
       runwayService.execute(req, connection);      
     }
     
-    service.open = function(connection, id, existingLayers) {
+    service.open = function(connection, id, existingLayers, mdRelationshipId) {
       var req = {
         method: 'POST',
         url: com.runwaysdk.__applicationContextPath + '/location/open',
         data : {
           oid : id,
-          existingLayers : existingLayers            
+          existingLayers : existingLayers,
+          mdRelationshipId : mdRelationshipId
         }
       }      
       

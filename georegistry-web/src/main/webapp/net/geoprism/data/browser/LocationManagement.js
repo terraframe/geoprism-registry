@@ -105,7 +105,7 @@
       }
     }
 
-    controller.open = function(entityId) {
+    controller.open = function(entityId, mdRelationshipId) {
       if (entityId && entityId.length > 0) {
         $scope.$broadcast('cancelEditLocation', {
           id: entityId
@@ -122,7 +122,7 @@
 
         $scope.children = [];
         $scope.previous = [];
-        locationService.open(connection, entityId, $scope.layers);
+        locationService.open(connection, entityId, $scope.layers, mdRelationshipId);
       }
     }
 
@@ -345,11 +345,11 @@
 
 
       $scope.$on('locationFocus', function(event, data) {
-        controller.open(data.id);
+        controller.open(data.id, $scope.hierarchy.value);
       });
 
     $scope.$on('locationReloadCurrent', function(event) {
-      controller.open($scope.previous[$scope.previous.length - 1].oid);
+      controller.open($scope.previous[$scope.previous.length - 1].oid, $scope.hierarchy.value);
     });
 
     $scope.$on('hoverChange', function(event, data) {
@@ -431,7 +431,7 @@
     controller.newSynonym = function() {
       $scope.synonyms.push({
         displayLabel: "",
-        id: Mojo.Util.generateId(),
+        oid: Mojo.Util.generateId(),
         type: "com.runwaysdk.system.gis.geo.Synonym"
       });
     }
@@ -440,7 +440,7 @@
       var removeIndex = null;
 
       for (var i = 0; i < $scope.synonyms.length; ++i) {
-        if ($scope.synonyms[i].id === synonym.id) {
+        if ($scope.synonyms[i].oid === synonym.oid) {
           removeIndex = i;
           break;
         }
@@ -448,7 +448,7 @@
 
       if (removeIndex !== null) {
         $scope.synonyms.splice(removeIndex, 1);
-        controller.deletedSyns.push(synonym.id);
+        controller.deletedSyns.push(synonym.oid);
       }
     }
 
@@ -494,7 +494,7 @@
 
       var synIds = [];
       for (var i = 0; i < $scope.synonyms.length; ++i) {
-        var id = $scope.synonyms[i].id;
+        var id = $scope.synonyms[i].oid;
 
         if (id.length === 64) {
           synIds.push(id);
@@ -579,10 +579,23 @@
         locationService.fetchGeoObjectFromGeoEntity({
           elementId : '#innerFrameHtml',
           onSuccess : function(resp) {
-            $scope.preGeoObject = resp.geoObject;
+        	controller.setGeoObjectType(resp.geoObjectType);
+        	$scope.preGeoObject = resp.geoObject;
             $scope.postGeoObject = JSON.parse(JSON.stringify(resp.geoObject));
+        	  
+        	// Angular front-end uses the Javascript Date type. Our backend expects dates in epoch format.
+	        for (var i = 0; i < $scope.geoObjectType.attributes.length; ++i)
+	        {
+	          var attr = $scope.geoObjectType.attributes[i];
+	        	  
+	          if (attr.type === "date" && resp.geoObject.properties[attr.code] != null)
+	          {
+	            $scope.preGeoObject.properties[attr.code] = new Date(resp.geoObject.properties[attr.code]);
+	            $scope.postGeoObject.properties[attr.code] = new Date(resp.geoObject.properties[attr.code]);
+	          }
+	        }
+        	  
             $scope.parentTreeNode = resp.parentTreeNode;
-            controller.setGeoObjectType(resp.geoObjectType);
             $scope.show = true;
             console.log(resp);
           },
@@ -597,6 +610,11 @@
       $scope.universals = data.universal.options;
       $scope.parent = data.parent;
       $scope.show = false;
+    }
+    
+    controller.onDateChange = function(key, props) {
+      console.log("Date set to", props[key]);
+      console.log("typeof = ", typeof props[key]);
     }
     
     controller.getParentSearchFunction = function(ptn) {
@@ -736,19 +754,10 @@
           $scope.errors.push(e.localizedMessage);
         }
       };
-                              
+      
       $scope.errors = [];
       
-      for (var i = 0; i < $scope.parentTreeNode.parents.length; ++i)
-      {
-        var ptn = $scope.parentTreeNode.parents[i];
-        
-        if (ptn.geoObject.properties.displayLabel.localizedValue == "")
-        {
-		  
-        }
-      }
-      
+      // Remove parents that the user has set the input field to blank.
       for (var i = $scope.parentTreeNode.parents.length - 1; i >= 0; --i)
       {
         var ptn = $scope.parentTreeNode.parents[i];
@@ -758,8 +767,20 @@
           $scope.parentTreeNode.parents.splice(i, 1);
         }
       }
+      
+      // Angular front-end uses the Javascript Date type. Our backend expects dates in epoch format.
+      var submitGO = JSON.parse(JSON.stringify($scope.postGeoObject));
+      for (var i = 0; i < $scope.geoObjectType.attributes.length; ++i)
+      {
+    	var attr = $scope.geoObjectType.attributes[i];
+    	  
+        if (attr.type === "date" && $scope.postGeoObject.properties[attr.code] != null)
+        {
+          submitGO.properties[attr.code] = $scope.postGeoObject.properties[attr.code].getTime();
+        }
+      }
           
-      locationService.apply(connection, $scope.entity.newInstance, $scope.postGeoObject, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
+      locationService.apply(connection, $scope.entity.newInstance, submitGO, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
     }
       
     $rootScope.$on('locationEdit', function(event, data) {
