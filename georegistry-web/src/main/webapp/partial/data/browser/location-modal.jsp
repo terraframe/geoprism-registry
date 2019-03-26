@@ -93,9 +93,9 @@
 																		<h5>{{localeValue.locale}}</h5> <input ng-if="postGeoObject" type="text" ng-model="localeValue.value"
 																		name="mod-{{attr.code}}-{{localeValue.locale}}">
 
-																		<p class="warning-text" ng-if="localeValue.value !== preGeoObject.properties[attr.code].localeValues[i].value">
+																		<p class="warning-text" ng-if="localeValue.value !== preGeoObject.properties[attr.code].localeValues[$index].value">
 																			<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
-																			{{preGeoObject.properties[attr.code].localeValues[i].value}}
+																			{{preGeoObject.properties[attr.code].localeValues[$index].value}}
 																		</p>
 																	</li>
 																</ul>
@@ -187,7 +187,7 @@
 								<div class="holder">
 									<div class="button-holder">
 										<input type="button" value="<gdb:localize key="dataset.cancel"/>" class="btn btn-default" ng-click="ctrl.cancel()" /> <input type="button"
-											value="<gdb:localize key="dataset.submit"/>" class="btn btn-primary" ng-click="ctrl.apply()" ng-disabled="ctrl.form.$invalid" />
+											value="<gdb:localize key="dataset.submit"/>" class="btn btn-primary" ng-click="ctrl.apply()" ng-disabled="ctrl.form.$invalid || ctrl.isParentsInvalid()" />
 									</div>
 								</div>
 							</div>

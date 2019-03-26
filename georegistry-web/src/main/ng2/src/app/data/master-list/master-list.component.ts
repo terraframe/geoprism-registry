@@ -17,6 +17,8 @@ import { LocalizationService } from '../../core/service/localization.service';
 
 import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
 
+import { AuthService } from '../../core/auth/auth.service';
+
 declare var acp: string;
 
 @Component( {
@@ -43,12 +45,20 @@ export class MasterListComponent implements OnInit {
     private bsModalRef: BsModalRef;
 
     public searchPlaceholder = "";
+    
+    private isAdmin: boolean;
+    private isMaintainer: boolean;
+    private isContributor: boolean;
 
 
     constructor( public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router,
-        private modalService: BsModalService, private localizeService: LocalizationService ) {
+        private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService ) {
 
         this.searchPlaceholder = localizeService.decode( "masterlist.search" );
+        
+        this.isAdmin = authService.isAdmin();
+        this.isMaintainer = this.isAdmin || authService.isMaintainer();
+        this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
     }
 
     ngOnInit(): void {

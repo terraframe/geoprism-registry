@@ -10,6 +10,8 @@ import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../core/service/localization.service';
 
+import { AuthService } from '../../core/auth/auth.service';
+
 @Component( {
     selector: 'master-list-manager',
     templateUrl: './master-list-manager.component.html',
@@ -22,8 +24,16 @@ export class MasterListManagerComponent implements OnInit {
      * Reference to the modal current showing
     */
     private bsModalRef: BsModalRef;
+    
+    private isAdmin: boolean;
+    private isMaintainer: boolean;
+    private isContributor: boolean;
 
-    constructor( public service: RegistryService, private modalService: BsModalService, private localizeService: LocalizationService ) { }
+    constructor( public service: RegistryService, private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService ) {
+      this.isAdmin = authService.isAdmin();
+      this.isMaintainer = this.isAdmin || authService.isMaintainer();
+      this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
+    }
 
     ngOnInit(): void {
         this.service.getMasterLists().then( response => {
