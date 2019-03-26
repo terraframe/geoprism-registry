@@ -318,14 +318,14 @@ export class RegistryService {
             } )
     }
 
-    getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string }[] }> {
+    getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
         let params: URLSearchParams = new URLSearchParams();
 
         return this.http
             .get( acp + '/master-list/list-all', { params: params } )
             .toPromise()
             .then( response => {
-                return response.json() as { locales: string[], lists: { label: string, oid: string }[] };
+                return response.json() as { locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] };
             } )
     }
 

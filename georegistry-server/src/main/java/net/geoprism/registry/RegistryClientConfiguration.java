@@ -55,6 +55,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    requests.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     requests.addRole(RegistryConstants.API_CONSUMER_ROLE);
     

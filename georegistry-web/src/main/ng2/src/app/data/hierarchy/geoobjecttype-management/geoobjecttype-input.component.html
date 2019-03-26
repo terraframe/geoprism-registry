@@ -39,6 +39,15 @@
                     </div>
                 </div>
 
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label><localize key="hierarchy.management.manage.attributes.label.leafnode"></localize></label>
+                    </div>          
+                    <div class="holder">  
+                        <i *ngIf="editGeoObjectType.isLeaf === 'true'" class="fa fa-check-square" style="color:#6BA542;font-size:18px;cursor:auto;line-height:38px;" aria-hidden="true"></i> 
+                        <i *ngIf="editGeoObjectType.isLeaf === 'false'" class="fa fa-square-o" style="font-size:18px;cursor:auto;line-height:38px;" aria-hidden="true"></i> 
+                    </div>
+                </div>
 
                 <div class="row-holder">
                     <div class="label-holder">
