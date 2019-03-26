@@ -24,7 +24,7 @@
 <div>
 	<div ng-if="show">
 		<div class="modal-backdrop fade in"></div>
-		<div id="modal-div" style="display: block;" class="modal fade in" role="dialog" aria-hidden="false" data-backdrop="static" data-keyboard="false">
+		<div id="location-manager-modal" style="display: block;" class="modal fade in" role="dialog" aria-hidden="false" data-backdrop="static" data-keyboard="false">
 			<div class="modal-dialog">
 				<div class="modal-content" show-on-ready>
 					<div class="modal-body">

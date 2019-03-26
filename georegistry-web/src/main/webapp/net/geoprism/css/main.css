@@ -1997,6 +1997,10 @@ ul.location-management-list {
   background: #B2BEB5;
 } */
 
+#location-manager-modal {
+    overflow-y: auto;
+    height: 100%;
+}
 
 .none{display:none;}
 
