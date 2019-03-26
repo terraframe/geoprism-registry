@@ -20,7 +20,7 @@
         <label class="detail-label">
             <localize key="change.request.status"></localize> :
         </label>
-        <select style="float:none;" [(ngModel)]=action.approvalStatus>
+        <select style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]=action.approvalStatus>
             <option value="REJECTED">
                 <localize key="change.request.status.rejected"></localize>
             </option>

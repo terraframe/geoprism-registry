@@ -9,6 +9,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.jaitools.jts.CoordinateSequence2D;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -17,6 +18,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.LatLonException;
 
 public class GeoObjectConverter extends FeatureRowImporter
 {
@@ -73,6 +75,14 @@ public class GeoObjectConverter extends FeatureRowImporter
       {
         Double lat = new Double(latitude.toString());
         Double lon = new Double(longitude.toString());
+
+        if (Math.abs(lat) > 90 || Math.abs(lon) > 180)
+        {
+          LatLonException ex = new LatLonException();
+          ex.setLat(lat.toString());
+          ex.setLon(lon.toString());
+          throw ex;
+        }
 
         return new Point(new CoordinateSequence2D(lon, lat), factory);
       }

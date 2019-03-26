@@ -22,11 +22,47 @@
             </div>
             <div class="row">
                 <ul class="list-group">
-                    <li class="list-group-item" *ngFor="let list of lists">
+                    <!-- <li class="list-group-item" *ngFor="let list of lists">
                         <a [routerLink]="'/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
-                        <i class="fa fa-pencil pull-right" (click)="onEdit(list)"> </i> 
-                        <i class="fa fa-times delete-btn pull-right" (click)="deleteMasterList(list)"></i>
-                    </li>
+                        <p>{{list.createDate}}</p> 
+                        <p>{{list.lastUpdateDate}}</p>
+                        <i class="fa fa-pencil clickable pull-right" (click)="onEdit(list)"> </i> 
+                        <i class="fa fa-times delete-btn clickable pull-right" (click)="deleteMasterList(list)"></i>
+                    </li> -->
+
+                    <table class="table table-bordered"> 
+                        <thead> 
+                            <tr> 
+                                <th>#</th> 
+                                <th>
+                                    <localize key="master.list.table.link.header.label"></localize>
+                                </th> 
+                                <th>
+                                    <localize key="master.list.table.create.data.header.label"></localize>
+                                </th> 
+                                <!-- <th>
+                                    <localize key="master.list.table.last.update.data.header.label"></localize>
+                                </th>  -->
+                                <th style="width:10%;text-align:center;">
+                                    <localize key="master.list.table.actions.header.label"></localize>
+                                </th>
+                            </tr> 
+                        </thead> 
+                        <tbody> 
+                            <tr *ngFor="let list of lists; let i = index;"> 
+                                <th scope="row">{{i + 1}}</th> 
+                                <td>
+                                    <a [routerLink]="'/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
+                                </td> 
+                                <td>{{list.createDate}}</td> 
+                                <!-- <td>{{list.lastUpdateDate}}</td>  -->
+                                <td class="text-center">
+                                    <i class="fa fa-pencil clickable" (click)="onEdit(list)"> </i> 
+                                    <i class="fa fa-times delete-btn clickable" (click)="deleteMasterList(list)"></i>
+                                </td>
+                            </tr> 
+                        </tbody> 
+                    </table>
                 </ul>
             </div>
         </div>

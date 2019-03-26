@@ -1,0 +1,25 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.io.LatLonException" 
+                   label="Postal code format exception" 
+                   description="Thrown when importing an invalid lat/lon coordinate" 
+                   message="The latitude [{lat}] and longitude [{lon}] do not represent a valid coordinate">
+        <attributes>
+          <text name="lat" label="Latitude" />
+          <text name="lon" label="Longitude" />
+        </attributes>
+      </mdException>    
+      
+      <mdException name="net.geoprism.registry.io.SridException" 
+                   label="Postal code format exception" 
+                   description="Thrown when a geometry not in the 4326 srid" 
+                   message="All geometries must use the 4326 spatial reference system">
+      </mdException>    
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
