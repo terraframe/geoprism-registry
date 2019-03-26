@@ -17,7 +17,7 @@ import { LocalizationService } from '../../core/service/localization.service';
 } )
 export class MasterListManagerComponent implements OnInit {
     message: string = null;
-    lists: { label: string, oid: string }[];
+    lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[];
     /*
      * Reference to the modal current showing
     */
@@ -43,7 +43,7 @@ export class MasterListManagerComponent implements OnInit {
             ignoreBackdropClick: true,
         } );
         this.bsModalRef.content.onMasterListChange.subscribe( list => {
-            this.lists.push( { label: list.displayLabel.localizedValue, oid: list.oid } );
+            this.lists.push( { label: list.displayLabel.localizedValue, oid: list.oid, createDate: list.createDate, lastUpdateDate: list.lastUpdateDate } );
         } );
     }
 

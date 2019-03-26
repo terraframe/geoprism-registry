@@ -71,7 +71,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
             private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-            private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe) {
+            private datePipe: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe) {
     	
     }
     
@@ -91,6 +91,32 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     	{
     	  this.geoObjectAttributeExcludes.push.apply(this.geoObjectAttributeExcludes, this.attributeExcludes);
     	}
+    	
+    	// Convert types from server to frontend
+      for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
+      {
+        var attr = this.geoObjectType.attributes[i];
+        
+        // The front-end uses the date format 'yyyy-mm-dd'. Our backend expects dates in epoch format.
+        if (attr.type === "date" && this.preGeoObject.properties[attr.code] != null)
+        {
+          var date = this.datePipe.transform(this.preGeoObject.properties[attr.code], 'yyyy-MM-dd');
+        
+          this.preGeoObject.properties[attr.code] = date;
+          this.postGeoObject.properties[attr.code] = date;
+        }
+        // Sometimes booleans come back from the server as "false" instead of an actual boolean
+        else if (attr.type === "boolean" && this.preGeoObject.properties[attr.code] !== null)
+        {
+          var val = this.preGeoObject.properties[attr.code];
+          var bool = (val === "true") || (val === true);
+        
+          this.preGeoObject.properties[attr.code] = bool;
+          this.postGeoObject.properties[attr.code] = bool;
+        }
+      }
+      
+      console.log("Shared attr editor postGeo=", this.postGeoObject);
     }
 
     onSelectPropertyOption(event: any, option:any): void {
@@ -136,7 +162,22 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     public getGeoObject(): any {
-    	return this.postGeoObject;
+      // The front-end uses the 'yyyy-mm-dd' date format. Our backend expects dates in epoch format.
+      var submitGO = JSON.parse(JSON.stringify(this.postGeoObject));
+      for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
+      {
+        var attr = this.geoObjectType.attributes[i];
+        
+        if (attr.type === "date" && this.postGeoObject.properties[attr.code] != null)
+        {
+          var parts = this.postGeoObject.properties[attr.code].split('-');
+          var date = new Date(parts[0], parts[1] - 1, parts[2]); 
+        
+          submitGO.properties[attr.code] = date.getTime();
+        }
+      }
+    
+    	return submitGO;
     }
     
     public error(err: any): void {

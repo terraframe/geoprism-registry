@@ -8,7 +8,7 @@
 	  <label class="detail-label">Code : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.code">
 	  -->
 
-        <geoobject-shared-attribute-editor *ngIf="preGeoObject" [allowCodeEdit]="true" [geoObjectType]="geoObjectType"
+        <geoobject-shared-attribute-editor #attributeEditor *ngIf="preGeoObject" [allowCodeEdit]="true" [geoObjectType]="geoObjectType"
             [postGeoObject]="postGeoObject" [preGeoObject]="preGeoObject"></geoobject-shared-attribute-editor>
 
         <!-- TODO : Navigator code for Geometries
@@ -24,7 +24,7 @@
             <label class="detail-label">
                 <localize key="change.request.status"></localize> :
             </label>
-            <select style="float:none;" [(ngModel)]="action.approvalStatus">
+            <select style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]="action.approvalStatus">
                 <option value="REJECTED">
                     <localize key="change.request.status.rejected"></localize>
                 </option>

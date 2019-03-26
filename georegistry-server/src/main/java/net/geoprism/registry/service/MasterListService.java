@@ -1,6 +1,7 @@
 package net.geoprism.registry.service;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -33,6 +34,8 @@ public class MasterListService
     query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
     OIterator<? extends MasterList> it = query.getIterator();
+    
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     try
     {
@@ -43,6 +46,9 @@ public class MasterListService
         JsonObject object = new JsonObject();
         object.addProperty("label", list.getDisplayLabel().getValue());
         object.addProperty("oid", list.getOid());
+        
+        object.addProperty("createDate", format.format(list.getCreateDate()));
+        object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
 
         response.add(object);
       }

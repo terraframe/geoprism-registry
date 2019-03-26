@@ -199,16 +199,6 @@ a:hover > .fa.fa-caret-down{
 	color: black;
 }
 
-a.fa:hover,
-a.fa:focus,
-i.fa:hover,
-i.fa:focus
-{
-	color: #6BA542; /* IE fallback */
-    color: var(--theme-submit-button-color);
-	cursor: pointer;
-}
-
 .fa-stack:hover .fa {
 	color: #00bfff;
 }
@@ -443,6 +433,16 @@ i {
 
 .error-message {
 	color:#8c0000;
+}
+
+.status-rejected {
+    color: red;
+}
+.status-pending {
+    color: orange;
+}
+.status-accepted {
+    color: green;
 }
 
 
@@ -2534,8 +2534,8 @@ i.fa.fa-cloud-upload{
 .dropdown-menu>.active>a, 
 .dropdown-menu>.active>a:focus, 
 .dropdown-menu>.active>a:hover {
-    background: #f4fcef; /* IE fallback */
-    background: var(--theme-submit-button-color-light-hover);
+    background: #A29BAB; /* IE fallback */
+    background: var(--theme-primary-color-hover);
     color:white;
 }
 
@@ -2632,28 +2632,35 @@ i.fa.fa-cloud-upload{
     color: #767676; /* IE fallback */
     color: var(--theme-button-black);
 }
-.fa:hover,
-.fa:focus,
+
+i.fa {
+    font-size: 18px;
+}
+
 a.fa:hover, 
 a.fa:focus, 
-i.fa:hover, 
-i.fa:focus {
+i.clickable.fa:hover, 
+i.clickable.fa:focus {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
+    cursor: pointer;
 }
 
 .fa.ico-edit:hover{
     color: #6BA542; /* IE fallback */
-    color: var(--theme-submit-button-color-hover)
+    color: var(--theme-submit-button-color-hover);
+    cursor: pointer;
 }
 .fa.ico-remove:hover{
     color: #e30000; /* IE fallback */
     color: var(--theme-alert-color);
+    cursor: pointer;
 }
 
 .delete-btn:hover {
     color: #e30000; /* IE fallback */
     color: var(--theme-alert-color) !important;
+    cursor: pointer;
 }
 
 
@@ -2781,9 +2788,6 @@ button.btn.btn-default:hover {
 i.fa.fa-sitemap{
   font-size: 20px;
   margin-right: 10px;
-}
-i.fa.fa-sitemap:hover{
-  color:  #bababa;
 }
 
 .delete-btn{

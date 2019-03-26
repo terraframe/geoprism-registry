@@ -7,9 +7,9 @@
         <input [name]="index + '-name'" [(ngModel)]="termLabel" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="label" class="form-control">
       </div>
       <div class="col-sm-2">
-        <i [ngClass]="{disabled: !hasSynonym}" class="fa fa-2x fa-compress" (click)="createSynonym()" [title]="'dataUploader.createSynonymCategoryTooltip' | localize"></i>
-        <i class="fa fa-2x fa-plus" (click)="createOption()" [title]="'dataUploader.createNewOptionTooltip' | localize"></i>        
-        <i class="fa fa-2x fa-times-circle" (click)="ignoreValue()" [title]="'dataUploader.ignoreCategoryTooltip' | localize"></i>      
+        <i [ngClass]="{disabled: !hasSynonym}" class="fa fa-2x fa-compress clickable" (click)="createSynonym()" [title]="'dataUploader.createSynonymCategoryTooltip' | localize"></i>
+        <i class="fa fa-2x fa-plus clickable" (click)="createOption()" [title]="'dataUploader.createNewOptionTooltip' | localize"></i>        
+        <i class="fa fa-2x fa-times-circle clickable" (click)="ignoreValue()" [title]="'dataUploader.ignoreCategoryTooltip' | localize"></i>      
       </div>
     </div>
     <div *ngIf="problem.resolved">
@@ -25,7 +25,7 @@
         [{{problem.label}}]
       </div>
       <div class="col-sm-2">
-        <i class="fa fa-2x fa-undo" (click)="undoAction()" [title]="'dataUploader.undoFixedCategoryTooltip' | localize"></i>
+        <i class="fa fa-2x fa-undo clickable" (click)="undoAction()" [title]="'dataUploader.undoFixedCategoryTooltip' | localize"></i>
       </div>
     </div>
   </form>
