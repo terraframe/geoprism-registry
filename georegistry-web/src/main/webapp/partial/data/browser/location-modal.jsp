@@ -64,7 +64,7 @@
 
 									<div class="row-holder">
 										<div class="label-holder">
-											<label> <localize key="change.request.geoobject.update.form.label"></localize>
+											<label> <gdb:localize key="change.request.geoobject.update.form.label"></gdb:localize>
 											</label>
 										</div>
 										<div class="holder">
@@ -82,7 +82,7 @@
 
 																<p class="warning-text"
 																	ng-if="this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code] !== this.preGeoObject.properties[attr.code]">
-																	<localize key="change.request.changed.value.prefix"></localize>
+																	<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
 																	{{this.preGeoObject.properties[attr.code]}}
 																</p>
 															</div>
@@ -94,7 +94,7 @@
 																		name="mod-{{attr.code}}-{{localeValue.locale}}">
 
 																		<p class="warning-text" ng-if="localeValue.value !== preGeoObject.properties[attr.code].localeValues[i].value">
-																			<localize key="change.request.changed.value.prefix"></localize>
+																			<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
 																			{{preGeoObject.properties[attr.code].localeValues[i].value}}
 																		</p>
 																	</li>
@@ -102,28 +102,31 @@
 															</div>
 
 															<div ng-if="attr.type === 'date'">
-																<input type="date" ng-model="postGeoObject.properties[attr.code] | date:'yyyy-MM-dd'"
-																	ngModelChange="postGeoObject.properties[attr.code] = $event" id="mod-{{attr.code}}" name="mod-{{attr.code}}">
+																<input type="date" ng-model="postGeoObject.properties[attr.code]" placeholder="mm/dd/yyyy"
+																	ng-change="ctrl.onDateChange(attr.code, postGeoObject.properties)" id="mod-{{attr.code}}" name="mod-{{attr.code}}">
 
 																<p class="warning-text"
-																	ng-if="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
-																	<localize key="change.request.changed.value.prefix"></localize>
-																	{{preGeoObject.properties[attr.code]}}
+																	ng-if="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code].getTime() !== preGeoObject.properties[attr.code].getTime()">
+																	<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
+																	{{preGeoObject.properties[attr.code].toLocaleDateString()}}
 																</p>
 															</div>
 
 															<div ng-if="attr.type === 'boolean'">
-																<label> <input type="radio" [checked]="postGeoObject.properties[attr.code] === true"
-																	ng-model="postGeoObject.properties[attr.code]" value="true" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> <localize
-																		key="change.request.boolean.option.true"></localize>
-																</label> <label> <input type="radio" checked="{{postGeoObject.properties[attr.code] === false}}"
-																	ng-model="postGeoObject.properties[attr.code]" value="false" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> <localize
-																		key="change.request.boolean.option.false"></localize>
+																<label>
+																  <input type="radio" [checked]="postGeoObject.properties[attr.code] === true"
+																	    ng-model="postGeoObject.properties[attr.code]" value="true" id="mod-{{attr.code}}" name="mod-{{attr.code}}">
+																	<gdb:localize key="change.request.boolean.option.true"></gdb:localize>
+																</label>
+																<label>
+																  <input ng-change="console.log('bool change')" type="radio" checked="{{postGeoObject.properties[attr.code] === false}}"
+																	    ng-model="postGeoObject.properties[attr.code]" value="false" id="mod-{{attr.code}}" name="mod-{{attr.code}}">
+																	<gdb:localize key="change.request.boolean.option.false"></gdb:localize>
 																</label>
 
 																<p class="warning-text"
 																	ng-if="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
-																	<localize key="change.request.changed.value.prefix"></localize>
+																	<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
 																	{{preGeoObject.properties[attr.code]}}
 																</p>
 															</div>
@@ -133,7 +136,7 @@
 
 																<p class="warning-text"
 																	ng-if="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
-																	<localize key="change.request.changed.value.prefix"></localize>
+																	<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
 																	{{preGeoObject.properties[attr.code]}}
 																</p>
 															</div>
@@ -143,7 +146,7 @@
 
 																<p class="warning-text"
 																	ng-if="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
-																	<localize key="change.request.changed.value.prefix"></localize>
+																	<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
 																	{{preGeoObject.properties[attr.code]}}
 																</p>
 															</div>
@@ -155,7 +158,7 @@
 																</select>
 
 																<!-- <p class="warning-text" ng-if="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
-		                                          <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+		                                          <gdb:localize key="change.request.changed.value.prefix"></gdb:localize> {{preGeoObject.properties[attr.code]}}
 		                                      </p> -->
 															</div>
 														</li>
