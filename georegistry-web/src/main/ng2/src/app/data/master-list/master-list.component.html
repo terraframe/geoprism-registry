@@ -19,7 +19,7 @@
           </label>
         </div> -->
         <div class="col-md-8">
-            <h4>
+            <h4 *ngIf="isMaintainer">
                 <localize key="masterlist.field"></localize> : <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> {{list.displayLabel.localizedValue}}</a> </b>
             </h4>
 
@@ -38,7 +38,7 @@
             <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
                 <localize key="io.export"></localize>
             </button>
-            <button type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
+            <button *ngIf="isMaintainer" type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
                 <localize key="masterlist.publish"></localize>
             </button>
         </div>

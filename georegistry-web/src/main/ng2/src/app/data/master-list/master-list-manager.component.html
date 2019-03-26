@@ -11,7 +11,7 @@
             </h2>
         </div>
         <div class="col-md-12 order-md-1">
-            <div class="row" style="margin-bottom:20px; margin-top:50px;">
+            <div *ngIf="isMaintainer" class="row" style="margin-bottom:20px; margin-top:50px;">
                 <div class="button-holder">
                     <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
                         <span class="ui-button-text">
