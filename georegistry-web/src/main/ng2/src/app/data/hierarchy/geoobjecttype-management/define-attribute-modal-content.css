@@ -19,7 +19,9 @@
 }
 .btn-group.define-attribute-btns .btn.full-width-radio-button.active,
 .btn-group.define-attribute-btns .btn.full-width-radio-button:focus{
-    color: #6BA542 !important; /* IE fallback */
-    color: var(--theme-button-color-hover) !important;
+    color: white !important; 
+
+    background-color: #6BA542 !important; /* IE fallback */
+    background-color: var(--theme-button-color-hover) !important;
     box-shadow: none;
 }
