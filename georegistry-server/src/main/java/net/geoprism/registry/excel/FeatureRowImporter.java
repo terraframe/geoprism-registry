@@ -109,6 +109,7 @@ public abstract class FeatureRowImporter
           // create a new entity
           isNew = true;
           entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
+          entity.setCode(geoId);
         }
 
         Geometry geometry = (Geometry) this.getGeometry(row);
@@ -118,7 +119,8 @@ public abstract class FeatureRowImporter
         {
           if (geometry != null)
           {
-            if (geometry.isValid() && geometry.getSRID() == 4326)
+            // if (geometry.isValid() && geometry.getSRID() == 4326)
+            if (geometry.isValid())
             {
               entity.setGeometry(geometry);
             }
@@ -140,17 +142,20 @@ public abstract class FeatureRowImporter
           {
             String attributeName = entry.getKey();
 
-            ShapefileFunction function = this.configuration.getFunction(attributeName);
-
-            if (function != null)
+            if (!attributeName.equals(GeoObject.CODE))
             {
-              Object value = function.getValue(row);
+              ShapefileFunction function = this.configuration.getFunction(attributeName);
 
-              if (value != null)
+              if (function != null)
               {
-                AttributeType attributeType = entry.getValue();
+                Object value = function.getValue(row);
 
-                this.setValue(entity, attributeType, attributeName, value);
+                if (value != null)
+                {
+                  AttributeType attributeType = entry.getValue();
+
+                  this.setValue(entity, attributeType, attributeName, value);
+                }
               }
             }
           }
@@ -203,7 +208,7 @@ public abstract class FeatureRowImporter
    * @return The geoId as defined by the 'oid' attribute on the feature. If the
    *         geoId is null then a blank geoId is returned.
    */
-  private String getCode(FeatureRow row)
+  protected String getCode(FeatureRow row)
   {
     ShapefileFunction function = this.configuration.getFunction(GeoObject.CODE);
 
@@ -245,8 +250,7 @@ public abstract class FeatureRowImporter
 
     for (Location location : locations)
     {
-      ShapefileFunction function = location.getFunction();
-      Object label = function.getValue(feature);
+      Object label = getParentCode(feature, location);
 
       if (label != null)
       {
@@ -309,6 +313,12 @@ public abstract class FeatureRowImporter
     }
 
     return parent;
+  }
+
+  protected Object getParentCode(FeatureRow feature, Location location)
+  {
+    ShapefileFunction function = location.getFunction();
+    return function.getValue(feature);
   }
 
   private GeoObject parsePostalCode(FeatureRow feature)
