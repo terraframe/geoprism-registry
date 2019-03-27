@@ -109,6 +109,7 @@ public abstract class FeatureRowImporter
           // create a new entity
           isNew = true;
           entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
+          entity.setCode(geoId);
         }
 
         Geometry geometry = (Geometry) this.getGeometry(row);
@@ -141,17 +142,20 @@ public abstract class FeatureRowImporter
           {
             String attributeName = entry.getKey();
 
-            ShapefileFunction function = this.configuration.getFunction(attributeName);
-
-            if (function != null)
+            if (!attributeName.equals(GeoObject.CODE))
             {
-              Object value = function.getValue(row);
+              ShapefileFunction function = this.configuration.getFunction(attributeName);
 
-              if (value != null)
+              if (function != null)
               {
-                AttributeType attributeType = entry.getValue();
+                Object value = function.getValue(row);
 
-                this.setValue(entity, attributeType, attributeName, value);
+                if (value != null)
+                {
+                  AttributeType attributeType = entry.getValue();
+
+                  this.setValue(entity, attributeType, attributeName, value);
+                }
               }
             }
           }
@@ -314,21 +318,7 @@ public abstract class FeatureRowImporter
   protected Object getParentCode(FeatureRow feature, Location location)
   {
     ShapefileFunction function = location.getFunction();
-    Object value = function.getValue(feature);
-
-    if (value != null && ( value instanceof String ) && location.getType().getCode().equals("Village"))
-    {
-      String code = (String) value;
-
-      // Convert NCDD codes into CNM codes
-      if (code.length() == 10)
-      {
-        // CNM code
-        return code.substring(0, 8);
-      }
-    }
-
-    return value;
+    return function.getValue(feature);
   }
 
   private GeoObject parsePostalCode(FeatureRow feature)

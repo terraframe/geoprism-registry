@@ -9,7 +9,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.jaitools.jts.CoordinateSequence2D;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -19,6 +18,7 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.LatLonException;
+import net.geoprism.registry.io.Location;
 
 public class GeoObjectConverter extends FeatureRowImporter
 {
@@ -90,4 +90,42 @@ public class GeoObjectConverter extends FeatureRowImporter
 
     return null;
   }
+
+  @Override
+  protected String getCode(FeatureRow row)
+  {
+    String code = super.getCode(row);
+
+    if (code != null && this.getConfiguration().getType().getCode().equals("Village"))
+    {
+      // Convert NCDD codes into CNM codes
+      if (code.length() == 10)
+      {
+        // CNM code
+        code = code.substring(0, 8);
+      }
+    }
+
+    return code;
+  }
+
+  protected Object getParentCode(FeatureRow feature, Location location)
+  {
+    Object value = super.getParentCode(feature, location);
+
+    if (value != null && ( value instanceof String ) && location.getType().getCode().equals("Village"))
+    {
+      String code = (String) value;
+
+      // Convert NCDD codes into CNM codes
+      if (code.length() == 10)
+      {
+        // CNM code
+        return code.substring(0, 8);
+      }
+    }
+
+    return value;
+  }
+
 }
