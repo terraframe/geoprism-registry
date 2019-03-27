@@ -27,13 +27,13 @@ public class GeoObjectEditorController
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name="masterListId") String masterListId) throws JSONException
   {
-    apply(request.getSessionId(), parentTreeNode, geoObject, masterListId);
+    applyInReq(request.getSessionId(), parentTreeNode, geoObject, masterListId);
     
     return new RestResponse();
   }
   
   @Request(RequestType.SESSION)
-  public GeoObject apply(String sessionId, String ptn, String go, String masterListId)
+  public GeoObject applyInReq(String sessionId, String ptn, String go, String masterListId)
   {
     return applyInTransaction(sessionId, ptn, go, masterListId);
   }
