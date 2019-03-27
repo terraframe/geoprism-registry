@@ -26,13 +26,13 @@
       </div>
       
       <div class="col-md-4">
-        <h3 *ngIf="currentHierarchy"> <localize key="hierarchy.current.management.panel.title"></localize> {{currentHierarchy.label.localizedValue}}</h3>
+        <h3> <localize key="hierarchy.current.management.panel.title"></localize> {{currentHierarchy.label.localizedValue}}</h3>
 <!--         <h3> Manage </h3> -->
         <hr>
-        <div *ngIf="nodes.length > 0" class="tree">
+        <div *ngIf="currentHierarchy && nodes.length > 0" class="tree">
           <tree-root [nodes]="nodes" [options]="options"></tree-root>
         </div>
-        <div *ngIf="nodes.length === 0" class="tree">
+        <div *ngIf="currentHierarchy && nodes.length === 0">
           <div>
             <button type="submit" class="btn btn-primary" (click)="addChildAndRootToHierarchy()"><localize key="hierarchy.current.management.panel.button.add"></localize></button>
           </div>

@@ -7,7 +7,7 @@
       <localize key="io.locationProblem.description"></localize>
     </p>
   </div>
-  <div class="col-md-12 order-md-1">
+  <div >
     <div *ngIf="hasProblems()" class="row">
       <div class="alert alert-danger">
         <localize key="dataUploader.existingProblems"></localize>
@@ -43,8 +43,8 @@
         <location-problem [problem]="problem" [configuration]="configuration" [index]="i" (onError)="handleError($event)"></location-problem>
       </div>
       <div class="row">
-        <div class="col-sm-12 text-right">
-          <button type="button" (click)="onCancel()" class="btn" role="button">
+        <div class="col-sm-12 text-right" style="margin-top: 20px;">
+          <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
             <span class="ui-button-text">
               <localize key="io.cancel"></localize>
             </span>
