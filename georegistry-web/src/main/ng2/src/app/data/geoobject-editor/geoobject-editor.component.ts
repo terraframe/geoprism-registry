@@ -21,6 +21,8 @@ import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { mergeMap } from 'rxjs/operators';
 
+import { AuthService } from '../../core/auth/auth.service';
+
 declare var acp: string;
 
 
@@ -62,10 +64,17 @@ export class GeoObjectEditorComponent implements OnInit {
     private masterListId: string;
     
     @Input() onSuccessCallback: Function;
+    
+    private isAdmin: boolean;
+    private isMaintainer: boolean;
+    private isContributor: boolean;
 
     constructor(private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
             private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-            private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe) {
+            private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, authService: AuthService) {
+      this.isAdmin = authService.isAdmin();
+      this.isMaintainer = this.isAdmin || authService.isMaintainer();
+      this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
     }
     
     ngOnInit(): void {
