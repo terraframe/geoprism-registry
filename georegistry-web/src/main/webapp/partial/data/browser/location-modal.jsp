@@ -93,7 +93,7 @@
 																		<h5>{{localeValue.locale}}</h5> <input ng-if="postGeoObject" type="text" ng-model="localeValue.value"
 																		name="mod-{{attr.code}}-{{localeValue.locale}}">
 
-																		<p class="warning-text" ng-if="localeValue.value !== preGeoObject.properties[attr.code].localeValues[$index].value">
+																		<p class="warning-text" ng-if="preGeoObject.properties[attr.code].localeValues[$index].value && localeValue.value !== preGeoObject.properties[attr.code].localeValues[$index].value">
 																			<gdb:localize key="change.request.changed.value.prefix"></gdb:localize>
 																			{{preGeoObject.properties[attr.code].localeValues[$index].value}}
 																		</p>
