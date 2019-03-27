@@ -90,15 +90,15 @@
                                             <div *ngIf="attr.type === 'term'">
                                                 <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float:none;"
                                                     (change)="onSelectPropertyOption($event)" [(ngModel)]="postGeoObject.properties[attr.code]">
-                                                    <!-- <option [disabled]="true" [selected]="!modifiedTermOption">
-                                                        <localize key="dropdown.select.geoobjecttype.option.label"></localize>
-                                                    </option> -->
                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
-                                                </select>  
+                                                </select>
 
-                                                <!-- <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
-                                                        <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
-                                                    </p> -->
+                                                <!-- 
+                                                <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
+                                                -->
+                                                <p class="warning-text" *ngIf="isStatusChanged(postGeoObject.properties[attr.code], preGeoObject.properties[attr.code])">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                </p>
                                             </div>
 
                                         </li>

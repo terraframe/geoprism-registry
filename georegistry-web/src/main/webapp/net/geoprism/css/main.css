@@ -435,14 +435,23 @@ i {
 	color:#8c0000;
 }
 
-.status-rejected {
-    color: red;
+select.status-rejected {
+  color: red;
 }
-.status-pending {
-    color: orange;
+select.status-rejected option {
+  color: #333;
 }
-.status-accepted {
-    color: green;
+select.status-pending {
+  color: orange;
+}
+select.status-pending option {
+  color: #333;
+}
+select.status-accepted {
+  color: green;
+}
+select.status-accepted option {
+  color: #333;
 }
 
 

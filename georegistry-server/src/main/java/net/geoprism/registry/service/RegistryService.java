@@ -45,9 +45,11 @@ import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
+import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.conversion.TermBuilder;
@@ -756,7 +758,7 @@ public class RegistryService
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
       // If we get here then it was successfully deleted
-      adapter.getMetadataCache().removeGeoObjectType(code);
+      this.refreshMetadataCache(); // We have to do a full metadata cache refresh because the GeoObjectType is embedded in the HierarchyType
     }
     catch (RuntimeException e)
     {
@@ -771,6 +773,24 @@ public class RegistryService
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
   {
     Universal uni = Universal.getByKey(code);
+    
+    String[] hierarchies = TermUtil.getAllParentRelationships(uni.getOid());
+    for (String hierarchy : hierarchies)
+    {
+      OIterator<com.runwaysdk.business.ontology.Term> it = uni.getDirectDescendants(hierarchy);
+      
+      try
+      {
+        if (it.hasNext())
+        {
+          throw new CannotDeleteGeoObjectTypeWithChildren("Cannot delete a GeoObjectType with children");
+        }
+      }
+      finally
+      {
+        it.close();
+      }
+    }
 
     MdBusiness mdBusiness = uni.getMdBusiness();
 
@@ -780,7 +800,7 @@ public class RegistryService
     AttributeHierarchy.deleteByUniversal(uni);
 
     // This deletes the {@link MdBusiness} as well
-    uni.delete();
+    uni.delete(false);
 
     // Delete the term root
     Classifier classRootTerm = TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);

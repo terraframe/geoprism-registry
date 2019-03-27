@@ -103,7 +103,13 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
           var date = this.datePipe.transform(this.preGeoObject.properties[attr.code], 'yyyy-MM-dd');
         
           this.preGeoObject.properties[attr.code] = date;
-          this.postGeoObject.properties[attr.code] = date;
+          
+          if (this.postGeoObject.properties[attr.code] != null)
+          {
+            var postDate = this.datePipe.transform(this.postGeoObject.properties[attr.code], 'yyyy-MM-dd');
+          
+            this.postGeoObject.properties[attr.code] = postDate;
+          }
         }
         // Sometimes booleans come back from the server as "false" instead of an actual boolean
         else if (attr.type === "boolean" && this.preGeoObject.properties[attr.code] !== null)
@@ -112,7 +118,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
           var bool = (val === "true") || (val === true);
         
           this.preGeoObject.properties[attr.code] = bool;
-          this.postGeoObject.properties[attr.code] = bool;
+          
+          if (this.postGeoObject.properties[attr.code] != null)
+          {
+            var postVal = this.postGeoObject.properties[attr.code];
+            var postBool = (postVal === "true") || (postVal === true);
+          
+            this.postGeoObject.properties[attr.code] = postBool;
+          }
         }
       }
       
@@ -139,6 +152,27 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         return null;
+    }
+    
+    isStatusChanged(post, pre) {
+      if (pre.length == 0 || post.length == 0)
+      {
+        return false;
+      }
+      
+      var preCompare = pre;
+      if (Array.isArray(pre))
+      {
+        preCompare = pre[0];
+      }
+      
+      var postCompare = post;
+      if (Array.isArray(post))
+      {
+        postCompare = post[0];
+      }
+      
+      return preCompare !== postCompare;
     }
 
     getTypeDefinition(key: string): string {

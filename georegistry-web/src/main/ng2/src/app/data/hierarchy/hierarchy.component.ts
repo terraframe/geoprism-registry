@@ -79,32 +79,37 @@ export class HierarchyComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.registryService.init().then( response => {
-            this.localizeService.setLocales( response.locales );
-
-            this.geoObjectTypes = response.types;
-
-            this.geoObjectTypes.sort(( a, b ) => {
-                if ( a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase() ) return -1;
-                else if ( a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase() ) return 1;
-                else return 0;
-            } );
-
-            let pos = this.getGeoObjectTypePosition( "ROOT" );
-            if ( pos ) {
-                this.geoObjectTypes.splice( pos, 1 );
-            }
-
-            this.setHierarchies( response.hierarchies );
-
-            this.setNodesOnInit();
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
-        } );
+      this.refreshAll(null);
     }
 
     ngAfterViewInit() {
 
+    }
+    
+    public refreshAll(desiredHierarchy)
+    {
+      this.registryService.init().then( response => {
+          this.localizeService.setLocales( response.locales );
+
+          this.geoObjectTypes = response.types;
+
+          this.geoObjectTypes.sort(( a, b ) => {
+              if ( a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase() ) return -1;
+              else if ( a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase() ) return 1;
+              else return 0;
+          } );
+
+          let pos = this.getGeoObjectTypePosition( "ROOT" );
+          if ( pos ) {
+              this.geoObjectTypes.splice( pos, 1 );
+          }
+
+          this.setHierarchies( response.hierarchies );
+
+          this.setNodesOnInit(desiredHierarchy);
+      } ).catch(( err: Response ) => {
+          this.error( err.json() );
+      } );
     }
 
     public excludeHierarchyTypeDeletes( hierarchy: HierarchyType ) {
@@ -115,11 +120,12 @@ export class HierarchyComponent implements OnInit {
         return ( this.geoObjectTypeDeleteExclusions.indexOf( geoObjectType.code ) !== -1 );
     }
 
-    private setNodesOnInit(): void {
+    private setNodesOnInit(desiredHierarchy): void {
         for ( let i = 0; i < this.hierarchies.length; i++ ) {
             let hierarchy = this.hierarchies[i];
             if ( hierarchy.rootGeoObjectTypes.length > 0 ) {
                 this.nodes = hierarchy.rootGeoObjectTypes;
+                
                 this.currentHierarchy = hierarchy;
                 break;
             }
@@ -388,7 +394,7 @@ export class HierarchyComponent implements OnInit {
 
     public removeGeoObjectType( code: string ): void {
         this.registryService.deleteGeoObjectType( code ).then( response => {
-
+            
             let pos = this.getGeoObjectTypePosition( code );
             this.geoObjectTypes.splice( pos, 1 );
 
@@ -401,7 +407,11 @@ export class HierarchyComponent implements OnInit {
             //              parent.data.hasChildren = false;
             //          }
             //
-            //          this.tree.treeModel.update();
+            //        this.tree.treeModel.update();
+            //this.setNodesOnInit();
+            
+            this.refreshAll(null);
+            
         } ).catch(( err: Response ) => {
             this.error( err.json() );
         } );
