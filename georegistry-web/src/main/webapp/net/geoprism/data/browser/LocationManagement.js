@@ -776,6 +776,10 @@
       }
     }
     
+    controller.isMaintainer = function() {
+      return $rootScope.role.isMaintainer;
+    }
+    
     controller.apply = function() {
       var connection = {
         elementId : '#innerFrameHtml',

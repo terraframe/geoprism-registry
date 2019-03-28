@@ -187,7 +187,7 @@
 								<div class="holder">
 									<div class="button-holder">
 										<input type="button" value="<gdb:localize key="dataset.cancel"/>" class="btn btn-default" ng-click="ctrl.cancel()" /> <input type="button"
-											value="<gdb:localize key="dataset.submit"/>" class="btn btn-primary" ng-click="ctrl.apply()" ng-disabled="ctrl.form.$invalid || ctrl.isParentsInvalid()" />
+											value="<gdb:localize key="dataset.submit"/>" class="btn btn-primary" ng-click="ctrl.apply()" ng-disabled="ctrl.form.$invalid || ctrl.isParentsInvalid() || !ctrl.isMaintainer()" />
 									</div>
 								</div>
 							</div>

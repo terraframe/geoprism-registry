@@ -43,10 +43,10 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.conversion.ComponentDTOIFToBasicJSON;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.WritePermissionExceptionDTO;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityDTO;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ExcludeConfiguration;
@@ -177,7 +177,15 @@ public class RegistryLocationController
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
   {
-    GeoEntityDTO entity = GeoEntityDTO.lock(request, entityId);
+    GeoEntityDTO entity;
+    try
+    {
+      entity = GeoEntityDTO.lock(request, entityId);
+    }
+    catch (WritePermissionExceptionDTO e)
+    {
+      entity = GeoEntityDTO.get(request, entityId);
+    }
 
     ComponentDTOIFToBasicJSON componentDTOToJSON = ComponentDTOIFToBasicJSON.getConverter(entity, new ExcludeConfiguration(GeoEntityDTO.class, GeoEntityDTO.WKT));
     JSONObject joGeoEnt = componentDTOToJSON.populate();
