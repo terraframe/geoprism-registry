@@ -31,10 +31,10 @@
 						<form class="modal-form" name="ctrl.form">
 							<div class="heading">
 								<h1 ng-show="!entity.oid">
-									<gdb:localize key="location.management.newTooltip"></gdb:localize>
+									<gdb:localize key="location.management.newTooltip"></gdb:localize> {{geoObjectType.label.localizedValue}}
 								</h1>
 								<h1 ng-show="entity.oid">
-									<gdb:localize key="location.management.editTooltip"></gdb:localize>
+									<gdb:localize key="location.management.editTooltip"></gdb:localize> {{geoObjectType.label.localizedValue}}
 								</h1>
 							</div>
 							<div ng-if="parentTreeNode" class="row-holder">
