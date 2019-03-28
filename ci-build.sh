@@ -71,6 +71,7 @@ ln -s $WORKSPACE/geoprism-cloud/ansible/georegistry.yml ./georegistry.yml
 sudo chmod 400 ../permissions/geoprism-dev.pem
 sudo chmod 400 ../permissions/geoprism-staging.pem
 sudo chmod 400 ../permissions/georegistry-singapore.pem
+sudo chmod 400 ../permissions/RichardsMacbook.pem
 pip install boto
 
 ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini
