@@ -755,6 +755,7 @@ public class MasterList extends MasterListBase
   {
     DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
     NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     JsonArray results = new JsonArray();
 
@@ -770,6 +771,14 @@ public class MasterList extends MasterListBase
       if (mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + "DefaultLocale") != null)
       {
         query.OR(query.aCharacter(DefaultAttribute.DISPLAY_LABEL.getName() + "DefaultLocale").LIKEi("%" + filter + "%"));
+      }
+
+      for (Locale locale : locales)
+      {
+        if (mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString()) != null)
+        {
+          query.OR(query.aCharacter(DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString()).LIKEi("%" + filter + "%"));
+        }
       }
     }
 

@@ -381,7 +381,7 @@ export class RegistryService {
                 return response.json() as MasterList;
             } )
     }
-    
+
     /*
      * Not really part of the RegistryService
      */
@@ -404,23 +404,28 @@ export class RegistryService {
     }
 
     data( oid: string, pageNumber: number, pageSize: number, filter: string ): Promise<any> {
-        let params: URLSearchParams = new URLSearchParams();
-        params.set( 'oid', oid );
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        let params = {
+            oid: oid
+        } as any;
 
         if ( pageNumber != null ) {
-            params.set( 'pageNumber', pageNumber.toString() );
+            params.pageNumber = pageNumber;
         }
 
         if ( pageSize != null ) {
-            params.set( 'pageSize', pageSize.toString() );
+            params.pageSize = pageSize;
         }
 
         if ( filter != null ) {
-            params.set( 'filter', filter );
+            params.filter = filter;
         }
 
         return this.http
-            .get( acp + '/master-list/data', { params: params } )
+            .post( acp + '/master-list/data', JSON.stringify( params ), { headers: headers } )
             .toPromise()
             .then( response => {
                 return response.json() as any;
