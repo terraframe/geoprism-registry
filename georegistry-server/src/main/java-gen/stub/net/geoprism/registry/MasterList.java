@@ -766,6 +766,11 @@ public class MasterList extends MasterListBase
     if (filter != null && filter.length() > 0)
     {
       query.WHERE(query.aCharacter(DefaultAttribute.CODE.getName()).LIKEi("%" + filter + "%"));
+
+      if (mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + "DefaultLocale") != null)
+      {
+        query.OR(query.aCharacter(DefaultAttribute.DISPLAY_LABEL.getName() + "DefaultLocale").LIKEi("%" + filter + "%"));
+      }
     }
 
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
