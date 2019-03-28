@@ -62,6 +62,12 @@
         value: data.hierarchy,
         options: data.hierarchies
       };
+      
+      $rootScope.role = {};
+      $rootScope.role.roles = data.roles;
+      $rootScope.role.isAdmin = this.isAdmin();
+      $rootScope.role.isMaintainer = this.isMaintainer();
+      $rootScope.role.isContributer = this.isContributer();
 
       var config = {
         oid: data.entity.oid,
@@ -79,11 +85,26 @@
         {
           name: 'target-multipolygon',
           config: config,
-          bbox: data.bbox
+          bbox: data.bbox,
+          role: $rootScope.role
         }
       ];
 
       $scope.$broadcast('sharedGeoData', layers);
+      
+      $scope.$broadcast('roleUpdate', $rootScope.role);
+    }
+    
+    controller.isAdmin = function() {
+        return $rootScope.role.roles.indexOf( "geoprism.admin.Administrator" ) !== -1 || $rootScope.role.roles.indexOf( "commongeoregistry.RegistryAdministrator" ) !== -1;
+    }
+
+    controller.isMaintainer = function() {
+        return $rootScope.role.roles.indexOf( "commongeoregistry.RegistryMaintainer" ) !== -1 || this.isAdmin();
+    }
+    
+    controller.isContributer = function() {
+        return $rootScope.role.roles.indexOf( "commongeoregistry.RegistryContributor" ) !== -1 || this.isMaintainer();
     }
 
     controller.select = function(entity, event) {
@@ -239,7 +260,7 @@
 
     controller.editGeometry = function(entity) {
       $scope.$broadcast('editLocation', {
-        id: entity.oid
+        id: entity.oid,
       });
     }
 
