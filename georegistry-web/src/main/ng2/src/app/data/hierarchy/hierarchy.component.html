@@ -26,10 +26,12 @@
       </div>
       
       <div class="col-md-4">
-        <h3> <localize key="hierarchy.current.management.panel.title"></localize> {{currentHierarchy.label.localizedValue}}</h3>
-<!--         <h3> Manage </h3> -->
+        <h3> 
+            <localize key="hierarchy.current.management.panel.title"></localize> 
+            <span *ngIf="currentHierarchy">{{currentHierarchy.label.localizedValue}}</span>
+        </h3>
         <hr>
-        <div *ngIf="currentHierarchy && nodes.length > 0" class="tree">
+        <div *ngIf="nodes.length > 0" class="tree">
           <tree-root [nodes]="nodes" [options]="options"></tree-root>
         </div>
         <div *ngIf="currentHierarchy && nodes.length === 0">
