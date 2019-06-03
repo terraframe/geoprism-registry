@@ -3,8 +3,8 @@ package net.geoprism.registry.service;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
@@ -25,7 +25,9 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -381,7 +383,16 @@ public class RegistryService
 
     for (int i = 0; i < codes.length; ++i)
     {
-      gots[i] = adapter.getMetadataCache().getGeoObjectType(codes[i]).get();
+      Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(codes[i]);
+
+      if (optional.isPresent())
+      {
+        gots[i] = optional.get();
+      }
+      else
+      {
+        throw new DataNotFoundException("Unable to find Geo Object Type with code [" + codes[i] + "]", MdBusinessDAO.getMdBusinessDAO(Universal.CLASS));
+      }
     }
 
     return gots;
@@ -758,7 +769,9 @@ public class RegistryService
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
       // If we get here then it was successfully deleted
-      this.refreshMetadataCache(); // We have to do a full metadata cache refresh because the GeoObjectType is embedded in the HierarchyType
+      this.refreshMetadataCache(); // We have to do a full metadata cache
+                                   // refresh because the GeoObjectType is
+                                   // embedded in the HierarchyType
     }
     catch (RuntimeException e)
     {
@@ -773,12 +786,12 @@ public class RegistryService
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
   {
     Universal uni = Universal.getByKey(code);
-    
+
     String[] hierarchies = TermUtil.getAllParentRelationships(uni.getOid());
     for (String hierarchy : hierarchies)
     {
       OIterator<com.runwaysdk.business.ontology.Term> it = uni.getDirectDescendants(hierarchy);
-      
+
       try
       {
         if (it.hasNext())
