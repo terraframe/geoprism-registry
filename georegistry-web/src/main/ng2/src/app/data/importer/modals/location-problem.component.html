@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" style="padding-bottom: 10px;">
   <form #problemForm="ngForm">
     <div class="col-sm-4">
       <ol *ngIf="problem.context.length > 0">
@@ -11,13 +11,13 @@
         <input [name]="index + '-name'" [(ngModel)]="entityLabel" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="name" class="form-control">
       </div>
       <div class="col-sm-2">
-        <i [ngClass]="{disabled: !hasSynonym}" class="fa fa-2x fa-compress" (click)="createSynonym()" [title]="'dataUploader.createSynonymFromLocationTooltip' | localize"></i>
-        <i class="fa fa-2x fa-times-circle" (click)="ignoreDataAtLocation()" [title]="'dataUploader.ignoreAtLocationTooltip' | localize"></i>
+        <i [ngClass]="{disabled: !hasSynonym}" class="fa fa-2x fa-compress clickable" (click)="createSynonym()" [title]="'dataUploader.createSynonymFromLocationTooltip' | localize"></i>
+        <i class="fa fa-2x fa-times-circle clickable" (click)="ignoreDataAtLocation()" [title]="'dataUploader.ignoreAtLocationTooltip' | localize"></i>
       </div>
     </div>
     <div *ngIf="problem.resolved">
       <div class="col-sm-4" *ngIf="problem.action.name == 'SYNONYM'">
-        <a (click)="toggle()"> <i class="fa fa-caret-right" aria-hidden="true"></i> <i class="fa fa-caret-down" style="display: none;" aria-hidden="true"></i> <localize key="dataUploader.resolvedSynonym"></localize> [{{problem.action.label}}]
+        <a (click)="toggle()"> <i class="fa fa-caret-right clickable" aria-hidden="true"></i> <i class="fa fa-caret-down" style="display: none;" aria-hidden="true"></i> <localize key="dataUploader.resolvedSynonym"></localize> [{{problem.action.label}}]
         </a>
         <span *ngIf="show">
           <ul>
@@ -31,7 +31,7 @@
         [{{problem.action.label}}]
       </div>
       <div class="col-sm-2">
-        <i class="fa fa-2x fa-undo" (click)="undoAction()" [title]="'dataUploader.undoFixedLocationTooltip' | localize"></i>
+        <i class="fa fa-2x fa-undo clickable" (click)="undoAction()" [title]="'dataUploader.undoFixedLocationTooltip' | localize"></i>
       </div>
     </div>
   </form>

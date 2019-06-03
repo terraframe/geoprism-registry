@@ -1,0 +1,13 @@
+<div class="row-holder" *ngFor="let localeValue of value.localeValues">
+  <div class="label-holder">
+    <label>
+      <localize [key]="key"></localize>
+      ({{localeValue.locale}})
+    </label>
+  </div>
+  <div class="holder">
+    <span class="text">
+      <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+    </span>
+  </div>
+</div>

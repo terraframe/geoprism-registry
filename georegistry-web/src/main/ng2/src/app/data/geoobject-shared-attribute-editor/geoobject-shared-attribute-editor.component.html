@@ -1,0 +1,113 @@
+<form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
+    <fieldset>
+        <!-- <div class="col-md-12"> -->
+            <div *ngIf="preGeoObject">
+                <div class="row-holder"> 
+                    <div class="label-holder">
+                        <label>
+                            <localize key="change.request.geoobject.update.form.label"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <span class="text"></span>
+                            <div class="panel" style="box-shadow: none;">
+                                <div class="panel-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
+                                            <h5>{{attr.label.localizedValue}}</h5>
+
+
+                                            <div *ngIf="attr.type === 'character'">
+                                                <input *ngIf="postGeoObject" type="text"
+                                                    [(ngModel)]="postGeoObject.properties[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}"
+                                                    [disabled]="attr.code === 'code'"> 
+
+                                                    <p class="warning-text" *ngIf="this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code] !== this.preGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{this.preGeoObject.properties[attr.code]}}
+                                                    </p>
+                                            </div>
+                                            
+                                            <div *ngIf="attr.type === 'local'">
+                                              <ul class="list-group">
+                                                <li class="list-group-item" *ngFor="let localeValue of postGeoObject.properties[attr.code].localeValues; let i = index">
+                                                  <h5>{{localeValue.locale}}</h5>
+                                                  <input *ngIf="postGeoObject" type="text" [(ngModel)]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale"> 
+
+                                                  <p class="warning-text" *ngIf="localeValue.value !== preGeoObject.properties[attr.code].localeValues[i].value">
+                                                    <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code].localeValues[i].value}}
+                                                  </p>
+                                                </li>
+                                              </ul>                                            
+                                            </div>
+
+                                            <div *ngIf="attr.type === 'date'">
+                                                <input type="date" [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                     id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
+                                                    
+                                                <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code] | date}}
+                                                    </p>
+                                            </div>
+
+                                            <div *ngIf="attr.type === 'boolean'">
+                                                <label>
+                                                    <input type="radio" [checked]="this.postGeoObject.properties[attr.code] === true"
+                                                        [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                        [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true">
+                                                    <localize key="change.request.boolean.option.true"></localize>
+                                                </label>
+
+                                                <label>
+                                                    <input type="radio" [checked]="this.postGeoObject.properties[attr.code] === false"
+                                                        [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                        [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false">
+                                                    <localize key="change.request.boolean.option.false"></localize>
+                                                </label>
+                                                
+                                                <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] !== undefined && preGeoObject.properties[attr.code] !== postGeoObject.properties[attr.code]">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                </p>
+                                            </div>
+
+                                            <div *ngIf="attr.type === 'float'">
+                                                <input type="number" [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                    id="mod-{{attr.code}}" name="mod-{{attr.code}}">
+
+                                                <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                    </p>
+                                            </div>
+
+                                            <div *ngIf="attr.type === 'integer'">
+                                                <input type="number" [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                    id="mod-{{attr.code}}" name="mod-{{attr.code}}">
+
+                                                <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                </p>
+                                            </div>
+
+                                            <div *ngIf="attr.type === 'term'">
+                                                <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float:none;"
+                                                    (change)="onSelectPropertyOption($event)" [(ngModel)]="postGeoObject.properties[attr.code]">
+                                                    <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
+                                                </select>
+
+                                                <!-- 
+                                                <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
+                                                -->
+                                                <p class="warning-text" *ngIf="isStatusChanged(postGeoObject.properties[attr.code], preGeoObject.properties[attr.code])">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                </p>
+                                            </div>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                    </div>
+                 </div>
+           </div>
+        <!-- </div> -->
+    </fieldset>
+</form>

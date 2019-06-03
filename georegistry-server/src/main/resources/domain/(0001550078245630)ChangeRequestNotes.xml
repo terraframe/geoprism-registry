@@ -2,7 +2,7 @@
   <doIt>
     <create></create>
     <update>
-      <mdBusiness name="net.geoprism.georegistry.action.ChangeRequest">
+      <mdBusiness name="net.geoprism.registry.action.ChangeRequest">
         <create>
 	        <attributes>
 	          <text name="contributorNotes" label="Contributor Notes" required="false" />
@@ -11,7 +11,7 @@
         </create>
       </mdBusiness>
       
-      <mdBusiness name="net.geoprism.georegistry.action.AbstractAction">
+      <mdBusiness name="net.geoprism.registry.action.AbstractAction">
         <create>
           <attributes>
             <text name="contributorNotes" label="Contributor Notes" required="false" />

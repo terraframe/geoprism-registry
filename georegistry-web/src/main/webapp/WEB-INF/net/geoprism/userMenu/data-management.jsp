@@ -74,18 +74,18 @@
     <!-- HEADER AND NAVBAR -->
     <header>
       <nav class="navbar navbar-default">
-        <div class="container">
+        <div class="container-fluid">
           <div class="navbar-header">
             <a class="navbar-brand" href="${pageContext.request.contextPath}/prism/management#/menu" title="<gdb:localize key="userMenu.menuTooltip"/>"><img src="${pageContext.request.contextPath}/logo/view?id=logo" /></a>
-            <a class="navbar-brand" href="${pageContext.request.contextPath}/prism/home#/menu"><gdb:localize key="cgr.title"/></a>
+<%--             <a class="navbar-brand" href="${pageContext.request.contextPath}/prism/home#/menu"><gdb:localize key="cgr.title"/></a> --%>
 <%-- 			<h3 class="navbar-brand"><gdb:localize key="data.management.title"/></h3> --%>
           </div>
 
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
-            	<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><gdb:localize key="Location_Configurations"/><span class="caret"></span></a>
+            	<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-menu-hamburger"></span></a>
             	<ul class="dropdown-menu">
-            		<li><a href="#locations"><i></i><gdb:localize key="Location_Management"/></a></li>
+            		<li><a class="dropdown-item" href="#locations"><i></i><gdb:localize key="Location_Management"/></a></li>
             	</ul>
             </li>
 

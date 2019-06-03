@@ -1,0 +1,103 @@
+<div class="new-admin-design-main">
+  <master-list-header></master-list-header>
+  <loading-bar></loading-bar>
+  <progress-bar></progress-bar>
+
+  <div id="app-container" class="container">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="py-5 text-center">
+      <h2>
+        <localize key="masterlist.title"></localize>
+      </h2>
+    </div>
+    <div *ngIf="list != null">
+      <div class="row form-group">
+        <!-- <div class="col-sm-1">
+          <label>
+            <localize key="masterlist.field"></localize>
+          </label>
+        </div> -->
+        <div class="col-md-8">
+            <h4 *ngIf="isMaintainer">
+                <localize key="masterlist.field"></localize> : <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> {{list.displayLabel.localizedValue}}</a> </b>
+            </h4>
+
+            <h4>
+                <localize key="masterlist.publishDate"></localize> : {{list.publishDate}}
+            </h4>
+        </div>
+        <!-- <div class="col-md-4"> -->
+          <!-- <div class="button-holder"> -->
+            <!-- <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize></a> -->
+            <!-- <button class="btn btn-primary" (click)="onView($event)"><localize key="masterlist.view"></localize></button> -->
+          <!-- </div> -->
+        <!-- </div> -->
+        <div class="col-md-4" style="text-align: right;">
+            <!-- <h4>Master List Controls</h4> -->
+            <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                <localize key="io.export"></localize>
+            </button>
+            <button *ngIf="isMaintainer" type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
+                <localize key="masterlist.publish"></localize>
+            </button>
+        </div>
+      </div>
+
+
+      <div class="row form-group">
+        <!-- <div class="col-sm-1">
+          <label>
+            <localize key="masterlist.search"></localize>
+          </label>
+        </div> -->
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+          <div class="input-group">
+            <div class="submit-form">
+                <input [(ngModel)]="current" name="current" type="text" class="form-control search-input" placeholder="{{searchPlaceholder}}..." />
+            </div>
+            <span class="input-group-btn">
+              <button class="btn btn-default search-input-button" type="submit" (click)="onSearch()">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+        <!-- <div class="col-md-2"></div> -->
+      </div>
+
+      <div class="row form-group">
+        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+      </div>
+      <div class="row form-group">
+        <div class="col-md-12" style="overflow-x:auto;">
+            <table class="list-table table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th *ngIf="!list.leaf" style="width:3%" class="label-column">
+                            <localize key="masterlist.view.column"></localize>
+                        </th>
+                        <th style="width:3%" class="label-column">
+                            <localize key="masterlist.edit.column"></localize>
+                        </th>
+                        <th *ngFor="let attribute of list.attributes" class="label-column">{{attribute.label}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }"
+                        class="fade-ngRepeat-item">
+                        <td *ngIf="!list.leaf" style="width:3%" class="label-column"><a class="fa fa-arrow-up" (click)="onGoto(result)"></a></td>
+                        <td style="width:3%" class="label-column"><a class="fa fa-pencil ico-edit" (click)="onEdit(result)"></a></td>
+                        <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+      </div>
+      <div class="row form-group">
+        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>

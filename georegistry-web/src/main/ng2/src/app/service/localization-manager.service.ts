@@ -20,8 +20,6 @@
 import { Injectable } from '@angular/core';
 import { Headers, Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
-import { Observable } from 'rxjs/Observable';
 
 import { EventService } from '../event/event.service';
 
@@ -32,29 +30,31 @@ declare var acp: any;
 @Injectable()
 export class LocalizationManagerService {
 
+
     constructor( private http: Http, private eventService: EventService ) { }
 
-    getNewLocaleInfo( ): Promise<AllLocaleInfo> {
+
+    getNewLocaleInfo(): Promise<AllLocaleInfo> {
         return this.http
-          .get( acp + '/localization/getNewLocaleInformation' )
-          .toPromise()
-          .then( response => {
-              return response.json() as AllLocaleInfo;
-          } )
+            .get( acp + '/localization/getNewLocaleInformation' )
+            .toPromise()
+            .then( response => {
+                return response.json() as AllLocaleInfo;
+            } )
     }
-    
+
     installLocale( language: string, country: string, variant: string ): Promise<Response> {
         let params: URLSearchParams = new URLSearchParams();
         params.set( 'language', language );
         params.set( 'country', country );
         params.set( 'variant', variant );
-    
+
         return this.http
-          .get( acp + '/localization/installLocale', {params: params} )
-          .toPromise()
-          .then( response => {
-              return response;
-          } )
+            .get( acp + '/localization/installLocale', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response;
+            } )
     }
-    
+
 }

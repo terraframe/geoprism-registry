@@ -1,0 +1,18 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren" 
+                   label="Cannot delete GeoObjectType with children" 
+                   description="Cannot delete GeoObjectType with children" 
+                   message="You cannot delete GeoObjectType which has children. You must first delete the children.">
+      </mdException>
+    </create>
+    <update>
+      <mdRelationship name="com.runwaysdk.system.gis.geo.AllowedIn" label="Administrative Divisions"></mdRelationship>
+      <mdRelationship name="com.runwaysdk.system.gis.geo.LocatedIn" label="Administrative Divisions"></mdRelationship>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -1,60 +1,70 @@
 <div class="new-admin-design-main">
-  <cgr-header></cgr-header>
-  <loading-bar></loading-bar>
+    <import-export-header></import-export-header>
+    <loading-bar></loading-bar>
 
-  <div id="app-container" class="container">
-    <div class="py-5 text-center">
-      <h2>
-        <localize key="io.export.title"></localize>
-      </h2>
-      <p class="lead">
-        <localize key="io.export.description"></localize>
-      </p>
+    <div id="app-container" class="container">
+        <div class="heading text-center">
+            <h2>
+                <localize key="io.export.title"></localize>
+            </h2>
+            <p class="lead">
+                <localize key="io.export.description"></localize>
+            </p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8" *ngIf="types">
+                <form #form="ngForm">
+                    <div class="form-group row">
+                        <label class="col-md-3 text-right" for="code">
+                            <localize key="io.geoObjectType"></localize>
+                        </label>
+                        <div class="col-md-9">
+                            <select id="code" name="code" class="select-area" [(ngModel)]="code" (change)="onChange($event.target.value)"
+                                required>
+                                <option></option>
+                                <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="hierarchies.length > 0">
+                        <label class="col-sm-3 text-right">
+                            <localize key="io.modal.hierarchy"></localize>
+                        </label>
+                        <div class="col-md-9">
+                            <select name="hierarchy" class="select-area" [(ngModel)]="hierarchy" required>
+                                <option></option>
+                                <option *ngFor="let hierarchy of hierarchies" [value]="hierarchy.code">{{hierarchy.label}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3 text-right" for="format">
+                            <localize key="io.format"></localize>
+                        </label>
+                        <div class="col-md-9">
+                            <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
+                                <option></option>
+                                <option value="EXCEL">
+                                    <localize key="io.spreadsheet"></localize>
+                                </option>
+                                <option value="SHAPEFILE">
+                                    <localize key="io.shapefile"></localize>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12 text-right">
+                            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onExport()">
+                                <localize key="io.export"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
     </div>
-    <div class="col-md-8 order-md-1 text-center" *ngIf="types">
-      <form #form="ngForm">
-        <div class="form-group row">
-          <label class="col-md-2" for="code">
-            <localize key="io.geoObjectType"></localize>
-          </label>
-          <div class="col-md-6">
-            <select id="code" name="code" class="select-area" [(ngModel)]="code" (change)="onChange($event.target.value)" required>
-              <option></option>
-              <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group row" *ngIf="hierarchies.length > 0">
-          <label class="col-sm-2">
-            <localize key="io.modal.hierarchy"></localize>
-          </label>
-          <div class="col-md-6">
-            <select name="hierarchy" class="select-area" [(ngModel)]="hierarchy" required>
-              <option></option>
-              <option *ngFor="let hierarchy of hierarchies" [value]="hierarchy.code">{{hierarchy.label}}</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-md-2" for="format">
-            <localize key="io.format"></localize>
-          </label>
-          <div class="col-md-6">
-            <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
-              <option></option>
-              <option value="EXCEL"><localize key="io.spreadsheet"></localize></option>
-              <option value="SHAPEFILE"><localize key="io.shapefile"></localize></option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-md-8 text-right">
-            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onExport()">
-              <localize key="io.export"></localize>
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>

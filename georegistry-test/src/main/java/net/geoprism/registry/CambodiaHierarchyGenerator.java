@@ -8,7 +8,7 @@ import net.geoprism.data.LocationImporter;
 import net.geoprism.data.XMLEndpoint;
 import net.geoprism.data.XMLLocationImporter;
 import net.geoprism.data.aws.AmazonEndpoint;
-import net.geoprism.georegistry.io.HierarchyExporter;
+import net.geoprism.registry.io.HierarchyExporter;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 

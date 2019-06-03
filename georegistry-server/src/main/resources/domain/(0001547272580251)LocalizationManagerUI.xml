@@ -1,6 +1,6 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-    <create>
+    <createOrUpdate>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy-management.menu">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="hierarchy-management.menu" />
@@ -37,7 +37,7 @@
           <attribute name="defaultLocale" value="Import Localization" />
         </attributeStruct>
       </object>
-    </create>
+    </createOrUpdate>
     <update></update>
   </doIt>
   <undoIt>

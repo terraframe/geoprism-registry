@@ -1,32 +1,63 @@
-<div class="row text-center">
-  <cgr-header></cgr-header>
-  <loading-bar></loading-bar>
-  
-  <h2><localize key="localization-manager.title"></localize></h2>
-  
-  <label><a href="https://terraframe.atlassian.net/wiki/spaces/GGR/pages/816021527/Localization"><localize key="localization-manager.viewDoc1"></localize></a><localize key="localization-manager.viewDoc2"></localize></label>
-  
-  <div id="app-container" class="container">
-  
-    <div class="row" style="margin:25px;">
-      <div style="margin-bottom: 5px;">
-	      <button type="submit" class="btn btn-primary" (click)="exportLocalization()"><localize key="localization-manager.exportButton"></localize></button>
-	    </div>
-	    
-	    
+<div class="new-admin-design-main">
+    <!-- <div class="row"> -->
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+    <div id="app-container" class="container">
+        <h2>
+            <localize key="localization-manager.title"></localize>
+        </h2>
+
+        <label><a href="https://terraframe.atlassian.net/wiki/spaces/GGR/pages/816021527/Localization" target="_blank">
+                <localize key="localization-manager.viewDoc1"></localize>
+            </a>
+            <localize key="localization-manager.viewDoc2"></localize>
+        </label>
+
+        <div class="row" style="padding: 15px;">
+
+            <div class="col-md-4">
+                <div class="row">
+                    <h3>
+                        <localize key="localization-manager.importButton"></localize>
+                    </h3>
+                    <div>
+                        <!-- <button type="submit" class="btn btn-primary" (click)="importLocalization()"><localize key="localization-manager.importButton"></localize></button> -->
+                        <input class="ghost-input" type="file" (change)="importLocalization($event)" placeholder="<localize key='localization.manager.input.placeholder.uploadFile'></localize>"
+                            accept=".xlsx," required />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="row">
+                    <h3>
+                        <localize key="localization-manager.installLocale"></localize>
+                    </h3>
+                    <div class="btn-holder">
+                        <button type="submit" class="btn btn-primary" (click)="showNewLocaleModal()" >
+                            <localize key="localization-manager.installLocale"></localize>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+                <div class="row">
+                    <h3>
+                        <localize key="localization-manager.exportButton"></localize>
+                    </h3>
+                    <div class="btn-holder">
+                        <button type="submit" class="btn btn-primary" (click)="exportLocalization()">
+                            <localize key="localization-manager.exportButton"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-    
-    <div class="row" style="margin:25px;">
-      <div>
-        <!-- <button type="submit" class="btn btn-primary" (click)="importLocalization()"><localize key="localization-manager.importButton"></localize></button> -->
-        <label><localize key="localization-manager.importButton"></localize></label>
-        <input style="display: inline;" type="file" (change)="importLocalization($event)" placeholder="<localize key='localization.manager.input.placeholder.uploadFile'></localize>" accept=".xlsx,"/>
-      </div>
-    </div>
-    
-    <div class="row">
-      <button type="submit" class="btn btn-primary" (click)="showNewLocaleModal()"><localize key="localization-manager.installLocale"></localize></button>
-    </div>
-    
-  </div>
 </div>

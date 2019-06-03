@@ -1,0 +1,24 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="location.management.newTooltip">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="location.management.newTooltip" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add a new" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="location.management.editTooltip">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="location.management.editTooltip" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -1,6 +1,6 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-	  <create>
+	  <createOrUpdate>
 	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="splash.header">
 	      <attribute name="storeTag" value="UIText" />
 	      <attribute name="storeKey" value="splash.header" />
@@ -78,7 +78,7 @@
 	        <attribute name="defaultLocale" value="GeoRegistry" />
 	      </attributeStruct>
 	    </object>
-	  </create>
+	  </createOrUpdate>
   </doIt>
   <undoIt>
     <delete>

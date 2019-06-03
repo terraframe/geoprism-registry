@@ -4,6 +4,7 @@ import { Subject } from 'rxjs/Subject';
 
 import { HierarchyType } from '../hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
+import { LocalizationService } from '../../../core/service/localization.service';
 
 
 @Component( {
@@ -13,38 +14,57 @@ import { HierarchyService } from '../../../service/hierarchy.service';
 } )
 export class CreateHierarchyTypeModalComponent implements OnInit {
 
-    hierarchyType: HierarchyType = {"code":"","localizedLabel":"","localizedDescription":"","rootGeoObjectTypes":[]};
+    hierarchyType: HierarchyType;
 
     message: string = null;
+
+    edit: boolean = false;
 
     /*
      * Observable subject for TreeNode changes.  Called when create is successful 
      */
     public onHierarchytTypeCreate: Subject<HierarchyType>;
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
+    constructor( private lService: LocalizationService, private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
         this.onHierarchytTypeCreate = new Subject();
+
+        this.hierarchyType = {
+            "code": "",
+            "label": this.lService.create(),
+            "description": this.lService.create(),
+            "rootGeoObjectTypes": []
+        };
     }
 
     handleOnSubmit(): void {
         this.message = null;
-        
-        this.hierarchyService.createHierarchyType( JSON.stringify(this.hierarchyType) ).then( data => {
-        	this.onHierarchytTypeCreate.next( data );
-        	this.bsModalRef.hide();
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
-        } );
+
+        if ( this.edit ) {
+            this.hierarchyService.updateHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
+                this.onHierarchytTypeCreate.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: any ) => {
+                this.error( err.json() );
+            } );
+        }
+        else {
+            this.hierarchyService.createHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
+                this.onHierarchytTypeCreate.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: any ) => {
+                this.error( err.json() );
+            } );
+        }
     }
 
     error( err: any ): void {
         // Handle error
         if ( err !== null ) {
             this.message = ( err.localizedMessage || err.message );
-            
-            console.log(this.message);
+
+            console.log( this.message );
         }
     }
 

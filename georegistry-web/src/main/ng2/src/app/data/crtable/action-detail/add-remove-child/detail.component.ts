@@ -11,17 +11,19 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ErrorModalComponent } from '../../../../core/modals/error-modal.component';
 
+import { AbstractAction } from '../../crtable';
+
 declare var acp: any;
 
 @Component({
   
   selector: 'crtable-detail-add-remove-child',
   templateUrl: './detail.component.html',
-  styleUrls: ['../all-action-detail.css']
+  styleUrls: []
 })
 export class AddRemoveChildDetailComponent {
 
-  @Input() action: any;
+  @Input() action: AbstractAction;
   
   @Input() crtable: ActionTableComponent;
   
@@ -38,6 +40,11 @@ export class AddRemoveChildDetailComponent {
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
+  }
+  
+  onSelect(action: AbstractAction)
+  {
+    this.action = action;
   }
   
   unlockAction()

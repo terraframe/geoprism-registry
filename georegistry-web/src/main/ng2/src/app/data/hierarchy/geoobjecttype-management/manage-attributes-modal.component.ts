@@ -63,7 +63,7 @@ export class ManageAttributesModalComponent implements OnInit {
 		  backdrop: true,
 		  ignoreBackdropClick: true,
 	  } );
-	  this.confirmBsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + attr.localizedLabel + ']';
+	  this.confirmBsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + '[' + attr.label.localizedValue + ']';
       this.confirmBsModalRef.content.data = {'attributeType': attr, 'geoObjectType': this.geoObjectType};
       this.confirmBsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
       this.confirmBsModalRef.content.type = ModalTypes.danger;

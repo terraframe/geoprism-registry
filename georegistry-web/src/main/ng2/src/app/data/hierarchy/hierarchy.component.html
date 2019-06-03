@@ -1,5 +1,5 @@
 <div class="new-admin-design-main">
-  <cgr-header></cgr-header>
+  <hierarchy-header></hierarchy-header>
 
   <loading-bar></loading-bar>
   
@@ -14,7 +14,9 @@
         <hr>
         <ul class="list-group">
           <li class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
-            <i class="fa fa-sitemap"></i> {{hierarchy.localizedLabel}} <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
+            <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
+            <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy)"> </i>            
+            <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
           </li>
         </ul>
         
@@ -24,13 +26,15 @@
       </div>
       
       <div class="col-md-4">
-        <h3 *ngIf="currentHierarchy"> <localize key="hierarchy.current.management.panel.title"></localize> {{currentHierarchy.localizedLabel}}</h3>
-<!--         <h3> Manage </h3> -->
+        <h3> 
+            <localize key="hierarchy.current.management.panel.title"></localize> 
+            <span *ngIf="currentHierarchy">{{currentHierarchy.label.localizedValue}}</span>
+        </h3>
         <hr>
         <div *ngIf="nodes.length > 0" class="tree">
           <tree-root [nodes]="nodes" [options]="options"></tree-root>
         </div>
-        <div *ngIf="nodes.length === 0" class="tree">
+        <div *ngIf="currentHierarchy && nodes.length === 0">
           <div>
             <button type="submit" class="btn btn-primary" (click)="addChildAndRootToHierarchy()"><localize key="hierarchy.current.management.panel.button.add"></localize></button>
           </div>
@@ -43,9 +47,9 @@
         <ul class="list-group">
           <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
           <li class="list-group-item" *ngFor="let type of geoObjectTypes">
-            {{type.localizedLabel}} <i *ngIf="type.isLeaf === true" class="fa fa-leaf" aria-hidden="true"></i> 
-            <i class="fa fa-pencil pull-right" (click)="manageGeoObjectType(type)"> </i> 
-            <i class="fa fa-times delete-btn pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
+            {{type.label.localizedValue}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" style="font-size:15px;cursor:auto;margin-left:5px;" aria-hidden="true"></i> 
+            <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type)"> </i> 
+            <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
           </li>
         </ul>
         
@@ -76,7 +80,7 @@
 <!--       Edit {{item?.data.name}} -->
 <!--     </ng-template> -->
     <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>  {{item?.data.label}}
+      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>  {{item?.data.label.localizedValue}}
     </ng-template>
   </context-menu>
 

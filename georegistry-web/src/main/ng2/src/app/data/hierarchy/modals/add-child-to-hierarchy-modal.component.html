@@ -6,11 +6,11 @@
     
     <div class="form-group">
     
-      <select class="form-control" *ngIf="allGeoObjectTypes" (change)="onSelect($event.target.value)">
+      <select *ngIf="allGeoObjectTypes" (change)="onSelect($event.target.value)">
         <option disabled hidden [value]="selectUndefinedOptionValue">-- <localize key="hierarchy.management.create.child.option.label.selectType"></localize> --</option>
         <!-- to filter out all geoobjecttypes that are already in hierarchies use this pip in the iterator > | geoobjecttype:nodes -->
         <option *ngFor="let geoObjType of allGeoObjectTypes" value={{geoObjType.code}}>
-          {{geoObjType.localizedLabel}}
+          {{geoObjType.label.localizedValue}}
         </option>
       </select>
     

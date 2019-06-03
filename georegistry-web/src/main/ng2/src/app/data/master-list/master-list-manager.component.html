@@ -1,0 +1,70 @@
+<div class="new-admin-design-main">
+    <master-list-header></master-list-header>
+    <loading-bar></loading-bar>
+
+    <div id="app-container" class="container">
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="py-5 text-center">
+            <h2>
+                <localize key="masterlist.manager.title"></localize>
+            </h2>
+        </div>
+        <div class="col-md-12 order-md-1">
+            <div *ngIf="isMaintainer" class="row" style="margin-bottom:20px; margin-top:50px;">
+                <div class="button-holder">
+                    <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                        <span class="ui-button-text">
+                            <localize key="hierarchy.management.button.create"></localize>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <ul class="list-group">
+                    <!-- <li class="list-group-item" *ngFor="let list of lists">
+                        <a [routerLink]="'/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
+                        <p>{{list.createDate}}</p> 
+                        <p>{{list.lastUpdateDate}}</p>
+                        <i class="fa fa-pencil clickable pull-right" (click)="onEdit(list)"> </i> 
+                        <i class="fa fa-times delete-btn clickable pull-right" (click)="deleteMasterList(list)"></i>
+                    </li> -->
+
+                    <table class="table table-bordered"> 
+                        <thead> 
+                            <tr> 
+                                <th>#</th> 
+                                <th>
+                                    <localize key="master.list.table.link.header.label"></localize>
+                                </th> 
+                                <th>
+                                    <localize key="master.list.table.create.data.header.label"></localize>
+                                </th> 
+                                <!-- <th>
+                                    <localize key="master.list.table.last.update.data.header.label"></localize>
+                                </th>  -->
+                                <th style="width:10%;text-align:center;">
+                                    <localize key="master.list.table.actions.header.label"></localize>
+                                </th>
+                            </tr> 
+                        </thead> 
+                        <tbody> 
+                            <tr *ngFor="let list of lists; let i = index;"> 
+                                <th scope="row">{{i + 1}}</th> 
+                                <td>
+                                    <a [routerLink]="'/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
+                                </td> 
+                                <td>{{list.createDate}}</td> 
+                                <!-- <td>{{list.lastUpdateDate}}</td>  -->
+                                <td class="text-center">
+                                    <i class="fa fa-pencil clickable" (click)="onEdit(list)"> </i> 
+                                    <i class="fa fa-times delete-btn clickable" (click)="deleteMasterList(list)"></i>
+                                </td>
+                            </tr> 
+                        </tbody> 
+                    </table>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

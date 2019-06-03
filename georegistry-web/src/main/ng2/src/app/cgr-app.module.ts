@@ -10,6 +10,11 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+
 
 import './rxjs-extensions';
 
@@ -23,6 +28,8 @@ import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-
 import { SelectFieldComponent } from './core/form-fields/select-field/select-field.component';
 import { InputFieldComponent } from './core/form-fields/input-field/input-field.component';
 import { ValidationComponent } from './core/form-fields/base/validation.component';
+import { LocalizedInputComponent } from './core/form-fields/localized-input/localized-input.component';
+import { LocalizedTextComponent } from './core/form-fields/localized-text/localized-text.component';
 
 import { CgrAppComponent } from './cgr-app.component';
 import { HierarchyComponent } from './data/hierarchy/hierarchy.component';
@@ -50,17 +57,22 @@ import { EditTermOptionInputComponent } from './data/hierarchy/geoobjecttype-man
 import { ManageTermOptionsComponent } from './data/hierarchy/geoobjecttype-management/manage-term-options.component';
 import { GeoObjectTypeInputComponent } from './data/hierarchy/geoobjecttype-management/geoobjecttype-input.component';
 import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manage-geoobjecttype-modal.component';
+import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
+import { PublishModalComponent } from './data/master-list/publish-modal.component';
+import { ExportFormatModalComponent } from './data/master-list/export-format-modal.component';
 
 import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
-import { ChangeRequestComponent } from './data/change-request/change-request.component';
-import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
+import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
+import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
+import { GeoObjectEditorComponent } from './data/geoobject-editor/geoobject-editor.component';
+import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
-import { GeoObjectAttributeExcludesPipe } from './data/change-request/geoobject-attribute-excludes.pipe';
-import { ToEpochDateTimePipe } from './data/change-request/to-epoch-date-time.pipe';
+import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
+import { ToEpochDateTimePipe } from './data/submit-change-request/to-epoch-date-time.pipe';
 import { DatePipe } from '@angular/common';
 
 import { LocalizeComponent } from './core/localize/localize.component';
@@ -72,20 +84,20 @@ import { RegistryService } from './service/registry.service';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { ChangeRequestService } from './service/change-request.service';
-
+import { ProgressService } from './service/progress.service';
 import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
 import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ChangeRequestHeaderComponent } from './app-specific-headers/change-request-header.component';
+import { HierarchyHeaderComponent } from './app-specific-headers/hierarchy-header.component';
+import { ImportExportHeaderComponent } from './app-specific-headers/import-export-header.component';
+import { MasterListHeaderComponent } from './app-specific-headers/master-list-header.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
 import { OnlyNumber } from './core/number-only.directive';
-
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-
 
 import './rxjs-extensions';
 import { ModalStepIndicatorService } from './core/service/modal-step-indicator.service';
@@ -105,6 +117,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     BsDropdownModule.forRoot(),
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
+    ProgressbarModule.forRoot(),       
+    NgxPaginationModule,    
     BrowserAnimationsModule
   ],
   declarations: [
@@ -153,10 +167,23 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     SelectFieldComponent,
     InputFieldComponent,
     ValidationComponent,
-    ChangeRequestComponent,
-    StandAloneChangeRequestComponent,
+    LocalizedInputComponent,    
+    LocalizedTextComponent,    
+    GeoObjectSharedAttributeEditorComponent,
+    SubmitChangeRequestComponent,
+    GeoObjectEditorComponent,
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
+    ProgressBarComponent,
+    ChangeRequestHeaderComponent,
+    HierarchyHeaderComponent,
+    ImportExportHeaderComponent,
+    MasterListHeaderComponent,
+    
+    // Master List screens
+    MasterListManagerComponent,
+    PublishModalComponent,
+    ExportFormatModalComponent,
     
     // Routing components
     routedComponents
@@ -174,6 +201,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ModalStepIndicatorService,
     GeoObjectTypeManagementService,
     RegistryService,
+    ProgressService,
     DatePipe,
     ToEpochDateTimePipe
   ],
@@ -199,11 +227,11 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       ModalStepIndicatorComponent,
       ManageTermOptionsComponent,
       ErrorMessageComponent,
-      BooleanFieldComponent,
-      SelectFieldComponent,
-      InputFieldComponent,
-      ChangeRequestComponent,
-      StandAloneChangeRequestComponent
+      GeoObjectSharedAttributeEditorComponent,
+      SubmitChangeRequestComponent,
+      GeoObjectEditorComponent,
+      PublishModalComponent,
+      ExportFormatModalComponent
   ]        
 })
 export class CgrAppModule { }

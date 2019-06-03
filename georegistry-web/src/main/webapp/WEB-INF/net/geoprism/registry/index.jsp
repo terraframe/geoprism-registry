@@ -23,6 +23,11 @@
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
   </script>
   
+  
+   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  
+  
+  
   <!-- CSS imports -->
   <jwr:style src="/bundles/datatable.css" useRandomParam="false"/>
   <jwr:style src="/bundles/main.css" useRandomParam="false" />

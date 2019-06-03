@@ -8,8 +8,10 @@ import { LocalizationManagerComponent } from './data/localization-manager/locali
 import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
-import { StandAloneChangeRequestComponent } from './data/change-request/stand-alone-change-request.component';
+import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
+import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
+import { MasterListComponent } from './data/master-list/master-list.component';
 
 import { AdminGuard, MaintainerGuard, ContributerGuard } from './core/auth/admin.guard';
 
@@ -18,6 +20,21 @@ const routes: Routes = [
     {
         path: 'hierarchies',
         component: HierarchyComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'lists',
+        redirectTo: '/master-lists',
+        canActivate: [ContributerGuard]
+    },
+    {
+        path: 'requests',
+        redirectTo: '/change-request',
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'uploads',
+        redirectTo: '/shapefile',
         canActivate: [MaintainerGuard]
     },
     {
@@ -45,13 +62,23 @@ const routes: Routes = [
         canActivate: [MaintainerGuard]
     },
     {
+        path: 'master-lists',
+        component: MasterListManagerComponent,
+        canActivate: [ContributerGuard]
+    },
+    {
+        path: 'master-list/:oid',
+        component: MasterListComponent,
+        canActivate: [ContributerGuard]
+    },
+    {
         path: 'change-request',
-        component: StandAloneChangeRequestComponent,
+        component: SubmitChangeRequestComponent,
         canActivate: [ContributerGuard]
     },
     {
         path: '',
-        redirectTo: '/hierarchies',
+        redirectTo: '/',
         pathMatch: 'full'
     }
 ];
@@ -68,4 +95,4 @@ const routes: Routes = [
 } )
 export class CgrAppRoutingModule { }
 
-export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, RegistryViewerComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, RegistryViewerComponent, MasterListComponent];

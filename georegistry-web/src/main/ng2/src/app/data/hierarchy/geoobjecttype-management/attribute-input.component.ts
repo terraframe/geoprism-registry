@@ -68,6 +68,14 @@ export class AttributeInputComponent implements OnInit {
         
     }
 
+    toggleIsUnique():void {
+        this.attribute.unique = !this.attribute.unique;
+    }
+
+    toggleIsRequired():void {
+        this.attribute.required = !this.attribute.required;
+    }
+
     animate(): void {
         this.state = "none";
     }
@@ -77,16 +85,11 @@ export class AttributeInputComponent implements OnInit {
     }
 
     isValid(): boolean {
-        if(this.attribute.code && this.attribute.localizedLabel) {
+        if(this.attribute.code) {
 
             // if code has a space
             if(this.attribute.code.indexOf(" ") !== -1){
                 return false;
-            }
-
-            // If label is only spaces
-            if(this.attribute.localizedLabel.replace(/\s/g, '').length === 0) {
-                return false
             }
 
             return true;

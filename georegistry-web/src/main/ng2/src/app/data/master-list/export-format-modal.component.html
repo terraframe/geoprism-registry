@@ -1,0 +1,50 @@
+<div class="modal-body" tabindex="-1" role="dialog">
+    <div class="heading">
+        <h2>
+            <localize key="export-modal.title"></localize>
+        </h2>
+    </div>
+
+    <form class="modal-form" name="export-form">
+        <fieldset>
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label>
+                        <localize key="export-modal.message"></localize>
+                    </label>
+                </div>
+                <div class="holder">
+                    <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
+                        <option></option>
+                        <option value="EXCEL">
+                            <localize key="io.spreadsheet"></localize>
+                        </option>
+                        <option value="SHAPEFILE">
+                            <localize key="io.shapefile"></localize>
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder"></div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                            role="button" aria-disabled="false" style="padding: 4px 18px;">
+                            <span class="ui-button-text">
+                                <localize key="modal.button.cancel"></localize>
+                            </span>
+                        </button>
+                        <button type="button" (click)="confirm()" [disabled]="format == null || format == ''" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                            role="button" style="padding: 4px 18px;">
+                            <span class="ui-button-text">
+                                <localize key="modal.button.submit"></localize>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>

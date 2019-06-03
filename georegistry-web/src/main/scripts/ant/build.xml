@@ -12,7 +12,7 @@
     <!-- Copy from Geoprism Web -->
     <echo message="Copying from ${geoprism.webapp.root} to ${basedir}/target/cargo/configurations/${tomcat}/webapps/${project.name}" />
     <copy todir="${basedir}/target/cargo/configurations/${tomcat}/webapps/${project.name}" verbose="false" overwrite="true">
-      <fileset dir="${geoprism.webapp.root}" includes="**/*.jsp" excludes="**/prism.jsp" />
+      <fileset dir="${geoprism.webapp.root}" includes="**/*.jsp" excludes="**/prism.jsp **/admin.jsp" />
       <fileset dir="${geoprism.webapp.root}" includes="**/*.js" >
         <exclude name="**/node_modules/**" />
       </fileset>
@@ -22,7 +22,7 @@
     <!-- Copy From GeoRegistry Web -->
     <echo message="Copying from ${project.webapp.root} to ${basedir}/target/cargo/configurations/${tomcat}/webapps/${project.name}" />
     <copy todir="${basedir}/target/cargo/configurations/${tomcat}/webapps/${project.name}" overwrite="true">
-      <fileset dir="${project.webapp.root}" includes="**/*.jsp" excludes="**/prism.jsp" />
+      <fileset dir="${project.webapp.root}" includes="**/*.jsp" excludes="**/prism.jsp **/admin.jsp" />
       <fileset dir="${project.webapp.root}" includes="**/*.js" />
       <fileset dir="${project.webapp.root}" includes="**/*.css" />
     </copy>

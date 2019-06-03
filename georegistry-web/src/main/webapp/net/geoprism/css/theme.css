@@ -1,0 +1,55 @@
+/* 
+ * Theme Config 
+ */
+
+:root {
+  /* 
+  Color Pallette
+  #6BA542  - green
+  #7C868D  - grey
+  #3E2A5A  - dark purple
+  #A29BAB  - light purple
+  #DBD7A5  - yellow 
+  */
+
+ --theme-primary-color: #3E2A5A;
+ --theme-primary-color-hover: #A29BAB;
+
+ --theme-accent-color: #DBD7A5;
+ --theme-accent-color-hover: #e5e4d2;
+
+ --theme-alert-color: #e30000;
+
+  /* Buttons */
+ --theme-button-text-color: #767676;
+ --theme-button-color: white;
+ --theme-button-color-hover: #6BA542;
+ --theme-button-color-border: lightgrey;
+ --theme-button-black: #767676;
+
+ --theme-cancel-button-color: grey;
+ --theme-cancel-button-color-hover: #6BA542;
+
+ --theme-submit-button-color: #6BA542;
+ --theme-submit-button-color-hover: #6BA542;
+ --theme-submit-button-color-light: #EDF4E8;
+ --theme-submit-button-color-light-hover: #f4fcef;
+
+ --theme-alert-button-color: #e30000;
+
+  /* Text */
+ --theme-text-dark: #767676;
+ --theme-text-error: red;
+
+  /* Lists */
+ --theme-list-light: #CFCAD6;
+ --theme-list-medium: #9D94AC;
+ --theme-list-dark: #3E2A5A;
+
+  /* Inputs */
+ --theme-input-text-border: #767676;
+ --theme-input-text-border-active: #6BA542;
+
+  /* Dimensions */
+ --theme-header-height: 144px;
+}

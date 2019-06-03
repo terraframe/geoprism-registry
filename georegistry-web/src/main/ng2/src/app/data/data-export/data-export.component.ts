@@ -62,7 +62,7 @@ export class DataExportComponent implements OnInit {
     onChange( code: string ): void {
 
         if ( code != null && code.length > 0 ) {
-            this.service.getHierarchiesForType( code ).then( hierarchies => {
+            this.service.getHierarchiesForType( code, false ).then( hierarchies => {
                 this.hierarchies = hierarchies;
                 this.hierarchy = null;
             } ).catch(( err: any ) => {
