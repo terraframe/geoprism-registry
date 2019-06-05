@@ -114,7 +114,7 @@ public class GeoObjectShapefileExporterTest
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals(5, attributes.size());
+    Assert.assertEquals(6, attributes.size());
   }
 
   @Test
