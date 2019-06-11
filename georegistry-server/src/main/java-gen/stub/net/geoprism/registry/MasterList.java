@@ -751,7 +751,7 @@ public class MasterList extends MasterListBase
     return name;
   }
 
-  public JsonObject data(Integer pageNumber, Integer pageSize, String filter)
+  public JsonObject data(Integer pageNumber, Integer pageSize, String filter, String sort)
   {
     DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
     NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
@@ -779,6 +779,22 @@ public class MasterList extends MasterListBase
         {
           query.OR(query.aCharacter(DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString()).LIKEi("%" + filter + "%"));
         }
+      }
+    }
+
+    if (sort != null && sort.length() > 0)
+    {
+      JsonObject jObject = new JsonParser().parse(sort).getAsJsonObject();
+      String attribute = jObject.get("attribute").getAsString();
+      String order = jObject.get("order").getAsString();
+
+      if (order.equalsIgnoreCase("DESC"))
+      {
+        query.ORDER_BY_DESC(query.getS(attribute));
+      }
+      else
+      {
+        query.ORDER_BY_ASC(query.getS(attribute));
       }
     }
 

@@ -81,7 +81,9 @@
                         <th style="width:3%" class="label-column">
                             <localize key="masterlist.edit.column"></localize>
                         </th>
-                        <th *ngFor="let attribute of list.attributes" class="label-column">{{attribute.label}}</th>
+                        <th *ngFor="let attribute of list.attributes" class="label-column">
+                          <a (click)="onSort(attribute)">{{attribute.label}}</a>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>

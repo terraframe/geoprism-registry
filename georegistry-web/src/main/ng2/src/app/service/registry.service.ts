@@ -403,13 +403,14 @@ export class RegistryService {
             } )
     }
 
-    data( oid: string, pageNumber: number, pageSize: number, filter: string ): Promise<any> {
+    data( oid: string, pageNumber: number, pageSize: number, filter: string, sort: { attribute: string, order: string } ): Promise<any> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
 
         let params = {
-            oid: oid
+            oid: oid,
+            sort: sort
         } as any;
 
         if ( pageNumber != null ) {

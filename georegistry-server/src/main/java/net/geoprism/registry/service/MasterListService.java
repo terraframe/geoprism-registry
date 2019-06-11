@@ -99,9 +99,9 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter)
+  public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter, String sort)
   {
-    return MasterList.get(oid).data(pageNumber, pageSize, filter);
+    return MasterList.get(oid).data(pageNumber, pageSize, filter, sort);
   }
 
   @Request(RequestType.SESSION)

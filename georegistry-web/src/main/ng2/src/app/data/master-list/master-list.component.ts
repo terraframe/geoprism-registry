@@ -38,6 +38,7 @@ export class MasterListComponent implements OnInit {
         pageSize: 10,
         results: []
     };
+    sort = { attribute: 'code', order: 'DESC' };
 
     /*
      * Reference to the modal current showing
@@ -45,7 +46,7 @@ export class MasterListComponent implements OnInit {
     private bsModalRef: BsModalRef;
 
     public searchPlaceholder = "";
-    
+
     private isAdmin: boolean;
     private isMaintainer: boolean;
     private isContributor: boolean;
@@ -55,7 +56,7 @@ export class MasterListComponent implements OnInit {
         private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService ) {
 
         this.searchPlaceholder = localizeService.decode( "masterlist.search" );
-        
+
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
@@ -72,7 +73,7 @@ export class MasterListComponent implements OnInit {
     }
 
     onPageChange( pageNumber: number ): void {
-        this.service.data( this.list.oid, pageNumber, this.page.pageSize, this.filter ).then( page => {
+        this.service.data( this.list.oid, pageNumber, this.page.pageSize, this.filter, this.sort ).then( page => {
             this.page = page;
         } ).catch(( err: Response ) => {
             this.error( err.json() );
@@ -81,6 +82,17 @@ export class MasterListComponent implements OnInit {
 
     onSearch(): void {
         this.filter = this.current;
+
+        this.onPageChange( 1 );
+    }
+
+    onSort( attribute: { name: string, label: string } ): void {
+        if ( this.sort.attribute === attribute.name ) {
+            this.sort.order = ( this.sort.order === 'ASC' ? 'DESC' : 'ASC' );
+        }
+        else {
+            this.sort = { attribute: attribute.name, order: 'DESC' };
+        }
 
         this.onPageChange( 1 );
     }
