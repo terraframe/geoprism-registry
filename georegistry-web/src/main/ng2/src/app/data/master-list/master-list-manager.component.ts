@@ -23,11 +23,11 @@ export class MasterListManagerComponent implements OnInit {
     /*
      * Reference to the modal current showing
     */
-    private bsModalRef: BsModalRef;
+    bsModalRef: BsModalRef;
     
-    private isAdmin: boolean;
-    private isMaintainer: boolean;
-    private isContributor: boolean;
+    isAdmin: boolean;
+    isMaintainer: boolean;
+    isContributor: boolean;
 
     constructor( public service: RegistryService, private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService ) {
       this.isAdmin = authService.isAdmin();

@@ -32,37 +32,37 @@ export class SubmitChangeRequestComponent implements OnInit {
     /*
      * Reference to the modal current showing
      */
-    private bsModalRef: BsModalRef;
+    bsModalRef: BsModalRef;
 
-    private geoObjectType: GeoObjectType;
+    geoObjectType: GeoObjectType;
 
-    private geoObjectTypes: GeoObjectType[] = [];
+    geoObjectTypes: GeoObjectType[] = [];
 
-    private typeaheadLoading: boolean;
+    typeaheadLoading: boolean;
 
-    private typeaheadNoResults: boolean;
+    typeaheadNoResults: boolean;
 
-	private geoObjectId: string = "";
+	geoObjectId: string = "";
 
-    private reason: string = "";
+    reason: string = "";
 
-	private dataSource: Observable<any>;
+	dataSource: Observable<any>;
 	
 	@ViewChild("attributeEditor") attributeEditor;
 	
 	/*
 	 * The current state of the GeoObject in the GeoRegistry
 	 */
-	private preGeoObject: GeoObject = null;
+	preGeoObject: GeoObject = null;
 	
 	/*
 	 * The state of the GeoObject after our Change Request has been approved 
 	 */
-	private postGeoObject: GeoObject = null;
+	postGeoObject: GeoObject = null;
 	
 	isValid: boolean = false;
 	
-	private geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
+	geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
 
     constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,

@@ -10,8 +10,8 @@ import { PageEvent, ChangeRequest } from './crtable';
 } )
 export class RegistryViewerComponent {
 
-    private state: string = 'REQUESTS';
-    private request: ChangeRequest;
+    state: string = 'REQUESTS';
+    request: ChangeRequest;
 
     constructor() { }
 

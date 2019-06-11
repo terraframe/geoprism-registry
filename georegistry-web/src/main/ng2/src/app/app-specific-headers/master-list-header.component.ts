@@ -10,10 +10,10 @@ declare var acp: any;
     styleUrls: []
 } )
 export class MasterListHeaderComponent {
-    private context: string;
-    private isAdmin: boolean;
-    private isMaintainer: boolean;
-    private isContributor: boolean;
+    context: string;
+    isAdmin: boolean;
+    isMaintainer: boolean;
+    isContributor: boolean;
 
     constructor( service: AuthService ) {
         this.context = acp;

@@ -58,9 +58,11 @@ export class ImportConfiguration {
     filename: string;
     hierarchy: string;
     postalCode: boolean;
+    hasPostalCode: boolean;
     locations: Location[];
     locationProblems: LocationProblem[];
     termProblems: TermProblem[];
     exclusions: Exclusion[];
+    hierarchies: {code:string, label:string}[];
 }
 

@@ -24,22 +24,22 @@ export class SpreadsheetComponent implements OnInit {
     /*
      * List of geo object types from the system
      */
-    private types: { label: string, code: string }[]
+    types: { label: string, code: string }[]
 
     /*
      * Currently selected code
      */
-    private code: string = null;
+    code: string = null;
 
     /*
      * Reference to the modal current showing
      */
-    private bsModalRef: BsModalRef;
+    bsModalRef: BsModalRef;
 
     /*
      * File uploader
      */
-    private uploader: FileUploader;
+    uploader: FileUploader;
 
     @ViewChild( 'myFile' )
     fileRef: ElementRef;

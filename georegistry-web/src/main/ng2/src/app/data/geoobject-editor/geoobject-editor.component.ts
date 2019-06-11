@@ -59,15 +59,15 @@ export class GeoObjectEditorComponent implements OnInit {
     
     parentTreeNode: ParentTreeNode;
     
-    private dataSource: Observable<any>;
+    dataSource: Observable<any>;
     
-    private masterListId: string;
+    masterListId: string;
     
     @Input() onSuccessCallback: Function;
     
-    private isAdmin: boolean;
-    private isMaintainer: boolean;
-    private isContributor: boolean;
+    isAdmin: boolean;
+    isMaintainer: boolean;
+    isContributor: boolean;
 
     constructor(private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
             private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,

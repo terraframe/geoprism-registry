@@ -25,8 +25,6 @@ import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 import { ErrorMessageComponent } from './core/message/error-message.component';
 import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-field.component';
-import { SelectFieldComponent } from './core/form-fields/select-field/select-field.component';
-import { InputFieldComponent } from './core/form-fields/input-field/input-field.component';
 import { ValidationComponent } from './core/form-fields/base/validation.component';
 import { LocalizedInputComponent } from './core/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './core/form-fields/localized-text/localized-text.component';
@@ -164,8 +162,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     OnlyNumber,
     ErrorMessageComponent,
     BooleanFieldComponent,
-    SelectFieldComponent,
-    InputFieldComponent,
     ValidationComponent,
     LocalizedInputComponent,    
     LocalizedTextComponent,    
