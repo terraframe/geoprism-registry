@@ -38,7 +38,7 @@ export class MasterListComponent implements OnInit {
         pageSize: 10,
         results: []
     };
-    sort = { attribute: 'code', order: 'DESC' };
+    sort = { attribute: 'code', order: 'ASC' };
 
     /*
      * Reference to the modal current showing
@@ -91,7 +91,7 @@ export class MasterListComponent implements OnInit {
             this.sort.order = ( this.sort.order === 'ASC' ? 'DESC' : 'ASC' );
         }
         else {
-            this.sort = { attribute: attribute.name, order: 'DESC' };
+            this.sort = { attribute: attribute.name, order: 'ASC' };
         }
 
         this.onPageChange( 1 );
