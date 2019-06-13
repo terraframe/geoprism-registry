@@ -40,7 +40,18 @@
 
 		<!-- Geometry tab -->
         <div *ngIf="this.tabIndex === 2">
-          <geoobject-editor-map></geoobject-editor-map>
+            <div *ngFor="let ptn of this.parentTreeNode.parents">
+                <div class="label-holder">
+                    <label>{{ptn.hierarchyType}}</label>
+                </div>
+
+                <div class="holder">
+                    <input type="text" [(ngModel)]="ptn.geoObject.properties.displayLabel.localizedValue" name="ptn.geoObject.properties.code + '-input'"
+                    [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(ptn.geoObject.properties.displayLabel.localizedValue, ptn.geoObject.properties.type)"
+                    (typeaheadOnSelect)="typeaheadOnSelect($event, ptn)" [typeaheadOptionsLimit]="7"
+                    typeaheadOptionField="name" class="form-control" autocomplete="off" required>
+                </div>
+            </div>
         </div>
 
         <div class="row-holder">
