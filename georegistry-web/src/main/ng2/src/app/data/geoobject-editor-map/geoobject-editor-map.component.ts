@@ -70,6 +70,16 @@ export class GeoObjectEditorMapComponent implements OnInit {
 
     layers: any[] = [];
     
+    editingControl: any;
+    
+    geoprismEditingControl: any;
+    
+    isEditing: boolean;
+    
+    updatedGeos: any;
+    
+    deletedGeos: any;
+    
     /*
 	 * The state of the GeoObject after our edit has been applied 
 	 */
@@ -84,30 +94,30 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
     
     ngAfterViewInit() {
+		setTimeout(() => { 
+	        ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
 
-        ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
-
-        this.map = new Map( {
-            container: 'map',
-            style: 'mapbox://styles/mapbox/outdoors-v11',
-            zoom: 2,
-            center: [110.880453, 10.897852]
-        } );
-        
-        this.map.on( 'load', () => {
-            this.initMap();
-        } );
-
+	        this.map = new Map( {
+	            container: 'map',
+	            style: 'mapbox://styles/mapbox/outdoors-v11',
+	            zoom: 2,
+	            center: [110.880453, 10.897852]
+	        } );
+	        
+	        this.map.on( 'load', () => {
+	            this.initMap();
+	        } );
+	    }, 10);
     }
     
     initMap(): void {
 
         this.map.on( 'style.load', () => {
-            this.addLayers();
+            //this.addLayers();
             this.refresh( false );
         } );
 
-        this.addLayers();
+        //this.addLayers();
 
         this.refresh( true );
 
@@ -115,55 +125,62 @@ export class GeoObjectEditorMapComponent implements OnInit {
         this.map.addControl( new NavigationControl() );
 
         //if ( this.admin ) {
-            let modes = MapboxDraw.modes;
-            modes.static = StaticMode;
-
-            this.draw = new MapboxDraw( {
-                modes: modes,
-                displayControlsDefault: false,
-                controls: {
-                    static: true
-                }
-            } );
-
-            this.map.addControl( this.draw );
-
-            this.map.on( "draw.update", ( $event ) => { this.onDrawUpdate( $event ) } );
-            this.map.on( "draw.create", ( $event ) => { this.onDrawCreate( $event ) } );
-            this.map.on( "draw.modechange", ( $event ) => { this.onDrawUpdate( $event ) } );
+            this.editingControl = new MapboxDraw({
+			    controls : {
+			      point : true,
+			      line_string : false,
+			      polygon : true,
+			      trash : false,
+			      combine_features : false,
+			      uncombine_features : false
+			    }
+			});
+			this.map.addControl(this.editingControl);
+			  
+			// Define the GeoprismEditingControl
+			//this.geoprismEditingControl = new GeoprismEditingControl();
+			//this.map.addControl(this.geoprismEditingControl);
+			
+			//this.isEditing = false;
+			
+			console.log("Adding geoObject to editing control");
+			this.editingControl.add(this.geoObject);
+			  
+			this.updatedGeos = {};
+			this.map.on( "draw.update", ( $event ) => { this.onDrawUpdate( $event ) } );
+			  
+			this.deletedGeos = {};
+            this.map.on( "draw.delete", ( $event ) => { this.onDrawDelete( $event ) } );
         //}
     }
     
     addLayers(): void {
 
-        this.map.addSource( 'geoobject', {
-            type: 'geojson',
-            data: {
-                "type": "FeatureCollection",
-                "features": []
-            }
-        } );
+        //this.map.addSource( 'geoobject', {
+        //    type: 'geojson',
+        //    data: {
+        //        "type": "FeatureCollection",
+        //        "features": []
+        //    }
+        //} );
 
         // GeoObject Layer
-        this.map.addLayer( {
-            "id": "geoobject",
-            "type": "fill",
-            "source": 'geoobject',
-            "paint": {
-               "fill-color": "#0000FF",
-               "fill-outline-color": "black"
+        //this.map.addLayer( {
+        //    "id": "geoobject",
+        //    "type": "fill",
+        //    "source": 'geoobject',
+        //    "paint": {
+        //       "fill-color": "#848484",
+        //       "fill-outline-color": "black",
+        //       "fill-opacity": 0.5,
                //"fill-stroke-width": 5,
                //"fill-stroke-color": "#000000"
-            },
-        } );
-
-        this.layers.forEach( imageKey => {
-            this.addImageLayer( imageKey );
-        } );
+        //    },
+        //} );
     }
     
     refresh( zoom: boolean ): void {
-        ( <any>this.map.getSource( 'geoobject' ) ).setData( this.geoObject );
+        //( <any>this.map.getSource( 'geoobject' ) ).setData( this.geoObject );
 
         if ( zoom ) {
           
@@ -179,43 +196,36 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
     
     onDrawUpdate( event: any ): void {
-        if ( event.action === 'move' && event.features != null && event.features.length > 0 ) {
-            this.updateGeometry( event.features[0] )
-        }
+        //if ( event.action === 'move' && event.features != null && event.features.length > 0 ) {
+        //    this.updateGeometry( event.features[0] )
+        //}
     }
 
-    onDrawCreate( event: any ): void {
+    onDrawDelete( event: any ): void {
     }
     
     updateGeometry( feature: any ): void {
     }
     
-    cancelDraw(): void {
-        this.draw.deleteAll();
-        this.draw.changeMode( 'static' );
-
-        // Most be after the draw has been added to trigger a repaint of the map
-        this.map.setFilter( "points" );
-        this.map.setFilter( "points-label" );
-        //this.active = false;
+    saveDraw(): GeoObject {
+      let featureCollection: any = this.editingControl.getAll();
+      let geoObject = featureCollection.features[0];
+    
+      console.log("save draw", geoObject);
+      
+      this.geoObject = geoObject;
+      
+      return this.geoObject;
     }
     
-    addImageLayer( imageKey: string ) {
-        const workspace = encodeURI( 'uasdm' );
-        const layerName = encodeURI( workspace + ':' + imageKey );
+    cancelDraw(): void {
+        //this.draw.deleteAll();
+        //this.draw.changeMode( 'static' );
 
-        this.map.addLayer( {
-            'id': imageKey,
-            'type': 'raster',
-            'source': {
-                'type': 'raster',
-                'tiles': [
-                    '/geoserver/' + workspace + '/wms?layers=' + layerName + '&bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256'
-                ],
-                'tileSize': 256
-            },
-            'paint': {}
-        }, "points" );
+        // Most be after the draw has been added to trigger a repaint of the map
+        //this.map.setFilter( "points" );
+        //this.map.setFilter( "points-label" );
+        //this.active = false;
     }
     
     public error(err: any): void {
@@ -227,4 +237,6 @@ export class GeoObjectEditorMapComponent implements OnInit {
         //    this.bsModalRef.content.message = (err.localizedMessage || err.message);
         //}
     }
+    
+    
 }
