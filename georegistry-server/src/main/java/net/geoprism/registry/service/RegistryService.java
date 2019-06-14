@@ -50,6 +50,7 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.GeoRegistryUtil;
@@ -1135,5 +1136,20 @@ public class RegistryService
     Locale locale = Session.getCurrentLocale();
 
     return new LocaleSerializer(locale);
+  }
+
+  @Request(RequestType.SESSION)
+  public String getGeoObjectBounds(String sessionId, GeoObject geoObject)
+  {
+    if (!geoObject.getType().isLeaf())
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
+      
+      return GeoEntityUtil.getEntitiesBBOX(new String[] {runwayId});
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
   }
 }

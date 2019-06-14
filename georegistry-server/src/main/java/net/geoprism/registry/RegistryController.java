@@ -107,6 +107,26 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
+  
+  /**
+   * Returns a GeoObject with the given uid.
+   *
+   * @pre @post
+   *
+   * @param uid
+   *          The UID of the GeoObject.
+   *
+   * @returns a GeoObject in GeoJSON format with the given uid. @throws
+   **/
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-bounds")
+  public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
+  {
+    GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode);
+
+    String bounds = this.registryService.getGeoObjectBounds(request.getSessionId(), geoObject);
+    
+    return new RestBodyResponse(bounds);
+  }
 
   /**
    * Returns a GeoObject with the given code.
