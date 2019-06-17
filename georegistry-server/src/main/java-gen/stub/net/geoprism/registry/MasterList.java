@@ -225,52 +225,49 @@ public class MasterList extends MasterListBase
     {
       String name = attribute.getName();
 
-      if (business.hasAttribute(name))
+      business.setValue(ORIGINAL_OID, runwayId);
+
+      if (this.isValid(attribute))
       {
-        business.setValue(ORIGINAL_OID, runwayId);
+        Object value = object.getValue(name);
 
-        if (this.isValid(attribute))
+        if (value != null)
         {
-          Object value = object.getValue(name);
 
-          if (value != null)
+          if (attribute instanceof AttributeTermType)
           {
+            Iterator<String> codes = (Iterator<String>) value;
 
-            if (attribute instanceof AttributeTermType)
+            if (codes.hasNext())
             {
-              Iterator<String> codes = (Iterator<String>) value;
+              String code = codes.next();
 
-              if (codes.hasNext())
-              {
-                String code = codes.next();
+              Term term = ( (AttributeTermType) attribute ).getTermByCode(code).get();
+              LocalizedValue label = term.getLabel();
 
-                Term term = ( (AttributeTermType) attribute ).getTermByCode(code).get();
-                LocalizedValue label = term.getLabel();
-
-                business.setValue(name, term.getCode());
-                business.setValue(name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
-
-                for (Locale locale : locales)
-                {
-                  business.setValue(name + locale.toString(), label.getValue(locale));
-                }
-              }
-            }
-            else if (attribute instanceof AttributeLocalType)
-            {
-              LocalizedValue label = (LocalizedValue) value;
-
-              business.setValue(name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+              this.setValue(business, name, term.getCode());
+              this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
 
               for (Locale locale : locales)
               {
-                business.setValue(name + locale.toString(), label.getValue(locale));
+                this.setValue(business, name + locale.toString(), label.getValue(locale));
               }
             }
-            else
+          }
+          else if (attribute instanceof AttributeLocalType)
+          {
+            LocalizedValue label = (LocalizedValue) value;
+
+            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+            for (Locale locale : locales)
             {
-              business.setValue(name, value);
+              this.setValue(business, name + locale.toString(), label.getValue(locale));
             }
+          }
+          else
+          {
+            this.setValue(business, name, value);
           }
         }
       }
@@ -294,23 +291,27 @@ public class MasterList extends MasterListBase
         if (vObject != null)
         {
           String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
-          if (business.hasAttribute(attributeName))
-          {
-            // business.setValue(attributeName + "Oid",
-            // vObject.getValue(GeoEntity.OID));
-            business.setValue(attributeName, vObject.getValue(GeoEntity.GEOID));
-            business.setValue(attributeName + DEFAULT_LOCALE, vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
 
-            for (Locale locale : locales)
-            {
-              business.setValue(attributeName + locale.toString(), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
-            }
+          this.setValue(business, attributeName, vObject.getValue(GeoEntity.GEOID));
+          this.setValue(business, attributeName + DEFAULT_LOCALE, vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+
+          for (Locale locale : locales)
+          {
+            this.setValue(business, attributeName + locale.toString(), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
           }
         }
       }
     }
 
     business.apply();
+  }
+
+  private void setValue(Business business, String name, Object value)
+  {
+    if (business.hasAttribute(name))
+    {
+      business.setValue(name, value);
+    }
   }
 
   @Transaction
