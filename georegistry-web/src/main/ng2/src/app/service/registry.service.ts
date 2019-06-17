@@ -403,7 +403,7 @@ export class RegistryService {
             } )
     }
 
-    data( oid: string, pageNumber: number, pageSize: number, filter: string, sort: { attribute: string, order: string } ): Promise<any> {
+    data( oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string } ): Promise<any> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -421,12 +421,40 @@ export class RegistryService {
             params.pageSize = pageSize;
         }
 
-        if ( filter != null ) {
+        if ( filter.length > 0 ) {
             params.filter = filter;
         }
 
         return this.http
             .post( acp + '/master-list/data', JSON.stringify( params ), { headers: headers } )
+            .toPromise()
+            .then( response => {
+                return response.json() as any;
+            } )
+    }
+
+    values( oid: string, value: string, attributeName: string, valueAttribute: string, filter: { attribute: string, value: string }[] ): Promise<{ label: string, value: string }[]> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        let params = {
+            oid: oid,
+            attributeName: attributeName,
+            valueAttribute: valueAttribute
+        } as any;
+
+        if ( filter.length > 0 ) {
+            params.filter = filter;
+        }
+
+        if ( value != null && value.length > 0 ) {
+            params.value = value;
+        }
+
+
+        return this.http
+            .post( acp + '/master-list/values', JSON.stringify( params ), { headers: headers } )
             .toPromise()
             .then( response => {
                 return response.json() as any;

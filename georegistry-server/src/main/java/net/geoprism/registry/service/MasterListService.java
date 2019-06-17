@@ -34,7 +34,7 @@ public class MasterListService
     query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
     OIterator<? extends MasterList> it = query.getIterator();
-    
+
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     try
@@ -46,7 +46,7 @@ public class MasterListService
         JsonObject object = new JsonObject();
         object.addProperty("label", list.getDisplayLabel().getValue());
         object.addProperty("oid", list.getOid());
-        
+
         object.addProperty("createDate", format.format(list.getCreateDate()));
         object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
 
@@ -102,6 +102,12 @@ public class MasterListService
   public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter, String sort)
   {
     return MasterList.get(oid).data(pageNumber, pageSize, filter, sort);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray values(String sessionId, String oid, String value, String attributeName, String valueAttribute, String filterJson)
+  {
+    return MasterList.get(oid).values(value, attributeName, valueAttribute, filterJson);
   }
 
   @Request(RequestType.SESSION)

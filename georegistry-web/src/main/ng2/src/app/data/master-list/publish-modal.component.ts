@@ -71,7 +71,8 @@ export class PublishModalComponent implements OnInit {
                 organization: '',
                 telephoneNumber: '',
                 email: '',
-                hierarchies: []
+                hierarchies: [],
+                attributes:[]
             };
         }
 

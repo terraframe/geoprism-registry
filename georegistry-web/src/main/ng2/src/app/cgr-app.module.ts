@@ -12,6 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
@@ -116,6 +117,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
     ProgressbarModule.forRoot(),       
+    CollapseModule.forRoot(),    
     NgxPaginationModule,    
     BrowserAnimationsModule
   ],

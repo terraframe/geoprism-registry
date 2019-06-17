@@ -78,6 +78,42 @@
                         </th>
                         <th *ngFor="let attribute of list.attributes" class="label-column">
                           <a (click)="onSort(attribute)">{{attribute.label}}</a>
+                          <div *ngIf="isFilterable(attribute)">
+                            <a class="float-right" (click)="toggleFilter(attribute)"
+                              [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"><i class="fa fa-expand"></i>
+                            </a>                          
+                            <div id="collapseBasic" [collapse]="attribute.isCollapsed">
+                              <input *ngIf="attribute.type === 'input'" 
+                                 [name]="attribute.name" 
+                                 [(ngModel)]="attribute.value"
+                                 (keyup.enter)="handleInputChange(attribute)"                                 
+                                 type="text" class="form-control search-input" />
+                              <div *ngIf="attribute.type === 'date'">
+                                <input 
+                                   [name]="attribute.name + 'Start'" 
+                                   [(ngModel)]="attribute.value.start"
+                                   (change)="handleDateChange(attribute)"                                 
+                                   type="date" class="form-control search-input" />                              
+                                <input 
+                                   [name]="attribute.name + 'End'" 
+                                   [(ngModel)]="attribute.value.end"
+                                   (change)="handleDateChange(attribute)"                                 
+                                   type="date" class="form-control search-input" />                              
+                              </div>
+                              <input *ngIf="attribute.type === 'list'" type="text" 
+                                 [name]="attribute.name"
+                                 [(ngModel)]="attribute.search"                                                                  
+                                 [typeaheadAsync]="true" 
+                                 [typeahead]="getValues(attribute)"
+                                 (typeaheadOnSelect)="handleListChange($event, attribute)" 
+                                 [typeaheadOptionsLimit]="100"
+                                 [typeaheadMinLength]="0"                                 
+                                 [typeaheadWaitMs]="300"                                 
+                                 typeaheadOptionField="label" 
+                                 class="form-control" autocomplete="off">
+                                                            
+                            </div>                          
+                          </div>
                         </th>
                     </tr>
                 </thead>
