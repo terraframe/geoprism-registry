@@ -225,27 +225,41 @@ public class MasterList extends MasterListBase
     {
       String name = attribute.getName();
 
-      business.setValue(ORIGINAL_OID, runwayId);
-
-      if (this.isValid(attribute))
+      if (business.hasAttribute(name))
       {
-        Object value = object.getValue(name);
+        business.setValue(ORIGINAL_OID, runwayId);
 
-        if (value != null)
+        if (this.isValid(attribute))
         {
+          Object value = object.getValue(name);
 
-          if (attribute instanceof AttributeTermType)
+          if (value != null)
           {
-            Iterator<String> codes = (Iterator<String>) value;
 
-            if (codes.hasNext())
+            if (attribute instanceof AttributeTermType)
             {
-              String code = codes.next();
+              Iterator<String> codes = (Iterator<String>) value;
 
-              Term term = ( (AttributeTermType) attribute ).getTermByCode(code).get();
-              LocalizedValue label = term.getLabel();
+              if (codes.hasNext())
+              {
+                String code = codes.next();
 
-              business.setValue(name, term.getCode());
+                Term term = ( (AttributeTermType) attribute ).getTermByCode(code).get();
+                LocalizedValue label = term.getLabel();
+
+                business.setValue(name, term.getCode());
+                business.setValue(name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+                for (Locale locale : locales)
+                {
+                  business.setValue(name + locale.toString(), label.getValue(locale));
+                }
+              }
+            }
+            else if (attribute instanceof AttributeLocalType)
+            {
+              LocalizedValue label = (LocalizedValue) value;
+
               business.setValue(name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
 
               for (Locale locale : locales)
@@ -253,21 +267,10 @@ public class MasterList extends MasterListBase
                 business.setValue(name + locale.toString(), label.getValue(locale));
               }
             }
-          }
-          else if (attribute instanceof AttributeLocalType)
-          {
-            LocalizedValue label = (LocalizedValue) value;
-
-            business.setValue(name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
-
-            for (Locale locale : locales)
+            else
             {
-              business.setValue(name + locale.toString(), label.getValue(locale));
+              business.setValue(name, value);
             }
-          }
-          else
-          {
-            business.setValue(name, value);
           }
         }
       }
