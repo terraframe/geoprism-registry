@@ -5,11 +5,14 @@
                 <div class="label-holder"></div>
                 <div class="holder">
                     <div class="btn-group geobject-editor-tab-holder">
-                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.tabIndex = 0">
+                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.changePage(0);">
                             <localize key="geoobject.editor.tabZero"></localize>
                         </label>
-                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.tabIndex = 1">
+                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
                             <localize key="geoobject.editor.tabOne"></localize>
+                        </label>
+                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2}" (click)="this.changePage(2);">
+                            <localize key="geoobject.editor.tabTwo"></localize>
                         </label>
                     </div>
                 </div>
@@ -19,7 +22,7 @@
         <!-- Attributes tab -->
         <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.preGeoObject && this.postGeoObject"
             #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)" [geoObjectType]="this.geoObjectType"
-            [preGeoObject]="this.preGeoObject" [(postGeoObject)]="this.postGeoObject"></geoobject-shared-attribute-editor>
+            [preGeoObject]="this.preGeoObject" [postGeoObject]="this.postGeoObject"></geoobject-shared-attribute-editor>
 
 
         <!-- Parents tab -->
@@ -38,6 +41,8 @@
             </div>
         </div>
 
+		<!-- Geometry tab -->
+        <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [geoObject]="this.postGeoObject"></geoobject-editor-map>
 
         <div class="row-holder">
             <div class="label-holder"></div>

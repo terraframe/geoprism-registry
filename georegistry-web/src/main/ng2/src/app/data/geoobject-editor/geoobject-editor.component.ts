@@ -53,6 +53,8 @@ export class GeoObjectEditorComponent implements OnInit {
     
     @ViewChild("attributeEditor") attributeEditor;
     
+    @ViewChild("geometryEditor") geometryEditor;
+    
     isValid: boolean = false;
     
     tabIndex: number = 0;
@@ -100,11 +102,12 @@ export class GeoObjectEditorComponent implements OnInit {
     {
       this.registryService.getGeoObjectByCode(code, typeCode)
             .then(geoObject => {
+                console.log("Fetched GeoObj", geoObject);
+                console.log("createDate", geoObject.properties.createDate);
                 this.preGeoObject = geoObject;
                 this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
                 
                 this.fetchParents(geoObject);
-                console.log("Fetched GeoObj", geoObject);
             }).catch((err: Response) => {
                 this.error(err.json());
             });
@@ -170,6 +173,22 @@ export class GeoObjectEditorComponent implements OnInit {
       this.isValid = newValid;
     }
     
+    changePage(nextPage: number): void
+    {
+      console.log("Changing to page", nextPage);
+    
+      if (this.tabIndex === 2)
+      {
+        this.postGeoObject = this.geometryEditor.saveDraw();
+      }
+      else if (this.tabIndex === 0)
+      {
+        this.postGeoObject = this.attributeEditor.getGeoObject();
+      }
+      
+      this.tabIndex = nextPage;
+    }
+    
     public error(err: any): void {
         // TODO
         
@@ -187,7 +206,9 @@ export class GeoObjectEditorComponent implements OnInit {
     public submit(): void {
       this.bsModalRef.hide();
       
-      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.attributeEditor.getGeoObject(), this.masterListId)
+      this.changePage(this.tabIndex); // Persist model changes
+      
+      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.postGeoObject, this.masterListId)
           .then( () => {
           
               if (this.onSuccessCallback != null)

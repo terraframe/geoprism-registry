@@ -273,6 +273,20 @@ export class RegistryService {
                 return response.json() as GeoObject;
             } )
     }
+    
+    getGeoObjectBounds( code: string, typeCode: string ): Promise<number[]> {
+      let params: URLSearchParams = new URLSearchParams();
+
+        params.set( 'code', code )
+        params.set( 'typeCode', typeCode );
+
+        return this.http
+            .get( acp + '/cgr/geoobject/get-bounds', { params: params } )
+            .toPromise()
+            .then( response => {
+                return response.json() as number[];
+            } )
+    }
 
     getGeoObjectByCode( code: string, typeCode: string ): Promise<GeoObject> {
         let params: URLSearchParams = new URLSearchParams();
