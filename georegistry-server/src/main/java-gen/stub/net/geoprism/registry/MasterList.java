@@ -293,7 +293,8 @@ public class MasterList extends MasterListBase
           String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
           if (business.hasAttribute(attributeName))
           {
-//            business.setValue(attributeName + "Oid", vObject.getValue(GeoEntity.OID));
+            // business.setValue(attributeName + "Oid",
+            // vObject.getValue(GeoEntity.OID));
             business.setValue(attributeName, vObject.getValue(GeoEntity.GEOID));
             business.setValue(attributeName + DEFAULT_LOCALE, vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
 
@@ -434,11 +435,15 @@ public class MasterList extends MasterListBase
             mdAttributeLocale.apply();
           }
 
-//          MdAttributeUUIDDAO mdAttributeOid = MdAttributeUUIDDAO.newInstance();
-//          mdAttributeOid.setValue(MdAttributeUUIDInfo.NAME, attributeName + "Oid");
-//          mdAttributeOid.setValue(MdAttributeUUIDInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-//          mdAttributeOid.setStructValue(MdAttributeUUIDInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label);
-//          mdAttributeOid.apply();
+          // MdAttributeUUIDDAO mdAttributeOid =
+          // MdAttributeUUIDDAO.newInstance();
+          // mdAttributeOid.setValue(MdAttributeUUIDInfo.NAME, attributeName +
+          // "Oid");
+          // mdAttributeOid.setValue(MdAttributeUUIDInfo.DEFINING_MD_CLASS,
+          // mdTableDAO.getOid());
+          // mdAttributeOid.setStructValue(MdAttributeUUIDInfo.DISPLAY_LABEL,
+          // MdAttributeLocalInfo.DEFAULT_LOCALE, label);
+          // mdAttributeOid.apply();
         }
       }
     }
@@ -871,10 +876,10 @@ public class MasterList extends MasterListBase
       return false;
     }
 
-//    if (mdAttribute.definesAttribute().endsWith("Oid"))
-//    {
-//      return false;
-//    }
+    // if (mdAttribute.definesAttribute().endsWith("Oid"))
+    // {
+    // return false;
+    // }
 
     if (mdAttribute.definesAttribute().equals(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
     {
@@ -917,9 +922,6 @@ public class MasterList extends MasterListBase
 
   public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
   {
-    DateFormat filterFormat = new SimpleDateFormat("YYYY-MM-DD");
-    filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
     DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
     dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -930,57 +932,7 @@ public class MasterList extends MasterListBase
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
 
-    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
-
-    if (filterJson != null && filterJson.length() > 0)
-    {
-      JsonArray filters = new JsonParser().parse(filterJson).getAsJsonArray();
-
-      for (int i = 0; i < filters.size(); i++)
-      {
-        JsonObject filter = filters.get(i).getAsJsonObject();
-
-        String attribute = filter.get("attribute").getAsString();
-
-        if (mdBusiness.definesAttribute(attribute) instanceof MdAttributeMomentDAOIF)
-        {
-          JsonObject jObject = filter.get("value").getAsJsonObject();
-
-          try
-          {
-            if (jObject.has("start") && !jObject.get("start").isJsonNull())
-            {
-              String date = jObject.get("start").getAsString();
-
-              if (date.length() > 0)
-              {
-                query.WHERE(query.aDateTime(attribute).GE(filterFormat.parse(date)));
-              }
-            }
-
-            if (jObject.has("end") && !jObject.get("end").isJsonNull())
-            {
-              String date = jObject.get("end").getAsString();
-
-              if (date.length() > 0)
-              {
-                query.WHERE(query.aDateTime(attribute).LE(filterFormat.parse(date)));
-              }
-            }
-          }
-          catch (ParseException e)
-          {
-            throw new ProgrammingErrorException(e);
-          }
-        }
-        else
-        {
-          String value = filter.get("value").getAsString();
-
-          query.WHERE(query.get(attribute).EQ(value));
-        }
-      }
-    }
+    BusinessQuery query = this.buildQuery(filterJson);
 
     if (sort != null && sort.length() > 0)
     {
@@ -1080,6 +1032,67 @@ public class MasterList extends MasterListBase
     page.add("results", results);
 
     return page;
+  }
+
+  public BusinessQuery buildQuery(String filterJson)
+  {
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+
+    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+
+    DateFormat filterFormat = new SimpleDateFormat("YYYY-MM-DD");
+    filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+    if (filterJson != null && filterJson.length() > 0)
+    {
+      JsonArray filters = new JsonParser().parse(filterJson).getAsJsonArray();
+
+      for (int i = 0; i < filters.size(); i++)
+      {
+        JsonObject filter = filters.get(i).getAsJsonObject();
+
+        String attribute = filter.get("attribute").getAsString();
+
+        if (mdBusiness.definesAttribute(attribute) instanceof MdAttributeMomentDAOIF)
+        {
+          JsonObject jObject = filter.get("value").getAsJsonObject();
+
+          try
+          {
+            if (jObject.has("start") && !jObject.get("start").isJsonNull())
+            {
+              String date = jObject.get("start").getAsString();
+
+              if (date.length() > 0)
+              {
+                query.WHERE(query.aDateTime(attribute).GE(filterFormat.parse(date)));
+              }
+            }
+
+            if (jObject.has("end") && !jObject.get("end").isJsonNull())
+            {
+              String date = jObject.get("end").getAsString();
+
+              if (date.length() > 0)
+              {
+                query.WHERE(query.aDateTime(attribute).LE(filterFormat.parse(date)));
+              }
+            }
+          }
+          catch (ParseException e)
+          {
+            throw new ProgrammingErrorException(e);
+          }
+        }
+        else
+        {
+          String value = filter.get("value").getAsString();
+
+          query.WHERE(query.get(attribute).EQ(value));
+        }
+      }
+    }
+    return query;
   }
 
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)

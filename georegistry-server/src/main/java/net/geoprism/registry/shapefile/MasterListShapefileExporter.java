@@ -57,7 +57,6 @@ import com.runwaysdk.gis.dataaccess.MdAttributeMultiPolygonDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributePolygonDAOIF;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -83,11 +82,14 @@ public class MasterListShapefileExporter
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  public MasterListShapefileExporter(MasterList list, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes)
+  private String                                   filterJson;
+
+  public MasterListShapefileExporter(MasterList list, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson)
   {
     this.list = list;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
+    this.filterJson = filterJson;
     this.columnNames = new HashMap<String, String>();
   }
 
@@ -225,7 +227,7 @@ public class MasterListShapefileExporter
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
-    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+    BusinessQuery query = this.list.buildQuery(this.filterJson);
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();

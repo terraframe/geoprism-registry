@@ -257,10 +257,10 @@ export class MasterListComponent implements OnInit {
         } );
         this.bsModalRef.content.onFormat.subscribe( format => {
             if ( format == 'SHAPEFILE' ) {
-                window.location.href = acp + '/master-list/export-shapefile?oid=' + this.list.oid;
+                window.location.href = acp + '/master-list/export-shapefile?oid=' + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify( this.filter ));
             }
             else if ( format == 'EXCEL' ) {
-                window.location.href = acp + '/master-list/export-spreadsheet?oid=' + this.list.oid;
+                window.location.href = acp + '/master-list/export-spreadsheet?oid=' + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify( this.filter ));
             }
         } );
     }

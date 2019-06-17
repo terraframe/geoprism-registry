@@ -111,15 +111,15 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportShapefile(String sessionId, String oid)
+  public InputStream exportShapefile(String sessionId, String oid, String filterJson)
   {
-    return GeoRegistryUtil.exportMasterListShapefile(oid);
+    return GeoRegistryUtil.exportMasterListShapefile(oid, filterJson);
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportSpreadsheet(String sessionId, String oid)
+  public InputStream exportSpreadsheet(String sessionId, String oid, String filterJson)
   {
-    return GeoRegistryUtil.exportMasterListExcel(oid);
+    return GeoRegistryUtil.exportMasterListExcel(oid, filterJson);
   }
 
   @Request(RequestType.SESSION)

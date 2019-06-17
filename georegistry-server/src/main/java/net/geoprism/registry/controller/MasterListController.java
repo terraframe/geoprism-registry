@@ -94,15 +94,15 @@ public class MasterListController
   }
 
   @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid), "application/zip", "shapefile.zip");
+    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", "shapefile.zip");
   }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
+    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid, filter), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "progress")
