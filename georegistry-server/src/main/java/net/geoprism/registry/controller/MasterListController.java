@@ -2,6 +2,7 @@ package net.geoprism.registry.controller;
 
 import org.json.JSONException;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -80,6 +81,14 @@ public class MasterListController
   public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "sort") String sort)
   {
     JsonObject response = this.service.data(request.getSessionId(), oid, pageNumber, pageSize, filter, sort);
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "values")
+  public ResponseIF values(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "value") String value, @RequestParamter(name = "attributeName") String attributeName, @RequestParamter(name = "valueAttribute") String valueAttribute, @RequestParamter(name = "filter") String filter)
+  {
+    JsonArray response = this.service.values(request.getSessionId(), oid, value, attributeName, valueAttribute, filter);
 
     return new RestBodyResponse(response);
   }

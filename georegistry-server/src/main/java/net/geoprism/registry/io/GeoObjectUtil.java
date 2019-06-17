@@ -92,6 +92,7 @@ public class GeoObjectUtil
 
       GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
 
+      vQuery.SELECT(parentQuery.getOid());
       vQuery.SELECT(parentQuery.getGeoId());
       vQuery.SELECT(universalQuery.getKeyName());
       vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
@@ -141,6 +142,7 @@ public class GeoObjectUtil
 
       GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
 
+      vQuery.SELECT(parentQuery.getOid());
       vQuery.SELECT(parentQuery.getGeoId());
       vQuery.SELECT(universalQuery.getKeyName());
       vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
