@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -93,9 +93,6 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -893,11 +890,12 @@ public class AdapterUtilities
   /**
    * Delete the {@link MdAttributeConcreteDAOIF} from the given {
    * 
-   * 
+   * @param type
+   *          TODO
    * @param mdBusiness
    * @param attributeName
    */
-  public void deleteMdAttributeFromAttributeType(MdBusiness mdBusiness, String attributeName)
+  public void deleteMdAttributeFromAttributeType(GeoObjectType type, MdBusiness mdBusiness, String attributeName)
   {
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeName);
 
@@ -918,6 +916,15 @@ public class AdapterUtilities
       }
 
       mdAttributeConcreteDAOIF.getBusinessDAO().delete();
+
+      Optional<AttributeType> optional = type.getAttribute(attributeName);
+
+      if (optional.isPresent())
+      {
+        Universal universal = new ConversionService().geoObjectTypeToUniversal(type);
+
+        MasterList.deleteMdAttribute(universal, optional.get());
+      }
     }
   }
 

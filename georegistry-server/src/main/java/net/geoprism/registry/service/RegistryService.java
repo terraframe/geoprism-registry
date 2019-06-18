@@ -591,7 +591,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(mdBusiness, attributeName);
+    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(geoObjectType, mdBusiness, attributeName);
 
     geoObjectType.removeAttribute(attributeName);
 
