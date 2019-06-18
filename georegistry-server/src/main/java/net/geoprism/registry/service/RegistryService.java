@@ -519,7 +519,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
+    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(geoObjectType, mdBusiness, attrType);
 
     attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
@@ -592,7 +592,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(mdBusiness, attributeName);
+    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(geoObjectType, mdBusiness, attributeName);
 
     geoObjectType.removeAttribute(attributeName);
 

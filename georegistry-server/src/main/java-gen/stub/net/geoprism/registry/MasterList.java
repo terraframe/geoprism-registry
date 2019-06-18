@@ -455,6 +455,50 @@ public class MasterList extends MasterListBase
     return metadata;
   }
 
+  public void removeAttributeType(TableMetadata metadata, AttributeType attributeType)
+  {
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(metadata.getMdBusiness().getOid());
+
+    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeLocalType ))
+    {
+      removeAttribute(mdBusiness, attributeType.getName());
+    }
+    else if (attributeType instanceof AttributeTermType)
+    {
+      removeAttribute(mdBusiness, attributeType.getName());
+      removeAttribute(mdBusiness, attributeType.getName() + DEFAULT_LOCALE);
+
+      for (Locale locale : locales)
+      {
+        removeAttribute(mdBusiness, attributeType.getName() + locale.toString());
+      }
+    }
+    else if (attributeType instanceof AttributeLocalType)
+    {
+      removeAttribute(mdBusiness, attributeType.getName() + DEFAULT_LOCALE);
+
+      for (Locale locale : locales)
+      {
+        removeAttribute(mdBusiness, attributeType.getName() + locale.toString());
+      }
+    }
+
+  }
+
+  private void removeAttribute(MdBusinessDAOIF mdBusiness, String name)
+  {
+    MdAttributeConcreteDAOIF mdAttribute = mdBusiness.definesAttribute(name);
+
+    if (mdAttribute != null)
+    {
+      MasterListAttributeGroup.remove(mdAttribute);
+
+      mdAttribute.getBusinessDAO().delete();
+    }
+  }
+
   public void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, GeoObjectType type, List<Locale> locales)
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
@@ -1376,4 +1420,50 @@ public class MasterList extends MasterListBase
       list.delete();
     }
   }
+
+  public static void createMdAttribute(GeoObjectType type, Universal universal, AttributeType attributeType)
+  {
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(universal));
+
+    List<? extends MasterList> lists = query.getIterator().getAll();
+
+    for (MasterList list : lists)
+    {
+      TableMetadata metadata = new TableMetadata();
+      metadata.setMdBusiness(list.getMdBusiness());
+
+      list.createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
+
+      Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
+
+      Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
+
+      for (Entry<MdAttribute, MdAttribute> entry : entries)
+      {
+        MasterListAttributeGroup.create(list, entry.getValue(), entry.getKey());
+      }
+    }
+  }
+
+  public static void deleteMdAttribute(Universal universal, AttributeType attributeType)
+  {
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(universal));
+
+    List<? extends MasterList> lists = query.getIterator().getAll();
+
+    for (MasterList list : lists)
+    {
+      TableMetadata metadata = new TableMetadata();
+      metadata.setMdBusiness(list.getMdBusiness());
+
+      list.removeAttributeType(metadata, attributeType);
+    }
+  }
+
 }
