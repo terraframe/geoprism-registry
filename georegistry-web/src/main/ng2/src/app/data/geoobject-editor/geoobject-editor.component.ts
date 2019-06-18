@@ -174,10 +174,10 @@ export class GeoObjectEditorComponent implements OnInit {
         // TODO
         
         // Handle error
-        //if (err !== null) {
-        //    this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-        //    this.bsModalRef.content.message = (err.localizedMessage || err.message);
-        //}
+        if (err !== null) {
+           this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+           this.bsModalRef.content.message = (err.localizedMessage || err.message);
+        }
     }
     
     public cancel(): void {

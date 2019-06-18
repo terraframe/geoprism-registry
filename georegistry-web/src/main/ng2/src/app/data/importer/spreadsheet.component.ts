@@ -4,6 +4,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
 
+import { SuccessModalComponent } from '../../core/modals/success-modal.component';
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 
@@ -70,14 +71,14 @@ export class SpreadsheetComponent implements OnInit {
         };
         this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
             this.fileRef.nativeElement.value = "";
-            this.eventService.complete();
+			this.eventService.complete();
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );
 
             this.bsModalRef = this.modalService.show( SpreadsheetModalComponent, { backdrop: true } );
             this.bsModalRef.content.configuration = configuration;
-        };
+		};
         this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
             this.error( JSON.parse( response ) );
         }
