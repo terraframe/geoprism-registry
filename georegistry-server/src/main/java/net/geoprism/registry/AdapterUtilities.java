@@ -705,7 +705,8 @@ public class AdapterUtilities
    * from the given {@link AttributeType}
    * 
    * @pre assumes no attribute has been defined on the type with the given name.
-   * 
+   * @param geoObjectType
+   *          TODO
    * @param mdBusiness
    *          Type to receive attribute definition
    * @param attributeType
@@ -714,7 +715,7 @@ public class AdapterUtilities
    * @return {@link AttributeType}
    */
   @Transaction
-  public MdAttributeConcrete createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  public MdAttributeConcrete createMdAttributeFromAttributeType(GeoObjectType geoObjectType, MdBusiness mdBusiness, AttributeType attributeType)
   {
     MdAttributeConcrete mdAttribute = null;
 
@@ -816,6 +817,10 @@ public class AdapterUtilities
       // attributeTermRoot.getDisplayLabel().getValue(), "");
       // attributeTermType.setRootTerm(term);
     }
+
+    Universal universal = new ConversionService().geoObjectTypeToUniversal(geoObjectType);
+
+    MasterList.createMdAttribute(geoObjectType, universal, attributeType);
 
     return mdAttribute;
   }

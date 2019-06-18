@@ -1376,4 +1376,31 @@ public class MasterList extends MasterListBase
       list.delete();
     }
   }
+
+  public static void createMdAttribute(GeoObjectType type, Universal universal, AttributeType attributeType)
+  {
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(universal));
+
+    List<? extends MasterList> lists = query.getIterator().getAll();
+
+    for (MasterList list : lists)
+    {
+      TableMetadata metadata = new TableMetadata();
+      metadata.setMdBusiness(list.getMdBusiness());
+
+      list.createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
+
+      Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
+
+      Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
+
+      for (Entry<MdAttribute, MdAttribute> entry : entries)
+      {
+        MasterListAttributeGroup.create(list, entry.getValue(), entry.getKey());
+      }
+    }
+  }
 }

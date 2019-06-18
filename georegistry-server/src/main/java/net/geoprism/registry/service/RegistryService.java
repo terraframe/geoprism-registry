@@ -518,7 +518,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
+    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(geoObjectType, mdBusiness, attrType);
 
     attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
@@ -1144,8 +1144,8 @@ public class RegistryService
     if (!geoObject.getType().isLeaf())
     {
       String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
-      
-      return GeoEntityUtil.getEntitiesBBOX(new String[] {runwayId});
+
+      return GeoEntityUtil.getEntitiesBBOX(new String[] { runwayId });
     }
     else
     {
