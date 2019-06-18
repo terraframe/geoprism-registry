@@ -50,10 +50,12 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
+import net.geoprism.registry.ServerGeoObject;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -517,7 +519,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
+    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(geoObjectType, mdBusiness, attrType);
 
     attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
@@ -590,7 +592,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(mdBusiness, attributeName);
+    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(geoObjectType, mdBusiness, attributeName);
 
     geoObjectType.removeAttribute(attributeName);
 
@@ -1135,5 +1137,11 @@ public class RegistryService
     Locale locale = Session.getCurrentLocale();
 
     return new LocaleSerializer(locale);
+  }
+
+  @Request(RequestType.SESSION)
+  public String getGeoObjectBounds(String sessionId, GeoObject geoObject)
+  {
+    return ServerGeoObject.getFromGeoObject(geoObject).bbox();
   }
 }

@@ -22,6 +22,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.poi.ss.util.CellReference;
 import org.slf4j.Logger;
@@ -82,6 +83,7 @@ public class GeoObjectContentHandler implements SheetHandler
     this.map = new HashMap<Integer, String>();
 
     this.dateTimeFormat = new SimpleDateFormat(ExcelDataFormatter.DATE_TIME_FORMAT);
+    this.dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
   }
 
   @Override

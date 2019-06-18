@@ -76,10 +76,15 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
     
     ngOnInit(): void {
+        this.preGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
   		if (this.postGeoObject == null)
-  	  {
-  	    this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
-  	  }
+  	    {
+  	      this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
+  	    }
+  	    else
+  	    {
+  	      this.postGeoObject = JSON.parse(JSON.stringify(this.postGeoObject)); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
+  	    }
   		
   		this.attributeForm.statusChanges.subscribe(result => {
     	    this.isValid = (result === "VALID");

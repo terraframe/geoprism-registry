@@ -134,7 +134,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Transaction
-  public static InputStream exportMasterListShapefile(String oid)
+  public static InputStream exportMasterListShapefile(String oid, String filterJson)
   {
     MasterList list = MasterList.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
@@ -143,7 +143,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     try
     {
-      MasterListShapefileExporter exporter = new MasterListShapefileExporter(list, mdBusiness, mdAttributes);
+      MasterListShapefileExporter exporter = new MasterListShapefileExporter(list, mdBusiness, mdAttributes, filterJson);
 
       return exporter.export();
     }
@@ -154,7 +154,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Transaction
-  public static InputStream exportMasterListExcel(String oid)
+  public static InputStream exportMasterListExcel(String oid, String filterJson)
   {
     MasterList list = MasterList.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
@@ -163,7 +163,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     try
     {
-      MasterListExcelExporter exporter = new MasterListExcelExporter(list, mdBusiness, mdAttributes);
+      MasterListExcelExporter exporter = new MasterListExcelExporter(list, mdBusiness, mdAttributes, filterJson);
 
       return exporter.export();
     }

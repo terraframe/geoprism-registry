@@ -28,7 +28,6 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Point;
 
@@ -47,11 +46,14 @@ public class MasterListExcelExporter
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  public MasterListExcelExporter(MasterList list, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes)
+  private String                                   filterJson;
+
+  public MasterListExcelExporter(MasterList list, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson)
   {
     this.list = list;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
+    this.filterJson = filterJson;
   }
 
   public MasterList getList()
@@ -91,7 +93,7 @@ public class MasterListExcelExporter
 
     int rownum = 1;
 
-    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+    BusinessQuery query = this.list.buildQuery(this.filterJson);
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();

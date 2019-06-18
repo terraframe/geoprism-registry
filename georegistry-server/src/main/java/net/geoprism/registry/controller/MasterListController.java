@@ -2,6 +2,7 @@ package net.geoprism.registry.controller;
 
 import org.json.JSONException;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -84,16 +85,24 @@ public class MasterListController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "values")
+  public ResponseIF values(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "value") String value, @RequestParamter(name = "attributeName") String attributeName, @RequestParamter(name = "valueAttribute") String valueAttribute, @RequestParamter(name = "filter") String filter)
   {
-    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid), "application/zip", "shapefile.zip");
+    JsonArray response = this.service.values(request.getSessionId(), oid, value, attributeName, valueAttribute, filter);
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
+  {
+    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", "shapefile.zip");
   }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
+    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid, filter), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "progress")

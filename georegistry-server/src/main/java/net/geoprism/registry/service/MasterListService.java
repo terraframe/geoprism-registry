@@ -34,7 +34,7 @@ public class MasterListService
     query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
     OIterator<? extends MasterList> it = query.getIterator();
-    
+
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     try
@@ -46,7 +46,7 @@ public class MasterListService
         JsonObject object = new JsonObject();
         object.addProperty("label", list.getDisplayLabel().getValue());
         object.addProperty("oid", list.getOid());
-        
+
         object.addProperty("createDate", format.format(list.getCreateDate()));
         object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
 
@@ -105,15 +105,21 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportShapefile(String sessionId, String oid)
+  public JsonArray values(String sessionId, String oid, String value, String attributeName, String valueAttribute, String filterJson)
   {
-    return GeoRegistryUtil.exportMasterListShapefile(oid);
+    return MasterList.get(oid).values(value, attributeName, valueAttribute, filterJson);
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportSpreadsheet(String sessionId, String oid)
+  public InputStream exportShapefile(String sessionId, String oid, String filterJson)
   {
-    return GeoRegistryUtil.exportMasterListExcel(oid);
+    return GeoRegistryUtil.exportMasterListShapefile(oid, filterJson);
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream exportSpreadsheet(String sessionId, String oid, String filterJson)
+  {
+    return GeoRegistryUtil.exportMasterListExcel(oid, filterJson);
   }
 
   @Request(RequestType.SESSION)

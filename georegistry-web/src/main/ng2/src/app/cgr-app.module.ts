@@ -12,6 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
@@ -67,6 +68,7 @@ import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-
 import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
 import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
 import { GeoObjectEditorComponent } from './data/geoobject-editor/geoobject-editor.component';
+import { GeoObjectEditorMapComponent } from './data/geoobject-editor-map/geoobject-editor-map.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
@@ -112,6 +114,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
     ProgressbarModule.forRoot(),       
+    CollapseModule.forRoot(),    
     NgxPaginationModule,    
     BrowserAnimationsModule
   ],
@@ -168,6 +171,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     ProgressBarComponent,
+    GeoObjectEditorMapComponent,
     
     // Master List screens
     MasterListManagerComponent,

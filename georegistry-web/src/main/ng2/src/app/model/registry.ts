@@ -164,4 +164,5 @@ export class MasterList {
     telephoneNumber: string;
     email: string;
     hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+    attributes:any[];
 }
