@@ -537,6 +537,14 @@ export class HierarchyComponent implements OnInit {
 
     public removeTreeNode( node: TreeNode ): void {
         this.hierarchyService.removeFromHierarchy( this.currentHierarchy.code, node.parent.data.geoObjectType, node.data.geoObjectType ).then( data => {
+        
+            if (node.parent.data.geoObjectType == null)
+            {
+              this.nodes = [];
+              // this.refreshAll(null);
+              //return;
+            }
+        
             const parent = node.parent;
             let children = parent.data.children;
 
@@ -546,7 +554,7 @@ export class HierarchyComponent implements OnInit {
                 parent.data.hasChildren = false;
             }
             this.tree.treeModel.update();
-
+            
             // Update the available GeoObjectTypes
             this.changeDetectorRef.detectChanges()
 

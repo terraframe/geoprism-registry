@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
@@ -23,6 +24,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.RelationshipQuery;
+import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -56,6 +58,7 @@ import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.ServerGeoObject;
+import net.geoprism.registry.ServerGeoObjectType;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -1039,32 +1042,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
-    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
-
-    this.removeFromHierarchy(mdTermRelationship, hierarchyTypeCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
-
-    // No exceptions thrown. Refresh the HierarchyType object to include the new
-    // relationships.
-    HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelationship);
-
-    adapter.getMetadataCache().addHierarchyType(ht);
-
-    return ht;
-  }
-
-  @Transaction
-  private void removeFromHierarchy(MdTermRelationship mdTermRelationship, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
-    Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
-    Universal child = Universal.getByKey(childGeoObjectTypeCode);
-
-    parent.removeAllChildren(child, mdTermRelationship.definesType());
-
-    if (child.getIsLeafType())
-    {
-      ConversionService.removeParentReferenceToLeafType(hierarchyTypeCode, parent, child);
-    }
+    return ServerGeoObjectType.removeChild(hierarchyTypeCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
   }
 
   @Request(RequestType.SESSION)
