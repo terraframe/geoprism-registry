@@ -55,6 +55,7 @@ import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
+import net.geoprism.registry.ServerGeoObject;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -1141,15 +1142,6 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public String getGeoObjectBounds(String sessionId, GeoObject geoObject)
   {
-    if (!geoObject.getType().isLeaf())
-    {
-      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
-
-      return GeoEntityUtil.getEntitiesBBOX(new String[] { runwayId });
-    }
-    else
-    {
-      throw new UnsupportedOperationException();
-    }
+    return ServerGeoObject.getFromGeoObject(geoObject).bbox();
   }
 }
