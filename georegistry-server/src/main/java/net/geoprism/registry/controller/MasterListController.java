@@ -16,6 +16,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.RegistryService;
 
@@ -96,18 +97,25 @@ public class MasterListController
   @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", "shapefile.zip");
+    JsonObject masterList = this.service.get(request.getSessionId(), oid);
+    String code = masterList.get(MasterList.CODE).getAsString();
+
+    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", code + ".zip");
   }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid, filter), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
+    JsonObject masterList = this.service.get(request.getSessionId(), oid);
+    String code = masterList.get(MasterList.CODE).getAsString();
+
+    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid, filter), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", code + ".xlsx");
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "progress")
   public ResponseIF progress(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
+
     JsonObject response = this.service.progress(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
