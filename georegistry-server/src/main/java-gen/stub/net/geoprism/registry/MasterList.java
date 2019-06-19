@@ -419,7 +419,7 @@ public class MasterList extends MasterListBase
           mdAttributeCode.setValue(MdAttributeCharacterInfo.SIZE, "255");
           mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label);
           mdAttributeCode.addItem(MdAttributeCharacterInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
-
+          mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Code for [" + got.getLabel().getValue(currentLocale) + "] locations assigned by the [" + hierarchyLabel + "]");
           mdAttributeCode.apply();
 
           MdAttributeCharacterDAO mdAttributeDefaultLocale = MdAttributeCharacterDAO.newInstance();
@@ -427,6 +427,7 @@ public class MasterList extends MasterListBase
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
           mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (defaultLocale)");
+          mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Default label for [" + got.getLabel().getValue(currentLocale) + "] locations assigned by the [" + hierarchyLabel + "]");
           mdAttributeDefaultLocale.apply();
 
           for (Locale locale : locales)
@@ -436,6 +437,7 @@ public class MasterList extends MasterListBase
             mdAttributeLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
             mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
             mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (" + locale + ")");
+            mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "[" + locale.toString() + "] label for [" + got.getLabel().getValue(currentLocale) + "] locations assigned by the [" + hierarchyLabel + "]");
             mdAttributeLocale.apply();
           }
 
