@@ -1450,8 +1450,6 @@ public class MasterList extends MasterListBase
 
   public static void deleteMdAttribute(Universal universal, AttributeType attributeType)
   {
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
     MasterListQuery query = new MasterListQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(universal));
 
