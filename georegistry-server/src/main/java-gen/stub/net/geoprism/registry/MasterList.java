@@ -413,13 +413,21 @@ public class MasterList extends MasterListBase
           String attributeName = hCode.toLowerCase() + pCode.toLowerCase();
           String label = typeLabel + " (" + hierarchyLabel + ")";
 
+          String codeDescription = LocalizationFacade.getFromBundles("masterlist.code.description");
+          codeDescription = codeDescription.replaceAll("{typeLabel}", typeLabel);
+          codeDescription = codeDescription.replaceAll("{hierarchyLabel}", hierarchyLabel);
+
+          String labelDescription = LocalizationFacade.getFromBundles("masterlist.label.description");
+          labelDescription = codeDescription.replaceAll("{typeLabel}", typeLabel);
+          labelDescription = codeDescription.replaceAll("{hierarchyLabel}", hierarchyLabel);
+
           MdAttributeCharacterDAO mdAttributeCode = MdAttributeCharacterDAO.newInstance();
           mdAttributeCode.setValue(MdAttributeCharacterInfo.NAME, attributeName);
           mdAttributeCode.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
           mdAttributeCode.setValue(MdAttributeCharacterInfo.SIZE, "255");
           mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label);
           mdAttributeCode.addItem(MdAttributeCharacterInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
-
+          mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, codeDescription);
           mdAttributeCode.apply();
 
           MdAttributeCharacterDAO mdAttributeDefaultLocale = MdAttributeCharacterDAO.newInstance();
@@ -427,6 +435,7 @@ public class MasterList extends MasterListBase
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
           mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (defaultLocale)");
+          mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("{locale}", "default"));
           mdAttributeDefaultLocale.apply();
 
           for (Locale locale : locales)
@@ -436,6 +445,7 @@ public class MasterList extends MasterListBase
             mdAttributeLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
             mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
             mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (" + locale + ")");
+            mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("{locale}", locale.toString()));
             mdAttributeLocale.apply();
           }
 
@@ -1450,8 +1460,6 @@ public class MasterList extends MasterListBase
 
   public static void deleteMdAttribute(Universal universal, AttributeType attributeType)
   {
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
     MasterListQuery query = new MasterListQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(universal));
 
