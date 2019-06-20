@@ -42,7 +42,12 @@
         </div>
 
 		<!-- Geometry tab -->
-        <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [preGeoObject]="this.preGeoObject" [postGeoObject]="this.postGeoObject" [geoObjectType]="this.geoObjectType"></geoobject-editor-map>
+		<div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder">
+        		<geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [preGeoObject]="this.preGeoObject" [postGeoObject]="this.postGeoObject" [geoObjectType]="this.geoObjectType"></geoobject-editor-map>
+			</div>
+		</div>
 
         <div class="row-holder">
             <div class="label-holder"></div>
