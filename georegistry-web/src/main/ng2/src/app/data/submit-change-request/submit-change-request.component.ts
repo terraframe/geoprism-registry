@@ -1,6 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+
+import { SuccessModalComponent } from '../../core/modals/success-modal.component';
+
 import { DatePipe } from '@angular/common';
 
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
@@ -10,6 +13,7 @@ import { ChangeRequestService } from '../../service/change-request.service';
 
 import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
+import { LocalizationService } from '../../core/service/localization.service';
 
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
@@ -66,7 +70,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe) {
+        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, private localizeService: LocalizationService) {
 
         this.dataSource = Observable.create((observer: any) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code).then(results => {
@@ -148,7 +152,11 @@ export class SubmitChangeRequestComponent implements OnInit {
 
         this.changeRequestService.submitChangeRequest(JSON.stringify(submitObj))
 	    .then( geoObject => {
-            this.cancel();
+			this.cancel();
+			
+			this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
+			this.bsModalRef.content.message = this.localizeService.decode("change.request.success.message");
+
 	    }).catch(( err: Response ) => {
 	      this.error( err.json() );
 	    });

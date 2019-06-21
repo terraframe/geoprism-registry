@@ -1,5 +1,9 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { LocalizationService } from '../../../core/service/localization.service';
+
+import { SuccessModalComponent } from '../../../core/modals/success-modal.component';
 
 import { ImportConfiguration } from '../io';
 
@@ -16,7 +20,8 @@ export class ShapefileModalComponent implements OnInit {
     message: string = null;
     state: string = 'MAP';
 
-    constructor( private service: IOService, public bsModalRef: BsModalRef ) {
+	constructor( private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
+		private localizeService: LocalizationService ) {
     }
 
     ngOnInit(): void {
@@ -81,7 +86,10 @@ export class ShapefileModalComponent implements OnInit {
                 this.configuration = config;
             }
             else {
-                this.bsModalRef.hide()
+				this.bsModalRef.hide()
+				
+				this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
+			    this.bsModalRef.content.message = this.localizeService.decode("upload.success.message");
             }
         } ).catch(( response: Response ) => {
             this.error( response.json() );

@@ -22,6 +22,7 @@ import './rxjs-extensions';
 import { FillPipe } from './core/fill.pipe';
 import { Safe } from './core/safe.html.pipe';
 import { ErrorModalComponent } from './core/modals/error-modal.component';
+import { SuccessModalComponent } from './core/modals/success-modal.component';
 import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 import { ErrorMessageComponent } from './core/message/error-message.component';
@@ -90,11 +91,6 @@ import { EventService } from './event/event.service';
 import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
-import { ChangeRequestHeaderComponent } from './app-specific-headers/change-request-header.component';
-import { HierarchyHeaderComponent } from './app-specific-headers/hierarchy-header.component';
-import { ImportExportHeaderComponent } from './app-specific-headers/import-export-header.component';
-import { MasterListHeaderComponent } from './app-specific-headers/master-list-header.component';
-
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
 import { OnlyNumber } from './core/number-only.directive';
@@ -139,7 +135,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ConfirmModalComponent,
     ManageAttributesModalComponent,
     DefineAttributeModalContentComponent,
-    ErrorModalComponent, 
+	ErrorModalComponent, 
+	SuccessModalComponent,
     ShapefileModalComponent,
     AttributesPageComponent,
     LocationPageComponent,
@@ -174,10 +171,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     ProgressBarComponent,
-    ChangeRequestHeaderComponent,
-    HierarchyHeaderComponent,
-    ImportExportHeaderComponent,
-    MasterListHeaderComponent,
     GeoObjectEditorMapComponent,
     
     // Master List screens
@@ -207,7 +200,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [
-      ErrorModalComponent, 
+	  ErrorModalComponent, 
+	  SuccessModalComponent,
       AddChildToHierarchyModalComponent, 
       CreateGeoObjTypeModalComponent, 
       ManageAttributesModalComponent, 
