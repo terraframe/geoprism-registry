@@ -54,10 +54,24 @@ export class ActionTableComponent implements OnInit {
     }
 
     onBack(): void {
-        this.pageChange.emit( {
-            type: 'BACK',
-            data: {}
-        } );
+      this.unlockAction();
+    
+      this.pageChange.emit( {
+          type: 'BACK',
+          data: {}
+      } );
+    }
+    
+    unlockAction()
+    {
+      if (this.action != null)
+      {
+        this.service.unlockAction(this.action.oid).then( response => {
+        
+          } ).catch(( err: Response ) => {
+              this.error( err.json() );
+          } );
+      }
     }
 
     refresh() {
@@ -83,11 +97,9 @@ export class ActionTableComponent implements OnInit {
     }
 
     onSelect( selected: any ) {
-      var action: AbstractAction = selected.selected[0];
+      this.action = selected.selected[0];
       
-      this.lockAction( action );
-      
-      this.updateDetailAction(action);
+      this.updateDetailAction(this.action);
     }
     
     updateDetailAction(action: AbstractAction)
@@ -103,29 +115,6 @@ export class ActionTableComponent implements OnInit {
       }
     }
     
-    lockAction( action: any )
-    {
-      if (this.action != null && this.action.oid != null)
-      {
-        this.service.unlockAction(this.action.oid).then( response => {
-            
-          } ).then( () => { this.service.lockAction(action.oid); } ).then( response => {
-        	  this.action = action;
-              
-          } ).catch(( err: Response ) => {
-              this.error( err.json() );
-          } );
-      }
-      else
-      {
-        this.service.lockAction(action.oid).then( response => {
-            this.action = action;
-          } ).catch(( err: Response ) => {
-              this.error( err.json() );
-          } );
-      }
-    }
-
     public error( err: any ): void {
         // Handle error
         if ( err !== null ) {

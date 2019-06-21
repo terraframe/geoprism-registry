@@ -19,6 +19,8 @@ import { RegistryService } from '../../../../service/registry.service';
 
 import { AbstractAction } from '../../crtable';
 
+import { HostListener} from "@angular/core";
+
 declare var acp: any;
 
 @Component({
@@ -37,6 +39,8 @@ export class CreateUpdateGeoObjectDetailComponent {
   postGeoObject: GeoObject = null;
   
   geoObjectType : GeoObjectType = null;
+  
+  readOnly : boolean = true;
   
   @ViewChild("attributeEditor") attributeEditor;
   
@@ -71,7 +75,6 @@ export class CreateUpdateGeoObjectDetailComponent {
     this.postGeoObject = this.action.geoObjectJson;
     this.geoObjectType = this.action.geoObjectType;
     
-    
     // There are multiple ways we could show a diff of an object.
     //
     // This line will show a diff only when a person is typing so as to show the
@@ -87,24 +90,56 @@ export class CreateUpdateGeoObjectDetailComponent {
     //
     // Display diff when a user is changing a value
     // this.preGeoObject = JSON.parse(JSON.stringify(this.postGeoObject));
-    
+    console.log("test");
     // Display diff of what's in the database
-    if(this.action.actionType === "net.geoprism.registry.action.geoobject.UpdateGeoObjectAction"
-       && typeof this.postGeoObject.properties.createDate !== 'undefined') {
+    if(
+       this.action.actionType === "net.geoprism.registry.action.geoobject.UpdateGeoObjectAction"
+       && typeof this.postGeoObject.properties.createDate !== 'undefined'
+       ) {
         this.registryService.getGeoObjectByCode(this.postGeoObject.properties.code, this.geoObjectType.code)
             .then(geoObject => {
                 this.preGeoObject = geoObject;
             
             }).catch((err: Response) => {
+                console.log("Error", err);
                 this.error(err.json());
             });
     }
   }
   
+  @HostListener('window:beforeunload', ['$event'])
+  beforeunloadHandler(event) {
+    if (!this.readOnly)
+    {
+      event.preventDefault();
+      event.returnValue = 'Are you sure?';
+      return 'Are you sure?';
+    }
+  }
+  
+  startEdit() : void
+  {
+    this.lockAction();
+  }
+  
+  endEdit() : void
+  {
+    this.unlockAction();
+  }
+  
+  lockAction()
+	{
+    this.changeRequestService.lockAction(this.action.oid).then( response => {
+        this.readOnly = false;
+      } ).catch(( err: Response ) => {
+          this.error( err.json() );
+      } );
+	}
+  
   unlockAction()
   {
     this.changeRequestService.unlockAction(this.action.oid).then( response => {
-          this.crtable.refresh();
+          this.readOnly = true;
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
