@@ -55,6 +55,7 @@
       $scope.entity = data.entity;
       $scope.universal = {
         value: data.universal,
+        label: data.universalLabel,
         options: data.universals
       };
 
