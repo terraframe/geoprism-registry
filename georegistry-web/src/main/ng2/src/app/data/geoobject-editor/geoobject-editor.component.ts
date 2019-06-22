@@ -175,6 +175,11 @@ export class GeoObjectEditorComponent implements OnInit {
     
     changePage(nextPage: number): void
     {
+      if (nextPage === this.tabIndex)
+      {
+        return;
+      }
+    
       console.log("Changing to page", nextPage);
     
       if (this.tabIndex === 2)
