@@ -20,7 +20,7 @@
                                             <div *ngIf="attr.type === 'character'">
                                                 <input *ngIf="postGeoObject" type="text"
                                                     [(ngModel)]="postGeoObject.properties[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}"
-                                                    [disabled]="attr.code === 'code'"> 
+                                                    [disabled]="readOnly || attr.code === 'code'"> 
 
                                                     <p class="warning-text" *ngIf="this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code] !== this.preGeoObject.properties[attr.code]">
                                                         <localize key="change.request.changed.value.prefix"></localize> {{this.preGeoObject.properties[attr.code]}}
@@ -31,7 +31,7 @@
                                               <ul class="list-group">
                                                 <li class="list-group-item" *ngFor="let localeValue of postGeoObject.properties[attr.code].localeValues; let i = index">
                                                   <h5>{{localeValue.locale}}</h5>
-                                                  <input *ngIf="postGeoObject" type="text" [(ngModel)]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale"> 
+                                                  <input [disabled]="readOnly" *ngIf="postGeoObject" type="text" [(ngModel)]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale"> 
 
                                                   <p class="warning-text" *ngIf="localeValue.value !== preGeoObject.properties[attr.code].localeValues[i].value">
                                                     <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code].localeValues[i].value}}
@@ -41,7 +41,7 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'date'">
-                                                <input type="date" [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                <input type="date" [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
                                                      id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
                                                     
                                                 <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
@@ -52,14 +52,14 @@
                                             <div *ngIf="attr.type === 'boolean'">
                                                 <label>
                                                     <input type="radio" [checked]="this.postGeoObject.properties[attr.code] === true"
-                                                        [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                        [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
                                                         [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true">
                                                     <localize key="change.request.boolean.option.true"></localize>
                                                 </label>
 
                                                 <label>
                                                     <input type="radio" [checked]="this.postGeoObject.properties[attr.code] === false"
-                                                        [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                        [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
                                                         [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false">
                                                     <localize key="change.request.boolean.option.false"></localize>
                                                 </label>
@@ -70,7 +70,7 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'float'">
-                                                <input type="number" [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                <input [disabled]="readOnly" type="number" [(ngModel)]="postGeoObject.properties[attr.code]"
                                                     id="mod-{{attr.code}}" name="mod-{{attr.code}}">
 
                                                 <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
@@ -79,7 +79,7 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'integer'">
-                                                <input type="number" [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                <input type="number" [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
                                                     id="mod-{{attr.code}}" name="mod-{{attr.code}}">
 
                                                 <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
@@ -88,7 +88,7 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'term'">
-                                                <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float:none;"
+                                                <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float:none;" [disabled]="readOnly"
                                                     (change)="onSelectPropertyOption($event)" [(ngModel)]="postGeoObject.properties[attr.code]">
                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
                                                 </select>

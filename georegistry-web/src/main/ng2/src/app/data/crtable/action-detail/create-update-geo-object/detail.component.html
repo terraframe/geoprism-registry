@@ -8,7 +8,7 @@
 	  <label class="detail-label">Code : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.code">
 	  -->
 
-        <geoobject-shared-attribute-editor #attributeEditor *ngIf="preGeoObject" [allowCodeEdit]="true" [geoObjectType]="geoObjectType"
+        <geoobject-shared-attribute-editor #attributeEditor *ngIf="preGeoObject" [readOnly]="readOnly" [allowCodeEdit]="true" [geoObjectType]="geoObjectType"
             [postGeoObject]="postGeoObject" [preGeoObject]="preGeoObject"></geoobject-shared-attribute-editor>
 
         <!-- TODO : Navigator code for Geometries
@@ -24,7 +24,7 @@
             <label class="detail-label">
                 <localize key="change.request.status"></localize> :
             </label>
-            <select style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]="action.approvalStatus">
+            <select [disabled]="readOnly" style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]="action.approvalStatus">
                 <option value="REJECTED">
                     <localize key="change.request.status.rejected"></localize>
                 </option>
@@ -41,23 +41,26 @@
             <label class="detail-label">
                 <localize key="change.request.action.detail.contributorNotes"></localize> :
             </label>
-            <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.contributorNotes"></textarea>
+            <textarea [disabled]="readOnly" style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.contributorNotes"></textarea>
         </div>
 
         <div>
             <label class="detail-label">
                 <localize key="change.request.action.detail.maintainerNotes"></localize> :
             </label>
-            <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.maintainerNotes"></textarea>
+            <textarea [disabled]="readOnly" style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.maintainerNotes"></textarea>
         </div>
 
         <div class="button-holder">
-            <button (click)="applyAction()" class="btn btn-primary detail-accept">
-                <localize key="modal.button.submit"></localize>
-            </button>
-            <button (click)="unlockAction()" class="btn btn-default detail-reject">
-                <localize key="modal.button.cancel"></localize>
-            </button>
+          <button *ngIf="readOnly" (click)="startEdit()" class="btn btn-primary detail-accept">
+            <localize key="modal.button.edit"></localize>
+          </button>
+          <button *ngIf="!readOnly" (click)="applyAction()" class="btn btn-primary detail-accept">
+            <localize key="modal.button.submit"></localize>
+          </button>
+          <button *ngIf="!readOnly" (click)="endEdit()" class="btn btn-default detail-reject">
+            <localize key="modal.button.cancel"></localize>
+          </button>
         </div>
     </div>
 </div>
