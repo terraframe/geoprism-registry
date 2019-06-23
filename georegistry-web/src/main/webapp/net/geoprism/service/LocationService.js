@@ -50,13 +50,14 @@
       runwayService.execute(req, connection);      
     }
     
-    service.getGeoEntitySuggestions = function(connection, text, limit) {
+    service.getGeoEntitySuggestions = function(connection, text, limit, mdRelationshipId) {
       var req = {
         method: 'POST',
         url: com.runwaysdk.__applicationContextPath + '/location/suggestions',
         data : {
-          text : text,
-          limit : limit
+            text : text,
+            limit : limit,
+            mdRelationshipId : mdRelationshipId          
         }
       }      
                 

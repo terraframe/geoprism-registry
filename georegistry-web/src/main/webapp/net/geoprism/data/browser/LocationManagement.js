@@ -239,7 +239,7 @@
 
         var text = request.term;
 
-        locationService.getGeoEntitySuggestions(connection, text, limit);
+        locationService.getGeoEntitySuggestions(connection, text, limit, $scope.hierarchy.value);
       }
     }
 
