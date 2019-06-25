@@ -134,6 +134,18 @@ public class MasterList extends MasterListBase
 
   @Override
   @Transaction
+  public void apply()
+  {
+    if (!isValidName(this.getCode()))
+    {
+      throw new InvalidMasterListCodeException("The master list code has an invalid character");
+    }
+
+    super.apply();
+  }
+
+  @Override
+  @Transaction
   public void delete()
   {
     MasterListAttributeGroup.deleteAll(this);
@@ -1472,6 +1484,16 @@ public class MasterList extends MasterListBase
 
       list.removeAttributeType(metadata, attributeType);
     }
+  }
+
+  public static boolean isValidName(String name)
+  {
+    if (name.contains(" ") || name.contains("<") || name.contains(">") || name.contains("-") || name.contains("+") || name.contains("=") || name.contains("!") || name.contains("@") || name.contains("#") || name.contains("$") || name.contains("%") || name.contains("^") || name.contains("&") || name.contains("*") || name.contains("?") || name.contains(";") || name.contains(":") || name.contains(",") || name.contains("^") || name.contains("{") || name.contains("}") || name.contains("]") || name.contains("[") || name.contains("`") || name.contains("~") || name.contains("|") || name.contains("/") || name.contains("\\"))
+    {
+      return false;
+    }
+
+    return true;
   }
 
 }
