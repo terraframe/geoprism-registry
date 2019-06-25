@@ -273,9 +273,9 @@ export class RegistryService {
                 return response.json() as GeoObject;
             } )
     }
-    
+
     getGeoObjectBounds( code: string, typeCode: string ): Promise<number[]> {
-      let params: URLSearchParams = new URLSearchParams();
+        let params: URLSearchParams = new URLSearchParams();
 
         params.set( 'code', code )
         params.set( 'typeCode', typeCode );
@@ -303,33 +303,46 @@ export class RegistryService {
     }
 
     getGeoObjectSuggestions( text: string, type: string, parent: string, hierarchy: string ): Promise<GeoObject> {
-        let params: URLSearchParams = new URLSearchParams();
 
-        params.set( 'text', text )
-        params.set( 'type', type );
-        params.set( 'parent', parent );
-        params.set( 'hierarchy', hierarchy );
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        let params = {
+            text: text,
+            type: type,
+        } as any;
+
+        if ( parent != null && hierarchy != null ) {
+            params.parent = parent;
+            params.hierarchy = parent;
+        }
 
         return this.http
-            .get( acp + '/cgr/geoobject/suggestions', { params: params } )
+            .post( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
             .toPromise()
             .then( response => {
-                return response.json() as GeoObject;
-            } )
+                return response.json();
+            } );
+
     }
 
     getGeoObjectSuggestionsTypeAhead( text: string, type: string ): Promise<GeoObject> {
-        let params: URLSearchParams = new URLSearchParams();
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
 
-        params.set( 'text', text );
-        params.set( 'type', type );
+        let params = {
+            text: text,
+            type: type,
+        } as any;
 
         return this.http
-            .get( acp + '/cgr/geoobject/suggestions', { params: params } )
+            .post( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
             .toPromise()
             .then( response => {
-                return response.json() as GeoObject;
-            } )
+                return response.json();
+            } );
     }
 
     getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
