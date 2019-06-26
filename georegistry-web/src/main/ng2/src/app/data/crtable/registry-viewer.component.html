@@ -3,8 +3,8 @@
   <loading-bar></loading-bar>
 
   <div id="app-container" class="container">
-    <request-table *ngIf="state === 'REQUESTS'" (pageChange)="onPageChange($event)"></request-table>
-    <action-table *ngIf="state === 'ACTIONS'" (pageChange)="onPageChange($event)" [request]="request"></action-table>
+    <request-table #requestTable *ngIf="state === 'REQUESTS'" (pageChange)="onPageChange($event)"></request-table>
+    <action-table #actionTable *ngIf="state === 'ACTIONS'" (pageChange)="onPageChange($event)" [request]="request"></action-table>
   </div>
 
 </div>
