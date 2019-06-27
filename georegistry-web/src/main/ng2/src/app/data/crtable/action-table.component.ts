@@ -12,13 +12,15 @@ import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../core/service/localization.service';
 
+import { ComponentCanDeactivate } from '../../core/pending-changes-guard';
+
 @Component( {
 
     selector: 'action-table',
     templateUrl: './action-table.component.html',
     styleUrls: ['./crtable.css']
 } )
-export class ActionTableComponent implements OnInit {
+export class ActionTableComponent implements OnInit, ComponentCanDeactivate {
     @Output() pageChange = new EventEmitter<PageEvent>();
     @Input() request: ChangeRequest;
     
@@ -43,7 +45,7 @@ export class ActionTableComponent implements OnInit {
             { name: localizationService.decode( 'change.request.status' ), prop: 'statusLabel', sortable: false }
         ];
     }
-
+    
     ngOnInit(): void {
         this.rows = Observable.create(( subscriber: any ) => {
             this.fetch(( data: any ) => {
@@ -54,8 +56,6 @@ export class ActionTableComponent implements OnInit {
     }
 
     onBack(): void {
-      this.unlockAction();
-    
       this.pageChange.emit( {
           type: 'BACK',
           data: {}
@@ -99,19 +99,31 @@ export class ActionTableComponent implements OnInit {
     onSelect( selected: any ) {
       this.action = selected.selected[0];
       
-      this.updateDetailAction(this.action);
+      var detail = this.getActiveDetailComponent();
+      if (detail != null)
+      {
+        detail.onSelect(this.action);
+      }
     }
     
-    updateDetailAction(action: AbstractAction)
+    canDeactivate(): Observable<boolean> | boolean {
+      return this.getActiveDetailComponent().canDeactivate();
+    }
+    
+    afterDeactivate(isDeactivating: boolean)
     {
+      return this.getActiveDetailComponent().afterDeactivate(isDeactivating);
+    }
+    
+    getActiveDetailComponent() : any {
       // TODO: I know this scales poorly to lots of different action types but I'm not sure how to do it better
-      if (this.cuDetail != null && (action.actionType.endsWith('CreateGeoObjectAction') || action.actionType.endsWith('UpdateGeoObjectAction')))
+      if (this.cuDetail != null && (this.action.actionType.endsWith('CreateGeoObjectAction') || this.action.actionType.endsWith('UpdateGeoObjectAction')))
       {
-        this.cuDetail.onSelect(action);
+        return this.cuDetail;
       }
-      if (this.arDetail != null && (action.actionType.endsWith('AddChildAction') || action.actionType.endsWith('RemoveChildAction')))
+      if (this.arDetail != null && (this.action.actionType.endsWith('AddChildAction') || this.action.actionType.endsWith('RemoveChildAction')))
       {
-        this.arDetail.onSelect(action);
+        return this.arDetail;
       }
     }
     

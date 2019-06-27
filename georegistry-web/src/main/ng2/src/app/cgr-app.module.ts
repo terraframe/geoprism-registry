@@ -90,6 +90,7 @@ import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
 import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
+import { PendingChangesGuard } from './core/pending-changes-guard';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -196,7 +197,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     RegistryService,
     ProgressService,
     DatePipe,
-    ToEpochDateTimePipe
+    ToEpochDateTimePipe,
+    PendingChangesGuard
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [
