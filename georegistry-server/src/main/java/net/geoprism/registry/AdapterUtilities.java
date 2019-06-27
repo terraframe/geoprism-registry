@@ -504,7 +504,7 @@ public class AdapterUtilities
   {
     if (!MasterList.isValidName(geoObjectType.getCode()))
     {
-      throw new InvalidMasterListCodeException("The hierarchy type code has an invalid character");
+      throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
 
 
