@@ -502,6 +502,12 @@ public class AdapterUtilities
   @Transaction
   public Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
+    if (!MasterList.isValidName(geoObjectType.getCode()))
+    {
+      throw new InvalidMasterListCodeException("The hierarchy type code has an invalid character");
+    }
+
+
     Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
 
     MdBusiness mdBusiness = new MdBusiness();
