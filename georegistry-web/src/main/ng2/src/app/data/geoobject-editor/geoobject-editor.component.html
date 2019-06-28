@@ -21,12 +21,14 @@
 
         <!-- Attributes tab -->
         <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.preGeoObject && this.postGeoObject"
-            #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)" [geoObjectType]="this.geoObjectType"
+            #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)" [allowCodeEdit]="this.isNewGeoObject" [geoObjectType]="this.geoObjectType"
             [preGeoObject]="this.preGeoObject" [postGeoObject]="this.postGeoObject"></geoobject-shared-attribute-editor>
 
 
         <!-- Parents tab -->
         <div *ngIf="this.tabIndex === 1">
+          <cascading-geo-selector *ngIf="this.hierarchies != null" [hierarchies]="this.hierarchies"></cascading-geo-selector>
+          <!--
             <div *ngFor="let ptn of this.parentTreeNode.parents">
                 <div class="label-holder">
                     <label>{{ptn.hierarchyType}}</label>
@@ -39,6 +41,7 @@
                     typeaheadOptionField="name" class="form-control" autocomplete="off" required>
                 </div>
             </div>
+          -->
         </div>
 
 		<!-- Geometry tab -->

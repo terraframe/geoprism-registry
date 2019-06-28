@@ -1,0 +1,18 @@
+
+<div *ngFor="let hierarchy of this.hierarchies">
+	<div class="row text-center">
+	  <div class="text-center">
+	    <h2>
+        {{hierarchy.label}}
+	    </h2>
+	  </div>
+	  <div *ngFor="let parent of hierarchy.parents">
+	    {{parent.label}}
+	  
+	    <input type="text" [(ngModel)]="parent.ptn.geoObject.properties.displayLabel.localizedValue" name="parent.ptn.geoObject.properties.code + '-input'"
+	      [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(parent.ptn.geoObject.properties.displayLabel.localizedValue, parent.code)"
+	      (typeaheadOnSelect)="typeaheadOnSelect($event, parent.ptn)" [typeaheadOptionsLimit]="7"
+	      typeaheadOptionField="name" class="form-control" autocomplete="off" required>
+	  </div>
+	</div>
+</div>

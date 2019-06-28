@@ -167,6 +167,22 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
+  
+  /**
+   * TODO : Not part of the official API (yet). Currently used for the GeoObject editing widget when creating a new GeoObject.
+   *        The return value is a custom serialized json format because ParentTreeNode doesn't quite fit our needs (It allows for
+   *        a GeoObject but not a GeoObjectType) 
+   * @param request
+   * @param typeCode
+   * @return
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_NEW_INSTANCE)
+  public ResponseIF newGeoObjectInstance(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_NEW_INSTANCE_PARAM_TYPE_CODE) String typeCode)
+  {
+    String resp = this.registryService.newGeoObjectInstance2(request.getSessionId(), typeCode);
+
+    return new RestBodyResponse(resp);
+  }
 
   /**
    * Update a new GeoObject in the Common Geo-Registry

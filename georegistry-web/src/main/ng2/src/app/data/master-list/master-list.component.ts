@@ -249,6 +249,17 @@ export class MasterListComponent implements OnInit {
         this.bsModalRef.content.master = this.list;
     }
 
+    onNewGeoObject(): void {
+      let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
+      //editModal.content.fetchGeoObject( data.code, this.list.typeCode );
+      editModal.content.configureAsNew( this.list.typeCode );
+      editModal.content.setMasterListId( this.list.oid );
+      editModal.content.setOnSuccessCallback(() => {
+          // Refresh the page
+          this.onPageChange( this.page.pageNumber );
+      } );
+    }
+
     onExport(): void {
         this.bsModalRef = this.modalService.show( ExportFormatModalComponent, {
             animated: true,

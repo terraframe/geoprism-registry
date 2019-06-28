@@ -70,6 +70,7 @@ import { SubmitChangeRequestComponent } from './data/submit-change-request/submi
 import { GeoObjectEditorComponent } from './data/geoobject-editor/geoobject-editor.component';
 import { GeoObjectEditorMapComponent } from './data/geoobject-editor-map/geoobject-editor-map.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
+import { CascadingGeoSelector } from './data/cascading-geo-selector/cascading-geo-selector';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
@@ -136,8 +137,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ConfirmModalComponent,
     ManageAttributesModalComponent,
     DefineAttributeModalContentComponent,
-	ErrorModalComponent, 
-	SuccessModalComponent,
+	  ErrorModalComponent, 
+	  SuccessModalComponent,
     ShapefileModalComponent,
     AttributesPageComponent,
     LocationPageComponent,
@@ -173,6 +174,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ToEpochDateTimePipe,
     ProgressBarComponent,
     GeoObjectEditorMapComponent,
+    CascadingGeoSelector,
     
     // Master List screens
     MasterListManagerComponent,

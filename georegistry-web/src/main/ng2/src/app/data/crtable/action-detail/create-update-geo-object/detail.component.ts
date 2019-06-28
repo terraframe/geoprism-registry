@@ -110,14 +110,9 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     }
   }
 
-  // @HostListener allows us to also guard against browser refresh, close, etc.
   // Big thanks to https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
   @HostListener('window:beforeunload')
   canDeactivate(): Observable<boolean> | boolean {
-    // insert logic to check if there are pending changes here;
-    // returning true will navigate without confirmation
-    // returning false will show a confirm dialog before navigating away
-
     if (!this.readOnly)
     {
       //event.preventDefault();

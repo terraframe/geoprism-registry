@@ -89,6 +89,24 @@ export class RegistryService {
             } )
     }
 
+    newGeoObjectInstance( typeCode: string ): Promise<any> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/cgr/geoobject/newGeoObjectInstance', JSON.stringify( { 'typeCode': typeCode } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as any;
+            } )
+    }
+
     createGeoObjectType( gtJSON: string ): Promise<GeoObjectType> {
 
         let headers = new Headers( {
