@@ -726,6 +726,14 @@ public class RegistryController
 
     return new RestBodyResponse(response);
   }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies")
+  public ResponseIF getHierarchiesForGeoObject(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode)
+  {
+    JsonArray response = this.registryService.getHierarchiesForGeoObject(request.getSessionId(), code, typeCode);
+
+    return new RestBodyResponse(response);
+  }
 
   /**
    * Returns an array of (label, entityId) pairs that under the given

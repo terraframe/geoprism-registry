@@ -25,22 +25,32 @@ import net.geoprism.registry.service.ServiceFactory;
 public class GeoObjectEditorController
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name="masterListId") String masterListId) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode,
+      @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew,
+      @RequestParamter(name="masterListId") String masterListId) throws JSONException
   {
-    applyInReq(request.getSessionId(), parentTreeNode, geoObject, masterListId);
+    applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId);
     
     return new RestResponse();
   }
   
   @Request(RequestType.SESSION)
-  public GeoObject applyInReq(String sessionId, String ptn, String go, String masterListId)
+  public GeoObject applyInReq(String sessionId, String ptn, String go, Boolean isNew, String masterListId)
   {
-    return applyInTransaction(sessionId, ptn, go, masterListId);
+    return applyInTransaction(sessionId, ptn, go, isNew, masterListId);
   }
   @Transaction
-  private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, String masterListId)
+  private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, Boolean isNew, String masterListId)
   {
-    GeoObject go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
+    GeoObject go;
+    if (!isNew)
+    {
+      go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
+    }
+    else
+    {
+      go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
+    }
     
     ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
     

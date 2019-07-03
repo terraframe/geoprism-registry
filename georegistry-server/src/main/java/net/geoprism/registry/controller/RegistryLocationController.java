@@ -253,7 +253,7 @@ public class RegistryLocationController
     }
     else
     {
-      go = new GeoObjectEditorController().applyInReq(sessionId, sjsPTN, go.toJSON(serializer).toString(), null);
+      go = new GeoObjectEditorController().applyInReq(sessionId, sjsPTN, go.toJSON(serializer).toString(), false, null);
     }
     
     JSONObject object = new JSONObject();

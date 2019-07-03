@@ -10,6 +10,7 @@ import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
 import { ChangeRequestService } from '../../service/change-request.service';
 
+import { CascadingGeoSelector } from '../cascading-geo-selector/cascading-geo-selector'
 
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
@@ -39,27 +40,11 @@ declare var acp: string;
  */
 export class GeoObjectEditorComponent implements OnInit {
 
-  /*
-	 * The current state of the GeoObject in the GeoRegistry
-	 */
-    @Input() preGeoObject: GeoObject = null;
-
-	/*
-	 * The state of the GeoObject after our edit has been applied
-	 */
-    @Input() postGeoObject: any = {};
-
     @Input() geoObjectType: GeoObjectType;
-
-    @ViewChild("attributeEditor") attributeEditor;
-
-    @ViewChild("geometryEditor") geometryEditor;
 
     isValid: boolean = false;
 
     tabIndex: number = 0;
-
-    parentTreeNode: ParentTreeNode;
 
     dataSource: Observable<any>;
 
@@ -67,13 +52,50 @@ export class GeoObjectEditorComponent implements OnInit {
 
     isNewGeoObject: boolean = false;
     
-    hierarchies: any;
-
     @Input() onSuccessCallback: Function;
 
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
+    
+    /*
+     * GeoObject Property Editor
+     */
+    @ViewChild("attributeEditor") attributeEditor;
+
+    arePropertiesValid: boolean = false;
+    
+    // The current state of the GeoObject in the GeoRegistry
+    goPropertiesPre: GeoObject;
+    
+    // The state of the GeoObject after our edit has been applied
+    goPropertiesPost: GeoObject;
+
+    /*
+     * GeoObject Geometry Editor
+     */
+    @ViewChild("geometryEditor") geometryEditor;
+    
+    areGeometriesValid: boolean = false;
+    
+    goGeometries: GeoObject;
+    
+    /*
+     * GeoObject Cascading Parent Selector
+     */
+    @ViewChild("parentSelector") parentSelector;
+    
+    areParentsValid: boolean = false;
+    
+    hierarchies: any;
+    
+    /*
+     * The final artifacts which will be submitted
+     */
+    private parentTreeNode: ParentTreeNode;
+    
+    private goSubmit: GeoObject;
+    
 
     constructor(private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
             private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
@@ -84,12 +106,7 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-      // TODO : Remove this code when its actually being used for real
-      if (this.preGeoObject == null)
-      {
-        // this.fetchGeoObject("855 01090201", "Cambodia_Village");
-        // this.fetchGeoObjectType("Cambodia_Village");
-      }
+      
     }
 
     setMasterListId(id: string)
@@ -104,7 +121,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
     // Configures the widget to be used in a "New" context, that is to say
     // that it will be used to create a new GeoObject.
-    configureAsNew(typeCode: string)
+    public configureAsNew(typeCode: string)
     {
       this.isNewGeoObject = true;
 
@@ -112,25 +129,44 @@ export class GeoObjectEditorComponent implements OnInit {
 
       this.registryService.newGeoObjectInstance(typeCode).then(retJson => {
           this.hierarchies = retJson.hierarchies;
-          this.preGeoObject = retJson.geoObject;
-          this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject));
+          this.goPropertiesPre = retJson.geoObject;
+          this.goPropertiesPost = JSON.parse(JSON.stringify(this.goPropertiesPre));
+          this.goGeometries = JSON.parse(JSON.stringify(this.goPropertiesPre));
 
           console.log("Fetched newGeoObjectInstance", retJson);
       });
-
-      // TODO : Parents
+    }
+    
+    // Configures the widget to be used in an "Edit Existing" context
+    public configureAsExisting( code: string, typeCode: string )
+    {
+      this.isNewGeoObject = false;
+    
+      this.fetchGeoObject(code, typeCode);
+      this.fetchGeoObjectType(typeCode);
+      this.fetchHierarchies(code, typeCode);
     }
 
     private fetchGeoObject(code: string, typeCode: string)
     {
       this.registryService.getGeoObjectByCode(code, typeCode)
             .then(geoObject => {
-                console.log("Fetched GeoObj", geoObject);
-                console.log("createDate", geoObject.properties.createDate);
-                this.preGeoObject = geoObject;
-                this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
-
-                this.fetchParents(geoObject);
+                this.goPropertiesPre = geoObject;
+                this.goPropertiesPost = JSON.parse(JSON.stringify(this.goPropertiesPre));
+                this.goGeometries = JSON.parse(JSON.stringify(this.goPropertiesPre));
+                
+                if (this.hierarchies != null)
+                {
+                  this.goSubmit = this.goPropertiesPost;
+                  this.goSubmit.geometry = this.goGeometries.geometry;
+                  this.parentTreeNode.geoObject = this.goSubmit;
+                  
+                  this.areGeometriesValid = true;
+                  this.areParentsValid = true;
+                  this.arePropertiesValid = true;
+                  this.isValid = true;
+                }
+                
             }).catch((err: Response) => {
                 this.error(err.json());
             });
@@ -148,25 +184,34 @@ export class GeoObjectEditorComponent implements OnInit {
             });
     }
 
-    private fetchParents(go: GeoObject)
+    private fetchHierarchies(code: string, typeTypeCode: string)
     {
-      this.registryService.getParentGeoObjects(go.properties.uid, go.properties.type, [], true)
-        .then( (ptn: ParentTreeNode) => {
-
-          if (ptn != null && ptn.parents != null && ptn.parents.length > 0)
+      this.registryService.getHierarchiesForGeoObject(code, typeTypeCode)
+        .then( (hierarchies: any) => {
+          
+          this.hierarchies = hierarchies;
+          this.parentTreeNode = CascadingGeoSelector.staticGetParents(this.hierarchies);
+          this.areParentsValid = true;
+          
+          if (this.goGeometries != null)
           {
-            this.parentTreeNode = ptn;
+            this.goSubmit = this.goPropertiesPost;
+            this.goSubmit.geometry = this.goGeometries.geometry;
+            this.parentTreeNode.geoObject = this.goSubmit;
+            
+            this.areGeometriesValid = true;
+            this.areParentsValid = true;
+            this.arePropertiesValid = true;
+            this.isValid = true;
           }
-
+          
         }).catch((err: Response) => {
-            this.error(err.json());
+          this.error(err.json());
         });
     }
 
     getTypeAheadObservable(text, typeCode)
     {
-      console.log("getTypeAheadObservable", text, typeCode);
-
       return Observable.create((observer: any) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead(text, typeCode).then(results => {
                 observer.next(results);
@@ -175,8 +220,6 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     typeaheadOnSelect(e: TypeaheadMatch, ptn: ParentTreeNode): void {
-    	console.log("typeaheadOnSelect", e, ptn);
-
         this.registryService.getGeoObjectByCode(e.item.code, ptn.geoObject.properties.type)
             .then(geoObject => {
 
@@ -187,36 +230,69 @@ export class GeoObjectEditorComponent implements OnInit {
             });
     }
 
-    private onValidChange(newValid: boolean)
+    private onValidChange()
     {
-      if (this.preGeoObject == null) {
-        this.isValid = false;
-        return;
+      if (this.attributeEditor != null)
+      {
+        this.arePropertiesValid = this.attributeEditor.getIsValid();
       }
-      this.isValid = newValid;
+      if (this.geometryEditor != null)
+      {
+        this.areGeometriesValid = this.geometryEditor.getIsValid();
+      }
+      if (this.parentSelector != null)
+      {
+        this.areParentsValid = this.parentSelector.getIsValid();
+      }
+    
+      this.isValid = this.arePropertiesValid && this.areGeometriesValid && this.areParentsValid;
     }
 
-    changePage(nextPage: number): void
+    changePage(nextPage: number, force: boolean = false): void
     {
-      if (nextPage === this.tabIndex)
+      if (nextPage === this.tabIndex && !force)
       {
         return;
       }
-
+      
       console.log("Changing to page", nextPage);
 
-      if (this.tabIndex === 2)
-      {
-        this.postGeoObject = this.geometryEditor.saveDraw();
-      }
-      else if (this.tabIndex === 0)
-      {
-        this.postGeoObject = this.attributeEditor.getGeoObject();
-      }
+      this.persistModelChanges();
 
       this.tabIndex = nextPage;
+      
+      this.onValidChange();
     }
-
+    
+    private persistModelChanges(): void
+    {
+      if (this.attributeEditor != null)
+      {
+        this.goPropertiesPost = this.attributeEditor.getGeoObject();
+      }
+      if (this.geometryEditor != null)
+      {
+        this.goGeometries = this.geometryEditor.saveDraw();
+      }
+      if (this.parentSelector != null)
+      {
+        this.hierarchies = this.parentSelector.getHierarchies();
+        this.parentTreeNode = this.parentSelector.getParents();
+      }
+    
+      this.goSubmit = this.goPropertiesPost;
+      
+      if (this.goSubmit != null && this.goGeometries != null && this.goGeometries.geometry != null)
+      {
+        this.goSubmit.geometry = this.goGeometries.geometry;
+      }
+    
+      if (this.parentTreeNode != null)
+      {
+        this.parentTreeNode.geoObject = this.goSubmit;
+      }
+    }
+    
     public error(err: any): void {
         // TODO
 
@@ -232,20 +308,23 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     public submit(): void {
-      this.bsModalRef.hide();
-
-      this.changePage(this.tabIndex); // Persist model changes
-
-      this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.postGeoObject, this.masterListId)
-          .then( () => {
-
-              if (this.onSuccessCallback != null)
-              {
-                this.onSuccessCallback();
-              }
-
-            }).catch((err: Response) => {
-                this.error(err.json());
-            });
+      if (this.isValid)
+      {
+        this.bsModalRef.hide();
+  
+        this.persistModelChanges();
+  
+        this.registryService.applyGeoObjectEdit(this.parentTreeNode, this.goSubmit, this.isNewGeoObject, this.masterListId)
+            .then( () => {
+  
+                if (this.onSuccessCallback != null)
+                {
+                  this.onSuccessCallback();
+                }
+  
+              }).catch((err: Response) => {
+                  this.error(err.json());
+              });
+      }
     }
 }

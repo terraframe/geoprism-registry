@@ -1,18 +1,28 @@
 
-<div *ngFor="let hierarchy of this.hierarchies">
-	<div class="row text-center">
-	  <div class="text-center">
-	    <h2>
-        {{hierarchy.label}}
-	    </h2>
-	  </div>
-	  <div *ngFor="let parent of hierarchy.parents">
-	    {{parent.label}}
-	  
-	    <input type="text" [(ngModel)]="parent.ptn.geoObject.properties.displayLabel.localizedValue" name="parent.ptn.geoObject.properties.code + '-input'"
-	      [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(parent.ptn.geoObject.properties.displayLabel.localizedValue, parent.code)"
-	      (typeaheadOnSelect)="typeaheadOnSelect($event, parent.ptn)" [typeaheadOptionsLimit]="7"
-	      typeaheadOptionField="name" class="form-control" autocomplete="off" required>
-	  </div>
-	</div>
-</div>
+<form style="overflow:visible;" class="modal-form" name="cascading-geo-selector" #mainForm="ngForm">
+  <fieldset>
+    <div>
+      <div class="row-holder" style="overflow:visible;" *ngFor="let hierarchy of this.hierarchies">
+        <div class="label-holder">
+          <label>
+            {{hierarchy.label}}
+          </label>
+        </div>
+        <div class="holder">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-1" style="float:left;width:150px;" *ngFor="let parent of hierarchy.parents; let i = index">
+                {{parent.label}}
+              
+                <input style="width:150px;" type="text" [(ngModel)]="parent.ptn.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input"
+                  [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(parent.ptn.geoObject.properties.displayLabel.localizedValue, parent, hierarchy, i)"
+                  (typeaheadOnSelect)="typeaheadOnSelect($event, parent)" [typeaheadOptionsLimit]="7" (input)="valueChange(parent.ptn.geoObject.properties.displayLabel.localizedValue, i, hierarchy)"
+                  typeaheadOptionField="name" class="form-control" autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>

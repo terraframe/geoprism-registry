@@ -65,6 +65,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     
     @Input() readOnly: boolean = false;
     
+    @Input() isNew: boolean = false;
+    
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
@@ -230,8 +232,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         return null;
     }
 
-    isFormValid(): boolean {
-        return this.isValid;
+    public getIsValid(): boolean {
+      return this.isValid;
     }
 
     public getGeoObject(): any {

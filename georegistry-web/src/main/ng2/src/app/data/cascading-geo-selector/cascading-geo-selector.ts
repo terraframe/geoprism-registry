@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
@@ -18,6 +18,12 @@ export class CascadingGeoSelector {
 
     @Input() hierarchies: any;
     
+    @Output() valid = new EventEmitter<boolean>();
+    
+    @Input() isValid: boolean = true;
+    
+    @ViewChild("mainForm") mainForm;
+    
     parentMap: any = {};
 
     bsModalRef: BsModalRef;
@@ -33,51 +39,139 @@ export class CascadingGeoSelector {
       
         for (var j = 0; j < hierarchy.parents.length; ++j)
         {
-          var ptn = new ParentTreeNode();
-          
-          ptn.geoObject = new GeoObject();
-          ptn.geoObject.properties = {
-            uid: "",
-            code: "",
-            displayLabel: new LocalizedValue(),
-            type: "",
-            status: [""],
-            sequence: "",
-            createDate: "",
-            lastUpdateDate: ""
-          };
-          
-          hierarchy.parents[j].ptn = ptn;
+          if (hierarchy.parents[j].ptn == null)
+          {
+            var ptn = new ParentTreeNode();
+            
+            ptn.geoObject = this.newGeoObject();
+            ptn.hierarchyType = hierarchy.code;
+            
+            hierarchy.parents[j].ptn = ptn;
+          }
         }
       }
+      
+      console.log("hierarchies after populate", this.hierarchies);
     }
     
-    getTypeAheadObservable(text, typeCode)
+    valueChange(newValue: string, index: number, hierarchy: any): void
     {
-      console.log("getTypeAheadObservable", text, typeCode);
+      let invalid: boolean = false;
+      
+      for (let i = index; i < hierarchy.parents.length; ++i)
+      {
+        let parent = hierarchy.parents[i];
+        
+        parent.ptn.geoObject = this.newGeoObject();
+        
+        if (i === index)
+        {
+          parent.ptn.geoObject.properties.displayLabel.localizedValue = newValue;
+        }
+        
+        invalid = true;
+      }
+      
+      this.valid.emit();
+    }
+    
+    private newGeoObject(): GeoObject
+    {
+      let go = new GeoObject();
+      go.properties = {
+        uid: "",
+        code: "",
+        displayLabel: new LocalizedValue(),
+        type: "",
+        status: [""],
+        sequence: "",
+        createDate: "",
+        lastUpdateDate: ""
+      };
+      
+      return go;
+    }
+    
+    getTypeAheadObservable(text, parent, hierarchy, index)
+    {
+      let geoObjectTypeCode = parent.code;
+      
+      let parentCode = null;
+      let hierarchyCode = null;
+      if (index > 0)
+      {
+        let parentParentType = hierarchy.parents[index - 1];
+        
+        if (parentParentType.ptn.geoObject.properties.code != null)
+        {
+          hierarchyCode = hierarchy.code;
+          parentCode = parentParentType.ptn.geoObject.properties.code;
+        }
+      }
 
       return Observable.create((observer: any) => {
-            this.registryService.getGeoObjectSuggestionsTypeAhead(text, typeCode).then(results => {
+            this.registryService.getGeoObjectSuggestions(text, geoObjectTypeCode, parentCode, hierarchyCode).then(results => {
                 observer.next(results);
             });
         });
     }
 
-    typeaheadOnSelect(e: TypeaheadMatch, ptn: ParentTreeNode): void {
-      console.log("typeaheadOnSelect", e, ptn);
+    typeaheadOnSelect(e: TypeaheadMatch, parent: any): void {
+      let ptn: ParentTreeNode = parent.ptn;
 
-        this.registryService.getGeoObjectByCode(e.item.code, ptn.geoObject.properties.type)
+        this.registryService.getGeoObjectByCode(e.item.code, parent.code)
             .then(geoObject => {
 
               ptn.geoObject = geoObject;
+              
+              this.valid.emit();
 
             }).catch((err: Response) => {
                 this.error(err.json());
             });
     }
     
-    public getParents(): ParentTreeNode {
-      return null;
+    public getIsValid(): boolean
+    {
+      return this.getParents() != null;
+    }
+    
+    public getHierarchies(): any {
+      return this.hierarchies;
+    }
+    
+    public getParents(): any
+    {
+      return CascadingGeoSelector.staticGetParents(this.hierarchies);
+    }
+    
+    public static staticGetParents(hierarchies: any): ParentTreeNode {
+      let ptn = new ParentTreeNode();
+      ptn.parents = [];
+      
+      for (var i = 0; i < hierarchies.length; ++i)
+      {
+        let hierarchy: any = hierarchies[i];
+        
+        if (hierarchy.parents.length > 0)
+        {
+          let parent: any = hierarchy.parents[hierarchy.parents.length - 1];
+          
+          if (parent.ptn != null && parent.ptn.geoObject != null && parent.ptn.geoObject.properties.code.length > 0)
+          {
+            ptn.parents.push(parent.ptn);
+          }
+        }
+      }
+      
+      if (ptn.parents.length > 0)
+      {
+        return ptn;
+      }
+      else
+      {
+        return null;
+      }
     }
 
     public error( err: any ): void {

@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.registry.adapter;
 
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -19,12 +19,13 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.ontology.ImmutableRootException;
 import com.runwaysdk.system.ontology.TermUtil;
 
+import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerGeoObjectType
 {
-  private Logger logger = LoggerFactory.getLogger(ServerGeoObject.class);
+  private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
   
   private GeoObjectType got;
   

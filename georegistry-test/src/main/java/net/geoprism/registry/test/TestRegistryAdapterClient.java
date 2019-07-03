@@ -26,9 +26,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
 {
   private static final long serialVersionUID = -433764579483802366L;
 
-  protected RegistryController controller;
+  public RegistryController controller;
   
-  protected ClientRequestIF clientRequest;
+  public ClientRequestIF clientRequest;
 
   public TestRegistryAdapterClient()
   {
@@ -155,7 +155,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     this.controller.submitChangeRequest(this.clientRequest, sActions);
   }
   
-  protected String responseToString(ResponseIF resp)
+  public String responseToString(ResponseIF resp)
   {
     Object obj = AbstractResponseSerializer.serialize((AbstractRestResponse) resp);
     

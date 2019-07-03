@@ -1,33 +1,31 @@
 <div class="modal-body text-center">
     <form class="modal-form" style="overflow: visible;">
-        <!-- <div class="col-md-12"> -->
-            <div class="row-holder">
-                <div class="label-holder"></div>
-                <div class="holder">
-                    <div class="btn-group geobject-editor-tab-holder">
-                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.changePage(0);">
-                            <localize key="geoobject.editor.tabZero"></localize>
-                        </label>
-                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
-                            <localize key="geoobject.editor.tabOne"></localize>
-                        </label>
-                        <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2}" (click)="this.changePage(2);">
-                            <localize key="geoobject.editor.tabTwo"></localize>
-                        </label>
-                    </div>
+        <div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder">
+                <div class="btn-group geobject-editor-tab-holder">
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.changePage(0);">
+                        <localize key="geoobject.editor.tabZero"></localize>
+                    </label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
+                        <localize key="geoobject.editor.tabOne"></localize>
+                    </label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2}" (click)="this.changePage(2);">
+                        <localize key="geoobject.editor.tabTwo"></localize>
+                    </label>
                 </div>
             </div>
-        <!-- </div> -->
+        </div>
 
         <!-- Attributes tab -->
-        <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.preGeoObject && this.postGeoObject"
-            #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)" [allowCodeEdit]="this.isNewGeoObject" [geoObjectType]="this.geoObjectType"
-            [preGeoObject]="this.preGeoObject" [postGeoObject]="this.postGeoObject"></geoobject-shared-attribute-editor>
+        <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
+            #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange()" [allowCodeEdit]="this.isNewGeoObject" [geoObjectType]="this.geoObjectType"
+            [preGeoObject]="this.goPropertiesPre" [postGeoObject]="this.goPropertiesPost" [isNew]="this.isNewGeoObject"></geoobject-shared-attribute-editor>
 
 
         <!-- Parents tab -->
         <div *ngIf="this.tabIndex === 1">
-          <cascading-geo-selector *ngIf="this.hierarchies != null" [hierarchies]="this.hierarchies"></cascading-geo-selector>
+          <cascading-geo-selector #parentSelector *ngIf="this.hierarchies != null" [isValid]="this.isValid" (valid)="this.onValidChange()" [hierarchies]="this.hierarchies"></cascading-geo-selector>
           <!--
             <div *ngFor="let ptn of this.parentTreeNode.parents">
                 <div class="label-holder">
@@ -44,13 +42,8 @@
           -->
         </div>
 
-		<!-- Geometry tab -->
-		<div class="row-holder">
-            <div class="label-holder"></div>
-            <div class="holder">
-        		<geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [preGeoObject]="this.preGeoObject" [postGeoObject]="this.postGeoObject" [geoObjectType]="this.geoObjectType"></geoobject-editor-map>
-			</div>
-		</div>
+         <!-- Geometry tab -->
+        <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
 
         <div class="row-holder">
             <div class="label-holder"></div>

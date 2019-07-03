@@ -187,8 +187,7 @@ export class MasterListComponent implements OnInit {
 
     onEdit( data ): void {
         let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
-        editModal.content.fetchGeoObject( data.code, this.list.typeCode );
-        editModal.content.fetchGeoObjectType( this.list.typeCode );
+        editModal.content.configureAsExisting( data.code, this.list.typeCode );
         editModal.content.setMasterListId( this.list.oid );
         editModal.content.setOnSuccessCallback(() => {
             // Refresh the page
