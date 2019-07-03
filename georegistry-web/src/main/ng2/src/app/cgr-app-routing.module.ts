@@ -12,6 +12,9 @@ import { SubmitChangeRequestComponent } from './data/submit-change-request/submi
 import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { MasterListComponent } from './data/master-list/master-list.component';
+import { DataPageComponent } from './data/data-page/data-page.component';
+import { ChangeRequestPageComponent } from './data/change-request-page/change-request-page.component';
+
 
 import { AdminGuard, MaintainerGuard, ContributerGuard } from './core/auth/admin.guard';
 
@@ -37,19 +40,15 @@ const routes: Routes = [
         redirectTo: '/shapefile',
         canActivate: [MaintainerGuard]
     },
-    {
-        path: 'shapefile',
-        component: ShapefileComponent,
-        canActivate: [MaintainerGuard]
-    },
-    {
-        path: 'spreadsheet',
-        component: SpreadsheetComponent,
-        canActivate: [MaintainerGuard]
-    },
-    {
-        path: 'export',
-        component: DataExportComponent
+	{
+        path: 'data',
+        component: DataPageComponent,
+        canActivate: [ContributerGuard]
+	},
+	{
+        path: 'change-requests',
+        component: ChangeRequestPageComponent,
+        canActivate: [ContributerGuard]
     },
     {
         path: 'localization-manager',

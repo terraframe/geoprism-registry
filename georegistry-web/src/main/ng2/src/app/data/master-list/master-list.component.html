@@ -6,9 +6,10 @@
   <div id="app-container" class="container">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div class="py-5 text-center">
+    <div class="py-5">
       <h2>
-        <localize key="masterlist.title"></localize>
+		<!-- <localize key="masterlist.title"></localize> -->
+		{{list.displayLabel.localizedValue}}
       </h2>
     </div>
     <div *ngIf="list != null">
@@ -62,9 +63,9 @@
       </div>
  -->
 
-      <div class="row form-group">
+      <!-- <div class="row form-group">
         <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-      </div>
+      </div> -->
       <div class="row form-group">
         <div class="col-md-12" style="overflow-x:auto;">
             <table class="list-table table table-bordered table-striped">

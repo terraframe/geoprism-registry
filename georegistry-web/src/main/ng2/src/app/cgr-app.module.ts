@@ -49,6 +49,7 @@ import { LocationProblemComponent } from './data/importer/modals/location-proble
 import { TermProblemPageComponent } from './data/importer/modals/term-problem-page.component';
 import { TermProblemComponent } from './data/importer/modals/term-problem.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
+import { DataPageComponent } from './data/data-page/data-page.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
 import { TermOptionWidgetComponent } from './data/hierarchy/geoobjecttype-management/term-option-widget.component';
@@ -67,6 +68,7 @@ import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-deta
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
 import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
+import { ChangeRequestPageComponent } from './data/change-request-page/change-request-page.component';
 import { GeoObjectEditorComponent } from './data/geoobject-editor/geoobject-editor.component';
 import { GeoObjectEditorMapComponent } from './data/geoobject-editor-map/geoobject-editor-map.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
@@ -171,7 +173,9 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     ProgressBarComponent,
-    GeoObjectEditorMapComponent,
+	GeoObjectEditorMapComponent,
+	DataPageComponent,
+	ChangeRequestPageComponent,
     
     // Master List screens
     MasterListManagerComponent,
@@ -225,7 +229,9 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       SubmitChangeRequestComponent,
       GeoObjectEditorComponent,
       PublishModalComponent,
-      ExportFormatModalComponent
+	  ExportFormatModalComponent,
+	  DataPageComponent,
+	  ChangeRequestPageComponent
   ]        
 })
 export class CgrAppModule { }

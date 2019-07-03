@@ -37,7 +37,7 @@ export class MasterListComponent implements OnInit {
     page: any = {
         count: 0,
         pageNumber: 1,
-        pageSize: 10,
+        pageSize: 100,
         results: []
     };
     sort = { attribute: 'code', order: 'ASC' };

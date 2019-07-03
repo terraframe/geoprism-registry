@@ -21,7 +21,7 @@ declare var acp: string;
     styleUrls: []
 } )
 export class SpreadsheetComponent implements OnInit {
-
+	
     /*
      * List of geo object types from the system
      */
@@ -40,10 +40,11 @@ export class SpreadsheetComponent implements OnInit {
     /*
      * File uploader
      */
-    uploader: FileUploader;
-
-    @ViewChild( 'myFile' )
+	uploader: FileUploader;
+	
+	@ViewChild( 'myFile' )
     fileRef: ElementRef;
+
 
     constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService ) { }
 
@@ -92,7 +93,8 @@ export class SpreadsheetComponent implements OnInit {
         else {
             this.error( { message: this.localizationService.decode( 'io.missing.file' ) } );
         }
-    }
+	}
+	
 
     public error( err: any ): void {
         // Handle error

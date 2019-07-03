@@ -2273,8 +2273,8 @@ i.fa.fa-cloud-upload{
 .drop-box:hover>:first-child::before, 
 .drop-box:hover>:first-child::after,
 .drop-box:hover p{
-	  color: #00bfff;
-	  border-color:#00bfff;
+	  color: #6BA542;
+	  border-color:#6BA542;
 	  opacity: 1;
 	  cursor: pointer;
 }
@@ -2296,7 +2296,7 @@ i.fa.fa-cloud-upload{
 }
    
 .drop-active{
-   	border: 3px #00bfff dashed;
+   	border: 3px #6BA542 dashed;
 }
     
 .builder-dialog-category-ico-container a {
