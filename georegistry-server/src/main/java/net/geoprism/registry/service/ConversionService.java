@@ -86,6 +86,8 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.InvalidMasterListCodeException;
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.io.TermValueException;
@@ -208,6 +210,12 @@ public class ConversionService
    */
   public MdTermRelationship newHierarchyToMdTermRelForUniversals(HierarchyType hierarchyType)
   {
+    if (!MasterList.isValidName(hierarchyType.getCode()))
+    {
+      throw new InvalidMasterListCodeException("The hierarchy type code has an invalid character");
+    }
+
+    
     MdBusiness mdBusUniversal = MdBusiness.getMdBusiness(Universal.CLASS);
 
     MdTermRelationship mdTermRelationship = new MdTermRelationship();

@@ -1,0 +1,13 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdBusiness name="net.geoprism.registry.MasterList">
+        <attributes>
+          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" indexType="unique index" required="true" label="Universal" />
+        </attributes>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+  </undoIt>
+</version>
