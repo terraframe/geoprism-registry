@@ -23,6 +23,7 @@ cd $WORKSPACE/adapter/java
 mvn clean deploy -B
 
 ## Build angular source ##
+export NODE_OPTIONS="--max-old-space-size=2500"
 cd $WORKSPACE/geoprism/geoprism-web/src/main/ng2
 npm install
 npm install typings
