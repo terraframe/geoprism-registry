@@ -53,23 +53,6 @@ export class GeoObjectEditorMapComponent implements OnInit {
      */
     draw: MapboxDraw;
     
-    /* 
-     * List of base layers
-     */
-    baseLayers: any[] = [{
-        label: 'Outdoors',
-        id: 'outdoors-v11',
-        selected: true
-    }, {
-        label: 'Satellite',
-        id: 'satellite-v9'
-    }, {
-        label: 'Streets',
-        id: 'streets-v11'
-    }];
-
-    layers: any[] = [];
-    
     editingControl: any;
     
     geoprismEditingControl: any;
@@ -78,17 +61,19 @@ export class GeoObjectEditorMapComponent implements OnInit {
     
     postGeoObjectProperties: any;
     
-    @Input() preGeoObject: GeoObject;
-    
     /*
-	 * The state of the GeoObject after our edit has been applied 
-	 */
+   * The state of the GeoObject after our edit has been applied 
+   */
     @Input() postGeoObject: GeoObject;
     
     @Input() geoObjectType: GeoObjectType;
     
+    @Input() isNew: boolean;
+    
+    @Output() valid = new EventEmitter<boolean>();
+    
     constructor(private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private registryService: RegistryService) {
-    	
+      
     }
     
     ngOnInit(): void {
@@ -96,93 +81,123 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
     
     ngAfterViewInit() {
-		setTimeout(() => { 
-		    this.postGeoObjectProperties = JSON.parse(JSON.stringify(this.postGeoObject.properties));
-		
-	        ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
+      setTimeout(() => { 
+        this.postGeoObjectProperties = JSON.parse(JSON.stringify(this.postGeoObject.properties));
+    
+          ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
 
-	        this.map = new Map( {
-	            container: 'map',
-	            style: 'mapbox://styles/mapbox/outdoors-v11',
-	            zoom: 2,
-	            center: [110.880453, 10.897852]
-	        } );
-	        
-	        this.map.on( 'load', () => {
-	            this.initMap();
-	        } );
-	    }, 10);
+          this.map = new Map( {
+              container: 'map',
+              style: 'mapbox://styles/mapbox/outdoors-v11',
+              zoom: 2,
+              center: [110.880453, 10.897852]
+          } );
+          
+          this.map.on( 'load', () => {
+              this.initMap();
+          } );
+          
+          this.map.on( 'draw.create', () => {
+              this.onValidChange();
+          } );
+          this.map.on( 'draw.delete', () => {
+              this.onValidChange();
+          } );
+          this.map.on( 'draw.update', () => {
+              this.onValidChange();
+          } );
+      }, 10);
+    }
+    
+    getIsValid(): boolean
+    {
+      let isValid: boolean = false;
+      let featureCollection: any = this.editingControl.getAll();
+      
+      if (featureCollection.features.length > 0)
+      {
+        isValid = true;
+      }
+      
+      return isValid;
+    }
+    
+    private onValidChange(): void
+    {
+      this.valid.emit();
     }
     
     initMap(): void {
 
-        this.map.on( 'style.load', () => {
-            //this.addLayers();
-            this.refresh( false );
-        } );
+      this.map.on( 'style.load', () => {
+          this.refresh( false );
+      } );
 
-        this.refresh( true );
+      this.refresh( true );
 
-        // Add zoom and rotation controls to the map.
-        this.map.addControl( new NavigationControl() );
+      // Add zoom and rotation controls to the map.
+      this.map.addControl( new NavigationControl() );
 
-		var gt = this.geoObjectType.geometryType.toUpperCase();
-		if (gt === "MULTIPOLYGON" || gt === "POLYGON")
-        {
-	        this.editingControl = new MapboxDraw({
-			    controls : {
-			      point : false,
-			      line_string : false,
-			      polygon : true,
-			      trash : true,
-			      combine_features : false,
-			      uncombine_features : false
-			    }
-			});
-		}
-		else if (gt === "POINT" || gt === "MULTIPOINT")
-		{
-			this.editingControl = new MapboxDraw({
-			    controls : {
-			      point : true,
-			      line_string : false,
-			      polygon : false,
-			      trash : true,
-			      combine_features : false,
-			      uncombine_features : false
-			    }
-			});
-		}
-		else if (gt === "LINE" || gt === "MULTILINE")
-		{
-			this.editingControl = new MapboxDraw({
-			    controls : {
-			      point : false,
-			      line_string : true,
-			      polygon : false,
-			      trash : true,
-			      combine_features : false,
-			      uncombine_features : false
-			    }
-			});
-		}
-		this.map.addControl(this.editingControl);
-		
-		this.editingControl.add(this.postGeoObject);
+      var gt = this.geoObjectType.geometryType.toUpperCase();
+      if (gt === "MULTIPOLYGON" || gt === "POLYGON")
+      {
+        this.editingControl = new MapboxDraw({
+          controls : {
+            point : false,
+            line_string : false,
+            polygon : true,
+            trash : true,
+            combine_features : false,
+            uncombine_features : false
+          }
+        });
+      }
+      else if (gt === "POINT" || gt === "MULTIPOINT")
+      {
+        this.editingControl = new MapboxDraw({
+          controls : {
+            point : true,
+            line_string : false,
+            polygon : false,
+            trash : true,
+            combine_features : false,
+            uncombine_features : false
+          }
+        });
+      }
+      else if (gt === "LINE" || gt === "MULTILINE")
+      {
+        this.editingControl = new MapboxDraw({
+            controls : {
+              point : false,
+              line_string : true,
+              polygon : false,
+              trash : true,
+              combine_features : false,
+              uncombine_features : false
+            }
+        });
+      }
+      this.map.addControl(this.editingControl);
+      
+      if (this.postGeoObject.type != null && this.postGeoObject.geometry != null)
+      {
+        this.editingControl.add(this.postGeoObject);
+      }
     }
     
     refresh( zoom: boolean ): void {
-        if ( zoom ) {
-          
-          this.registryService.getGeoObjectBounds(this.postGeoObject.properties.code, this.postGeoObject.properties.type)
-            .then(boundArr => {
-              let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
-
-              this.map.fitBounds( bounds, { padding: 50 } );
-            }).catch((err: Response) => {
-                this.error(err.json());
-            });
-        }
+      if ( zoom && this.postGeoObject.geometry != null && !this.isNew ) {
+        
+        this.registryService.getGeoObjectBounds(this.postGeoObject.properties.code, this.postGeoObject.properties.type)
+          .then(boundArr => {
+            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+  
+            this.map.fitBounds( bounds, { padding: 50 } );
+          }).catch((err: Response) => {
+              this.error(err.json());
+          });
+      }
     }
     
     saveDraw(): GeoObject {
@@ -190,20 +205,20 @@ export class GeoObjectEditorMapComponent implements OnInit {
       
       if (featureCollection.features.length > 0)
       {
-	      // The first Feature is our GeoObject.
-	      this.postGeoObject = featureCollection.features[0];
-	      
-	      // Any additional features were created using the draw editor. Combine them into the GeoObject if its a multi-polygon.
-	      if (featureCollection.features.length > 1 && this.geoObjectType.geometryType.toUpperCase() === "MULTIPOLYGON")
-	      {
-	        for (var i = 1; i < featureCollection.features.length; ++i)
-	        {
-	          this.postGeoObject.geometry.coordinates.push(featureCollection.features[i].geometry.coordinates)
-	        }
-	      }
-	      
-	      // If they deleted the Primary feature and then re-created it, then the properties won't exist.
-	      this.postGeoObject.properties = JSON.parse(JSON.stringify(this.postGeoObjectProperties));
+        // The first Feature is our GeoObject.
+        this.postGeoObject = featureCollection.features[0];
+        
+        // Any additional features were created using the draw editor. Combine them into the GeoObject if its a multi-polygon.
+        if (featureCollection.features.length > 1 && this.geoObjectType.geometryType.toUpperCase() === "MULTIPOLYGON")
+        {
+          for (var i = 1; i < featureCollection.features.length; ++i)
+          {
+            this.postGeoObject.geometry.coordinates.push(featureCollection.features[i].geometry.coordinates)
+          }
+        }
+        
+        // If they deleted the Primary feature and then re-created it, then the properties won't exist.
+        this.postGeoObject.properties = JSON.parse(JSON.stringify(this.postGeoObjectProperties));
       }
       
       return this.postGeoObject;

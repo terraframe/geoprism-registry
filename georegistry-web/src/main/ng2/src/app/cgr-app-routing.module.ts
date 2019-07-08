@@ -18,6 +18,8 @@ import { ChangeRequestPageComponent } from './data/change-request-page/change-re
 
 import { AdminGuard, MaintainerGuard, ContributerGuard } from './core/auth/admin.guard';
 
+import { PendingChangesGuard } from "./core/pending-changes-guard";
+
 
 const routes: Routes = [
     {
@@ -58,7 +60,8 @@ const routes: Routes = [
     {
         path: 'crtable',
         component: RegistryViewerComponent,
-        canActivate: [MaintainerGuard]
+        canActivate: [MaintainerGuard],
+        canDeactivate: [PendingChangesGuard]
     },
     {
         path: 'master-lists',

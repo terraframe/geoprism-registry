@@ -89,6 +89,24 @@ export class RegistryService {
             } )
     }
 
+    newGeoObjectInstance( typeCode: string ): Promise<any> {
+        let headers = new Headers( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post( acp + '/cgr/geoobject/newGeoObjectInstance', JSON.stringify( { 'typeCode': typeCode } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as any;
+            } )
+    }
+
     createGeoObjectType( gtJSON: string ): Promise<GeoObjectType> {
 
         let headers = new Headers( {
@@ -301,6 +319,24 @@ export class RegistryService {
                 return response.json() as GeoObject;
             } )
     }
+    
+    getHierarchiesForGeoObject( code: string, typeCode: string ): Promise<any> {
+        let params: URLSearchParams = new URLSearchParams();
+        params.set( 'code', code );
+        params.set( 'typeCode', typeCode );
+
+        this.eventService.start();
+
+        return this.http
+            .get( acp + '/cgr/geoobject/get-hierarchies', { params: params } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+            .then( response => {
+                return response.json() as any;
+            } )
+    }
 
     getGeoObjectSuggestions( text: string, type: string, parent: string, hierarchy: string ): Promise<GeoObject> {
 
@@ -315,7 +351,7 @@ export class RegistryService {
 
         if ( parent != null && hierarchy != null ) {
             params.parent = parent;
-            params.hierarchy = parent;
+            params.hierarchy = hierarchy;
         }
 
         return this.http
@@ -412,7 +448,7 @@ export class RegistryService {
     /*
      * Not really part of the RegistryService
      */
-    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject, masterListId: string ): Promise<Response> {
+    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject, isNew: boolean, masterListId: string ): Promise<Response> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -420,7 +456,7 @@ export class RegistryService {
         this.eventService.start();
 
         return this.http
-            .post( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject, masterListId: masterListId } ), { headers: headers } )
+            .post( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject, isNew: isNew, masterListId: masterListId } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
