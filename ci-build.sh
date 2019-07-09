@@ -23,7 +23,6 @@ cd $WORKSPACE/adapter/java
 mvn clean deploy -B
 
 ## Build angular source ##
-export NODE_OPTIONS="--max-old-space-size=2500"
 cd $WORKSPACE/geoprism/geoprism-web/src/main/ng2
 npm install
 npm install typings
@@ -33,8 +32,7 @@ cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
 npm install
 npm install typings
 typings install lodash
-export NODE_OPTIONS="--max-old-space-size=2500"
-NODE_OPTIONS="--max-old-space-size=2500" npm run build
+node --max_old_space_size=2500 $(which npm) run build
 
 if [ "$run_tests" == "true" ]; then
   ## Run the tests ##
