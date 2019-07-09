@@ -197,6 +197,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
         let featureCollection: any = this.editingControl.getAll();
 
         if ( featureCollection.features.length > 0 ) {
+
             // The first Feature is our GeoObject.
 
             // Any additional features were created using the draw editor. Combine them into the GeoObject if its a multi-polygon.
@@ -216,8 +217,10 @@ export class GeoObjectEditorMapComponent implements OnInit {
                     }
                 }
 
-                this.postGeoObject.geometry.coordinates = polygons;
-                this.postGeoObject.geometry.type = 'MultiPolygon';
+                this.postGeoObject.geometry = {
+                    coordinates: polygons,
+                    type: 'MultiPolygon'
+                };
             }
             else {
                 this.postGeoObject = featureCollection.features[0];

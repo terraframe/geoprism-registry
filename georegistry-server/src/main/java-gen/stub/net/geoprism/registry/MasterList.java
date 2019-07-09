@@ -359,6 +359,25 @@ public class MasterList extends MasterListBase
     }
   }
 
+  @Transaction
+  public void publishRecord(GeoObject object)
+  {
+    MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    Universal universal = this.getUniversal();
+    GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+    String runwayId = ServiceFactory.getIdService().registryIdToRunwayId(object.getUid(), type);
+
+    // Add the type ancestor fields
+    Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
+    Collection<AttributeType> attributes = type.getAttributeMap().values();
+
+    Business business = new Business(mdBusiness.definesType());
+
+    this.publish(object, business, attributes, ancestorMap, locales, runwayId);
+  }
+
   private TableMetadata createTable()
   {
     TableMetadata metadata = new TableMetadata();
