@@ -25,20 +25,19 @@ import net.geoprism.registry.service.ServiceFactory;
 public class GeoObjectEditorController
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode,
-      @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew,
-      @RequestParamter(name="masterListId") String masterListId) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId) throws JSONException
   {
     applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId);
-    
+
     return new RestResponse();
   }
-  
+
   @Request(RequestType.SESSION)
   public GeoObject applyInReq(String sessionId, String ptn, String go, Boolean isNew, String masterListId)
   {
     return applyInTransaction(sessionId, ptn, go, isNew, masterListId);
   }
+
   @Transaction
   private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, Boolean isNew, String masterListId)
   {
@@ -51,29 +50,38 @@ public class GeoObjectEditorController
     {
       go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
     }
-    
+
     ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
-    
+
     applyPtn(sessionId, ptn);
-    
+
     // Update the master list record
     if (masterListId != null)
     {
-      MasterList.get(masterListId).updateRecord(go);
+      if (!isNew)
+      {
+        MasterList.get(masterListId).updateRecord(go);
+      }
+      else
+      {
+        MasterList.get(masterListId).publishRecord(go);
+      }
     }
-    
+
     return go;
   }
+
   public void applyPtn(String sessionId, ParentTreeNode ptn)
   {
     GeoObject child = ptn.getGeoObject();
     List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();
-    
-    // Remove all existing relationships which aren't what we're trying to create
+
+    // Remove all existing relationships which aren't what we're trying to
+    // create
     for (ParentTreeNode ptnDbParent : childDbParents)
     {
       boolean shouldRemove = true;
-      
+
       for (ParentTreeNode ptnParent : ptn.getParents())
       {
         if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
@@ -81,18 +89,18 @@ public class GeoObjectEditorController
           shouldRemove = false;
         }
       }
-      
+
       if (shouldRemove)
       {
         RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
       }
     }
-    
+
     // Create new relationships that don't already exist
     for (ParentTreeNode ptnParent : ptn.getParents())
     {
       boolean alreadyExists = false;
-      
+
       for (ParentTreeNode ptnDbParent : childDbParents)
       {
         if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
@@ -100,7 +108,7 @@ public class GeoObjectEditorController
           alreadyExists = true;
         }
       }
-      
+
       if (!alreadyExists)
       {
         GeoObject parent = ptnParent.getGeoObject();

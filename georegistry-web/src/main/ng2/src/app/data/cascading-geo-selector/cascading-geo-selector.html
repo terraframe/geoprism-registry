@@ -14,11 +14,18 @@
               <div class="col-sm-1" style="float:left;width:150px;" *ngFor="let parent of hierarchy.parents; let i = index">
                 {{parent.label}}
               
-                <input style="width:150px;" type="text" [(ngModel)]="parent.ptn.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input"
-                  [typeaheadAsync]="true" [typeahead]="getTypeAheadObservable(parent.ptn.geoObject.properties.displayLabel.localizedValue, parent, hierarchy, i)"
-                  (typeaheadOnSelect)="typeaheadOnSelect($event, parent)" [typeaheadOptionsLimit]="7" (input)="valueChange(parent.ptn.geoObject.properties.displayLabel.localizedValue, i, hierarchy)"
-                  typeaheadOptionField="name" class="form-control" autocomplete="off">
+                <input style="width:150px;" type="text" class="form-control" autocomplete="off"
+                  [(ngModel)]="parent.ptn.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input"
+                  [typeaheadAsync]="true"
+                  [typeahead]="getTypeAheadObservable(parent.ptn.geoObject.properties.displayLabel.localizedValue, parent, hierarchy, i)"
+                  (typeaheadOnSelect)="typeaheadOnSelect($event, parent)" 
+                  [typeaheadOptionsLimit]="7"
+                  (input)="valueChange(parent.ptn.geoObject.properties.displayLabel.localizedValue, i, hierarchy)"
+                  typeaheadOptionField="name" 
+                  [typeaheadMinLength]="0"
+                  [typeaheadWaitMs]="300">
               </div>
+              
             </div>
           </div>
         </div>
