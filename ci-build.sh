@@ -32,6 +32,7 @@ cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
 npm install
 npm install typings
 typings install lodash
+node -v && npm -v
 node --max_old_space_size=2500 $(which npm) run build
 
 if [ "$run_tests" == "true" ]; then
