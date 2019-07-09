@@ -33,7 +33,7 @@ npm install
 npm install typings
 typings install lodash
 node -v && npm -v
-node --max_old_space_size=4096 $(which npm) run build
+npm run build
 
 if [ "$run_tests" == "true" ]; then
   ## Run the tests ##
