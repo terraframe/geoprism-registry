@@ -222,6 +222,48 @@ export class GeoObjectEditorMapComponent implements OnInit {
                     type: 'MultiPolygon'
                 };
             }
+            else if ( this.geoObjectType.geometryType.toUpperCase() === "MULTIPOINT" ) {
+                let points = [];
+
+                for ( let i = 0; i < featureCollection.features.length; i++ ) {
+                    let feature = featureCollection.features[i];
+
+                    if ( feature.geometry.type === 'MultiPoint' ) {
+                        for ( let j = 0; j < feature.geometry.coordinates.length; j++ ) {
+                            points.push( feature.geometry.coordinates[j] );
+                        }
+                    }
+                    else {
+                        points.push( feature.geometry.coordinates );
+                    }
+                }
+
+                this.postGeoObject.geometry = {
+                    coordinates: points,
+                    type: 'MultiPoint'
+                };
+            }
+            else if ( this.geoObjectType.geometryType.toUpperCase() === "MULTILINE" ) {
+                let lines = [];
+
+                for ( let i = 0; i < featureCollection.features.length; i++ ) {
+                    let feature = featureCollection.features[i];
+
+                    if ( feature.geometry.type === 'MultiLineString' ) {
+                        for ( let j = 0; j < feature.geometry.coordinates.length; j++ ) {
+                            lines.push( feature.geometry.coordinates[j] );
+                        }
+                    }
+                    else {
+                        lines.push( feature.geometry.coordinates );
+                    }
+                }
+
+                this.postGeoObject.geometry = {
+                    coordinates: lines,
+                    type: 'MultiLineString'
+                };
+            }
             else {
                 this.postGeoObject = featureCollection.features[0];
             }
