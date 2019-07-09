@@ -33,7 +33,7 @@ npm install
 npm install typings
 typings install lodash
 node -v && npm -v
-npm run build
+node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
 
 if [ "$run_tests" == "true" ]; then
   ## Run the tests ##
