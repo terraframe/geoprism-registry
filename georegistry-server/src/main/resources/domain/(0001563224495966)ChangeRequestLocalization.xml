@@ -1,0 +1,54 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+   <createOrUpdate>
+    
+    	<object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.email.subject">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.email.subject" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Change Request Approved" />
+	      </attributeStruct>
+	    </object>
+	    
+	     <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.email.body">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.email.body" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Your change request with the following actions was approved:" />
+	      </attributeStruct>
+	    </object>	    
+	    
+	     <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.email.update.object">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.email.update.object" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Update of [{1}][{0}]" />
+	      </attributeStruct>
+	    </object>	    
+	     <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.email.create.object">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.email.create.object" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Creation new of [{1}] with cdoe [{0}]" />
+	      </attributeStruct>
+	    </object>	    
+	     <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.email.add.child">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.email.add.child" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Added [{1}][{0}] as a child of [{3}][{2}] in the [{4}] hierarchy" />
+	      </attributeStruct>
+	    </object>	    
+	     <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.email.remove.child">
+	      <attribute name="storeTag" value="UIText" />
+	      <attribute name="storeKey" value="change.request.email.remove.child" />
+	      <attributeStruct name="storeValue">
+	        <attribute name="defaultLocale" value="Removed [{1}][{0}] as a child of [{3}][{2}] in the [{4}] hierarchy" />
+	      </attributeStruct>
+	    </object>	    
+	</createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -2,8 +2,10 @@ package net.geoprism.registry.action;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.tools.ant.taskdefs.SendEmail;
 import org.json.JSONObject;
 
 import com.runwaysdk.business.Business;
@@ -16,8 +18,12 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
+import net.geoprism.EmailSetting;
+import net.geoprism.GeoprismUser;
+import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.ChangeRequestBase;
 
 public class ChangeRequest extends ChangeRequestBase
@@ -136,6 +142,8 @@ public class ChangeRequest extends ChangeRequestBase
   {
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
+      List<String> messages = new LinkedList<String>();
+
       List<AbstractAction> actions = this.getOrderedActions();
 
       for (AbstractAction action : actions)
@@ -147,6 +155,8 @@ public class ChangeRequest extends ChangeRequestBase
         else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
         {
           action.execute();
+
+          messages.add(action.getMessage());
         }
       }
 
@@ -154,6 +164,29 @@ public class ChangeRequest extends ChangeRequestBase
       this.clearApprovalStatus();
       this.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
       this.apply();
+
+      // Email the contributor
+      SingleActor actor = this.getCreatedBy();
+
+      if (actor instanceof GeoprismUser)
+      {
+        String email = ( (GeoprismUser) actor ).getEmail();
+
+        if (email != null && email.length() > 0)
+        {
+          String subject = LocalizationFacade.getFromBundles("change.request.email.subject");
+          String body = LocalizationFacade.getFromBundles("change.request.email.body");
+
+          body += "\n";
+
+          for (String message : messages)
+          {
+            body += message + "\n";
+          }
+
+          EmailSetting.sendEmail(subject, body, new String[] { email });
+        }
+      }
     }
   }
 

@@ -28,6 +28,8 @@ public abstract class AbstractAction extends AbstractActionBase
 
   abstract public void execute();
 
+  protected abstract String getMessage();
+
   public AbstractAction(RegistryService registry)
   {
     this.registry = registry;
@@ -51,7 +53,8 @@ public abstract class AbstractAction extends AbstractActionBase
   }
 
   /*
-   * TODO : We should be converting to a DTO and then serializing, that way we only have to have the serialization logic in one place.
+   * TODO : We should be converting to a DTO and then serializing, that way we
+   * only have to have the serialization logic in one place.
    */
   public JSONObject serialize()
   {
@@ -72,17 +75,18 @@ public abstract class AbstractAction extends AbstractActionBase
 
     return jo;
   }
-  
+
   /*
-   * TODO : We should be converting to a DTO and then using 'buildFromDTO', that way we only have to have the serialization logic in one place.
+   * TODO : We should be converting to a DTO and then using 'buildFromDTO', that
+   * way we only have to have the serialization logic in one place.
    */
   public void buildFromJson(JSONObject joAction)
   {
     this.clearApprovalStatus();
     this.addApprovalStatus(AllGovernanceStatus.valueOf(joAction.getString(AbstractAction.APPROVALSTATUS)));
-    
+
     this.setContributorNotes(joAction.getString(AbstractAction.CONTRIBUTORNOTES));
-    
+
     this.setMaintainerNotes(joAction.getString(AbstractAction.MAINTAINERNOTES));
   }
 
