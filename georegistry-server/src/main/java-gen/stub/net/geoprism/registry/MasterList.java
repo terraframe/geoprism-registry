@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -90,6 +91,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
+import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -710,6 +712,7 @@ public class MasterList extends MasterListBase
 
     Map<String, JsonArray> dependencies = new HashMap<String, JsonArray>();
     Map<String, String> baseAttributes = new HashMap<String, String>();
+    List<String> attributesOrder = new LinkedList<String>();
 
     JsonArray hierarchies = this.getHierarchiesAsJson();
 
@@ -735,6 +738,14 @@ public class MasterList extends MasterListBase
           for (Locale locale : locales)
           {
             baseAttributes.put(attributeName + locale.toString(), attributeName);
+          }
+
+          attributesOrder.add(attributeName);
+          attributesOrder.add(attributeName + DEFAULT_LOCALE);
+
+          for (Locale locale : locales)
+          {
+            attributesOrder.add(attributeName + locale.toString());
           }
 
           if (previous != null)
@@ -772,6 +783,14 @@ public class MasterList extends MasterListBase
       baseAttributes.put(DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString(), DefaultAttribute.CODE.getName());
     }
 
+    attributesOrder.add(DefaultAttribute.CODE.getName());
+    attributesOrder.add(DefaultAttribute.DISPLAY_LABEL.getName() + DEFAULT_LOCALE);
+
+    for (Locale locale : locales)
+    {
+      attributesOrder.add(DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString());
+    }
+
     JsonArray attributes = new JsonArray();
     String mdBusinessId = this.getMdBusinessOid();
 
@@ -779,6 +798,8 @@ public class MasterList extends MasterListBase
     {
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
+
+      Collections.sort(mdAttributes, new MasterListAttributeComparator(attributesOrder, mdAttributes));
 
       MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
