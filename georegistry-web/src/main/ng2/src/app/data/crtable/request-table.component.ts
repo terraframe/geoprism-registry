@@ -5,7 +5,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
-import { ChangeRequest, PageEvent } from './crtable';
+import { ChangeRequest, PageEvent, AbstractAction, AddChildAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from './crtable';
 
 import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../core/service/localization.service';
@@ -14,10 +14,12 @@ import { LocalizationService } from '../../core/service/localization.service';
 
     selector: 'request-table',
     templateUrl: './request-table.component.html',
-    styleUrls: ['./crtable.css'],
+    styleUrls: ['./request-table.css'],
     encapsulation: ViewEncapsulation.None
 } )
 export class RequestTableComponent {
+
+	objectKeys = Object.keys;
 
     @Output() pageChange = new EventEmitter<PageEvent>();
 
@@ -25,11 +27,19 @@ export class RequestTableComponent {
 
     rows: Observable<ChangeRequest[]>;
 
-    request: ChangeRequest = null;
+	request: ChangeRequest = null;
+	
+	requests: ChangeRequest[] = [];
+
+	actions: AbstractAction[] | AddChildAction[] | CreateGeoObjectAction[] | RemoveChildAction[] | UpdateGeoObjectAction[];
 
     loading: boolean = false;
 
-    columns: any[] = [];
+	columns: any[] = [];
+	
+	toggleId: string;
+
+	filterCriteria: string = 'ALL';
 
     constructor( private service: ChangeRequestService, private modalService: BsModalService, private localizationService: LocalizationService ) {
         this.columns = [
@@ -43,41 +53,41 @@ export class RequestTableComponent {
 
     refresh(): void {
 
-        this.rows = Observable.create(( subscriber: any ) => {
+        // this.rows = Observable.create(( subscriber: any ) => {
 
-            this.loading = true;
+            // this.loading = true;
 
-            this.service.getAllRequests().then( requests => {
-                subscriber.next( requests );
+            this.service.getAllRequests("ALL").then( requests => {
 
-                this.loading = false;
+				this.requests = requests;
+
+                // this.loading = false;
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
             } )
-        } );
+        // } );
 
     }
 
-    onClick(): void {
-        if ( this.request != null ) {
-            this.pageChange.emit( {
-                type: 'NEXT',
-                data: this.request
-            } );
-        }
-    }
+    // onClick(): void {
+    //     if ( this.request != null ) {
+    //         this.pageChange.emit( {
+    //             type: 'NEXT',
+    //             data: this.request
+    //         } );
+    //     }
+    // }
 
     onSelect( selected: any ): void {
 
-        if ( selected != null && selected.selected != null ) {
-            const sel = selected.selected[0];
+		// this.request = selected.selected;
 
-            this.service.getRequestDetails( sel.oid ).then( request => {
-                this.request = request;
-            } ).catch(( response: Response ) => {
-                this.error( response.json() );
-            } );
-        }
+        this.service.getAllActions( selected.selected[0].oid ).then(actions => {
+			
+			this.actions = actions;
+        } ).catch(( err: any ) => {
+            this.error( err.json() );
+        } );
     }
 
     onExecute(): void {
@@ -92,12 +102,37 @@ export class RequestTableComponent {
                 this.error( response.json() );
             } );
         }
-    }
+	}
+	
+	onConfirmChangeRequest(request: any): void {
 
-    onApproveAll(): void {
+        if ( request != null ) {
+            this.service.confirmChangeRequest( request.oid ).then( request => {
+                this.request = request;
 
-        if ( this.request != null ) {
-            this.service.approveAllActions( this.request.oid ).then( request => {
+                // TODO: Determine if there is a way to update an individual record
+                this.refresh();
+            } ).catch(( response: Response ) => {
+                this.error( response.json() );
+            } );
+        }
+	}
+	
+	applyActionStatusProperties(action: any ): void {
+		// var action = JSON.parse(JSON.stringify(this.action));
+		// action.geoObjectJson = this.attributeEditor.getGeoObject();
+
+		this.service.applyActionStatusProperties(action).then( response => {
+			// this.crtable.refresh()
+		} ).catch(( err: Response ) => {
+			this.error( err.json() );
+		} );
+	}
+
+    onApproveAll(request: any): void {
+
+        if ( request != null ) {
+            this.service.approveAllActions( request.oid ).then( request => {
                 this.request = request;
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
@@ -124,6 +159,46 @@ export class RequestTableComponent {
             let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
             bsModalRef.content.message = ( err.localizedMessage || err.message );
         }
-    }
+	}
+	
+	requestTrackBy(index: number, request: ChangeRequest) {
+    	return request.oid;
+	}
+	
+	toggle(event: any, oid: string): void {
+
+		if(!event.target.parentElement.className.includes("btn") && !event.target.className.includes("btn")){
+			if(this.toggleId === oid){
+				this.toggleId = null;
+			}
+			else {
+				this.toggleId = oid;
+				this.onSelect({selected:[{oid:oid}]});
+			}
+		}
+	}
+
+	filter(criteria: string): void {
+
+		   this.service.getAllRequests(criteria).then( requests => {
+				this.requests = requests;
+            } ).catch(( response: Response ) => {
+                this.error( response.json() );
+			} )
+			
+		this.filterCriteria = criteria;
+	}
+
+	removeAction(action: AbstractAction): void {
+		action.approvalStatus = "REJECTED";
+
+		this.applyActionStatusProperties(action);
+	}
+
+	reinstateAction(action: AbstractAction): void {
+		action.approvalStatus = "PENDING";
+
+		this.applyActionStatusProperties(action);
+	}
 
 }

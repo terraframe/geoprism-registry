@@ -3,139 +3,165 @@
   <loading-bar></loading-bar>
   <progress-bar></progress-bar>
 
-  <div id="app-container" class="container">
+  <div id="app-container" class="container-fluid">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div class="py-5">
-      <h2>
-		<!-- <localize key="masterlist.title"></localize> -->
-		{{list.displayLabel.localizedValue}}
-      </h2>
-    </div>
-    <div *ngIf="list != null">
-      <div class="row form-group">
-        <!-- <div class="col-sm-1">
-          <label>
-            <localize key="masterlist.field"></localize>
-          </label>
-        </div> -->
+	<div class="row" style="padding: 30px 0 0 0;">
+		<div class="col-md-12">
+			<a routerLink="/master-lists">
+				<i class="fa fa-arrow-left"></i>
+				<localize key="masterlist.backToLists"></localize>
+			</a>
+		</div>
+	</div>
+	<div class="row">
+		<div *ngIf="list" class="col-md-12">
+			<h2>
+				<!-- <localize key="masterlist.title"></localize> -->
+				{{list.displayLabel.localizedValue}}
+			</h2>
+		</div>
+	</div>
+	<div *ngIf="list" class="row form-group">
+		<!-- <div class="col-md-12" *ngIf="list"> -->
+		<!-- <div class="row form-group"> -->
+			<!-- <div class="col-sm-1">
+			<label>
+				<localize key="masterlist.field"></localize>
+			</label>
+			</div> -->
 
-        <div class="col-md-8">
-            <h4 *ngIf="isMaintainer">
-                <localize key="masterlist.field"></localize> : <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> {{list.displayLabel.localizedValue}}</a> </b>
-            </h4>
+			<div class="col-md-8">
+				<h4 *ngIf="isMaintainer">
+					<localize key="masterlist.field"></localize> : <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> {{list.displayLabel.localizedValue}}</a> </b>
+				</h4>
 
-            <h4>
-                <localize key="masterlist.publishDate"></localize> : {{list.publishDate}}
-            </h4>
-        </div>
-        <!-- <div class="col-md-4"> -->
-          <!-- <div class="button-holder"> -->
-            <!-- <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize></a> -->
-            <!-- <button class="btn btn-primary" (click)="onView($event)"><localize key="masterlist.view"></localize></button> -->
-          <!-- </div> -->
-        <!-- </div> -->
-        <div class="col-md-4" style="text-align: right;">
-            <!-- <h4>Master List Controls</h4> -->
-            <button type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
-                <localize key="masterlist.newGeoObject"></localize>
-            </button>
-            <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-                <localize key="io.export"></localize>
-            </button>
-            <button *ngIf="isMaintainer" type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
-                <localize key="masterlist.publish"></localize>
-            </button>
-        </div>
-      </div>
+				<h4>
+					<localize key="masterlist.publishDate"></localize> : {{list.publishDate}}
+				</h4>
+			</div>
+			<!-- <div class="col-md-4"> -->
+			<!-- <div class="button-holder"> -->
+				<!-- <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize></a> -->
+				<!-- <button class="btn btn-primary" (click)="onView($event)"><localize key="masterlist.view"></localize></button> -->
+			<!-- </div> -->
+			<!-- </div> -->
+			<div class="col-md-4" style="text-align: right;">
+				<!-- <h4>Master List Controls</h4> -->
+				<button type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
+					<localize key="masterlist.newGeoObject"></localize>
+				</button>
+				<button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+					<localize *ngIf="filter.length === 0" key="io.export.allrows"></localize>
+					<localize *ngIf="filter.length > 0" key="io.export.filteredrows"></localize>
+				</button>
+				<button *ngIf="isMaintainer" type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
+					<localize key="masterlist.publish"></localize>
+				</button>
+			</div>
+		</div>
 
-<!--
-      <div class="row form-group">
-        <div class="col-md-6"></div>
-        <div class="col-md-6">
-          <div class="input-group">
-            <div class="submit-form">
-                <input [(ngModel)]="current" name="current" type="text" class="form-control search-input" placeholder="{{searchPlaceholder}}..." />
-            </div>
-            <span class="input-group-btn">
-              <button class="btn btn-default search-input-button" type="submit" (click)="onSearch()">
-                <i class="fa fa-search"></i>
-              </button>
-            </span>
-          </div>
-        </div>
-      </div>
- -->
+	<!--
+		<div class="row form-group">
+			<div class="col-md-6"></div>
+			<div class="col-md-6">
+			<div class="input-group">
+				<div class="submit-form">
+					<input [(ngModel)]="current" name="current" type="text" class="form-control search-input" placeholder="{{searchPlaceholder}}..." />
+				</div>
+				<span class="input-group-btn">
+				<button class="btn btn-default search-input-button" type="submit" (click)="onSearch()">
+					<i class="fa fa-search"></i>
+				</button>
+				</span>
+			</div>
+			</div>
+		</div>
+	-->
 
-      <!-- <div class="row form-group">
-        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-      </div> -->
-      <div class="row form-group">
-        <div class="col-md-12" style="overflow-x:auto;">
-            <table class="list-table table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th *ngIf="!list.leaf" style="width:3%" class="label-column">
-                            <localize key="masterlist.view.column"></localize>
-                        </th>
-                        <th style="width:3%" class="label-column">
-                            <localize key="masterlist.edit.column"></localize>
-                        </th>
-                        <th *ngFor="let attribute of list.attributes" class="label-column">
-                          <a (click)="onSort(attribute)">{{attribute.label}}</a>
-                          <div *ngIf="isFilterable(attribute)">
-                            <a class="float-right" (click)="toggleFilter(attribute)"
-                              [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"><i class="fa fa-expand"></i>
-                            </a>
-                            <div id="collapseBasic" [collapse]="attribute.isCollapsed">
-                              <input *ngIf="attribute.type === 'input'"
-                                 [name]="attribute.name"
-                                 [(ngModel)]="attribute.value"
-                                 (keyup.enter)="handleInputChange(attribute)"
-                                 type="text" class="form-control search-input" />
-                              <div *ngIf="attribute.type === 'date'">
-                                <input
-                                   [name]="attribute.name + 'Start'"
-                                   [(ngModel)]="attribute.value.start"
-                                   (change)="handleDateChange(attribute)"
-                                   type="date" class="form-control search-input" />
-                                <input
-                                   [name]="attribute.name + 'End'"
-                                   [(ngModel)]="attribute.value.end"
-                                   (change)="handleDateChange(attribute)"
-                                   type="date" class="form-control search-input" />
-                              </div>
-                              <input *ngIf="attribute.type === 'list'" type="text"
-                                 [name]="attribute.name"
-                                 [(ngModel)]="attribute.search"
-                                 [typeaheadAsync]="true"
-                                 [typeahead]="getValues(attribute)"
-                                 (typeaheadOnSelect)="handleListChange($event, attribute)"
-                                 [typeaheadOptionsLimit]="100"
-                                 [typeaheadMinLength]="0"
-                                 [typeaheadWaitMs]="300"
-                                 typeaheadOptionField="label"
-                                 class="form-control" autocomplete="off">
+		<!-- <div class="row form-group">
+			<pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+		</div> -->
+		<div class="row form-group">
+			<div class="col-md-12 table-responsive" style="">
+				<table class="list-table table table-bordered table-striped">
+					<thead>
+						<tr>
+							<th *ngIf="!list.leaf" style="width:3%" class="label-column">
+								<localize key="masterlist.view.column"></localize>
+							</th>
+							<th style="width:3%" class="label-column">
+								<localize key="masterlist.edit.column"></localize>
+							</th>
+							<th *ngFor="let attribute of list.attributes" class="label-column">
 
-                            </div>
-                          </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }"
-                        class="fade-ngRepeat-item">
-                        <td *ngIf="!list.leaf" style="width:3%" class="label-column"><a class="fa fa-arrow-up" (click)="onGoto(result)"></a></td>
-                        <td style="width:3%" class="label-column"><a class="fa fa-pencil ico-edit" (click)="onEdit(result)"></a></td>
-                        <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-      </div>
-      <div class="row form-group">
-        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-      </div>
-    </div>
-  </div>
+							<div style="display:table-cell; padding-right:10px;vertical-align: middle;" *ngIf="isFilterable(attribute)">
+								<a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic">
+								   <i style="font-size: 20px;" class="fa fa-filter"></i>
+								</a>
+							</div>
+
+							<a (click)="onSort(attribute)" style="display: table-cell; word-break: keep-all;word-wrap: normal;">{{attribute.label}} 
+							</a>
+
+							<a (click)="onSort(attribute)" style="display: table-cell;vertical-align: middle;padding-left: 5px;">
+								<i *ngIf="sort.order === 'ASC' && sort.attribute === attribute.name" class="fa fa-arrow-down" style="font-size: inherit;"></i>
+								<i *ngIf="sort.order === 'DESC' && sort.attribute === attribute.name" class="fa fa-arrow-up" style="font-size: inherit;"></i>
+							</a>
+
+							<div *ngIf="isFilterable(attribute)">
+								<!-- <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic">
+								<i class="fa fa-filter"></i>
+								</a> -->
+								<div id="collapseBasic" [collapse]="attribute.isCollapsed">
+								<input *ngIf="attribute.type === 'input'"
+									[name]="attribute.name"
+									[(ngModel)]="attribute.value"
+									(keyup.enter)="handleInputChange(attribute)"
+									type="text" class="form-control search-input" />
+								<div *ngIf="attribute.type === 'date'">
+									<input
+									[name]="attribute.name + 'Start'"
+									[(ngModel)]="attribute.value.start"
+									(change)="handleDateChange(attribute)"
+									type="date" class="form-control search-input" />
+									<input
+									[name]="attribute.name + 'End'"
+									[(ngModel)]="attribute.value.end"
+									(change)="handleDateChange(attribute)"
+									type="date" class="form-control search-input" />
+								</div>
+								<input *ngIf="attribute.type === 'list'" type="text"
+									[name]="attribute.name"
+									[(ngModel)]="attribute.search"
+									[typeaheadAsync]="true"
+									[typeahead]="getValues(attribute)"
+									(typeaheadOnSelect)="handleListChange($event, attribute)"
+									[typeaheadOptionsLimit]="100"
+									[typeaheadMinLength]="0"
+									[typeaheadWaitMs]="300"
+									typeaheadOptionField="label"
+									class="form-control" autocomplete="off">
+
+								</div>
+							</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }"
+							class="fade-ngRepeat-item">
+							<td *ngIf="!list.leaf" style="width:3%;text-align: center;" class="label-column"><a class="fa fa-globe" (click)="onGoto(result)"></a></td>
+							<td style="width:3%" class="label-column"><a class="fa fa-pencil ico-edit" (click)="onEdit(result)"></a></td>
+							<td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row form-group">
+			<pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+		</div>
+		</div>
+	<!-- </div> -->
 </div>

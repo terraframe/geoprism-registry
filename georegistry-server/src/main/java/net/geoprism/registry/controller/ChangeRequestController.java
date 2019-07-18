@@ -86,6 +86,14 @@ public class ChangeRequestController
     return new RestResponse();
   }
   
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF applyActionStatusProperties(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  {
+    service.applyActionStatusProperties(request.getSessionId(), action);
+
+    return new RestResponse();
+  }
+  
   /**
    * Gets all actions in the system ordered by createActionDate. If a requestId is provided we will fetch the actions that
    * are relevant to that Change Request.
@@ -104,9 +112,9 @@ public class ChangeRequestController
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
-  public ResponseIF getAllRequests(ClientRequestIF request) throws JSONException
+  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    JSONArray requests = service.getAllRequests(request.getSessionId());
+    JSONArray requests = service.getAllRequests(request.getSessionId(), filter);
 
     return new RestBodyResponse(requests);
   }
@@ -123,6 +131,14 @@ public class ChangeRequestController
   public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {
     JSONObject response = service.executeActions(request.getSessionId(), requestId);
+
+    return new RestBodyResponse(response);
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON, url = "confirm-change-request", method = ServletMethod.POST)
+  public ResponseIF confirmChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  {
+    JSONObject response = service.confirmChangeRequest(request.getSessionId(), requestId);
 
     return new RestBodyResponse(response);
   }

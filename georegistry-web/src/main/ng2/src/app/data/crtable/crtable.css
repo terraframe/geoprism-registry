@@ -1,21 +1,33 @@
 .crtable-ngx {
-    display:inline-block;
-    overflow-x: auto !important;
+    /* display:inline-block; */
+    /* overflow-x: auto !important; */
 }
 
 .datatable-header {
-    background: #7C868D !important;
+    background: white !important;
     font-weight: bold;
     font-size:15px;
-    color: white;
+	color: black;
 }
 
-.ngx-datatable.bootstrap .datatable-body .datatable-body-row:hover {
-    cursor: pointer;
-    background-color: #EDF4E8;
+.datatable-header-cell {
+	border: 1px solid #ddd;
 }
-.ngx-datatable.bootstrap .datatable-body .datatable-body-row.active {
+
+/* .datatable-body-cell {
+	border: solid 1px #ddd;
+} */
+
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row:hover,
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row .datatable-row-odd:hover,
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row .datatable-row-even:hover {
+    cursor: pointer;
+    background-color: #EDF4E8 !important;
+}
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row.active,
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row .datatable-row-odd.active,
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row .datatable-row-even.active {
     background-color: #f4fcef !important;
-    color: black;
+    color: black !important;
 }
 

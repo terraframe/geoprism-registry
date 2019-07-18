@@ -102,6 +102,7 @@ public class ChangeRequestTestDataGenerator
       removeChild.setParentTypeCode(testAddChildParent.getType().getCode());
       removeChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       removeChild.setCreateActionDate(Date.from(when.minus(9, ChronoUnit.HOURS)));
+      removeChild.setContributorNotes("Removing the village from the district");
 
       actions.add(removeChild);
     }
@@ -118,6 +119,7 @@ public class ChangeRequestTestDataGenerator
       addChild.setParentTypeCode(testAddChildParent.getType().getCode());
       addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       addChild.setCreateActionDate(Date.from(when.minus(10, ChronoUnit.HOURS)));
+      addChild.setContributorNotes("Adding the village as a child of the district");
 
       actions.add(addChild);
     }
@@ -128,6 +130,7 @@ public class ChangeRequestTestDataGenerator
     CreateGeoObjectActionDTO create = new CreateGeoObjectActionDTO();
     create.setGeoObject(goNewChild.toJSON());
     create.setCreateActionDate(Date.from(when.minus(8, ChronoUnit.HOURS)));
+    create.setContributorNotes("Creating a new village");
 
     actions.add(create);
 
@@ -140,6 +143,7 @@ public class ChangeRequestTestDataGenerator
     UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();
     update.setGeoObject(goNewChild.toJSON());
     update.setCreateActionDate(Date.from(when.minus(7, ChronoUnit.HOURS)));
+    update.setContributorNotes("Updating the village. Adding a better name and stuff");
 
     actions.add(update);
 

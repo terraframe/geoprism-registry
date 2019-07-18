@@ -39,7 +39,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     masterLists.setId("lists");
     masterLists.setLabel(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing"));
     masterLists.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
-    masterLists.setUrl("cgr/manage#/lists");
+    masterLists.setUrl("cgr/manage#/master-lists");
     masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADIM_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -51,7 +51,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setId("requests");
     requests.setLabel(LocalizationFacadeDTO.getFromBundles(request, "requests.landing"));
     requests.setSrc("net/geoprism/images/update-icon-modified.svg");
-    requests.setUrl("cgr/manage#/requests");
+    requests.setUrl("cgr/manage#/change-requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -63,7 +63,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.setId("uploads");
     uploads.setLabel(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing"));
     uploads.setSrc("net/geoprism/images/dm_icon.svg");
-    uploads.setUrl("cgr/manage#/uploads");
+    uploads.setUrl("cgr/manage#/data");
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
     uploads.addRole(RoleConstants.ADIM_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);

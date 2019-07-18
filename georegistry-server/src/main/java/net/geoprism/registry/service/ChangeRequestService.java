@@ -37,6 +37,25 @@ public class ChangeRequestService
 
     action.apply();
   }
+  
+  @Request(RequestType.SESSION)
+  public void applyActionStatusProperties(String sessionId, String sAction)
+  {
+    applyActionStatusPropertiesInTransaction(sAction);
+  }
+
+  @Transaction
+  public void applyActionStatusPropertiesInTransaction(String sAction)
+  {
+    JSONObject joAction = new JSONObject(sAction);
+
+    AbstractAction action = AbstractAction.get(joAction.getString("oid"));
+
+    action.lock();
+    action.buildFromJson(joAction);
+    action.apply();
+    action.unlock();
+  }
 
   @Request(RequestType.SESSION)
   public String getAllActions(String sessionId, String requestId)
@@ -68,12 +87,31 @@ public class ChangeRequestService
     return actions.toString();
   }
 
+  /**]
+   * @param sessionId
+   * @param requestId
+   * @return
+   * 
+   * Sets all PENDING actions to APPROVED and executes the change request
+   * to persist both the change request and actions.
+   */
+  @Request(RequestType.SESSION)
+  public JSONObject confirmChangeRequest(String sessionId, String requestId)
+  {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
+    
+    this.executeActions(sessionId, requestId);
+
+    return request.getDetails();
+  }
+  
   @Request(RequestType.SESSION)
   public JSONObject approveAllActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
-
+    
     return request.getDetails();
   }
 
@@ -87,10 +125,23 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JSONArray getAllRequests(String sessionId)
+  public JSONArray getAllRequests(String sessionId, String filter)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_DESC(query.getCreateDate());
+    
+    if(filter != null && filter.equals("PENDING"))
+    {
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.PENDING));
+    }
+    else if(filter != null && filter.equals("REJECTED"))
+    {
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.REJECTED));
+    }
+    else if(filter != null && filter.equals("ACCEPTED"))
+    {
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.ACCEPTED));
+    }
 
     OIterator<? extends ChangeRequest> it = query.getIterator();
 

@@ -4,19 +4,8 @@
 
     <div id="app-container" class="container-fluid">
 
-		<div id="app-container" class="container-fluid">
-        <!-- <div class="heading text-center">
-            <h2>
-                <localize key="spreadsheet.title"></localize>
-            </h2>
-            <p class="lead">
-                <localize key="spreadsheet.description"></localize>
-            </p>
-        </div> -->
-
         <div class="row">
-            <div class="col-md-1"></div>
-			<div class="col-md-10" style="padding-top: 30px;">
+			<div class="col-md-12">
 				
 				<div class="heading">
 					<h2>
@@ -25,8 +14,8 @@
 				</div>
 
 				<div>
-					<a style="margin-right:10px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'SUBMIT'}" (click)="renderContent('SUBMIT')">Submit</a> 
-					<a style="margin-right:10px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'MANAGE'}" (click)="renderContent('MANAGE')">Manage</a> 
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'MANAGE'}" (click)="renderContent('MANAGE')">Manage</a> 
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'SUBMIT'}" (click)="renderContent('SUBMIT')">Submit</a>
 				</div>
 
 				<div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
@@ -35,7 +24,6 @@
 				</div>
 				
             </div>
-            <div class="col-md-1"></div>
         </div>
     </div>
 </div>

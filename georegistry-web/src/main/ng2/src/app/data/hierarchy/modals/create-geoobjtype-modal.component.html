@@ -43,17 +43,20 @@
         </div>
        </div>
     </div>
-    
-    <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
-      <div class="ui-dialog-buttonset">
-        <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text"><localize key="modal.button.cancel"></localize></span>
-        </button>
-        <button type="submit" [disabled]="form.invalid" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text"><localize key="modal.button.ok"></localize></span>
-        </button>
-      </div>
-    </div>
-    
+	
+	
+	<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+		<div class="ui-dialog-buttonset">
+			<div class="button-holder">
+				<button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
+					<localize key="modal.button.cancel"></localize>
+				</button>
+				<button type="submit" [disabled]="form.invalid" class="btn btn-primary" style="padding: 4px 18px;">
+					<localize key="modal.button.ok"></localize>
+				</button>
+			</div>
+		</div>
+	</div>
+
   </div>
 </form>

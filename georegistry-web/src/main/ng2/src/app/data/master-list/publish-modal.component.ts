@@ -72,7 +72,8 @@ export class PublishModalComponent implements OnInit {
                 telephoneNumber: '',
                 email: '',
                 hierarchies: [],
-                attributes:[]
+				attributes:[],
+				leaf: false
             };
         }
 

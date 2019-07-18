@@ -25,8 +25,8 @@
 				</div>
 
 				<div>
-					<a style="margin-right:10px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SPREADSHEET'}" (click)="renderContent('SPREADSHEET')">Import spreadsheet</a> 
-					<a style="margin-right:10px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SHAPEFILE'}" (click)="renderContent('SHAPEFILE')">Import shapefile</a> 
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SPREADSHEET'}" (click)="renderContent('SPREADSHEET')">Import spreadsheet</a> 
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SHAPEFILE'}" (click)="renderContent('SHAPEFILE')">Import shapefile</a> 
 					<a  [routerLink]="" [ngClass]="{'active': content === 'EXPORT'}" (click)="renderContent('EXPORT')">Export data</a>
 				</div>
 

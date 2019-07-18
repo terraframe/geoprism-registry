@@ -33,7 +33,7 @@ export class MasterListComponent implements OnInit {
     p: number = 1;
     current: string = '';
     filter: { attribute: string, value: string }[] = [];
-    selected: string[] = [];
+	selected: string[] = [];
     page: any = {
         count: 0,
         pageNumber: 1,
@@ -62,7 +62,7 @@ export class MasterListComponent implements OnInit {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-    }
+	}
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );
