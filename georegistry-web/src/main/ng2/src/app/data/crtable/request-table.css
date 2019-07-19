@@ -13,7 +13,17 @@
 }
 
 .status-rejected {
-	color: red;
+	color: #d43f3a;
+}
+
+.status-pending-container {
+	border: solid 2px orange;
+}
+.status-accepted-container {
+	border: solid 2px #6BA542;
+}
+.status-rejected-container {
+	border: solid 2px #d43f3a;
 }
 
 .cr-filter-link-active,
@@ -41,8 +51,26 @@
 	background-color:#ffeeed; 
 	color:#d43f3a;
 }
-.btn.btn-danger:hover {
+.btn.btn-danger:hover,
+.btn.btn-danger:active {
+	color:#d43f3a;
 	background-color:#fff7f6; 
+	border-color: #d43f3a;
+}
+.btn.btn-danger:disabled:hover {
+	background-color:#ffeeed; 
+}
+
+.btn.btn-warning {
+	background-color: #ffefd7;
+	color: orange;
+}
+.btn.btn-warning:hover {
+	background-color: #fff4e5;
+	border-color: orange;
+}
+.btn.btn-warning:disabled {
+	background-color: #ffefd7;
 }
 
 .clickable:hover {

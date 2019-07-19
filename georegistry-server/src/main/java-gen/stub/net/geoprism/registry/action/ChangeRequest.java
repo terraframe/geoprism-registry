@@ -98,6 +98,7 @@ public class ChangeRequest extends ChangeRequestBase
     object.put(ChangeRequest.CREATEDATE, format.format(this.getCreateDate()));
     object.put(ChangeRequest.CREATEDBY, user.getUsername());
     object.put(ChangeRequest.APPROVALSTATUS, status.getDisplayLabel());
+    object.put(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
 
     return object;
   }
@@ -133,6 +134,7 @@ public class ChangeRequest extends ChangeRequestBase
     object.put("total", total);
     object.put("pending", pending);
     object.put("statusCode", status.getEnumName());
+    object.put(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
 
     return object;
   }
@@ -159,6 +161,7 @@ public class ChangeRequest extends ChangeRequestBase
           messages.add(action.getMessage());
         }
       }
+      
 
       this.appLock();
       this.clearApprovalStatus();
@@ -201,13 +204,13 @@ public class ChangeRequest extends ChangeRequestBase
       {
         AbstractAction action = it.next();
 
-        if (!status.equals(AllGovernanceStatus.ACCEPTED) || action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
-        {
+//        if (!status.equals(AllGovernanceStatus.ACCEPTED) || action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+//        {
           action.appLock();
           action.clearApprovalStatus();
           action.addApprovalStatus(status);
           action.apply();
-        }
+//        }
       }
     }
     finally
@@ -215,13 +218,13 @@ public class ChangeRequest extends ChangeRequestBase
       it.close();
     }
 
-    if (status.equals(AllGovernanceStatus.REJECTED))
-    {
-      this.appLock();
-      this.clearApprovalStatus();
-      this.addApprovalStatus(AllGovernanceStatus.REJECTED);
-      this.apply();
-    }
+//    if (status.equals(AllGovernanceStatus.REJECTED))
+//    {
+//      this.appLock();
+//      this.clearApprovalStatus();
+//      this.addApprovalStatus(AllGovernanceStatus.REJECTED);
+//      this.apply();
+//    }
   }
 
 }

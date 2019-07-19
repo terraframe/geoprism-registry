@@ -146,7 +146,7 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "approve-all-actions", method = ServletMethod.POST)
   public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {
-    JSONObject response = service.approveAllActions(request.getSessionId(), requestId);
+    String response = service.approveAllActions(request.getSessionId(), requestId);
 
     return new RestBodyResponse(response);
   }
@@ -154,7 +154,7 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "reject-all-actions", method = ServletMethod.POST)
   public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {
-    JSONObject response = service.rejectAllActions(request.getSessionId(), requestId);
+    String response = service.rejectAllActions(request.getSessionId(), requestId);
 
     return new RestBodyResponse(response);
   }

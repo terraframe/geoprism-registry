@@ -21,19 +21,11 @@ export class RequestTableComponent {
 
 	objectKeys = Object.keys;
 
-    @Output() pageChange = new EventEmitter<PageEvent>();
-
     bsModalRef: BsModalRef;
 
-    rows: Observable<ChangeRequest[]>;
-
-	request: ChangeRequest = null;
-	
 	requests: ChangeRequest[] = [];
 
 	actions: AbstractAction[] | AddChildAction[] | CreateGeoObjectAction[] | RemoveChildAction[] | UpdateGeoObjectAction[];
-
-    loading: boolean = false;
 
 	columns: any[] = [];
 	
@@ -53,30 +45,16 @@ export class RequestTableComponent {
 
     refresh(): void {
 
-        // this.rows = Observable.create(( subscriber: any ) => {
-
-            // this.loading = true;
-
             this.service.getAllRequests("ALL").then( requests => {
 
 				this.requests = requests;
 
-                // this.loading = false;
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
             } )
-        // } );
 
     }
 
-    // onClick(): void {
-    //     if ( this.request != null ) {
-    //         this.pageChange.emit( {
-    //             type: 'NEXT',
-    //             data: this.request
-    //         } );
-    //     }
-    // }
 
     onSelect( selected: any ): void {
 
@@ -90,11 +68,11 @@ export class RequestTableComponent {
         } );
     }
 
-    onExecute(): void {
+    onExecute(changeRequest: ChangeRequest): void {
 
-        if ( this.request != null ) {
-            this.service.execute( this.request.oid ).then( request => {
-                this.request = request;
+        if ( changeRequest != null ) {
+            this.service.execute( changeRequest.oid ).then( request => {
+                changeRequest = request;
 
                 // TODO: Determine if there is a way to update an individual record
                 this.refresh();
@@ -104,19 +82,19 @@ export class RequestTableComponent {
         }
 	}
 	
-	onConfirmChangeRequest(request: any): void {
+	// onConfirmChangeRequest(request: any): void {
 
-        if ( request != null ) {
-            this.service.confirmChangeRequest( request.oid ).then( request => {
-                this.request = request;
+    //     if ( request != null ) {
+    //         this.service.confirmChangeRequest( request.oid ).then( request => {
+    //             this.request = request;
 
-                // TODO: Determine if there is a way to update an individual record
-                this.refresh();
-            } ).catch(( response: Response ) => {
-                this.error( response.json() );
-            } );
-        }
-	}
+    //             // TODO: Determine if there is a way to update an individual record
+    //             this.refresh();
+    //         } ).catch(( response: Response ) => {
+    //             this.error( response.json() );
+    //         } );
+    //     }
+	// }
 	
 	applyActionStatusProperties(action: any ): void {
 		// var action = JSON.parse(JSON.stringify(this.action));
@@ -129,24 +107,24 @@ export class RequestTableComponent {
 		} );
 	}
 
-    onApproveAll(request: any): void {
+    onApproveAll(changeRequest: ChangeRequest): void {
 
-        if ( request != null ) {
-            this.service.approveAllActions( request.oid ).then( request => {
-                this.request = request;
+        if ( changeRequest != null ) {
+            this.service.approveAllActions( changeRequest.oid ).then( actions => {
+                this.actions = actions;
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
             } );
         }
     }
 
-    onRejectAll(): void {
-        if ( this.request != null ) {
-            this.service.rejectAllActions( this.request.oid ).then( request => {
-                this.request = request;
+    onRejectAll(changeRequest: ChangeRequest): void {
+        if ( changeRequest != null ) {
+            this.service.rejectAllActions( changeRequest.oid ).then( actions => {
+                this.actions = actions;
 
                 // TODO: Determine if there is a way to update an individual record
-                this.refresh();
+                // this.refresh();
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
             } );
@@ -189,14 +167,8 @@ export class RequestTableComponent {
 		this.filterCriteria = criteria;
 	}
 
-	removeAction(action: AbstractAction): void {
-		action.approvalStatus = "REJECTED";
-
-		this.applyActionStatusProperties(action);
-	}
-
-	reinstateAction(action: AbstractAction): void {
-		action.approvalStatus = "PENDING";
+	setActionStatus(action: AbstractAction, status:string): void {
+		action.approvalStatus = status;
 
 		this.applyActionStatusProperties(action);
 	}

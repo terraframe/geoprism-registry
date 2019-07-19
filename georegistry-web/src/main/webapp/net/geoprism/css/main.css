@@ -2742,7 +2742,7 @@ button.btn.btn-primary {
     background: #EDF4E8; /* IE fallback */
     background: var(--theme-submit-button-color-light);
 
-    border-color: lightgrey; /* IE fallback */
+    border-color: #6BA542; /* IE fallback */
     border-color: var(--theme-button-color-border);
 }
 input[type=button].btn.btn-primary:hover, 
@@ -2756,7 +2756,7 @@ button.btn.btn-primary:active  {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
 
-    border-color: lightgrey; /* IE fallback */
+    border-color: #6BA542; /* IE fallback */
     border-color: var(--theme-button-color-border);
 
     background: #f4fcef; /* IE fallback */
@@ -2778,8 +2778,8 @@ button.btn.btn-default {
     color: grey; /* IE fallback */
     color: var(--theme-cancel-button-color);
 
-    border-color: lightgrey; /* IE fallback */
-    border-color: var(--theme-button-color-border);
+    border-color: #6BA542; /* IE fallback */
+    border-color: var(--theme-default-button-color-border);
 }
 input[type=button].btn.btn-default:hover, 
 input[type=submit].btn.btn-default:hover,

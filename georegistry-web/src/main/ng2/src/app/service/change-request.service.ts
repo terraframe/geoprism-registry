@@ -199,7 +199,7 @@ export class ChangeRequestService {
 
     }
 
-    rejectAllActions( requestId: string ): Promise<ChangeRequest> {
+    rejectAllActions( requestId: string ): Promise<AbstractAction[]> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -212,11 +212,11 @@ export class ChangeRequestService {
             } )
             .toPromise()
             .then( response => {
-                return response.json() as ChangeRequest
+                return response.json()
             } );
     }
 
-    approveAllActions( requestId: string ): Promise<ChangeRequest> {
+    approveAllActions( requestId: string ): Promise<AbstractAction[]> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
@@ -229,7 +229,7 @@ export class ChangeRequestService {
             } )
             .toPromise()
             .then( response => {
-                return response.json() as ChangeRequest
+                return response.json() 
             } );
 
     }

@@ -24,11 +24,14 @@
  --theme-button-text-color: #767676;
  --theme-button-color: white;
  --theme-button-color-hover: #6BA542;
- --theme-button-color-border: lightgrey;
+ --theme-button-color-border: #6BA542;
  --theme-button-black: #767676;
 
  --theme-cancel-button-color: grey;
- --theme-cancel-button-color-hover: #6BA542;
+ --theme-cancel-button-color-hover: grey;
+
+ --theme-default-button-color-border: lightgrey;
+ 
 
  --theme-submit-button-color: #6BA542;
  --theme-submit-button-color-hover: #6BA542;

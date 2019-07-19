@@ -107,21 +107,21 @@ public class ChangeRequestService
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject approveAllActions(String sessionId, String requestId)
+  public String approveAllActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
     
-    return request.getDetails();
+    return this.getAllActions(sessionId, requestId);
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject rejectAllActions(String sessionId, String requestId)
+  public String rejectAllActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.REJECTED);
 
-    return request.getDetails();
+    return this.getAllActions(sessionId, requestId);
   }
 
   @Request(RequestType.SESSION)
