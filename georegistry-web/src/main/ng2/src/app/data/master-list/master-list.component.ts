@@ -33,7 +33,7 @@ export class MasterListComponent implements OnInit {
     p: number = 1;
     current: string = '';
     filter: { attribute: string, value: string }[] = [];
-	selected: string[] = [];
+    selected: string[] = [];
     page: any = {
         count: 0,
         pageNumber: 1,
@@ -62,7 +62,7 @@ export class MasterListComponent implements OnInit {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-	}
+    }
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );
@@ -101,6 +101,17 @@ export class MasterListComponent implements OnInit {
         else {
             this.sort = { attribute: attribute.name, order: 'ASC' };
         }
+
+        this.onPageChange( 1 );
+    }
+
+    clearFilters(): void {
+        this.list.attributes.forEach( attr => {
+            attr.search = null;
+        } );
+
+        this.filter = [];
+        this.selected = [];
 
         this.onPageChange( 1 );
     }
@@ -249,14 +260,14 @@ export class MasterListComponent implements OnInit {
     }
 
     onNewGeoObject(): void {
-      let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
-      //editModal.content.fetchGeoObject( data.code, this.list.typeCode );
-      editModal.content.configureAsNew( this.list.typeCode );
-      editModal.content.setMasterListId( this.list.oid );
-      editModal.content.setOnSuccessCallback(() => {
-          // Refresh the page
-          this.onPageChange( this.page.pageNumber );
-      } );
+        let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
+        //editModal.content.fetchGeoObject( data.code, this.list.typeCode );
+        editModal.content.configureAsNew( this.list.typeCode );
+        editModal.content.setMasterListId( this.list.oid );
+        editModal.content.setOnSuccessCallback(() => {
+            // Refresh the page
+            this.onPageChange( this.page.pageNumber );
+        } );
     }
 
     onExport(): void {
@@ -267,10 +278,10 @@ export class MasterListComponent implements OnInit {
         } );
         this.bsModalRef.content.onFormat.subscribe( format => {
             if ( format == 'SHAPEFILE' ) {
-                window.location.href = acp + '/master-list/export-shapefile?oid=' + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify( this.filter ));
+                window.location.href = acp + '/master-list/export-shapefile?oid=' + this.list.oid + "&filter=" + encodeURIComponent( JSON.stringify( this.filter ) );
             }
             else if ( format == 'EXCEL' ) {
-                window.location.href = acp + '/master-list/export-spreadsheet?oid=' + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify( this.filter ));
+                window.location.href = acp + '/master-list/export-spreadsheet?oid=' + this.list.oid + "&filter=" + encodeURIComponent( JSON.stringify( this.filter ) );
             }
         } );
     }

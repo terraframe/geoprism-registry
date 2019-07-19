@@ -1229,12 +1229,12 @@ public class MasterList extends MasterListBase
 
         String attribute = filter.get("attribute").getAsString();
 
-        if (!valueAttribute.equals(attribute))
-        {
+//        if (!valueAttribute.equals(attribute))
+//        {
           String filterValue = filter.get("value").getAsString();
 
           vQuery.WHERE(query.aCharacter(attribute).EQ(filterValue));
-        }
+//        }
       }
     }
 
