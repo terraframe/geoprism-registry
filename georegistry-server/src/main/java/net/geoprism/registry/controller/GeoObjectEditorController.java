@@ -1,7 +1,10 @@
 package net.geoprism.registry.controller;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.json.JSONException;
@@ -16,8 +19,14 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -42,33 +51,70 @@ public class GeoObjectEditorController
   private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, Boolean isNew, String masterListId)
   {
     GeoObject go;
-    if (!isNew)
-    {
-      go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
-    }
-    else
-    {
-      go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
-    }
 
-    ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
+    Map<String, String> roles = Session.getCurrentSession().getUserRoles();
 
-    applyPtn(sessionId, ptn);
-
-    // Update the master list record
-    if (masterListId != null)
+    if (roles.keySet().contains(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE))
     {
+      ChangeRequest request = new ChangeRequest();
+      request.addApprovalStatus(AllGovernanceStatus.PENDING);
+      request.apply();
+
       if (!isNew)
       {
-        MasterList.get(masterListId).updateRecord(go);
+        UpdateGeoObjectAction action = new UpdateGeoObjectAction();
+        action.addApprovalStatus(AllGovernanceStatus.PENDING);
+        action.setCreateActionDate(new Date());
+        action.setGeoObjectJson(sGo);
+        action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.apply();
+        request.addAction(action).apply();
       }
       else
       {
-        MasterList.get(masterListId).publishRecord(go);
+        CreateGeoObjectAction action = new CreateGeoObjectAction();
+        action.addApprovalStatus(AllGovernanceStatus.PENDING);
+        action.setCreateActionDate(new Date());
+        action.setGeoObjectJson(sGo);
+        action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.apply();
+
+        request.addAction(action).apply();
       }
     }
+    else
+    {
 
-    return go;
+      if (!isNew)
+      {
+        go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
+      }
+      else
+      {
+        go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
+      }
+
+      ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
+
+      applyPtn(sessionId, ptn);
+
+      // Update the master list record
+      if (masterListId != null)
+      {
+        if (!isNew)
+        {
+          MasterList.get(masterListId).updateRecord(go);
+        }
+        else
+        {
+          MasterList.get(masterListId).publishRecord(go);
+        }
+      }
+
+      return go;
+    }
+
+    return null;
   }
 
   public void applyPtn(String sessionId, ParentTreeNode ptn)
