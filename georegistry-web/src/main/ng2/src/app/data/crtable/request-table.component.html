@@ -33,7 +33,7 @@
 
 		</div>
 
-		<hr style="border-top:solid 3px green" />
+		<hr style="border-top:solid 3px #6BA542" />
 
 	</div>
 </div>
@@ -117,15 +117,15 @@
 											<h4 *ngIf="req.approvalStatus !== 'PENDING'" class="vertical-center" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" style="margin: 0;">{{action.approvalStatus}}</h4>
 											<button type="submit" [disabled]="action.approvalStatus === 'ACCEPTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'ACCEPTED')" class="btn btn-primary vertical-center" style="width:30%;" role="button">
 												ACCEPT
-												<i *ngIf="action.approvalStatus === 'ACCEPTED'" class="fa fa-check" aria-hidden="true"></i>
+												<!-- <i *ngIf="action.approvalStatus === 'ACCEPTED'" class="fa fa-check" aria-hidden="true"></i> -->
 											</button>
 											<button type="submit" [disabled]="action.approvalStatus === 'REJECTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'REJECTED')" class="btn btn-danger vertical-center" style="width:30%;" role="button">
 												REJECT
-												<i *ngIf="action.approvalStatus === 'REJECTED'" class="fa fa-check" aria-hidden="true"></i>
+												<!-- <i *ngIf="action.approvalStatus === 'REJECTED'" class="fa fa-check" aria-hidden="true"></i> -->
 											</button>
 											<button type="submit" [disabled]="action.approvalStatus === 'PENDING'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'PENDING')" class="btn btn-warning vertical-center" style="width:30%;" role="button">
 												PENDING
-												<i *ngIf="action.approvalStatus === 'PENDING'" class="fa fa-check" aria-hidden="true"></i>
+												<!-- <i *ngIf="action.approvalStatus === 'PENDING'" class="fa fa-check" aria-hidden="true"></i> -->
 											</button>
 										</div>
 									</div>
@@ -144,7 +144,7 @@
 											</div>	
 										</div>
 										<div class="col-md-2" style="height:100%;">
-											<button type="submit" (click)="showDetails()" class="btn btn-default vertical-center" style="width:100%;" role="button">
+											<button type="submit" (click)="showActionDetail(action)" class="btn btn-default vertical-center" style="width:100%;" role="button">
 												DETAILS
 											</button>
 										</div>

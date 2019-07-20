@@ -73,6 +73,8 @@ import { GeoObjectEditorComponent } from './data/geoobject-editor/geoobject-edit
 import { GeoObjectEditorMapComponent } from './data/geoobject-editor-map/geoobject-editor-map.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { CascadingGeoSelector } from './data/cascading-geo-selector/cascading-geo-selector';
+import { ActionDetailModalComponent } from './data/crtable/action-detail/action-detail-modal.component';
+
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
@@ -178,7 +180,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
 	GeoObjectEditorMapComponent,
 	DataPageComponent,
 	ChangeRequestPageComponent,
-    CascadingGeoSelector,
+	CascadingGeoSelector,
+	ActionDetailModalComponent,
     
     // Master List screens
     MasterListManagerComponent,
@@ -235,7 +238,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       PublishModalComponent,
 	  ExportFormatModalComponent,
 	  DataPageComponent,
-	  ChangeRequestPageComponent
+	  ChangeRequestPageComponent,
+	  ActionDetailModalComponent
   ]        
 })
 export class CgrAppModule { }

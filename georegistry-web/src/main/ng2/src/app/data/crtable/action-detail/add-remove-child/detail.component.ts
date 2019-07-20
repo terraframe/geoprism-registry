@@ -25,8 +25,6 @@ export class AddRemoveChildDetailComponent {
 
   @Input() action: AddChildAction;
   
-  @Input() crtable: ActionTableComponent;
-  
   private bsModalRef: BsModalRef;
 
   constructor(private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
@@ -36,7 +34,7 @@ export class AddRemoveChildDetailComponent {
   applyAction()
   {
     this.changeRequestService.applyAction(this.action).then( response => {
-          this.crtable.refresh()
+		this.unlockAction();
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
@@ -50,7 +48,6 @@ export class AddRemoveChildDetailComponent {
   unlockAction()
   {
     this.changeRequestService.unlockAction(this.action.oid).then( response => {
-          this.crtable.refresh();
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
