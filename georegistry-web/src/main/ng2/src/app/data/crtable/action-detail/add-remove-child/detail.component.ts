@@ -4,7 +4,6 @@ import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
 import { ChangeRequestService } from '../../../../service/change-request.service';
-import { ActionTableComponent } from '../../action-table.component';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';

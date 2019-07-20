@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { EventService } from '../../../../event/event.service';
 
 import { ChangeRequestService } from '../../../../service/change-request.service';
-import { ActionTableComponent } from '../../action-table.component';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
