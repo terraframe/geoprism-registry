@@ -62,7 +62,6 @@ import { MasterListManagerComponent } from './data/master-list/master-list-manag
 import { PublishModalComponent } from './data/master-list/publish-modal.component';
 import { ExportFormatModalComponent } from './data/master-list/export-format-modal.component';
 
-import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
@@ -128,7 +127,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     CgrAppComponent,
     HierarchyComponent,
     LocalizationManagerComponent,
-    ActionTableComponent,
     RequestTableComponent,
     CreateUpdateGeoObjectDetailComponent,
     AddRemoveChildDetailComponent,
