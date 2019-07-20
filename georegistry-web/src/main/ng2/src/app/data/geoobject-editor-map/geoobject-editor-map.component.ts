@@ -88,7 +88,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
 
             this.map = new Map( {
                 container: 'map',
-                style: 'mapbox://styles/mapbox/outdoors-v11',
+                style: 'mapbox://styles/mapbox/satellite-v9',
                 zoom: 2,
                 center: [110.880453, 10.897852]
             } );
