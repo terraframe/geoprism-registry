@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { EventService } from '../../../../event/event.service';
 
 import { ChangeRequestService } from '../../../../service/change-request.service';
-import { ActionTableComponent } from '../../action-table.component';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
@@ -22,6 +21,7 @@ import { AbstractAction } from '../../crtable';
 import { HostListener} from "@angular/core";
 
 import { ComponentCanDeactivate } from "../../../../core/pending-changes-guard";
+
 
 declare var acp: any;
 declare var $: any;
@@ -47,16 +47,31 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
   @ViewChild("attributeEditor") attributeEditor;
 
-  @Input() crtable: ActionTableComponent;
-
-  private bsModalRef: BsModalRef;
+  bsModalRef: BsModalRef;
 
   constructor(private router: Router, private eventService: EventService, private http: Http, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService) {
 
   }
 
   ngOnInit(): void {
-    this.onSelect(this.action);
+
+	this.postGeoObject = this.action.geoObjectJson;
+	this.geoObjectType = this.action.geoObjectType;
+	
+	if( this.action.actionType === "net.geoprism.registry.action.geoobject.CreateGeoObjectAction" ) {
+        this.registryService.getGeoObjectByCode(this.postGeoObject.properties.code, this.geoObjectType.code)
+            .then(geoObject => {
+                this.preGeoObject = geoObject;
+				this.onSelect(this.action);
+            }).catch((err: Response) => {
+                this.error(err);
+            });
+	}
+	else{
+		this.onSelect(this.action);
+	}
+	
+	// this.onSelect(this.action);
   }
 
   applyAction()
@@ -65,18 +80,14 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     action.geoObjectJson = this.attributeEditor.getGeoObject();
 
     this.changeRequestService.applyAction(action).then( response => {
-          this.crtable.refresh()
+		this.endEdit();
       } ).catch(( err: Response ) => {
-          this.error( err.json() );
+          this.error( err );
       } );
   }
 
   onSelect(action: AbstractAction)
   {
-    this.action = action;
-
-    this.postGeoObject = this.action.geoObjectJson;
-    this.geoObjectType = this.action.geoObjectType;
 
     // There are multiple ways we could show a diff of an object.
     //
@@ -93,11 +104,11 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     //
     // Display diff when a user is changing a value
     // this.preGeoObject = JSON.parse(JSON.stringify(this.postGeoObject));
-    console.log("test");
+  
     // Display diff of what's in the database
     if(
        this.action.actionType === "net.geoprism.registry.action.geoobject.UpdateGeoObjectAction"
-       && typeof this.postGeoObject.properties.createDate !== 'undefined'
+    //    && typeof this.postGeoObject.properties.createDate !== 'undefined'
        ) {
         this.registryService.getGeoObjectByCode(this.postGeoObject.properties.code, this.geoObjectType.code)
             .then(geoObject => {

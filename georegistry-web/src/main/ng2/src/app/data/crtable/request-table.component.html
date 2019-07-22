@@ -19,21 +19,21 @@
 		<div class="form-group button-row">
 
 			<a [routerLink]="" (click)="filter('ALL')" [ngClass]="filterCriteria === 'ALL' ? 'cr-filter-link-active' : ''" >
-				All
+				<localize key="change.request.all.filter.link"></localize>
 			</a>
 			<a [routerLink]="" (click)="filter('PENDING')" [ngClass]="filterCriteria === 'PENDING' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
-				Pending
+				<localize key="change.request.pending.filter.link"></localize>
 			</a>
 			<a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
-				Accepted
+				<localize key="change.request.accepted.filter.link"></localize>
 			</a>
 			<a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
-				Rejected
+				<localize key="change.request.rejected.filter.link"></localize>
 			</a>
 
 		</div>
 
-		<hr style="border-top:solid 3px green" />
+		<hr style="border-top:solid 3px #6BA542" />
 
 	</div>
 </div>
@@ -44,9 +44,9 @@
 	<table class="table">
 		<thead>
 			<tr style="height: 50px;color: grey;">
-				<th style="vertical-align: middle;">Contributor</th>
-				<th style="vertical-align: middle;">Date Contributed</th>
-				<th style="vertical-align: middle;">Status</th>
+				<th style="vertical-align: middle;"> <localize key="change.request.contributor.label"></localize> </th>
+				<th style="vertical-align: middle;"> <localize key="change.request.date.contributed.label"></localize> </th>
+				<th style="vertical-align: middle;"> <localize key="change.request.status.label"></localize> </th>
 				<!-- <th style="vertical-align: middle;">Actions</th> -->
 				<th></th>
 			</tr>
@@ -116,16 +116,16 @@
 										<div class="col-md-4" style="height: 50px;text-align: center;">
 											<h4 *ngIf="req.approvalStatus !== 'PENDING'" class="vertical-center" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" style="margin: 0;">{{action.approvalStatus}}</h4>
 											<button type="submit" [disabled]="action.approvalStatus === 'ACCEPTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'ACCEPTED')" class="btn btn-primary vertical-center" style="width:30%;" role="button">
-												ACCEPT
-												<i *ngIf="action.approvalStatus === 'ACCEPTED'" class="fa fa-check" aria-hidden="true"></i>
+												<localize style="text-transform:uppercase;" key="change.request.accept.btn"></localize>
+												<!-- <i *ngIf="action.approvalStatus === 'ACCEPTED'" class="fa fa-check" aria-hidden="true"></i> -->
 											</button>
 											<button type="submit" [disabled]="action.approvalStatus === 'REJECTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'REJECTED')" class="btn btn-danger vertical-center" style="width:30%;" role="button">
-												REJECT
-												<i *ngIf="action.approvalStatus === 'REJECTED'" class="fa fa-check" aria-hidden="true"></i>
+												<localize style="text-transform:uppercase;" key="change.request.reject.btn"></localize>
+												<!-- <i *ngIf="action.approvalStatus === 'REJECTED'" class="fa fa-check" aria-hidden="true"></i> -->
 											</button>
 											<button type="submit" [disabled]="action.approvalStatus === 'PENDING'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'PENDING')" class="btn btn-warning vertical-center" style="width:30%;" role="button">
-												PENDING
-												<i *ngIf="action.approvalStatus === 'PENDING'" class="fa fa-check" aria-hidden="true"></i>
+												<localize style="text-transform:uppercase;" key="change.request.pending.btn"></localize>
+												<!-- <i *ngIf="action.approvalStatus === 'PENDING'" class="fa fa-check" aria-hidden="true"></i> -->
 											</button>
 										</div>
 									</div>
@@ -133,28 +133,28 @@
 									<div class="row" style="height: 150px;border-top: 1px grey solid;margin:0;">
 										<div class="col-md-5" >
 											<div class="form-group">
-												<label for="contribNotesInput-{{req.oid}}">Contributor Notes</label>
+												<label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
 												<textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" value="{{action.contributorNotes}}" readonly="true"></textarea>
 											</div>	
 										</div>
 										<div class="col-md-5" >
 											<div class="form-group">
-												<label for="maintainerNotesInput-{{req.oid}}">Maintainer Notes</label>
+												<label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
 												<textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" value="{{action.maintainerNotes}}" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
 											</div>	
 										</div>
 										<div class="col-md-2" style="height:100%;">
-											<button type="submit" (click)="showDetails()" class="btn btn-default vertical-center" style="width:100%;" role="button">
-												DETAILS
+											<button type="submit" (click)="showActionDetail(action)" class="btn btn-default vertical-center" style="width:100%;" role="button">
+												<localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
 											</button>
 										</div>
 									</div>
 								</div> <!-- END action-card -->
 
-								<div class="form-group">
+								<!-- <div class="form-group">
 									<label for="maintainerNotesInput-{{req.oid}}">Change Request Notes</label>
 									<textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" value="" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
-								</div>	
+								</div>	 -->
 
 								<div class="button-holder">
 									<button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onApproveAll(req)" class="btn btn-primary" style="" role="button">

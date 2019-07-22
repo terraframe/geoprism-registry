@@ -9,7 +9,6 @@ import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
 import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
-import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { MasterListComponent } from './data/master-list/master-list.component';
 import { DataPageComponent } from './data/data-page/data-page.component';
@@ -58,12 +57,6 @@ const routes: Routes = [
         canActivate: [AdminGuard]
     },
     {
-        path: 'crtable',
-        component: RegistryViewerComponent,
-        canActivate: [MaintainerGuard],
-        canDeactivate: [PendingChangesGuard]
-    },
-    {
         path: 'master-lists',
         component: MasterListManagerComponent,
         canActivate: [ContributerGuard]
@@ -97,4 +90,4 @@ const routes: Routes = [
 } )
 export class CgrAppRoutingModule { }
 
-export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, RegistryViewerComponent, MasterListComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, MasterListComponent];

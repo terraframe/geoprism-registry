@@ -4,7 +4,6 @@ import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
 import { ChangeRequestService } from '../../../../service/change-request.service';
-import { ActionTableComponent } from '../../action-table.component';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
@@ -25,8 +24,6 @@ export class AddRemoveChildDetailComponent {
 
   @Input() action: AddChildAction;
   
-  @Input() crtable: ActionTableComponent;
-  
   private bsModalRef: BsModalRef;
 
   constructor(private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService) { 
@@ -36,7 +33,7 @@ export class AddRemoveChildDetailComponent {
   applyAction()
   {
     this.changeRequestService.applyAction(this.action).then( response => {
-          this.crtable.refresh()
+		this.unlockAction();
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
@@ -50,7 +47,6 @@ export class AddRemoveChildDetailComponent {
   unlockAction()
   {
     this.changeRequestService.unlockAction(this.action.oid).then( response => {
-          this.crtable.refresh();
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );

@@ -9,6 +9,7 @@ import { ChangeRequest, PageEvent, AbstractAction, AddChildAction, CreateGeoObje
 
 import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../core/service/localization.service';
+import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
 @Component( {
 
@@ -172,5 +173,35 @@ export class RequestTableComponent {
 
 		this.applyActionStatusProperties(action);
 	}
+
+	getActiveDetailComponent(action: AbstractAction) : any {
+      // TODO: I know this scales poorly to lots of different action types but I'm not sure how to do it better
+      if (action.actionType.endsWith('CreateGeoObjectAction') || action.actionType.endsWith('UpdateGeoObjectAction'))
+      {
+        // return this.cuDetail;
+      }
+    //   if (this.arDetail != null && (this.action.actionType.endsWith('AddChildAction') || this.action.actionType.endsWith('RemoveChildAction')))
+    //   {
+    //     return this.arDetail;
+	//   }
+	
+	  return action;
+	}
+	
+    showActionDetail( action: any ) {
+
+		this.bsModalRef = this.modalService.show( ActionDetailModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+		this.bsModalRef.content.curAction = action;
+      
+    //   var detail = this.getActiveDetailComponent();
+    //   if (detail != null)
+    //   {
+        // action.onSelect(action);
+    //   }
+    }
 
 }
