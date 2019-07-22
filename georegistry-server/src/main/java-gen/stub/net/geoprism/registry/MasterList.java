@@ -1207,6 +1207,9 @@ public class MasterList extends MasterListBase
 
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
+    DateFormat filterFormat = new SimpleDateFormat("YYYY-MM-DD");
+    filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     JsonArray results = new JsonArray();
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
@@ -1229,12 +1232,43 @@ public class MasterList extends MasterListBase
 
         String attribute = filter.get("attribute").getAsString();
 
-//        if (!valueAttribute.equals(attribute))
-//        {
-          String filterValue = filter.get("value").getAsString();
+        if (mdBusiness.definesAttribute(attribute) instanceof MdAttributeMomentDAOIF)
+        {
+          JsonObject jObject = filter.get("value").getAsJsonObject();
 
-          vQuery.WHERE(query.aCharacter(attribute).EQ(filterValue));
-//        }
+          try
+          {
+            if (jObject.has("start") && !jObject.get("start").isJsonNull())
+            {
+              String date = jObject.get("start").getAsString();
+
+              if (date.length() > 0)
+              {
+                vQuery.WHERE(query.aDateTime(attribute).GE(filterFormat.parse(date)));
+              }
+            }
+
+            if (jObject.has("end") && !jObject.get("end").isJsonNull())
+            {
+              String date = jObject.get("end").getAsString();
+
+              if (date.length() > 0)
+              {
+                vQuery.WHERE(query.aDateTime(attribute).LE(filterFormat.parse(date)));
+              }
+            }
+          }
+          catch (ParseException e)
+          {
+            throw new ProgrammingErrorException(e);
+          }
+        }
+        else
+        {
+          String v = filter.get("value").getAsString();
+
+          vQuery.WHERE(query.get(attribute).EQ(v));
+        }
       }
     }
 

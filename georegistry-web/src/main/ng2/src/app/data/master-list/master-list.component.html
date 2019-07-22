@@ -87,6 +87,16 @@
         <!-- <div class="row form-group">
 			<pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
 		</div> -->
+        <div *ngIf="filter.length > 0" class="row form-group">
+            <div class="col-md-12 table-responsive" style="">
+              <localize key="masterlist.filters"></localize>
+              <ol>
+                <li *ngFor="let f of filter">
+                  {{f.label}}
+                </li>
+              </ol>
+            </div>
+        </div>
         <div class="row form-group">
             <div class="col-md-12 table-responsive" style="">
                 <table class="list-table table table-bordered table-striped">

@@ -32,7 +32,7 @@ export class MasterListComponent implements OnInit {
     list: MasterList = null;
     p: number = 1;
     current: string = '';
-    filter: { attribute: string, value: string }[] = [];
+    filter: { attribute: string, value: string, label: string }[] = [];
     selected: string[] = [];
     page: any = {
         count: 0,
@@ -144,7 +144,24 @@ export class MasterListComponent implements OnInit {
         this.selected = this.selected.filter( s => s !== attribute.base );
 
         if ( attribute.value != null && ( attribute.value.start !== '' || attribute.value.end !== '' ) ) {
-            this.filter.push( { attribute: attribute.base, value: attribute.value } );
+
+            let label = '[' + attribute.label + '] : [';
+
+            if ( attribute.value.start != null ) {
+                label += attribute.value.start;
+            }
+
+            if ( attribute.value.start != null && attribute.value.end != null ) {
+                label += ' - ';
+            }
+
+            if ( attribute.value.end != null ) {
+                label += attribute.value.end;
+            }
+            
+            label += ']';
+
+            this.filter.push( { attribute: attribute.base, value: attribute.value, label: label } );
             this.selected.push( attribute.base );
         }
 
@@ -159,7 +176,9 @@ export class MasterListComponent implements OnInit {
         this.selected = this.selected.filter( s => s !== attribute.base );
 
         if ( attribute.value != null && attribute.value !== '' ) {
-            this.filter.push( { attribute: attribute.base, value: attribute.value } );
+            const label = '[' + attribute.label + '] : ' + '[' + attribute.value + ']';
+
+            this.filter.push( { attribute: attribute.base, value: attribute.value, label: label } );
             this.selected.push( attribute.base );
         }
 
@@ -181,7 +200,9 @@ export class MasterListComponent implements OnInit {
         } );
 
         if ( attribute.value.value != null && attribute.value.value !== '' ) {
-            this.filter.push( { attribute: attribute.base, value: e.item.value } );
+            const label = '[' + attribute.label + '] : ' + '[' + attribute.value.label + ']';
+
+            this.filter.push( { attribute: attribute.base, value: e.item.value, label: label } );
             this.selected.push( attribute.base );
             attribute.search = e.item.label;
         }
