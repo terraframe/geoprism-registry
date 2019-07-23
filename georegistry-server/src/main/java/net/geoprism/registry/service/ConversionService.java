@@ -550,6 +550,7 @@ public class ConversionService
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
     universal.setIsLeafType(got.isLeaf());
+    universal.setIsGeometryEditable(got.isGeometryEditable());
     this.populate(universal.getDisplayLabel(), got.getLabel());
     this.populate(universal.getDescription(), got.getDescription());
 
@@ -585,7 +586,7 @@ public class ConversionService
 
     LocalizedValue label = this.convert(uni.getDisplayLabel());
     LocalizedValue description = this.convert(uni.getDescription());
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, label, description, uni.getIsLeafType(), ServiceFactory.getAdapter());
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, label, description, uni.getIsLeafType(), uni.getIsGeometryEditable(), ServiceFactory.getAdapter());
 
     geoObjType = convertAttributeTypes(uni, geoObjType);
 

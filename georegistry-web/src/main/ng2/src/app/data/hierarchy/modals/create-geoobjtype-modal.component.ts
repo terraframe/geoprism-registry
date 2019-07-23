@@ -35,6 +35,7 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
             "description": this.lService.create(),
             "geometryType": "POINT",
             "isLeaf": false,
+            "isGeometryEditable": true,
             "attributes": []
         };
     }
@@ -53,6 +54,10 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
 
     toggleIsLeaf(): void {
         this.geoObjectType.isLeaf = !this.geoObjectType.isLeaf;
+    }
+
+    toggleIsGeometryEditable(): void {
+        this.geoObjectType.isGeometryEditable = !this.geoObjectType.isGeometryEditable;
     }
 
     error( err: any ): void {

@@ -1,31 +1,26 @@
-    <loading-bar></loading-bar>
-
-                <form #form="ngForm">
-                    <div class="form-group row" *ngIf="types">
-                        <label class="col-md-3 text-right" for="code">
-                            <localize key="io.geoObjectType"></localize>
-                        </label>
-                        <div class="col-md-9">
-                            <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
-                                <option></option>
-                                <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-md-3 text-right" for="file">
-                            <localize key="io.shapefile"></localize>
-                        </label>
-                        <div class="col-md-9">
-                            <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader"
-                                accept=".zip" required />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="button-holder col-md-12 text-right">
-                            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
-                                <localize key="io.submit"></localize>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+<form #form="ngForm">
+    <div class="form-group row" *ngIf="types">
+        <label class="col-md-3 text-right" for="code"> <localize key="io.geoObjectType"></localize>
+        </label>
+        <div class="col-md-9">
+            <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
+                <option></option>
+                <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 text-right" for="file"> <localize key="io.shapefile"></localize>
+        </label>
+        <div class="col-md-9">
+            <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".zip" required />
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="button-holder col-md-12 text-right">
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
+                <localize key="io.submit"></localize>
+            </button>
+        </div>
+    </div>
+</form>

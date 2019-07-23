@@ -53,6 +53,7 @@ export class GeoObjectType {
     description: LocalizedValue;
     geometryType: string;
     isLeaf: boolean;
+    isGeometryEditable: boolean;
     attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 }
 

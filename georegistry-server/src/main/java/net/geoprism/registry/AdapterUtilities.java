@@ -91,10 +91,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.adapter.ServerAdapterFactory;
-import net.geoprism.registry.adapter.ServerLeafGeoObject;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -122,24 +121,26 @@ public class AdapterUtilities
    * @param isNew
    * @param statusCode
    *          TODO
+   * @param isImport
+   *          TODO
    * @return
    */
-  public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew, String statusCode)
+  public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew, String statusCode, boolean isImport)
   {
     if (geoObject.getType().isLeaf())
     {
-      this.applyLeafObject(geoObject, isNew, statusCode);
+      this.applyLeafObject(geoObject, isNew, statusCode, isImport);
     }
     else
     {
 
-      this.applyTreeObject(geoObject, isNew, statusCode);
+      this.applyTreeObject(geoObject, isNew, statusCode, isImport);
     }
 
     return this.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
   }
 
-  private void applyLeafObject(GeoObject geoObject, boolean isNew, String statusCode)
+  private void applyLeafObject(GeoObject geoObject, boolean isNew, String statusCode, boolean isImport)
   {
     Business biz = this.constructLeafObject(geoObject, isNew);
 
@@ -167,6 +168,11 @@ public class AdapterUtilities
       }
     }
 
+    if (!isImport && !isNew && !geoObject.getType().isGeometryEditable() && biz.isModified(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
+    {
+      throw new GeometryUpdateException();
+    }
+
     Term status = this.populateBusiness(geoObject, isNew, biz, null, statusCode);
 
     biz.apply();
@@ -178,7 +184,7 @@ public class AdapterUtilities
 
   }
 
-  private void applyTreeObject(GeoObject geoObject, boolean isNew, String statusCode)
+  private void applyTreeObject(GeoObject geoObject, boolean isNew, String statusCode, boolean isImport)
   {
     GeoEntity ge = this.constructGeoEntity(geoObject, isNew);
 
@@ -218,6 +224,11 @@ public class AdapterUtilities
         p.apply();
         p.throwIt();
       }
+    }
+
+    if (!isImport && !isNew && !geoObject.getType().isGeometryEditable() && ge.isModified(GeoEntity.WKT))
+    {
+      throw new GeometryUpdateException();
     }
 
     ge.apply();
@@ -463,8 +474,10 @@ public class AdapterUtilities
   /**
    * Returns all ancestors of a GeoObjectType
    * 
-   * @param GeoObjectType child
-   * @param code The Hierarchy code
+   * @param GeoObjectType
+   *          child
+   * @param code
+   *          The Hierarchy code
    * @return
    */
   @Request
@@ -515,7 +528,6 @@ public class AdapterUtilities
     {
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
-
 
     Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
 
@@ -1025,7 +1037,7 @@ public class AdapterUtilities
 
     return hierarchies;
   }
-  
+
   public JsonArray getHierarchiesForGeoObject(GeoObject geoObject)
   {
     GeoObjectType geoObjectType = geoObject.getType();
@@ -1042,7 +1054,7 @@ public class AdapterUtilities
 
       // Note: Ordered ancestors always includes self
       Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, universal, mdTerm.definesType());
-      
+
       ParentTreeNode ptnAncestors = this.getParentGeoObjects(geoObject.getUid(), geoObject.getType().getCode(), null, true);
 
       if (uniParents.size() > 1)
@@ -1062,7 +1074,7 @@ public class AdapterUtilities
             JsonObject pObject = new JsonObject();
             pObject.addProperty("code", pType.getCode());
             pObject.addProperty("label", pType.getLabel().getValue());
-            
+
             List<ParentTreeNode> ptns = ptnAncestors.findParentOfType(pType.getCode());
             for (ParentTreeNode ptn : ptns)
             {
