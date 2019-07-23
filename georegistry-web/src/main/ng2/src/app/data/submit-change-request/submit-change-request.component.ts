@@ -54,6 +54,8 @@ export class SubmitChangeRequestComponent implements OnInit {
 	
 	@ViewChild("attributeEditor") attributeEditor;
 	
+	@ViewChild("geometryEditor") geometryEditor;
+	
 	/*
 	 * The current state of the GeoObject in the GeoRegistry
 	 */
@@ -141,6 +143,14 @@ export class SubmitChangeRequestComponent implements OnInit {
     }
     
     submit(): void {
+    
+        let goSubmit: GeoObject = this.attributeEditor.getGeoObject();
+        
+        if (this.geometryEditor != null)
+        {
+          let goGeometries: GeoObject = this.geometryEditor.saveDraw();
+          goSubmit.geometry = goGeometries.geometry;
+        }
 
         let submitObj = [{  
             "actionType":"geoobject/update", // TODO: account for create

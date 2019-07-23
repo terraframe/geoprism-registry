@@ -56,9 +56,10 @@
                             </div>
 
                             <div *ngIf="preGeoObject">
-                            <geoobject-shared-attribute-editor #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)"
-                                [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject"
-                                [(postGeoObject)]="this.postGeoObject"></geoobject-shared-attribute-editor>
+	                            <geoobject-shared-attribute-editor #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)"
+	                                [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject"
+	                                [(postGeoObject)]="this.postGeoObject"></geoobject-shared-attribute-editor>
+	                            <geoobject-editor-map #geometryEditor [postGeoObject]="this.postGeoObject" [preGeoObject]="this.preGeoObject" [geoObjectType]="this.geoObjectType" (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
                             </div>
 
                             <div class="row-holder" style="z-index: 0;">
