@@ -2,6 +2,12 @@ package net.geoprism.registry.service;
 
 import java.util.Iterator;
 
+import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AbstractActionQuery;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestQuery;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,12 +17,6 @@ import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-
-import net.geoprism.registry.action.AbstractAction;
-import net.geoprism.registry.action.AbstractActionQuery;
-import net.geoprism.registry.action.AllGovernanceStatus;
-import net.geoprism.registry.action.ChangeRequest;
-import net.geoprism.registry.action.ChangeRequestQuery;
 
 public class ChangeRequestService
 {
@@ -107,8 +107,25 @@ public class ChangeRequestService
   }
   
   @Request(RequestType.SESSION)
-  public String approveAllActions(String sessionId, String requestId)
+  public String approveAllActions(String sessionId, String requestId, String sActions)
   {
+    return approveAllActionsInTransaction(sessionId, requestId, sActions);
+  }
+  @Transaction
+  public String approveAllActionsInTransaction(String sessionId, String requestId, String sActions)
+  {
+    if (sActions != null && sActions.length() > 0)
+    {
+      JSONArray jaActions = new JSONArray(sActions);
+      
+      for (int i = 0; i < jaActions.length(); ++i)
+      {
+        JSONObject joAction = jaActions.getJSONObject(i);
+        
+        this.applyActionStatusPropertiesInTransaction(joAction.toString());
+      }
+    }
+    
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
     
@@ -116,11 +133,28 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public String rejectAllActions(String sessionId, String requestId)
+  public String rejectAllActions(String sessionId, String requestId, String actions)
   {
+    return rejectAllActionsInTransaction(sessionId, requestId, actions);
+  }
+  @Transaction
+  public String rejectAllActionsInTransaction(String sessionId, String requestId, String sActions)
+  {
+    if (sActions != null && sActions.length() > 0)
+    {
+      JSONArray jaActions = new JSONArray(sActions);
+      
+      for (int i = 0; i < jaActions.length(); ++i)
+      {
+        JSONObject joAction = jaActions.getJSONObject(i);
+        
+        this.applyActionStatusPropertiesInTransaction(joAction.toString());
+      }
+    }
+    
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.REJECTED);
-
+    
     return this.getAllActions(sessionId, requestId);
   }
 
