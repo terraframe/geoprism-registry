@@ -111,7 +111,7 @@ export class RequestTableComponent {
     onApproveAll(changeRequest: ChangeRequest): void {
 
         if ( changeRequest != null ) {
-            this.service.approveAllActions( changeRequest.oid ).then( actions => {
+            this.service.approveAllActions( changeRequest.oid, this.actions ).then( actions => {
                 this.actions = actions;
             } ).catch(( response: Response ) => {
                 this.error( response.json() );
@@ -121,7 +121,7 @@ export class RequestTableComponent {
 
     onRejectAll(changeRequest: ChangeRequest): void {
         if ( changeRequest != null ) {
-            this.service.rejectAllActions( changeRequest.oid ).then( actions => {
+            this.service.rejectAllActions( changeRequest.oid, this.actions ).then( actions => {
                 this.actions = actions;
 
                 // TODO: Determine if there is a way to update an individual record

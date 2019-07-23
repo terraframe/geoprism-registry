@@ -1,6 +1,4 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
 
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
@@ -62,9 +60,11 @@ export class GeoObjectEditorMapComponent implements OnInit {
     postGeoObjectProperties: any;
 
     /*
-   * The state of the GeoObject after our edit has been applied 
-   */
+     * The state of the GeoObject after our edit has been applied 
+     */
     @Input() postGeoObject: GeoObject;
+    
+    @Input() preGeoObject: GeoObject;
 
     @Input() geoObjectType: GeoObjectType;
 
@@ -72,7 +72,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
 
     @Output() valid = new EventEmitter<boolean>();
 
-    constructor( private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private registryService: RegistryService ) {
+    constructor( private service: IOService, private registryService: RegistryService ) {
 
     }
 
@@ -127,8 +127,11 @@ export class GeoObjectEditorMapComponent implements OnInit {
     initMap(): void {
 
         this.map.on( 'style.load', () => {
+            this.addLayers();
             this.refresh( false );
         } );
+        
+        this.addLayers();
 
         this.refresh( true );
 
@@ -177,6 +180,35 @@ export class GeoObjectEditorMapComponent implements OnInit {
         if ( this.postGeoObject.type != null && this.postGeoObject.geometry != null ) {
             this.editingControl.add( this.postGeoObject );
         }
+    }
+    
+    addLayers(): void {
+        this.map.addSource( 'geoobject', {
+            type: 'geojson',
+            data: {
+                "type": "FeatureCollection",
+                "features": []
+            }
+        } );
+
+        // GeoObject Layer
+        this.map.addLayer( {
+            "id": "geoobject",
+            "type": "fill",
+            "source": 'geoobject',
+            "paint": {
+               "fill-color": "#848484",
+               "fill-outline-color": "black",
+               "fill-opacity": 0.5,
+               //"fill-stroke-width": 5,
+               //"fill-stroke-color": "#000000"
+            },
+        } );
+        
+      if (this.preGeoObject != null)
+      {
+        ( <any>this.map.getSource( 'geoobject' ) ).setData( this.preGeoObject );
+      }
     }
 
     refresh( zoom: boolean ): void {

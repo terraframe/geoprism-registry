@@ -199,14 +199,14 @@ export class ChangeRequestService {
 
     }
 
-    rejectAllActions( requestId: string ): Promise<AbstractAction[]> {
+    rejectAllActions( requestId: string, actions:any ): Promise<AbstractAction[]> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
-        return this.http.post( acp + '/changerequest/reject-all-actions', JSON.stringify( { requestId: requestId } ), { headers: headers } )
+        return this.http.post( acp + '/changerequest/reject-all-actions', JSON.stringify( { requestId: requestId, actions: actions } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -216,14 +216,14 @@ export class ChangeRequestService {
             } );
     }
 
-    approveAllActions( requestId: string ): Promise<AbstractAction[]> {
+    approveAllActions( requestId: string, actions:any ): Promise<AbstractAction[]> {
         let headers = new Headers( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
-        return this.http.post( acp + '/changerequest/approve-all-actions', JSON.stringify( { requestId: requestId } ), { headers: headers } )
+        return this.http.post( acp + '/changerequest/approve-all-actions', JSON.stringify( { requestId: requestId, actions: actions } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

@@ -144,17 +144,17 @@ public class ChangeRequestController
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "approve-all-actions", method = ServletMethod.POST)
-  public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions) throws JSONException
   {
-    String response = service.approveAllActions(request.getSessionId(), requestId);
+    String response = service.approveAllActions(request.getSessionId(), requestId, actions);
 
     return new RestBodyResponse(response);
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "reject-all-actions", method = ServletMethod.POST)
-  public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions) throws JSONException
   {
-    String response = service.rejectAllActions(request.getSessionId(), requestId);
+    String response = service.rejectAllActions(request.getSessionId(), requestId, actions);
 
     return new RestBodyResponse(response);
   }
