@@ -18,7 +18,7 @@
                   [(ngModel)]="parent.ptn.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input"
                   [typeaheadAsync]="true"
                   [typeahead]="getTypeAheadObservable(parent.ptn.geoObject.properties.displayLabel.localizedValue, parent, hierarchy, i)"
-                  (typeaheadOnSelect)="typeaheadOnSelect($event, parent)" 
+                  (typeaheadOnSelect)="typeaheadOnSelect($event, parent, hierarchy)" 
                   [typeaheadOptionsLimit]="7"
                   (input)="valueChange(parent.ptn.geoObject.properties.displayLabel.localizedValue, i, hierarchy)"
                   typeaheadOptionField="name" 

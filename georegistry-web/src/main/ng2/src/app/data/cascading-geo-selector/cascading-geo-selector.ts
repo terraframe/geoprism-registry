@@ -106,19 +106,47 @@ export class CascadingGeoSelector {
         } );
     }
 
-    typeaheadOnSelect( e: TypeaheadMatch, parent: any ): void {
+    typeaheadOnSelect( e: TypeaheadMatch, parent: any, hierarchy: any ): void {
         let ptn: ParentTreeNode = parent.ptn;
 
-        this.registryService.getGeoObjectByCode( e.item.code, parent.code )
-            .then( geoObject => {
+        let parentTypes = [];
 
-                ptn.geoObject = geoObject;
+        for ( let i = 0; i < hierarchy.parents.length; i++ ) {
+            let current = hierarchy.parents[i];
 
-                this.valid.emit();
+            parentTypes.push( current.code );
 
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
-            } );
+            if ( current.code === parent.code ) {
+                break;
+            }
+        }
+
+        this.registryService.getParentGeoObjects( e.item.uid, parent.code, parentTypes, true ).then( ancestors => {
+
+            ptn.geoObject = ancestors.geoObject;
+
+            for ( let i = 0; i < hierarchy.parents.length; i++ ) {
+                let current = hierarchy.parents[i];
+                let ancestor = ancestors;
+
+                while ( ancestor != null && ancestor.geoObject.properties.type != current.code ) {
+                    if ( ancestor.parents.length > 0 ) {
+                        ancestor = ancestor.parents[0];
+                    }
+                    else {
+                        ancestor = null;
+                    }
+                }
+
+                if ( ancestor != null ) {
+                    current.ptn.geoObject = ancestor.geoObject;
+                }
+            }
+
+            this.valid.emit();
+        } ).catch(( err: Response ) => {
+            this.error( err.json() );
+        } );
     }
 
     public getIsValid(): boolean {
