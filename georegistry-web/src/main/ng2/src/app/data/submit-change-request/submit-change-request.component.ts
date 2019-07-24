@@ -165,7 +165,7 @@ export class SubmitChangeRequestComponent implements OnInit {
           goSubmit.geometry = goGeometries.geometry;
         }
 
-        let submitObj = [{  
+        let actions = [{  
             "actionType":"geoobject/update", // TODO: account for create
             "apiVersion":"1.0-SNAPSHOT", // TODO: make dynamic
             "createActionDate":new Date().getTime(), 
@@ -173,7 +173,7 @@ export class SubmitChangeRequestComponent implements OnInit {
             "contributorNotes":this.reason
         }]
 
-        this.changeRequestService.submitChangeRequest(JSON.stringify(submitObj))
+        this.changeRequestService.submitChangeRequest(JSON.stringify(actions))
 	    .then( geoObject => {
 			this.cancel();
 			

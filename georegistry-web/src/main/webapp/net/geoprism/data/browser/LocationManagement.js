@@ -634,6 +634,7 @@
       $scope.universals = data.universal.options;
       $scope.parent = data.parent;
       $scope.show = false;
+      $scope.action = {reason:""};
     }
     
     controller.isParentsInvalid = function() {
@@ -827,8 +828,23 @@
           submitGO.properties[attr.code] = $scope.postGeoObject.properties[attr.code].getTime();
         }
       }
-          
-      locationService.apply(connection, $scope.entity.newInstance, submitGO, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
+      
+      if (this.isMaintainer())
+      {
+        locationService.apply(connection, $scope.entity.newInstance, submitGO, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
+      }
+      else
+      {
+        let actions = [{
+          "actionType":"geoobject/update",
+          "apiVersion":"1.0-SNAPSHOT", // TODO: make dynamic
+          "createActionDate":new Date().getTime(), 
+          "geoObject": submitGO,
+          "contributorNotes":$scope.action.reason
+        }];
+        
+        locationService.submitChangeRequest(connection, actions);
+      }
     }
       
     $rootScope.$on('locationEdit', function(event, data) {

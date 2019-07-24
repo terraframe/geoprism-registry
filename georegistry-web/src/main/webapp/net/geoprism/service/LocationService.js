@@ -116,6 +116,18 @@
       runwayService.execute(req, connection);
     }
     
+    service.submitChangeRequest = function(connection, json) {
+      var req = {
+        method: 'POST',
+        url: com.runwaysdk.__applicationContextPath + '/cgr/submitChangeRequest',
+        data : {
+          actions : json,
+        }
+      }
+      
+      runwayService.execute(req, connection);
+    }
+    
     service.apply = function(connection, isNew, geoObject, parentOid, existingLayers, ptn, mdRelationshipId) {
       var req = {
         method: 'POST',
