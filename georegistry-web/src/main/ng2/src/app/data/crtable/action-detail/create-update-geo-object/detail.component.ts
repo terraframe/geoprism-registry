@@ -46,6 +46,8 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
   readOnly : boolean = true;
 
   @ViewChild("attributeEditor") attributeEditor;
+  
+  @ViewChild("geometryEditor") geometryEditor;
 
   bsModalRef: BsModalRef;
 
@@ -78,6 +80,11 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
   {
     var action = JSON.parse(JSON.stringify(this.action));
     action.geoObjectJson = this.attributeEditor.getGeoObject();
+    
+    if (this.geometryEditor != null)
+    {
+      action.geoObjectJson.geometry = this.geometryEditor.saveDraw().geometry;
+    }
 
     this.changeRequestService.applyAction(action).then( response => {
 		this.endEdit();
@@ -116,7 +123,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
             }).catch((err: Response) => {
                 console.log("Error", err);
-                this.error(err.json());
+                this.error(err);
             });
     }
   }
@@ -158,8 +165,12 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 	{
     this.changeRequestService.lockAction(this.action.oid).then( response => {
         this.readOnly = false;
+        if (this.geometryEditor != null)
+        {
+          this.geometryEditor.enableEditing(true);
+        }
       } ).catch(( err: Response ) => {
-          this.error( err.json() );
+          this.error( err );
       } );
 	}
 
@@ -167,8 +178,12 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
   {
     this.changeRequestService.unlockAction(this.action.oid).then( response => {
           this.readOnly = true;
+          if (this.geometryEditor != null)
+          {
+            this.geometryEditor.enableEditing(false);
+          }
       } ).catch(( err: Response ) => {
-          this.error( err.json() );
+          this.error( err );
       } );
   }
 
@@ -225,6 +240,11 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
   public error( err: any ): void {
       console.log(err);
+      
+      if (err.json != null)
+      {
+        err = err.json();
+      }
 
       // Handle error
       if ( err !== null ) {
