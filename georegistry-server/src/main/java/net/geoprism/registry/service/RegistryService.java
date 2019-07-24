@@ -1068,6 +1068,7 @@ public class RegistryService
         result.addProperty("id", it.currentOid());
         result.addProperty("name", object.getLocalizedDisplayLabel());
         result.addProperty(GeoObject.CODE, object.getCode());
+        result.addProperty(GeoObject.UID, object.getUid());
 
         results.add(result);
       }

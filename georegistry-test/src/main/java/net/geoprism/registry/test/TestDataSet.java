@@ -518,7 +518,7 @@ abstract public class TestDataSet
       // }
       // else
       // {
-      return new GeoObjectType(this.getCode(), geometryType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), adapter);
+      return new GeoObjectType(this.getCode(), geometryType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, adapter);
       // }
     }
   }
