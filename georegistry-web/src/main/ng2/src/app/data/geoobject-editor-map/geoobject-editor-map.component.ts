@@ -71,6 +71,8 @@ export class GeoObjectEditorMapComponent implements OnInit {
     @Input() isNew: boolean;
 
     @Output() valid = new EventEmitter<boolean>();
+    
+    @Input() readOnly: boolean = false;
 
     constructor( private service: IOService, private registryService: RegistryService ) {
 
@@ -111,10 +113,14 @@ export class GeoObjectEditorMapComponent implements OnInit {
 
     getIsValid(): boolean {
         let isValid: boolean = false;
-        let featureCollection: any = this.editingControl.getAll();
-
-        if ( featureCollection.features.length > 0 ) {
-            isValid = true;
+        
+        if (this.editingControl != null)
+        {
+          let featureCollection: any = this.editingControl.getAll();
+  
+          if ( featureCollection.features.length > 0 ) {
+              isValid = true;
+          }
         }
 
         return isValid;
@@ -138,6 +144,16 @@ export class GeoObjectEditorMapComponent implements OnInit {
         // Add zoom and rotation controls to the map.
         this.map.addControl( new NavigationControl() );
 
+        if (!this.readOnly)
+        {
+          this.enableEditing(true);
+        }
+    }
+    
+    enableEditing(enabled: boolean): void
+    {
+      if (enabled)
+      {
         var gt = this.geoObjectType.geometryType.toUpperCase();
         if ( gt === "MULTIPOLYGON" || gt === "POLYGON" ) {
             this.editingControl = new MapboxDraw( {
@@ -176,53 +192,133 @@ export class GeoObjectEditorMapComponent implements OnInit {
             } );
         }
         this.map.addControl( this.editingControl );
-
+  
         if ( this.postGeoObject.type != null && this.postGeoObject.geometry != null ) {
             this.editingControl.add( this.postGeoObject );
         }
+      }
+      else
+      {
+        this.postGeoObject = this.saveDraw();
+        this.map.removeControl( this.editingControl );
+        this.editingControl = null;
+        this.readOnly = true;
+        
+        this.removeSource("pre");
+        this.removeSource("post");
+        this.addLayers();
+      }
     }
     
-    addLayers(): void {
-        this.map.addSource( 'geoobject', {
-            type: 'geojson',
-            data: {
-                "type": "FeatureCollection",
-                "features": []
-            }
-        } );
-
-        // GeoObject Layer
-        this.map.addLayer( {
-            "id": "geoobject",
-            "type": "fill",
-            "source": 'geoobject',
-            "paint": {
-               "fill-color": "#848484",
-               "fill-outline-color": "black",
-               "fill-opacity": 0.5,
-               //"fill-stroke-width": 5,
-               //"fill-stroke-color": "#000000"
-            },
-        } );
-        
+    removeSource(prefix: string): void
+    {
+      let sourceName: string = prefix + "-geoobject";
+      var gt = this.geoObjectType.geometryType.toUpperCase();
+      
+      if ( gt === "MULTIPOLYGON" || gt === "POLYGON" )
+      {
+        this.map.removeLayer( sourceName + "-polygon" );
+      }
+      else if (gt === "POINT" || gt === "MULTIPOINT")
+      {
+        this.map.removeLayer( sourceName + "-point" );
+      }
+      else if ( gt === "LINE" || gt === "MULTILINE" )
+      {
+        this.map.removeLayer( sourceName + "-line" );
+      }
+      
+      this.map.removeSource(sourceName);
+    }
+    
+    addLayers(): void
+    {
       if (this.preGeoObject != null)
       {
-        ( <any>this.map.getSource( 'geoobject' ) ).setData( this.preGeoObject );
+        this.renderGeoObjectAsLayer(this.preGeoObject, "pre", "#EFA22E")
       }
+      if (this.readOnly && this.postGeoObject != null)
+      {
+        this.renderGeoObjectAsLayer(this.postGeoObject, "post", "#3368EF");
+      }
+    }
+    
+    renderGeoObjectAsLayer(geoObject: GeoObject, prefix: string, color: string)
+    {
+      let sourceName: string = prefix + "-geoobject";
+      
+      this.map.addSource( sourceName, {
+        type: 'geojson',
+        data: {
+            "type": "FeatureCollection",
+            "features": []
+        }
+      } );
+
+      var gt = this.geoObjectType.geometryType.toUpperCase();
+      if ( gt === "MULTIPOLYGON" || gt === "POLYGON" )
+      {
+        // Polygon Layer
+        this.map.addLayer( {
+            "id": sourceName + "-polygon",
+            "type": "fill",
+            "source": sourceName,
+            "paint": {
+               "fill-color": color,
+               "fill-outline-color": "black",
+               "fill-opacity": 0.7,
+            },
+        } );
+      }
+      else if (gt === "POINT" || gt === "MULTIPOINT")
+      {
+        // Point layer
+        this.map.addLayer( {
+            "id": sourceName + "-point",
+            "type": "circle",
+            "source": sourceName,
+            "paint": {
+                "circle-radius": 3,
+                "circle-color": color,
+                "circle-stroke-width": 2,
+                "circle-stroke-color": '#FFFFFF'
+            }
+        } );
+      }
+      else if ( gt === "LINE" || gt === "MULTILINE" )
+      {
+        this.map.addLayer({
+          "id": sourceName + "-line",
+          "source": sourceName,
+          "type": "line",
+          "layout": {
+              "line-join": "round",
+                "line-cap": "round"
+              },
+              "paint": {
+                "line-color": color,
+                "line-width": 2
+              }
+        });
+      }
+      
+      ( <any>this.map.getSource( sourceName ) ).setData( geoObject );
     }
 
     refresh( zoom: boolean ): void {
-        if ( zoom && this.postGeoObject.geometry != null && !this.isNew ) {
+      if ( zoom && this.postGeoObject.geometry != null && !this.isNew ) {
 
-            this.registryService.getGeoObjectBounds( this.postGeoObject.properties.code, this.postGeoObject.properties.type )
-                .then( boundArr => {
-                    let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+          this.registryService.getGeoObjectBounds( this.postGeoObject.properties.code, this.postGeoObject.properties.type )
+              .then( boundArr => {
+                  let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
 
-                    this.map.fitBounds( bounds, { padding: 50 } );
-                } ).catch(( err: Response ) => {
-                    this.error( err.json() );
-                } );
-        }
+                  this.map.fitBounds( bounds, { padding: 50 } );
+              } ).catch(( err: Response ) => {
+                  this.error( err );
+              } );
+      }
+      
+      this.onValidChange();
     }
 
     saveDraw(): GeoObject {
@@ -309,6 +405,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
 
     public error( err: any ): void {
         // TODO
+      console.log("ERROR", err);
 
         // Handle error
         //if (err !== null) {

@@ -113,7 +113,20 @@ export class SubmitChangeRequestComponent implements OnInit {
     	  this.isValid = false;
     	  return;
       }
-      this.isValid = newValid;
+      
+      if (this.geometryEditor != null && !this.geometryEditor.getIsValid())
+      {
+        this.isValid = false;
+        return;
+      }
+      
+      if (this.attributeEditor != null && !this.attributeEditor.getIsValid())
+      {
+        this.isValid = false;
+        return;
+      }
+      
+      this.isValid = true;
     }
     
     private getGeoObjectTypePosition(code: string): number {
@@ -156,7 +169,7 @@ export class SubmitChangeRequestComponent implements OnInit {
             "actionType":"geoobject/update", // TODO: account for create
             "apiVersion":"1.0-SNAPSHOT", // TODO: make dynamic
             "createActionDate":new Date().getTime(), 
-            "geoObject": this.attributeEditor.getGeoObject(),
+            "geoObject": goSubmit,
             "contributorNotes":this.reason
         }]
 
