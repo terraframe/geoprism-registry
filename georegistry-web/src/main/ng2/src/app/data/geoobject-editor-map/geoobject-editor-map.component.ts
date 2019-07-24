@@ -306,9 +306,12 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
 
     refresh( zoom: boolean ): void {
-      if ( zoom && this.postGeoObject.geometry != null && !this.isNew ) {
+      if ( zoom && this.postGeoObject != null && !this.isNew ) {
+      
+          let code: string = this.postGeoObject.properties.code;
+          let type: string = this.postGeoObject.properties.type;
 
-          this.registryService.getGeoObjectBounds( this.postGeoObject.properties.code, this.postGeoObject.properties.type )
+          this.registryService.getGeoObjectBounds( code, type )
               .then( boundArr => {
                   let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
 
