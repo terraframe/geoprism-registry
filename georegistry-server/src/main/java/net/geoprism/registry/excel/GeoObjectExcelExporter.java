@@ -138,7 +138,7 @@ public class GeoObjectExcelExporter
 
         if (point != null)
         {
-          cell.setCellValue(point.getX());
+          cell.setCellValue(point.getY());
         }
       }
       else if (name.equals(GeoObjectConfiguration.LONGITUDE))
@@ -146,7 +146,7 @@ public class GeoObjectExcelExporter
         Point point = (Point) object.getGeometry();
         if (point != null)
         {
-          cell.setCellValue(point.getY());
+          cell.setCellValue(point.getX());
         }
       }
       else

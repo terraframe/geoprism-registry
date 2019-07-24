@@ -160,7 +160,7 @@ public abstract class FeatureRowImporter
             }
           }
 
-          ServiceFactory.getUtilities().applyGeoObject(entity, isNew, GeoObjectStatusTerm.ACTIVE.code);
+          ServiceFactory.getUtilities().applyGeoObject(entity, isNew, GeoObjectStatusTerm.ACTIVE.code, true);
 
           if (parent != null)
           {

@@ -11,6 +11,13 @@
           <attribute name="defaultLocale" value="Filters" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.option.label.isGeometryEditable">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.option.label.isGeometryEditable" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Can geometries be modifed in the web" />
+        </attributeStruct>
+      </object>
 
     </createOrUpdate>
 

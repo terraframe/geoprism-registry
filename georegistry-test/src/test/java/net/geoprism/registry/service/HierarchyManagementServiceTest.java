@@ -320,7 +320,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, registry);
     String gtJSON = province.toJSON().toString();
 
     try
@@ -415,7 +415,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, registry);
 
     String geoObjectTypeCode = province.getCode();
 
@@ -474,7 +474,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, registry);
     String gtJSON = province.toJSON().toString();
 
     AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false);
@@ -516,7 +516,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, registry);
     String gtJSON = province.toJSON().toString();
 
     AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false);
@@ -558,7 +558,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, registry);
     String gtJSON = province.toJSON().toString();
 
     AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanName"), new LocalizedValue("testBooleanDescrip"), AttributeBooleanType.TYPE, false, false);
@@ -728,7 +728,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, registry);
     String geoObjectTypeCode = province.getCode();
 
     AttributeTermType attributeTermType = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description"), AttributeTermType.TYPE, false, false);
@@ -925,7 +925,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, new LocalizedValue("Village"), new LocalizedValue(""), true, registry);
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, new LocalizedValue("Village"), new LocalizedValue(""), true, true, registry);
     String villageJSON = village.toJSON().toString();
 
     try
@@ -957,7 +957,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.LINE, new LocalizedValue("River"), new LocalizedValue(""), true, registry);
+    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.LINE, new LocalizedValue("River"), new LocalizedValue(""), true, true, registry);
     String riverJSON = river.toJSON().toString();
 
     try
@@ -989,7 +989,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, new LocalizedValue("District"), new LocalizedValue(""), true, registry);
+    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, new LocalizedValue("District"), new LocalizedValue(""), true, true, registry);
     String gtJSON = geoObjectType.toJSON().toString();
 
     try
@@ -1021,7 +1021,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.MULTIPOINT, new LocalizedValue("Village"), new LocalizedValue(""), true, registry);
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.MULTIPOINT, new LocalizedValue("Village"), new LocalizedValue(""), true, true, registry);
     String villageJSON = village.toJSON().toString();
 
     try
@@ -1053,7 +1053,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.MULTILINE, new LocalizedValue("River"), new LocalizedValue(""), true, registry);
+    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER_CODE, GeometryType.MULTILINE, new LocalizedValue("River"), new LocalizedValue(""), true, true, registry);
     String riverJSON = river.toJSON().toString();
 
     try
@@ -1085,7 +1085,7 @@ public class HierarchyManagementServiceTest
 
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.MULTIPOLYGON, new LocalizedValue("District"), new LocalizedValue(""), true, registry);
+    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.MULTIPOLYGON, new LocalizedValue("District"), new LocalizedValue(""), true, true, registry);
     String gtJSON = geoObjectType.toJSON().toString();
 
     try
@@ -1194,7 +1194,7 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), false, true, registry);
     String gtJSON = province.toJSON().toString();
 
     String sessionId = this.logInAdmin();
@@ -1347,13 +1347,13 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType country = MetadataFactory.newGeoObjectType(COUNTRY_CODE, GeometryType.POLYGON, new LocalizedValue("Country Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType country = MetadataFactory.newGeoObjectType(COUNTRY_CODE, GeometryType.POLYGON, new LocalizedValue("Country Test"), new LocalizedValue("Some Description"), false, true, registry);
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), false, true, registry);
 
-    GeoObjectType district = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, new LocalizedValue("District Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType district = MetadataFactory.newGeoObjectType(DISTRICT_CODE, GeometryType.POLYGON, new LocalizedValue("District Test"), new LocalizedValue("Some Description"), false, true, registry);
 
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POLYGON, new LocalizedValue("Village Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POLYGON, new LocalizedValue("Village Test"), new LocalizedValue("Some Description"), false, true, registry);
 
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, new LocalizedValue("Reporting Division"), new LocalizedValue("The reporting division hieracy..."), registry);
 
@@ -1480,11 +1480,11 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), false, true, registry);
 
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, new LocalizedValue("Village Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, new LocalizedValue("Village Test"), new LocalizedValue("Some Description"), false, true, registry);
 
-    GeoObjectType household = MetadataFactory.newGeoObjectType(HOUSEHOLD_CODE, GeometryType.POINT, new LocalizedValue("Household Test"), new LocalizedValue("Some Description"), true, registry);
+    GeoObjectType household = MetadataFactory.newGeoObjectType(HOUSEHOLD_CODE, GeometryType.POINT, new LocalizedValue("Household Test"), new LocalizedValue("Some Description"), true, true, registry);
 
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, new LocalizedValue("Reporting Division"), new LocalizedValue("The reporting division hieracy..."), registry);
 
@@ -1550,9 +1550,9 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, new LocalizedValue("Village Test"), new LocalizedValue("Some Description"), false, registry);
+    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE_CODE, GeometryType.POINT, new LocalizedValue("Village Test"), new LocalizedValue("Some Description"), false, true, registry);
 
-    GeoObjectType household = MetadataFactory.newGeoObjectType(HOUSEHOLD_CODE, GeometryType.POINT, new LocalizedValue("Household Test"), new LocalizedValue("Some Description"), true, registry);
+    GeoObjectType household = MetadataFactory.newGeoObjectType(HOUSEHOLD_CODE, GeometryType.POINT, new LocalizedValue("Household Test"), new LocalizedValue("Some Description"), true, true, registry);
 
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION_CODE, new LocalizedValue("Reporting Division"), new LocalizedValue("The reporting division hieracy..."), registry);
 
