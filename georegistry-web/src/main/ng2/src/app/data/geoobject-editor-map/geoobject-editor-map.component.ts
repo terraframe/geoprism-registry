@@ -199,9 +199,13 @@ export class GeoObjectEditorMapComponent implements OnInit {
       }
       else
       {
-        this.postGeoObject = this.saveDraw();
-        this.map.removeControl( this.editingControl );
-        this.editingControl = null;
+        if (this.editingControl != null)
+        {
+          this.postGeoObject = this.saveDraw();
+          this.map.removeControl( this.editingControl );
+          
+          this.editingControl = null;
+        }
         this.readOnly = true;
         
         this.removeSource("pre");
@@ -325,6 +329,8 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
 
     saveDraw(): GeoObject {
+      if (this.editingControl != null)
+      {
         let featureCollection: any = this.editingControl.getAll();
 
         if ( featureCollection.features.length > 0 ) {
@@ -404,6 +410,9 @@ export class GeoObjectEditorMapComponent implements OnInit {
         }
 
         return this.postGeoObject;
+      }
+      
+      return null;
     }
 
     public error( err: any ): void {
