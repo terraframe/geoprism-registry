@@ -17,6 +17,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -27,6 +28,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -113,9 +115,9 @@ public abstract class FeatureRowImporter
         }
 
         Geometry geometry = (Geometry) this.getGeometry(row);
-        Object entityName = this.getName(row);
+        LocalizedValue entityName = this.getName(row);
 
-        if (entityName != null)
+        if (entityName != null && this.hasValue(entityName))
         {
           if (geometry != null)
           {
@@ -199,6 +201,13 @@ public abstract class FeatureRowImporter
     {
       // Do nothing
     }
+  }
+
+  private boolean hasValue(LocalizedValue value)
+  {
+    String defaultLocale = value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
+
+    return defaultLocale != null && defaultLocale.length() > 0;
   }
 
   /**
