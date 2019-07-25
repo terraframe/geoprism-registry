@@ -1,9 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { Action } from 'rxjs/scheduler/Action';
 import { GeoObject, GeoObjectType } from '../../../model/registry';
-
+import { CreateUpdateGeoObjectDetailComponent } from './create-update-geo-object/detail.component';
 
 @Component( {
     selector: 'action-detail-modal',
@@ -13,6 +13,8 @@ import { GeoObject, GeoObjectType } from '../../../model/registry';
 export class ActionDetailModalComponent {
 
 	action: any;
+	
+	@ViewChild("cuDetail") cuDetail: CreateUpdateGeoObjectDetailComponent;
 
 	@Input() 
 	set curAction(action: any){
@@ -28,6 +30,12 @@ export class ActionDetailModalComponent {
 
     ngOnInit(): void {
 
+    }
+    
+    cancel(): void {
+      this.cuDetail.endEdit();
+    
+      this.bsModalRef.hide();
     }
 
     confirm(): void {

@@ -156,7 +156,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     this.lockAction();
   }
 
-  endEdit() : void
+  public endEdit() : void
   {
     this.unlockAction();
   }
