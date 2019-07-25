@@ -719,9 +719,23 @@
 
         if (attr.type === "term" && attr.code === termAttributeCode){
           var attrOpts = attr.rootTerm.children;
+          var attrOptsOut = [];
+          
+          for (key in attrOpts)
+          {
+            if (attrOpts.hasOwnProperty(key))
+            {
+              var opt = attrOpts[key];
+            	
+              if (opt.code !== "CGR:Status-New" && opt.code !== "CGR:Status-Pending")
+              {
+                attrOptsOut.push(opt);
+              }
+            }
+          }
   
-          if(attrOpts.length > 0){
-            return attrOpts;
+          if(attrOptsOut.length > 0){
+            return attrOptsOut;
           }
         }
       }
