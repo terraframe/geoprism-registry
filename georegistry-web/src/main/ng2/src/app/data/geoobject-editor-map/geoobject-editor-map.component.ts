@@ -199,9 +199,13 @@ export class GeoObjectEditorMapComponent implements OnInit {
       }
       else
       {
-        this.postGeoObject = this.saveDraw();
-        this.map.removeControl( this.editingControl );
-        this.editingControl = null;
+        if (this.editingControl != null)
+        {
+          this.postGeoObject = this.saveDraw();
+          this.map.removeControl( this.editingControl );
+          
+          this.editingControl = null;
+        }
         this.readOnly = true;
         
         this.removeSource("pre");
@@ -306,9 +310,12 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
 
     refresh( zoom: boolean ): void {
-      if ( zoom && this.postGeoObject.geometry != null && !this.isNew ) {
+      if ( zoom && this.postGeoObject != null && !this.isNew ) {
+      
+          let code: string = this.postGeoObject.properties.code;
+          let type: string = this.postGeoObject.properties.type;
 
-          this.registryService.getGeoObjectBounds( this.postGeoObject.properties.code, this.postGeoObject.properties.type )
+          this.registryService.getGeoObjectBounds( code, type )
               .then( boundArr => {
                   let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
 
@@ -322,6 +329,8 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
 
     saveDraw(): GeoObject {
+      if (this.editingControl != null)
+      {
         let featureCollection: any = this.editingControl.getAll();
 
         if ( featureCollection.features.length > 0 ) {
@@ -401,6 +410,9 @@ export class GeoObjectEditorMapComponent implements OnInit {
         }
 
         return this.postGeoObject;
+      }
+      
+      return null;
     }
 
     public error( err: any ): void {
