@@ -30,7 +30,7 @@
   <description>Geoprism's Geo-ontological hierarchy registry</description>
 
   <modules>
-    <!--<module>../geoprism</module>-->
+    <module>../geoprism</module>
     <module>georegistry-server</module>
     <module>georegistry-web</module>
   </modules>
