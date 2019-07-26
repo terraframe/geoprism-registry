@@ -30,13 +30,13 @@
   <description>Geoprism's Geo-ontological hierarchy registry</description>
 
   <modules>
-    <!--<module>../geoprism</module>-->
+    <!--<!--<module>../geoprism</module>-->-->
     <module>georegistry-server</module>
     <module>georegistry-web</module>
   </modules>
 
   <properties>
-    <geoprism.version>${project.version}</geoprism.version>
+    <geoprism.version>0.5.0</geoprism.version>
   
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
