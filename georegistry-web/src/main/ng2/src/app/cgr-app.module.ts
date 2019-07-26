@@ -12,6 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
@@ -21,12 +22,11 @@ import './rxjs-extensions';
 import { FillPipe } from './core/fill.pipe';
 import { Safe } from './core/safe.html.pipe';
 import { ErrorModalComponent } from './core/modals/error-modal.component';
+import { SuccessModalComponent } from './core/modals/success-modal.component';
 import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 import { ErrorMessageComponent } from './core/message/error-message.component';
 import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-field.component';
-import { SelectFieldComponent } from './core/form-fields/select-field/select-field.component';
-import { InputFieldComponent } from './core/form-fields/input-field/input-field.component';
 import { ValidationComponent } from './core/form-fields/base/validation.component';
 import { LocalizedInputComponent } from './core/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './core/form-fields/localized-text/localized-text.component';
@@ -49,6 +49,7 @@ import { LocationProblemComponent } from './data/importer/modals/location-proble
 import { TermProblemPageComponent } from './data/importer/modals/term-problem-page.component';
 import { TermProblemComponent } from './data/importer/modals/term-problem.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
+import { DataPageComponent } from './data/data-page/data-page.component';
 import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
 import { TermOptionWidgetComponent } from './data/hierarchy/geoobjecttype-management/term-option-widget.component';
@@ -61,14 +62,18 @@ import { MasterListManagerComponent } from './data/master-list/master-list-manag
 import { PublishModalComponent } from './data/master-list/publish-modal.component';
 import { ExportFormatModalComponent } from './data/master-list/export-format-modal.component';
 
-import { ActionTableComponent } from './data/crtable/action-table.component';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './data/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
 import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
+import { ChangeRequestPageComponent } from './data/change-request-page/change-request-page.component';
 import { GeoObjectEditorComponent } from './data/geoobject-editor/geoobject-editor.component';
+import { GeoObjectEditorMapComponent } from './data/geoobject-editor-map/geoobject-editor-map.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
+import { CascadingGeoSelector } from './data/cascading-geo-selector/cascading-geo-selector';
+import { ActionDetailModalComponent } from './data/crtable/action-detail/action-detail-modal.component';
+
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
@@ -89,11 +94,7 @@ import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
 import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
-
-import { ChangeRequestHeaderComponent } from './app-specific-headers/change-request-header.component';
-import { HierarchyHeaderComponent } from './app-specific-headers/hierarchy-header.component';
-import { ImportExportHeaderComponent } from './app-specific-headers/import-export-header.component';
-import { MasterListHeaderComponent } from './app-specific-headers/master-list-header.component';
+import { PendingChangesGuard } from './core/pending-changes-guard';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -118,6 +119,7 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
     ProgressbarModule.forRoot(),       
+    CollapseModule.forRoot(),    
     NgxPaginationModule,    
     BrowserAnimationsModule
   ],
@@ -125,7 +127,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     CgrAppComponent,
     HierarchyComponent,
     LocalizationManagerComponent,
-    ActionTableComponent,
     RequestTableComponent,
     CreateUpdateGeoObjectDetailComponent,
     AddRemoveChildDetailComponent,
@@ -138,7 +139,8 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ConfirmModalComponent,
     ManageAttributesModalComponent,
     DefineAttributeModalContentComponent,
-    ErrorModalComponent, 
+	  ErrorModalComponent, 
+	  SuccessModalComponent,
     ShapefileModalComponent,
     AttributesPageComponent,
     LocationPageComponent,
@@ -164,8 +166,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     OnlyNumber,
     ErrorMessageComponent,
     BooleanFieldComponent,
-    SelectFieldComponent,
-    InputFieldComponent,
     ValidationComponent,
     LocalizedInputComponent,    
     LocalizedTextComponent,    
@@ -175,10 +175,11 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     ProgressBarComponent,
-    ChangeRequestHeaderComponent,
-    HierarchyHeaderComponent,
-    ImportExportHeaderComponent,
-    MasterListHeaderComponent,
+	GeoObjectEditorMapComponent,
+	DataPageComponent,
+	ChangeRequestPageComponent,
+	CascadingGeoSelector,
+	ActionDetailModalComponent,
     
     // Master List screens
     MasterListManagerComponent,
@@ -203,11 +204,13 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     RegistryService,
     ProgressService,
     DatePipe,
-    ToEpochDateTimePipe
+    ToEpochDateTimePipe,
+    PendingChangesGuard
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [
-      ErrorModalComponent, 
+	  ErrorModalComponent, 
+	  SuccessModalComponent,
       AddChildToHierarchyModalComponent, 
       CreateGeoObjTypeModalComponent, 
       ManageAttributesModalComponent, 
@@ -231,7 +234,10 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
       SubmitChangeRequestComponent,
       GeoObjectEditorComponent,
       PublishModalComponent,
-      ExportFormatModalComponent
+	  ExportFormatModalComponent,
+	  DataPageComponent,
+	  ChangeRequestPageComponent,
+	  ActionDetailModalComponent
   ]        
 })
 export class CgrAppModule { }

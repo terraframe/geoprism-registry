@@ -1,6 +1,5 @@
 var webpack = require('webpack');
 var webpackMerge = require('webpack-merge');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var commonConfig = require('./webpack.common.js');
 var helpers = require('./helpers');
 
@@ -9,6 +8,26 @@ const ENV = process.env.NODE_ENV = process.env.ENV = 'development';
 module.exports = webpackMerge(commonConfig, {
   devtool: 'cheap-module-eval-source-map',
   mode:'development',
+	optimization : {
+		namedChunks : true,
+		chunkIds : 'named',
+	    splitChunks: {
+	        cacheGroups: {
+	            default: false,
+	            vendors: false,
+
+	            // vendor chunk
+	            vendor: {
+	            	name:'vendor',
+	                // sync + async chunks
+	                chunks: 'all',
+
+	                // import file path containing node_modules
+	                test: /node_modules/
+	            }
+	        }
+	    }
+    },
 
   output: {
     path: helpers.root('dist'),
@@ -17,14 +36,7 @@ module.exports = webpackMerge(commonConfig, {
     chunkFilename: '[id].chunk.js'
   },
 
-  plugins: [
-    new ExtractTextPlugin('[name].css'),
-    new webpack.DefinePlugin({
-      'process.env': {
-        'ENV': JSON.stringify(ENV)
-      }
-    }),    
-  ],
+  plugins: [],
 
   devServer: {
     historyApiFallback: true,

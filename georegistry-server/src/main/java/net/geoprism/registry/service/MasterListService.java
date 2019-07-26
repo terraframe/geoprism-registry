@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.service;
 
 import java.io.InputStream;
@@ -34,7 +52,7 @@ public class MasterListService
     query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
     OIterator<? extends MasterList> it = query.getIterator();
-    
+
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     try
@@ -46,7 +64,7 @@ public class MasterListService
         JsonObject object = new JsonObject();
         object.addProperty("label", list.getDisplayLabel().getValue());
         object.addProperty("oid", list.getOid());
-        
+
         object.addProperty("createDate", format.format(list.getCreateDate()));
         object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
 
@@ -99,21 +117,27 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter)
+  public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter, String sort)
   {
-    return MasterList.get(oid).data(pageNumber, pageSize, filter);
+    return MasterList.get(oid).data(pageNumber, pageSize, filter, sort);
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportShapefile(String sessionId, String oid)
+  public JsonArray values(String sessionId, String oid, String value, String attributeName, String valueAttribute, String filterJson)
   {
-    return GeoRegistryUtil.exportMasterListShapefile(oid);
+    return MasterList.get(oid).values(value, attributeName, valueAttribute, filterJson);
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportSpreadsheet(String sessionId, String oid)
+  public InputStream exportShapefile(String sessionId, String oid, String filterJson)
   {
-    return GeoRegistryUtil.exportMasterListExcel(oid);
+    return GeoRegistryUtil.exportMasterListShapefile(oid, filterJson);
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream exportSpreadsheet(String sessionId, String oid, String filterJson)
+  {
+    return GeoRegistryUtil.exportMasterListExcel(oid, filterJson);
   }
 
   @Request(RequestType.SESSION)

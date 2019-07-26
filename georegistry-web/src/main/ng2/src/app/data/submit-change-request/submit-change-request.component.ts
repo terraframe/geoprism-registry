@@ -1,6 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+
+import { SuccessModalComponent } from '../../core/modals/success-modal.component';
+
 import { DatePipe } from '@angular/common';
 
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
@@ -10,6 +13,7 @@ import { ChangeRequestService } from '../../service/change-request.service';
 
 import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
+import { LocalizationService } from '../../core/service/localization.service';
 
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
@@ -32,41 +36,43 @@ export class SubmitChangeRequestComponent implements OnInit {
     /*
      * Reference to the modal current showing
      */
-    private bsModalRef: BsModalRef;
+    bsModalRef: BsModalRef;
 
-    private geoObjectType: GeoObjectType;
+    geoObjectType: GeoObjectType;
 
-    private geoObjectTypes: GeoObjectType[] = [];
+    geoObjectTypes: GeoObjectType[] = [];
 
-    private typeaheadLoading: boolean;
+    typeaheadLoading: boolean;
 
-    private typeaheadNoResults: boolean;
+    typeaheadNoResults: boolean;
 
-	private geoObjectId: string = "";
+	geoObjectId: string = "";
 
-    private reason: string = "";
+    reason: string = "";
 
-	private dataSource: Observable<any>;
+	dataSource: Observable<any>;
 	
 	@ViewChild("attributeEditor") attributeEditor;
+	
+	@ViewChild("geometryEditor") geometryEditor;
 	
 	/*
 	 * The current state of the GeoObject in the GeoRegistry
 	 */
-	private preGeoObject: GeoObject = null;
+	preGeoObject: GeoObject = null;
 	
 	/*
 	 * The state of the GeoObject after our Change Request has been approved 
 	 */
-	private postGeoObject: GeoObject = null;
+	postGeoObject: GeoObject = null;
 	
 	isValid: boolean = false;
 	
-	private geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
+	geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
 
     constructor(private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe) {
+        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, private localizeService: LocalizationService) {
 
         this.dataSource = Observable.create((observer: any) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code).then(results => {
@@ -107,7 +113,20 @@ export class SubmitChangeRequestComponent implements OnInit {
     	  this.isValid = false;
     	  return;
       }
-      this.isValid = newValid;
+      
+      if (this.geometryEditor != null && !this.geometryEditor.getIsValid())
+      {
+        this.isValid = false;
+        return;
+      }
+      
+      if (this.attributeEditor != null && !this.attributeEditor.getIsValid())
+      {
+        this.isValid = false;
+        return;
+      }
+      
+      this.isValid = true;
     }
     
     private getGeoObjectTypePosition(code: string): number {
@@ -137,18 +156,30 @@ export class SubmitChangeRequestComponent implements OnInit {
     }
     
     submit(): void {
+    
+        let goSubmit: GeoObject = this.attributeEditor.getGeoObject();
+        
+        if (this.geometryEditor != null)
+        {
+          let goGeometries: GeoObject = this.geometryEditor.saveDraw();
+          goSubmit.geometry = goGeometries.geometry;
+        }
 
-        let submitObj = [{  
+        let actions = [{  
             "actionType":"geoobject/update", // TODO: account for create
             "apiVersion":"1.0-SNAPSHOT", // TODO: make dynamic
             "createActionDate":new Date().getTime(), 
-            "geoObject": this.attributeEditor.getGeoObject(),
+            "geoObject": goSubmit,
             "contributorNotes":this.reason
         }]
 
-        this.changeRequestService.submitChangeRequest(JSON.stringify(submitObj))
+        this.changeRequestService.submitChangeRequest(JSON.stringify(actions))
 	    .then( geoObject => {
-            this.cancel();
+			this.cancel();
+			
+			this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
+			this.bsModalRef.content.message = this.localizeService.decode("change.request.success.message");
+
 	    }).catch(( err: Response ) => {
 	      this.error( err.json() );
 	    });

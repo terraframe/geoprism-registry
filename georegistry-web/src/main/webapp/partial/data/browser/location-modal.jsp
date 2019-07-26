@@ -1,6 +1,6 @@
 <%--
 
-    Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
 
     This file is part of Runway SDK(tm).
 
@@ -162,6 +162,10 @@
 		                                      </p> -->
 															</div>
 														</li>
+														<li ng-if="!ctrl.isMaintainer()" class="list-group-item" style="text-align: left;">
+														  <h5><gdb:localize key="change.request.reason.label"></gdb:localize></h5>
+														  <textarea rows="4" cols="50" ng-model="action.reason" name="reason-input" id="reason" required></textarea>
+														</li>
 													</ul>
 												</div>
 											</div>
@@ -186,8 +190,9 @@
 								<div class="label-holder"></div>
 								<div class="holder">
 									<div class="button-holder">
-										<input type="button" value="<gdb:localize key="dataset.cancel"/>" class="btn btn-default" ng-click="ctrl.cancel()" /> <input type="button"
-											value="<gdb:localize key="dataset.submit"/>" class="btn btn-primary" ng-click="ctrl.apply()" ng-disabled="ctrl.form.$invalid || ctrl.isParentsInvalid() || !ctrl.isMaintainer()" />
+									  <input ng-if="ctrl.isMaintainer()" type="button" value="<gdb:localize key="dataset.submit"/>" class="btn btn-primary" ng-click="ctrl.apply()" ng-disabled="ctrl.form.$invalid || ctrl.isParentsInvalid()" />
+									  <input ng-if="!ctrl.isMaintainer()" type="button" value="<gdb:localize key="dataset.submitChangeRequest"/>" class="btn btn-primary" ng-click="ctrl.apply()" ng-disabled="ctrl.form.$invalid || ctrl.isParentsInvalid()" />
+										<input type="button" value="<gdb:localize key="dataset.cancel"/>" class="btn btn-default" ng-click="ctrl.cancel()" />
 									</div>
 								</div>
 							</div>

@@ -1,8 +1,8 @@
-<div class="new-admin-design-main" style="height: 100vh;">
-    <change-request-header></change-request-header>
+<!-- <div class="new-admin-design-main" style="height: 100vh;">
+    <cgr-header></cgr-header> -->
     <loading-bar></loading-bar>
 
-    <div id="app-container" class="container" style="max-height: 100%;">
+    <!-- <div id="app-container" class="container" style="max-height: 100%;">
 
         <div class="py-5 text-center">
             <h2>
@@ -13,13 +13,13 @@
             </p>
         </div>
         <div class="row" style="padding: 15px;">
-            <div class="modal-body">
+            <div class="modal-body"> -->
 
                 <form  class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
                     <fieldset>
                         <!-- <div class="col-md-12"> -->
                         <!-- <div *ngIf="preGeoObject"> -->
-                        <div class="row-holder" style="min-height:50vh;">
+                        <div class="row-holder" style="min-height:50vh; padding-left: calc(50% - 500Px);">
 
                             <div class="row-holder">
                                 <div class="label-holder">
@@ -56,9 +56,10 @@
                             </div>
 
                             <div *ngIf="preGeoObject">
-                            <geoobject-shared-attribute-editor #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)"
-                                [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject"
-                                [(postGeoObject)]="this.postGeoObject"></geoobject-shared-attribute-editor>
+	                            <geoobject-shared-attribute-editor #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange($event)"
+	                                [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject"
+	                                [(postGeoObject)]="this.postGeoObject"></geoobject-shared-attribute-editor>
+	                            <geoobject-editor-map #geometryEditor *ngIf="this.geoObjectType.isGeometryEditable" [postGeoObject]="this.postGeoObject" [preGeoObject]="this.preGeoObject" [geoObjectType]="this.geoObjectType" (valid)="this.onValidChange()" [isNew]="false"></geoobject-editor-map>
                             </div>
 
                             <div class="row-holder" style="z-index: 0;">
@@ -94,7 +95,7 @@
                         <!-- </div> -->
                     </fieldset>
                 </form>
-            </div>
+            <!-- </div>
         </div>
-    </div>
-</div>
+    </div> -->
+<!-- </div> -->

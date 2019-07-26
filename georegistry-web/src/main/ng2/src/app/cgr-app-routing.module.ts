@@ -9,11 +9,15 @@ import { ShapefileComponent } from './data/importer/shapefile.component';
 import { SpreadsheetComponent } from './data/importer/spreadsheet.component';
 import { DataExportComponent } from './data/data-export/data-export.component';
 import { SubmitChangeRequestComponent } from './data/submit-change-request/submit-change-request.component';
-import { RegistryViewerComponent } from './data/crtable/registry-viewer.component';
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { MasterListComponent } from './data/master-list/master-list.component';
+import { DataPageComponent } from './data/data-page/data-page.component';
+import { ChangeRequestPageComponent } from './data/change-request-page/change-request-page.component';
+
 
 import { AdminGuard, MaintainerGuard, ContributerGuard } from './core/auth/admin.guard';
+
+import { PendingChangesGuard } from "./core/pending-changes-guard";
 
 
 const routes: Routes = [
@@ -37,29 +41,20 @@ const routes: Routes = [
         redirectTo: '/shapefile',
         canActivate: [MaintainerGuard]
     },
-    {
-        path: 'shapefile',
-        component: ShapefileComponent,
-        canActivate: [MaintainerGuard]
-    },
-    {
-        path: 'spreadsheet',
-        component: SpreadsheetComponent,
-        canActivate: [MaintainerGuard]
-    },
-    {
-        path: 'export',
-        component: DataExportComponent
+	{
+        path: 'data',
+        component: DataPageComponent,
+        canActivate: [ContributerGuard]
+	},
+	{
+        path: 'change-requests',
+        component: ChangeRequestPageComponent,
+        canActivate: [ContributerGuard]
     },
     {
         path: 'localization-manager',
         component: LocalizationManagerComponent,
         canActivate: [AdminGuard]
-    },
-    {
-        path: 'crtable',
-        component: RegistryViewerComponent,
-        canActivate: [MaintainerGuard]
     },
     {
         path: 'master-lists',
@@ -95,4 +90,4 @@ const routes: Routes = [
 } )
 export class CgrAppRoutingModule { }
 
-export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, RegistryViewerComponent, MasterListComponent];
+export const routedComponents: any = [HierarchyComponent, ShapefileComponent, SpreadsheetComponent, DataExportComponent, MasterListComponent];

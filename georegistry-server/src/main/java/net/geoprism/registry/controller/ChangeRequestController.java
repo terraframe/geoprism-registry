@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Runway SDK(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Runway SDK(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -86,6 +86,14 @@ public class ChangeRequestController
     return new RestResponse();
   }
   
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF applyActionStatusProperties(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  {
+    service.applyActionStatusProperties(request.getSessionId(), action);
+
+    return new RestResponse();
+  }
+  
   /**
    * Gets all actions in the system ordered by createActionDate. If a requestId is provided we will fetch the actions that
    * are relevant to that Change Request.
@@ -104,9 +112,9 @@ public class ChangeRequestController
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
-  public ResponseIF getAllRequests(ClientRequestIF request) throws JSONException
+  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    JSONArray requests = service.getAllRequests(request.getSessionId());
+    JSONArray requests = service.getAllRequests(request.getSessionId(), filter);
 
     return new RestBodyResponse(requests);
   }
@@ -126,19 +134,27 @@ public class ChangeRequestController
 
     return new RestBodyResponse(response);
   }
+  
+  @Endpoint(error = ErrorSerialization.JSON, url = "confirm-change-request", method = ServletMethod.POST)
+  public ResponseIF confirmChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  {
+    JSONObject response = service.confirmChangeRequest(request.getSessionId(), requestId);
+
+    return new RestBodyResponse(response);
+  }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "approve-all-actions", method = ServletMethod.POST)
-  public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions) throws JSONException
   {
-    JSONObject response = service.approveAllActions(request.getSessionId(), requestId);
+    String response = service.approveAllActions(request.getSessionId(), requestId, actions);
 
     return new RestBodyResponse(response);
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "reject-all-actions", method = ServletMethod.POST)
-  public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions) throws JSONException
   {
-    JSONObject response = service.rejectAllActions(request.getSessionId(), requestId);
+    String response = service.rejectAllActions(request.getSessionId(), requestId, actions);
 
     return new RestBodyResponse(response);
   }

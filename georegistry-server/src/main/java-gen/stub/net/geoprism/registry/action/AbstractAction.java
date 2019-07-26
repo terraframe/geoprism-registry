@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.action;
 
 import java.text.DateFormat;
@@ -28,6 +46,8 @@ public abstract class AbstractAction extends AbstractActionBase
 
   abstract public void execute();
 
+  protected abstract String getMessage();
+
   public AbstractAction(RegistryService registry)
   {
     this.registry = registry;
@@ -51,7 +71,8 @@ public abstract class AbstractAction extends AbstractActionBase
   }
 
   /*
-   * TODO : We should be converting to a DTO and then serializing, that way we only have to have the serialization logic in one place.
+   * TODO : We should be converting to a DTO and then serializing, that way we
+   * only have to have the serialization logic in one place.
    */
   public JSONObject serialize()
   {
@@ -72,17 +93,18 @@ public abstract class AbstractAction extends AbstractActionBase
 
     return jo;
   }
-  
+
   /*
-   * TODO : We should be converting to a DTO and then using 'buildFromDTO', that way we only have to have the serialization logic in one place.
+   * TODO : We should be converting to a DTO and then using 'buildFromDTO', that
+   * way we only have to have the serialization logic in one place.
    */
   public void buildFromJson(JSONObject joAction)
   {
     this.clearApprovalStatus();
     this.addApprovalStatus(AllGovernanceStatus.valueOf(joAction.getString(AbstractAction.APPROVALSTATUS)));
-    
+
     this.setContributorNotes(joAction.getString(AbstractAction.CONTRIBUTORNOTES));
-    
+
     this.setMaintainerNotes(joAction.getString(AbstractAction.MAINTAINERNOTES));
   }
 

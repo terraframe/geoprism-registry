@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.demo;
 
 import java.time.Instant;
@@ -102,6 +120,7 @@ public class ChangeRequestTestDataGenerator
       removeChild.setParentTypeCode(testAddChildParent.getType().getCode());
       removeChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       removeChild.setCreateActionDate(Date.from(when.minus(9, ChronoUnit.HOURS)));
+      removeChild.setContributorNotes("Removing the village from the district");
 
       actions.add(removeChild);
     }
@@ -118,6 +137,7 @@ public class ChangeRequestTestDataGenerator
       addChild.setParentTypeCode(testAddChildParent.getType().getCode());
       addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       addChild.setCreateActionDate(Date.from(when.minus(10, ChronoUnit.HOURS)));
+      addChild.setContributorNotes("Adding the village as a child of the district");
 
       actions.add(addChild);
     }
@@ -128,6 +148,7 @@ public class ChangeRequestTestDataGenerator
     CreateGeoObjectActionDTO create = new CreateGeoObjectActionDTO();
     create.setGeoObject(goNewChild.toJSON());
     create.setCreateActionDate(Date.from(when.minus(8, ChronoUnit.HOURS)));
+    create.setContributorNotes("Creating a new village");
 
     actions.add(create);
 
@@ -140,6 +161,7 @@ public class ChangeRequestTestDataGenerator
     UpdateGeoObjectActionDTO update = new UpdateGeoObjectActionDTO();
     update.setGeoObject(goNewChild.toJSON());
     update.setCreateActionDate(Date.from(when.minus(7, ChronoUnit.HOURS)));
+    update.setContributorNotes("Updating the village. Adding a better name and stuff");
 
     actions.add(update);
 

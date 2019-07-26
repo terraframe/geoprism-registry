@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry;
 
 import java.util.LinkedList;
@@ -39,7 +57,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     masterLists.setId("lists");
     masterLists.setLabel(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing"));
     masterLists.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
-    masterLists.setUrl("cgr/manage#/lists");
+    masterLists.setUrl("cgr/manage#/master-lists");
     masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADIM_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -51,7 +69,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setId("requests");
     requests.setLabel(LocalizationFacadeDTO.getFromBundles(request, "requests.landing"));
     requests.setSrc("net/geoprism/images/update-icon-modified.svg");
-    requests.setUrl("cgr/manage#/requests");
+    requests.setUrl("cgr/manage#/change-requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -63,7 +81,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.setId("uploads");
     uploads.setLabel(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing"));
     uploads.setSrc("net/geoprism/images/dm_icon.svg");
-    uploads.setUrl("cgr/manage#/uploads");
+    uploads.setUrl("cgr/manage#/data");
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
     uploads.addRole(RoleConstants.ADIM_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);

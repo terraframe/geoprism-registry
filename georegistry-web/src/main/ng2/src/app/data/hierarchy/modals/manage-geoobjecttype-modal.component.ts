@@ -11,8 +11,6 @@ import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 
-import { InputFieldComponent } from '../../../core/form-fields/input-field/input-field.component'
-
 
 @Component( {
     selector: 'manage-geoobjecttype-modal',

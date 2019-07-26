@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.service;
 
 import java.text.ParseException;
@@ -86,6 +104,8 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.InvalidMasterListCodeException;
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.io.TermValueException;
@@ -208,6 +228,12 @@ public class ConversionService
    */
   public MdTermRelationship newHierarchyToMdTermRelForUniversals(HierarchyType hierarchyType)
   {
+    if (!MasterList.isValidName(hierarchyType.getCode()))
+    {
+      throw new InvalidMasterListCodeException("The hierarchy type code has an invalid character");
+    }
+
+    
     MdBusiness mdBusUniversal = MdBusiness.getMdBusiness(Universal.CLASS);
 
     MdTermRelationship mdTermRelationship = new MdTermRelationship();
@@ -542,6 +568,7 @@ public class ConversionService
     Universal universal = new Universal();
     universal.setUniversalId(got.getCode());
     universal.setIsLeafType(got.isLeaf());
+    universal.setIsGeometryEditable(got.isGeometryEditable());
     this.populate(universal.getDisplayLabel(), got.getLabel());
     this.populate(universal.getDescription(), got.getDescription());
 
@@ -577,7 +604,7 @@ public class ConversionService
 
     LocalizedValue label = this.convert(uni.getDisplayLabel());
     LocalizedValue description = this.convert(uni.getDescription());
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, label, description, uni.getIsLeafType(), ServiceFactory.getAdapter());
+    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, label, description, uni.getIsLeafType(), uni.getIsGeometryEditable(), ServiceFactory.getAdapter());
 
     geoObjType = convertAttributeTypes(uni, geoObjType);
 

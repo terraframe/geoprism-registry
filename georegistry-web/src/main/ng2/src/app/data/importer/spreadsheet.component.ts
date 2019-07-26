@@ -4,6 +4,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
 
+import { SuccessModalComponent } from '../../core/modals/success-modal.component';
 import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 
@@ -20,29 +21,30 @@ declare var acp: string;
     styleUrls: []
 } )
 export class SpreadsheetComponent implements OnInit {
-
+	
     /*
      * List of geo object types from the system
      */
-    private types: { label: string, code: string }[]
+    types: { label: string, code: string }[]
 
     /*
      * Currently selected code
      */
-    private code: string = null;
+    code: string = null;
 
     /*
      * Reference to the modal current showing
      */
-    private bsModalRef: BsModalRef;
+    bsModalRef: BsModalRef;
 
     /*
      * File uploader
      */
-    private uploader: FileUploader;
-
-    @ViewChild( 'myFile' )
+	uploader: FileUploader;
+	
+	@ViewChild( 'myFile' )
     fileRef: ElementRef;
+
 
     constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService ) { }
 
@@ -70,14 +72,14 @@ export class SpreadsheetComponent implements OnInit {
         };
         this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
             this.fileRef.nativeElement.value = "";
-            this.eventService.complete();
+			this.eventService.complete();
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );
 
             this.bsModalRef = this.modalService.show( SpreadsheetModalComponent, { backdrop: true } );
             this.bsModalRef.content.configuration = configuration;
-        };
+		};
         this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
             this.error( JSON.parse( response ) );
         }
@@ -91,7 +93,8 @@ export class SpreadsheetComponent implements OnInit {
         else {
             this.error( { message: this.localizationService.decode( 'io.missing.file' ) } );
         }
-    }
+	}
+	
 
     public error( err: any ): void {
         // Handle error

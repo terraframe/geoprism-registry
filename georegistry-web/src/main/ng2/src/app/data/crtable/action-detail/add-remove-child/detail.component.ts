@@ -4,14 +4,13 @@ import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
 import { ChangeRequestService } from '../../../../service/change-request.service';
-import { ActionTableComponent } from '../../action-table.component';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ErrorModalComponent } from '../../../../core/modals/error-modal.component';
 
-import { AbstractAction } from '../../crtable';
+import { AddChildAction } from '../../crtable';
 
 declare var acp: any;
 
@@ -23,9 +22,7 @@ declare var acp: any;
 })
 export class AddRemoveChildDetailComponent {
 
-  @Input() action: AbstractAction;
-  
-  @Input() crtable: ActionTableComponent;
+  @Input() action: AddChildAction;
   
   private bsModalRef: BsModalRef;
 
@@ -36,13 +33,13 @@ export class AddRemoveChildDetailComponent {
   applyAction()
   {
     this.changeRequestService.applyAction(this.action).then( response => {
-          this.crtable.refresh()
+		this.unlockAction();
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );
   }
   
-  onSelect(action: AbstractAction)
+  onSelect(action: AddChildAction)
   {
     this.action = action;
   }
@@ -50,7 +47,6 @@ export class AddRemoveChildDetailComponent {
   unlockAction()
   {
     this.changeRequestService.unlockAction(this.action.oid).then( response => {
-          this.crtable.refresh();
       } ).catch(( err: Response ) => {
           this.error( err.json() );
       } );

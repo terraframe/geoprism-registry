@@ -30,6 +30,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
         if(geoObjectType){
           this.editGeoObjectType = JSON.parse(JSON.stringify(geoObjectType));
         //   this.geoObjectType = geoObjectType;
+          console.log(this.editGeoObjectType);
         }
     }
     message: string = null;
@@ -87,6 +88,11 @@ export class GeoObjectTypeInputComponent implements OnInit {
         // this.resetGeoObjectType();
         this.bsModalRef.hide();
     }
+    
+    toggleIsGeometryEditable(): void {
+        this.editGeoObjectType.isGeometryEditable = !this.editGeoObjectType.isGeometryEditable;
+    }
+
 
     isValid(): boolean {
         // if(this.attribute.code && this.attribute.label) {

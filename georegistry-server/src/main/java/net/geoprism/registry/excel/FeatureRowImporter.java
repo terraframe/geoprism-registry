@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.excel;
 
 import java.util.List;
@@ -17,6 +35,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -27,6 +46,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -113,9 +133,9 @@ public abstract class FeatureRowImporter
         }
 
         Geometry geometry = (Geometry) this.getGeometry(row);
-        Object entityName = this.getName(row);
+        LocalizedValue entityName = this.getName(row);
 
-        if (entityName != null)
+        if (entityName != null && this.hasValue(entityName))
         {
           if (geometry != null)
           {
@@ -160,7 +180,7 @@ public abstract class FeatureRowImporter
             }
           }
 
-          ServiceFactory.getUtilities().applyGeoObject(entity, isNew, GeoObjectStatusTerm.ACTIVE.code);
+          ServiceFactory.getUtilities().applyGeoObject(entity, isNew, GeoObjectStatusTerm.ACTIVE.code, true);
 
           if (parent != null)
           {
@@ -199,6 +219,13 @@ public abstract class FeatureRowImporter
     {
       // Do nothing
     }
+  }
+
+  private boolean hasValue(LocalizedValue value)
+  {
+    String defaultLocale = value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
+
+    return defaultLocale != null && defaultLocale.length() > 0;
   }
 
   /**

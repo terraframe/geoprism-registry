@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Runway SDK(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Runway SDK(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -107,6 +107,26 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
+  
+  /**
+   * Returns a GeoObject with the given uid.
+   *
+   * @pre @post
+   *
+   * @param uid
+   *          The UID of the GeoObject.
+   *
+   * @returns a GeoObject in GeoJSON format with the given uid. @throws
+   **/
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-bounds")
+  public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
+  {
+    GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode);
+
+    String bounds = this.registryService.getGeoObjectBounds(request.getSessionId(), geoObject);
+    
+    return new RestBodyResponse(bounds);
+  }
 
   /**
    * Returns a GeoObject with the given code.
@@ -146,6 +166,22 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
+  }
+  
+  /**
+   * TODO : Not part of the official API (yet). Currently used for the GeoObject editing widget when creating a new GeoObject.
+   *        The return value is a custom serialized json format because ParentTreeNode doesn't quite fit our needs (It allows for
+   *        a GeoObject but not a GeoObjectType) 
+   * @param request
+   * @param typeCode
+   * @return
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_NEW_INSTANCE)
+  public ResponseIF newGeoObjectInstance(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_NEW_INSTANCE_PARAM_TYPE_CODE) String typeCode)
+  {
+    String resp = this.registryService.newGeoObjectInstance2(request.getSessionId(), typeCode);
+
+    return new RestBodyResponse(resp);
   }
 
   /**
@@ -687,6 +723,14 @@ public class RegistryController
   public ResponseIF getHierarchiesForType(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "includeTypes") Boolean includeTypes)
   {
     JsonArray response = this.registryService.getHierarchiesForType(request.getSessionId(), code, includeTypes);
+
+    return new RestBodyResponse(response);
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies")
+  public ResponseIF getHierarchiesForGeoObject(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode)
+  {
+    JsonArray response = this.registryService.getHierarchiesForGeoObject(request.getSessionId(), code, typeCode);
 
     return new RestBodyResponse(response);
   }

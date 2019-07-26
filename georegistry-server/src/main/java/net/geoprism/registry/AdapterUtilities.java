@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry;
 
 import java.util.Collection;
@@ -9,9 +27,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -91,11 +109,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -123,24 +139,26 @@ public class AdapterUtilities
    * @param isNew
    * @param statusCode
    *          TODO
+   * @param isImport
+   *          TODO
    * @return
    */
-  public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew, String statusCode)
+  public GeoObject applyGeoObject(GeoObject geoObject, boolean isNew, String statusCode, boolean isImport)
   {
     if (geoObject.getType().isLeaf())
     {
-      this.applyLeafObject(geoObject, isNew, statusCode);
+      this.applyLeafObject(geoObject, isNew, statusCode, isImport);
     }
     else
     {
 
-      this.applyTreeObject(geoObject, isNew, statusCode);
+      this.applyTreeObject(geoObject, isNew, statusCode, isImport);
     }
 
     return this.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
   }
 
-  private void applyLeafObject(GeoObject geoObject, boolean isNew, String statusCode)
+  private void applyLeafObject(GeoObject geoObject, boolean isNew, String statusCode, boolean isImport)
   {
     Business biz = this.constructLeafObject(geoObject, isNew);
 
@@ -168,6 +186,11 @@ public class AdapterUtilities
       }
     }
 
+    if (!isImport && !isNew && !geoObject.getType().isGeometryEditable() && biz.isModified(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
+    {
+      throw new GeometryUpdateException();
+    }
+
     Term status = this.populateBusiness(geoObject, isNew, biz, null, statusCode);
 
     biz.apply();
@@ -179,7 +202,7 @@ public class AdapterUtilities
 
   }
 
-  private void applyTreeObject(GeoObject geoObject, boolean isNew, String statusCode)
+  private void applyTreeObject(GeoObject geoObject, boolean isNew, String statusCode, boolean isImport)
   {
     GeoEntity ge = this.constructGeoEntity(geoObject, isNew);
 
@@ -219,6 +242,11 @@ public class AdapterUtilities
         p.apply();
         p.throwIt();
       }
+    }
+
+    if (!isImport && !isNew && !geoObject.getType().isGeometryEditable() && ge.isModified(GeoEntity.WKT))
+    {
+      throw new GeometryUpdateException();
     }
 
     ge.apply();
@@ -461,6 +489,15 @@ public class AdapterUtilities
     return gObject;
   }
 
+  /**
+   * Returns all ancestors of a GeoObjectType
+   * 
+   * @param GeoObjectType
+   *          child
+   * @param code
+   *          The Hierarchy code
+   * @return
+   */
   @Request
   public List<GeoObjectType> getAncestors(GeoObjectType child, String code)
   {
@@ -505,6 +542,11 @@ public class AdapterUtilities
   @Transaction
   public Universal createGeoObjectType(GeoObjectType geoObjectType)
   {
+    if (!MasterList.isValidName(geoObjectType.getCode()))
+    {
+      throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
+    }
+
     Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
 
     MdBusiness mdBusiness = new MdBusiness();
@@ -705,7 +747,8 @@ public class AdapterUtilities
    * from the given {@link AttributeType}
    * 
    * @pre assumes no attribute has been defined on the type with the given name.
-   * 
+   * @param geoObjectType
+   *          TODO
    * @param mdBusiness
    *          Type to receive attribute definition
    * @param attributeType
@@ -714,7 +757,7 @@ public class AdapterUtilities
    * @return {@link AttributeType}
    */
   @Transaction
-  public MdAttributeConcrete createMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
+  public MdAttributeConcrete createMdAttributeFromAttributeType(GeoObjectType geoObjectType, MdBusiness mdBusiness, AttributeType attributeType)
   {
     MdAttributeConcrete mdAttribute = null;
 
@@ -817,6 +860,10 @@ public class AdapterUtilities
       // attributeTermType.setRootTerm(term);
     }
 
+    Universal universal = new ConversionService().geoObjectTypeToUniversal(geoObjectType);
+
+    MasterList.createMdAttribute(geoObjectType, universal, attributeType);
+
     return mdAttribute;
   }
 
@@ -888,11 +935,12 @@ public class AdapterUtilities
   /**
    * Delete the {@link MdAttributeConcreteDAOIF} from the given {
    * 
-   * 
+   * @param type
+   *          TODO
    * @param mdBusiness
    * @param attributeName
    */
-  public void deleteMdAttributeFromAttributeType(MdBusiness mdBusiness, String attributeName)
+  public void deleteMdAttributeFromAttributeType(GeoObjectType type, MdBusiness mdBusiness, String attributeName)
   {
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeName);
 
@@ -913,6 +961,15 @@ public class AdapterUtilities
       }
 
       mdAttributeConcreteDAOIF.getBusinessDAO().delete();
+
+      Optional<AttributeType> optional = type.getAttribute(attributeName);
+
+      if (optional.isPresent())
+      {
+        Universal universal = new ConversionService().geoObjectTypeToUniversal(type);
+
+        MasterList.deleteMdAttribute(universal, optional.get());
+      }
     }
   }
 
@@ -974,6 +1031,83 @@ public class AdapterUtilities
 
           object.add("parents", pArray);
         }
+
+        hierarchies.add(object);
+      }
+    }
+
+    if (hierarchies.size() == 0)
+    {
+      /*
+       * This is a root type so include all hierarchies
+       */
+
+      for (HierarchyType hierarchyType : hierarchyTypes)
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", hierarchyType.getCode());
+        object.addProperty("label", hierarchyType.getLabel().getValue());
+        object.add("parents", new JsonArray());
+
+        hierarchies.add(object);
+      }
+    }
+
+    return hierarchies;
+  }
+
+  public JsonArray getHierarchiesForGeoObject(GeoObject geoObject)
+  {
+    GeoObjectType geoObjectType = geoObject.getType();
+    ConversionService service = ServiceFactory.getConversionService();
+
+    Universal universal = service.geoObjectTypeToUniversal(geoObjectType);
+    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    JsonArray hierarchies = new JsonArray();
+    Universal root = Universal.getRoot();
+
+    for (HierarchyType hierarchyType : hierarchyTypes)
+    {
+      MdTermRelationship mdTerm = service.existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+
+      // Note: Ordered ancestors always includes self
+      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, universal, mdTerm.definesType());
+
+      ParentTreeNode ptnAncestors = this.getParentGeoObjects(geoObject.getUid(), geoObject.getType().getCode(), null, true);
+
+      if (uniParents.size() > 1)
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", hierarchyType.getCode());
+        object.addProperty("label", hierarchyType.getLabel().getValue());
+
+        JsonArray pArray = new JsonArray();
+
+        for (Object parent : uniParents)
+        {
+          GeoObjectType pType = service.universalToGeoObjectType((Universal) parent);
+
+          if (!pType.getCode().equals(geoObjectType.getCode()))
+          {
+            JsonObject pObject = new JsonObject();
+            pObject.addProperty("code", pType.getCode());
+            pObject.addProperty("label", pType.getLabel().getValue());
+
+            List<ParentTreeNode> ptns = ptnAncestors.findParentOfType(pType.getCode());
+            for (ParentTreeNode ptn : ptns)
+            {
+              if (ptn.getHierachyType().getCode().equals(hierarchyType.getCode()))
+              {
+                pObject.add("ptn", ptn.toJSON());
+                break; // TODO Sibling ancestors
+              }
+            }
+
+            pArray.add(pObject);
+          }
+        }
+
+        object.add("parents", pArray);
 
         hierarchies.add(object);
       }

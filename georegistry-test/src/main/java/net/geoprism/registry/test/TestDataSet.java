@@ -1,7 +1,27 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,38 +90,38 @@ import net.geoprism.registry.service.WMSService;
 
 abstract public class TestDataSet
 {
-  protected int                              debugMode                 = 0;
+  protected int                              debugMode                       = 0;
 
-  protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos     = new ArrayList<TestGeoObjectInfo>();
+  protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos           = new ArrayList<TestGeoObjectInfo>();
 
-  protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos = new ArrayList<TestGeoObjectTypeInfo>();
-  
+  protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos       = new ArrayList<TestGeoObjectTypeInfo>();
+
   protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfosExtras     = new ArrayList<TestGeoObjectInfo>();
 
   protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfosExtras = new ArrayList<TestGeoObjectTypeInfo>();
 
   public TestRegistryAdapterClient           adapter;
 
-  public ClientSession                       adminSession              = null;
+  public ClientSession                       adminSession                    = null;
 
-  public ClientRequestIF                     adminClientRequest        = null;
+  public ClientRequestIF                     adminClientRequest              = null;
 
-  protected GeometryType                     geometryType;                                                      // TODO
-                                                                                                                // :
-                                                                                                                // This
-                                                                                                                // doesn't
-                                                                                                                // seem
-                                                                                                                // like
-                                                                                                                // it
-                                                                                                                // should
-                                                                                                                // be
-                                                                                                                // necessary
+  protected GeometryType                     geometryType;                                                            // TODO
+                                                                                                                      // :
+                                                                                                                      // This
+                                                                                                                      // doesn't
+                                                                                                                      // seem
+                                                                                                                      // like
+                                                                                                                      // it
+                                                                                                                      // should
+                                                                                                                      // be
+                                                                                                                      // necessary
 
   protected boolean                          includeData;
-  
-  public static final String ADMIN_USER_NAME = "admin";
-  
-  public static final String ADMIN_PASSWORD = "_nm8P4gfdWxGqNRQ#8";
+
+  public static final String                 ADMIN_USER_NAME                 = "admin";
+
+  public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
 
   abstract public String getTestDataKey();
 
@@ -112,20 +132,20 @@ abstract public class TestDataSet
   public ArrayList<TestGeoObjectInfo> getManagedGeoObjects()
   {
     ArrayList<TestGeoObjectInfo> all = new ArrayList<TestGeoObjectInfo>();
-    
+
     all.addAll(managedGeoObjectInfos);
     all.addAll(managedGeoObjectInfosExtras);
-    
+
     return all;
   }
 
   public ArrayList<TestGeoObjectTypeInfo> getManagedGeoObjectTypes()
   {
     ArrayList<TestGeoObjectTypeInfo> all = new ArrayList<TestGeoObjectTypeInfo>();
-    
+
     all.addAll(managedGeoObjectTypeInfos);
     all.addAll(managedGeoObjectTypeInfosExtras);
-    
+
     return all;
   }
 
@@ -133,27 +153,28 @@ abstract public class TestDataSet
   public void setUp()
   {
     setUpClass();
-    
+
     setUpTest();
   }
-  
+
   @Request
   public void cleanUp()
   {
     cleanUpClass();
-    
+
     cleanUpTest();
   }
-  
+
   @Request
   public void setUpClass()
   {
     // TODO : If you move this call into the 'setupInTrans' method it exposes a
     // bug in Runway which relates to transactions and MdAttributeLocalStructs
     cleanUpClass();
-    
+
     setUpClassInTrans();
   }
+
   @Transaction
   protected void setUpClassInTrans()
   {
@@ -161,23 +182,32 @@ abstract public class TestDataSet
     {
       uni.apply(this.geometryType);
     }
-    
+
     adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
   }
-  
+
   @Request
   public void setUpTest()
   {
     cleanUpTest();
     setUpTestInTrans();
-    
+
     RegistryService.getInstance().refreshMetadataCache();
-    
+
     adapter.setClientRequest(this.adminClientRequest);
     adapter.refreshMetadataCache();
-    adapter.getIdService().populate(1000);
+
+    try
+    {
+      adapter.getIdService().populate(1000);
+    }
+    catch (Exception e)
+    {
+      throw new RuntimeException(e);
+    }
   }
+
   @Transaction
   protected void setUpTestInTrans()
   {
@@ -189,31 +219,41 @@ abstract public class TestDataSet
       }
     }
   }
-  
+
   @Request
   public void cleanUpClass()
   {
     cleanUpClassInTrans();
   }
+
   @Transaction
   protected void cleanUpClassInTrans()
   {
     for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfos)
     {
+      new WMSService().deleteDatabaseView(got.getGeoObjectType(geometryType));
+    }
+
+    LinkedList<TestGeoObjectTypeInfo> list = new LinkedList<>(managedGeoObjectTypeInfos);
+    Collections.reverse(list);
+
+    for (TestGeoObjectTypeInfo got : list)
+    {
       got.delete();
     }
-    
+
     if (adminSession != null)
     {
       adminSession.logout();
     }
   }
-  
+
   @Request
   public void cleanUpTest()
   {
     cleanUpTestInTrans();
   }
+
   @Transaction
   protected void cleanUpTestInTrans()
   {
@@ -221,12 +261,12 @@ abstract public class TestDataSet
     {
       got.delete();
     }
-    
+
     for (TestGeoObjectInfo go : this.getManagedGeoObjects())
     {
       go.delete();
     }
-    
+
     deleteAllActions();
     deleteAllChangeRequests();
 
@@ -471,8 +511,6 @@ abstract public class TestDataSet
         System.out.println("Deleting TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
 
-      new WMSService().deleteDatabaseView(this.getGeoObjectType(geometryType));
-
       Universal uni = getUniversalIfExist(this.getCode());
       if (uni != null)
       {
@@ -498,7 +536,7 @@ abstract public class TestDataSet
       // }
       // else
       // {
-      return new GeoObjectType(this.getCode(), geometryType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), adapter);
+      return new GeoObjectType(this.getCode(), geometryType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, adapter);
       // }
     }
   }
@@ -750,7 +788,7 @@ abstract public class TestDataSet
         for (ParentTreeNode compareParent : tnParents)
         {
           String code = compareParent.getGeoObject().getType().getCode();
-  
+
           if (!ArrayUtils.contains(parentTypes, code))
           {
             Assert.fail("Unexpected child with code [" + code + "]. Does not match expected childrenTypes array [" + StringUtils.join(parentTypes, ", ") + "].");
@@ -1143,6 +1181,7 @@ abstract public class TestDataSet
 
       MasterList.deleteAll(uni);
 
+      uni = Universal.get(uni.getOid());
       uni.delete();
     }
   }

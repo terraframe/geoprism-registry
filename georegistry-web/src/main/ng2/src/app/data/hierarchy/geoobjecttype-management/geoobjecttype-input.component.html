@@ -1,33 +1,35 @@
 <!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons"> -->
-  
-  <div class="modal-body" *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
+
+<div class="modal-body" *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
     <error-message [message]="message"></error-message>
 
-        <form #form="ngForm" *ngIf="editGeoObjectType" class="modal-form" (ngSubmit)="form.valid">    
-            <div class="heading">
-              <h1><localize key="hierarchy.management.manage.editGeoObjectType.title"></localize> {{editGeoObjectType.label.localizedValue}}</h1>
-            </div>      
-            <fieldset>   
-                 <div class="row-holder">
-                    <div class="label-holder">
+    <form #form="ngForm" *ngIf="editGeoObjectType" class="modal-form" (ngSubmit)="form.valid">
+        <div class="heading">
+            <h1>
+                <localize key="hierarchy.management.manage.editGeoObjectType.title"></localize>
+                {{editGeoObjectType.label.localizedValue}}
+            </h1>
+        </div>
+        <fieldset>
+            <div class="row-holder">
+                <div class="label-holder">
                     <label><localize key="data.property.label.code"></localize></label>
-                    </div>          
-                    <div class="holder" >
-                    <span class="text">  
-                       <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" disabled required>
-                    </span>
-                    </div>
                 </div>
-                
-                <localized-input [(value)]="editGeoObjectType.label" key="data.property.label.label"></localized-input>
-                <localized-text [(value)]="editGeoObjectType.description" key="data.property.label.description"></localized-text>
-                
-                <div class="row-holder">
-                    <div class="label-holder">
-                        <label><localize key="data.property.label.geometryType"></localize></label>
-                    </div>          
-                    <div class="holder">                    
-                      <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" disabled>
+                <div class="holder">
+                    <span class="text"> <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" disabled required>
+                    </span>
+                </div>
+            </div>
+
+            <localized-input [(value)]="editGeoObjectType.label" key="data.property.label.label"></localized-input>
+            <localized-text [(value)]="editGeoObjectType.description" key="data.property.label.description"></localized-text>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="data.property.label.geometryType"></localize></label>
+                </div>
+                <div class="holder">
+                    <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" disabled>
                         <option></option>
                         <option value="POINT"><localize key="georegistry.geometry.point"></localize></option>
                         <option value="LINE"><localize key="georegistry.geometry.line"></localize></option>
@@ -35,41 +37,51 @@
                         <option value="MULTIPOINT"><localize key="georegistry.geometry.multipoint"></localize></option>
                         <option value="MULTILINE"><localize key="georegistry.geometry.multiline"></localize></option>
                         <option value="MULTIPOLYGON"><localize key="georegistry.geometry.multipolygon"></localize></option>
-                      </select>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="hierarchy.management.manage.attributes.label.leafnode"></localize></label>
+                </div>
+                <div class="holder">
+                    <i *ngIf="editGeoObjectType.isLeaf === 'true'" class="fa fa-check-square" style="color: #6BA542; font-size: 18px; cursor: auto; line-height: 38px;" aria-hidden="true"></i> <i *ngIf="editGeoObjectType.isLeaf === 'false'" class="fa fa-square-o" style="font-size: 18px; cursor: auto; line-height: 38px;" aria-hidden="true"></i>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="hierarchy.management.option.label.isGeometryEditable"></localize></label>
+                </div>
+                <div class="holder">
+                    <div (click)="toggleIsGeometryEditable()" [ngClass]="{'chk-checked' : editGeoObjectType.isGeometryEditable}" style="margin: 0;" class="jcf-unselectable chk-area">
+                        <span></span>
                     </div>
                 </div>
+            </div>
 
-                <div class="row-holder">
-                    <div class="label-holder">
-                        <label><localize key="hierarchy.management.manage.attributes.label.leafnode"></localize></label>
-                    </div>          
-                    <div class="holder">  
-                        <i *ngIf="editGeoObjectType.isLeaf === 'true'" class="fa fa-check-square" style="color:#6BA542;font-size:18px;cursor:auto;line-height:38px;" aria-hidden="true"></i> 
-                        <i *ngIf="editGeoObjectType.isLeaf === 'false'" class="fa fa-square-o" style="font-size:18px;cursor:auto;line-height:38px;" aria-hidden="true"></i> 
-                    </div>
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize></label>
                 </div>
+                <div class="holder">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <ul class="list-group list-group-flush">
+                                <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li>
+                            </ul>
 
-                <div class="row-holder">
-                    <div class="label-holder">
-                        <label><localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize></label>
-                    </div>                    
-                    <div class="holder">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <ul class="list-group list-group-flush">
-                                    <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li>
-                                </ul>
-
-                                <button type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
-                                    <localize key="modal.button.manageAttributes"></localize>
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
+                                <localize key="modal.button.manageAttributes"></localize>
+                            </button>
                         </div>
                     </div>
                 </div>
-                
+            </div>
 
-                <!-- <div class="row-holder">
+
+            <!-- <div class="row-holder">
                     <div class="label-holder">
                     </div>                    
                     <div class="holder">
@@ -80,8 +92,8 @@
                     </div>
                     </div>
                 </div>  -->
-                    
-                <!-- <div>
+
+            <!-- <div>
                     <div class="label-holder">
                     <label><localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize></label>
                     </div>          
@@ -105,29 +117,30 @@
                     </table>
                     </div>
                 </div>       -->
-                
 
-                <!-- <div class="row-holder">
+
+            <!-- <div class="row-holder">
                     <div class="label-holder">
                     </div>                    
                     <div class="holder">
                     <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()"><localize key="modal.button.add"></localize></i>
                     </div>
                 </div>           -->
-                <div class="row-holder">
-                    <div class="label-holder">
-                    </div>                    
-                    <div class="holder">
-                      <div class="button-holder">
-                        <button type="button" class="btn btn-default" (click)="close()"><localize key="modal.button.cancel"></localize></button>              
+            <div class="row-holder">
+                <div class="label-holder"></div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" class="btn btn-default" (click)="close()">
+                            <localize key="modal.button.cancel"></localize>
+                        </button>
                         <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="update()">
                             <localize key="modal.button.submit"></localize>
                         </button>
                     </div>
-                    </div>
-                </div> 
-            </fieldset>
+                </div>
+            </div>
+        </fieldset>
     </form>
-  </div>
+</div>
 
 <!-- </form> -->

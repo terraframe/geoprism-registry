@@ -53,6 +53,7 @@ export class GeoObjectType {
     description: LocalizedValue;
     geometryType: string;
     isLeaf: boolean;
+    isGeometryEditable: boolean;
     attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 }
 
@@ -164,4 +165,6 @@ export class MasterList {
     telephoneNumber: string;
     email: string;
     hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+	attributes:any[];
+	leaf:boolean;
 }

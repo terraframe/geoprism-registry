@@ -1,6 +1,6 @@
 <form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
   
-  <div *ngIf="hierarchyType != null" class="modal-body">
+  <div class="modal-body">
     <error-message [message]="message"></error-message>
     
     <div class="form-group">
@@ -43,17 +43,30 @@
         </div>
        </div>
     </div>
+	
+    <div class="form-group">
+        <div class="check-block" style="display:inline-block;">
+         <div (click)="toggleIsGeometryEditable()" [ngClass]="{'chk-checked' : geoObjectType.isGeometryEditable}" style="margin:0;" class="jcf-unselectable chk-area">
+          <span></span>
+         </div>
     
-    <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
-      <div class="ui-dialog-buttonset">
-        <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text"><localize key="modal.button.cancel"></localize></span>
-        </button>
-        <button type="submit" [disabled]="form.invalid" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false" style="padding: 4px 18px;">
-          <span class="ui-button-text"><localize key="modal.button.ok"></localize></span>
-        </button>
-      </div>
+         <label class="checkbox-label" style="line-height: normal;"> <localize key="hierarchy.management.option.label.isGeometryEditable"></localize></label>
+        </div>
     </div>
-    
+	
+	
+	<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+		<div class="ui-dialog-buttonset">
+			<div class="button-holder">
+				<button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
+					<localize key="modal.button.cancel"></localize>
+				</button>
+				<button type="submit" [disabled]="form.invalid" class="btn btn-primary" style="padding: 4px 18px;">
+					<localize key="modal.button.ok"></localize>
+				</button>
+			</div>
+		</div>
+	</div>
+
   </div>
 </form>

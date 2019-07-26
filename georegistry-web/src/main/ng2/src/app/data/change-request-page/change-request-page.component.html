@@ -1,0 +1,29 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+    <div id="app-container" class="container-fluid">
+
+        <div class="row">
+			<div class="col-md-12">
+				
+				<div class="heading">
+					<h2>
+						{{pageTitle}}
+					</h2>
+				</div>
+
+				<div>
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'MANAGE'}" (click)="renderContent('MANAGE')">Manage</a> 
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'SUBMIT'}" (click)="renderContent('SUBMIT')">Submit</a>
+				</div>
+
+				<div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
+					<submit-change-request *ngIf="content === 'SUBMIT'"></submit-change-request>
+					<request-table *ngIf="content === 'MANAGE'"></request-table>
+				</div>
+				
+            </div>
+        </div>
+    </div>
+</div>

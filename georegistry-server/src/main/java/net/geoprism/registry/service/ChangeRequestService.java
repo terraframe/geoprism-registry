@@ -1,6 +1,30 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.service;
 
 import java.util.Iterator;
+
+import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AbstractActionQuery;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestQuery;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,12 +35,6 @@ import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-
-import net.geoprism.registry.action.AbstractAction;
-import net.geoprism.registry.action.AbstractActionQuery;
-import net.geoprism.registry.action.AllGovernanceStatus;
-import net.geoprism.registry.action.ChangeRequest;
-import net.geoprism.registry.action.ChangeRequestQuery;
 
 public class ChangeRequestService
 {
@@ -36,6 +54,25 @@ public class ChangeRequestService
     action.buildFromJson(joAction);
 
     action.apply();
+  }
+  
+  @Request(RequestType.SESSION)
+  public void applyActionStatusProperties(String sessionId, String sAction)
+  {
+    applyActionStatusPropertiesInTransaction(sAction);
+  }
+
+  @Transaction
+  public void applyActionStatusPropertiesInTransaction(String sAction)
+  {
+    JSONObject joAction = new JSONObject(sAction);
+
+    AbstractAction action = AbstractAction.get(joAction.getString("oid"));
+
+    action.lock();
+    action.buildFromJson(joAction);
+    action.apply();
+    action.unlock();
   }
 
   @Request(RequestType.SESSION)
@@ -68,29 +105,95 @@ public class ChangeRequestService
     return actions.toString();
   }
 
+  /**]
+   * @param sessionId
+   * @param requestId
+   * @return
+   * 
+   * Sets all PENDING actions to APPROVED and executes the change request
+   * to persist both the change request and actions.
+   */
   @Request(RequestType.SESSION)
-  public JSONObject approveAllActions(String sessionId, String requestId)
+  public JSONObject confirmChangeRequest(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
+    
+    this.executeActions(sessionId, requestId);
 
     return request.getDetails();
   }
+  
+  @Request(RequestType.SESSION)
+  public String approveAllActions(String sessionId, String requestId, String sActions)
+  {
+    return approveAllActionsInTransaction(sessionId, requestId, sActions);
+  }
+  @Transaction
+  public String approveAllActionsInTransaction(String sessionId, String requestId, String sActions)
+  {
+    if (sActions != null && sActions.length() > 0)
+    {
+      JSONArray jaActions = new JSONArray(sActions);
+      
+      for (int i = 0; i < jaActions.length(); ++i)
+      {
+        JSONObject joAction = jaActions.getJSONObject(i);
+        
+        this.applyActionStatusPropertiesInTransaction(joAction.toString());
+      }
+    }
+    
+    ChangeRequest request = ChangeRequest.get(requestId);
+    request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
+    
+    return this.getAllActions(sessionId, requestId);
+  }
 
   @Request(RequestType.SESSION)
-  public JSONObject rejectAllActions(String sessionId, String requestId)
+  public String rejectAllActions(String sessionId, String requestId, String actions)
   {
+    return rejectAllActionsInTransaction(sessionId, requestId, actions);
+  }
+  @Transaction
+  public String rejectAllActionsInTransaction(String sessionId, String requestId, String sActions)
+  {
+    if (sActions != null && sActions.length() > 0)
+    {
+      JSONArray jaActions = new JSONArray(sActions);
+      
+      for (int i = 0; i < jaActions.length(); ++i)
+      {
+        JSONObject joAction = jaActions.getJSONObject(i);
+        
+        this.applyActionStatusPropertiesInTransaction(joAction.toString());
+      }
+    }
+    
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.REJECTED);
-
-    return request.getDetails();
+    
+    return this.getAllActions(sessionId, requestId);
   }
 
   @Request(RequestType.SESSION)
-  public JSONArray getAllRequests(String sessionId)
+  public JSONArray getAllRequests(String sessionId, String filter)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_DESC(query.getCreateDate());
+    
+    if(filter != null && filter.equals("PENDING"))
+    {
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.PENDING));
+    }
+    else if(filter != null && filter.equals("REJECTED"))
+    {
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.REJECTED));
+    }
+    else if(filter != null && filter.equals("ACCEPTED"))
+    {
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.ACCEPTED));
+    }
 
     OIterator<? extends ChangeRequest> it = query.getIterator();
 

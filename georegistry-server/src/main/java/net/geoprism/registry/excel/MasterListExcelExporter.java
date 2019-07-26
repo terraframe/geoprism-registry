@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.excel;
 
 import java.io.IOException;
@@ -26,9 +44,9 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Point;
 
@@ -47,11 +65,18 @@ public class MasterListExcelExporter
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  public MasterListExcelExporter(MasterList list, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes)
+  private String                                   filterJson;
+
+  private CellStyle                                boldStyle;
+
+  private CellStyle                                dateStyle;
+
+  public MasterListExcelExporter(MasterList list, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson)
   {
     this.list = list;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
+    this.filterJson = filterJson;
   }
 
   public MasterList getList()
@@ -67,17 +92,94 @@ public class MasterListExcelExporter
   public Workbook createWorkbook() throws IOException
   {
     Workbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.getList().getDisplayLabel().getValue()));
 
     CreationHelper createHelper = workbook.getCreationHelper();
     Font font = workbook.createFont();
     font.setBold(true);
 
-    CellStyle boldStyle = workbook.createCellStyle();
-    boldStyle.setFont(font);
+    this.boldStyle = workbook.createCellStyle();
+    this.boldStyle.setFont(font);
 
-    CellStyle dateStyle = workbook.createCellStyle();
-    dateStyle.setDataFormat(createHelper.createDataFormat().getFormat(BuiltinFormats.getBuiltinFormat(14)));
+    this.dateStyle = workbook.createCellStyle();
+    this.dateStyle.setDataFormat(createHelper.createDataFormat().getFormat(BuiltinFormats.getBuiltinFormat(14)));
+
+    this.createDataSheet(workbook);
+    this.createMetadataSheet(workbook);
+    this.createDataDictionarySheet(workbook);
+
+    return workbook;
+  }
+
+  private void createDataDictionarySheet(Workbook workbook)
+  {
+    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(LocalizationFacade.getFromBundles("masterlist.data.dictionary")));
+
+    Locale locale = Session.getCurrentLocale();
+
+    int rowNumber = 0;
+
+    for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+    {
+      this.createRow(sheet, locale, rowNumber++, mdAttribute, mdAttribute.getDescription(locale));
+    }
+  }
+
+  private void createMetadataSheet(Workbook workbook)
+  {
+    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(LocalizationFacade.getFromBundles("masterlist.metadata")));
+
+    Locale locale = Session.getCurrentLocale();
+    MdBusinessDAOIF metadata = MdBusinessDAO.getMdBusinessDAO(MasterList.CLASS);
+
+    int rowNumber = 0;
+
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CODE, this.list.getCode());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.REPRESENTATIVITYDATE, this.list.getRepresentativityDate());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PUBLISHDATE, this.list.getPublishDate());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.LISTABSTRACT, this.list.getListAbstract());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROCESS, this.list.getProcess());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROGRESS, this.list.getProgress());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ACCESSCONSTRAINTS, this.list.getAccessConstraints());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.USECONSTRAINTS, this.list.getUseConstraints());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ACKNOWLEDGEMENTS, this.list.getAcknowledgements());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISCLAIMER, this.list.getDisclaimer());
+
+    rowNumber++;
+
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CONTACTNAME, this.list.getContactName());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ORGANIZATION, this.list.getOrganization());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.TELEPHONENUMBER, this.list.getTelephoneNumber());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.EMAIL, this.list.getEmail());
+  }
+
+  private void createRow(Sheet sheet, Locale locale, MdBusinessDAOIF metadata, int rowNum, String attributeName, Object value)
+  {
+    this.createRow(sheet, locale, rowNum, metadata.definesAttribute(attributeName), value);
+  }
+
+  private void createRow(Sheet sheet, Locale locale, int rowNum, MdAttributeConcreteDAOIF mdAttribute, Object value)
+  {
+    Row row = sheet.createRow(rowNum);
+    Cell labelCell = row.createCell(0);
+    labelCell.setCellStyle(this.boldStyle);
+    labelCell.setCellValue(mdAttribute.getDisplayLabel(locale));
+
+    if (value instanceof String)
+    {
+      row.createCell(1).setCellValue((String) value);
+    }
+    else if (value instanceof Date)
+    {
+      Cell valueCell = row.createCell(1);
+      valueCell.setCellStyle(this.dateStyle);
+      valueCell.setCellValue((Date) value);
+    }
+  }
+
+  private void createDataSheet(Workbook workbook)
+  {
+    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.getList().getDisplayLabel().getValue()));
 
     Row header = sheet.createRow(0);
 
@@ -87,11 +189,11 @@ public class MasterListExcelExporter
     // boolean includeCoordinates = ( geometryAttribute instanceof
     // MdAttributePointDAOIF );
 
-    this.writeHeader(boldStyle, header);
+    this.writeHeader(this.boldStyle, header);
 
     int rownum = 1;
 
-    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+    BusinessQuery query = this.list.buildQuery(this.filterJson);
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();
@@ -106,15 +208,13 @@ public class MasterListExcelExporter
 
         Row row = sheet.createRow(rownum++);
 
-        this.writeRow(row, object, dateStyle);
+        this.writeRow(row, object, this.dateStyle);
       }
     }
     finally
     {
       objects.close();
     }
-
-    return workbook;
   }
 
   public void writeRow(Row row, Business object, CellStyle dateStyle)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Runway SDK(tm).
  *
@@ -55,6 +55,7 @@
       $scope.entity = data.entity;
       $scope.universal = {
         value: data.universal,
+        label: data.universalLabel,
         options: data.universals
       };
 
@@ -238,7 +239,7 @@
 
         var text = request.term;
 
-        locationService.getGeoEntitySuggestions(connection, text, limit);
+        locationService.getGeoEntitySuggestions(connection, text, limit, $scope.hierarchy.value);
       }
     }
 
@@ -633,6 +634,7 @@
       $scope.universals = data.universal.options;
       $scope.parent = data.parent;
       $scope.show = false;
+      $scope.action = {reason:""};
     }
     
     controller.isParentsInvalid = function() {
@@ -717,9 +719,23 @@
 
         if (attr.type === "term" && attr.code === termAttributeCode){
           var attrOpts = attr.rootTerm.children;
+          var attrOptsOut = [];
+          
+          for (key in attrOpts)
+          {
+            if (attrOpts.hasOwnProperty(key))
+            {
+              var opt = attrOpts[key];
+            	
+              if (opt.code !== "CGR:Status-New" && opt.code !== "CGR:Status-Pending")
+              {
+                attrOptsOut.push(opt);
+              }
+            }
+          }
   
-          if(attrOpts.length > 0){
-            return attrOpts;
+          if(attrOptsOut.length > 0){
+            return attrOptsOut;
           }
         }
       }
@@ -826,8 +842,23 @@
           submitGO.properties[attr.code] = $scope.postGeoObject.properties[attr.code].getTime();
         }
       }
-          
-      locationService.apply(connection, $scope.entity.newInstance, submitGO, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
+      
+      if (this.isMaintainer())
+      {
+        locationService.apply(connection, $scope.entity.newInstance, submitGO, $scope.parent.oid, $scope.layers, $scope.parentTreeNode, $scope.$parent.hierarchy.value);
+      }
+      else
+      {
+        let actions = [{
+          "actionType":"geoobject/update",
+          "apiVersion":"1.0-SNAPSHOT", // TODO: make dynamic
+          "createActionDate":new Date().getTime(), 
+          "geoObject": submitGO,
+          "contributorNotes":$scope.action.reason
+        }];
+        
+        locationService.submitChangeRequest(connection, actions);
+      }
     }
       
     $rootScope.$on('locationEdit', function(event, data) {

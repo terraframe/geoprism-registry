@@ -19,33 +19,33 @@ export class DataExportComponent implements OnInit {
     /*
      * List of geo object types from the system
      */
-    private types: { label: string, code: string }[]
+    types: { label: string, code: string }[]
 
     /*
      * Currently selected code
      */
-    private code: string = null;
+    code: string = null;
 
     /*
      * List of the hierarchies this type is part of
      */
-    private hierarchies: { label: string, code: string }[] = [];
+    hierarchies: { label: string, code: string }[] = [];
 
     /*
      * Currently selected hierarchy
      */
-    private hierarchy: string = null;
+    hierarchy: string = null;
 
     /*
      * Currently selected format
      */
-    private format: string = null;
+    format: string = null;
 
 
     /*
      * Reference to the modal current showing
      */
-    private bsModalRef: BsModalRef;
+    bsModalRef: BsModalRef;
 
 
     constructor( private service: IOService, private modalService: BsModalService ) { }

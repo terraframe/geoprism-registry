@@ -19,13 +19,13 @@ import { ErrorModalComponent } from '../../core/modals/error-modal.component';
 } )
 export class NewLocaleModalComponent {
 
-    private allLocaleInfo: AllLocaleInfo;
+    allLocaleInfo: AllLocaleInfo;
     
-    private language: string;
+    language: string;
     
-    private country: string;
+    country: string;
     
-    private variant: string;
+    variant: string;
 
     constructor( public bsModalRef: BsModalRef, private localizationManagerService: LocalizationManagerService, private eventService: EventService, private modalService: BsModalService ) { }
 

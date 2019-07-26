@@ -11,11 +11,12 @@ export class ChangeRequest {
 }
 
 export class AbstractAction {
-  approvalStatus: GovernanceStatus;
+  approvalStatus: string;
   createActionDate: Date;
   label: string;
   oid: string;
   actionType: string;
+  actionLabel: string;
 }
 
 export class UpdateGeoObjectAction extends AbstractAction {
@@ -31,7 +32,9 @@ export class AddChildAction extends AbstractAction {
   childTypeCode: string;
   parentId: string;
   parentTypeCode: string;
-  hierarchyCode: string;
+  hierarchyTypeCode: string;
+  contributorNotes: string;
+  maintainerNotes: string;
 }
 
 export class RemoveChildAction extends AbstractAction {

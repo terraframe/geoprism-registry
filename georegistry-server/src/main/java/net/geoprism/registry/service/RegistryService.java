@@ -1,12 +1,31 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.service;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -16,6 +35,8 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -25,7 +46,9 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -48,10 +71,13 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
+import net.geoprism.registry.adapter.ServerAdapterFactory;
+import net.geoprism.registry.adapter.ServerGeoObjectType;
 import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
@@ -155,7 +181,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    return ServiceFactory.getUtilities().applyGeoObject(geoObject, true, null);
+    return ServiceFactory.getUtilities().applyGeoObject(geoObject, true, null, false);
   }
 
   @Request(RequestType.SESSION)
@@ -169,7 +195,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    return ServiceFactory.getUtilities().applyGeoObject(geoObject, false, null);
+    return ServiceFactory.getUtilities().applyGeoObject(geoObject, false, null, false);
   }
 
   @Request(RequestType.SESSION)
@@ -381,7 +407,16 @@ public class RegistryService
 
     for (int i = 0; i < codes.length; ++i)
     {
-      gots[i] = adapter.getMetadataCache().getGeoObjectType(codes[i]).get();
+      Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(codes[i]);
+
+      if (optional.isPresent())
+      {
+        gots[i] = optional.get();
+      }
+      else
+      {
+        throw new DataNotFoundException("Unable to find Geo Object Type with code [" + codes[i] + "]", MdBusinessDAO.getMdBusinessDAO(Universal.CLASS));
+      }
     }
 
     return gots;
@@ -460,6 +495,7 @@ public class RegistryService
     Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(geoObjectType);
     universal.lock();
 
+    universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
     ServiceFactory.getConversionService().populate(universal.getDisplayLabel(), geoObjectType.getLabel());
     ServiceFactory.getConversionService().populate(universal.getDescription(), geoObjectType.getDescription());
 
@@ -506,7 +542,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(mdBusiness, attrType);
+    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(geoObjectType, mdBusiness, attrType);
 
     attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
@@ -579,7 +615,7 @@ public class RegistryService
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(mdBusiness, attributeName);
+    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(geoObjectType, mdBusiness, attributeName);
 
     geoObjectType.removeAttribute(attributeName);
 
@@ -758,7 +794,9 @@ public class RegistryService
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
       // If we get here then it was successfully deleted
-      this.refreshMetadataCache(); // We have to do a full metadata cache refresh because the GeoObjectType is embedded in the HierarchyType
+      this.refreshMetadataCache(); // We have to do a full metadata cache
+                                   // refresh because the GeoObjectType is
+                                   // embedded in the HierarchyType
     }
     catch (RuntimeException e)
     {
@@ -773,12 +811,12 @@ public class RegistryService
   private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
   {
     Universal uni = Universal.getByKey(code);
-    
+
     String[] hierarchies = TermUtil.getAllParentRelationships(uni.getOid());
     for (String hierarchy : hierarchies)
     {
       OIterator<com.runwaysdk.business.ontology.Term> it = uni.getDirectDescendants(hierarchy);
-      
+
       try
       {
         if (it.hasNext())
@@ -1024,32 +1062,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    String mdTermRelKey = ConversionService.buildMdTermRelUniversalKey(hierarchyTypeCode);
-    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
-
-    this.removeFromHierarchy(mdTermRelationship, hierarchyTypeCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
-
-    // No exceptions thrown. Refresh the HierarchyType object to include the new
-    // relationships.
-    HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelationship);
-
-    adapter.getMetadataCache().addHierarchyType(ht);
-
-    return ht;
-  }
-
-  @Transaction
-  private void removeFromHierarchy(MdTermRelationship mdTermRelationship, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
-    Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
-    Universal child = Universal.getByKey(childGeoObjectTypeCode);
-
-    parent.removeAllChildren(child, mdTermRelationship.definesType());
-
-    if (child.getIsLeafType())
-    {
-      ConversionService.removeParentReferenceToLeafType(hierarchyTypeCode, parent, child);
-    }
+    return ServerGeoObjectType.removeChild(hierarchyTypeCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
   }
 
   @Request(RequestType.SESSION)
@@ -1073,6 +1086,7 @@ public class RegistryService
         result.addProperty("id", it.currentOid());
         result.addProperty("name", object.getLocalizedDisplayLabel());
         result.addProperty(GeoObject.CODE, object.getCode());
+        result.addProperty(GeoObject.UID, object.getUid());
 
         results.add(result);
       }
@@ -1093,11 +1107,105 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
+  public String newGeoObjectInstance2(String sessionId, String geoObjectTypeCode)
+  {
+    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
+    JSONObject joResp = new JSONObject();
+
+    /**
+     * Create a new GeoObject
+     */
+    GeoObject go = this.adapter.newGeoObjectInstance(geoObjectTypeCode);
+
+    /**
+     * Add all locales so the front-end knows what are available.
+     */
+    LocalizedValue label = new LocalizedValue("");
+    label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "");
+
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    for (Locale locale : locales)
+    {
+      label.setValue(locale, "");
+    }
+
+    go.setValue(DefaultAttribute.DISPLAY_LABEL.getName(), label);
+
+    /**
+     * Serialize the GeoObject and add it to the response
+     */
+    JsonObject jsonObject = go.toJSON(serializer);
+    joResp.put("geoObject", new JSONObject(jsonObject.toString()));
+
+    /**
+     * Include information about potential parents
+     */
+    // JSONArray jaHts = new JSONArray();
+
+    // HierarchyType[] hts =
+    // ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    // for (HierarchyType ht : hts)
+    // {
+    //// JSONObject joHt = new JSONObject();
+    ////
+    //// joHt.put("ht", new JSONObject(joHt.toString()));
+    ////
+    //// jaHts.put(joHt);
+    //
+    // jaHts.put(new JSONObject(ht.toJSON(serializer).toString()));
+    // }
+
+    // ParentTreeNode ptnChild = new ParentTreeNode(go, null);
+
+    // HierarchyType[] hts =
+    // ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    // for (HierarchyType ht : hts)
+    // {
+    // List<HierarchyNode> hnlRoots = ht.getRootGeoObjectTypes();
+    //
+    // for (HierarchyNode hnlRoot : hnlRoots)
+    // {
+    // ParentTreeNode ptnParent = ptnFromHierarchyNode(hnlRoot);
+    // ptnChild.addParent(ptnParent);
+    // }
+    // }
+
+    JsonArray hierarchies = AdapterUtilities.getInstance().getHierarchiesForType(go.getType(), true);
+
+    joResp.put("hierarchies", new JSONArray(hierarchies.toString()));
+
+    return joResp.toString();
+  }
+
+  // private ParentTreeNode ptnFromHierarchyNode(HierarchyNode hn, HierarchyType
+  // ht)
+  // {
+  // List<HierarchyNode> lhnChildren = hn.getChildren();
+  //
+  // for (HierarchyNode hnChild : lhnChildren)
+  // {
+  // ParentTreeNode ptnChild = ptnFromHierarchyNode(hnChild, ht);
+  //
+  // ptnChild.addParent(parents);
+  // ParentTreeNode ptnHn = new ParentTreeNode(null, ht);
+  // }
+  // }
+
+  @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForType(String sessionId, String code, Boolean includeTypes)
   {
     GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(code).get();
 
     return ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, includeTypes);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode)
+  {
+    GeoObject go = this.getGeoObjectByCode(sessionId, code, typeCode);
+
+    return ServiceFactory.getUtilities().getHierarchiesForGeoObject(go);
   }
 
   @Request(RequestType.SESSION)
@@ -1122,5 +1230,11 @@ public class RegistryService
     Locale locale = Session.getCurrentLocale();
 
     return new LocaleSerializer(locale);
+  }
+
+  @Request(RequestType.SESSION)
+  public String getGeoObjectBounds(String sessionId, GeoObject geoObject)
+  {
+    return ServerAdapterFactory.geoObject(geoObject).bbox();
   }
 }

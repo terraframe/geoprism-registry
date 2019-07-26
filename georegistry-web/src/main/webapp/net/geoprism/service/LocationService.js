@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Runway SDK(tm).
  *
@@ -50,13 +50,14 @@
       runwayService.execute(req, connection);      
     }
     
-    service.getGeoEntitySuggestions = function(connection, text, limit) {
+    service.getGeoEntitySuggestions = function(connection, text, limit, mdRelationshipId) {
       var req = {
         method: 'POST',
         url: com.runwaysdk.__applicationContextPath + '/location/suggestions',
         data : {
-          text : text,
-          limit : limit
+            text : text,
+            limit : limit,
+            mdRelationshipId : mdRelationshipId          
         }
       }      
                 
@@ -111,6 +112,18 @@
           type : geoObjectType
         }
       }      
+      
+      runwayService.execute(req, connection);
+    }
+    
+    service.submitChangeRequest = function(connection, json) {
+      var req = {
+        method: 'POST',
+        url: com.runwaysdk.__applicationContextPath + '/cgr/submitChangeRequest',
+        data : {
+          actions : json,
+        }
+      }
       
       runwayService.execute(req, connection);
     }

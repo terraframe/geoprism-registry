@@ -21,23 +21,23 @@ export class PublishModalComponent implements OnInit {
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
      */
-    public onMasterListChange: Subject<MasterList>;
+    onMasterListChange: Subject<MasterList>;
 
 
     /*
      * List of geo object types from the system
      */
-    private types: { label: string, code: string }[]
+    types: { label: string, code: string }[]
 
     /*
      * List of geo object types from the system
      */
-    private readonly: boolean = false;
+    readonly: boolean = false;
 
     /*
      * List of geo object types from the system
      */
-    private edit: boolean = false;
+    edit: boolean = false;
 
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
@@ -71,7 +71,9 @@ export class PublishModalComponent implements OnInit {
                 organization: '',
                 telephoneNumber: '',
                 email: '',
-                hierarchies: []
+                hierarchies: [],
+				attributes:[],
+				leaf: false
             };
         }
 
