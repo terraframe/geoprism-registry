@@ -23,20 +23,20 @@
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>0.5.1.6-SNAPSHOT</version>
+  <version>0.5.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
   <description>Geoprism's Geo-ontological hierarchy registry</description>
 
   <modules>
-    <!--<module>../geoprism</module>-->
+    <module>../geoprism</module>
     <module>georegistry-server</module>
     <module>georegistry-web</module>
   </modules>
 
   <properties>
-    <geoprism.version>0.5.1.8</geoprism.version>
+    <geoprism.version>0.5.2-SNAPSHOT</geoprism.version>
   
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
