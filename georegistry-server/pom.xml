@@ -39,7 +39,7 @@
 		<root.pass>postgres</root.pass>
 		
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
-		<cgr.adapter.version>0.5.1.6</cgr.adapter.version>
+		<cgr.adapter.version>0.5.1.7</cgr.adapter.version>
 	</properties>
 
 
