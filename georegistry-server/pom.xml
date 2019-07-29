@@ -15,18 +15,16 @@
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+    License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses />.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-		<version>0.5.1.6-SNAPSHOT</version>
+		<version>0.5.1.5</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -179,7 +177,7 @@
 									<mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument></argument>
+										<argument />
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -224,7 +222,7 @@
 									<mainClass>net.geoprism.ImportSchema</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument></argument>
+										<argument />
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
