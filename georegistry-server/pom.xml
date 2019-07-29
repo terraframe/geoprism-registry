@@ -26,7 +26,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-		<version>0.5.1.3-SNAPSHOT</version>
+		<version>0.5.1.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -41,7 +41,7 @@
 		<root.pass>postgres</root.pass>
 		
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
-		<cgr.adapter.version>0.5.1.4</cgr.adapter.version>
+		<cgr.adapter.version>0.5.1.5-SNAPSHOT</cgr.adapter.version>
 	</properties>
 
 
