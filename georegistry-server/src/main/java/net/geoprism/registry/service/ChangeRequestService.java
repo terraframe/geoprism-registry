@@ -227,7 +227,7 @@ public class ChangeRequestService
   public JSONObject executeActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
-    request.execute();
+    request.execute(true);
     
     return request.getDetails();
   }

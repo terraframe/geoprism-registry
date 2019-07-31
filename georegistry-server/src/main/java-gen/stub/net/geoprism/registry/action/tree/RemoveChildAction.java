@@ -4,24 +4,23 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.tree;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
@@ -29,7 +28,7 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.action.tree.RemoveChildActionBase;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class RemoveChildAction extends RemoveChildActionBase
@@ -87,8 +86,8 @@ public class RemoveChildAction extends RemoveChildActionBase
     RegistryAdapter adapter = ServiceFactory.getAdapter();
     MetadataCache cache = adapter.getMetadataCache();
 
-    GeoObjectType parentType = cache.getGeoObjectType(this.getParentTypeCode()).get();
-    GeoObjectType childType = cache.getGeoObjectType(this.getChildTypeCode()).get();
+    ServerGeoObjectType parentType = ServerGeoObjectType.get(this.getParentTypeCode());
+    ServerGeoObjectType childType = ServerGeoObjectType.get(this.getChildTypeCode());
     HierarchyType hierarchyType = cache.getHierachyType(this.getHierarchyTypeCode()).get();
 
     String message = LocalizationFacade.getFromBundles("change.request.email.remove.child");

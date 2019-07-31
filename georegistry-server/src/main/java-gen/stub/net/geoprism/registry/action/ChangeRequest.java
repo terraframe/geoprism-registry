@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action;
 
@@ -158,7 +158,7 @@ public class ChangeRequest extends ChangeRequestBase
   }
 
   @Transaction
-  public void execute()
+  public void execute(boolean sendEmail)
   {
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
@@ -179,7 +179,6 @@ public class ChangeRequest extends ChangeRequestBase
           messages.add(action.getMessage());
         }
       }
-      
 
       this.appLock();
       this.clearApprovalStatus();
@@ -189,7 +188,7 @@ public class ChangeRequest extends ChangeRequestBase
       // Email the contributor
       SingleActor actor = this.getCreatedBy();
 
-      if (actor instanceof GeoprismUser)
+      if (sendEmail && actor instanceof GeoprismUser)
       {
         String email = ( (GeoprismUser) actor ).getEmail();
 
@@ -222,13 +221,14 @@ public class ChangeRequest extends ChangeRequestBase
       {
         AbstractAction action = it.next();
 
-//        if (!status.equals(AllGovernanceStatus.ACCEPTED) || action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
-//        {
-          action.appLock();
-          action.clearApprovalStatus();
-          action.addApprovalStatus(status);
-          action.apply();
-//        }
+        // if (!status.equals(AllGovernanceStatus.ACCEPTED) ||
+        // action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        // {
+        action.appLock();
+        action.clearApprovalStatus();
+        action.addApprovalStatus(status);
+        action.apply();
+        // }
       }
     }
     finally
@@ -236,13 +236,13 @@ public class ChangeRequest extends ChangeRequestBase
       it.close();
     }
 
-//    if (status.equals(AllGovernanceStatus.REJECTED))
-//    {
-//      this.appLock();
-//      this.clearApprovalStatus();
-//      this.addApprovalStatus(AllGovernanceStatus.REJECTED);
-//      this.apply();
-//    }
+    // if (status.equals(AllGovernanceStatus.REJECTED))
+    // {
+    // this.appLock();
+    // this.clearApprovalStatus();
+    // this.addApprovalStatus(AllGovernanceStatus.REJECTED);
+    // this.apply();
+    // }
   }
 
 }

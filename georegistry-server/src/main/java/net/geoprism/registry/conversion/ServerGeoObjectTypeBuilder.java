@@ -185,6 +185,14 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
   }
 
   @Transaction
+  public ServerGeoObjectType create(String json)
+  {
+    GeoObjectType geoObjectType = GeoObjectType.fromJSON(json, ServiceFactory.getAdapter());
+
+    return this.create(geoObjectType);
+  }
+
+  @Transaction
   public ServerGeoObjectType create(GeoObjectType geoObjectType)
   {
     if (!MasterList.isValidName(geoObjectType.getCode()))

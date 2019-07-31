@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -206,7 +206,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public List<GeoObjectType> getAncestors(String sessionId, String code, String hierarchyCode)
   {
-    GeoObjectType child = this.adapter.getMetadataCache().getGeoObjectType(code).get();
+    ServerGeoObjectType child = ServerGeoObjectType.get(code);
 
     return ServiceFactory.getUtilities().getAncestors(child, hierarchyCode);
   }
@@ -432,20 +432,19 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
   {
-    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
-    ServerGeoObjectType serverGeoObjectType = new ServerGeoObjectTypeBuilder().create(geoObjectType);
+    ServerGeoObjectType type = new ServerGeoObjectTypeBuilder().create(gtJSON);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(serverGeoObjectType.getType());
+    adapter.getMetadataCache().addGeoObjectType(type.getType());
 
     /*
      * Create the GeoServer WMS layers
      */
-    new WMSService().createGeoServerLayer(serverGeoObjectType, true);
+    new WMSService().createGeoServerLayer(type, true);
 
-    return serverGeoObjectType.getType();
+    return type.getType();
   }
 
   /**
@@ -1019,7 +1018,9 @@ public class RegistryService
     // }
     // }
 
-    JsonArray hierarchies = AdapterUtilities.getInstance().getHierarchiesForType(go.getType(), true);
+    ServerGeoObjectType type = ServerGeoObjectType.get(go.getType());
+
+    JsonArray hierarchies = AdapterUtilities.getInstance().getHierarchiesForType(type, true);
 
     joResp.put("hierarchies", new JSONArray(hierarchies.toString()));
 
@@ -1043,7 +1044,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForType(String sessionId, String code, Boolean includeTypes)
   {
-    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(code).get();
+    ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(code);
 
     return ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, includeTypes);
   }

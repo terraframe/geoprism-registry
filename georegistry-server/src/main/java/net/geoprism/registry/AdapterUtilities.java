@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -48,7 +48,6 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -454,20 +453,19 @@ public class AdapterUtilities
    * @return
    */
   @Request
-  public List<GeoObjectType> getAncestors(GeoObjectType child, String code)
+  public List<GeoObjectType> getAncestors(ServerGeoObjectType child, String code)
   {
     List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(child);
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
     MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
 
-    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), type.getUniversal(), mdTermRelationship.definesType());
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), child.getUniversal(), mdTermRelationship.definesType());
 
     list.forEach(term -> {
       Universal parent = (Universal) term;
 
-      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(type.getUniversal().getOid()))
+      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(child.getUniversal().getOid()))
       {
         ancestors.add(ServerGeoObjectType.get(parent).getType());
       }
@@ -494,11 +492,10 @@ public class AdapterUtilities
   // ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(uni.getKey()).get();
   // }
 
-  public JsonArray getHierarchiesForType(GeoObjectType geoObjectType, Boolean includeTypes)
+  public JsonArray getHierarchiesForType(ServerGeoObjectType type, Boolean includeTypes)
   {
     ConversionService service = ServiceFactory.getConversionService();
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectType);
     HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
@@ -524,7 +521,7 @@ public class AdapterUtilities
           {
             ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
 
-            if (!pType.getCode().equals(geoObjectType.getCode()))
+            if (!pType.getCode().equals(type.getCode()))
             {
               JsonObject pObject = new JsonObject();
               pObject.addProperty("code", pType.getCode());
