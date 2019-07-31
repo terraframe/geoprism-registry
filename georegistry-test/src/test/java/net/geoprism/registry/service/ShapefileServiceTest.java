@@ -39,6 +39,7 @@ import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.test.USATestData;
@@ -87,6 +88,7 @@ public class ShapefileServiceTest
   }
 
   @Test
+  @Request
   public void testGetAttributeInformation()
   {
     PostalCodeFactory.remove(testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON));
@@ -153,11 +155,12 @@ public class ShapefileServiceTest
   }
 
   @Test
+  @Request
   public void testGetAttributeInformationPostalCode()
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
@@ -275,7 +278,7 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
+    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null, false);
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -291,7 +294,7 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
     configuration.setHierarchyRelationship(mdRelationship);
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.testData.COUNTRY.getUniversal(), new BasicColumnFunction("LSAD")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), new BasicColumnFunction("LSAD")));
 
     service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -325,7 +328,7 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
     configuration.setHierarchyRelationship(mdRelationship);
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.testData.COUNTRY.getUniversal(), new BasicColumnFunction("LSAD")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), new BasicColumnFunction("LSAD")));
     configuration.addExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, "00");
 
     JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
@@ -333,7 +336,7 @@ public class ShapefileServiceTest
     Assert.assertFalse(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON));
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -357,7 +360,7 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
     configuration.setHierarchyRelationship(mdRelationship);
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.testData.COUNTRY.getUniversal(), new BasicColumnFunction("LSAD")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), new BasicColumnFunction("LSAD")));
 
     JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -368,7 +371,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, problems.size());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON));
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -450,7 +453,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.get("attributeLabel").getAsString());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON));
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());

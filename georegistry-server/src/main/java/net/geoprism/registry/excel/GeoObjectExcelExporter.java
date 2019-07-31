@@ -43,31 +43,32 @@ import com.vividsolutions.jts.geom.Point;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectExcelExporter
 {
   private static Logger        logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
 
-  private GeoObjectType        type;
+  private ServerGeoObjectType  type;
 
   private HierarchyType        hierarchy;
 
   private OIterator<GeoObject> objects;
 
-  public GeoObjectExcelExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
+  public GeoObjectExcelExporter(ServerGeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
   {
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
   }
@@ -102,10 +103,10 @@ public class GeoObjectExcelExporter
     Row header = sheet.createRow(0);
 
     boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type.getType(), this.hierarchy.getCode());
 
     this.writeHeader(boldStyle, header, attributes, ancestors, locales);
 

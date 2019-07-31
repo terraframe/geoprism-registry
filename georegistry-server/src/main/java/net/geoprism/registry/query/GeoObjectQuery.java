@@ -9,7 +9,6 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.BusinessQuery;
@@ -26,45 +25,32 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayLabelQueryStructIF;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.ontology.ClassifierQuery;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class GeoObjectQuery
 {
-  private GeoObjectType        type;
-
-  private Universal            universal;
+  private ServerGeoObjectType  type;
 
   private GeoObjectRestriction restriction;
 
   private Integer              limit;
 
-  public GeoObjectQuery(GeoObjectType type, Universal universal)
+  public GeoObjectQuery(ServerGeoObjectType type)
   {
     this.type = type;
-    this.universal = universal;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
-  }
-
-  public Universal getUniversal()
-  {
-    return universal;
-  }
-
-  public void setUniversal(Universal universal)
-  {
-    this.universal = universal;
   }
 
   public GeoObjectRestriction getRestriction()
@@ -94,14 +80,14 @@ public class GeoObjectQuery
 
     if (this.type.isLeaf())
     {
-      BusinessQuery bQuery = new BusinessQuery(vQuery, universal.getMdBusiness().definesType());
+      BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
 
       configureLeafQuery(vQuery, bQuery);
     }
     else
     {
       GeoEntityQuery geQuery = new GeoEntityQuery(vQuery);
-      BusinessQuery bQuery = new BusinessQuery(vQuery, universal.getMdBusiness().definesType());
+      BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
 
       configureEntityQuery(vQuery, geQuery, bQuery);
     }
@@ -115,7 +101,7 @@ public class GeoObjectQuery
 
   protected void configureEntityQuery(ValueQuery vQuery, GeoEntityQuery geQuery, BusinessQuery bQuery)
   {
-    vQuery.WHERE(geQuery.getUniversal().EQ(universal));
+    vQuery.WHERE(geQuery.getUniversal().EQ(this.type.getUniversal()));
     vQuery.WHERE(bQuery.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(geQuery));
 
     GeoEntityDisplayLabelQueryStructIF label = geQuery.getDisplayLabel();
@@ -185,7 +171,7 @@ public class GeoObjectQuery
   {
     ValueQuery vQuery = this.getValueQuery();
 
-    return new GeoObjectIterator(type, universal, vQuery.getIterator());
+    return new GeoObjectIterator(this.type, vQuery.getIterator());
   }
 
   private void selectCustomAttributes(ValueQuery vQuery, BusinessQuery bQuery)

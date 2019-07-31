@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectShapefileExporter
@@ -77,7 +78,7 @@ public class GeoObjectShapefileExporter
 
   public static final String        GEOM   = "the_geom";
 
-  private GeoObjectType             type;
+  private ServerGeoObjectType       type;
 
   private HierarchyType             hierarchy;
 
@@ -87,17 +88,17 @@ public class GeoObjectShapefileExporter
 
   private OIterator<GeoObject>      objects;
 
-  public GeoObjectShapefileExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
+  public GeoObjectShapefileExporter(ServerGeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
   {
     this(type, hierarchy, objects, new LinkedList<Locale>());
   }
 
-  public GeoObjectShapefileExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects, List<Locale> locales)
+  public GeoObjectShapefileExporter(ServerGeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects, List<Locale> locales)
   {
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, locales).attributes(this.type);
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, locales).attributes(this.type.getType());
     this.columnNames = new HashMap<String, String>();
   }
 
@@ -106,12 +107,12 @@ public class GeoObjectShapefileExporter
     return columnNames;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
   }
@@ -247,7 +248,7 @@ public class GeoObjectShapefileExporter
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     // Add the type ancestor fields
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type.getType(), this.hierarchy.getCode());
 
     String[] types = new String[ancestors.size()];
 
@@ -340,7 +341,7 @@ public class GeoObjectShapefileExporter
     }
 
     // Add the type ancestor fields
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type.getType(), this.hierarchy.getCode());
 
     ancestors.forEach(ancestor -> {
 

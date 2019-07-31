@@ -4,15 +4,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.io.PostalCodeFormatException;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class PostalCodeFactory
 {
@@ -31,18 +27,16 @@ public class PostalCodeFactory
       return typeCode;
     }
 
-    public GeoObjectType getType()
+    public ServerGeoObjectType getType()
     {
-      return ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(this.typeCode).get();
+      return ServerGeoObjectType.get(this.typeCode);
     }
 
     protected Location location(ShapefileFunction function)
     {
-      GeoObjectType type = getType();
-      Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
+      ServerGeoObjectType type = getType();
 
-      return new Location(type, universal, function);
-
+      return new Location(type, function);
     }
 
     protected void formatException(String value)
@@ -142,22 +136,22 @@ public class PostalCodeFactory
     locations.put("Cambodia_Village", new CambodiaBuilder("Cambodia_Commune"));
   }
 
-  public static boolean isAvailable(GeoObjectType type)
+  public static boolean isAvailable(ServerGeoObjectType type)
   {
     return locations.containsKey(type.getCode());
   }
 
-  public static LocationBuilder get(GeoObjectType type)
+  public static LocationBuilder get(ServerGeoObjectType type)
   {
     return locations.get(type.getCode());
   }
 
-  public static void remove(GeoObjectType type)
+  public static void remove(ServerGeoObjectType type)
   {
     locations.remove(type.getCode());
   }
 
-  public static void addPostalCode(GeoObjectType type, LocationBuilder builder)
+  public static void addPostalCode(ServerGeoObjectType type, LocationBuilder builder)
   {
     locations.put(type.getCode(), builder);
   }

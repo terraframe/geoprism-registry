@@ -16,11 +16,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -37,36 +35,16 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
-import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDateDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDecDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeEncryptionDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeFileDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeIndicatorDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeLocalDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeStructDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.RelationshipDAOIF;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
@@ -89,8 +67,9 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.conversion.AttributeTypeBuilder;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ConversionService
 {
@@ -215,7 +194,6 @@ public class ConversionService
       throw new InvalidMasterListCodeException("The hierarchy type code has an invalid character");
     }
 
-    
     MdBusiness mdBusUniversal = MdBusiness.getMdBusiness(Universal.CLASS);
 
     MdTermRelationship mdTermRelationship = new MdTermRelationship();
@@ -442,7 +420,7 @@ public class ConversionService
 
     return mdTermRelationship;
   }
-  
+
   /**
    * 
    * @param mdTermRel
@@ -450,6 +428,7 @@ public class ConversionService
    */
   public HierarchyType mdTermRelationshipToHierarchyType(MdTermRelationship mdTermRel)
   {
+    AttributeTypeBuilder builder = new AttributeTypeBuilder();
     String hierarchyKey = buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
 
     LocalizedValue displayLabel;
@@ -458,13 +437,13 @@ public class ConversionService
     if (mdTermRel.definesType().equals(AllowedIn.CLASS))
     {
       MdTermRelationship locatedInMdTermRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(LocatedIn.CLASS);
-      displayLabel = this.convert(locatedInMdTermRel.getDisplayLabel());
-      description = this.convert(locatedInMdTermRel.getDescription());
+      displayLabel = builder.convert(locatedInMdTermRel.getDisplayLabel());
+      description = builder.convert(locatedInMdTermRel.getDescription());
     }
     else
     {
-      displayLabel = this.convert(mdTermRel.getDisplayLabel());
-      description = this.convert(mdTermRel.getDescription());
+      displayLabel = builder.convert(mdTermRel.getDisplayLabel());
+      description = builder.convert(mdTermRel.getDescription());
     }
 
     HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description);
@@ -487,9 +466,9 @@ public class ConversionService
 
     for (Universal childUniversal : childUniversals)
     {
-      GeoObjectType geoObjectType = this.universalToGeoObjectType(childUniversal);
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
 
-      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType);
+      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
 
       node = buildHierarchy(node, childUniversal, mdTermRel);
 
@@ -515,9 +494,9 @@ public class ConversionService
 
     for (Universal childUniversal : childUniversals)
     {
-      GeoObjectType geoObjectType = this.universalToGeoObjectType(childUniversal);
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
 
-      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType);
+      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
 
       node = buildHierarchy(node, childUniversal, mdTermRel);
 
@@ -528,323 +507,15 @@ public class ConversionService
 
   }
 
-  public Universal geoObjectTypeToUniversal(GeoObjectType got)
-  {
-    Universal uni = Universal.getByKey(got.getCode());
-
-    return uni;
-  }
-
-  /**
-   * Creates, but does not persist, a {@link Universal} from the given
-   * {@link GeoObjectType}.
-   * 
-   * @pre needs to occur within a transaction
-   * 
-   * @param got
-   * @return a {@link Universal} from the given {@link GeoObjectType} that is
-   *         not persisted.
-   */
-  public Universal newGeoObjectTypeToUniversal(GeoObjectType got)
-  {
-    Universal universal = new Universal();
-    universal.setUniversalId(got.getCode());
-    universal.setIsLeafType(got.isLeaf());
-    universal.setIsGeometryEditable(got.isGeometryEditable());
-    this.populate(universal.getDisplayLabel(), got.getLabel());
-    this.populate(universal.getDescription(), got.getDescription());
-
-    com.runwaysdk.system.gis.geo.GeometryType geometryType = convertAdapterToRegistryPolygonType(got.getGeometryType());
-
-    // Clear the default value
-    universal.clearGeometryType();
-    universal.addGeometryType(geometryType);
-
-    return universal;
-  }
-
-  /**
-   * Returns a {@link Universal} from the code value on the given
-   * {@link GeoObjectType}.
-   * 
-   * @param got
-   * @return a {@link Universal} from the code value on the given
-   *         {@link GeoObjectType}.
-   */
-  public Universal getUniversalFromGeoObjectType(GeoObjectType got)
-  {
-    Universal universal = Universal.getByKey(got.getCode());
-
-    return universal;
-  }
-
-  public GeoObjectType universalToGeoObjectType(Universal uni)
-  {
-    com.runwaysdk.system.gis.geo.GeometryType geoPrismgeometryType = uni.getGeometryType().get(0);
-
-    org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = this.convertRegistryToAdapterPolygonType(geoPrismgeometryType);
-
-    LocalizedValue label = this.convert(uni.getDisplayLabel());
-    LocalizedValue description = this.convert(uni.getDescription());
-    GeoObjectType geoObjType = new GeoObjectType(uni.getUniversalId(), cgrGeometryType, label, description, uni.getIsLeafType(), uni.getIsGeometryEditable(), ServiceFactory.getAdapter());
-
-    geoObjType = convertAttributeTypes(uni, geoObjType);
-
-    return geoObjType;
-  }
-
-  public LocalizedValue convert(LocalStruct localStruct)
-  {
-    LocalizedValue label = new LocalizedValue(localStruct.getValue());
-    label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, localStruct.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
-
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-    for (Locale locale : locales)
-    {
-      label.setValue(locale, localStruct.getValue(locale));
-    }
-
-    return label;
-  }
-
-  public LocalizedValue convert(String value, Map<String, String> map)
-  {
-    LocalizedValue localizedValue = new LocalizedValue(value);
-    localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, map.get(MdAttributeLocalInfo.DEFAULT_LOCALE));
-
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-    for (Locale locale : locales)
-    {
-      localizedValue.setValue(locale, map.get(locale.toString()));
-    }
-
-    return localizedValue;
-  }
-
-  private GeoObjectType convertAttributeTypes(Universal uni, GeoObjectType gt)
-  {
-    MdBusiness mdBusiness = uni.getMdBusiness();
-
-    if (mdBusiness != null)
-    {
-      MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
-
-      // Standard attributes are defined by default on the GeoObjectType
-
-      List<? extends MdAttributeConcreteDAOIF> definedMdAttributeList = mdBusinessDAOIF.getAllDefinedMdAttributes();
-
-      for (MdAttributeConcreteDAOIF mdAttribute : definedMdAttributeList)
-      {
-        if (this.convertMdAttributeToAttributeType(mdAttribute))
-        {
-          AttributeType attributeType = this.mdAttributeToAttributeType(mdAttribute);
-
-          if (attributeType != null)
-          {
-            gt.addAttribute(attributeType);
-          }
-        }
-      }
-    }
-
-    return gt;
-  }
-
-  /**
-   * True if the given {@link MdAttributeConcreteDAOIF} should be converted to
-   * an {@link AttributeType}, false otherwise. Standard attributes such as
-   * {@link DefaultAttribute} are already defined on a {@link GeoObjectType} and
-   * do not need to be converted. This method also returns true if the attribute
-   * is not a system attribute.
-   * 
-   * @return True if the given {@link MdAttributeConcreteDAOIF} should be
-   *         converted to an {@link AttributeType}, false otherwise.
-   */
-  private boolean convertMdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
-  {
-    if (mdAttribute.isSystem() || mdAttribute instanceof MdAttributeStructDAOIF || mdAttribute instanceof MdAttributeEncryptionDAOIF || mdAttribute instanceof MdAttributeIndicatorDAOIF || mdAttribute instanceof MdAttributeBlobDAOIF || mdAttribute instanceof MdAttributeGeometryDAOIF || mdAttribute instanceof MdAttributeFileDAOIF || mdAttribute instanceof MdAttributeTimeDAOIF || mdAttribute instanceof MdAttributeUUIDDAOIF || mdAttribute.getType().equals(MdAttributeReferenceInfo.CLASS))
-    {
-      return false;
-    }
-    else if (mdAttribute.definesAttribute().equals(ComponentInfo.KEY) || mdAttribute.definesAttribute().equals(ComponentInfo.TYPE))
-    {
-      return false;
-    }
-    else
-    {
-      return true;
-    }
-
-  }
-
-  public AttributeType mdAttributeToAttributeType(MdAttributeConcreteDAOIF mdAttribute)
-  {
-    Locale locale = Session.getCurrentLocale();
-
-    String attributeName = mdAttribute.definesAttribute();
-    LocalizedValue displayLabel = this.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
-    LocalizedValue description = this.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
-    boolean required = mdAttribute.isRequired();
-    boolean unique = mdAttribute.isUnique();
-
-    if (mdAttribute instanceof MdAttributeBooleanDAOIF)
-    {
-      return AttributeType.factory(attributeName, displayLabel, description, AttributeBooleanType.TYPE, required, unique);
-    }
-    else if (mdAttribute instanceof MdAttributeLocalDAOIF)
-    {
-      return AttributeType.factory(attributeName, displayLabel, description, AttributeLocalType.TYPE, required, unique);
-    }
-    else if (mdAttribute instanceof MdAttributeCharacterDAOIF)
-    {
-      return AttributeType.factory(attributeName, displayLabel, description, AttributeCharacterType.TYPE, required, unique);
-    }
-    else if (mdAttribute instanceof MdAttributeDateDAOIF || mdAttribute instanceof MdAttributeDateTimeDAOIF)
-    {
-      return AttributeType.factory(attributeName, displayLabel, description, AttributeDateType.TYPE, required, unique);
-    }
-    else if (mdAttribute instanceof MdAttributeDecDAOIF)
-    {
-      MdAttributeDecDAOIF mdAttributeDec = (MdAttributeDecDAOIF) mdAttribute;
-
-      AttributeFloatType attributeType = (AttributeFloatType) AttributeType.factory(attributeName, displayLabel, description, AttributeFloatType.TYPE, required, unique);
-      attributeType.setPrecision(Integer.parseInt(mdAttributeDec.getLength()));
-      attributeType.setScale(Integer.parseInt(mdAttributeDec.getDecimal()));
-
-      return attributeType;
-    }
-    else if (mdAttribute instanceof MdAttributeIntegerDAOIF || mdAttribute instanceof MdAttributeLongDAOIF)
-    {
-      return AttributeType.factory(attributeName, displayLabel, description, AttributeIntegerType.TYPE, required, unique);
-    }
-    else if (mdAttribute instanceof MdAttributeEnumerationDAOIF || mdAttribute instanceof MdAttributeTermDAOIF)
-    {
-      AttributeTermType attributeType = (AttributeTermType) AttributeType.factory(attributeName, displayLabel, description, AttributeTermType.TYPE, required, unique);
-
-      if (mdAttribute instanceof MdAttributeEnumerationDAOIF && mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
-      {
-        Term rootStatusTerm = ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
-
-        attributeType.setRootTerm(rootStatusTerm);
-      }
-      else if (mdAttribute instanceof MdAttributeTermDAOIF)
-      {
-        List<RelationshipDAOIF> rels = ( (MdAttributeTermDAOIF) mdAttribute ).getAllAttributeRoots();
-
-        if (rels.size() > 0)
-        {
-          RelationshipDAOIF rel = rels.get(0);
-
-          BusinessDAO classy = (BusinessDAO) rel.getChild();
-
-          TermBuilder termBuilder = new TermBuilder(classy.getKey());
-          Term adapterTerm = termBuilder.build();
-
-          attributeType.setRootTerm(adapterTerm);
-        }
-        else
-        {
-          throw new ProgrammingErrorException("Expected an attribute root on MdAttribute [" + mdAttribute.getKey() + "].");
-        }
-      }
-      else
-      {
-        throw new ProgrammingErrorException("Enum attributes are not supported at this time.");
-      }
-
-      return attributeType;
-    }
-
-    throw new UnsupportedOperationException("Unsupported attribute type [" + mdAttribute.getClass().getSimpleName() + "]");
-  }
-
-  /**
-   * Convert Geometry types between GeoPrism and the CGR standard.
-   * 
-   * @param geoPrismgeometryType
-   * @return CGR GeometryType
-   */
-  private org.commongeoregistry.adapter.constants.GeometryType convertRegistryToAdapterPolygonType(com.runwaysdk.system.gis.geo.GeometryType geoPrismGeometryType)
-  {
-    if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
-    {
-      return org.commongeoregistry.adapter.constants.GeometryType.POINT;
-    }
-    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
-    {
-      return org.commongeoregistry.adapter.constants.GeometryType.LINE;
-    }
-    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
-    {
-      return org.commongeoregistry.adapter.constants.GeometryType.POLYGON;
-    }
-    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
-    {
-      return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOINT;
-    }
-    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
-    {
-      return org.commongeoregistry.adapter.constants.GeometryType.MULTILINE;
-    }
-    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON))
-    {
-      return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON;
-    }
-    else
-    {
-      return null;
-    }
-  }
-
-  /**
-   * Convert Geometry types between the CGR standard by GeoPrism.
-   * 
-   * @param geoPrismgeometryType
-   * @return CGR GeometryType
-   */
-  private com.runwaysdk.system.gis.geo.GeometryType convertAdapterToRegistryPolygonType(org.commongeoregistry.adapter.constants.GeometryType adapterGeometryType)
-  {
-    if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.POINT))
-    {
-      return com.runwaysdk.system.gis.geo.GeometryType.POINT;
-    }
-    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.LINE))
-    {
-      return com.runwaysdk.system.gis.geo.GeometryType.LINE;
-    }
-    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.POLYGON))
-    {
-      return com.runwaysdk.system.gis.geo.GeometryType.POLYGON;
-    }
-    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MULTIPOINT))
-    {
-      return com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT;
-    }
-    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MULTILINE))
-    {
-      return com.runwaysdk.system.gis.geo.GeometryType.MULTILINE;
-    }
-    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON))
-    {
-      return com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON;
-    }
-    else
-    {
-      return null;
-    }
-  }
-
   public GeoObject geoEntityToGeoObject(GeoEntity geoEntity)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    GeoObjectType got = universalToGeoObjectType(geoEntity.getUniversal());
+    ServerGeoObjectType got = ServerGeoObjectType.get(geoEntity.getUniversal());
 
-    Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(got);
+    Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(got.getType());
 
-    GeoObject geoObj = new GeoObject(got, got.getGeometryType(), attributeMap);
+    GeoObject geoObj = new GeoObject(got.getType(), got.getGeometryType(), attributeMap);
 
     if (geoEntity.isNew())
     {
@@ -938,7 +609,7 @@ public class ConversionService
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    Universal universal = this.getUniversalFromGeoObjectType(got);
+    ServerGeoObjectType type = ServerGeoObjectType.get(got);
 
     Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(got);
 
@@ -952,7 +623,7 @@ public class ConversionService
     }
     else
     {
-      geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(business.getOid(), universal));
+      geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(business.getOid(), type.getUniversal()));
 
       Map<String, AttributeType> attributes = got.getAttributeMap();
       attributes.forEach((attributeName, attribute) -> {

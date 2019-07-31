@@ -20,27 +20,24 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectIterator implements OIterator<GeoObject>
 {
-  private GeoObjectType          type;
-
-  private Universal              universal;
+  private ServerGeoObjectType    type;
 
   private OIterator<ValueObject> iterator;
 
@@ -48,10 +45,9 @@ public class GeoObjectIterator implements OIterator<GeoObject>
 
   private String                 oid;
 
-  public GeoObjectIterator(GeoObjectType type, Universal universal, OIterator<ValueObject> iterator)
+  public GeoObjectIterator(ServerGeoObjectType type, OIterator<ValueObject> iterator)
   {
     this.type = type;
-    this.universal = universal;
     this.iterator = iterator;
     this.format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   }
@@ -79,10 +75,10 @@ public class GeoObjectIterator implements OIterator<GeoObject>
   {
     this.oid = vObject.getValue(ComponentInfo.OID);
 
-    Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(this.type);
-    GeoObject gObject = new GeoObject(this.type, this.type.getGeometryType(), attributeMap);
+    Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(this.type.getType());
+    GeoObject gObject = new GeoObject(this.type.getType(), this.type.getGeometryType(), attributeMap);
 
-    gObject.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(this.oid, universal));
+    gObject.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(this.oid, this.type.getUniversal()));
 
     Map<String, AttributeType> attributes = this.type.getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {

@@ -36,6 +36,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
@@ -80,7 +81,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(testData.STATE.getCode()).get();
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
@@ -102,7 +103,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(testData.STATE.getCode()).get();
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
@@ -121,12 +122,12 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
-    List<GeoObject> objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator().getAll();
+    List<GeoObject> objects = new GeoObjectQuery(type).getIterator().getAll();
 
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator());
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new GeoObjectQuery(type).getIterator());
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
@@ -141,7 +142,7 @@ public class GeoObjectShapefileExporterTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, SupportedLocaleDAO.getSupportedLocales()).attributes(type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, SupportedLocaleDAO.getSupportedLocales()).attributes(type.getType());
 
     for (AttributeType attribute : attributes)
     {
@@ -166,7 +167,7 @@ public class GeoObjectShapefileExporterTest
 
     // Assert the value of the parent columns
     // Add the type ancestor fields
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(type, hierarchyType.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(type.getType(), hierarchyType.getCode());
 
     GeoObjectType ancestor = ancestors.get(0);
 
@@ -181,10 +182,10 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testWriteToFile() throws IOException
   {
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
-    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
+    GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
     try
     {
@@ -207,10 +208,10 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
-    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
+    GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
     try
     {

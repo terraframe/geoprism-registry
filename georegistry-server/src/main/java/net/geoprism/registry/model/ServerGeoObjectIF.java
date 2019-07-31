@@ -1,4 +1,4 @@
-package net.geoprism.registry.adapter;
+package net.geoprism.registry.model;
 
 import com.runwaysdk.business.Business;
 

@@ -1,66 +1,61 @@
-package net.geoprism.registry.adapter;
+package net.geoprism.registry.model;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
-import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
-import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 
 public class ServerLeafGeoObject implements ServerGeoObjectIF
 {
-  private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
-  
-  private GeoObject go;
-  
-  ServerLeafGeoObject(GeoObject go)
+  private Logger              logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
+
+  private ServerGeoObjectType type;
+
+  private GeoObject           go;
+
+  ServerLeafGeoObject(ServerGeoObjectType type, GeoObject go)
   {
+    this.type = type;
     this.go = go;
   }
-  
+
   public MdBusiness getLeafMdBusiness()
   {
-    Universal uni = ConversionService.getInstance().geoObjectTypeToUniversal(go.getType());
-    return uni.getMdBusiness();
+    return this.type.getMdBusiness();
   }
-  
+
   @Override
   public Business getBusiness()
   {
     String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(go.getUid(), go.getType());
     return Business.get(runwayId);
   }
-  
+
   @Override
   public String bbox()
   {
     String definesType = this.getLeafMdBusiness().definesType();
-    
+
     try
     {
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.getMdBusinessDAO(definesType);
@@ -163,6 +158,6 @@ public class ServerLeafGeoObject implements ServerGeoObjectIF
     bboxArr.put(49.5904);
 
     return bboxArr.toString();
-  
+
   }
 }

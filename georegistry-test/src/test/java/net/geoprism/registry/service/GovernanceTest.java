@@ -62,7 +62,7 @@ public class GovernanceTest
       testData.cleanUp();
     }
   }
-  
+
   /**
    * Tests serialization on the DTOs and also conversion to/from DTO
    */
@@ -72,7 +72,7 @@ public class GovernanceTest
     TestGeoObjectInfo testGo = testData.newTestGeoObjectInfo("GOV_TEST_SERIALIZATION", testData.STATE);
     GeoObject go = testGo.asGeoObject();
     testGo.setRegistryId(go.getUid());
-    
+
     /*
      * UpdateGeoObject
      */
@@ -85,15 +85,17 @@ public class GovernanceTest
     String updateJson = updateDTO.toJSON().toString();
     String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
     Assert.assertEquals(updateJson, updateJson2);
-    
+
     UpdateGeoObjectAction updateRA = (UpdateGeoObjectAction) AbstractAction.dtoToRegistry(updateDTO);
     GeoObject updateRAGO = GeoObject.fromJSON(testData.adapter, updateRA.getGeoObjectJson());
     testGo.assertEquals(updateRAGO);
     Assert.assertEquals(updateDTO.getContributorNotes(), updateRA.getContributorNotes());
     Assert.assertEquals(updateDTO.getMaintainerNotes(), updateRA.getMaintainerNotes());
     Assert.assertEquals(updateDTO.getApiVersion(), updateRA.getApiVersion());
-//    Assert.assertEquals(updateDTO.getCreateActionDate().getTime(), updateRA.getCreateActionDate().getTime()); // TODO : Runway dates are accurate to the second, but epoch is accurate to the milisecond.
-    
+    // Assert.assertEquals(updateDTO.getCreateActionDate().getTime(),
+    // updateRA.getCreateActionDate().getTime()); // TODO : Runway dates are
+    // accurate to the second, but epoch is accurate to the milisecond.
+
     /*
      * TODO : The rest of the supported actions
      */
@@ -172,8 +174,9 @@ public class GovernanceTest
      */
     this.adapter.submitChangeRequest(actionsCR1);
 
-    Thread.sleep(1500); // We need change requests to not have the same createDate
-                     // so the ordering in validation is predictable
+    Thread.sleep(1500); // We need change requests to not have the same
+                        // createDate
+    // so the ordering in validation is predictable
 
     /*
      * CR2 : Setup
@@ -237,7 +240,7 @@ public class GovernanceTest
      * Submit CR2
      */
     this.adapter.submitChangeRequest(actionsCR2);
-    
+
     /*
      * Validation and execution
      */
@@ -344,7 +347,7 @@ public class GovernanceTest
     // testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
 
     // Test CreateGeoObject and UpdateGeoObject CR2
-    GeoObjectQuery createGEQCR2 = new GeoObjectQuery(testNewCR2.getGeoObjectType().getGeoObjectType(GeometryType.POLYGON), testNewCR2.getGeoObjectType().getUniversal());
+    GeoObjectQuery createGEQCR2 = new GeoObjectQuery(testNewCR2.getGeoObjectType().getGeoObjectType(GeometryType.POLYGON));
     createGEQCR2.setRestriction(new CodeRestriction(testNewCR2.getCode()));
     List<GeoObject> createGEQCR2All = createGEQCR2.getIterator().getAll();
     Assert.assertEquals(1, createGEQCR2All.size());

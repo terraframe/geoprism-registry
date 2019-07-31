@@ -1,6 +1,5 @@
 package net.geoprism.registry.test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +40,7 @@ import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
@@ -57,7 +57,6 @@ import com.vividsolutions.jts.io.ParseException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
-import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.MasterList;
@@ -66,6 +65,8 @@ import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.WMSService;
@@ -152,7 +153,7 @@ abstract public class TestDataSet
   {
     // TODO : If you move this call into the 'setupInTrans' method it exposes a
     // bug in Runway which relates to transactions and MdAttributeLocalStructs
-    cleanUpClass();
+//    cleanUpClass();
 
     setUpClassInTrans();
   }
@@ -463,20 +464,28 @@ abstract public class TestDataSet
     @Request
     public void apply(GeometryType geometryType)
     {
-      applyInTrans(geometryType);
+      ServerGeoObjectType type = applyInTrans(geometryType);
+
+      // If this did not error out then add to the cache
+      adapter.getMetadataCache().addGeoObjectType(type.getType());
     }
 
     @Transaction
-    private void applyInTrans(GeometryType geometryType)
+    private ServerGeoObjectType applyInTrans(GeometryType geometryType)
     {
       if (TestDataSet.this.debugMode >= 1)
       {
         System.out.println("Applying TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
 
-      universal = AdapterUtilities.getInstance().createGeoObjectType(this.getGeoObjectType(geometryType));
+      GeoObjectType got = new GeoObjectType(this.getCode(), geometryType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, adapter);
+      ServerGeoObjectType type = new ServerGeoObjectTypeBuilder().create(got);
+
+      universal = type.getUniversal();
 
       this.setUid(universal.getOid());
+
+      return type;
     }
 
     @Request
@@ -509,7 +518,7 @@ abstract public class TestDataSet
       this.universal = null;
     }
 
-    public GeoObjectType getGeoObjectType(GeometryType geometryType)
+    public ServerGeoObjectType getGeoObjectType(GeometryType geometryType)
     {
       // if (this.getUniversal() != null)
       // {
@@ -518,7 +527,7 @@ abstract public class TestDataSet
       // }
       // else
       // {
-      return new GeoObjectType(this.getCode(), geometryType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, adapter);
+      return ServerGeoObjectType.get(this.getCode());
       // }
     }
   }

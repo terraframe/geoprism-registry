@@ -29,7 +29,6 @@ import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -50,17 +49,17 @@ import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
-import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.adapter.ServerAdapterFactory;
-import net.geoprism.registry.adapter.ServerGeoObjectType;
+import net.geoprism.registry.conversion.AttributeTypeBuilder;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
 import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.GeoObjectIterator;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.query.LookupRestriction;
@@ -99,9 +98,9 @@ public class RegistryService
       {
         Universal uni = it.next();
 
-        GeoObjectType got = ServiceFactory.getConversionService().universalToGeoObjectType(uni);
+        ServerGeoObjectType type = new ServerGeoObjectTypeBuilder().build(uni);
 
-        adapter.getMetadataCache().addGeoObjectType(got);
+        adapter.getMetadataCache().addGeoObjectType(type.getType());
       }
     }
     finally
@@ -232,7 +231,8 @@ public class RegistryService
       Business child = Business.get(childRunwayId);
 
       Universal parentUniversal = parent.getUniversal();
-      Universal childUniversal = ConversionService.getInstance().geoObjectTypeToUniversal(goChild.getType());
+      Universal childUniversal = ServerGeoObjectType.get(goChild.getType()).getUniversal();
+
       String refAttrName = ConversionService.getParentReferenceAttributeName(hierarchyCode, parentUniversal);
       String universalRelationshipType = ConversionService.buildMdTermRelUniversalKey(hierarchyCode);
 
@@ -359,10 +359,9 @@ public class RegistryService
 
   public GeoObjectQuery createQuery(String typeCode)
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
-    Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(type);
+    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    return new GeoObjectQuery(type, universal);
+    return new GeoObjectQuery(type);
   }
 
   ///////////////////// Hierarchy Management /////////////////////
@@ -416,30 +415,19 @@ public class RegistryService
   public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
-
-    Universal universal = createGeoObjectType(geoObjectType);
-
-    GeoObjectType ret = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+    ServerGeoObjectType serverGeoObjectType = new ServerGeoObjectTypeBuilder().create(geoObjectType);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(ret);
+    adapter.getMetadataCache().addGeoObjectType(serverGeoObjectType.getType());
 
     /*
      * Create the GeoServer WMS layers
      */
-    new WMSService().createGeoServerLayer(ret, true);
+    new WMSService().createGeoServerLayer(serverGeoObjectType, true);
 
-    return ret;
-  }
-
-  @Transaction
-  private Universal createGeoObjectType(GeoObjectType geoObjectType)
-  {
-    Universal universal = ServiceFactory.getUtilities().createGeoObjectType(geoObjectType);
-
-    return universal;
+    return serverGeoObjectType.getType();
   }
 
   /**
@@ -455,46 +443,12 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
-    GeoObjectType geoObjectTypeNew = GeoObjectType.fromJSON(gtJSON, adapter);
+    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
 
-    GeoObjectType geoObjectTypeOld = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeNew.getCode()).get();
+    ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
+    serverGeoObjectType.update(geoObjectType);
 
-    GeoObjectType geoObjectTypeModified = geoObjectTypeOld.copy(geoObjectTypeNew);
-
-    Universal universal = updateGeoObjectType(geoObjectTypeModified);
-
-    GeoObjectType geoObjectTypeModifiedApplied = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
-
-    // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
-
-    return geoObjectTypeModifiedApplied;
-  }
-
-  @Transaction
-  private Universal updateGeoObjectType(GeoObjectType geoObjectType)
-  {
-    Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(geoObjectType);
-    universal.lock();
-
-    universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
-    ServiceFactory.getConversionService().populate(universal.getDisplayLabel(), geoObjectType.getLabel());
-    ServiceFactory.getConversionService().populate(universal.getDescription(), geoObjectType.getDescription());
-
-    universal.apply();
-
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    mdBusiness.lock();
-    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
-    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
-    mdBusiness.apply();
-
-    mdBusiness.unlock();
-
-    universal.unlock();
-
-    return universal;
+    return serverGeoObjectType.getType();
   }
 
   /**
@@ -513,28 +467,8 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public AttributeType createAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
-    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
-
-    JsonParser parser = new JsonParser();
-    JsonObject attrObj = parser.parse(attributeTypeJSON).getAsJsonObject();
-
-    AttributeType attrType = AttributeType.parse(attrObj);
-
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
-
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().createMdAttributeFromAttributeType(geoObjectType, mdBusiness, attrType);
-
-    attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
-
-    geoObjectType.addAttribute(attrType);
-
-    // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
-
-    // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+    AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
     return attrType;
   }
@@ -554,23 +488,8 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public AttributeType updateAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
-    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
-
-    JsonObject attrObj = new JsonParser().parse(attributeTypeJSON).getAsJsonObject();
-
-    AttributeType attrType = AttributeType.parse(attrObj);
-
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
-
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    MdAttributeConcrete mdAttribute = ServiceFactory.getUtilities().updateMdAttributeFromAttributeType(mdBusiness, attrType);
-    attrType = ServiceFactory.getConversionService().mdAttributeToAttributeType(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
-
-    geoObjectType.addAttribute(attrType);
-
-    // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+    ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+    AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
     return attrType;
   }
@@ -591,21 +510,8 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void deleteAttributeType(String sessionId, String gtId, String attributeName)
   {
-    GeoObjectType geoObjectType = adapter.getMetadataCache().getGeoObjectType(gtId).get();
-
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObjectType);
-
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    ServiceFactory.getUtilities().deleteMdAttributeFromAttributeType(geoObjectType, mdBusiness, attributeName);
-
-    geoObjectType.removeAttribute(attributeName);
-
-    // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(geoObjectType);
-
-    // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
+    got.removeAttribute(attributeName);
   }
 
   /**
@@ -714,7 +620,7 @@ public class RegistryService
       {
         GeoObjectType geoObjectType = optional.get();
 
-        AttributeType attributeType = ServiceFactory.getConversionService().mdAttributeToAttributeType((MdAttributeConcreteDAOIF) BusinessFacade.getEntityDAO(mdAttribute));
+        AttributeType attributeType = new AttributeTypeBuilder().build((MdAttributeConcreteDAOIF) BusinessFacade.getEntityDAO(mdAttribute));
 
         geoObjectType.addAttribute(attributeType);
 
@@ -765,66 +671,8 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void deleteGeoObjectType(String sessionId, String code)
   {
-    GeoObjectType type = adapter.getMetadataCache().getGeoObjectType(code).get();
-
-    new WMSService().deleteWMSLayer(type);
-
-    try
-    {
-      deleteGeoObjectTypeInTransaction(sessionId, code);
-
-      ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-      // If we get here then it was successfully deleted
-      this.refreshMetadataCache(); // We have to do a full metadata cache
-                                   // refresh because the GeoObjectType is
-                                   // embedded in the HierarchyType
-    }
-    catch (RuntimeException e)
-    {
-      // An error occurred re-create the WMS layer
-      new WMSService().createWMSLayer(type, false);
-
-      throw e;
-    }
-  }
-
-  @Transaction
-  private void deleteGeoObjectTypeInTransaction(String sessionId, String code)
-  {
-    Universal uni = Universal.getByKey(code);
-
-    String[] hierarchies = TermUtil.getAllParentRelationships(uni.getOid());
-    for (String hierarchy : hierarchies)
-    {
-      OIterator<com.runwaysdk.business.ontology.Term> it = uni.getDirectDescendants(hierarchy);
-
-      try
-      {
-        if (it.hasNext())
-        {
-          throw new CannotDeleteGeoObjectTypeWithChildren("Cannot delete a GeoObjectType with children");
-        }
-      }
-      finally
-      {
-        it.close();
-      }
-    }
-
-    MdBusiness mdBusiness = uni.getMdBusiness();
-
-    /*
-     * Delete all Attribute references
-     */
-    AttributeHierarchy.deleteByUniversal(uni);
-
-    // This deletes the {@link MdBusiness} as well
-    uni.delete(false);
-
-    // Delete the term root
-    Classifier classRootTerm = TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
-    classRootTerm.delete();
+    ServerGeoObjectType type = ServerGeoObjectType.get(code);
+    type.delete();
   }
 
   /**

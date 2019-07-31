@@ -31,6 +31,7 @@ import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
 import net.geoprism.GeoprismPatcher;
 import net.geoprism.GeoprismPatcherIF;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
 import net.geoprism.registry.demo.ChangeRequestTestDataGenerator;
 
 public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatcherIF
@@ -40,11 +41,11 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
   public void runWithTransaction()
   {
     super.runWithTransaction();
-    
+
     // TODO : This is only for demos
-//    ChangeRequestTestDataGenerator.main(new String[] {});
+    // ChangeRequestTestDataGenerator.main(new String[] {});
   }
-  
+
   @Override
   protected void importLocationData()
   {
@@ -63,7 +64,8 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
 
       System.out.println("Assigning default role permissions for [" + biz.definesType() + "].");
 
-      AdapterUtilities.getInstance().assignDefaultRolePermissions(biz);
+      ServerGeoObjectTypeBuilder builder = new ServerGeoObjectTypeBuilder();
+      builder.assignDefaultRolePermissions(biz);
     }
   }
 

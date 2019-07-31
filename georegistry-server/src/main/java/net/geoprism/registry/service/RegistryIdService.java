@@ -18,6 +18,7 @@ import net.geoprism.registry.IdRecord;
 import net.geoprism.registry.IdRecordQuery;
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class RegistryIdService implements AdapterIdServiceIF
 {
@@ -85,6 +86,11 @@ public class RegistryIdService implements AdapterIdServiceIF
 
   public String registryIdToRunwayId(String registryId, GeoObjectType got)
   {
+    return this.registryIdToRunwayId(registryId, ServerGeoObjectType.get(got));
+  }
+
+  public String registryIdToRunwayId(String registryId, ServerGeoObjectType got)
+  {
     if (registryId == null || registryId.length() != 36)
     {
       InvalidRegistryIdException ex = new InvalidRegistryIdException();
@@ -94,11 +100,9 @@ public class RegistryIdService implements AdapterIdServiceIF
 
     if (!got.isLeaf())
     {
-      Universal uni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-
       QueryFactory qf = new QueryFactory();
       ValueQuery vq = new ValueQuery(qf);
-      BusinessQuery bq = qf.businessQuery(uni.getMdBusiness().definesType());
+      BusinessQuery bq = qf.businessQuery(got.definesType());
 
       vq.SELECT(bq.get(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME));
       vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));
@@ -127,11 +131,9 @@ public class RegistryIdService implements AdapterIdServiceIF
     }
     else
     {
-      Universal uni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-
       QueryFactory qf = new QueryFactory();
       ValueQuery vq = new ValueQuery(qf);
-      BusinessQuery bq = qf.businessQuery(uni.getMdBusiness().definesType());
+      BusinessQuery bq = qf.businessQuery(got.definesType());
 
       vq.SELECT(bq.get(ComponentInfo.OID));
       vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));

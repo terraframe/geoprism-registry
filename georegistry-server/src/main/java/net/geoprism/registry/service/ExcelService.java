@@ -34,6 +34,7 @@ import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.ImportProblemException;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ExcelService
 {
@@ -44,7 +45,7 @@ public class ExcelService
     // Save the file to the file system
     try
     {
-      GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(type).get();
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
 
       String name = SessionPredicate.generateId();
 
@@ -61,7 +62,7 @@ public class ExcelService
       ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
       reader.process(new FileInputStream(file));
 
-      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
+      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType.getType(), false);
 
       JsonObject object = new JsonObject();
       object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
@@ -90,9 +91,9 @@ public class ExcelService
     }
   }
 
-  private JsonObject getType(GeoObjectType geoObjectType)
+  private JsonObject getType(ServerGeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(),  true, SupportedLocaleDAO.getSupportedLocales()));
+    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), true, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)

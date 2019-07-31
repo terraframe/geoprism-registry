@@ -1,47 +1,31 @@
 package net.geoprism.registry.io;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-
 import com.google.gson.JsonObject;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class Location
 {
+  private ServerGeoObjectType type;
 
-  private GeoObjectType     type;
+  private ShapefileFunction   function;
 
-  private Universal         universal;
-
-  private ShapefileFunction function;
-
-  public Location(GeoObjectType type, Universal universal, ShapefileFunction function)
+  public Location(ServerGeoObjectType type, ShapefileFunction function)
   {
     this.type = type;
-    this.universal = universal;
     this.function = function;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
-  }
-
-  public Universal getUniversal()
-  {
-    return universal;
-  }
-
-  public void setUniversal(Universal universal)
-  {
-    this.universal = universal;
   }
 
   public ShapefileFunction getFunction()

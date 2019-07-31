@@ -18,6 +18,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
@@ -197,8 +198,10 @@ public class MasterListServiceTest
 
       MasterList test2 = MasterList.create(json);
       test2.delete();
+
+      Assert.fail("Able to create multiple masterlists with the same universal");
     }
-    finally
+    catch (DuplicateDataDatabaseException e)
     {
       test1.delete();
     }

@@ -9,19 +9,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -29,28 +22,15 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
-import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.ontology.TermAndRel;
-import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.constants.MdAttributeCharacterInfo;
-import com.runwaysdk.constants.MdAttributeConcreteInfo;
-import com.runwaysdk.constants.MdAttributeDoubleInfo;
-import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeLocalDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.MdLocalStructDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -58,28 +38,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
-import com.runwaysdk.system.gis.mapping.GeoserverFacade;
-import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
-import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiPoint;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
-import com.runwaysdk.system.gis.metadata.MdAttributePoint;
-import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
-import com.runwaysdk.system.metadata.MdAttributeBoolean;
-import com.runwaysdk.system.metadata.MdAttributeCharacter;
-import com.runwaysdk.system.metadata.MdAttributeConcrete;
-import com.runwaysdk.system.metadata.MdAttributeDateTime;
-import com.runwaysdk.system.metadata.MdAttributeDouble;
-import com.runwaysdk.system.metadata.MdAttributeEnumeration;
-import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeLocalCharacter;
-import com.runwaysdk.system.metadata.MdAttributeLong;
-import com.runwaysdk.system.metadata.MdAttributeReference;
-import com.runwaysdk.system.metadata.MdAttributeTerm;
-import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdEnumeration;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
@@ -90,18 +49,16 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import net.geoprism.DefaultConfiguration;
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.query.UidRestriction;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
 
 public class AdapterUtilities
 {
@@ -340,11 +297,9 @@ public class AdapterUtilities
         throw ex;
       }
 
-      GeoObjectType type = geoObject.getType();
-      Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
-      MdBusiness mdBiz = universal.getMdBusiness();
+      ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
-      return new Business(mdBiz.definesType());
+      return new Business(type.definesType());
     }
   }
 
@@ -368,10 +323,10 @@ public class AdapterUtilities
         throw ex;
       }
 
-      Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(geoObject.getType());
+      ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
       GeoEntity entity = new GeoEntity();
-      entity.setUniversal(universal);
+      entity.setUniversal(type.getUniversal());
       return entity;
     }
   }
@@ -465,7 +420,7 @@ public class AdapterUtilities
 
     if (gObject == null)
     {
-      throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", MdBusinessDAO.get(query.getUniversal().getMdBusinessOid()));
+      throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", query.getType().getMdBusinessDAO());
     }
 
     return gObject;
@@ -485,18 +440,18 @@ public class AdapterUtilities
   {
     List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
 
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(child);
+    ServerGeoObjectType type = ServerGeoObjectType.get(child);
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
     MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
 
-    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), universal, mdTermRelationship.definesType());
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), type.getUniversal(), mdTermRelationship.definesType());
 
     list.forEach(term -> {
       Universal parent = (Universal) term;
 
-      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(universal.getOid()))
+      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(type.getUniversal().getOid()))
       {
-        ancestors.add(ServiceFactory.getConversionService().universalToGeoObjectType(parent));
+        ancestors.add(ServerGeoObjectType.get(parent).getType());
       }
     });
 
@@ -521,461 +476,11 @@ public class AdapterUtilities
   // ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(uni.getKey()).get();
   // }
 
-  @Transaction
-  public Universal createGeoObjectType(GeoObjectType geoObjectType)
-  {
-    if (!MasterList.isValidName(geoObjectType.getCode()))
-    {
-      throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
-    }
-
-    Universal universal = ServiceFactory.getConversionService().newGeoObjectTypeToUniversal(geoObjectType);
-
-    MdBusiness mdBusiness = new MdBusiness();
-    mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
-    // The CODE name becomes the class name
-    mdBusiness.setTypeName(universal.getUniversalId());
-    mdBusiness.setGenerateSource(false);
-    mdBusiness.setPublish(false);
-    mdBusiness.setIsAbstract(false);
-    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
-    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
-    mdBusiness.apply();
-
-    // Add the default attributes.
-    this.createDefaultAttributes(universal, mdBusiness);
-
-    universal.setMdBusiness(mdBusiness);
-
-    universal.apply();
-
-    // Create the permissions for the new MdBusiness
-    assignDefaultRolePermissions(mdBusiness);
-
-    if (geoObjectType.isLeaf())
-    {
-      MdBusinessDAOIF mdBusinessDAO = MdBusinessDAO.get(mdBusiness.getOid());
-      MdAttributeLocalDAOIF displayLabel = (MdAttributeLocalDAOIF) mdBusinessDAO.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName());
-      MdLocalStructDAOIF mdStruct = displayLabel.getMdStructDAOIF();
-
-      assignDefaultRolePermissions(mdStruct);
-    }
-
-    // Build the parent class term root if it does not exist.
-    TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
-
-    new WMSService().createDatabaseView(geoObjectType, true);
-
-    return universal;
-  }
-
-  public void assignDefaultRolePermissions(ComponentIF component)
-  {
-    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
-    adminRole.grantPermission(Operation.CREATE, component.getOid());
-    adminRole.grantPermission(Operation.DELETE, component.getOid());
-    adminRole.grantPermission(Operation.WRITE, component.getOid());
-    adminRole.grantPermission(Operation.WRITE_ALL, component.getOid());
-
-    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
-    maintainer.grantPermission(Operation.CREATE, component.getOid());
-    maintainer.grantPermission(Operation.DELETE, component.getOid());
-    maintainer.grantPermission(Operation.WRITE, component.getOid());
-    maintainer.grantPermission(Operation.WRITE_ALL, component.getOid());
-
-    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
-    consumer.grantPermission(Operation.READ, component.getOid());
-    consumer.grantPermission(Operation.READ_ALL, component.getOid());
-
-    RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-    contributor.grantPermission(Operation.READ, component.getOid());
-    contributor.grantPermission(Operation.READ_ALL, component.getOid());
-
-    // // TODO: Actual hierarchy role
-    // RoleDAO hierarchyRole =
-    // RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX +
-    // "LocatedIn").getBusinessDAO();
-    // hierarchyRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-    // hierarchyRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
-    // hierarchyRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
-    // hierarchyRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
-  }
-
-  /**
-   * Adds default attributes to the given {@link MdBusinessDAO} according to the
-   * Common Geo-Registry specification for {@link GeoObject}.
-   * 
-   * @param mdBusinessDAO
-   *          {@link MdBusinessDAO} that will define the default attributes.
-   */
-  @Transaction
-  public void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
-  {
-    MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
-
-    if (!universal.getIsLeafType())
-    {
-      MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
-      geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
-      geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
-      geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
-      geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
-      geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
-      geoEntRefMdAttrRef.setRequired(false);
-      geoEntRefMdAttrRef.apply();
-    }
-
-    // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
-    // the {@code GeoObject#OID};
-    MdAttributeUUID uuidMdAttr = new MdAttributeUUID();
-    uuidMdAttr.setAttributeName(RegistryConstants.UUID);
-    uuidMdAttr.getDisplayLabel().setValue(RegistryConstants.UUID_LABEL);
-    uuidMdAttr.getDescription().setValue("The universal unique identifier of the feature.");
-    uuidMdAttr.setDefiningMdClass(definingMdBusiness);
-    uuidMdAttr.setRequired(true);
-    uuidMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
-    uuidMdAttr.apply();
-
-    // DefaultAttribute.CODE - defined by GeoEntity geoId
-    MdAttributeCharacter codeMdAttr = new MdAttributeCharacter();
-    codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
-    codeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
-    codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultDescription());
-    codeMdAttr.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-    codeMdAttr.setDefiningMdClass(definingMdBusiness);
-    codeMdAttr.setRequired(true);
-    codeMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
-    codeMdAttr.apply();
-
-    // DefaultAttribute.TYPE - This is the display label of the Universal.
-    // BusObject.mdBusiness.Universal.displayLabel
-
-    // DefaultAttribute.CREATED_DATE - The create data on the Business Object?
-
-    // DefaultAttribute.UPDATED_DATE - The update data on the Business Object?
-
-    // DefaultAttribute.STATUS
-
-    MdEnumeration geoObjectStatusEnum = MdEnumeration.getMdEnumeration(GeoObjectStatus.CLASS);
-
-    MdAttributeEnumeration objStatusNdAttrEnum = new MdAttributeEnumeration();
-    objStatusNdAttrEnum.setAttributeName(DefaultAttribute.STATUS.getName());
-    objStatusNdAttrEnum.getDisplayLabel().setValue(DefaultAttribute.STATUS.getDefaultLocalizedName());
-    objStatusNdAttrEnum.getDescription().setValue(DefaultAttribute.STATUS.getDefaultDescription());
-    objStatusNdAttrEnum.setRequired(true);
-    objStatusNdAttrEnum.setMdEnumeration(geoObjectStatusEnum);
-    objStatusNdAttrEnum.setSelectMultiple(false);
-    objStatusNdAttrEnum.setDefiningMdClass(definingMdBusiness);
-    objStatusNdAttrEnum.apply();
-
-    if (universal.getIsLeafType())
-    {
-      // DefaultAttribute.DISPLAY_LABEL
-      MdAttributeLocalCharacter labelMdAttr = new MdAttributeLocalCharacter();
-      labelMdAttr.setAttributeName(DefaultAttribute.DISPLAY_LABEL.getName());
-      labelMdAttr.getDisplayLabel().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
-      labelMdAttr.getDescription().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
-      labelMdAttr.setDefiningMdClass(definingMdBusiness);
-      labelMdAttr.setRequired(true);
-      labelMdAttr.apply();
-
-      com.runwaysdk.system.gis.geo.GeometryType geometryType = universal.getGeometryType().get(0);
-
-      MdAttributeGeometry mdAttributeGeometry;
-
-      if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
-      {
-        mdAttributeGeometry = new MdAttributePoint();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POINT_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
-      {
-        mdAttributeGeometry = new MdAttributeLineString();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_LINE_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
-      {
-        mdAttributeGeometry = new MdAttributePolygon();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POLYGON_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
-      {
-        mdAttributeGeometry = new MdAttributeMultiPoint();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_LABEL);
-
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
-      {
-        mdAttributeGeometry = new MdAttributeMultiLineString();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_LABEL);
-
-      }
-      else // geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON
-      {
-        mdAttributeGeometry = new MdAttributeMultiPolygon();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
-      }
-
-      mdAttributeGeometry.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-      mdAttributeGeometry.setRequired(false);
-      mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
-      mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
-      mdAttributeGeometry.apply();
-    }
-  }
-
-  /**
-   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness}
-   * from the given {@link AttributeType}
-   * 
-   * @pre assumes no attribute has been defined on the type with the given name.
-   * @param geoObjectType
-   *          TODO
-   * @param mdBusiness
-   *          Type to receive attribute definition
-   * @param attributeType
-   *          newly defined attribute
-   * 
-   * @return {@link AttributeType}
-   */
-  @Transaction
-  public MdAttributeConcrete createMdAttributeFromAttributeType(GeoObjectType geoObjectType, MdBusiness mdBusiness, AttributeType attributeType)
-  {
-    MdAttributeConcrete mdAttribute = null;
-
-    if (attributeType.getType().equals(AttributeCharacterType.TYPE))
-    {
-      mdAttribute = new MdAttributeCharacter();
-      MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
-      mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-    }
-    else if (attributeType.getType().equals(AttributeDateType.TYPE))
-    {
-      mdAttribute = new MdAttributeDateTime();
-    }
-    else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
-    {
-      mdAttribute = new MdAttributeLong();
-    }
-    else if (attributeType.getType().equals(AttributeFloatType.TYPE))
-    {
-      AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
-
-      mdAttribute = new MdAttributeDouble();
-      mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
-      mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
-    }
-    else if (attributeType.getType().equals(AttributeTermType.TYPE))
-    {
-      mdAttribute = new MdAttributeTerm();
-      MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
-
-      MdBusiness classifierMdBusiness = MdBusiness.getMdBusiness(Classifier.CLASS);
-      mdAttributeTerm.setMdBusiness(classifierMdBusiness);
-      // TODO implement support for multi-term
-      // mdAttribute = new MdAttributeMultiTerm();
-      // MdAttributeMultiTerm mdAttributeMultiTerm =
-      // (MdAttributeMultiTerm)mdAttribute;
-      //
-      // MdBusiness classifierMdBusiness =
-      // MdBusiness.getMdBusiness(Classifier.CLASS);
-      // mdAttributeMultiTerm.setMdBusiness(classifierMdBusiness);
-    }
-    else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
-    {
-      mdAttribute = new MdAttributeBoolean();
-    }
-
-    mdAttribute.setAttributeName(attributeType.getName());
-    mdAttribute.setValue(MdAttributeConcreteInfo.REQUIRED, Boolean.toString(attributeType.isRequired()));
-
-    if (attributeType.isUnique())
-    {
-      mdAttribute.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
-    }
-
-    ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-    ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
-
-    mdAttribute.setDefiningMdClass(mdBusiness);
-    mdAttribute.apply();
-
-    if (attributeType.getType().equals(AttributeTermType.TYPE))
-    {
-      MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
-
-      // Build the parent class term root if it does not exist.
-      Classifier classTerm = TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
-
-      // Create the root term node for this attribute
-      Classifier attributeTermRoot = TermBuilder.buildIfNotExistAttribute(mdBusiness, mdAttributeTerm.getAttributeName(), classTerm);
-
-      // Make this the root term of the multi-attribute
-      attributeTermRoot.addClassifierTermAttributeRoots(mdAttributeTerm).apply();
-
-      AttributeTermType attributeTermType = (AttributeTermType) attributeType;
-
-      LocalizedValue label = ServiceFactory.getConversionService().convert(attributeTermRoot.getDisplayLabel());
-
-      Term term = new Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
-      attributeTermType.setRootTerm(term);
-
-      // MdAttributeMultiTerm mdAttributeMultiTerm =
-      // (MdAttributeMultiTerm)mdAttribute;
-      //
-      // // Build the parent class term root if it does not exist.
-      // Classifier classTerm =
-      // this.buildIfNotExistdMdBusinessClassifier(mdBusiness);
-      //
-      // // Create the root term node for this attribute
-      // Classifier attributeTermRoot =
-      // this.buildIfNotExistAttribute(mdBusiness, mdAttributeMultiTerm);
-      // classTerm.addIsAChild(attributeTermRoot).apply();
-      //
-      // // Make this the root term of the multi-attribute
-      // attributeTermRoot.addClassifierMultiTermAttributeRoots(mdAttributeMultiTerm).apply();
-      //
-      // AttributeTermType attributeTermType = (AttributeTermType)attributeType;
-      //
-      // Term term = new Term(attributeTermRoot.getKey(),
-      // attributeTermRoot.getDisplayLabel().getValue(), "");
-      // attributeTermType.setRootTerm(term);
-    }
-
-    Universal universal = new ConversionService().geoObjectTypeToUniversal(geoObjectType);
-
-    MasterList.createMdAttribute(geoObjectType, universal, attributeType);
-
-    return mdAttribute;
-  }
-
-  /**
-   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness}
-   * from the given {@link AttributeType}
-   * 
-   * @pre assumes no attribute has been defined on the type with the given name.
-   * 
-   * @param mdBusiness
-   *          Type to receive attribute definition
-   * @param attributeType
-   *          newly defined attribute
-   * 
-   * @return {@link AttributeType}
-   */
-  @Transaction
-  public MdAttributeConcrete updateMdAttributeFromAttributeType(MdBusiness mdBusiness, AttributeType attributeType)
-  {
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeType.getName());
-
-    if (mdAttributeConcreteDAOIF != null)
-    {
-      // Get the type safe version
-      MdAttributeConcrete mdAttribute = (MdAttributeConcrete) BusinessFacade.get(mdAttributeConcreteDAOIF);
-      mdAttribute.lock();
-
-      try
-      {
-        // The name cannot be updated
-        // mdAttribute.setAttributeName(attributeType.getName());
-        ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-        ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
-
-        if (attributeType instanceof AttributeFloatType)
-        {
-          // Refresh the terms
-          AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
-
-          mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
-          mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
-        }
-
-        mdAttribute.apply();
-      }
-      finally
-      {
-        mdAttribute.unlock();
-      }
-
-      if (attributeType instanceof AttributeTermType)
-      {
-        // Refresh the terms
-        AttributeTermType attributeTermType = (AttributeTermType) attributeType;
-
-        Term getRootTerm = attributeTermType.getRootTerm();
-        String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(getRootTerm.getCode());
-
-        TermBuilder termBuilder = new TermBuilder(classifierKey);
-        attributeTermType.setRootTerm(termBuilder.build());
-      }
-
-      return mdAttribute;
-    }
-
-    return null;
-  }
-
-  /**
-   * Delete the {@link MdAttributeConcreteDAOIF} from the given {
-   * 
-   * @param type
-   *          TODO
-   * @param mdBusiness
-   * @param attributeName
-   */
-  public void deleteMdAttributeFromAttributeType(GeoObjectType type, MdBusiness mdBusiness, String attributeName)
-  {
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdBusiness, attributeName);
-
-    if (mdAttributeConcreteDAOIF != null)
-    {
-      if (mdAttributeConcreteDAOIF instanceof MdAttributeTermDAOIF || mdAttributeConcreteDAOIF instanceof MdAttributeMultiTermDAOIF)
-      {
-        String attributeTermKey = TermBuilder.buildtAtttributeKey(mdBusiness.getTypeName(), mdAttributeConcreteDAOIF.definesAttribute());
-
-        try
-        {
-          Classifier attributeTerm = Classifier.getByKey(attributeTermKey);
-          attributeTerm.delete();
-        }
-        catch (DataNotFoundException e)
-        {
-        }
-      }
-
-      mdAttributeConcreteDAOIF.getBusinessDAO().delete();
-
-      Optional<AttributeType> optional = type.getAttribute(attributeName);
-
-      if (optional.isPresent())
-      {
-        Universal universal = new ConversionService().geoObjectTypeToUniversal(type);
-
-        MasterList.deleteMdAttribute(universal, optional.get());
-      }
-    }
-  }
-
-  /**
-   * Returns the {link MdAttributeConcreteDAOIF} for the given
-   * {@link AttributeType} defined on the given {@link MdBusiness} or null no
-   * such attribute is defined.
-   * 
-   * @param mdBusiness
-   * @param attributeName
-   * @return
-   */
-  private MdAttributeConcreteDAOIF getMdAttribute(MdBusiness mdBusiness, String attributeName)
-  {
-    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
-
-    return mdBusinessDAOIF.definesAttribute(attributeName);
-  }
-
   public JsonArray getHierarchiesForType(GeoObjectType geoObjectType, Boolean includeTypes)
   {
     ConversionService service = ServiceFactory.getConversionService();
 
-    Universal universal = service.geoObjectTypeToUniversal(geoObjectType);
+    ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectType);
     HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
@@ -985,7 +490,7 @@ public class AdapterUtilities
       MdTermRelationship mdTerm = service.existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
 
       // Note: Ordered ancestors always includes self
-      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, universal, mdTerm.definesType());
+      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, type.getUniversal(), mdTerm.definesType());
 
       if (parents.size() > 1)
       {
@@ -999,7 +504,7 @@ public class AdapterUtilities
 
           for (Object parent : parents)
           {
-            GeoObjectType pType = service.universalToGeoObjectType((Universal) parent);
+            ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
 
             if (!pType.getCode().equals(geoObjectType.getCode()))
             {
@@ -1040,10 +545,9 @@ public class AdapterUtilities
 
   public JsonArray getHierarchiesForGeoObject(GeoObject geoObject)
   {
-    GeoObjectType geoObjectType = geoObject.getType();
+    ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(geoObject.getType());
     ConversionService service = ServiceFactory.getConversionService();
 
-    Universal universal = service.geoObjectTypeToUniversal(geoObjectType);
     HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
@@ -1053,7 +557,7 @@ public class AdapterUtilities
       MdTermRelationship mdTerm = service.existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
 
       // Note: Ordered ancestors always includes self
-      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, universal, mdTerm.definesType());
+      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), mdTerm.definesType());
 
       ParentTreeNode ptnAncestors = this.getParentGeoObjects(geoObject.getUid(), geoObject.getType().getCode(), null, true);
 
@@ -1067,7 +571,7 @@ public class AdapterUtilities
 
         for (Object parent : uniParents)
         {
-          GeoObjectType pType = service.universalToGeoObjectType((Universal) parent);
+          ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
 
           if (!pType.getCode().equals(geoObjectType.getCode()))
           {
@@ -1242,17 +746,13 @@ public class AdapterUtilities
     {
       for (int i = 0; i < childrenTypes.length; ++i)
       {
-        GeoObjectType childType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(childrenTypes[i]).get();
+        ServerGeoObjectType childType = ServerGeoObjectType.get(childrenTypes[i]);
 
         if (childType.isLeaf())
         {
-          Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(childType);
-
-          if (ArrayUtils.contains(childrenTypes, universal.getKey()))
+          if (ArrayUtils.contains(childrenTypes, childType.getCode()))
           {
-            MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(universal.getMdBusinessOid());
-
-            List<MdAttributeDAOIF> mdAttributes = mdBusiness.definesAttributes().stream().filter(mdAttribute -> {
+            List<MdAttributeDAOIF> mdAttributes = childType.definesAttributes().stream().filter(mdAttribute -> {
               if (mdAttribute instanceof MdAttributeReferenceDAOIF)
               {
                 MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
@@ -1270,7 +770,7 @@ public class AdapterUtilities
             {
               HierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
 
-              BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+              BusinessQuery query = new QueryFactory().businessQuery(childType.definesType());
               query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parentRunwayId));
 
               OIterator<Business> it = query.getIterator();
@@ -1282,7 +782,7 @@ public class AdapterUtilities
                 for (Business child : children)
                 {
                   // Do something
-                  GeoObject goChild = ServiceFactory.getConversionService().leafToGeoObject(childType, child);
+                  GeoObject goChild = ServiceFactory.getConversionService().leafToGeoObject(childType.getType(), child);
 
                   tnRoot.addChild(new ChildTreeNode(goChild, ht));
                 }

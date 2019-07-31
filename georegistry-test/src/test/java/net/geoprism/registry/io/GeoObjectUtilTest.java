@@ -19,6 +19,7 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import junit.framework.Assert;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.USATestData;
 
@@ -57,7 +58,7 @@ public class GeoObjectUtilTest
   @Request
   public void testGetAncestorMapForTreeType()
   {
-    GeoObjectType type = testData.AREA.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.AREA.getGeoObjectType(GeometryType.POLYGON);
     HierarchyType hierarchy = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
     GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_A_ONE.getCode(), type.getCode());
@@ -95,7 +96,7 @@ public class GeoObjectUtilTest
   @Test
   public void testGetAncestorMapForTreeLeaf()
   {
-    GeoObjectType type = testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
     HierarchyType hierarchy = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
 
     GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_D_ONE.getCode(), type.getCode());

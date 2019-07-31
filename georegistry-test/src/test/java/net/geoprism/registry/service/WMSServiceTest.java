@@ -15,6 +15,7 @@ import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.USATestData;
 
 public class WMSServiceTest
@@ -41,7 +42,7 @@ public class WMSServiceTest
   @Request
   public void testCreateDeleteDatabaseViewOnTreeType() throws SQLException
   {
-    GeoObjectType type = this.testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = this.testData.STATE.getGeoObjectType(GeometryType.POLYGON);
 
     WMSService service = new WMSService();
 
@@ -70,7 +71,7 @@ public class WMSServiceTest
   @Request
   public void testCreateDeleteDatabaseViewOnLeafType() throws SQLException
   {
-    GeoObjectType type = this.testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = this.testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
 
     WMSService service = new WMSService();
 

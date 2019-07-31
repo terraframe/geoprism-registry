@@ -5,7 +5,6 @@ import java.util.List;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -16,17 +15,16 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
-import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.registry.io.SynonymRestriction;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.query.LookupRestriction;
 import net.geoprism.registry.query.OidRestrction;
 import net.geoprism.registry.query.UidRestriction;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectQueryTest
@@ -50,15 +48,14 @@ public class GeoObjectQueryTest
     {
       tutil.cleanUp();
     }
-  } 
+  }
 
   @Test
   @Request
   public void testQueryTreeNodes()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
+    GeoObjectQuery query = new GeoObjectQuery(type);
 
     OIterator<GeoObject> it = query.getIterator();
 
@@ -88,9 +85,8 @@ public class GeoObjectQueryTest
   @Request
   public void testQueryLeafNodes()
   {
-    GeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.DISTRICT.getUniversal();
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    ServerGeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    GeoObjectQuery query = new GeoObjectQuery(type);
 
     OIterator<GeoObject> it = query.getIterator();
 
@@ -119,10 +115,9 @@ public class GeoObjectQueryTest
   @Request
   public void testTreeUidRestriction()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new UidRestriction(tutil.COLORADO.getRegistryId()));
 
     GeoObject result = query.getSingleResult();
@@ -139,9 +134,8 @@ public class GeoObjectQueryTest
   @Request
   public void testLeafUidRestriction()
   {
-    GeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.DISTRICT.getUniversal();
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    ServerGeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new UidRestriction(tutil.CO_D_ONE.getRegistryId()));
 
     GeoObject result = query.getSingleResult();
@@ -158,12 +152,11 @@ public class GeoObjectQueryTest
   @Request
   public void testTreeOidRestriction()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
-    String oid = ServiceFactory.getIdService().registryIdToRunwayId(tutil.COLORADO.getRegistryId(), type);
+    String oid = ServiceFactory.getIdService().registryIdToRunwayId(tutil.COLORADO.getRegistryId(), type.getType());
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new OidRestrction(oid));
 
     GeoObject result = query.getSingleResult();
@@ -180,12 +173,11 @@ public class GeoObjectQueryTest
   @Request
   public void testLeafOidRestriction()
   {
-    GeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.DISTRICT.getUniversal();
+    ServerGeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
 
-    String oid = ServiceFactory.getIdService().registryIdToRunwayId(tutil.CO_D_ONE.getRegistryId(), type);
+    String oid = ServiceFactory.getIdService().registryIdToRunwayId(tutil.CO_D_ONE.getRegistryId(), type.getType());
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new OidRestrction(oid));
 
     GeoObject result = query.getSingleResult();
@@ -202,10 +194,9 @@ public class GeoObjectQueryTest
   @Request
   public void testTreeCodeRestriction()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new CodeRestriction(tutil.COLORADO.getCode()));
 
     GeoObject result = query.getSingleResult();
@@ -222,9 +213,8 @@ public class GeoObjectQueryTest
   @Request
   public void testLeafCodeRestriction()
   {
-    GeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.DISTRICT.getUniversal();
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    ServerGeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new CodeRestriction(tutil.CO_D_ONE.getCode()));
 
     GeoObject result = query.getSingleResult();
@@ -250,10 +240,9 @@ public class GeoObjectQueryTest
 
     try
     {
-      GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-      Universal universal = tutil.STATE.getUniversal();
+      ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
-      GeoObjectQuery query = new GeoObjectQuery(type, universal);
+      GeoObjectQuery query = new GeoObjectQuery(type);
       query.setRestriction(new SynonymRestriction(label));
 
       GeoObject result = query.getSingleResult();
@@ -275,10 +264,9 @@ public class GeoObjectQueryTest
   @Request
   public void testTreeSynonymRestrictionByDisplayLabel()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new SynonymRestriction(tutil.COLORADO.getDisplayLabel()));
 
     GeoObject result = query.getSingleResult();
@@ -295,10 +283,9 @@ public class GeoObjectQueryTest
   @Request
   public void testTreeSynonymRestrictionByCode()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new SynonymRestriction(tutil.COLORADO.getCode()));
 
     GeoObject result = query.getSingleResult();
@@ -315,13 +302,12 @@ public class GeoObjectQueryTest
   @Request
   public void testTreeSynonymRestrictionByCodeWithParent()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
     MdTermRelationship mdRelationship = MdTermRelationship.getByKey(LocatedIn.CLASS);
     SynonymRestriction restriction = new SynonymRestriction(tutil.COLORADO.getCode(), tutil.USA.asGeoObject(), mdRelationship);
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(restriction);
 
     GeoObject result = query.getSingleResult();
@@ -338,13 +324,12 @@ public class GeoObjectQueryTest
   @Request
   public void testTreeSynonymRestrictionByCodeWithAncestor()
   {
-    GeoObjectType type = tutil.AREA.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.AREA.getUniversal();
+    ServerGeoObjectType type = tutil.AREA.getGeoObjectType(GeometryType.POLYGON);
 
     MdTermRelationship mdRelationship = MdTermRelationship.getByKey(LocatedIn.CLASS);
     SynonymRestriction restriction = new SynonymRestriction(tutil.CO_A_ONE.getCode(), tutil.COLORADO.asGeoObject(), mdRelationship);
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(restriction);
 
     GeoObject result = query.getSingleResult();
@@ -357,13 +342,12 @@ public class GeoObjectQueryTest
   @Request
   public void testFailTreeSynonymRestrictionByCodeWithParent()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
     MdTermRelationship mdRelationship = MdTermRelationship.getByKey(LocatedIn.CLASS);
     SynonymRestriction restriction = new SynonymRestriction(tutil.COLORADO.getCode(), tutil.CANADA.asGeoObject(), mdRelationship);
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(restriction);
 
     GeoObject result = query.getSingleResult();
@@ -375,9 +359,8 @@ public class GeoObjectQueryTest
   @Request
   public void testLeafSynonymRestriction()
   {
-    GeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.DISTRICT.getUniversal();
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    ServerGeoObjectType type = tutil.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(new SynonymRestriction(tutil.CO_D_ONE.getDisplayLabel()));
 
     GeoObject result = query.getSingleResult();
@@ -394,12 +377,11 @@ public class GeoObjectQueryTest
   @Request
   public void testLookupRestriction()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
     LookupRestriction restriction = new LookupRestriction("Co", tutil.USA.getCode(), LocatedIn.class.getSimpleName());
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(restriction);
 
     GeoObject result = query.getSingleResult();
@@ -416,12 +398,11 @@ public class GeoObjectQueryTest
   @Request
   public void testFailLookupRestriction()
   {
-    GeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
-    Universal universal = tutil.STATE.getUniversal();
+    ServerGeoObjectType type = tutil.STATE.getGeoObjectType(GeometryType.POLYGON);
 
     LookupRestriction restriction = new LookupRestriction("Co", tutil.CANADA.getCode(), LocatedIn.class.getSimpleName());
 
-    GeoObjectQuery query = new GeoObjectQuery(type, universal);
+    GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(restriction);
 
     GeoObject result = query.getSingleResult();

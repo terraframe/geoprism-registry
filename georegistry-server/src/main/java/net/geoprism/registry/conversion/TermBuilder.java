@@ -44,7 +44,7 @@ public class TermBuilder
 
   private Term buildTermFromClassifier(Classifier classifier)
   {
-    LocalizedValue label = ServiceFactory.getConversionService().convert(classifier.getDisplayLabel());
+    LocalizedValue label = new AttributeTypeBuilder().convert(classifier.getDisplayLabel());
 
     Term term = new Term(classifier.getClassifierId(), label, new LocalizedValue(""));
 

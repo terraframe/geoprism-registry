@@ -41,6 +41,7 @@ import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.ImportProblemException;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.shapefile.GeoObjectShapefileImporter;
 import net.geoprism.registry.shapefile.NullLogger;
 
@@ -52,7 +53,7 @@ public class ShapefileService
     // Save the file to the file system
     try
     {
-      GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(type).get();
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
 
       String name = SessionPredicate.generateId();
 
@@ -75,7 +76,7 @@ public class ShapefileService
 
       if (dbfs.length > 0)
       {
-        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
+        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType.getType(), false);
 
         JsonObject object = new JsonObject();
         object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
@@ -104,7 +105,7 @@ public class ShapefileService
     }
   }
 
-  private JsonObject getType(GeoObjectType geoObjectType)
+  private JsonObject getType(ServerGeoObjectType geoObjectType)
   {
     JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();

@@ -28,7 +28,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -271,7 +270,7 @@ public abstract class FeatureRowImporter
         }
 
         // Search
-        GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
+        GeoObjectQuery query = new GeoObjectQuery(location.getType());
         query.setRestriction(new SynonymRestriction(label.toString(), parent, this.configuration.getHierarchyRelationship()));
 
         try
@@ -341,7 +340,7 @@ public abstract class FeatureRowImporter
     if (code != null)
     {
       // Search
-      GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
+      GeoObjectQuery query = new GeoObjectQuery(location.getType());
       query.setRestriction(new CodeRestriction(code));
 
       GeoObject result = query.getSingleResult();
@@ -394,7 +393,7 @@ public abstract class FeatureRowImporter
     {
       try
       {
-        MdBusinessDAOIF mdBusiness = this.configuration.getMdBusiness();
+        MdBusinessDAOIF mdBusiness = this.configuration.getType().getMdBusinessDAO();
         MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
 
         Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);

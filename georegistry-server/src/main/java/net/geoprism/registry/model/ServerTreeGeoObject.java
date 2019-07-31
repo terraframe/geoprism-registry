@@ -1,4 +1,4 @@
-package net.geoprism.registry.adapter;
+package net.geoprism.registry.model;
 
 import java.util.ArrayList;
 import java.util.List;

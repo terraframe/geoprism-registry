@@ -24,17 +24,15 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
@@ -87,11 +85,9 @@ public class GeoObjectConfiguration
 
   private Map<String, ShapefileFunction> functions;
 
-  private GeoObjectType                  type;
+  private ServerGeoObjectType            type;
 
   private GeoObject                      root;
-
-  private MdBusinessDAOIF                mdBusiness;
 
   private String                         filename;
 
@@ -134,24 +130,14 @@ public class GeoObjectConfiguration
     this.includeCoordinates = includeCoordinates;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
-  }
-
-  public MdBusinessDAOIF getMdBusiness()
-  {
-    return mdBusiness;
-  }
-
-  public void setMdBusiness(MdBusinessDAOIF mdBusiness)
-  {
-    this.mdBusiness = mdBusiness;
   }
 
   public String getDirectory()
@@ -398,15 +384,12 @@ public class GeoObjectConfiguration
     JsonArray locations = config.has(LOCATIONS) ? config.get(LOCATIONS).getAsJsonArray() : new JsonArray();
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
     String code = type.get(GeoObjectType.JSON_CODE).getAsString();
-    GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(universal.getMdBusinessOid());
+    ServerGeoObjectType got = ServerGeoObjectType.get(code);
 
     GeoObjectConfiguration configuration = new GeoObjectConfiguration();
     configuration.setDirectory(config.get(DIRECTORY).getAsString());
     configuration.setFilename(config.get(FILENAME).getAsString());
     configuration.setType(got);
-    configuration.setMdBusiness(mdBusiness);
     configuration.setIncludeCoordinates(includeCoordinates);
     configuration.setPostalCode(config.has(POSTAL_CODE) && config.get(POSTAL_CODE).getAsBoolean());
 
@@ -416,7 +399,7 @@ public class GeoObjectConfiguration
 
       HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
       MdTermRelationship hierarchyRelationiship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
-      List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got, hCode);
+      List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got.getType(), hCode);
 
       configuration.setHierarchy(hierarchyType);
       configuration.setHierarchyRelationship(hierarchyRelationiship);
@@ -424,8 +407,7 @@ public class GeoObjectConfiguration
       if (ancestors.size() > 0)
       {
         GeoObjectType rootType = ancestors.get(0);
-        Universal rootUniversal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(rootType);
-        GeoObjectQuery query = new GeoObjectQuery(rootType, rootUniversal);
+        GeoObjectQuery query = new GeoObjectQuery(ServerGeoObjectType.get(rootType));
         GeoObject root = query.getSingleResult();
 
         configuration.setRoot(root);
@@ -481,12 +463,11 @@ public class GeoObjectConfiguration
       if (location.has(TARGET))
       {
         String pCode = location.get(AttributeType.JSON_CODE).getAsString();
-        GeoObjectType pType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(pCode).get();
-        Universal pUniversal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(pType);
+        ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
 
         String target = location.get(TARGET).getAsString();
 
-        configuration.addParent(new Location(pType, pUniversal, new BasicColumnFunction(target)));
+        configuration.addParent(new Location(pType, new BasicColumnFunction(target)));
       }
     }
 

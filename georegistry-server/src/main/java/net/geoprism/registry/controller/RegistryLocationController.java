@@ -68,78 +68,80 @@ public class RegistryLocationController
   public ResponseIF fetchGeoObjectFromGeoEntity(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
   {
     GeoEntityDTO entity = GeoEntityDTO.get(request, entityId);
-    
+
     JSONObject joResp = new JSONObject();
-    
+
     GeoObject go = getGeoObject(request.getSessionId(), entity.getOid());
-    
+
     // Add the GeoObject to the response
     joResp.put("geoObject", serializeGo(request.getSessionId(), go));
     joResp.put("geoObjectType", new JSONObject(go.getType().toJSON().toString()));
     joResp.put("parentTreeNode", addParentInfoToExistingGO(request.getSessionId(), go));
-    
+
     return new RestBodyResponse(joResp.toString());
   }
-  
+
   @Request(RequestType.SESSION)
   private JSONObject addParentInfoToExistingGO(String sessionId, GeoObject child)
   {
     ParentTreeNode ptnChild = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false);
-    
-    // TODO : We can't show all available options because the auto-complete doesn't know what the GeoObjectType is and can't search without it.
-//    HierarchyType[] hts = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-//    for (HierarchyType ht : hts)
-//    {
-//      boolean alreadyExists = false;
-//      for (ParentTreeNode ptn : ptnChild.getParents())
-//      {
-//        if (ptn.getHierachyType().getCode().equals(ht.getCode()))
-//        {
-//          alreadyExists = true;
-//        }
-//      }
-//      
-//      if (!alreadyExists)
-//      {
-//        ParentTreeNode ptnParent = new ParentTreeNode(null, ht);
-//        ptnChild.addParent(ptnParent);
-//      }
-//    }
-    
+
+    // TODO : We can't show all available options because the auto-complete
+    // doesn't know what the GeoObjectType is and can't search without it.
+    // HierarchyType[] hts =
+    // ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    // for (HierarchyType ht : hts)
+    // {
+    // boolean alreadyExists = false;
+    // for (ParentTreeNode ptn : ptnChild.getParents())
+    // {
+    // if (ptn.getHierachyType().getCode().equals(ht.getCode()))
+    // {
+    // alreadyExists = true;
+    // }
+    // }
+    //
+    // if (!alreadyExists)
+    // {
+    // ParentTreeNode ptnParent = new ParentTreeNode(null, ht);
+    // ptnChild.addParent(ptnParent);
+    // }
+    // }
+
     return new JSONObject(ptnChild.toJSON().toString());
   }
-  
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF editNewGeoObject(ClientRequestIF request, @RequestParamter(name = "universalId") String universalId, @RequestParamter(name = "jsParent") String sjsParent, @RequestParamter(name = "mdRelationshipId") String mdRelationshipId) throws JSONException
   {
     String resp = editNewGeoObjectInReq(request.getSessionId(), universalId, sjsParent, mdRelationshipId);
-    
+
     return new RestBodyResponse(resp);
   }
-  
+
   @Request(RequestType.SESSION)
   private String editNewGeoObjectInReq(String sessionId, String universalId, String sjsParent, String mdRelationshipId)
   {
     Universal uni = Universal.get(universalId);
-    
-    String gotCode = ConversionService.getInstance().universalToGeoObjectType(uni).getCode();
-    
+
+    String gotCode = uni.getKey();
+
     GeoObject newGo = ServiceFactory.getAdapter().newGeoObjectInstance(gotCode);
-    
+
     List<Locale> locales = LocalizationFacade.getInstalledLocales();
     for (Locale locale : locales)
     {
       newGo.setDisplayLabel(locale.toString(), "");
     }
     newGo.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "");
-    
+
     JSONObject joResp = new JSONObject();
-    
+
     // Add the GeoObject to the response
     joResp.put("newGeoObject", serializeGo(sessionId, newGo));
     joResp.put("geoObjectType", new JSONObject(newGo.getType().toJSON().toString()));
     joResp.put("parentTreeNode", addParentInfoToNewGO(sessionId, mdRelationshipId, sjsParent, newGo));
-    
+
     return joResp.toString();
   }
 
@@ -149,31 +151,33 @@ public class RegistryLocationController
     HierarchyType currentHt = ConversionService.getInstance().mdTermRelationshipToHierarchyType(MdTermRelationship.get(mdRelationshipId));
     JSONObject jsParent = new JSONObject(sjsParent);
     GeoObject goParent = ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(jsParent.getString("oid")));
-    
+
     ParentTreeNode ptnChild = new ParentTreeNode(newGo, null);
     ptnChild.addParent(new ParentTreeNode(goParent, currentHt));
-    
-    // TODO : We can't show all available options because the auto-complete doesn't know what the GeoObjectType is and can't search without it.
-//    ParentTreeNode ptnChild = new ParentTreeNode(newGo, null);
-//    
-//    HierarchyType[] hts = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-//    for (HierarchyType ht : hts)
-//    {
-//      if (currentHt.getCode().equals(ht.getCode()))
-//      {
-//        ParentTreeNode ptnParent = new ParentTreeNode(goParent, ht);
-//        ptnChild.addParent(ptnParent);
-//      }
-//      else
-//      {
-//        ParentTreeNode ptnParent = new ParentTreeNode(null, ht);
-//        ptnChild.addParent(ptnParent);
-//      }
-//    }
-    
+
+    // TODO : We can't show all available options because the auto-complete
+    // doesn't know what the GeoObjectType is and can't search without it.
+    // ParentTreeNode ptnChild = new ParentTreeNode(newGo, null);
+    //
+    // HierarchyType[] hts =
+    // ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    // for (HierarchyType ht : hts)
+    // {
+    // if (currentHt.getCode().equals(ht.getCode()))
+    // {
+    // ParentTreeNode ptnParent = new ParentTreeNode(goParent, ht);
+    // ptnChild.addParent(ptnParent);
+    // }
+    // else
+    // {
+    // ParentTreeNode ptnParent = new ParentTreeNode(null, ht);
+    // ptnChild.addParent(ptnParent);
+    // }
+    // }
+
     return new JSONObject(ptnChild.toJSON().toString());
   }
-  
+
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
   {
@@ -201,7 +205,7 @@ public class RegistryLocationController
   private GeoObject getGeoObject(String sessionId, String id)
   {
     GeoObject go = ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(id));
-    
+
     return RegistryService.getInstance().getGeoObjectByCode(sessionId, go.getCode(), go.getType().getCode());
   }
 
@@ -225,7 +229,7 @@ public class RegistryLocationController
   {
     return applyInTrans(request.getSessionId(), request, isNew, sjsGO, parentOid, existingLayers, sjsPTN);
   }
-  
+
   @Transaction
   private ResponseIF applyInTrans(String sessionId, ClientRequestIF request, Boolean isNew, String sjsGO, String parentOid, String existingLayers, String sjsPTN)
   {
@@ -234,20 +238,22 @@ public class RegistryLocationController
     GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), sjsGO);
 
     // TODO
-//    if (entityDTO.getGeoId() == null || entityDTO.getGeoId().length() == 0)
-//    {
-//      entityDTO.setGeoId(IDGenerator.nextID());
-//    }
+    // if (entityDTO.getGeoId() == null || entityDTO.getGeoId().length() == 0)
+    // {
+    // entityDTO.setGeoId(IDGenerator.nextID());
+    // }
 
     GeoEntityUtilDTO.refreshViews(request, existingLayers);
-    
+
     if (isNew)
     {
       go = RegistryService.getInstance().createGeoObject(request.getSessionId(), go.toJSON(serializer).toString());
-      
-//      GeoObject goParent = getGeoObject(request.getSessionId(), parentOid);
-//      RegistryService.getInstance().addChild(request.getSessionId(), goParent.getUid(), goParent.getType().getCode(), goChild.getUid(), goChild.getType().getCode(), "LocatedIn");
-      
+
+      // GeoObject goParent = getGeoObject(request.getSessionId(), parentOid);
+      // RegistryService.getInstance().addChild(request.getSessionId(),
+      // goParent.getUid(), goParent.getType().getCode(), goChild.getUid(),
+      // goChild.getType().getCode(), "LocatedIn");
+
       ParentTreeNode ptn = ParentTreeNode.fromJSON(sjsPTN, ServiceFactory.getAdapter());
       new GeoObjectEditorController().applyPtn(sessionId, ptn);
     }
@@ -255,7 +261,7 @@ public class RegistryLocationController
     {
       go = new GeoObjectEditorController().applyInReq(sessionId, sjsPTN, go.toJSON(serializer).toString(), false, null);
     }
-    
+
     JSONObject object = new JSONObject();
     object.put(GeoEntityDTO.TYPE, ValueObjectDTO.CLASS);
     object.put(GeoEntityDTO.OID, go.getUid());

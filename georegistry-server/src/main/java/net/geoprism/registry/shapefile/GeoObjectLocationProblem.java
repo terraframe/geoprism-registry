@@ -1,22 +1,23 @@
 package net.geoprism.registry.shapefile;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.model.ServerGeoObjectType;
+
 public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationProblem>
 {
-  private GeoObjectType type;
+  private ServerGeoObjectType type;
 
-  private GeoObject     parent;
+  private GeoObject           parent;
 
-  private String        label;
+  private String              label;
 
-  private JsonArray     context;
+  private JsonArray           context;
 
-  public GeoObjectLocationProblem(GeoObjectType type, String label, GeoObject parent, JsonArray context)
+  public GeoObjectLocationProblem(ServerGeoObjectType type, String label, GeoObject parent, JsonArray context)
   {
     this.type = type;
     this.label = label;

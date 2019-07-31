@@ -89,10 +89,12 @@ import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.conversion.AttributeTypeBuilder;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.GeoObjectIterator;
@@ -172,19 +174,16 @@ public class MasterList extends MasterListBase
 
     try
     {
-      MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-      mdBusiness.deleteAllRecords();
+      ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
+      type.deleteAllRecords();
 
       List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-      Universal universal = this.getUniversal();
-      GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
 
       // Add the type ancestor fields
       Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
       Collection<AttributeType> attributes = type.getAttributeMap().values();
 
-      GeoObjectQuery query = new GeoObjectQuery(type, universal);
+      GeoObjectQuery query = new GeoObjectQuery(type);
 
       Long count = query.getCount();
       long current = 0;
@@ -200,7 +199,7 @@ public class MasterList extends MasterListBase
         {
           while (objects.hasNext())
           {
-            Business business = new Business(mdBusiness.definesType());
+            Business business = new Business(type.definesType());
 
             GeoObject object = objects.next();
 
@@ -334,9 +333,8 @@ public class MasterList extends MasterListBase
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
-    Universal universal = this.getUniversal();
-    GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
-    String runwayId = ServiceFactory.getIdService().registryIdToRunwayId(object.getUid(), type);
+    ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
+    String runwayId = ServiceFactory.getIdService().registryIdToRunwayId(object.getUid(), type.getType());
 
     // Add the type ancestor fields
     Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
@@ -367,9 +365,8 @@ public class MasterList extends MasterListBase
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
-    Universal universal = this.getUniversal();
-    GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
-    String runwayId = ServiceFactory.getIdService().registryIdToRunwayId(object.getUid(), type);
+    ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
+    String runwayId = ServiceFactory.getIdService().registryIdToRunwayId(object.getUid(), type.getType());
 
     // Add the type ancestor fields
     Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
@@ -409,8 +406,7 @@ public class MasterList extends MasterListBase
 
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
-    Universal universal = this.getUniversal();
-    GeoObjectType type = ServiceFactory.getConversionService().universalToGeoObjectType(universal);
+    ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
 
     this.createMdAttributeFromAttributeType(mdBusiness, type.getGeometryType());
 
@@ -542,7 +538,7 @@ public class MasterList extends MasterListBase
     }
   }
 
-  public void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, GeoObjectType type, List<Locale> locales)
+  public void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, ServerGeoObjectType type, List<Locale> locales)
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
@@ -871,7 +867,7 @@ public class MasterList extends MasterListBase
     dependencies.get(attributeName).add(dependency);
   }
 
-  private Map<HierarchyType, List<GeoObjectType>> getAncestorMap(GeoObjectType type)
+  private Map<HierarchyType, List<GeoObjectType>> getAncestorMap(ServerGeoObjectType type)
   {
     Map<HierarchyType, List<GeoObjectType>> map = new HashMap<>();
 
@@ -888,7 +884,7 @@ public class MasterList extends MasterListBase
         String hCode = hierarchy.get("code").getAsString();
         HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
 
-        map.put(hierarchyType, ServiceFactory.getUtilities().getAncestors(type, hCode));
+        map.put(hierarchyType, ServiceFactory.getUtilities().getAncestors(type.getType(), hCode));
       }
     }
 
@@ -1311,7 +1307,7 @@ public class MasterList extends MasterListBase
 
     ConversionService service = ServiceFactory.getConversionService();
 
-    GeoObjectType type = service.universalToGeoObjectType(this.getUniversal());
+    ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
 
     JsonObject object = new JsonObject();
 
@@ -1322,7 +1318,7 @@ public class MasterList extends MasterListBase
 
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.addProperty(MasterList.LEAF, type.isLeaf());
-    object.add(MasterList.DISPLAYLABEL, service.convert(this.getDisplayLabel()).toJSON(serializer));
+    object.add(MasterList.DISPLAYLABEL, new AttributeTypeBuilder().convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
     object.addProperty(MasterList.LISTABSTRACT, this.getListAbstract());
     object.addProperty(MasterList.PROCESS, this.getProcess());
@@ -1359,9 +1355,7 @@ public class MasterList extends MasterListBase
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
       String typeCode = object.get(MasterList.TYPE_CODE).getAsString();
-      GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode).get();
-
-      Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(type);
+      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
       LocalizedValue label = LocalizedValue.fromJSON(object.get(MasterList.DISPLAYLABEL).getAsJsonObject());
 
@@ -1378,7 +1372,7 @@ public class MasterList extends MasterListBase
         list = new MasterList();
       }
 
-      list.setUniversal(universal);
+      list.setUniversal(type.getUniversal());
       ServiceFactory.getConversionService().populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
       list.setListAbstract(object.get(MasterList.LISTABSTRACT).getAsString());
@@ -1517,12 +1511,12 @@ public class MasterList extends MasterListBase
     }
   }
 
-  public static void createMdAttribute(GeoObjectType type, Universal universal, AttributeType attributeType)
+  public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)
   {
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     MasterListQuery query = new MasterListQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(universal));
+    query.WHERE(query.getUniversal().EQ(type.getUniversal()));
 
     List<? extends MasterList> lists = query.getIterator().getAll();
 
