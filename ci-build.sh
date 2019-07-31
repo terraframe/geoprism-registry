@@ -1,9 +1,29 @@
+#
+# Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+#
+# This file is part of Geoprism Registry(tm).
+#
+# Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+#
+
 # Replace external ips with internal ips since jenkins runs inside our VPC
 sed -i -e 's/georegistry.geoprism.net/172.31.30.53/g' geoprism-platform/ansible/inventory/georegistry/prod.ini
 sed -i -e 's/staging-georegistry.geoprism.net/172.31.23.142/g' geoprism-platform/ansible/inventory/georegistry/staging.ini
 sed -i -e 's/dev-georegistry.geoprism.net/172.31.25.93/g' geoprism-platform/ansible/inventory/georegistry/dev.ini
 sed -i -e "s/clean_db=true/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_db=false/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
+sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
 source /home/ec2-user/ansible/hacking/env-setup
 

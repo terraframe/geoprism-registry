@@ -1,9 +1,29 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.5.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
@@ -16,7 +36,7 @@
   </modules>
 
   <properties>
-    <geoprism.version>1.02.0001-SNAPSHOT</geoprism.version>
+    <geoprism.version>0.5.1-SNAPSHOT</geoprism.version>
   
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -57,9 +77,96 @@
       <layout>default</layout>
     </snapshotRepository>
   </distributionManagement>
+  
+  <licenses>
+    <license>
+      <name>
+        GNU Library or Lesser General Public License (LGPL)
+      </name>
+      <url>http://www.gnu.org/licenses/lgpl.html</url>
+    </license>
+  </licenses>
+  
+  <scm>
+    <connection>scm:git:ssh://git@github.com/terraframe/geoprism-registry</connection>
+    <developerConnection>scm:git:ssh://git@github.com/terraframe/geoprism-registry</developerConnection>
+    <url>scm:git:ssh://git@github.com/terraframe/geoprism-registry</url>
+    <tag>HEAD</tag>
+  </scm>
 
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.4.2</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.scm</groupId>
+            <artifactId>maven-scm-provider-gitexe</artifactId>
+            <version>1.8.1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.11</version>
+        <configuration>
+          <header>${basedir}/LICENSE_HEADER</header>
+          <excludes>
+            <exclude>target/**</exclude>
+            <exclude>m2-target/**</exclude>
+            <exclude>**/*.properties</exclude>
+            <exclude>**/*.launch</exclude>
+            <exclude>**/*.vsd</exclude>
+            <exclude>**/*.gitignore</exclude>
+            <exclude>**/*.LESSER</exclude>
+            <exclude>**/*.xls</exclude>
+            <exclude>**/doc/**</exclude>
+            <exclude>**/launches/**</exclude>
+            <exclude>**/*.jar</exclude>
+            <exclude>LICENSE_HEADER</exclude>
+            <exclude>**/*.markdown</exclude>
+            <exclude>**/COPYING</exclude>
+            <exclude>**/logs/**</exclude>
+            <exclude>**/*.png</exclude>
+            <exclude>**/thirdparty/**</exclude>
+            <exclude>**/yui2/**</exclude>
+            <exclude>**/yui3/**</exclude>
+            <exclude>**/.git/**</exclude>
+            <exclude>**/ajcore*.txt</exclude>
+            <exclude>**/.directory</exclude>
+            <exclude>**/.keystore</exclude>
+            <exclude>**/.keyStore</exclude>
+            <exclude>**/*.yml</exclude>
+            <exclude>**/custom-fonts/**</exclude>
+            <exclude>**/node_modules/**</exclude>
+            <exclude>**/typings/**</exclude>
+            <exclude>**/ng2/**</exclude>
+            <exclude>**/webapp/dist/**</exclude>
+            <exclude>**/cldr/**</exclude>
+
+            <!-- 3rd party library mishmashes. When we upgrade tomcat we can remove these with webjars. -->
+            <exclude>**/webapp/3rd-party/**</exclude>
+          </excludes>
+          <properties>
+            <name>${project.name}</name>
+            <year>${project.inceptionYear}</year>
+            <holder>Terraframe</holder>
+            <contact>terraframe.com</contact>
+          </properties>
+          <encoding>UTF-8</encoding>
+        </configuration>
+        <!-- <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions> -->
+      </plugin>
       <!-- Add generated source directories -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -106,7 +213,7 @@
     								</goals>
     							</pluginExecutionFilter>
     							<action>
-    								<ignore></ignore>
+    								<ignore />
     							</action>
     						</pluginExecution>
     					</pluginExecutions>

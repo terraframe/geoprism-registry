@@ -1,7 +1,7 @@
 ## About This Project
 
 ## Documentation
-* [Developer Documentation](https://terraframe.github.io/geoprism-registry/mydoc_dev_setup.html)
+* https://terraframe.atlassian.net/wiki/spaces/GGR
 
 
 ## References
