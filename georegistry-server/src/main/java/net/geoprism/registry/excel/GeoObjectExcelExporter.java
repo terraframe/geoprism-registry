@@ -46,7 +46,6 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +61,7 @@ import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectExcelExporter
@@ -70,11 +70,11 @@ public class GeoObjectExcelExporter
 
   private ServerGeoObjectType  type;
 
-  private HierarchyType        hierarchy;
+  private ServerHierarchyType  hierarchy;
 
   private OIterator<GeoObject> objects;
 
-  public GeoObjectExcelExporter(ServerGeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
+  public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, OIterator<GeoObject> objects)
   {
     this.type = type;
     this.hierarchy = hierarchy;

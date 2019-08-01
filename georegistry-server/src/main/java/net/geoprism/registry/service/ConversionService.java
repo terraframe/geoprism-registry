@@ -4,23 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,45 +46,27 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.LocalStruct;
-import com.runwaysdk.business.ontology.InitializationStrategyIF;
-import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.ComponentInfo;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
-import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.AssociationType;
-import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
 import com.runwaysdk.util.IDGenerator;
 import com.vividsolutions.jts.geom.Geometry;
 
-import net.geoprism.DefaultConfiguration;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.InvalidMasterListCodeException;
-import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.AttributeTypeBuilder;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
@@ -98,142 +79,6 @@ public class ConversionService
   public static ConversionService getInstance()
   {
     return ServiceFactory.getConversionService();
-  }
-
-  /**
-   * Turns the given {@link HierarchyType} code into the corresponding
-   * {@link MdTermRelationship} key for the {@link Universal} relationship.
-   * 
-   * @param hierarchyCode
-   *          {@link HierarchyType} code
-   * @return corresponding {@link MdTermRelationship} key.
-   */
-  public static String buildMdTermRelUniversalKey(String hierarchyCode)
-  {
-    // If the code is for the LocatedIn hierarchy, then the relationship that
-    // defines the
-    // Universals for that relationship is AllowedIn.
-    if (hierarchyCode.trim().equals(LocatedIn.class.getSimpleName()))
-    {
-      return AllowedIn.CLASS;
-    }
-    else
-    {
-      return GISConstants.GEO_PACKAGE + "." + hierarchyCode + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
-    }
-  }
-
-  /**
-   * Convert the given {@link MdTermRelationShip} key for {@link Universal}s
-   * into a {@link HierarchyType} key.
-   * 
-   * @param mdTermRelKey
-   *          {@link MdTermRelationShip} key
-   * @return a {@link HierarchyType} key.
-   */
-  public static String buildHierarchyKeyFromMdTermRelUniversal(String mdTermRelKey)
-  {
-    // the hierarchyType code for the allowed in relationship is the located in
-    // relationship
-    if (mdTermRelKey.trim().equals(AllowedIn.CLASS))
-    {
-      return LocatedIn.class.getSimpleName();
-    }
-    else
-    {
-      int startIndex = GISConstants.GEO_PACKAGE.length() + 1;
-
-      int endIndex = mdTermRelKey.indexOf(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
-
-      String hierarchyKey;
-      if (endIndex > -1)
-      {
-        hierarchyKey = mdTermRelKey.substring(startIndex, endIndex);
-      }
-      else
-      {
-        hierarchyKey = mdTermRelKey.substring(startIndex, mdTermRelKey.length());
-      }
-
-      return hierarchyKey;
-    }
-  }
-
-  /**
-   * Turns the given {@link MdTermRelationShip} key for a {@link Universal} into
-   * the corresponding {@link MdTermRelationship} key for the {@link GeoEntity}
-   * relationship.
-   * 
-   * @param hierarchyCode
-   *          {@link HierarchyType} code
-   * @return corresponding {@link MdTermRelationship} key.
-   */
-  public static String buildMdTermRelGeoEntityKey(String hierarchyCode)
-  {
-    // Check for existing GeoPrism hierarchyTypes
-    if (hierarchyCode.trim().equals(LocatedIn.class.getSimpleName()))
-    {
-      return LocatedIn.CLASS;
-    }
-    else
-    {
-      return GISConstants.GEO_PACKAGE + "." + hierarchyCode;
-    }
-  }
-
-  /**
-   * Convert the given {@link MdTermRelationShip} key for a {@link GeoEntities}
-   * into a {@link HierarchyType} key.
-   * 
-   * @param mdTermRelKey
-   *          {@link MdTermRelationShip} key
-   * @return a {@link HierarchyType} key.
-   */
-  public static String buildHierarchyKeyFromMdTermRelGeoEntity(String mdTermRelKey)
-  {
-    int startIndex = GISConstants.GEO_PACKAGE.length() + 1;
-
-    return mdTermRelKey.substring(startIndex, mdTermRelKey.length());
-  }
-
-  /**
-   * It creates an {@link MdTermRelationship} to model the relationship between
-   * {@link Universal}s.
-   * 
-   * Needs to occur in a transaction.
-   * 
-   * @param hierarchyType
-   * @return
-   */
-  public MdTermRelationship newHierarchyToMdTermRelForUniversals(HierarchyType hierarchyType)
-  {
-    if (!MasterList.isValidName(hierarchyType.getCode()))
-    {
-      throw new InvalidMasterListCodeException("The hierarchy type code has an invalid character");
-    }
-
-    MdBusiness mdBusUniversal = MdBusiness.getMdBusiness(Universal.CLASS);
-
-    MdTermRelationship mdTermRelationship = new MdTermRelationship();
-
-    mdTermRelationship.setTypeName(hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
-    mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
-    this.populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
-    this.populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
-    mdTermRelationship.setIsAbstract(false);
-    mdTermRelationship.setGenerateSource(false);
-    mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_EVERYTHING);
-    mdTermRelationship.addAssociationType(AssociationType.Graph);
-    mdTermRelationship.setRemove(true);
-    // Create the relationship between different universals.
-    mdTermRelationship.setParentMdBusiness(mdBusUniversal);
-    mdTermRelationship.setParentCardinality("1");
-    mdTermRelationship.setChildMdBusiness(mdBusUniversal);
-    mdTermRelationship.setChildCardinality("*");
-    mdTermRelationship.setParentMethod("Parent");
-    mdTermRelationship.setChildMethod("Children");
-
-    return mdTermRelationship;
   }
 
   public void populate(LocalStruct struct, LocalizedValue label)
@@ -301,228 +146,6 @@ public class ConversionService
     mdTermRelationship.setChildMethod("Children");
 
     return mdTermRelationship;
-  }
-
-  @Transaction
-  public HierarchyType createHierarchyType(HierarchyType hierarchyType)
-  {
-    // /*
-    // * Create a Registry Maintainer role for the new hierarchy
-    // */
-    // RoleDAO role = RoleDAO.newInstance();
-    // role.setValue(RoleDAOIF.ROLENAME,
-    // RegistryConstants.REGISTRY_MAINTAINER_PREFIX + hierarchyType.getCode());
-    // role.setStructValue(RoleDAOIF.DISPLAY_LABEL,
-    // MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyType.getLabel() +
-    // " Registry Maintainer");
-    // role.apply();
-    //
-    // /*
-    // * Assign the new role has a child role of the generic registry maintainer
-    // * role
-    // */
-    // role.addAscendant(RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE));
-
-    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
-
-    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
-    RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-
-    InitializationStrategyIF strategy = new InitializationStrategyIF()
-    {
-      @Override
-      public void preApply(MdBusinessDAO mdBusiness)
-      {
-        mdBusiness.setValue(MdBusinessInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-      }
-
-      @Override
-      public void postApply(MdBusinessDAO mdBusiness)
-      {
-        RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
-
-        adminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
-
-        maintainer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.CREATE, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.DELETE, mdBusiness.getOid());
-
-        consumer.grantPermission(Operation.READ, mdBusiness.getOid());
-        consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-
-        contributor.grantPermission(Operation.READ, mdBusiness.getOid());
-        contributor.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-      }
-    };
-
-    MdTermRelationship mdTermRelUniversal = ServiceFactory.getConversionService().newHierarchyToMdTermRelForUniversals(hierarchyType);
-    mdTermRelUniversal.apply();
-
-    this.grantWritePermissionsOnMdTermRel(mdTermRelUniversal);
-    this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelUniversal);
-    this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelUniversal);
-    this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelUniversal);
-
-    Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
-
-    MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
-    mdTermRelGeoEntity.apply();
-
-    this.grantWritePermissionsOnMdTermRel(mdTermRelGeoEntity);
-    this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelGeoEntity);
-    this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelGeoEntity);
-    this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelGeoEntity);
-
-    GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
-
-    return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelUniversal);
-  }
-
-  private void grantWritePermissionsOnMdTermRel(MdTermRelationship mdTermRelationship)
-  {
-    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
-
-    grantWritePermissionsOnMdTermRel(adminRole, mdTermRelationship);
-  }
-
-  public void grantWritePermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
-  {
-    role.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
-    role.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
-    role.grantPermission(Operation.DELETE_PARENT, mdTermRelationship.getOid());
-    role.grantPermission(Operation.DELETE_CHILD, mdTermRelationship.getOid());
-    role.grantPermission(Operation.READ_PARENT, mdTermRelationship.getOid());
-    role.grantPermission(Operation.READ_CHILD, mdTermRelationship.getOid());
-    role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
-    role.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
-    role.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
-    role.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
-  }
-
-  public void grantReadPermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
-  {
-    role.grantPermission(Operation.READ, mdTermRelationship.getOid());
-    role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
-  }
-
-  /**
-   * Needs to occur in a transaction.
-   * 
-   * @param hierarchyType
-   * @return
-   */
-  public MdTermRelationship existingHierarchyToUniversalMdTermRelationiship(HierarchyType hierarchyType)
-  {
-    String mdTermRelKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
-
-    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
-
-    return mdTermRelationship;
-  }
-
-  /**
-   * Needs to occur in a transaction.
-   * 
-   * @param hierarchyType
-   * @return
-   */
-  public MdTermRelationship existingHierarchyToGeoEntityMdTermRelationiship(HierarchyType hierarchyType)
-  {
-    String mdTermRelKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
-
-    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
-
-    return mdTermRelationship;
-  }
-
-  /**
-   * 
-   * @param mdTermRel
-   * @return
-   */
-  public HierarchyType mdTermRelationshipToHierarchyType(MdTermRelationship mdTermRel)
-  {
-    AttributeTypeBuilder builder = new AttributeTypeBuilder();
-    String hierarchyKey = buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
-
-    LocalizedValue displayLabel;
-    LocalizedValue description;
-
-    if (mdTermRel.definesType().equals(AllowedIn.CLASS))
-    {
-      MdTermRelationship locatedInMdTermRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(LocatedIn.CLASS);
-      displayLabel = builder.convert(locatedInMdTermRel.getDisplayLabel());
-      description = builder.convert(locatedInMdTermRel.getDescription());
-    }
-    else
-    {
-      displayLabel = builder.convert(mdTermRel.getDisplayLabel());
-      description = builder.convert(mdTermRel.getDescription());
-    }
-
-    HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description);
-
-    Universal rootUniversal = Universal.getByKey(Universal.ROOT);
-
-    // Copy all of the children to a list so as not to have recursion with open
-    // database cursors.
-    List<Universal> childUniversals = new LinkedList<Universal>();
-
-    OIterator<? extends Business> i = rootUniversal.getChildren(mdTermRel.definesType());
-    try
-    {
-      i.forEach(u -> childUniversals.add((Universal) u));
-    }
-    finally
-    {
-      i.close();
-    }
-
-    for (Universal childUniversal : childUniversals)
-    {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
-
-      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
-
-      node = buildHierarchy(node, childUniversal, mdTermRel);
-
-      ht.addRootGeoObjects(node);
-    }
-
-    return ht;
-  }
-
-  private HierarchyType.HierarchyNode buildHierarchy(HierarchyType.HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
-  {
-    List<Universal> childUniversals = new LinkedList<Universal>();
-
-    OIterator<? extends Business> i = parentUniversal.getChildren(mdTermRel.definesType());
-    try
-    {
-      i.forEach(u -> childUniversals.add((Universal) u));
-    }
-    finally
-    {
-      i.close();
-    }
-
-    for (Universal childUniversal : childUniversals)
-    {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
-
-      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
-
-      node = buildHierarchy(node, childUniversal, mdTermRel);
-
-      parentNode.addChild(node);
-    }
-
-    return parentNode;
-
   }
 
   public GeoObject geoEntityToGeoObject(GeoEntity geoEntity)
@@ -767,104 +390,6 @@ public class ConversionService
   //
   //
   // }
-
-  /**
-   * Creates a reference attribute to the parent node class.
-   * 
-   * 
-   * @param hierarchyTypeCode
-   * @param parentUniversal
-   * @param childUniversal
-   */
-  @Transaction
-  public static void addParentReferenceToLeafType(String hierarchyTypeCode, Universal parentUniversal, Universal childUniversal)
-  {
-    String mdTermRelKey = buildMdTermRelGeoEntityKey(hierarchyTypeCode);
-    MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(mdTermRelKey);
-
-    // MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
-    MdBusiness childMdBusiness = childUniversal.getMdBusiness();
-
-    String refAttrName = getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
-
-    String displayLabel = "Reference to " + parentUniversal.getDisplayLabel().getValue() + " in hierarchy " + mdTermRelationship.getDisplayLabel().getValue();
-
-    MdAttributeReference mdAttributeReference = new MdAttributeReference();
-    mdAttributeReference.setAttributeName(refAttrName);
-    mdAttributeReference.getDisplayLabel().setValue(displayLabel);
-    mdAttributeReference.getDescription().setValue(hierarchyTypeCode);
-    mdAttributeReference.setRequired(false);
-    mdAttributeReference.setDefiningMdClass(childMdBusiness);
-    mdAttributeReference.setMdBusiness(MdBusiness.getMdBusiness(GeoEntity.CLASS));
-    mdAttributeReference.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
-    mdAttributeReference.apply();
-
-    AttributeHierarchy map = new AttributeHierarchy();
-    map.setMdAttribute(mdAttributeReference);
-    map.setMdTermRelationship(mdTermRelationship);
-    map.setKeyName(mdAttributeReference.getKey());
-    map.apply();
-  }
-
-  /**
-   * Creates a reference attribute to the parent node class.
-   * 
-   * 
-   * @param hierarchyTypeCode
-   * @param parentUniversal
-   * @param childUniversal
-   */
-  @Transaction
-  public static void removeParentReferenceToLeafType(String hierarchyTypeCode, Universal parentUniversal, Universal childUniversal)
-  {
-    // MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
-    MdBusinessDAOIF childMdBusiness = MdBusinessDAO.get(childUniversal.getMdBusinessOid());
-
-    String refAttrName = getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
-
-    MdAttributeConcreteDAOIF mdAttributeReference = childMdBusiness.definesAttribute(refAttrName);
-
-    AttributeHierarchy map = AttributeHierarchy.getByKey(mdAttributeReference.getKey());
-    map.delete();
-
-    mdAttributeReference.getBusinessDAO().delete();
-  }
-
-  /**
-   * Creates a reference attribute name for a child leaf type that references
-   * the parent type
-   * 
-   * @param hierarchyTypeCode
-   * @param parentUniversal
-   * @return
-   */
-  public static String getParentReferenceAttributeName(String hierarchyTypeCode, Universal parentUniversal)
-  {
-    return getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal.getMdBusiness());
-  }
-
-  public static String getParentReferenceAttributeName(String hierarchyTypeCode, MdBusiness parentMdBusiness)
-  {
-    String parentTypeName = parentMdBusiness.getTypeName();
-
-    // Lower case the first character of the hierarchy Code
-    String lowerCaseHierarchyName = Character.toLowerCase(hierarchyTypeCode.charAt(0)) + hierarchyTypeCode.substring(1);
-    if (lowerCaseHierarchyName.length() > 32)
-    {
-      lowerCaseHierarchyName = lowerCaseHierarchyName.substring(0, 31);
-    }
-
-    // Upper case the first character of the parent class
-    String upperCaseParentClassName = Character.toUpperCase(parentTypeName.charAt(0)) + parentTypeName.substring(1);
-    if (upperCaseParentClassName.length() > 32)
-    {
-      upperCaseParentClassName = upperCaseParentClassName.substring(0, 31);
-    }
-
-    String refAttrName = lowerCaseHierarchyName + upperCaseParentClassName;
-
-    return refAttrName;
-  }
 
   @Transaction
   public static void createBusinessObjectForExistingGeoEntity(GeoEntity geoEntity)

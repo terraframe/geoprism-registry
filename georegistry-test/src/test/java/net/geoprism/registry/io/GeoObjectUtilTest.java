@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -23,8 +23,6 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,6 +36,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import junit.framework.Assert;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.USATestData;
 
@@ -77,11 +76,11 @@ public class GeoObjectUtilTest
   public void testGetAncestorMapForTreeType()
   {
     ServerGeoObjectType type = testData.AREA.getGeoObjectType(GeometryType.POLYGON);
-    HierarchyType hierarchy = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_A_ONE.getCode(), type.getCode());
 
-    Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchy);
+    Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchyType);
 
     Assert.assertEquals(5, map.size());
 
@@ -115,11 +114,11 @@ public class GeoObjectUtilTest
   public void testGetAncestorMapForTreeLeaf()
   {
     ServerGeoObjectType type = testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
-    HierarchyType hierarchy = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_D_ONE.getCode(), type.getCode());
 
-    Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchy);
+    Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchyType);
 
     // Validate the state values
     Assert.assertTrue(map.containsKey(testData.STATE.getCode()));

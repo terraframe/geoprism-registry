@@ -51,7 +51,6 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -88,6 +87,7 @@ import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectShapefileExporter
@@ -98,7 +98,7 @@ public class GeoObjectShapefileExporter
 
   private ServerGeoObjectType       type;
 
-  private HierarchyType             hierarchy;
+  private ServerHierarchyType       hierarchy;
 
   private Collection<AttributeType> attributes;
 
@@ -106,12 +106,12 @@ public class GeoObjectShapefileExporter
 
   private OIterator<GeoObject>      objects;
 
-  public GeoObjectShapefileExporter(ServerGeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
+  public GeoObjectShapefileExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, OIterator<GeoObject> objects)
   {
     this(type, hierarchy, objects, new LinkedList<Locale>());
   }
 
-  public GeoObjectShapefileExporter(ServerGeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects, List<Locale> locales)
+  public GeoObjectShapefileExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, OIterator<GeoObject> objects, List<Locale> locales)
   {
     this.type = type;
     this.hierarchy = hierarchy;

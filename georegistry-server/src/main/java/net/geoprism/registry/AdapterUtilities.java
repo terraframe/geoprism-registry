@@ -69,7 +69,9 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.query.UidRestriction;
@@ -457,10 +459,9 @@ public class AdapterUtilities
   {
     List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
 
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
-    MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(code);
 
-    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), child.getUniversal(), mdTermRelationship.definesType());
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), child.getUniversal(), hierarchyType.getUniversalType());
 
     list.forEach(term -> {
       Universal parent = (Universal) term;
@@ -494,18 +495,16 @@ public class AdapterUtilities
 
   public JsonArray getHierarchiesForType(ServerGeoObjectType type, Boolean includeTypes)
   {
-    ConversionService service = ServiceFactory.getConversionService();
-
     HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      MdTermRelationship mdTerm = service.existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
       // Note: Ordered ancestors always includes self
-      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, type.getUniversal(), mdTerm.definesType());
+      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, type.getUniversal(), sType.getUniversalType());
 
       if (parents.size() > 1)
       {
@@ -561,7 +560,6 @@ public class AdapterUtilities
   public JsonArray getHierarchiesForGeoObject(GeoObject geoObject)
   {
     ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(geoObject.getType());
-    ConversionService service = ServiceFactory.getConversionService();
 
     HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
@@ -569,10 +567,10 @@ public class AdapterUtilities
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      MdTermRelationship mdTerm = service.existingHierarchyToUniversalMdTermRelationiship(hierarchyType);
+      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
       // Note: Ordered ancestors always includes self
-      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), mdTerm.definesType());
+      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
 
       ParentTreeNode ptnAncestors = this.getParentGeoObjects(geoObject.getUid(), geoObject.getType().getCode(), null, true);
 
@@ -851,9 +849,9 @@ public class AdapterUtilities
     {
       MdTermRelationship mdRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(relationshipType);
 
-      HierarchyType ht = ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdRel);
+      ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdRel);
 
-      map.put(relationshipType, ht);
+      map.put(relationshipType, ht.getType());
     }
 
     return map;

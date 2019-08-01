@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -38,7 +38,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -107,7 +106,7 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
-  
+
   /**
    * Returns a GeoObject with the given uid.
    *
@@ -124,7 +123,7 @@ public class RegistryController
     GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode);
 
     String bounds = this.registryService.getGeoObjectBounds(request.getSessionId(), geoObject);
-    
+
     return new RestBodyResponse(bounds);
   }
 
@@ -167,11 +166,13 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
-  
+
   /**
-   * TODO : Not part of the official API (yet). Currently used for the GeoObject editing widget when creating a new GeoObject.
-   *        The return value is a custom serialized json format because ParentTreeNode doesn't quite fit our needs (It allows for
-   *        a GeoObject but not a GeoObjectType) 
+   * TODO : Not part of the official API (yet). Currently used for the GeoObject
+   * editing widget when creating a new GeoObject. The return value is a custom
+   * serialized json format because ParentTreeNode doesn't quite fit our needs
+   * (It allows for a GeoObject but not a GeoObjectType)
+   * 
    * @param request
    * @param typeCode
    * @return
@@ -337,18 +338,18 @@ public class RegistryController
   public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE) Boolean recursive)
   {
     String[] aChildTypes = null;
-    
+
     if (childrenTypes != null)
     {
       JSONArray jaChildTypes = new JSONArray(childrenTypes);
-      
+
       aChildTypes = new String[jaChildTypes.length()];
       for (int i = 0; i < jaChildTypes.length(); i++)
       {
         aChildTypes[i] = jaChildTypes.getString(i);
       }
     }
-    
+
     TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentId, parentTypeCode, aChildTypes, recursive);
 
     return new RestBodyResponse(tn.toJSON());
@@ -373,11 +374,11 @@ public class RegistryController
   public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE) Boolean recursive)
   {
     String[] aParentTypes = null;
-    
+
     if (parentTypes != null)
     {
       JSONArray jaParentTypes = new JSONArray(parentTypes);
-  
+
       aParentTypes = new String[jaParentTypes.length()];
       for (int i = 0; i < jaParentTypes.length(); i++)
       {
@@ -726,7 +727,7 @@ public class RegistryController
 
     return new RestBodyResponse(response);
   }
-  
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies")
   public ResponseIF getHierarchiesForGeoObject(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode)
   {

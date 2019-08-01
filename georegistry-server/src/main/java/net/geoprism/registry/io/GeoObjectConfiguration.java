@@ -37,7 +37,6 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -45,12 +44,12 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
@@ -121,9 +120,7 @@ public class GeoObjectConfiguration
 
   private List<Location>                 locations;
 
-  private HierarchyType                  hierarchy;
-
-  private MdTermRelationship             hierarchyRelationship;
+  private ServerHierarchyType            hierarchy;
 
   private Boolean                        postalCode;
 
@@ -263,24 +260,14 @@ public class GeoObjectConfiguration
     return this.locations;
   }
 
-  public HierarchyType getHierarchy()
+  public ServerHierarchyType getHierarchy()
   {
     return hierarchy;
   }
 
-  public void setHierarchy(HierarchyType hierarchy)
+  public void setHierarchy(ServerHierarchyType hierarchy)
   {
     this.hierarchy = hierarchy;
-  }
-
-  public MdTermRelationship getHierarchyRelationship()
-  {
-    return hierarchyRelationship;
-  }
-
-  public void setHierarchyRelationship(MdTermRelationship hierarchyRelationship)
-  {
-    this.hierarchyRelationship = hierarchyRelationship;
   }
 
   public boolean hasProblems()
@@ -415,12 +402,10 @@ public class GeoObjectConfiguration
     {
       String hCode = config.get(HIERARCHY).getAsString();
 
-      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
-      MdTermRelationship hierarchyRelationiship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
       List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got, hCode);
 
       configuration.setHierarchy(hierarchyType);
-      configuration.setHierarchyRelationship(hierarchyRelationiship);
 
       if (ancestors.size() > 0)
       {

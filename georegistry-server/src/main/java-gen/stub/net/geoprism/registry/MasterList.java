@@ -113,6 +113,7 @@ import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.GeoObjectIterator;
@@ -308,7 +309,7 @@ public class MasterList extends MasterListBase
 
     for (Entry<HierarchyType, List<GeoObjectType>> entry : entries)
     {
-      HierarchyType hierarchy = entry.getKey();
+      ServerHierarchyType hierarchy = ServerHierarchyType.get(entry.getKey());
       // List<GeoObjectType> parents = entry.getValue();
       Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, hierarchy);
 

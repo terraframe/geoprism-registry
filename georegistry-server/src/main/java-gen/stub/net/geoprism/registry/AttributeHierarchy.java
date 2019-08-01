@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -31,6 +31,7 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class AttributeHierarchy extends AttributeHierarchyBase
@@ -47,16 +48,17 @@ public class AttributeHierarchy extends AttributeHierarchyBase
     AttributeHierarchy hierarchy = AttributeHierarchy.getByKey(key);
     MdTermRelationship mdTermRelationship = hierarchy.getMdTermRelationship();
 
-    return ServiceFactory.getConversionService().mdTermRelationshipToHierarchyType(mdTermRelationship);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(mdTermRelationship);
+    return hierarchyType.getType();
   }
 
   public static void deleteByUniversal(Universal uni)
   {
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(uni.getMdBusinessOid());
-    
+
     deleteByMdBusiness(mdBusiness);
   }
-  
+
   public static void deleteByMdBusiness(MdBusinessDAOIF mdBusiness)
   {
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();

@@ -4,25 +4,23 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.query;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
-import com.runwaysdk.dataaccess.MdTermRelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdTermDAO;
-import com.runwaysdk.dataaccess.metadata.MdTermRelationshipDAO;
 import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -30,7 +28,7 @@ import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.metadata.MdTerm;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
-import net.geoprism.registry.service.ConversionService;
+import net.geoprism.registry.model.ServerHierarchyType;
 
 public class LookupRestriction implements GeoObjectRestriction
 {
@@ -57,11 +55,10 @@ public class LookupRestriction implements GeoObjectRestriction
 
     if (this.parentCode != null && this.hierarchyCode != null && this.parentCode.length() > 0 && this.hierarchyCode.length() > 0)
     {
-      String key = ConversionService.buildMdTermRelGeoEntityKey(this.hierarchyCode);
-      MdTermRelationshipDAOIF mdTermRelationship = MdTermRelationshipDAO.getMdTermRelationshipDAO(key);
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(this.hierarchyCode);
 
       String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
-      String typeName = DatabaseAllPathsStrategy.getTypeName(mdTermRelationship);
+      String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchyType.getEntityRelationshipDAO());
 
       BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
       GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);

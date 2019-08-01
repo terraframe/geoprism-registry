@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -37,12 +37,15 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.excel.MasterListExcelExporter;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
@@ -64,10 +67,10 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
 
-    hierarchyType = ServiceFactory.getConversionService().createHierarchyType(hierarchyType);
+    ServerHierarchyType sType = new ServerHierarchyTypeBuilder().createHierarchyType(hierarchyType);
 
     // The transaction did not error out, so it is safe to put into the cache.
-    ServiceFactory.getAdapter().getMetadataCache().addHierarchyType(hierarchyType);
+    adapter.getMetadataCache().addHierarchyType(sType.getType());
 
     return hierarchyType.getCode();
   }
@@ -95,7 +98,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   @Transaction
   public static InputStream exportShapefile(String code, String hierarchyCode)
   {
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyCode).get();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
     GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
@@ -125,7 +128,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   @Transaction
   public static InputStream exportSpreadsheet(String code, String hierarchyCode)
   {
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyCode).get();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
     GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(code);
     OIterator<GeoObject> it = null;
 

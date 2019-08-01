@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -69,12 +69,13 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.GeoprismUser;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.TermBuilder;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.model.ServerHierarchyType;
 
 public class HierarchyManagementServiceTest
 {
@@ -278,7 +279,7 @@ public class HierarchyManagementServiceTest
 
       try
       {
-        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(REPORTING_DIVISION_CODE));
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelUniversalKey(REPORTING_DIVISION_CODE));
         mdTermRelationship.delete();
       }
       catch (DataNotFoundException e)
@@ -287,7 +288,7 @@ public class HierarchyManagementServiceTest
 
       try
       {
-        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(REPORTING_DIVISION_CODE));
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelGeoEntityKey(REPORTING_DIVISION_CODE));
         mdTermRelationship.delete();
       }
       catch (DataNotFoundException e)
@@ -296,7 +297,7 @@ public class HierarchyManagementServiceTest
 
       try
       {
-        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelUniversalKey(ADMINISTRATIVE_DIVISION_CODE));
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelUniversalKey(ADMINISTRATIVE_DIVISION_CODE));
         mdTermRelationship.delete();
       }
       catch (DataNotFoundException e)
@@ -305,7 +306,7 @@ public class HierarchyManagementServiceTest
 
       try
       {
-        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ConversionService.buildMdTermRelGeoEntityKey(ADMINISTRATIVE_DIVISION_CODE));
+        MdTermRelationship mdTermRelationship = MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelGeoEntityKey(ADMINISTRATIVE_DIVISION_CODE));
         mdTermRelationship.delete();
       }
       catch (DataNotFoundException e)
@@ -1297,11 +1298,11 @@ public class HierarchyManagementServiceTest
     }
 
     // test the types that were created
-    String mdTermRelUniversal = ConversionService.buildMdTermRelUniversalKey(reportingDivision.getCode());
+    String mdTermRelUniversal = ServerHierarchyType.buildMdTermRelUniversalKey(reportingDivision.getCode());
     String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
     Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
 
-    String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
+    String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
     String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
     Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
 
@@ -1618,7 +1619,9 @@ public class HierarchyManagementServiceTest
     Universal parentUniversal = Universal.getByKey(parentCode);
     Universal childUniversal = Universal.getByKey(childCode);
 
-    String refAttrName = ConversionService.getParentReferenceAttributeName(hierarchyTypeCode, parentUniversal);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyTypeCode);
+
+    String refAttrName = hierarchyType.getParentReferenceAttributeName(parentUniversal);
 
     MdBusiness childMdBusiness = childUniversal.getMdBusiness();
     MdBusinessDAOIF childMdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(childMdBusiness);
@@ -1666,7 +1669,7 @@ public class HierarchyManagementServiceTest
   {
     String locatedInClassName = LocatedIn.class.getSimpleName();
 
-    String mdTermRelUniversalType = ConversionService.buildMdTermRelUniversalKey(locatedInClassName);
+    String mdTermRelUniversalType = ServerHierarchyType.buildMdTermRelUniversalKey(locatedInClassName);
 
     Assert.assertEquals("HierarchyCode LocatedIn did not get converted to the AllowedIn Universal relationshipType.", AllowedIn.CLASS, mdTermRelUniversalType);
   }
@@ -1680,7 +1683,7 @@ public class HierarchyManagementServiceTest
   {
     String allowedInClass = AllowedIn.CLASS;
 
-    String hierarchyCode = ConversionService.buildHierarchyKeyFromMdTermRelUniversal(allowedInClass);
+    String hierarchyCode = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(allowedInClass);
 
     Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
   }
@@ -1694,7 +1697,7 @@ public class HierarchyManagementServiceTest
   {
     String locatedInClassName = LocatedIn.class.getSimpleName();
 
-    String mdTermRelGeoEntity = ConversionService.buildMdTermRelGeoEntityKey(locatedInClassName);
+    String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(locatedInClassName);
 
     Assert.assertEquals("HierarchyCode LocatedIn did not get converted to the AllowedIn Universal relationshipType.", LocatedIn.CLASS, mdTermRelGeoEntity);
   }
@@ -1708,7 +1711,7 @@ public class HierarchyManagementServiceTest
   {
     String locatedInClass = LocatedIn.CLASS;
 
-    String hierarchyCode = ConversionService.buildHierarchyKeyFromMdTermRelGeoEntity(locatedInClass);
+    String hierarchyCode = ServerHierarchyType.buildHierarchyKeyFromMdTermRelGeoEntity(locatedInClass);
 
     Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
   }
