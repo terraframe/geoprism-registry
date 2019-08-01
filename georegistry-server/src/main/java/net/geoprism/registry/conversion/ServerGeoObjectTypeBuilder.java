@@ -53,7 +53,6 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.model.GeometryTypeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServiceFactory;

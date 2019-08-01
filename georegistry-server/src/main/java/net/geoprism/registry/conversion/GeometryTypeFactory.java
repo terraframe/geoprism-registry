@@ -1,4 +1,4 @@
-package net.geoprism.registry.model;
+package net.geoprism.registry.conversion;
 
 public class GeometryTypeFactory
 {

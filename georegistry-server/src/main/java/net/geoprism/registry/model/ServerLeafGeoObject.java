@@ -18,12 +18,10 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.metadata.MdBusiness;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.RegistryIdService;
 
 public class ServerLeafGeoObject implements ServerGeoObjectIF
 {
@@ -31,30 +29,37 @@ public class ServerLeafGeoObject implements ServerGeoObjectIF
 
   private ServerGeoObjectType type;
 
-  private GeoObject           go;
+  private GeoObject           geoObject;
 
-  ServerLeafGeoObject(ServerGeoObjectType type, GeoObject go)
+  private Business            business;
+
+  public ServerLeafGeoObject(ServerGeoObjectType type, GeoObject go, Business business)
   {
     this.type = type;
-    this.go = go;
-  }
-
-  public MdBusiness getLeafMdBusiness()
-  {
-    return this.type.getMdBusiness();
+    this.geoObject = go;
+    this.business = business;
   }
 
   @Override
+  public ServerGeoObjectType getType()
+  {
+    return this.type;
+  }
+
   public Business getBusiness()
   {
-    String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(go.getUid(), go.getType());
-    return Business.get(runwayId);
+    return business;
+  }
+
+  public GeoObject getGeoObject()
+  {
+    return geoObject;
   }
 
   @Override
   public String bbox()
   {
-    String definesType = this.getLeafMdBusiness().definesType();
+    String definesType = this.type.definesType();
 
     try
     {

@@ -70,8 +70,8 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.adapter.ServerAdapterFactory;
 import net.geoprism.registry.conversion.AttributeTypeBuilder;
+import net.geoprism.registry.conversion.ServerGeoObjectFactory;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermBuilder;
@@ -591,6 +591,7 @@ public class RegistryService
     Term returnTerm = termBuilder.build();
 
     List<MdAttributeConcrete> mdAttrList = this.findRootClassifier(classifier);
+
     this.refreshAttributeTermTypeInCache(mdAttrList);
 
     return returnTerm;
@@ -995,6 +996,6 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public String getGeoObjectBounds(String sessionId, GeoObject geoObject)
   {
-    return ServerAdapterFactory.geoObject(geoObject).bbox();
+    return ServerGeoObjectFactory.getGeoObject(geoObject).bbox();
   }
 }
