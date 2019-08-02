@@ -74,6 +74,14 @@ import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { CascadingGeoSelector } from './data/cascading-geo-selector/cascading-geo-selector';
 import { ActionDetailModalComponent } from './data/crtable/action-detail/action-detail-modal.component';
 
+import { AccountsComponent } from './admin/account/accounts.component';
+import { AccountComponent } from './admin/account/account.component';
+import { EmailComponent } from './admin/email/email.component';
+import { SystemLogoComponent } from './admin/logo/system-logo.component';
+import { SystemLogosComponent } from './admin/logo/system-logos.component';
+import { ProfileComponent } from './profile/profile.component';
+import { HubHeaderComponent } from './hub/hub-header.component';
+import { HubComponent } from './hub/hub.component';
 
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
@@ -103,6 +111,9 @@ import { OnlyNumber } from './core/number-only.directive';
 import './rxjs-extensions';
 import { ModalStepIndicatorService } from './core/service/modal-step-indicator.service';
 
+import { AdminModule } from './admin/admin.module';
+import { CoreModule } from './core/core.module';
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -121,7 +132,9 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ProgressbarModule.forRoot(),       
     CollapseModule.forRoot(),    
     NgxPaginationModule,    
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    AdminModule,
+    CoreModule
   ],
   declarations: [
     CgrAppComponent,
@@ -153,8 +166,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectTypePipe,
     GeoObjectAttributeCodeValidator,
     NewLocaleModalComponent,
-    LocalizeComponent,
-    LocalizePipe,
     EditAttributeModalContentComponent,
     TermOptionWidgetComponent,
     AttributeInputComponent,
@@ -164,7 +175,6 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     ModalStepIndicatorComponent,
     ManageTermOptionsComponent,
     OnlyNumber,
-    ErrorMessageComponent,
     BooleanFieldComponent,
     ValidationComponent,
     LocalizedInputComponent,    
@@ -175,11 +185,14 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
     GeoObjectAttributeExcludesPipe,
     ToEpochDateTimePipe,
     ProgressBarComponent,
-	GeoObjectEditorMapComponent,
-	DataPageComponent,
-	ChangeRequestPageComponent,
-	CascadingGeoSelector,
-	ActionDetailModalComponent,
+	  GeoObjectEditorMapComponent,
+    DataPageComponent,
+    ChangeRequestPageComponent,
+    CascadingGeoSelector,
+    ActionDetailModalComponent,
+    ProfileComponent,
+    HubHeaderComponent,
+    HubComponent,
     
     // Master List screens
     MasterListManagerComponent,

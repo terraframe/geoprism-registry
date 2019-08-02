@@ -1,0 +1,68 @@
+<div>
+  <admin-header></admin-header>
+  
+  <message></message>
+
+  <form #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
+    <div class="modal-dialog" style="height: 100%;">
+      <div class="modal-content" style="height: 100%;overflow-y: auto;">
+        <fieldset>            
+          <div class="heading">
+            <h3>Invite a User</h3>
+          </div>      
+          <hr>        
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="account.email"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="invite.email" name="email" required #aemail="ngModel" email>
+              </span>
+              <div *ngIf="aemail.errors?.email && invite.email && invite.email.length > 0" class="inline-error-message">
+                <localize key="account.email.validation"></localize>
+              </div>                                          
+            </div>
+          </div>   
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>Bureau</label>
+            </div>          
+            <div class="holder" >
+              <span class="select">
+                <select [(ngModel)]="invite.bureau" name="bureau">
+                  <option></option>
+                  <option *ngFor="let option of invite.bureaus" [value]="option.value">{{option.label}}</option>
+                </select>
+              </span>
+            </div>
+          </div>                           
+          <div *ngFor="let group of invite.groups">
+            <div class="heading">
+              <h3><localize [key]="'com.runwaysdk.ui.userstable.UsersTable.' + group.name"></localize></h3>
+            </div>                          
+            <hr>
+            <div *ngFor="let role of group.roles" class="row-holder">
+              <div class="label-holder">
+                <label>{{role.displayLabel}}</label>
+              </div>          
+              <div class="holder" >
+                <boolean-field [(value)]="role.assigned"></boolean-field>
+              </div>
+            </div>              
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>                    
+            <div class="holder">
+              <div class="button-holder">
+                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
+                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </form>
+</div>

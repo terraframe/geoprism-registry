@@ -1,0 +1,43 @@
+    <!-- HEADER AND NAVBAR -->
+    <header>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" routerLink="/" [title]="'userMenu.menuTooltip' | localize"><img [src]="context + '/logo/view?id=logo'" /></a>
+            <!-- <a class="navbar-brand" routerLink="/admin"><localize key="admin.link"></localize></a> -->
+          </div>
+          
+          <ul class="nav navbar-nav navbar-right">
+            <li dropdown>
+              <!-- <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle>
+                <localize key="admin.title"></localize><span class="caret"></span>
+              </a>             -->
+              <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle> 
+               <span class="glyphicon glyphicon-menu-hamburger"></span> 
+             </a>   
+              <ul *dropdownMenu class="dropdown-menu">
+                <!-- <li role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
+                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li>
+                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/accounts" routerLinkActive="active"><i></i><localize key="accounts.link"></localize></a></li> -->
+
+                <li *ngIf="isAdmin" role="menuitem">
+                    <a class="user-command-link" routerLink="/admin"><localize key="geoprismLanding.administration"></localize></a>
+                </li>
+                <li role="menuitem">
+                    <a id="account-btn" class="user-command-link link-active" (click)="account()"><localize key="userDashboards.account"></localize></a>
+                </li>
+                <li role="menuitem">
+                    <a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a>
+                </li>
+                    <!-- 
+                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/geotree" routerLinkActive="active"><i></i><localize key="Manage_Geoentities"></localize></a></li>
+                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/universaltree" routerLinkActive="active"><i></i><localize key="Manage_Universals"></localize></a></li>
+                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/classifiertree" routerLinkActive="active"><i></i><localize key="Term_Ontology_Admin"></localize></a></li>
+                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/browser" routerLinkActive="active"><i></i><localize key="databrowser.title"></localize></a></li>
+ -->                
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
