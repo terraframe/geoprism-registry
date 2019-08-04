@@ -25,7 +25,6 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,15 +43,15 @@ import com.runwaysdk.mvc.conversion.ComponentDTOIFToBasicJSON;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.WritePermissionExceptionDTO;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityDTO;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ExcludeConfiguration;
 import net.geoprism.ontology.GeoEntityUtilDTO;
+import net.geoprism.registry.conversion.ServerGeoObjectFactory;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -151,10 +150,12 @@ public class RegistryLocationController
   {
     ServerHierarchyType currentHt = ServerHierarchyType.get(MdTermRelationship.get(mdRelationshipId));
     JSONObject jsParent = new JSONObject(sjsParent);
-    GeoObject goParent = ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(jsParent.getString("oid")));
+    String oid = jsParent.getString("oid");
+
+    ServerGeoObjectIF goParent = ServerGeoObjectFactory.build(oid);
 
     ParentTreeNode ptnChild = new ParentTreeNode(newGo, null);
-    ptnChild.addParent(new ParentTreeNode(goParent, currentHt.getType()));
+    ptnChild.addParent(new ParentTreeNode(goParent.getGeoObject(), currentHt.getType()));
 
     // TODO : We can't show all available options because the auto-complete
     // doesn't know what the GeoObjectType is and can't search without it.
@@ -205,9 +206,9 @@ public class RegistryLocationController
   @Request(RequestType.SESSION)
   private GeoObject getGeoObject(String sessionId, String id)
   {
-    GeoObject go = ConversionService.getInstance().geoEntityToGeoObject(GeoEntity.get(id));
+    ServerGeoObjectIF object = ServerGeoObjectFactory.build(id);
 
-    return RegistryService.getInstance().getGeoObjectByCode(sessionId, go.getCode(), go.getType().getCode());
+    return object.getGeoObject();
   }
 
   private JSONObject serializeGo(String sessionId, GeoObject go)

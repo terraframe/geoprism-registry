@@ -42,7 +42,7 @@ public class MultipleParentTestDataGenerator
    GeoObject parent = ServiceFactory.getUtilities().getGeoObjectByCode("855 01", "Cambodia_Province");
    GeoObject newParent = ServiceFactory.getUtilities().getGeoObjectByCode("855 02", "Cambodia_Province");
 
-   RegistryService.getInstance().removeChildInTransaction(parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ht.getCode());
-   RegistryService.getInstance().addChildInTransaction(newParent.getUid(), newParent.getType().getCode(), child.getUid(), child.getType().getCode(), ht.getCode());
+//   RegistryService.getInstance().removeChildInTransaction(parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ht.getCode());
+//   RegistryService.getInstance().addChildInTransaction(newParent.getUid(), newParent.getType().getCode(), child.getUid(), child.getType().getCode(), ht.getCode());
  }
 }

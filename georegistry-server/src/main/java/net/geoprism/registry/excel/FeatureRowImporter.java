@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.conversion.ServerGeoObjectFactory;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -58,6 +59,7 @@ import net.geoprism.registry.io.SridException;
 import net.geoprism.registry.io.SynonymRestriction;
 import net.geoprism.registry.io.TermProblem;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.query.NonUniqueResultException;
@@ -94,7 +96,7 @@ public abstract class FeatureRowImporter
   {
     try
     {
-      GeoObject parent = null;
+      ServerGeoObjectIF parent = null;
 
       /*
        * First, try to get the parent and ensure that this row is not ignored.
@@ -190,7 +192,9 @@ public abstract class FeatureRowImporter
 
             if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
             {
-              service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
+              ServerGeoObjectIF child = ServerGeoObjectFactory.getGeoObject(entity.getUid(), typeCode);
+
+              parent.addChild(child, hierarchyCode);
             }
           }
           else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
@@ -266,7 +270,7 @@ public abstract class FeatureRowImporter
    *          Shapefile feature used to determine the parent
    * @return Parent entity
    */
-  private GeoObject getParent(FeatureRow feature)
+  private ServerGeoObjectIF getParent(FeatureRow feature)
   {
     List<Location> locations = this.configuration.getLocations();
 
@@ -338,7 +342,12 @@ public abstract class FeatureRowImporter
       }
     }
 
-    return parent;
+    if (parent != null)
+    {
+      return ServerGeoObjectFactory.getGeoObject(parent);
+    }
+
+    return null;
   }
 
   protected Object getParentCode(FeatureRow feature, Location location)
@@ -347,7 +356,7 @@ public abstract class FeatureRowImporter
     return function.getValue(feature);
   }
 
-  private GeoObject parsePostalCode(FeatureRow feature)
+  private ServerGeoObjectIF parsePostalCode(FeatureRow feature)
   {
     LocationBuilder builder = PostalCodeFactory.get(this.configuration.getType());
     Location location = builder.build(this.configuration.getFunction(GeoObject.CODE));
@@ -365,7 +374,7 @@ public abstract class FeatureRowImporter
 
       if (result != null)
       {
-        return result;
+        return ServerGeoObjectFactory.getGeoObject(result);
       }
       else
       {

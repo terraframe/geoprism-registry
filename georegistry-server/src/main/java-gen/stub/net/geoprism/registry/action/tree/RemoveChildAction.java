@@ -28,6 +28,8 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.conversion.ServerGeoObjectFactory;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -38,7 +40,10 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   public void execute()
   {
-    this.registry.removeChildInTransaction(this.getParentId(), this.getParentTypeCode(), this.getChildId(), this.getChildTypeCode(), this.getHierarchyTypeCode());
+    ServerGeoObjectIF parent = ServerGeoObjectFactory.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = ServerGeoObjectFactory.getGeoObject(this.getChildId(), this.getChildTypeCode());
+
+    parent.removeChild(child, this.getHierarchyTypeCode());
   }
 
   @Override

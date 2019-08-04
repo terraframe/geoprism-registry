@@ -20,8 +20,6 @@ package net.geoprism.registry;
 
 import java.util.List;
 
-import org.commongeoregistry.adapter.metadata.HierarchyType;
-
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -32,7 +30,6 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class AttributeHierarchy extends AttributeHierarchyBase
 {
@@ -43,13 +40,13 @@ public class AttributeHierarchy extends AttributeHierarchyBase
     super();
   }
 
-  public static HierarchyType getHierarchyType(String key)
+  public static ServerHierarchyType getHierarchyType(String key)
   {
     AttributeHierarchy hierarchy = AttributeHierarchy.getByKey(key);
     MdTermRelationship mdTermRelationship = hierarchy.getMdTermRelationship();
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(mdTermRelationship);
-    return hierarchyType.getType();
+    return hierarchyType;
   }
 
   public static void deleteByUniversal(Universal uni)

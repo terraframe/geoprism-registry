@@ -41,7 +41,6 @@ import org.json.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
@@ -55,8 +54,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.AllowedIn;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
@@ -75,6 +72,7 @@ import net.geoprism.registry.conversion.ServerGeoObjectFactory;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.GeoObjectIterator;
@@ -159,7 +157,9 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
   {
-    return ServiceFactory.getUtilities().getGeoObjectById(uid, geoObjectTypeCode);
+    ServerGeoObjectIF object = ServerGeoObjectFactory.getGeoObject(uid, geoObjectTypeCode);
+
+    return object.getGeoObject();
   }
 
   @Request(RequestType.SESSION)
@@ -213,105 +213,46 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
   {
-    return ServiceFactory.getUtilities().getChildGeoObjects(parentUid, parentGeoObjectTypeCode, childrenTypes, recursive);
+    ServerGeoObjectIF object = ServerGeoObjectFactory.getGeoObject(parentUid, parentGeoObjectTypeCode);
+    return object.getChildGeoObjects(childrenTypes, recursive);
   }
 
   @Request(RequestType.SESSION)
   public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive)
   {
-    return ServiceFactory.getUtilities().getParentGeoObjects(childId, childGeoObjectTypeCode, parentTypes, recursive);
+    ServerGeoObjectIF object = ServerGeoObjectFactory.getGeoObject(childId, childGeoObjectTypeCode);
+    return object.getParentGeoObjects(parentTypes, recursive);
   }
 
   @Request(RequestType.SESSION)
   public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
-    return addChildInTransaction(parentId, parentGeoObjectTypeCode, childId, childGeoObjectTypeCode, hierarchyCode);
-  }
+    ServerGeoObjectIF parent = ServerGeoObjectFactory.getGeoObject(parentId, parentGeoObjectTypeCode);
+    ServerGeoObjectIF child = ServerGeoObjectFactory.getGeoObject(childId, childGeoObjectTypeCode);
 
-  @Transaction
-  public ParentTreeNode addChildInTransaction(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
-  {
-    GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
-    GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
-
-    if (goParent.getType().isLeaf())
-    {
-      throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
-    }
-    else if (goChild.getType().isLeaf())
-    {
-      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
-      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
-
-      GeoEntity parent = GeoEntity.get(parentRunwayId);
-      Business child = Business.get(childRunwayId);
-
-      Universal parentUniversal = parent.getUniversal();
-      Universal childUniversal = ServerGeoObjectType.get(goChild.getType()).getUniversal();
-
-      String refAttrName = hierarchyType.getParentReferenceAttributeName(parentUniversal);
-      String universalRelationshipType = hierarchyType.getUniversalRelationship().definesType();
-
-      GeoEntity.validateUniversalRelationship(childUniversal, parentUniversal, universalRelationshipType);
-
-      child.appLock();
-      child.setValue(refAttrName, parent.getOid());
-      child.apply();
-
-      ParentTreeNode node = new ParentTreeNode(goChild, hierarchyType.getType());
-      node.addParent(new ParentTreeNode(goParent, hierarchyType.getType()));
-
-      return node;
-    }
-    else
-    {
-      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
-      GeoEntity geParent = GeoEntity.get(parentRunwayId);
-
-      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
-      GeoEntity geChild = GeoEntity.get(childRunwayId);
-
-      String mdTermRelGeoEntity = hierarchyType.getEntityRelationship().definesType();
-      String universalRelationshipType = hierarchyType.getUniversalRelationship().definesType();
-
-      if (!universalRelationshipType.equals(AllowedIn.CLASS))
-      {
-        GeoEntity.validateUniversalRelationship(geChild.getUniversal(), geParent.getUniversal(), universalRelationshipType);
-      }
-
-      geChild.addLink(geParent, mdTermRelGeoEntity);
-
-      ParentTreeNode node = new ParentTreeNode(goChild, hierarchyType.getType());
-      node.addParent(new ParentTreeNode(goParent, hierarchyType.getType()));
-
-      return node;
-    }
+    return parent.addChild(child, hierarchyCode);
   }
 
   public Boolean exists(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
 
-    GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
-    GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
+    ServerGeoObjectIF parent = ServerGeoObjectFactory.getGeoObject(parentId, parentGeoObjectTypeCode);
+    ServerGeoObjectIF child = ServerGeoObjectFactory.getGeoObject(childId, childGeoObjectTypeCode);
 
-    if (goParent.getType().isLeaf())
+    if (parent.getType().isLeaf())
     {
       throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
     }
-    else if (goChild.getType().isLeaf())
+    else if (child.getType().isLeaf())
     {
       return false;
     }
     else
     {
-      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
-      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
-
       RelationshipQuery query = new QueryFactory().relationshipQuery(hierarchyType.getEntityRelationship().definesType());
-      query.WHERE(query.parentOid().EQ(parentRunwayId));
-      query.AND(query.childOid().EQ(childRunwayId));
+      query.WHERE(query.parentOid().EQ(parent.getRunwayId()));
+      query.AND(query.childOid().EQ(child.getRunwayId()));
 
       return ( query.getCount() > 0 );
     }
@@ -320,46 +261,10 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
-    removeChildInTransaction(parentId, parentGeoObjectTypeCode, childId, childGeoObjectTypeCode, hierarchyCode);
-  }
+    ServerGeoObjectIF parent = ServerGeoObjectFactory.getGeoObject(parentId, parentGeoObjectTypeCode);
+    ServerGeoObjectIF child = ServerGeoObjectFactory.getGeoObject(childId, childGeoObjectTypeCode);
 
-  @Transaction
-  public void removeChildInTransaction(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
-  {
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
-
-    GeoObject goParent = ServiceFactory.getUtilities().getGeoObjectById(parentId, parentGeoObjectTypeCode);
-    GeoObject goChild = ServiceFactory.getUtilities().getGeoObjectById(childId, childGeoObjectTypeCode);
-
-    if (goParent.getType().isLeaf())
-    {
-      throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
-    }
-    else if (goChild.getType().isLeaf())
-    {
-      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
-      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
-
-      GeoEntity parent = GeoEntity.get(parentRunwayId);
-      Business child = Business.get(childRunwayId);
-
-      Universal parentUniversal = parent.getUniversal();
-      String refAttrName = hierarchyType.getParentReferenceAttributeName(parentUniversal);
-
-      child.appLock();
-      child.setValue(refAttrName, null);
-      child.apply();
-    }
-    else
-    {
-      String parentRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goParent.getUid(), goParent.getType());
-      GeoEntity geParent = GeoEntity.get(parentRunwayId);
-
-      String childRunwayId = RegistryIdService.getInstance().registryIdToRunwayId(goChild.getUid(), goChild.getType());
-      GeoEntity geChild = GeoEntity.get(childRunwayId);
-
-      geChild.removeLink(geParent, hierarchyType.getEntityRelationship().definesType());
-    }
+    parent.removeChild(child, hierarchyCode);
   }
 
   /**
@@ -965,8 +870,9 @@ public class RegistryService
   public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode)
   {
     GeoObject go = this.getGeoObjectByCode(sessionId, code, typeCode);
+    ServerGeoObjectIF geoObject = ServerGeoObjectFactory.getGeoObject(go);
 
-    return ServiceFactory.getUtilities().getHierarchiesForGeoObject(go);
+    return ServiceFactory.getUtilities().getHierarchiesForGeoObject(geoObject);
   }
 
   @Request(RequestType.SESSION)

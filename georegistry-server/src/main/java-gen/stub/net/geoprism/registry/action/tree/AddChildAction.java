@@ -21,7 +21,6 @@ package net.geoprism.registry.action.tree;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
@@ -29,9 +28,9 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.action.tree.AddChildActionBase;
+import net.geoprism.registry.conversion.ServerGeoObjectFactory;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class AddChildAction extends AddChildActionBase
@@ -41,7 +40,10 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void execute()
   {
-    this.registry.addChildInTransaction(this.getParentId(), this.getParentTypeCode(), this.getChildId(), this.getChildTypeCode(), this.getHierarchyTypeCode());
+    ServerGeoObjectIF parent = ServerGeoObjectFactory.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = ServerGeoObjectFactory.getGeoObject(this.getChildId(), this.getChildTypeCode());
+
+    parent.addChild(child, this.getHierarchyTypeCode());
   }
 
   @Override
