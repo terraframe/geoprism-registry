@@ -193,8 +193,10 @@ public class MasterList extends MasterListBase
 
     try
     {
+      MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+      mdBusiness.deleteAllRecords();
+
       ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
-      type.deleteAllRecords();
 
       List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
@@ -218,7 +220,7 @@ public class MasterList extends MasterListBase
         {
           while (objects.hasNext())
           {
-            Business business = new Business(type.definesType());
+            Business business = new Business(mdBusiness.definesType());
 
             GeoObject object = objects.next();
 

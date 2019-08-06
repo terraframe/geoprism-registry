@@ -246,7 +246,7 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
     // Build the parent class term root if it does not exist.
     TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
 
-    ServerGeoObjectType serverGeoObjectType = new ServerGeoObjectType(geoObjectType, universal, mdBusiness);
+    ServerGeoObjectType serverGeoObjectType = this.build(universal);
 
     new WMSService().createDatabaseView(serverGeoObjectType, true);
 

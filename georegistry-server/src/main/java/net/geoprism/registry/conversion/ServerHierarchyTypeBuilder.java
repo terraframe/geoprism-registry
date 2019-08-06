@@ -29,7 +29,6 @@ import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyTypeBuilder extends AbstractBuilder
 {
@@ -81,7 +80,7 @@ public class ServerHierarchyTypeBuilder extends AbstractBuilder
 
     Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
 
-    MdTermRelationship mdTermRelGeoEntity = ServiceFactory.getConversionService().newHierarchyToMdTermRelForGeoEntities(hierarchyType);
+    MdTermRelationship mdTermRelGeoEntity = this.newHierarchyToMdTermRelForGeoEntities(hierarchyType);
     mdTermRelGeoEntity.apply();
 
     this.grantWritePermissionsOnMdTermRel(mdTermRelGeoEntity);
@@ -127,6 +126,41 @@ public class ServerHierarchyTypeBuilder extends AbstractBuilder
     mdTermRelationship.setParentMdBusiness(mdBusUniversal);
     mdTermRelationship.setParentCardinality("1");
     mdTermRelationship.setChildMdBusiness(mdBusUniversal);
+    mdTermRelationship.setChildCardinality("*");
+    mdTermRelationship.setParentMethod("Parent");
+    mdTermRelationship.setChildMethod("Children");
+
+    return mdTermRelationship;
+  }
+
+  /**
+   * It creates an {@link MdTermRelationship} to model the relationship between
+   * {@link GeoEntity}s.
+   * 
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  public MdTermRelationship newHierarchyToMdTermRelForGeoEntities(HierarchyType hierarchyType)
+  {
+    MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
+
+    MdTermRelationship mdTermRelationship = new MdTermRelationship();
+
+    mdTermRelationship.setTypeName(hierarchyType.getCode());
+    mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
+    this.populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
+    this.populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
+    mdTermRelationship.setIsAbstract(false);
+    mdTermRelationship.setGenerateSource(false);
+    mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_NOTHING);
+    mdTermRelationship.addAssociationType(AssociationType.Graph);
+    mdTermRelationship.setRemove(true);
+    // Create the relationship between different universals.
+    mdTermRelationship.setParentMdBusiness(mdBusGeoEntity);
+    mdTermRelationship.setParentCardinality("1");
+    mdTermRelationship.setChildMdBusiness(mdBusGeoEntity);
     mdTermRelationship.setChildCardinality("*");
     mdTermRelationship.setParentMethod("Parent");
     mdTermRelationship.setChildMethod("Children");
