@@ -48,7 +48,6 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -68,6 +67,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.conversion.AttributeTypeBuilder;
+import net.geoprism.registry.conversion.ServerGeoObjectBuilder;
 import net.geoprism.registry.conversion.ServerGeoObjectFactory;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
@@ -171,29 +171,23 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject createGeoObject(String sessionId, String jGeoObj)
   {
-    return createGeoObjectInTransaction(jGeoObj);
-  }
-
-  @Transaction
-  public GeoObject createGeoObjectInTransaction(String jGeoObj)
-  {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    return ServiceFactory.getUtilities().applyGeoObject(geoObject, true, null, false);
+    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
+    ServerGeoObjectIF object = builder.apply(geoObject, true, null, false);
+
+    return object.getGeoObject();
   }
 
   @Request(RequestType.SESSION)
   public GeoObject updateGeoObject(String sessionId, String jGeoObj)
   {
-    return updateGeoObjectInTransaction(jGeoObj);
-  }
-
-  @Transaction
-  public GeoObject updateGeoObjectInTransaction(String jGeoObj)
-  {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    return ServiceFactory.getUtilities().applyGeoObject(geoObject, false, null, false);
+    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
+    ServerGeoObjectIF object = builder.apply(geoObject, false, null, false);
+
+    return object.getGeoObject();
   }
 
   @Request(RequestType.SESSION)

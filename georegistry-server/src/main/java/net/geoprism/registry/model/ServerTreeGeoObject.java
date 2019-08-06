@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -19,57 +20,35 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.ontology.TermUtil;
+import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.ServerGeoObjectFactory;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerTreeGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
-  private Logger              logger = LoggerFactory.getLogger(ServerTreeGeoObject.class);
+  private Logger    logger = LoggerFactory.getLogger(ServerTreeGeoObject.class);
 
-  private ServerGeoObjectType type;
-
-  private GeoObject           geoObject;
-
-  private GeoEntity           geoEntity;
-
-  private Business            business;
+  private GeoEntity geoEntity;
 
   public ServerTreeGeoObject(ServerGeoObjectType type, GeoObject geoObject, GeoEntity geoEntity, Business business)
   {
-    this.type = type;
-    this.geoObject = geoObject;
+    super(type, geoObject, business);
+
     this.geoEntity = geoEntity;
-    this.business = business;
-  }
-
-  public ServerGeoObjectType getType()
-  {
-    return type;
-  }
-
-  public void setType(ServerGeoObjectType type)
-  {
-    this.type = type;
-  }
-
-  @Override
-  public GeoObject getGeoObject()
-  {
-    return this.geoObject;
-  }
-
-  public void setGeoObject(GeoObject geoObject)
-  {
-    this.geoObject = geoObject;
   }
 
   public GeoEntity getGeoEntity()
@@ -82,20 +61,10 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
     this.geoEntity = geoEntity;
   }
 
-  public Business getBusiness()
-  {
-    return business;
-  }
-
-  public void setBusiness(Business business)
-  {
-    this.business = business;
-  }
-
   @Override
   public String getCode()
   {
-    return this.geoObject.getCode();
+    return this.getGeoObject().getCode();
   }
 
   @Override
@@ -107,19 +76,19 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
   @Override
   public String getUid()
   {
-    return this.geoObject.getUid();
+    return this.getGeoObject().getUid();
   }
 
   @Override
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs()
   {
-    return this.business.getMdAttributeDAOs();
+    return this.getBusiness().getMdAttributeDAOs();
   }
 
   @Override
   public String getValue(String attributeName)
   {
-    return this.business.getValue(attributeName);
+    return this.getBusiness().getValue(attributeName);
   }
 
   @Override
@@ -165,7 +134,7 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
 
     this.geoEntity.addLink(parent.getGeoEntity(), hierarchyType.getEntityType());
 
-    ParentTreeNode node = new ParentTreeNode(this.geoObject, hierarchyType.getType());
+    ParentTreeNode node = new ParentTreeNode(this.getGeoObject(), hierarchyType.getType());
     node.addParent(new ParentTreeNode(parent.getGeoObject(), hierarchyType.getType()));
 
     return node;
@@ -175,6 +144,78 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
   public void removeParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType)
   {
     this.geoEntity.removeLink( ( (ServerTreeGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
+  }
+
+  @Override
+  protected Term populateBusiness(String statusCode)
+  {
+    this.getBusiness().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, this.geoEntity.getOid());
+
+    return super.populateBusiness(statusCode);
+  }
+
+  @Override
+  public void apply(String statusCode, boolean isImport)
+  {
+    if (!this.geoEntity.isNew())
+    {
+      this.geoEntity.appLock();
+      this.getBusiness().appLock();
+    }
+
+    if (this.getGeoObject().getCode() != null)
+    {
+      this.geoEntity.setGeoId(this.getGeoObject().getCode());
+    }
+
+    ServiceFactory.getConversionService().populate(this.geoEntity.getDisplayLabel(), this.getGeoObject().getDisplayLabel());
+
+    Geometry geom = this.getGeoObject().getGeometry();
+    if (geom != null)
+    {
+      if (!this.isValidGeometry(geom))
+      {
+        GeometryTypeException ex = new GeometryTypeException();
+        ex.setActualType(geom.getGeometryType());
+        ex.setExpectedType(this.getGeoObject().getGeometryType().name());
+
+        throw ex;
+      }
+
+      try
+      {
+        GeometryHelper geometryHelper = new GeometryHelper();
+        this.geoEntity.setGeoPoint(geometryHelper.getGeoPoint(geom));
+        this.geoEntity.setGeoMultiPolygon(geometryHelper.getGeoMultiPolygon(geom));
+        this.geoEntity.setWkt(geom.toText());
+      }
+      catch (Exception e)
+      {
+        String msg = "Error parsing WKT";
+
+        WKTParsingProblem p = new WKTParsingProblem(msg);
+        p.setNotification(this.geoEntity, GeoEntity.WKT);
+        p.setReason(e.getLocalizedMessage());
+        p.apply();
+        p.throwIt();
+      }
+    }
+
+    if (!isImport && !this.geoEntity.isNew() && !this.getGeoObject().getType().isGeometryEditable() && this.geoEntity.isModified(GeoEntity.WKT))
+    {
+      throw new GeometryUpdateException();
+    }
+
+    this.geoEntity.apply();
+
+    Term statusTerm = populateBusiness(statusCode);
+
+    this.getBusiness().apply();
+
+    /*
+     * Update the returned GeoObject
+     */
+    this.getGeoObject().setStatus(statusTerm);
   }
 
   private static ChildTreeNode internalGetChildGeoObjects(ServerGeoObjectIF parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn)

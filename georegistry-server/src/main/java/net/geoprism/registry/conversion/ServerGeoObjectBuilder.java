@@ -21,14 +21,19 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -104,6 +109,101 @@ public class ServerGeoObjectBuilder extends AbstractBuilder
     throw new UnsupportedOperationException("Unsupported geometry type [" + geometryType.name() + "]");
   }
 
+  @Transaction
+  public ServerGeoObjectIF apply(GeoObject object, boolean isNew, String statusCode, boolean isImport)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
+
+    if (type.isLeaf())
+    {
+      ServerGeoObjectIF geoObject = this.constructLeafObject(type, object, isNew);
+      geoObject.apply(statusCode, isImport);
+
+      return ServerGeoObjectFactory.build(type, geoObject.getRunwayId());
+    }
+    else
+    {
+      ServerGeoObjectIF geoObject = this.constructTreeObject(type, object, isNew);
+      geoObject.apply(statusCode, isImport);
+
+      return ServerGeoObjectFactory.build(type, geoObject.getRunwayId());
+    }
+  }
+
+  private ServerGeoObjectIF constructTreeObject(ServerGeoObjectType type, GeoObject geoObject, boolean isNew)
+  {
+    if (!isNew)
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), type.getType());
+
+      GeoEntity entity = GeoEntity.get(runwayId);
+      Business business = this.getGeoEntityBusiness(entity);
+
+      return new ServerTreeGeoObject(type, geoObject, entity, business);
+    }
+    else
+    {
+      if (!RegistryIdService.getInstance().isIssuedId(geoObject.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+
+      GeoEntity entity = new GeoEntity();
+      entity.setUniversal(type.getUniversal());
+
+      Business business = new Business(type.definesType());
+
+      return new ServerTreeGeoObject(type, geoObject, entity, business);
+    }
+  }
+
+  private Business getGeoEntityBusiness(GeoEntity ge)
+  {
+    QueryFactory qf = new QueryFactory();
+    BusinessQuery bq = qf.businessQuery(ge.getUniversal().getMdBusiness().definesType());
+    bq.WHERE(bq.aReference(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME).EQ(ge));
+    OIterator<? extends Business> bit = bq.getIterator();
+    try
+    {
+      if (bit.hasNext())
+      {
+        return bit.next();
+      }
+    }
+    finally
+    {
+      bit.close();
+    }
+
+    return null;
+  }
+
+  private ServerGeoObjectIF constructLeafObject(ServerGeoObjectType type, GeoObject geoObject, boolean isNew)
+  {
+    if (!isNew)
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(geoObject.getUid(), geoObject.getType());
+
+      Business business = Business.get(runwayId);
+
+      return new ServerLeafGeoObject(type, geoObject, business);
+    }
+    else
+    {
+      if (!RegistryIdService.getInstance().isIssuedId(geoObject.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+
+      Business business = new Business(type.definesType());
+      return new ServerLeafGeoObject(type, geoObject, business);
+    }
+  }
+
   public ServerGeoObjectIF build(ServerGeoObjectType type, GeoEntity geoEntity)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -112,7 +212,7 @@ public class ServerGeoObjectBuilder extends AbstractBuilder
 
     GeoObject geoObj = new GeoObject(type.getType(), type.getGeometryType(), attributeMap);
 
-    if (geoEntity.isNew())
+    if (geoEntity.isNew() && !geoEntity.isAppliedToDB())
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
 
@@ -122,7 +222,7 @@ public class ServerGeoObjectBuilder extends AbstractBuilder
     {
       geoObj.setUid(RegistryIdService.getInstance().runwayIdToRegistryId(geoEntity.getOid(), geoEntity.getUniversal()));
 
-      Business biz = ServiceFactory.getUtilities().getGeoEntityBusiness(geoEntity);
+      Business biz = this.getGeoEntityBusiness(geoEntity);
 
       Map<String, AttributeType> attributes = type.getAttributeMap();
       attributes.forEach((attributeName, attribute) -> {
@@ -210,7 +310,7 @@ public class ServerGeoObjectBuilder extends AbstractBuilder
 
     GeoObject geoObj = new GeoObject(type.getType(), type.getGeometryType(), attributeMap);
 
-    if (business.isNew())
+    if (business.isNew() && !business.isAppliedToDB())
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
 

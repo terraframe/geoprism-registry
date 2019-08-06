@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -23,84 +25,50 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.dashboard.GeometryUpdateException;
+import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerLeafGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
-  private Logger              logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
-
-  private ServerGeoObjectType type;
-
-  private GeoObject           geoObject;
-
-  private Business            business;
+  private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
 
   public ServerLeafGeoObject(ServerGeoObjectType type, GeoObject go, Business business)
   {
-    this.type = type;
-    this.geoObject = go;
-    this.business = business;
-  }
-
-  public ServerGeoObjectType getType()
-  {
-    return type;
-  }
-
-  public void setType(ServerGeoObjectType type)
-  {
-    this.type = type;
-  }
-
-  public GeoObject getGeoObject()
-  {
-    return geoObject;
-  }
-
-  public void setGeoObject(GeoObject geoObject)
-  {
-    this.geoObject = geoObject;
-  }
-
-  public Business getBusiness()
-  {
-    return business;
-  }
-
-  public void setBusiness(Business business)
-  {
-    this.business = business;
+    super(type, go, business);
   }
 
   @Override
   public String getCode()
   {
-    return this.geoObject.getCode();
+    return this.getGeoObject().getCode();
   }
 
   @Override
   public String getUid()
   {
-    return this.geoObject.getUid();
+    return this.getGeoObject().getUid();
   }
 
   @Override
   public String getRunwayId()
   {
-    return this.business.getOid();
+    return this.getBusiness().getOid();
   }
 
   @Override
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs()
   {
-    return this.business.getMdAttributeDAOs();
+    return this.getBusiness().getMdAttributeDAOs();
   }
 
   @Override
   public String getValue(String attributeName)
   {
-    return this.business.getValue(attributeName);
+    return this.getBusiness().getValue(attributeName);
   }
 
   @Override
@@ -132,9 +100,9 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
   {
     String refAttrName = hierarchyType.getParentReferenceAttributeName(parent.getType().getUniversal());
 
-    this.business.appLock();
-    this.business.setValue(refAttrName, null);
-    this.business.apply();
+    this.getBusiness().appLock();
+    this.getBusiness().setValue(refAttrName, null);
+    this.getBusiness().apply();
   }
 
   @Override
@@ -148,9 +116,9 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
 
     GeoEntity.validateUniversalRelationship(childUniversal, parentUniversal, universalRelationshipType);
 
-    this.business.appLock();
-    this.business.setValue(refAttrName, parent.getGeoEntity().getOid());
-    this.business.apply();
+    this.getBusiness().appLock();
+    this.getBusiness().setValue(refAttrName, parent.getGeoEntity().getOid());
+    this.getBusiness().apply();
 
     ParentTreeNode node = new ParentTreeNode(this.getGeoObject(), hierarchyType.getType());
     node.addParent(new ParentTreeNode(parent.getGeoObject(), hierarchyType.getType()));
@@ -158,10 +126,58 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
     return node;
   }
 
+  public void apply(String statusCode, boolean isImport)
+  {
+    if (!this.getBusiness().isNew())
+    {
+      this.getBusiness().appLock();
+    }
+
+    if (this.getGeoObject().getCode() != null)
+    {
+      this.getBusiness().setValue(GeoObject.CODE, this.getGeoObject().getCode());
+    }
+
+    ServiceFactory.getConversionService().populate((LocalStruct) this.getBusiness().getStruct(GeoObject.DISPLAY_LABEL), this.getGeoObject().getDisplayLabel());
+
+    Geometry geom = this.getGeoObject().getGeometry();
+    if (geom != null)
+    {
+      if (!this.isValidGeometry(geom))
+      {
+        GeometryTypeException ex = new GeometryTypeException();
+        ex.setActualType(geom.getGeometryType());
+        ex.setExpectedType(this.getType().getGeometryType().name());
+
+        throw ex;
+      }
+      else
+      {
+        this.getBusiness().setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, geom);
+      }
+    }
+
+    if (!isImport && !this.getBusiness().isNew()
+        && !this.getGeoObject().getType().isGeometryEditable()
+        && this.getBusiness().isModified(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
+    {
+      throw new GeometryUpdateException();
+    }
+
+    Term status = this.populateBusiness(statusCode);
+
+    this.getBusiness().apply();
+
+    /*
+     * Update the returned GeoObject
+     */
+    this.getGeoObject().setStatus(status);
+  }
+
   @Override
   public String bbox()
   {
-    String definesType = this.type.definesType();
+    String definesType = this.getType().definesType();
 
     try
     {

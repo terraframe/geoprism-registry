@@ -40,4 +40,6 @@ public interface ServerGeoObjectIF
   public void removeParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType);
 
   public ParentTreeNode addParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType);
+
+  public void apply(String statusCode, boolean isImport);
 }

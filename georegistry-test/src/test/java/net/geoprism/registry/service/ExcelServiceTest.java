@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.conversion.ServerGeoObjectBuilder;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.io.DelegateShapefileFunction;
 import net.geoprism.registry.io.GeoObjectConfiguration;
@@ -377,7 +378,8 @@ public class ExcelServiceTest
       geoObj.setValue(this.testDate.getName(), calendar.getTime());
       geoObj.setValue(this.testBoolean.getName(), true);
 
-      geoObj = ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null, false);
+      ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
+      geoObj = builder.apply(geoObj, true, null, false).getGeoObject();
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -417,7 +419,8 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null, false);
+    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
+    builder.apply(geoObj, true, null, false).getGeoObject();
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -481,7 +484,8 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null, false);
+    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
+    builder.apply(geoObj, true, null, false);
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 

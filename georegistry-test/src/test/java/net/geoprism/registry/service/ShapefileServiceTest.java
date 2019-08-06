@@ -51,6 +51,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.conversion.ServerGeoObjectBuilder;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
@@ -289,7 +290,8 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null, false);
+    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
+    builder.apply(geoObj, true, null, false);
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
