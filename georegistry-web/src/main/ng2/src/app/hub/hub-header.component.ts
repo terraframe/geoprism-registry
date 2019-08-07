@@ -34,7 +34,7 @@ declare var acp:string;
   styleUrls: []
 })
 export class HubHeaderComponent {
-  private context:string;
+  context:string;
   @Input() isAdmin: boolean = false;
   bsModalRef: BsModalRef;  
 

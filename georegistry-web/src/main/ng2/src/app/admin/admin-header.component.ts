@@ -18,6 +18,8 @@
 ///
 
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { SessionService } from '../core/auth/session.service';
 
 declare var acp:string;
 
@@ -27,9 +29,18 @@ declare var acp:string;
   styleUrls: []
 })
 export class AdminHeaderComponent {
-  private context:string;
+  context:string;
 
-  constructor() {
+  constructor(
+      private sessionService:SessionService,
+      private router:Router
+    ) {
     this.context = acp;
+  }
+  
+  logout():void {
+    this.sessionService.logout().then(response => {
+      this.router.navigate(['/login']);   
+    });     
   }
 }

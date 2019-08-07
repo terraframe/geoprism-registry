@@ -30,7 +30,6 @@ import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
 
 import { CoreModule } from '../core/core.module';
 
-import { SystemInfoComponent } from './system/system-info.component';
 import { SystemLogoService } from './logo/system-logo.service';
 import { EmailService } from './email/email.service';
 import { AccountService } from './account/account.service';
@@ -40,14 +39,36 @@ import { AdminHeaderComponent } from './admin-header.component';
 
 import { LocalizePipe } from '../core/localize/localize.pipe';
 
+import { SystemLogoComponent } from './logo/system-logo.component';
+import { SystemLogosComponent } from './logo/system-logos.component';
+
+import { BrowserModule } from '@angular/platform-browser';
+
 @NgModule({
   imports: [
-    CoreModule
+    CommonModule,
+    FormsModule,
+    FileUploadModule,
+    BsDropdownModule.forRoot(),
+    ModalModule.forRoot(),
+    CoreModule,
+    BrowserModule,
+    NgxPaginationModule,
+    AdminRoutingModule,
+    PasswordStrengthBarModule,
+    CustomFormsModule,
   ],
   declarations: [
-	// Global components
+	  // Global components
     AdminHeaderComponent,
-    routedComponents
+    routedComponents,
+    SystemLogoComponent,
+    SystemLogosComponent
+  ],
+  exports: [
+    AdminHeaderComponent,
+    SystemLogoComponent,
+    SystemLogosComponent
   ],
   providers: [
     SystemLogoService,

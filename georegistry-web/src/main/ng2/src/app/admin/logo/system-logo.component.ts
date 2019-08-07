@@ -47,8 +47,8 @@ export class SystemLogoComponent implements OnInit {
   @ViewChild('uploadEl') 
   private uploadElRef: ElementRef;  
   
-  private file: any;
-  private context: string;
+  file: any;
+  context: string;
 
   constructor(
     private router: Router,      

@@ -41,7 +41,7 @@
                         <td class="button-column">
                             <a class="fa fa-pencil ico-edit" (click)="edit(account, $event)" [title]="'account.editTooltip' | localize"></a>
                             <a class="fa fa-trash-o ico-remove" [title]="'account.removeTooltip' | localize"
-                                confirm-modal [message]="'account.removeContent' | localize" (onConfirm)="remove(account, $event)"></a>
+                                (click)="onClickRemove(account, $event)"></a>
                         </td>
                         <td class="label-column username-col"> {{ account.username }} </td>
                         <td class="label-column firstname-col"> {{ account.firstName }} </td>

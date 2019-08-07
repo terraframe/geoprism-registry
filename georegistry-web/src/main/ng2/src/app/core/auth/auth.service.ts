@@ -56,7 +56,11 @@ export class AuthService {
     isContributer(): boolean {
         return this.user.roles.indexOf( "commongeoregistry.RegistryContributor" ) !== -1;
     }
-    
+  
+  getUsername(): string {
+    return this.user.userName;
+  }
+  
   getRoles(): string {
     let str = "";
     for (let i = 0; i < this.user.roles.length; ++i)

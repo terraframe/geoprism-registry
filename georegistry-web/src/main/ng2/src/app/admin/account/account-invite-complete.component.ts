@@ -53,8 +53,8 @@ export class AccountInviteCompleteComponent implements OnInit {
       this.eventService.onError(error); 
     
       return Promise.reject(error);
-    }).then((user:User) => {
-      this.user = user;
+    }).then((account:Account) => {
+      this.user = account.user;
     });
     this.sub = this.route.params.subscribe(params => {
        this.token = params['token'];

@@ -51,6 +51,7 @@
   <!-- CSS imports -->
   <jwr:style src="/bundles/datatable.css" useRandomParam="false"/>
   <jwr:style src="/bundles/main.css" useRandomParam="false" />
+  <jwr:style src="/bundles/administration.css" useRandomParam="false" />
   
   <!-- Default imports -->  
   <jwr:script src="/bundles/runway.js" useRandomParam="false"/> 
@@ -113,15 +114,17 @@
     
     </cgr-app>
 
-  <!-- IE required polyfills, in this exact order -->    
+  <!-- IE required polyfills, in this exact order -->
+  <!--
   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-polyfills.js"></script>  
   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/vendor.chunk.js"></script>  
   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-vendor.js"></script>    
   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-app.js"></script>
-  
-<!--   <script type="text/javascript" src="https://localhost:8080/dist/cgr-polyfills.js"></script>   -->
-<!--   <script type="text/javascript" src="https://localhost:8080/dist/vendor.chunk.js"></script>   -->
-<!--   <script type="text/javascript" src="https://localhost:8080/dist/cgr-vendor.js"></script>     -->
-<!--   <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script> -->
+  -->
+
+  <script type="text/javascript" src="https://localhost:8080/dist/cgr-polyfills.js"></script>
+  <script type="text/javascript" src="https://localhost:8080/dist/vendor.chunk.js"></script>
+  <script type="text/javascript" src="https://localhost:8080/dist/cgr-vendor.js"></script>
+  <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script>
 </body>
   

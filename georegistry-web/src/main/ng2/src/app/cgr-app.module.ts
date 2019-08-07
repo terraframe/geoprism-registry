@@ -26,7 +26,6 @@ import { SuccessModalComponent } from './core/modals/success-modal.component';
 import { ConfirmModalComponent } from './core/modals/confirm-modal.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 import { ErrorMessageComponent } from './core/message/error-message.component';
-import { BooleanFieldComponent } from './core/form-fields/boolean-field/boolean-field.component';
 import { ValidationComponent } from './core/form-fields/base/validation.component';
 import { LocalizedInputComponent } from './core/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './core/form-fields/localized-text/localized-text.component';
@@ -61,7 +60,7 @@ import { ManageGeoObjectTypeModalComponent } from './data/hierarchy/modals/manag
 import { MasterListManagerComponent } from './data/master-list/master-list-manager.component';
 import { PublishModalComponent } from './data/master-list/publish-modal.component';
 import { ExportFormatModalComponent } from './data/master-list/export-format-modal.component';
-
+import { AuthGuard } from './core/auth/auth.guard';
 import { RequestTableComponent } from './data/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './data/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './data/crtable/action-detail/add-remove-child/detail.component';
@@ -73,26 +72,26 @@ import { GeoObjectEditorMapComponent } from './data/geoobject-editor-map/geoobje
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { CascadingGeoSelector } from './data/cascading-geo-selector/cascading-geo-selector';
 import { ActionDetailModalComponent } from './data/crtable/action-detail/action-detail-modal.component';
-
+import { ProfileService } from './profile/profile.service';
+import { SessionService } from './core/auth/session.service';
 import { AccountsComponent } from './admin/account/accounts.component';
 import { AccountComponent } from './admin/account/account.component';
 import { EmailComponent } from './admin/email/email.component';
-import { SystemLogoComponent } from './admin/logo/system-logo.component';
-import { SystemLogosComponent } from './admin/logo/system-logos.component';
 import { ProfileComponent } from './profile/profile.component';
 import { HubHeaderComponent } from './hub/hub-header.component';
 import { HubComponent } from './hub/hub.component';
-
+import { ForgotPasswordService } from './forgotpassword/forgotpassword.service';
+import { ForgotPasswordCompleteService } from './forgotpassword-complete/forgotpassword-complete.service';
 import { GeoObjectTypePipe } from './data/hierarchy/pipes/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './data/geoobject-shared-attribute-editor/geoobject-attribute-excludes.pipe';
 import { ToEpochDateTimePipe } from './data/submit-change-request/to-epoch-date-time.pipe';
 import { DatePipe } from '@angular/common';
-
+import { AdminGuard } from './core/auth/admin.guard';
 import { LocalizeComponent } from './core/localize/localize.component';
 import { LocalizePipe } from './core/localize/localize.pipe';
 import { LocalizationService } from './core/service/localization.service';
 import { ModalStepIndicatorComponent } from './core/modals/modal-step-indicator.component';
-
+import { HubService } from './hub/hub.service';
 import { RegistryService } from './service/registry.service';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
@@ -100,9 +99,12 @@ import { ChangeRequestService } from './service/change-request.service';
 import { ProgressService } from './service/progress.service';
 import { IOService } from './service/io.service';
 import { EventService } from './event/event.service';
+import { MapService } from './service/map.service';
 import { AuthService } from './core/auth/auth.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 import { PendingChangesGuard } from './core/pending-changes-guard';
+import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
+import { CustomFormsModule } from 'ng2-validation'
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -113,6 +115,11 @@ import { ModalStepIndicatorService } from './core/service/modal-step-indicator.s
 
 import { AdminModule } from './admin/admin.module';
 import { CoreModule } from './core/core.module';
+import { LoginHeaderComponent } from './core/login/login-header.component';
+import { LoginComponent } from './core/login/login.component';
+import { ForgotPasswordComponent } from './forgotpassword/forgotpassword.component';
+import { ForgotPasswordCompleteComponent } from './forgotpassword-complete/forgotpassword-complete.component';
+import { SystemInfoComponent } from './admin/system/system-info.component';
 
 @NgModule({
   imports: [
@@ -134,9 +141,12 @@ import { CoreModule } from './core/core.module';
     NgxPaginationModule,    
     BrowserAnimationsModule,
     AdminModule,
-    CoreModule
+    CoreModule,
+    PasswordStrengthBarModule,
+    CustomFormsModule
   ],
   declarations: [
+    ErrorMessageComponent,
     CgrAppComponent,
     HierarchyComponent,
     LocalizationManagerComponent,
@@ -175,7 +185,6 @@ import { CoreModule } from './core/core.module';
     ModalStepIndicatorComponent,
     ManageTermOptionsComponent,
     OnlyNumber,
-    BooleanFieldComponent,
     ValidationComponent,
     LocalizedInputComponent,    
     LocalizedTextComponent,    
@@ -193,6 +202,11 @@ import { CoreModule } from './core/core.module';
     ProfileComponent,
     HubHeaderComponent,
     HubComponent,
+    LoginHeaderComponent,
+    LoginComponent,
+    ForgotPasswordComponent,
+    ForgotPasswordCompleteComponent,
+    SystemInfoComponent,
     
     // Master List screens
     MasterListManagerComponent,
@@ -203,14 +217,22 @@ import { CoreModule } from './core/core.module';
     routedComponents
   ],
   providers: [
-    HierarchyService,
+    CookieService,
+    AuthService,
+    EventService,
+    MapService,
+    SessionService,
+    ProfileService,
+    ForgotPasswordService,
+  	ForgotPasswordCompleteService,
+  	HubService,
+  	AuthGuard,
+  	AdminGuard,
+  	HierarchyService,
     LocalizationManagerService,
     ChangeRequestService,
     IOService,
-    EventService,
     Safe,
-    AuthService,
-    CookieService,
     LocalizationService,
     ModalStepIndicatorService,
     GeoObjectTypeManagementService,
@@ -224,33 +246,34 @@ import { CoreModule } from './core/core.module';
   entryComponents: [
 	  ErrorModalComponent, 
 	  SuccessModalComponent,
-      AddChildToHierarchyModalComponent, 
-      CreateGeoObjTypeModalComponent, 
-      ManageAttributesModalComponent, 
-      DefineAttributeModalContentComponent,
-      EditAttributeModalContentComponent,
-      CreateHierarchyTypeModalComponent, 
-      ConfirmModalComponent, 
-      LoadingBarComponent,
-      ShapefileModalComponent, 
-      SpreadsheetModalComponent,
-      NewLocaleModalComponent,
-      TermOptionWidgetComponent,
-      AttributeInputComponent,
-      EditTermOptionInputComponent,
-      ManageGeoObjectTypeModalComponent,
-      GeoObjectTypeInputComponent,
-      ModalStepIndicatorComponent,
-      ManageTermOptionsComponent,
-      ErrorMessageComponent,
-      GeoObjectSharedAttributeEditorComponent,
-      SubmitChangeRequestComponent,
-      GeoObjectEditorComponent,
-      PublishModalComponent,
+    AddChildToHierarchyModalComponent, 
+    CreateGeoObjTypeModalComponent, 
+    ManageAttributesModalComponent, 
+    DefineAttributeModalContentComponent,
+    EditAttributeModalContentComponent,
+    CreateHierarchyTypeModalComponent, 
+    ConfirmModalComponent, 
+    LoadingBarComponent,
+    ShapefileModalComponent, 
+    SpreadsheetModalComponent,
+    NewLocaleModalComponent,
+    TermOptionWidgetComponent,
+    AttributeInputComponent,
+    EditTermOptionInputComponent,
+    ManageGeoObjectTypeModalComponent,
+    GeoObjectTypeInputComponent,
+    ModalStepIndicatorComponent,
+    ManageTermOptionsComponent,
+    ErrorMessageComponent,
+    GeoObjectSharedAttributeEditorComponent,
+    SubmitChangeRequestComponent,
+    GeoObjectEditorComponent,
+    PublishModalComponent,
 	  ExportFormatModalComponent,
 	  DataPageComponent,
 	  ChangeRequestPageComponent,
-	  ActionDetailModalComponent
+	  ActionDetailModalComponent,
+	  ProfileComponent
   ]        
 })
 export class CgrAppModule { }

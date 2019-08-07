@@ -44,12 +44,13 @@ export class HubComponent implements OnInit {
   buckets:string = 'col-sm-6';
   bsModalRef: BsModalRef;  
 
-  constructor(private service:HubService, 
-	private authService:AuthService,
-	private profileService:ProfileService,
-	private modalService: BsModalService,
-	private router:Router,
-	private route:ActivatedRoute
+  constructor(
+    private service:HubService, 
+  	private authService:AuthService,
+  	private profileService:ProfileService,
+  	private modalService: BsModalService,
+  	private router:Router,
+  	private route:ActivatedRoute
 	) {
 	  
     this.context = acp as string;
@@ -68,6 +69,16 @@ export class HubComponent implements OnInit {
 //       this.router.navigate(['/login']);	  
 //     }); 	  
 //   }
+  
+  getUsername()
+  {
+    return this.authService.getUsername() + " : " + this.authService.getRoleDisplayLabels();
+  }
+  
+  getVersion()
+  {
+    return this.authService.getVersion();
+  }
   
   open(application:Application):void { 
     window.location.href = this.context + '/' + application.url;	  

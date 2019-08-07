@@ -19,6 +19,10 @@
                 <li role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
                 <li role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li>
                 <li role="menuitem"><a class="dropdown-item" routerLink="/admin/accounts" routerLinkActive="active"><i></i><localize key="accounts.link"></localize></a></li>
+
+                <li role="menuitem">
+                    <a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a>
+                </li>
 <!-- 
                 <li role="menuitem"><a class="dropdown-item" routerLink="/admin/geotree" routerLinkActive="active"><i></i><localize key="Manage_Geoentities"></localize></a></li>
                 <li role="menuitem"><a class="dropdown-item" routerLink="/admin/universaltree" routerLinkActive="active"><i></i><localize key="Manage_Universals"></localize></a></li>

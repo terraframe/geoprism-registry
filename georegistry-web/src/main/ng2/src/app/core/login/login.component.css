@@ -1,0 +1,215 @@
+#container {
+    /* background-color: #333; */
+    margin: 0;
+    height: 100%; 
+    overflow: hidden;
+}
+
+.vertical-center {
+    min-height: 100%;
+    min-height: calc(100vh - 164px);
+    display: flex;
+    align-items: center;
+}
+
+h1 {
+    color: maroon;
+    margin-left: 40px;
+}
+
+#logo{
+    margin-left: 50px;
+    width: 160px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#logo_gp {
+    display: block;
+    margin: 0 auto;
+    width: 200px;
+  }
+
+
+#login-btn{
+  float: right;
+  background: white;
+}
+#login-btn:hover,
+#login-btn:active{
+    border-color: #6BA542;
+}
+
+/* unvisited link */
+a:link {
+    color: grey;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* visited link */
+a:visited {
+    color: grey;
+}
+
+/* mouse over link */
+a:hover {
+    color: darkgrey;
+}
+
+/* selected link */
+a:active {
+    color: darkgrey;
+}
+
+#login-form{
+  /* float: right; */
+  /* width: 325px; */
+  /* height: 200px; */
+}
+
+#login-input-container{
+  /* position: absolute; */
+      /* top: 50%; */
+      /* transform: translateY(-50%); */
+}
+
+/* input {
+  height:56px;
+  padding:6px 10px;
+  font-size:20px;
+  line-height:18px;
+  color:#333;
+  border:1px solid #bbb;
+  border-radius: 8px;
+  background:white;
+  outline:none;
+}
+input:focus,
+input:active{
+    border-color:#6BA542;
+} */
+
+#login-form input[type="text"]{
+  float:left;
+  width:100%;
+  margin-bottom: 5px;
+}
+#login-form input[type="password"]{
+  float:left;
+  width:100%;
+}
+#login-form ::-webkit-input-placeholder{color:#999;}
+#login-form :-ms-input-placeholder{color:#999;}
+#login-form :-moz-placeholder{color:#999;}
+#login-form ::-moz-placeholder{
+  color:#999;
+  opacity:1
+}
+#login-form :focus::-webkit-input-placeholder{color:#ccc;}
+#login-form :focus:-ms-input-placeholder{color:#ccc;}
+#login-form :focus:-moz-placeholder{color:#ccc;}
+#login-form :focus::-moz-placeholder{color:#ccc;}
+#login-form .field-error input[type="text"]:focus,
+#login-form .field-error input[type="text"]:active,
+/* #login-form input[type="text"]:focus,
+#login-form input[type="text"]:active{border-color:#6BA542;} */
+#login-form .field-error input[type="text"]{
+  border-color:#6BA542;
+  background:#f8f8f8;
+}
+#login-form .field-error input[type="password"]{
+  border-color:#e09999;
+  background:#f8f8f8;
+}
+#login-form input[type="text"][disabled]{
+  border-color:#e4e4e4;
+  background:#f8f8f8;
+}
+#login-form [disabled]::-webkit-input-placeholder{color:#d2d2d2;}
+#login-form [disabled]:-ms-input-placeholder{color:#d2d2d2;}
+#login-form [disabled]:-moz-placeholder{color:#d2d2d2;}
+#login-form [disabled]::-moz-placeholder{color:#d2d2d2;}
+#login-form .error-message{
+  float:left;
+  padding:6px 0 0;
+  font-size:15px;
+  line-height:18px;
+  color:#FF0000;
+  width:100%;
+    word-wrap: break-word;
+    text-align: left;
+}
+
+#login-form .error-message p{
+    margin: 0;
+      margin-top: 10px;
+}
+
+.forgot-password {
+  float: left;
+  color: white;
+  margin: 10px;
+  cursor: pointer;
+}
+
+
+/*    #login-form input{ */
+/*      width: 150px; */
+/*      float: left; */
+/*        margin-top: 10px; */
+/*        background-color: #9F9D9D; */
+/*        border: none; */
+/*        padding: 3px; */
+/*    } */
+
+.login-button{
+  text-decoration: none;
+      border: none;
+      background-color: transparent;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+}
+
+.login-button:hover{
+  color: #00bfff;
+}
+
+.login-submit{
+      margin: 0 0 0 0;
+      position: absolute;
+      right: 25px;
+/*          top: 43px; */
+      position: absolute;
+      top: 40%;
+      transform: translateY(-50%);
+}
+
+#geoprism-landing-footer h4{
+  color: white;
+  text-align: center;
+  margin-top: 42px;
+}
+
+#background-img{
+      width: 100%; 
+      margin-top: 100px;
+}
+
+
+.error-message{
+  color: red;
+  text-align: center;
+}
+
+i.fa.fa-sign-in{
+  vertical-align: middle;
+}
+
+i.fa.fa-sign-in::before{
+  margin-right: 6px;
+      font-size: 25px;
+      vertical-align: middle;
+}

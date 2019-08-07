@@ -8,30 +8,39 @@ import { LocalizeComponent } from './localize/localize.component';
 import { LocalizePipe } from './localize/localize.pipe';
 
 import { ErrorMessageComponent } from './message/error-message.component';
+import { MessageComponent } from './message/message.component';
 
 import { EventService, IdService, BasicService} from './service/core.service';
 import { LocalizationService } from './service/localization.service';
 import { EventHttpService } from './service/event-http.service';
 
+import { PhonePipe } from './phone.pipe';
+
 import { CookieService } from 'ngx-cookie-service';
 
 import { AuthService } from './auth/auth.service';
 
+import { BooleanFieldComponent } from './form-fields/boolean-field/boolean-field.component';
+
 
 @NgModule({
   imports: [
-	CommonModule,
-	FormsModule,	
-    ProgressbarModule.forRoot()       
+	  CommonModule,
+	  FormsModule
   ],
   declarations: [
     LocalizeComponent,
-    ErrorMessageComponent,
     LocalizePipe,
+    MessageComponent,
+    PhonePipe,
+    BooleanFieldComponent
   ],
   exports: [
     LocalizeComponent,
     LocalizePipe,
+    MessageComponent,
+    PhonePipe,
+    BooleanFieldComponent
   ],
   providers: [
         LocalizationService,

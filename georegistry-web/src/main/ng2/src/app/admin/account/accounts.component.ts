@@ -20,8 +20,13 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { User, PageResult } from './account';
+import { User, PageResult, Account } from './account';
 import { AccountService } from './account.service';
+
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component';
+import { LocalizationService } from '../../core/service/localization.service';
 
 declare let acp: string;
 
@@ -38,8 +43,14 @@ export class AccountsComponent implements OnInit {
     pageSize:10
   };
   p:number = 1; 
+  bsModalRef: BsModalRef;
   
-  constructor(private router: Router, private service: AccountService) { }
+  constructor(
+    private router: Router,
+    private service: AccountService,
+    private modalService: BsModalService,
+    private localizeService: LocalizationService
+  ) { }
 
   ngOnInit(): void {
     this.service.page(this.p).then(res => {
@@ -53,11 +64,25 @@ export class AccountsComponent implements OnInit {
     });	  	  
   }
   
+  onClickRemove(account:Account) : void {
+    this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+        animated: true,
+        backdrop: true,
+        ignoreBackdropClick: true,
+    } );
+    this.bsModalRef.content.message = this.localizeService.decode( "account.removeContent" );
+    this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+
+    this.bsModalRef.content.onConfirm.subscribe( data => {
+      this.remove(account.user);
+    } );
+  }
+  
   edit(user:User) : void {
     this.router.navigate(['/admin/account', user.oid]);	  
   }
   
-  newInstance(pageNumber:number): void {
+  newInstance(): void {
     this.router.navigate(['/admin/account', 'NEW']);	  
   }  
   
@@ -66,4 +91,8 @@ export class AccountsComponent implements OnInit {
       this.res = res;	
     });	  	  
   }  
+  
+  inviteUsers(): void {
+    this.router.navigate(['/admin/invite']);	  
+  }
 }

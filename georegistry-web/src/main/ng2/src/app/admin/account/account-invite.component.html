@@ -24,19 +24,6 @@
               </div>                                          
             </div>
           </div>   
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>Bureau</label>
-            </div>          
-            <div class="holder" >
-              <span class="select">
-                <select [(ngModel)]="invite.bureau" name="bureau">
-                  <option></option>
-                  <option *ngFor="let option of invite.bureaus" [value]="option.value">{{option.label}}</option>
-                </select>
-              </span>
-            </div>
-          </div>                           
           <div *ngFor="let group of invite.groups">
             <div class="heading">
               <h3><localize [key]="'com.runwaysdk.ui.userstable.UsersTable.' + group.name"></localize></h3>

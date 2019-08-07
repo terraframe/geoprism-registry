@@ -21,6 +21,11 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component';
+import { LocalizationService } from '../../core/service/localization.service';
+
 import { SystemLogo } from './system-logo';
 import { SystemLogoService } from './system-logo.service';
 
@@ -35,16 +40,33 @@ declare let acp: string;
 export class SystemLogosComponent implements OnInit {
   public icons: SystemLogo[];
   context: string;
+  bsModalRef: BsModalRef;
 
   constructor(
     private router: Router,
-    private service: SystemLogoService) {
+    private service: SystemLogoService,
+    private modalService: BsModalService,
+    private localizeService: LocalizationService) {
 	  
     this.context = acp as string;    
   }
 
   ngOnInit(): void {
     this.getIcons();    
+  }
+  
+  onClickRemove(icon) : void {
+    this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+        animated: true,
+        backdrop: true,
+        ignoreBackdropClick: true,
+    } );
+    this.bsModalRef.content.message = this.localizeService.decode( "system.image.removeContent" );
+    this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+
+    this.bsModalRef.content.onConfirm.subscribe( data => {
+      this.remove(icon);
+    } );
   }
     
   getIcons() : void {
