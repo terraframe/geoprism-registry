@@ -8,6 +8,24 @@
   <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
     
     <div class="row">
+      <div class="col-md-4">
+        <h3><localize key="hierarchy.types.management.panel.title"></localize></h3>
+        <hr>
+        <ul class="list-group">
+          <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
+          <li class="list-group-item" *ngFor="let type of geoObjectTypes">
+            {{type.label.localizedValue}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" style="font-size:15px;cursor:auto;margin-left:5px;" aria-hidden="true"></i> 
+            <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type)"> </i> 
+            <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
+          </li>
+        </ul>
+        
+        <div>
+          <button type="submit" class="btn btn-primary" (click)="createGeoObjectType()"><localize key="hierarchy.management.button.create"></localize></button>
+        </div>
+        
+      </div>
+    
     
       <div class="col-md-4">
         <h3><localize key="hierarchy.management.panel.title"></localize></h3>
@@ -40,25 +58,7 @@
           </div>
         </div>
       </div>
-      
-      <div class="col-md-4">
-        <h3><localize key="hierarchy.types.management.panel.title"></localize></h3>
-        <hr>
-        <ul class="list-group">
-          <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
-          <li class="list-group-item" *ngFor="let type of geoObjectTypes">
-            {{type.label.localizedValue}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" style="font-size:15px;cursor:auto;margin-left:5px;" aria-hidden="true"></i> 
-            <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type)"> </i> 
-            <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
-          </li>
-        </ul>
-        
-        <div>
-          <button type="submit" class="btn btn-primary" (click)="createGeoObjectType()"><localize key="hierarchy.management.button.create"></localize></button>
-        </div>
-        
-      </div>
-      
+            
     </div>
     
   </div>

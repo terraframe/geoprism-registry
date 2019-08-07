@@ -31,9 +31,7 @@
 
             <div class="col-md-8">
                 <h4 *ngIf="isMaintainer">
-                    <localize key="masterlist.field"></localize>
-                    : <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> {{list.displayLabel.localizedValue}}</a>
-                    </b>
+                    <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> </a></b>
                 </h4>
 
                 <h4>
@@ -41,12 +39,6 @@
                     : {{list.publishDate}}
                 </h4>
             </div>
-            <!-- <div class="col-md-4"> -->
-            <!-- <div class="button-holder"> -->
-            <!-- <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize></a> -->
-            <!-- <button class="btn btn-primary" (click)="onView($event)"><localize key="masterlist.view"></localize></button> -->
-            <!-- </div> -->
-            <!-- </div> -->
             <div class="col-md-4" style="text-align: right;">
                 <!-- <h4>Master List Controls</h4> -->
                 <button type="submit" (click)="clearFilters()" class="btn btn-default" role="button">
@@ -89,17 +81,15 @@
 		</div> -->
         <div *ngIf="filter.length > 0" class="row form-group">
             <div class="col-md-12 table-responsive" style="">
-              <localize key="masterlist.filters"></localize>
-              <ol>
-                <li *ngFor="let f of filter">
-                  {{f.label}}
-                </li>
-              </ol>
+                <localize key="masterlist.filters"></localize>
+                <ol>
+                    <li *ngFor="let f of filter">{{f.label}}</li>
+                </ol>
             </div>
         </div>
         <div class="row form-group">
             <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-        </div>        
+        </div>
         <div class="row form-group">
             <div class="col-md-12 table-responsive" style="">
                 <table class="list-table table table-bordered table-striped">
