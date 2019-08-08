@@ -49,12 +49,12 @@ export class AccountInviteCompleteComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.service.newInstance().catch((error:any) => {
+    this.service.newUserInstance().catch((error:any) => {
       this.eventService.onError(error); 
     
       return Promise.reject(error);
-    }).then((account:Account) => {
-      this.user = account.user;
+    }).then((user:User) => {
+      this.user = user;
     });
     this.sub = this.route.params.subscribe(params => {
        this.token = params['token'];

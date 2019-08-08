@@ -7,7 +7,7 @@
             <a class="navbar-brand" href="{{context}}/prism/home#/menu"><localize key="cgr.standard.title"></localize></a>
           </div>
           
-          <ul class="nav navbar-nav navbar-right">
+          <ul *ngIf="loggedIn" class="nav navbar-nav navbar-right">
             <a (click)="account()" class="navbar-username">
               <div>Logged in as</div>
               <div>{{getUsername()}}</div>

@@ -36,6 +36,7 @@ declare var acp:string;
 })
 export class AdminHeaderComponent {
   context:string;
+  @Input() loggedIn: boolean = true;
   isAdmin: boolean;
   isMaintainer: boolean;
   isContributor: boolean;
