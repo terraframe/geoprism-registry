@@ -1,0 +1,103 @@
+<div>
+  <admin-header></admin-header>
+
+<div>
+  <message ></message>  
+
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="heading">
+          <h1><localize key="email.modal.heading"></localize></h1>
+        </div>      
+        <fieldset>            
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="email.server"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="email.server" name="server" required #server="ngModel">
+              </span>
+              <div *ngIf="server.errors?.url" class="inline-error-message">
+                <localize key="email.server.validation"></localize>
+              </div>                            
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="email.username"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="email.username" name="username" required>
+              </span>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="email.password"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="password" [(ngModel)]="email.password" name="password" required>
+              </span>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="email.port"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="number" [(ngModel)]="email.port" name="port" required #port="ngModel" number>
+              </span>
+              <div *ngIf="port.errors?.number" class="inline-error-message">
+                <localize key="email.port.validation"></localize>
+              </div>                                                        
+            </div>
+          </div>          
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="email.from"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="email.from" name="from" required #from="ngModel" email>
+              </span>
+              <div *ngIf="from.errors?.email" class="inline-error-message">
+                <localize key="email.from.validation"></localize>
+              </div>                                          
+            </div>
+          </div>          
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="email.to"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="email.to" name="to"  #to="ngModel" email>
+              </span>
+              <div *ngIf="to.errors?.email" class="inline-error-message">
+                <localize key="email.to.validation"></localize>
+              </div>                                                        
+            </div>
+          </div>          
+
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>                    
+            <div class="holder">
+              <div class="button-holder">
+                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
+                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </form>
+</div>
+
+</div>

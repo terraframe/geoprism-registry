@@ -1,0 +1,63 @@
+<div class="new-admin-design-main">
+    <admin-header></admin-header>
+
+    <div id="app-container" class="container">
+
+        <message></message>
+
+        <h2>
+            <localize key="accounts.title"></localize>
+        </h2>
+        <div class="row">
+            <input class="btn btn-primary pull-right" type="submit" value="Invite User" (click)="inviteUsers()">
+            <!-- TODO : Localize -->
+        </div>
+
+        <div class="list-table-wrapper">
+            <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="label-column">
+                            <localize key='account.username'></localize>
+                        </th>
+                        <th class="label-column">
+                            <localize key='account.firstname'></localize>
+                        </th>
+                        <th class="label-column">
+                            <localize key='account.lastname'></localize>
+                        </th>
+                        <th class="label-column">
+                            <localize key='account.phonenumber'></localize>
+                        </th>
+                        <th class="label-column">
+                            <localize key='account.email'></localize>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let account of res.resultSet | paginate: { itemsPerPage: 10, currentPage: p, totalItems: res.count }"
+                        class="fade-ngRepeat-item">
+                        <td class="button-column">
+                            <a class="fa fa-pencil ico-edit" (click)="edit(account, $event)" [title]="'account.editTooltip' | localize"></a>
+                            <a class="fa fa-trash-o ico-remove" [title]="'account.removeTooltip' | localize"
+                                (click)="onClickRemove(account, $event)"></a>
+                        </td>
+                        <td class="label-column username-col"> {{ account.username }} </td>
+                        <td class="label-column firstname-col"> {{ account.firstName }} </td>
+                        <td class="label-column lastname-col"> {{ account.lastName }} </td>
+                        <td class="label-column phone-col"> {{ account.phoneNumber | phone }} </td>
+                        <td class="label-column email-col"> {{ account.email }} </td>
+                    </tr>
+                    <tr>
+                        <td class="button-column">
+                            <a class="fa fa-plus" (click)="newInstance()" [title]="'account.newTooltip' | localize"></a>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+        </div>
+    </div>
+</div>

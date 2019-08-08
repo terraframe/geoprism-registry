@@ -119,13 +119,14 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
   }
 
   /*
-   * Expose public endpoints to allow non-logged in users to hit controller
-   * endpoints
+   * Expose public endpoints to allow non-logged in users to hit controller endpoints
    */
   @Override
   public Set<String> getPublicEndpoints()
   {
-    return super.getPublicEndpoints();
+    Set<String> endpoints = super.getPublicEndpoints();
+    endpoints.add("cgr/manage");
+    return endpoints;
   }
 
 }
