@@ -23,6 +23,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { Profile } from './profile';
 import { ProfileService } from './profile.service';
+import { AuthService } from '../core/auth/auth.service';
 
 
 @Component({  
@@ -41,7 +42,7 @@ export class ProfileComponent {
     changePassword:false    
   };
   
-  constructor(private service:ProfileService, public bsModalRef: BsModalRef) {}
+  constructor(private service:ProfileService, public bsModalRef: BsModalRef, private authService: AuthService) {}
   
   onSubmit():void {
     if(!this.profile.changePassword) {
@@ -51,7 +52,11 @@ export class ProfileComponent {
     this.service.apply(this.profile).then(profile => {
       this.bsModalRef.hide();
     });
-  }  
+  }
+  
+  getRoles():string {
+    return this.authService.getRoleDisplayLabels();
+  }
   
   cancel():void {
     this.service.unlock(this.profile.oid).then(profile => {

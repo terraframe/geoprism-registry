@@ -8,6 +8,10 @@
       </div>
           
        <ul class="nav navbar-nav navbar-right"> 
+         <a (click)="account()" class="navbar-username">
+           <div>Logged in as</div>
+           <div>{{getUsername()}}</div>
+         </a>
          <li dropdown> 
              <!-- <localize key="hierarchy-management.menu"></localize> -->
            <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle> 
@@ -16,12 +20,20 @@
 
            
            <ul *dropdownMenu class="dropdown-menu"> 
-			 <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
+             <li *ngIf="isAdmin" role="menuitem">
+               <a class="user-command-link" routerLink="/admin"><localize key="geoprismLanding.administration"></localize></a>
+             </li>
+           
+			       <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
+			 
              <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
-			 <li role="menuitem"><a class="dropdown-item" routerLink="/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
-			 <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li> 
-			 <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
-			 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
+             
+			       <li role="menuitem"><a class="dropdown-item" routerLink="/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+			 
+			       <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
+			 
+			       <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
+			       
              <li role="menuitem"><a class="dropdown-item" href="{{context}}/session/logout"><localize key="Log_out"></localize></a></li>
            </ul> 
          </li> 

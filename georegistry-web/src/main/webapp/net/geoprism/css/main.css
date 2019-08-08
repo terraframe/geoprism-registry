@@ -2500,14 +2500,19 @@ i.fa.fa-cloud-upload{
     padding: 0;
     margin-left: 20px;
 }
-.navbar.navbar-default .navbar-header:hover {
-    color: #e5e4d2; /* IE fallback */
-    color: var(--theme-accent-color-hover) !important;
-}
 
-.navbar-default:hover .navbar-brand {
-    color: #DBD7A5; /* IE fallback */
-    color: var(--theme-accent-color) !important;
+.navbar-default .navbar-header .navbar-brand:hover {
+	color: var(--theme-accent-color) !important;
+}
+.navbar-default .navbar-nav .navbar-username {
+	color: #777;
+	float:left;
+	margin:54px 15px 80px 0;
+	background-color:transparent;
+	text-align:center;
+}
+.navbar-default .navbar-nav .navbar-username:hover {
+  color: var(--theme-accent-color) !important;
 }
 
 .navbar-brand {
@@ -2545,85 +2550,6 @@ i.fa.fa-cloud-upload{
     background: var(--theme-primary-color-hover);
     color:white;
 }
-
-
-
-/* .navbar-default {
-  background-color: #333;
-}	
-	
-.navbar-default .navbar-nav > li > a {
-  color: white;
-  font-size: 15px;
-}
-
-.navbar-default .navbar-nav > li:hover > a {
-  color:#00bfff;
-}
-.navbar-default .navbar-nav>li>a:hover, 
-.navbar-default .navbar-nav>li>a:focus{
-	color:#00bfff;
-}
-
-.navbar-default .navbar-nav > li > a {
-  color: white;
-}
-.navbar-default .navbar-nav > li img {
-  height: 30px;
-}
-
-.navbar-default .navbar-brand {
-  color: white;
-  font-size: 20px;
-}
-
-.navbar-default:hover .navbar-brand {
-  color:#f8f8f8;
-}
-
-.navbar-default .navbar-header > a:hover {
-	color:#00bfff;
-}
-
-.navbar-default .navbar-header > a > img {
-  height: 30px;
-}
-
-.navbar-default .navbar-header > a:first-child {
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-	
-.navbar-nav>li>.dropdown-menu {
-    min-width: 100%;
-} */
-
-	
-/*
-* Scroll bar styling
-*
-*/
-/* ::-webkit-scrollbar { */
-/*     width: 12px; */
-/* } */
- 
-/* ::-webkit-scrollbar-track { */
-/*     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);  */
-/*     border-radius: 10px; */
-/* } */
- 
-/* ::-webkit-scrollbar-thumb { */
-/*     border-radius: 10px; */
-/*     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);  */
-/* } */
-
-
-
-
-
-
-/* NEW */
-
 
 #innerFrameHtml {
    height: 100% !important;

@@ -53,27 +53,34 @@ export class AccountInviteComponent implements OnInit {
       return Promise.reject(error);
     }).then((account:Account) => {
       this.invite.groups = account.groups;
+      
+      console.log("groups", this.invite.groups);
     });
   }
   
   cancel(): void {
     this.location.back();		
-  } 
+  }
+  
+  isRoleValid(): boolean
+  {
+    return this.getAssignedRoleId() != null;
+  }
+  
+  getAssignedRoleId(): string {
+    for(let i = 0; i < this.invite.groups.length; i++) {
+      let group = this.invite.groups[i];
+      
+      return group.assigned;
+    }
+    
+    return null;
+  }
   
   onSubmit(): void {
     let roleIds:string[] = [];
     
-    for(let i = 0; i < this.invite.groups.length; i++) {
-      let group = this.invite.groups[i];
-      
-      for(let j = 0; j < group.roles.length; j++) {
-        let role = group.roles[j];
-        
-        if(role.assigned) {
-          roleIds.push(role.roleId);
-        }      
-      }    
-    }
+    roleIds.push(this.getAssignedRoleId());
   
     this.service.inviteUser(this.invite, roleIds).then(response => {
       this.location.back();

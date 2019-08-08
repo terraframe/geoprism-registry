@@ -25,6 +25,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ProfileService } from '../profile/profile.service';
 import { ProfileComponent } from '../profile/profile.component';
 import { SessionService } from '../core/auth/session.service';
+import { AuthService } from '../core/auth/auth.service';
 
 declare var acp:string;
 
@@ -35,21 +36,33 @@ declare var acp:string;
 })
 export class HubHeaderComponent {
   context:string;
-  @Input() isAdmin: boolean = false;
-  bsModalRef: BsModalRef;  
+  isAdmin: boolean;
+  isMaintainer: boolean;
+  isContributor: boolean;
+  bsModalRef: BsModalRef;
 
   constructor(
     private sessionService:SessionService,
     private modalService: BsModalService,
     private profileService:ProfileService,
-	private router:Router) {
+	  private router:Router,
+	  private service: AuthService
+	) {
     this.context = acp;
+    this.isAdmin = service.isAdmin();
+    this.isMaintainer = this.isAdmin || service.isMaintainer();
+    this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
   }
 
   logout():void {
     this.sessionService.logout().then(response => {
       this.router.navigate(['/login']);	  
     }); 	  
+  }
+  
+  getUsername()
+  {
+    return this.service.getUsername();
   }
 
   account():void{

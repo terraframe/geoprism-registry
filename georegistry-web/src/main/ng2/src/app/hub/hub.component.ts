@@ -70,11 +70,6 @@ export class HubComponent implements OnInit {
 //     }); 	  
 //   }
   
-  getUsername()
-  {
-    return this.authService.getUsername() + " : " + this.authService.getRoleDisplayLabels();
-  }
-  
   getVersion()
   {
     return this.authService.getVersion();

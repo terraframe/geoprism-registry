@@ -32,9 +32,9 @@
             <div *ngFor="let role of group.roles" class="row-holder">
               <div class="label-holder">
                 <label>{{role.displayLabel}}</label>
-              </div>          
-              <div class="holder" >
-                <boolean-field [(value)]="role.assigned"></boolean-field>
+              </div>
+              <div class="holder" style="padding: 0 0 0 12px" >
+                <input style="margin: 0 0 0 0; padding: 0 0 0 0" type="radio" [value]="role.roleId" [(ngModel)]="group.assigned" [name]="group.name">
               </div>
             </div>              
           </div>
@@ -44,7 +44,7 @@
             <div class="holder">
               <div class="button-holder">
                 <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid && this.isRoleValid())" />
               </div>
             </div>
           </div>
