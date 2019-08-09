@@ -64,7 +64,7 @@ export class AccountsComponent implements OnInit {
     });	  	  
   }
   
-  onClickRemove(account:Account) : void {
+  onClickRemove(account:User) : void {
     this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
         animated: true,
         backdrop: true,

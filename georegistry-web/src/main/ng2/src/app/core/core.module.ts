@@ -9,7 +9,7 @@ import { LocalizePipe } from './localize/localize.pipe';
 
 import { ErrorMessageComponent } from './message/error-message.component';
 import { MessageComponent } from './message/message.component';
-
+import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { EventService, IdService, BasicService} from './service/core.service';
 import { LocalizationService } from './service/localization.service';
 import { EventHttpService } from './service/event-http.service';
@@ -33,14 +33,19 @@ import { BooleanFieldComponent } from './form-fields/boolean-field/boolean-field
     LocalizePipe,
     MessageComponent,
     PhonePipe,
-    BooleanFieldComponent
+    BooleanFieldComponent,
+    LoadingBarComponent
   ],
   exports: [
     LocalizeComponent,
     LocalizePipe,
     MessageComponent,
     PhonePipe,
-    BooleanFieldComponent
+    BooleanFieldComponent,
+    LoadingBarComponent
+  ],
+  entryComponents: [
+    LoadingBarComponent
   ],
   providers: [
         LocalizationService,
@@ -54,7 +59,6 @@ import { BooleanFieldComponent } from './form-fields/boolean-field/boolean-field
           },
           deps: [XHRBackend, RequestOptions, EventService]
         }
-      ],
-  entryComponents: []
+      ]
 })
 export class CoreModule {}
