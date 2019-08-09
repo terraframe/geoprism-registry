@@ -104,6 +104,14 @@
         </attributeStruct>
       </object>
       
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="type.publish.view.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="type.publish.view.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master List Metadata" />
+        </attributeStruct>
+      </object>
+      
       
     </createOrUpdate>
     
