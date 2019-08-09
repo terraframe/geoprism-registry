@@ -68,10 +68,13 @@ export class AccountInviteComponent implements OnInit {
   }
   
   getAssignedRoleId(): string {
-    for(let i = 0; i < this.invite.groups.length; i++) {
-      let group = this.invite.groups[i];
-      
-      return group.assigned;
+    if (this.invite != null && this.invite.groups != null)
+    {
+      for(let i = 0; i < this.invite.groups.length; i++) {
+        let group = this.invite.groups[i];
+        
+        return group.assigned;
+      }
     }
     
     return null;
