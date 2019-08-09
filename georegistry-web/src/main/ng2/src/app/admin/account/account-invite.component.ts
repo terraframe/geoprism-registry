@@ -36,6 +36,7 @@ import { AccountService } from './account.service';
 })
 export class AccountInviteComponent implements OnInit {
   invite:UserInvite;
+  message: string = null;
   
   constructor(
     private service:AccountService,

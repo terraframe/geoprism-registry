@@ -39,7 +39,8 @@ declare let acp: string;
 export class AccountInviteCompleteComponent implements OnInit {
   user:User;
   private sub: any;
-  token: string; 
+  token: string;
+  message: string = null;
   
   constructor(
     private service:AccountService,
