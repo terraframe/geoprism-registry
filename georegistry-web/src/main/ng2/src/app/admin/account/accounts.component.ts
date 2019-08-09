@@ -44,6 +44,7 @@ export class AccountsComponent implements OnInit {
   };
   p:number = 1; 
   bsModalRef: BsModalRef;
+  message: string = null;
   
   constructor(
     private router: Router,
@@ -55,13 +56,19 @@ export class AccountsComponent implements OnInit {
   ngOnInit(): void {
     this.service.page(this.p).then(res => {
       this.res = res;	
-    });	  
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }
   
   remove(user:User) : void {
     this.service.remove(user.oid).then(response => {
       this.res.resultSet = this.res.resultSet.filter(h => h.oid !== user.oid);    
-    });	  	  
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }
   
   onClickRemove(account:User) : void {
@@ -89,10 +96,20 @@ export class AccountsComponent implements OnInit {
   onPageChange(pageNumber:number): void {
     this.service.page(pageNumber).then(res => {
       this.res = res;	
-    });	  	  
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }  
   
   inviteUsers(): void {
     this.router.navigate(['/admin/invite']);	  
+  }
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
   }
 }

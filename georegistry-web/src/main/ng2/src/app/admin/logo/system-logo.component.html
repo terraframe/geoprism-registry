@@ -11,6 +11,9 @@
         <div class="heading">
           <h1><localize key="system.image.editHeader"></localize></h1>
         </div>      
+        
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+        
         <fieldset>
           <div class="row-holder">
             <div class="label-holder">

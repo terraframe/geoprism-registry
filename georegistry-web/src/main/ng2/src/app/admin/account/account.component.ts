@@ -60,6 +60,7 @@ export class AccountResolver implements Resolve<Account> {
 })
 export class AccountComponent implements OnInit {
   account:Account;
+  message: string = null;
   
   constructor(
     private service:AccountService,
@@ -78,7 +79,10 @@ export class AccountComponent implements OnInit {
 	else {
       this.service.unlock(this.account.user.oid).then(response => {
         this.location.back();
-      });		
+      })
+      .catch(( err: Response ) => {
+        this.error( err.json() );
+      } );
 	}
   } 
   
@@ -104,6 +108,16 @@ export class AccountComponent implements OnInit {
     
     this.service.apply(this.account.user, roleIds).then(response => {
       this.location.back();
-    });
-  }  
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
+  }
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
+  }
 }

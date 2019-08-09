@@ -12,6 +12,8 @@
     </span>
   </div>
   
+  <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  
   <div class="list-table-wrapper">
     <table id="manage-icons-table" class="list-table table table-bordered table-striped">        
       <thead>

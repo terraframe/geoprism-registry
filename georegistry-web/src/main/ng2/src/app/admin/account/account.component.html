@@ -11,6 +11,9 @@
           <div class="heading">
             <h3><localize key="account.user.heading"></localize></h3>
           </div>      
+          
+          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+          
           <hr>        
           <div class="row-holder">
             <div class="label-holder">

@@ -12,6 +12,9 @@
             <h3>Invite a User</h3>
           </div>      
           <hr>        
+          
+          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+          
           <div class="row-holder">
             <div class="label-holder">
               <label><localize key="account.email"></localize></label>
