@@ -74,7 +74,7 @@ export class AccountsComponent implements OnInit {
     this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
 
     this.bsModalRef.content.onConfirm.subscribe( data => {
-      this.remove(account.user);
+      this.remove(account);
     } );
   }
   
