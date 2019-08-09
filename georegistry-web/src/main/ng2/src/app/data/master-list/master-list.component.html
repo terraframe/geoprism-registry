@@ -91,7 +91,7 @@
             <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
         </div>
         <div class="row form-group">
-            <div class="col-md-12 table-responsive" style="">
+            <div *ngIf="list" class="col-md-12 table-responsive" style="">
                 <table class="list-table table table-bordered table-striped">
                     <thead>
                         <tr>
