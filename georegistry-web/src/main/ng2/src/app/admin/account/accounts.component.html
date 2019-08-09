@@ -4,10 +4,14 @@
     <div id="app-container" class="container">
 
         <message></message>
+        <loading-bar></loading-bar>
 
         <h2>
             <localize key="accounts.title"></localize>
         </h2>
+        
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+        
         <div class="row">
             <input class="btn btn-primary pull-right" type="submit" value="Invite User" (click)="inviteUsers()">
             <!-- TODO : Localize -->

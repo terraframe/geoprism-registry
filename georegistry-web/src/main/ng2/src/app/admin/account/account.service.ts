@@ -22,31 +22,32 @@ import { Headers, Http, Response, URLSearchParams } from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 
-import { EventService, BasicService } from '../../core/service/core.service';
-import { EventHttpService } from '../../core/service/event-http.service';
+import { EventService } from '../../event/event.service'
 
 import { Account, User, PageResult, UserInvite } from './account';
 
 declare var acp: any;
 
 @Injectable()
-export class AccountService extends BasicService {
+export class AccountService {
   
-  constructor(service: EventService, private ehttp: EventHttpService, private http: Http) {
-    super(service); 
-  }
+  constructor(private http: Http, private eventService: EventService) {}
   
   page(p:number): Promise<PageResult> {
     let params: URLSearchParams = new URLSearchParams();
     params.set('number', p.toString());
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
       .get(acp + '/account/page', {search: params})
+      .finally(() => {
+        this.eventService.complete();
+      } )
       .toPromise()
       .then(response => {
         return response.json() as PageResult;
-      })
-      .catch(this.handleError.bind(this));
+      });
   }
   
   edit(oid:string): Promise<Account> {
@@ -54,14 +55,18 @@ export class AccountService extends BasicService {
     let headers = new Headers({
       'Content-Type': 'application/json'
     });  
+    
+    this.eventService.start();
   
-    return this.ehttp
+    return this.http
       .post(acp + '/account/edit', JSON.stringify({oid:oid}), {headers: headers})
+      .finally(() => {
+        this.eventService.complete();
+      } )
       .toPromise()
       .then((response: any) => {
         return response.json() as Account;
-      })
-      .catch(this.handleError.bind(this));      
+      });
   }
   
   newInstance(): Promise<Account> {
@@ -70,13 +75,17 @@ export class AccountService extends BasicService {
       'Content-Type': 'application/json'
     });  
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/account/newInstance', JSON.stringify({}), {headers: headers})
+    .finally(() => {
+        this.eventService.complete();
+      } )
     .toPromise()
     .then((response: any) => {
       return response.json() as Account;
-    })
-    .catch(this.handleError.bind(this));      
+    });
   }
   
   newUserInstance(): Promise<User> {
@@ -85,13 +94,17 @@ export class AccountService extends BasicService {
       'Content-Type': 'application/json'
     });  
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/account/newUserInstance', JSON.stringify({}), {headers: headers})
+    .finally(() => {
+        this.eventService.complete();
+      } )
     .toPromise()
     .then((response: any) => {
       return response.json() as User;
-    })
-    .catch(this.handleError.bind(this));      
+    });
   }
   
   newInvite(): Promise<Account> {
@@ -100,13 +113,17 @@ export class AccountService extends BasicService {
       'Content-Type': 'application/json'
     });  
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/account/newInvite', JSON.stringify({}), {headers: headers})
+    .finally(() => {
+        this.eventService.complete();
+      } )
     .toPromise()
     .then((response: any) => {
       return response.json() as Account;
-    })
-    .catch(this.handleError.bind(this));      
+    });
   }
   
   remove(oid:string): Promise<Response> {
@@ -115,10 +132,14 @@ export class AccountService extends BasicService {
       'Content-Type': 'application/json'
     });  
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/account/remove', JSON.stringify({oid:oid}), {headers: headers})
-    .toPromise()
-    .catch(this.handleError.bind(this));      
+    .finally(() => {
+        this.eventService.complete();
+      } )
+    .toPromise();
   }
   
   apply(user:User, roleIds:string[]): Promise<User> {
@@ -127,13 +148,17 @@ export class AccountService extends BasicService {
       'Content-Type': 'application/json'
     });  
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/account/apply', JSON.stringify({account:user, roleIds:roleIds}), {headers: headers})
+    .finally(() => {
+        this.eventService.complete();
+      } )
     .toPromise()
     .then((response: any) => {
       return response.json() as User;
-    })
-    .catch(this.handleError.bind(this));      
+    });
   }
   
   unlock(oid:string): Promise<Response> {
@@ -142,24 +167,32 @@ export class AccountService extends BasicService {
       'Content-Type': 'application/json'
     });  
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/account/unlock', JSON.stringify({oid:oid}), {headers: headers})
-    .toPromise()
-    .catch(this.handleError.bind(this));      
+    .finally(() => {
+        this.eventService.complete();
+      } )
+    .toPromise();
   }
   
   inviteUser(invite:UserInvite, roleIds:string[]): Promise<Response>
   {
     let headers = new Headers({
       'Content-Type': 'application/json'
-    });  
+    });
+    
+    this.eventService.start();
     
     console.log("Submitting to inviteUser : ", JSON.stringify({invite: invite, roleIds: roleIds}));
     
-    return this.ehttp
+    return this.http
     .post(acp + '/account/inviteUser', JSON.stringify({invite: invite, roleIds: roleIds}), {headers: headers})
-    .toPromise()
-    .catch(this.handleError.bind(this));
+    .finally(() => {
+        this.eventService.complete();
+      } )
+    .toPromise();
   }
   
   inviteComplete(user:User, token:string): Promise<Response>
@@ -168,10 +201,14 @@ export class AccountService extends BasicService {
       'Content-Type': 'application/json'
     });  
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/account/inviteComplete', JSON.stringify({user: user, token: token}), {headers: headers})
-    .toPromise()
-    .catch(this.handleError.bind(this));
+    .finally(() => {
+        this.eventService.complete();
+      } )
+    .toPromise();
   }
   
 }

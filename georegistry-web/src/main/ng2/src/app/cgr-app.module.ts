@@ -118,7 +118,6 @@ import { LoginHeaderComponent } from './core/login/login-header.component';
 import { LoginComponent } from './core/login/login.component';
 import { ForgotPasswordComponent } from './forgotpassword/forgotpassword.component';
 import { ForgotPasswordCompleteComponent } from './forgotpassword-complete/forgotpassword-complete.component';
-import { SystemInfoComponent } from './admin/system/system-info.component';
 
 @NgModule({
   imports: [
@@ -204,7 +203,6 @@ import { SystemInfoComponent } from './admin/system/system-info.component';
     LoginComponent,
     ForgotPasswordComponent,
     ForgotPasswordCompleteComponent,
-    SystemInfoComponent,
     
     // Master List screens
     MasterListManagerComponent,

@@ -35,8 +35,14 @@ export class EmailService {
   }
   
   getInstance(): Promise<Email> {
+    
+    this.eventService.start();
+    
     return this.http
       .get(acp + '/email/getInstance')
+      .finally(() => {
+        this.eventService.complete();
+      } )
       .toPromise()
       .then(response => {
         return response.json() as Email;

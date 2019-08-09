@@ -41,6 +41,7 @@ export class SystemLogosComponent implements OnInit {
   public icons: SystemLogo[];
   context: string;
   bsModalRef: BsModalRef;
+  message: string = null;
 
   constructor(
     private router: Router,
@@ -73,6 +74,9 @@ export class SystemLogosComponent implements OnInit {
     this.service.getIcons().then(icons => {
       this.icons = icons        
     })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }
   
   edit(icon: SystemLogo) : void {
@@ -82,6 +86,16 @@ export class SystemLogosComponent implements OnInit {
   remove(icon: SystemLogo) : void {
     this.service.remove(icon.oid).then(response => {
       icon.custom = false;
-    });
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }  
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
+  }
 }
