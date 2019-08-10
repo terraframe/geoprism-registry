@@ -113,17 +113,21 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
 
     getIsValid(): boolean {
-        let isValid: boolean = false;
+        if (! this.readOnly ) {
+            let isValid: boolean = false;
 
-        if ( this.editingControl != null ) {
-            let featureCollection: any = this.editingControl.getAll();
+            if ( this.editingControl != null ) {
+                let featureCollection: any = this.editingControl.getAll();
 
-            if ( featureCollection.features.length > 0 ) {
-                isValid = true;
+                if ( featureCollection.features.length > 0 ) {
+                    isValid = true;
+                }
             }
-        }
 
-        return isValid;
+            return isValid;
+        }
+        
+        return true;
     }
 
     private onValidChange(): void {
