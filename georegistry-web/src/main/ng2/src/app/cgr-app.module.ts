@@ -49,7 +49,6 @@ import { TermProblemPageComponent } from './data/importer/modals/term-problem-pa
 import { TermProblemComponent } from './data/importer/modals/term-problem.component';
 import { SpreadsheetModalComponent } from './data/importer/modals/spreadsheet-modal.component';
 import { DataPageComponent } from './data/data-page/data-page.component';
-import { LoadingBarComponent } from './loading-bar/loading-bar.component';
 import { NewLocaleModalComponent } from './data/localization-manager/new-locale-modal.component';
 import { TermOptionWidgetComponent } from './data/hierarchy/geoobjecttype-management/term-option-widget.component';
 import { AttributeInputComponent } from './data/hierarchy/geoobjecttype-management/attribute-input.component';
@@ -119,7 +118,6 @@ import { LoginHeaderComponent } from './core/login/login-header.component';
 import { LoginComponent } from './core/login/login.component';
 import { ForgotPasswordComponent } from './forgotpassword/forgotpassword.component';
 import { ForgotPasswordCompleteComponent } from './forgotpassword-complete/forgotpassword-complete.component';
-import { SystemInfoComponent } from './admin/system/system-info.component';
 
 @NgModule({
   imports: [
@@ -172,7 +170,6 @@ import { SystemInfoComponent } from './admin/system/system-info.component';
     TermProblemPageComponent,
     TermProblemComponent,
     SpreadsheetModalComponent,
-    LoadingBarComponent,
     GeoObjectTypePipe,
     GeoObjectAttributeCodeValidator,
     NewLocaleModalComponent,
@@ -206,7 +203,6 @@ import { SystemInfoComponent } from './admin/system/system-info.component';
     LoginComponent,
     ForgotPasswordComponent,
     ForgotPasswordCompleteComponent,
-    SystemInfoComponent,
     
     // Master List screens
     MasterListManagerComponent,
@@ -254,7 +250,6 @@ import { SystemInfoComponent } from './admin/system/system-info.component';
     EditAttributeModalContentComponent,
     CreateHierarchyTypeModalComponent, 
     ConfirmModalComponent, 
-    LoadingBarComponent,
     ShapefileModalComponent, 
     SpreadsheetModalComponent,
     NewLocaleModalComponent,

@@ -32,6 +32,7 @@ import { ForgotPasswordService } from './forgotpassword.service';
 export class ForgotPasswordComponent implements OnInit {
   username: string;
   emailIsSent: boolean = false;
+  message: string = null;
 
   constructor(
     private service: ForgotPasswordService,
@@ -52,6 +53,16 @@ export class ForgotPasswordComponent implements OnInit {
     this.service.submit(this.username)
       .then(response => {
         this.emailIsSent = true;
-      });
-  }  
+      })
+      .catch(( err: Response ) => {
+        this.error( err.json() );
+      } );
+  }
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
+  }
 }

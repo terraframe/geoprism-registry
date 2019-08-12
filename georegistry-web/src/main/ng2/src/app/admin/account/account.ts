@@ -32,6 +32,7 @@ export class User {
   phoneNumber: string;
   inactive: boolean;
   newInstance: boolean;
+  roles: string[];
 }
 
 export class Role {

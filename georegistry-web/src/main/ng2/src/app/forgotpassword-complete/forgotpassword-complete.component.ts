@@ -36,6 +36,7 @@ export class ForgotPasswordCompleteComponent implements OnInit {
   token: string;
   passwordIsReset: boolean = false;
   private sub: any;
+  message: string = null;
 
   constructor(
     private service: ForgotPasswordCompleteService,
@@ -63,6 +64,16 @@ export class ForgotPasswordCompleteComponent implements OnInit {
     this.service.complete(this.newPassword, this.token)
       .then(response => {
         this.passwordIsReset = true;
-      });
-  }  
+      })
+      .catch(( err: Response ) => {
+        this.error( err.json() );
+      } );
+  }
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
+  }
 }

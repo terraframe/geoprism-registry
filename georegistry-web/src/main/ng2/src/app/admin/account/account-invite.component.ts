@@ -37,6 +37,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 })
 export class AccountInviteComponent implements OnInit {
   invite:UserInvite;
+  message: string = null;
   
   constructor(
     private service:AccountService,
@@ -49,13 +50,12 @@ export class AccountInviteComponent implements OnInit {
   ngOnInit(): void {
     this.invite = new UserInvite();
     
-    this.service.newInvite().catch((error:any) => {
-      this.eventService.onError(error); 
-    
-      return Promise.reject(error);
-    }).then((account:Account) => {
+    this.service.newInvite().then((account:Account) => {
       this.invite.groups = account.groups;
-    });
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }
   
   cancel(): void {
@@ -68,13 +68,14 @@ export class AccountInviteComponent implements OnInit {
   }
   
   getAssignedRoleId(): string {
-	if (this.invite.groups) {
-		for (let i = 0; i < this.invite.groups.length; i++) {
-			let group = this.invite.groups[i];
-
-			return group.assigned;
-		}
-	}
+    if (this.invite != null && this.invite.groups != null)
+    {
+      for(let i = 0; i < this.invite.groups.length; i++) {
+        let group = this.invite.groups[i];
+        
+        return group.assigned;
+      }
+    }
     
     return null;
   }
@@ -86,6 +87,16 @@ export class AccountInviteComponent implements OnInit {
   
     this.service.inviteUser(this.invite, roleIds).then(response => {
       this.bsModalRef.hide();
-    });
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }  
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
+  }
 }

@@ -40,6 +40,7 @@ declare var acp: any;
 })
 export class SystemLogoComponent implements OnInit {
   oid: SystemLogo;
+  message: string = null;
 
   public uploader:FileUploader;
   public dropActive:boolean = false;
@@ -122,5 +123,12 @@ export class SystemLogoComponent implements OnInit {
     this.file = null;
     
     this.uploader.clearQueue()    
+  }
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
   }
 }

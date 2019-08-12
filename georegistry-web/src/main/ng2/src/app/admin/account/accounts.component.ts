@@ -46,6 +46,7 @@ export class AccountsComponent implements OnInit {
   };
   p:number = 1; 
   bsModalRef: BsModalRef;
+  message: string = null;
   
   constructor(
     private router: Router,
@@ -57,16 +58,22 @@ export class AccountsComponent implements OnInit {
   ngOnInit(): void {
     this.service.page(this.p).then(res => {
       this.res = res;	
-    });	  
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }
   
   remove(user:User) : void {
     this.service.remove(user.oid).then(response => {
       this.res.resultSet = this.res.resultSet.filter(h => h.oid !== user.oid);    
-    });	  	  
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }
   
-  onClickRemove(account:Account) : void {
+  onClickRemove(account:User) : void {
     this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
         animated: true,
         backdrop: true,
@@ -76,7 +83,7 @@ export class AccountsComponent implements OnInit {
     this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
 
     this.bsModalRef.content.onConfirm.subscribe( data => {
-      this.remove(account.user);
+      this.remove(account);
     } );
   }
   
@@ -127,7 +134,10 @@ export class AccountsComponent implements OnInit {
   onPageChange(pageNumber:number): void {
     this.service.page(pageNumber).then(res => {
       this.res = res;	
-    });	  	  
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }  
   
   inviteUsers(): void {
@@ -138,5 +148,12 @@ export class AccountsComponent implements OnInit {
         backdrop: true,
         ignoreBackdropClick: true,
     } );
+  }
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
   }
 }

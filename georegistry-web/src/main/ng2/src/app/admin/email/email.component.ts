@@ -32,6 +32,7 @@ import { EmailService } from './email.service';
   styleUrls: []
 })
 export class EmailComponent implements OnInit {
+  message: string = null;
   public email: Email = {
     oid:'',
     server:'',
@@ -63,6 +64,16 @@ export class EmailComponent implements OnInit {
     this.service.apply(this.email)
       .then(email => {
         this.location.back();
-      });
-  }  
+      })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
+  }
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
+  }
 }

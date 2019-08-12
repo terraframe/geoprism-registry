@@ -22,29 +22,30 @@ import { Headers, Http, Response, URLSearchParams } from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 
-import { EventService, BasicService } from '../core/service/core.service';
-import { EventHttpService } from '../core/service/event-http.service';
+import { EventService } from '../event/event.service'
 
 declare var acp: any;
 
 @Injectable()
-export class ForgotPasswordService extends BasicService {
+export class ForgotPasswordService {
   
-  constructor(service: EventService, private ehttp: EventHttpService, private http: Http) {
-    super(service); 
-  }
+  constructor(private http: Http, private eventService: EventService) {}
   
   submit(username:string): Promise<Response> {
     let headers = new Headers({
       'Content-Type': 'application/json'
     });  
+    
+    this.eventService.start();
   
-    return this.ehttp
+    return this.http
       .post(acp + '/forgotpassword/initiate', JSON.stringify({username:username}), {headers: headers})
+      .finally(() => {
+        this.eventService.complete();
+      } )
       .toPromise()
       .then((response: any) => {
         return response.json();
-      })
-      .catch(this.handleError.bind(this));      
+      });
   }  
 }

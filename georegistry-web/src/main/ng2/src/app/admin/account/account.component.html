@@ -2,7 +2,8 @@
   <!-- <admin-header></admin-header> -->
   
   <message></message>
-<!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons"> -->
+
+  <loading-bar></loading-bar>
 
   <form *ngIf="account" #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;overflow-y: auto;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
     <!-- <div class="modal-dialog" style="height: 100%;"> -->
@@ -11,6 +12,9 @@
           <div class="heading">
             <h3><localize key="account.user.heading"></localize></h3>
           </div>      
+          
+          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+          
           <hr>        
           <div class="row-holder">
             <div class="label-holder">

@@ -39,7 +39,8 @@ declare let acp: string;
 export class AccountInviteCompleteComponent implements OnInit {
   user:User;
   private sub: any;
-  token: string; 
+  token: string;
+  message: string = null;
   
   constructor(
     private service:AccountService,
@@ -49,13 +50,13 @@ export class AccountInviteCompleteComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.service.newUserInstance().catch((error:any) => {
-      this.eventService.onError(error); 
-    
-      return Promise.reject(error);
-    }).then((user:User) => {
+    this.service.newUserInstance().then((user:User) => {
       this.user = user;
-    });
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
+    
     this.sub = this.route.params.subscribe(params => {
        this.token = params['token'];
     });
@@ -68,6 +69,16 @@ export class AccountInviteCompleteComponent implements OnInit {
   onSubmit(): void {
     this.service.inviteComplete(this.user, this.token).then(response => {
       window.location.href = acp;
-    });
+    })
+    .catch(( err: Response ) => {
+      this.error( err.json() );
+    } );
   }  
+  
+  error( err: any ): void {
+    // Handle error
+    if ( err !== null ) {
+      this.message = ( err.localizedMessage || err.message );
+    }
+  }
 }

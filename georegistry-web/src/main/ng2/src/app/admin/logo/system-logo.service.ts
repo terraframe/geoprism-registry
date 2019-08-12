@@ -22,39 +22,44 @@ import { Headers, Http, Response, URLSearchParams } from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 
-import { EventService, BasicService } from '../../core/service/core.service';
-import { EventHttpService } from '../../core/service/event-http.service';
+import { EventService } from '../../event/event.service'
 
 import { SystemLogo } from './system-logo';
 
 declare var acp: any;
 
 @Injectable()
-export class SystemLogoService extends BasicService {
+export class SystemLogoService {
   
-  constructor(service: EventService, private ehttp: EventHttpService, private http: Http) {
-    super(service); 
-  }
+  constructor(private http: Http, private eventService: EventService) {}
   
   getIcons(): Promise<SystemLogo[]> {
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
       .get(acp + '/logo/getAll')
+      .finally(() => {
+        this.eventService.complete();
+      } )
       .toPromise()
       .then(response => {
         return response.json().icons as SystemLogo[];
-      })
-      .catch(this.handleError.bind(this));
+      });
   }  
 
   remove(oid:string): Promise<Response> {
     
     let headers = new Headers({
       'Content-Type': 'application/json'
-    });  
+    }); 
     
-    return this.ehttp
+    this.eventService.start();
+    
+    return this.http
     .post(acp + '/logo/remove', JSON.stringify({oid:oid}), {headers: headers})
-    .toPromise()
-    .catch(this.handleError.bind(this));      
+    .finally(() => {
+        this.eventService.complete();
+      } )
+    .toPromise();
   }
 }
