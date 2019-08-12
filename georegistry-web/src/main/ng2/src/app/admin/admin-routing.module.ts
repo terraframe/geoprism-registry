@@ -26,7 +26,7 @@ import { EmailComponent } from './email/email.component';
 import { SystemLogoComponent } from './logo/system-logo.component';
 import { SystemLogosComponent } from './logo/system-logos.component';
 import { AccountsComponent } from './account/accounts.component';
-import { AccountComponent, AccountResolver } from './account/account.component';
+import { AccountComponent } from './account/account.component';
 
 import { AccountInviteComponent } from './account/account-invite.component';
 import { AccountInviteCompleteComponent } from './account/account-invite-complete.component';
@@ -84,9 +84,9 @@ const routes: Routes = [
   {
     path: 'account/:oid',
     component: AccountComponent,
-    resolve: {
-      account: AccountResolver
-    },        
+    // resolve: {
+    //   account: AccountResolver
+    // },        
     data: { title: 'account.title' }
   },
   {
@@ -104,7 +104,7 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
-  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}, AccountResolver]
+  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}]
 })
 export class AdminRoutingModule { }
 

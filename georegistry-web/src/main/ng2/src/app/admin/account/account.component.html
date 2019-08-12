@@ -1,11 +1,12 @@
 <div>
-  <admin-header></admin-header>
+  <!-- <admin-header></admin-header> -->
   
   <message></message>
+<!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons"> -->
 
-  <form #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-    <div class="modal-dialog" style="height: 100%;">
-      <div class="modal-content" style="height: 100%;overflow-y: auto;">
+  <form *ngIf="account" #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;overflow-y: auto;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
+    <!-- <div class="modal-dialog" style="height: 100%;"> -->
+      <!-- <div *ngIf="account" class="modal-content" style="height: 100%;overflow-y: auto;"> -->
         <fieldset>            
           <div class="heading">
             <h3><localize key="account.user.heading"></localize></h3>
@@ -144,7 +145,7 @@
             </div>
           </div>
         </fieldset>
-      </div>
-    </div>
+      <!-- </div> -->
+    <!-- </div> -->
   </form>
 </div>

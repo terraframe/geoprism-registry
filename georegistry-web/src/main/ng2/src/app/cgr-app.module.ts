@@ -240,7 +240,8 @@ import { SystemInfoComponent } from './admin/system/system-info.component';
     ProgressService,
     DatePipe,
     ToEpochDateTimePipe,
-    PendingChangesGuard
+	PendingChangesGuard,
+	AccountComponent
   ],
   bootstrap: [CgrAppComponent],
   entryComponents: [

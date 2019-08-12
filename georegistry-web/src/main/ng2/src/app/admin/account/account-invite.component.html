@@ -1,11 +1,11 @@
 <div>
-  <admin-header></admin-header>
+  <!-- <admin-header></admin-header> -->
   
   <message></message>
 
-  <form #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-    <div class="modal-dialog" style="height: 100%;">
-      <div class="modal-content" style="height: 100%;overflow-y: auto;">
+  <form #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;overflow-y: auto;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
+    <!-- <div class="modal-dialog" style="height: 100%;"> -->
+      <!-- <div class="modal-content" style="height: 100%;overflow-y: auto;"> -->
         <fieldset>            
           <div class="heading">
             <h3>Invite a User</h3>
@@ -49,7 +49,7 @@
             </div>
           </div>
         </fieldset>
-      </div>
-    </div>
+      <!-- </div> -->
+    <!-- </div> -->
   </form>
 </div>

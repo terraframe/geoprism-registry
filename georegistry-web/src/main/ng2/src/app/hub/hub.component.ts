@@ -25,7 +25,8 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { AuthService } from '../core/auth/auth.service';
 import { Application } from './application';
 import { HubService } from './hub.service';
-import { HubHeaderComponent } from './hub-header.component'
+// import { HubHeaderComponent } from './hub-header.component'
+import { CgrHeaderComponent } from '../header.component';
 
 import { ProfileService } from '../profile/profile.service';
 import { ProfileComponent } from '../profile/profile.component';

@@ -8,10 +8,12 @@
           </div>
           
           <ul class="nav navbar-nav navbar-right">
-            <a (click)="account()" class="navbar-username">
-              <div>Logged in as</div>
-              <div>{{getUsername()}}</div>
-            </a>
+			<li>
+				<a (click)="account()" class="navbar-username">
+				<div>Logged in as</div>
+				<div>{{getUsername()}}</div>
+				</a>
+			</li>
             <li dropdown>
               <!-- <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle>
                 <localize key="admin.title"></localize><span class="caret"></span>

@@ -1,7 +1,8 @@
 <div class="body">
     <div class="new-admin-design-main">
 
-        <hub-header></hub-header>
+		<!-- <hub-header></hub-header> -->
+		<cgr-header></cgr-header>
 
         <div id="app-container" class="container-fluid">
                     <div class="nav-icon-container">
@@ -11,14 +12,14 @@
                             <div class="col-md-6 col-sm-4 col-xs-8">
                                 <div *ngFor="let app of applications; let i = index;" >
 
-                                    <div class="row" *ngIf="i % 3 === 0">
+                                    <div class="row" *ngIf="i % 4 === 0">
                                         
                                         <div *ngFor="let application of applications; let internalIndex = index;">
-                                            <div *ngIf="internalIndex >= i && internalIndex < i + 3" class="col-xs-12 col-sm-12 col-md-4 text-center" (click)="open(application)">
+                                            <div *ngIf="internalIndex >= i && internalIndex < i + 4" class="col-xs-12 col-sm-12 col-md-3 text-center" (click)="open(application)">
                                                 <div [id]="application.oid" class="nav-option-wrapper">
                                                     <img class="nav-icon-img img-responsive" [src]="context + '/' + application.src" alt="Navigation" />
                                                     <h3 class="nav-icon-img-label">{{application.label}}</h3>
-                                                    <p class="nav-icon-img-description"> {{application.description}} </p>
+                                                    <!-- <p class="nav-icon-img-description"> {{application.description}} </p> -->
                                                 </div>
                                             </div>
                                             <div *ngIf="applications?.length === 1 || applications?.length === 2" class="col-xs-12 col-sm-12 col-md-4"></div>

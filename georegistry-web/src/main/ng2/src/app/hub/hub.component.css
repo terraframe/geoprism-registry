@@ -152,6 +152,8 @@ h1 {
   text-align: center;
   margin-top: 10px;
   color: #3E2A5A;
+	  font-size: 21px;
+	  display: inline-block;
 }
 
 #dashboard-link{

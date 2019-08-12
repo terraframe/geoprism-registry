@@ -27,7 +27,7 @@ import { PendingChangesGuard } from "./core/pending-changes-guard";
 import { AccountsComponent } from './admin/account/accounts.component';
 import { AccountInviteComponent } from './admin/account/account-invite.component';
 import { AccountInviteCompleteComponent } from './admin/account/account-invite-complete.component';
-import { AccountComponent, AccountResolver } from './admin/account/account.component';
+import { AccountComponent} from './admin/account/account.component';
 import { SystemLogoComponent } from './admin/logo/system-logo.component';
 import { SystemLogosComponent } from './admin/logo/system-logos.component';
 import { EmailComponent } from './admin/email/email.component';
@@ -153,9 +153,9 @@ const routes: Routes = [
     {
       path: 'admin/account/:oid',
       component: AccountComponent,
-      resolve: {
-        account: AccountResolver
-      },        
+    //   resolve: {
+    //     account: AccountResolver
+    //   },        
       canActivate: [ AuthGuard ],
       data: { title: 'account.title' }
     },

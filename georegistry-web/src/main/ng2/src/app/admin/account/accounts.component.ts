@@ -27,6 +27,8 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ConfirmModalComponent } from '../../core/modals/confirm-modal.component';
 import { LocalizationService } from '../../core/service/localization.service';
+import { AccountComponent } from './account.component';
+import { AccountInviteComponent } from './account-invite.component';
 
 declare let acp: string;
 
@@ -49,7 +51,7 @@ export class AccountsComponent implements OnInit {
     private router: Router,
     private service: AccountService,
     private modalService: BsModalService,
-    private localizeService: LocalizationService
+	private localizeService: LocalizationService
   ) { }
 
   ngOnInit(): void {
@@ -79,11 +81,47 @@ export class AccountsComponent implements OnInit {
   }
   
   edit(user:User) : void {
-    this.router.navigate(['/admin/account', user.oid]);	  
+	// this.router.navigate(['/admin/account', user.oid]);
+	
+	this.bsModalRef = this.modalService.show( AccountComponent, {
+        animated: true,
+        backdrop: true,
+        ignoreBackdropClick: true,
+    } );
+	this.bsModalRef.content.oid = user.oid;
+
+	let that = this;
+	( <AccountComponent>this.bsModalRef.content ).onEdit.subscribe( data => {
+		let updatedUserIndex = that.res.resultSet.map(
+				function(e) { return e.oid; }
+				).indexOf(data.oid);
+		
+		if(updatedUserIndex !== -1)	{
+			that.res.resultSet[updatedUserIndex] = data;
+		}
+    } );
   }
   
   newInstance(): void {
-    this.router.navigate(['/admin/account', 'NEW']);	  
+	// this.router.navigate(['/admin/account', 'NEW']);
+
+	this.bsModalRef = this.modalService.show( AccountComponent, {
+        animated: true,
+        backdrop: true,
+        ignoreBackdropClick: true,
+    } );
+	this.bsModalRef.content.oid = 'NEW';
+
+	// let that = this;
+	// ( <AccountComponent>this.bsModalRef.content ).onEdit.subscribe( data => {
+	// 	let updatedUserIndex = that.res.resultSet.map(
+	// 			function(e) { return e.oid; }
+	// 			).indexOf(data.oid);
+		
+	// 	if(updatedUserIndex !== -1)	{
+	// 		that.res.resultSet[updatedUserIndex] = data;
+	// 	}
+    // } );
   }  
   
   onPageChange(pageNumber:number): void {
@@ -93,6 +131,12 @@ export class AccountsComponent implements OnInit {
   }  
   
   inviteUsers(): void {
-    this.router.navigate(['/admin/invite']);	  
+	// this.router.navigate(['/admin/invite']);	  
+
+	this.bsModalRef = this.modalService.show( AccountInviteComponent, {
+        animated: true,
+        backdrop: true,
+        ignoreBackdropClick: true,
+    } );
   }
 }

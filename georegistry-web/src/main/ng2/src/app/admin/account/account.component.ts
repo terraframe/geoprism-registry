@@ -17,93 +17,104 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
-
-import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
-
 import { Account } from './account';
-
-import { EventService } from '../../core/service/core.service';
 import { AccountService } from './account.service';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { Subject } from 'rxjs/Subject';
+import { User } from './account';
 
 
-export class AccountResolver implements Resolve<Account> {
-  constructor(@Inject(AccountService) private accountService:AccountService, @Inject(EventService) private eventService: EventService) {}
-  
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):Promise<Account> {
-	let oid = route.params['oid'];
-	
-	if(oid === 'NEW') {
-      return this.accountService.newInstance().catch((error:any) => {
-        this.eventService.onError(error); 
-        
-        return Promise.reject(error);
-      });    				
-	}
-	else {	
-      return this.accountService.edit(oid).catch((error:any) => {
-        this.eventService.onError(error); 
-        
-        return Promise.reject(error);
-      });    		
-	}
-  }
-}
-
-@Component({  
-  selector: 'account',
-  templateUrl: './account.component.html',
-  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+@Component({
+	selector: 'account',
+	templateUrl: './account.component.html',
+	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
 })
 export class AccountComponent implements OnInit {
-  account:Account;
-  
-  constructor(
-    private service:AccountService,
-    private route:ActivatedRoute,
-    private location:Location) {
-  }
 
-  ngOnInit(): void {
-    this.account = this.route.snapshot.data['account'];
-  }
-  
-  cancel(): void {
-	if(this.account.user.newInstance === true) {
-      this.location.back();		
+	message: string = null;
+	account: Account;
+	
+	@Input()
+	set oid(oid: string) {
+		if (oid === 'NEW') {
+			this.service.newInstance()
+				.then(data => {
+					this.account = data;
+				})
+				.catch((err: Response) => {
+					this.error( err.json() );
+				});
+		}
+		else if (oid) {
+			this.service.edit(oid)
+				.then(data => {
+					this.account = data;
+				})
+				.catch((err: Response) => {
+					this.error( err.json() );
+				});
+		}
 	}
-	else {
-      this.service.unlock(this.account.user.oid).then(response => {
-        this.location.back();
-      });		
+
+	public onEdit: Subject<User>;
+
+	constructor(
+		private service: AccountService,
+		private location: Location,
+		public bsModalRef: BsModalRef
+		) {
 	}
-  } 
-  
-  onSubmit(): void {
-    let roleIds:string[] = [];
-  
-    for(let i = 0; i < this.account.groups.length; i++) {
-      let group = this.account.groups[i];
-      
-      roleIds.push(group.assigned);
-//      for(let j = 0; j < group.roles.length; j++) {
-//        let role = group.roles[j];
-//        
-//        if(role.assigned) {
-//          roleIds.push(role.roleId);
-//        }      
-//      }    
-    }
-    
-    if(!this.account.changePassword && !this.account.user.newInstance) {
-      delete this.account.user.password;
-    }
-    
-    this.service.apply(this.account.user, roleIds).then(response => {
-      this.location.back();
-    });
-  }  
+
+	ngOnInit(): void {
+		// this.account = this.route.snapshot.data['account'];
+
+		this.onEdit = new Subject();
+	}
+
+	cancel(): void {
+		if (this.account.user.newInstance === true) {
+			this.bsModalRef.hide();
+		}
+		else {
+			this.service.unlock(this.account.user.oid).then(response => {
+				this.bsModalRef.hide();
+			});
+		}
+	}
+
+	onSubmit(): void {
+		let roleIds: string[] = [];
+
+		for (let i = 0; i < this.account.groups.length; i++) {
+			let group = this.account.groups[i];
+
+			roleIds.push(group.assigned);
+			//      for(let j = 0; j < group.roles.length; j++) {
+			//        let role = group.roles[j];
+			//        
+			//        if(role.assigned) {
+			//          roleIds.push(role.roleId);
+			//        }      
+			//      }    
+		}
+
+		if (!this.account.changePassword && !this.account.user.newInstance) {
+			delete this.account.user.password;
+		}
+
+		this.service.apply(this.account.user, roleIds).then(data => {
+			this.onEdit.next( data );
+			this.bsModalRef.hide();
+		});
+	}
+
+	error(err: any): void {
+		// Handle error
+		if (err !== null) {
+			this.message = (err.localizedMessage || err.message);
+		}
+	}
 }

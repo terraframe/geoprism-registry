@@ -2506,10 +2506,12 @@ i.fa.fa-cloud-upload{
 }
 .navbar-default .navbar-nav .navbar-username {
 	color: #777;
-	float:left;
-	margin:54px 15px 80px 0;
+	/* float:left; */
+	/* margin:54px 15px 80px 0; */
 	background-color:transparent;
-	text-align:center;
+	/* text-align:center; */
+	line-height: 144px;
+    padding: 0 10px;
 }
 .navbar-default .navbar-nav .navbar-username:hover {
   color: var(--theme-accent-color) !important;

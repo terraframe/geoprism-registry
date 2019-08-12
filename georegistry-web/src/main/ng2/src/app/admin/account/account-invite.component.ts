@@ -28,6 +28,7 @@ import { Account, UserInvite } from './account';
 
 import { EventService } from '../../core/service/core.service';
 import { AccountService } from './account.service';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 @Component({
   selector: 'account-invite',
@@ -41,7 +42,8 @@ export class AccountInviteComponent implements OnInit {
     private service:AccountService,
     private route:ActivatedRoute,
     private eventService:EventService,
-    private location:Location) {
+	private location:Location,
+	public bsModalRef: BsModalRef) {
   }
 
   ngOnInit(): void {
@@ -53,13 +55,11 @@ export class AccountInviteComponent implements OnInit {
       return Promise.reject(error);
     }).then((account:Account) => {
       this.invite.groups = account.groups;
-      
-      console.log("groups", this.invite.groups);
     });
   }
   
   cancel(): void {
-    this.location.back();		
+    this.bsModalRef.hide();		
   }
   
   isRoleValid(): boolean
@@ -68,11 +68,13 @@ export class AccountInviteComponent implements OnInit {
   }
   
   getAssignedRoleId(): string {
-    for(let i = 0; i < this.invite.groups.length; i++) {
-      let group = this.invite.groups[i];
-      
-      return group.assigned;
-    }
+	if (this.invite.groups) {
+		for (let i = 0; i < this.invite.groups.length; i++) {
+			let group = this.invite.groups[i];
+
+			return group.assigned;
+		}
+	}
     
     return null;
   }
@@ -83,7 +85,7 @@ export class AccountInviteComponent implements OnInit {
     roleIds.push(this.getAssignedRoleId());
   
     this.service.inviteUser(this.invite, roleIds).then(response => {
-      this.location.back();
+      this.bsModalRef.hide();
     });
   }  
 }
