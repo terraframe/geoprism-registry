@@ -100,10 +100,15 @@
                             <th *ngFor="let attribute of list.attributes" class="label-column">
 
                                 <div style="display: table-cell; padding-right: 10px; vertical-align: middle;" *ngIf="isFilterable(attribute)">
-                                    <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"> <i style="font-size: 20px;" class="fa fa-filter"></i>
+                                    <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"> 
+										<i style="font-size: 20px;" class="fa fa-filter"></i>
                                     </a>
-                                </div> <a (click)="onSort(attribute)" style="display: table-cell; word-break: keep-all; word-wrap: normal;">{{attribute.label}} </a> <a (click)="onSort(attribute)" style="display: table-cell; vertical-align: middle; padding-left: 5px;"> <i *ngIf="sort.order === 'ASC' && sort.attribute === attribute.name" class="fa fa-arrow-down" style="font-size: inherit;"></i> <i *ngIf="sort.order === 'DESC' && sort.attribute === attribute.name" class="fa fa-arrow-up" style="font-size: inherit;"></i>
-                            </a>
+								</div> 
+								<a (click)="onSort(attribute)" style="display: table-cell; word-break: keep-all; word-wrap: normal;">{{attribute.label}} </a> 
+								<a (click)="onSort(attribute)" style="display: table-cell; vertical-align: middle; padding-left: 5px;"> 
+									<i *ngIf="sort.order === 'ASC' && sort.attribute === attribute.name" class="fa fa-arrow-down" style="font-size: inherit;"></i> 
+									<i *ngIf="sort.order === 'DESC' && sort.attribute === attribute.name" class="fa fa-arrow-up" style="font-size: inherit;"></i>
+                            	</a>
 
                                 <div *ngIf="isFilterable(attribute)">
                                     <!-- <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic">
