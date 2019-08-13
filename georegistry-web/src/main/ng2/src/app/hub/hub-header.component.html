@@ -10,7 +10,7 @@
           <ul class="nav navbar-nav navbar-right">
 			<li>
 				<a (click)="account()" class="navbar-username">
-				<div>Logged in as</div>
+				<!-- <div>Logged in as</div> -->
 				<div>{{getUsername()}}</div>
 				</a>
 			</li>
@@ -22,30 +22,24 @@
                <span class="glyphicon glyphicon-menu-hamburger"></span> 
              </a>   
               <ul *dropdownMenu class="dropdown-menu">
-                <!-- <li role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
-                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li>
-                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/accounts" routerLinkActive="active"><i></i><localize key="accounts.link"></localize></a></li> -->
-
-                <li *ngIf="isAdmin" role="menuitem">
-                    <a class="user-command-link" routerLink="/admin"><localize key="geoprismLanding.administration"></localize></a>
-                </li>
-                
                 <!-- GeoRegistry specific links -->
                 <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
-	              <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
-	              <li role="menuitem"><a class="dropdown-item" routerLink="/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
-	              <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
-	              <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
-                
-                <li role="menuitem">
-                    <a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a>
+                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
+                <li role="menuitem"><a class="dropdown-item" routerLink="/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+                <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
+				
+				<hr *ngIf="isAdmin">
+				<li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li>
+				<li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
+				<li *ngIf="isAdmin" role="menuitem">
+                    <a class="user-command-link" routerLink="/admin"><localize key="accounts.link"></localize></a>
                 </li>
-                    <!-- 
-                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/geotree" routerLinkActive="active"><i></i><localize key="Manage_Geoentities"></localize></a></li>
-                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/universaltree" routerLinkActive="active"><i></i><localize key="Manage_Universals"></localize></a></li>
-                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/classifiertree" routerLinkActive="active"><i></i><localize key="Term_Ontology_Admin"></localize></a></li>
-                <li role="menuitem"><a class="dropdown-item" routerLink="/admin/browser" routerLinkActive="active"><i></i><localize key="databrowser.title"></localize></a></li>
- -->                
+                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li>
+  
+				<hr>
+                <li role="menuitem"><a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a></li>
+            
               </ul>
             </li>
           </ul>
