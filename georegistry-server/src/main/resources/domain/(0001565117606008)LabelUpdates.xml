@@ -1,0 +1,124 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  
+  <createOrUpdate>
+  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.manager.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.manager.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master Lists Manager" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.table.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Change request manager" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.types.management.panel.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.types.management.panel.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="GeoObject Types" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.panel.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.management.panel.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchies" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.view">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View Metadata" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master lists" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchies.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="GeoObjects, Hierarchies" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.data.option">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.data.option" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import, export" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.changerequest.option">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.changerequest.option" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Change requests" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="navigator.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="navigator.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Navigator" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="type.publish.view.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="type.publish.view.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master List Metadata" />
+        </attributeStruct>
+      </object>
+      
+      
+    </createOrUpdate>
+    
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

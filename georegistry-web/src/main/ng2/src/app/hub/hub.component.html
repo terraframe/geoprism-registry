@@ -1,0 +1,60 @@
+<div class="body">
+    <div class="new-admin-design-main">
+
+		<hub-header></hub-header>
+		<!-- <cgr-header></cgr-header> -->
+
+        <div id="app-container" class="container-fluid">
+                    <div class="nav-icon-container">
+
+                        <div *ngIf="applications?.length > 0" class="row-fluid vertical-center-row">
+                            <div class="col-md-3 col-sm-4 col-xs-2"></div>
+                            <div class="col-md-6 col-sm-4 col-xs-8">
+                                <div *ngFor="let app of applications; let i = index;" >
+
+                                    <div class="row" *ngIf="i % 4 === 0">
+                                        
+                                        <div *ngFor="let application of applications; let internalIndex = index;">
+                                            <div *ngIf="internalIndex >= i && internalIndex < i + 4" class="col-xs-12 col-sm-12 col-md-3 text-center" (click)="open(application)">
+                                                <div [id]="application.oid" class="nav-option-wrapper">
+                                                    <img class="nav-icon-img img-responsive" [src]="context + '/' + application.src" alt="Navigation" />
+                                                    <h3 class="nav-icon-img-label">{{application.label}}</h3>
+                                                    <!-- <p class="nav-icon-img-description"> {{application.description}} </p> -->
+                                                </div>
+                                            </div>
+                                            <div *ngIf="applications?.length === 1 || applications?.length === 2" class="col-xs-12 col-sm-12 col-md-4"></div>
+                                            <div *ngIf="applications?.length === 1" class="col-xs-12 col-sm-12 col-md-4"></div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-4 col-xs-2"></div>
+                        </div>
+                    </div>
+
+        </div>
+      <!-- 
+      <div style="width:100%">
+        <label style="text-align: left; width:50%; display: inline;">{{authService.getUsername()}} : {{authService.getRoles()}}</label>
+        <label style="text-align: right; width:50%; display: inline;">{{authService.getVersion()}}</label>
+      </div>
+      -->
+      <!--
+      <div class="container">
+		    <div class="row justify-content-between">
+			    <div class="col-4">
+			      {{authService.getUsername()}} : {{authService.getRoles()}}
+			    </div>
+			    <div class="col-4">
+			      {{authService.getVersion()}}
+			    </div>
+        </div>
+      </div>
+      -->
+      
+	    <span style="float:right;">
+	      {{getVersion()}}
+	    </span>
+    </div>
+</div>

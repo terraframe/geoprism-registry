@@ -171,6 +171,11 @@ export class GeoObjectEditorComponent implements OnInit {
         this.registryService.getGeoObjectTypes( [code] )
             .then( geoObjectType => {
                 this.geoObjectType = geoObjectType[0];
+                
+                if(!this.geoObjectType.isGeometryEditable) {
+                    this.areGeometriesValid = true;                    
+                }
+                
                 console.log( "Fetched GOTs", geoObjectType );
             } ).catch(( err: Response ) => {
                 this.error( err.json() );
