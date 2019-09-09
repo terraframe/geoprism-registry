@@ -32,128 +32,121 @@ import { AccountInviteComponent } from './account-invite.component';
 
 declare let acp: string;
 
-@Component({
-  selector: 'accounts',
-  templateUrl: './accounts.component.html',
-  styles: ['./accounts.css']
-})
+@Component( {
+    selector: 'accounts',
+    templateUrl: './accounts.component.html',
+    styles: ['./accounts.css']
+} )
 export class AccountsComponent implements OnInit {
-  res:PageResult = {
-    resultSet:[],
-    count:0,
-    pageNumber:1,
-    pageSize:10
-  };
-  p:number = 1; 
-  bsModalRef: BsModalRef;
-  message: string = null;
-  
-  constructor(
-    private router: Router,
-    private service: AccountService,
-    private modalService: BsModalService,
-	private localizeService: LocalizationService
-  ) { }
+    res: PageResult = {
+        resultSet: [],
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10
+    };
+    bsModalRef: BsModalRef;
+    message: string = null;
 
-  ngOnInit(): void {
-    this.service.page(this.p).then(res => {
-      this.res = res;	
-    })
-    .catch(( err: Response ) => {
-      this.error( err.json() );
-    } );
-  }
-  
-  remove(user:User) : void {
-    this.service.remove(user.oid).then(response => {
-      this.res.resultSet = this.res.resultSet.filter(h => h.oid !== user.oid);    
-    })
-    .catch(( err: Response ) => {
-      this.error( err.json() );
-    } );
-  }
-  
-  onClickRemove(account:User) : void {
-    this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-        animated: true,
-        backdrop: true,
-        ignoreBackdropClick: true,
-    } );
-    this.bsModalRef.content.message = this.localizeService.decode( "account.removeContent" );
-    this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+    constructor(
+        private router: Router,
+        private service: AccountService,
+        private modalService: BsModalService,
+        private localizeService: LocalizationService
+    ) { }
 
-    this.bsModalRef.content.onConfirm.subscribe( data => {
-      this.remove(account);
-    } );
-  }
-  
-  edit(user:User) : void {
-	// this.router.navigate(['/admin/account', user.oid]);
-	
-	this.bsModalRef = this.modalService.show( AccountComponent, {
-        animated: true,
-        backdrop: true,
-        ignoreBackdropClick: true,
-    } );
-	this.bsModalRef.content.oid = user.oid;
-
-	let that = this;
-	( <AccountComponent>this.bsModalRef.content ).onEdit.subscribe( data => {
-		let updatedUserIndex = that.res.resultSet.map(
-				function(e) { return e.oid; }
-				).indexOf(data.oid);
-		
-		if(updatedUserIndex !== -1)	{
-			that.res.resultSet[updatedUserIndex] = data;
-		}
-    } );
-  }
-  
-  newInstance(): void {
-	// this.router.navigate(['/admin/account', 'NEW']);
-
-	this.bsModalRef = this.modalService.show( AccountComponent, {
-        animated: true,
-        backdrop: true,
-        ignoreBackdropClick: true,
-    } );
-	this.bsModalRef.content.oid = 'NEW';
-
-	// let that = this;
-	// ( <AccountComponent>this.bsModalRef.content ).onEdit.subscribe( data => {
-	// 	let updatedUserIndex = that.res.resultSet.map(
-	// 			function(e) { return e.oid; }
-	// 			).indexOf(data.oid);
-		
-	// 	if(updatedUserIndex !== -1)	{
-	// 		that.res.resultSet[updatedUserIndex] = data;
-	// 	}
-    // } );
-  }  
-  
-  onPageChange(pageNumber:number): void {
-    this.service.page(pageNumber).then(res => {
-      this.res = res;	
-    })
-    .catch(( err: Response ) => {
-      this.error( err.json() );
-    } );
-  }  
-  
-  inviteUsers(): void {
-	// this.router.navigate(['/admin/invite']);	  
-
-	this.bsModalRef = this.modalService.show( AccountInviteComponent, {
-        animated: true,
-        backdrop: true,
-        ignoreBackdropClick: true,
-    } );
-  }
-  
-  error( err: any ): void {
-    // Handle error
-    if ( err !== null ) {
-      this.message = ( err.localizedMessage || err.message );
+    ngOnInit(): void {
+        this.service.page( 1 ).then( res => {
+            this.res = res;
+        } )
+            .catch(( err: Response ) => {
+                this.error( err.json() );
+            } );
     }
-  }
+
+    remove( user: User ): void {
+        this.service.remove( user.oid ).then( response => {
+            this.res.resultSet = this.res.resultSet.filter( h => h.oid !== user.oid );
+        } )
+            .catch(( err: Response ) => {
+                this.error( err.json() );
+            } );
+    }
+
+    onClickRemove( account: User ): void {
+        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+        this.bsModalRef.content.message = this.localizeService.decode( "account.removeContent" );
+        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+
+        this.bsModalRef.content.onConfirm.subscribe( data => {
+            this.remove( account );
+        } );
+    }
+
+    edit( user: User ): void {
+        // this.router.navigate(['/admin/account', user.oid]);
+
+        this.bsModalRef = this.modalService.show( AccountComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+        this.bsModalRef.content.oid = user.oid;
+
+        let that = this;
+        ( <AccountComponent>this.bsModalRef.content ).onEdit.subscribe( data => {
+            let updatedUserIndex = that.res.resultSet.map(
+                function( e ) { return e.oid; }
+            ).indexOf( data.oid );
+
+            if ( updatedUserIndex !== -1 ) {
+                that.res.resultSet[updatedUserIndex] = data;
+            }
+        } );
+    }
+
+    newInstance(): void {
+        // this.router.navigate(['/admin/account', 'NEW']);
+
+        this.bsModalRef = this.modalService.show( AccountComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+        this.bsModalRef.content.oid = 'NEW';
+
+        let that = this;
+        this.bsModalRef.content.onEdit.subscribe( data => {
+            this.onPageChange(this.res.pageNumber);
+        } );
+
+    }
+
+    onPageChange( pageNumber: number ): void {
+        this.service.page( pageNumber ).then( res => {
+            this.res = res;
+        } ).catch(( err: Response ) => {
+            this.error( err.json() );
+        } );
+    }
+
+    inviteUsers(): void {
+        // this.router.navigate(['/admin/invite']);	  
+
+        this.bsModalRef = this.modalService.show( AccountInviteComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+    }
+
+    error( err: any ): void {
+        // Handle error
+        if ( err !== null ) {
+            this.message = ( err.localizedMessage || err.message );
+        }
+    }
 }

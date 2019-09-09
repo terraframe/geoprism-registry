@@ -108,7 +108,9 @@ export class AccountComponent implements OnInit {
 		this.service.apply(this.account.user, roleIds).then(data => {
 			this.onEdit.next( data );
 			this.bsModalRef.hide();
-		});
+        } ).catch(( err: Response ) => {
+            this.error( err.json() );
+        } );
 	}
 
 	error(err: any): void {
