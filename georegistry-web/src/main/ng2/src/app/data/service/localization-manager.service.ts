@@ -23,7 +23,7 @@ import 'rxjs/add/operator/toPromise';
 
 import { EventService } from '../../shared/service/event.service';
 
-import { AllLocaleInfo } from '../component/localization-manager/localization-manager';
+import { AllLocaleInfo } from '../model/localization-manager';
 
 declare var acp: any;
 

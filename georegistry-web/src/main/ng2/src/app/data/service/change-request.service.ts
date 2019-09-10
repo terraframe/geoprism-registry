@@ -4,7 +4,7 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 import { Observable } from 'rxjs/Observable';
 
-import { ChangeRequest, AbstractAction } from '../component/crtable/crtable';
+import { ChangeRequest, AbstractAction } from '../model/crtable';
 import { EventService } from '../../shared/service/event.service';
 import { GeoObject } from '../model/registry';
 

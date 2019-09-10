@@ -19,11 +19,11 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Application } from '../../../shared/model/application';
+import { Application } from '../../shared/model/application';
 import { LoginHeaderComponent } from './login-header.component';
 
-import { SessionService } from '../../../shared/service/session.service';
-import { HubService } from '../../../shared/service/hub.service';
+import { SessionService } from '../../shared/service/session.service';
+import { HubService } from '../../shared/service/hub.service';
 
 declare var acp: any;
 

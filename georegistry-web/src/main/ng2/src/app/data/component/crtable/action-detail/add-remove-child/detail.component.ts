@@ -2,15 +2,13 @@ import { Input, Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDet
 import { Headers, Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
-
-import { ChangeRequestService } from '../../../../service/change-request.service';
-
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ErrorModalComponent } from '../../../../../shared/component/modals/error-modal.component';
 
-import { AddChildAction } from '../../crtable';
+import { AddChildAction } from '../../../../model/crtable';
+import { ChangeRequestService } from '../../../../service/change-request.service';
 
 declare var acp: any;
 

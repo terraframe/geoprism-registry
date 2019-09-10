@@ -1,4 +1,4 @@
-import { GeoObject } from '../../model/registry';
+import { GeoObject } from './registry';
 
 export class ChangeRequest {
   oid: string;

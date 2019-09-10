@@ -15,7 +15,7 @@ import { ErrorModalComponent } from '../../../shared/component/modals/error-moda
 
 import { LocalizationService } from '../../../shared/service/localization.service';
 
-import { HierarchyType, HierarchyNode } from './hierarchy';
+import { HierarchyType, HierarchyNode } from '../../model/hierarchy';
 import { GeoObjectType } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal'
 

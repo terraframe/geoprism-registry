@@ -3,7 +3,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { ImportConfiguration, TermProblem } from '../io';
+import { ImportConfiguration, TermProblem } from '../../../model/io';
 import { IOService } from '../../../service/io.service';
 
 @Component( {

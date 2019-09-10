@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { ImportConfiguration, Synonym, Location, Term } from '../component/importer/io';
+import { ImportConfiguration, Synonym, Location, Term } from '../model/io';
 import { EventService } from '../../shared/service/event.service';
 
 declare var acp: string;

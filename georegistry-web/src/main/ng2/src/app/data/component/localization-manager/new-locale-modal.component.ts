@@ -8,7 +8,7 @@ import { LocalizationManagerService } from '../../service/localization-manager.s
 
 import { EventService } from '../../../shared/service/event.service';
 
-import { AllLocaleInfo } from './localization-manager';
+import { AllLocaleInfo } from '../../model/localization-manager';
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 

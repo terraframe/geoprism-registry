@@ -20,11 +20,11 @@ import { CustomFormsModule } from 'ng2-validation'
 import { CgrAppComponent } from './cgr-app.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 
-import { LoginComponent } from './core/component/login/login.component';
-import { LoginHeaderComponent } from './core/component/login/login-header.component';
-import { HubComponent } from './core/component/hub/hub.component';
-import { ForgotPasswordComponent } from './core/component/forgotpassword/forgotpassword.component';
-import { ForgotPasswordCompleteComponent } from './core/component/forgotpassword-complete/forgotpassword-complete.component';
+import { LoginComponent } from './component/login/login.component';
+import { LoginHeaderComponent } from './component/login/login-header.component';
+import { HubComponent } from './component/hub/hub.component';
+import { ForgotPasswordComponent } from './component/forgotpassword/forgotpassword.component';
+import { ForgotPasswordCompleteComponent } from './component/forgotpassword-complete/forgotpassword-complete.component';
 
 import { SharedModule } from './shared/shared.module';
 import { AdminModule } from './admin/admin.module';

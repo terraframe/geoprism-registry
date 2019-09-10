@@ -14,10 +14,10 @@ import { MasterListComponent } from './data/component/master-list/master-list.co
 import { DataPageComponent } from './data/component/data-page/data-page.component';
 import { ChangeRequestPageComponent } from './data/component/change-request-page/change-request-page.component';
 
-import { LoginComponent } from './core/component/login/login.component'
-import { HubComponent } from './core/component/hub/hub.component';
-import { ForgotPasswordComponent } from './core/component/forgotpassword/forgotpassword.component'
-import { ForgotPasswordCompleteComponent } from './core/component/forgotpassword-complete/forgotpassword-complete.component'
+import { LoginComponent } from './component/login/login.component'
+import { HubComponent } from './component/hub/hub.component';
+import { ForgotPasswordComponent } from './component/forgotpassword/forgotpassword.component'
+import { ForgotPasswordCompleteComponent } from './component/forgotpassword-complete/forgotpassword-complete.component'
 
 import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from './shared/service/guard.service';
 import { PendingChangesGuard } from "./shared/service/pending-changes-guard";

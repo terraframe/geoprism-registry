@@ -1,5 +1,6 @@
 <div id="login-page" class="new-admin-design-main">
     <login-header></login-header>
+    <loading-bar></loading-bar>
 
     <message></message>
     <div class="vertical-center">
@@ -13,7 +14,7 @@
 
                             <div class="heading text-center">
                                 <h2>
-                                <!-- 
+                                    <!-- 
                                     <localize key="login.page.title"></localize>
                                     -->
                                 </h2>
@@ -31,18 +32,12 @@
                             <form id="login-form" class="login" #form="ngForm" (ngSubmit)="form.valid && onSubmit()">
                                 <div id="login-input-container">
                                     <div class="row">
-                                        <input [(ngModel)]="username" name="username" type="text"
-                                            [placeholder]="'login.username' | localize" id="login" required />
-                                        <input [(ngModel)]="password" name="password" type="password"
-                                            [placeholder]="'login.password' | localize" id="password" required />
-                                        <a routerLink="/forgotpassword" class="forgot-password">
-                                            <localize key="login.forgotPassword"></localize>
+                                        <input [(ngModel)]="username" name="username" type="text" [placeholder]="'login.username' | localize" id="login" required /> <input [(ngModel)]="password" name="password" type="password" [placeholder]="'login.password' | localize" id="password" required /> <a routerLink="/forgotpassword" class="forgot-password"> <localize key="login.forgotPassword"></localize>
                                         </a>
                                     </div>
                                     <!-- <p class="login-submit"> -->
                                     <div class="row">
-                                        <button type="submit" id="login-btn" class="btn btn-primary"
-                                            [disabled]="!(form.valid)">
+                                        <button type="submit" id="login-btn" class="btn btn-primary" [disabled]="!(form.valid)">
                                             <localize key="login.button"></localize>
                                         </button>
                                     </div>

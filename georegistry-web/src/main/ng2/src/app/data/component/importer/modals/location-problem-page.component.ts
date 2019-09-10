@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
-import { ImportConfiguration, LocationProblem } from '../io';
+import { ImportConfiguration, LocationProblem } from '../../../model/io';
 
 @Component( {
 

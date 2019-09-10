@@ -1,4 +1,4 @@
-import { GeoObjectType } from '../../model/registry';
+import { GeoObjectType } from './registry';
 
 export class ImportSheet {
     name: string;

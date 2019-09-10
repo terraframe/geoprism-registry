@@ -22,7 +22,7 @@ import { Headers, Http, Response, URLSearchParams } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { HierarchyType } from '../component/hierarchy/hierarchy';
+import { HierarchyType } from '../model/hierarchy';
 import { TreeEntity } from '../model/registry';
 import { EventService } from '../../shared/service/event.service';
 

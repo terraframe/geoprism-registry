@@ -16,6 +16,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DatePipe } from '@angular/common';
+import { CustomFormsModule } from 'ng2-validation'
 
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './component/form-fields/localized-text/localized-text.component';
@@ -57,10 +59,9 @@ import { GeoObjectEditorComponent } from './component/geoobject-editor/geoobject
 import { GeoObjectEditorMapComponent } from './component/geoobject-editor-map/geoobject-editor-map.component';
 import { CascadingGeoSelector } from './component/cascading-geo-selector/cascading-geo-selector';
 import { ActionDetailModalComponent } from './component/crtable/action-detail/action-detail-modal.component';
-import { GeoObjectTypePipe } from './component/hierarchy/pipes/geoobjecttype.pipe';
+import { GeoObjectTypePipe } from './pipe/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './pipe/geoobject-attribute-excludes.pipe';
 import { ToEpochDateTimePipe } from './pipe/to-epoch-date-time.pipe';
-import { DatePipe } from '@angular/common';
 import { RegistryService } from './service/registry.service';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
@@ -68,7 +69,6 @@ import { ChangeRequestService } from './service/change-request.service';
 import { IOService } from './service/io.service';
 import { MapService } from './service/map.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
-import { CustomFormsModule } from 'ng2-validation'
 
 import { ShapefileComponent } from './component/importer/shapefile.component';
 import { SpreadsheetComponent } from './component/importer/spreadsheet.component';

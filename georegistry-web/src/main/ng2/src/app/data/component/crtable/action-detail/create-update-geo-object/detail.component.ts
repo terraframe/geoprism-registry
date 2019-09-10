@@ -5,13 +5,11 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Observable } from 'rxjs/Observable';
 
-import { ChangeRequestService } from '../../../../service/change-request.service';
-
 import { GeoObject, GeoObjectType } from '../../../../model/registry';
+import { AbstractAction } from '../../../../model/crtable';
 
 import { RegistryService } from '../../../../service/registry.service';
-
-import { AbstractAction } from '../../crtable';
+import { ChangeRequestService } from '../../../../service/change-request.service';
 
 import { ErrorModalComponent } from '../../../../../shared/component/modals/error-modal.component';
 import { ComponentCanDeactivate } from "../../../../../shared/service/pending-changes-guard";

@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angula
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 
-import { HierarchyType } from '../hierarchy';
+import { HierarchyType } from '../../../model/hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 

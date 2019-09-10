@@ -5,7 +5,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 
 import { SuccessModalComponent } from '../../../../shared/component/modals/success-modal.component';
 
-import { ImportConfiguration } from '../io';
+import { ImportConfiguration } from '../../../model/io';
 
 import { IOService } from '../../../service/io.service';
 

@@ -3,7 +3,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { TreeNode } from 'angular-tree-component';
 
-import { HierarchyType, HierarchyNode } from '../hierarchy';
+import { HierarchyType, HierarchyNode } from '../../../model/hierarchy';
 import { GeoObjectType } from '../../../model/registry';
 import { HierarchyService } from '../../../service/hierarchy.service';
 

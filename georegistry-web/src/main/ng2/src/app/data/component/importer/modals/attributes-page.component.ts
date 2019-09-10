@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { ImportConfiguration } from '../io';
+import { ImportConfiguration } from '../../../model/io';
 
 @Component( {
     selector: 'attributes-page',

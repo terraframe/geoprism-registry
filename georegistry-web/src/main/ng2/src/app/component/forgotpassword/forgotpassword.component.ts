@@ -21,49 +21,38 @@ import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, View
 import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
-
-import { ForgotPasswordCompleteService } from '../../../shared/service/forgotpassword-complete.service';
+import { ForgotPasswordService } from '../../shared/service/forgotpassword.service';
 
 
 @Component({
-  templateUrl: './forgotpassword-complete.component.html',
-  styleUrls: ['./forgotpassword-complete.component.css']
+  selector: 'forgotpassword',
+  templateUrl: './forgotpassword.component.html',
+  styleUrls: ['./forgotpassword.component.css']
 })
-export class ForgotPasswordCompleteComponent implements OnInit {
-  newPassword: string;
-  token: string;
-  passwordIsReset: boolean = false;
-  private sub: any;
+export class ForgotPasswordComponent implements OnInit {
+  username: string;
+  emailIsSent: boolean = false;
   message: string = null;
 
   constructor(
-    private service: ForgotPasswordCompleteService,
+    private service: ForgotPasswordService,
     private router: Router,      
     private route: ActivatedRoute,
     private location: Location) {
   }
-  
-  ngOnInit() {
-    this.sub = this.route.params.subscribe(params => {
-       this.token = params['token'];
-    });
-  }
 
-  ngOnDestroy() {
-    this.sub.unsubscribe();
-  }
+  ngOnInit(): void {
   
+  }
   
   cancel(): void {    
     this.router.navigate(['/']);
   } 
   
   onSubmit(): void {
-    this.service.complete(this.newPassword, this.token)
+    this.service.submit(this.username)
       .then(response => {
-        this.passwordIsReset = true;
+        this.emailIsSent = true;
       })
       .catch(( err: Response ) => {
         this.error( err.json() );
