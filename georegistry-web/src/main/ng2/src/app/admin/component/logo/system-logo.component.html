@@ -1,0 +1,63 @@
+<div>
+  <cgr-header></cgr-header>
+
+<div>
+  <message ></message>
+  <loading-bar></loading-bar>
+
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="heading">
+          <h1><localize key="system.image.editHeader"></localize></h1>
+        </div>      
+        
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+        
+        <fieldset>
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>          
+            <div class="holder">
+              <span class="text">
+
+                <div>
+                  <!-- For display only when editing an icon-->
+                  <img *ngIf="!file" style="max-width:300px;max-height:300px;" [src]="context + '/logo/view?id=' + id" class="thumb">
+                      
+                  <!-- Actual uploaded file preview -->
+                  <img *ngIf="file" style="max-width:300px;max-height:300px;" [src]="file" class="thumb">
+                </div>                        
+              
+                <div class="drop-box-container" ng2FileDrop [ngClass]="{'drop-active': dropActive}" (fileOver)="fileOver($event)" [uploader]="uploader" (click)=fileInput.click()>
+                  <div class="drop-box">
+                    <div class="inner-drop-box">
+                      <i class="fa fa-cloud-upload">
+                        <p class="upload-text"><localize key="system.image.uploadText"></localize></p>
+                      </i>
+                    </div>
+                  </div>
+                  <input type="file" #uploadEl ng2FileSelect #fileInput [uploader]="uploader" id="uploader-input" style="display:none" />
+                </div>
+                
+              </span>
+            </div>
+          </div>
+          
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>                    
+            <div class="holder">
+              <div class="button-holder">
+                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
+                <input type="submit" [value]="'category.icon.ok' | localize" class="btn btn-primary" (disabled)="form.invalid" />                
+              </div>
+            </div>
+          </div>
+        </fieldset>  
+      </div>
+    </div>
+  </form>
+</div>
+
+</div>

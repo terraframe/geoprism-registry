@@ -19,7 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { CustomFormsModule } from 'ng2-validation'
@@ -28,52 +28,53 @@ import { ModalModule } from 'ngx-bootstrap/modal'
 import { NgxPaginationModule } from 'ngx-pagination';
 import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
 
-import { CoreModule } from '../core/core.module';
+import { SystemLogoService } from './service/system-logo.service';
+import { EmailService } from './service/email.service';
+import { AccountService } from './service/account.service';
 
-import { SystemLogoService } from './logo/system-logo.service';
-import { EmailService } from './email/email.service';
-import { AccountService } from './account/account.service';
-import { AdminRoutingModule, routedComponents } from './admin-routing.module';
- 
-import { AdminHeaderComponent } from './admin-header.component';
+import { AccountsComponent } from './component/account/accounts.component';
+import { AccountInviteComponent } from './component/account/account-invite.component';
+import { AccountInviteCompleteComponent } from './component/account/account-invite-complete.component';
+import { AccountComponent} from './component/account/account.component';
+import { SystemLogoComponent } from './component/logo/system-logo.component';
+import { SystemLogosComponent } from './component/logo/system-logos.component';
+import { EmailComponent } from './component/email/email.component';
 
-import { LocalizePipe } from '../core/localize/localize.pipe';
+import { SharedModule } from '../shared/shared.module';
 
-import { SystemLogoComponent } from './logo/system-logo.component';
-import { SystemLogosComponent } from './logo/system-logos.component';
+import '../rxjs-extensions';
 
-import { BrowserModule } from '@angular/platform-browser';
-
-@NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    FileUploadModule,
-    BsDropdownModule.forRoot(),
-    ModalModule.forRoot(),
-    CoreModule,
-    BrowserModule,
-    NgxPaginationModule,
-    AdminRoutingModule,
-    PasswordStrengthBarModule,
-    CustomFormsModule,
-  ],
-  declarations: [
-	  // Global components
-    AdminHeaderComponent,
-    routedComponents,
-    SystemLogoComponent,
-    SystemLogosComponent
-  ],
-  exports: [
-    AdminHeaderComponent,
-    SystemLogoComponent,
-    SystemLogosComponent
-  ],
-  providers: [
-    SystemLogoService,
-    EmailService,
-    AccountService
-  ]
-})
+@NgModule( {
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,        
+        FileUploadModule,
+        NgxPaginationModule,
+        PasswordStrengthBarModule,
+        CustomFormsModule,
+        SharedModule
+    ],
+    declarations: [
+        // Global components
+        SystemLogoComponent,
+        SystemLogosComponent,
+        AccountsComponent,
+        AccountInviteComponent,
+        AccountInviteCompleteComponent,
+        AccountComponent,
+        SystemLogoComponent,
+        SystemLogosComponent,
+        EmailComponent        
+    ],
+    exports: [
+        SystemLogoComponent,
+        SystemLogosComponent
+    ],
+    providers: [
+        SystemLogoService,
+        EmailService,
+        AccountService
+    ]
+} )
 export class AdminModule { }

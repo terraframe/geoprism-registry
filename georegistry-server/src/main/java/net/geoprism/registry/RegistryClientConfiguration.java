@@ -125,6 +125,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
   public Set<String> getPublicEndpoints()
   {
     Set<String> endpoints = super.getPublicEndpoints();
+    endpoints.add("");
     endpoints.add("cgr/manage");
     return endpoints;
   }
