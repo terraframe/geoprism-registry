@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -64,7 +64,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     masterLists.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     masterLists.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    
+
     GeoprismApplication requests = new GeoprismApplication();
     requests.setId("requests");
     requests.setLabel(LocalizationFacadeDTO.getFromBundles(request, "requests.landing"));
@@ -76,7 +76,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     requests.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    
+
     GeoprismApplication uploads = new GeoprismApplication();
     uploads.setId("uploads");
     uploads.setLabel(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing"));
@@ -87,7 +87,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     uploads.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    
+
     // GeoprismApplication management = new GeoprismApplication();
     // management.setId("management");
     // management.setLabel(LocalizationFacadeDTO.getFromBundles(request,
@@ -119,15 +119,27 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
   }
 
   /*
-   * Expose public endpoints to allow non-logged in users to hit controller endpoints
+   * Expose public endpoints to allow non-logged in users to hit controller
+   * endpoints
    */
   @Override
   public Set<String> getPublicEndpoints()
   {
     Set<String> endpoints = super.getPublicEndpoints();
-    endpoints.add("");
     endpoints.add("cgr/manage");
     return endpoints;
+  }
+
+  @Override
+  public String getHomeUrl()
+  {
+    return "/cgr/manage";
+  }
+
+  @Override
+  public String getLoginUrl()
+  {
+    return "/cgr/manage#login";
   }
 
 }

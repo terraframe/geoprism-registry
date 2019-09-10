@@ -165,6 +165,8 @@ public class ChangeRequest extends ChangeRequestBase
       List<String> messages = new LinkedList<String>();
 
       List<AbstractAction> actions = this.getOrderedActions();
+      
+      AllGovernanceStatus status = AllGovernanceStatus.REJECTED;
 
       for (AbstractAction action : actions)
       {
@@ -177,18 +179,20 @@ public class ChangeRequest extends ChangeRequestBase
           action.execute();
 
           messages.add(action.getMessage());
+          
+          status = AllGovernanceStatus.ACCEPTED;
         }
       }
 
       this.appLock();
       this.clearApprovalStatus();
-      this.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+      this.addApprovalStatus(status);
       this.apply();
 
       // Email the contributor
       SingleActor actor = this.getCreatedBy();
 
-      if (sendEmail && actor instanceof GeoprismUser)
+      if (status.equals(AllGovernanceStatus.ACCEPTED) && sendEmail && actor instanceof GeoprismUser)
       {
         String email = ( (GeoprismUser) actor ).getEmail();
 
