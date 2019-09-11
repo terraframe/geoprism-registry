@@ -160,10 +160,12 @@ public class ChangeRequest extends ChangeRequestBase
   {
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-      List<String> messages = new LinkedList<String>();
+      List<String> accepted = new LinkedList<String>();
+
+      List<String> rejected = new LinkedList<String>();
 
       List<AbstractAction> actions = this.getOrderedActions();
-      
+
       AllGovernanceStatus status = AllGovernanceStatus.REJECTED;
 
       for (AbstractAction action : actions)
@@ -176,9 +178,13 @@ public class ChangeRequest extends ChangeRequestBase
         {
           action.execute();
 
-          messages.add(action.getMessage());
-          
+          accepted.add(action.getMessage());
+
           status = AllGovernanceStatus.ACCEPTED;
+        }
+        else if (action.getApprovalStatus().contains(AllGovernanceStatus.REJECTED))
+        {
+          rejected.add(action.getMessage());
         }
       }
 
@@ -197,19 +203,44 @@ public class ChangeRequest extends ChangeRequestBase
         if (email != null && email.length() > 0)
         {
           String subject = LocalizationFacade.getFromBundles("change.request.email.subject");
-          String body = LocalizationFacade.getFromBundles("change.request.email.body");
+          subject = subject.replaceAll("\\{0\\}", status.getDisplayLabel());
 
-          body += "\n";
+          String body = new String();
 
-          for (String message : messages)
+          if (accepted.size() > 0)
           {
-            body += message + "\n";
+            body += append(accepted, "change.request.email.body.approved");
+          }
+
+          if (rejected.size() > 0)
+          {
+            if (accepted.size() > 0)
+            {
+              body += "\n";
+              body += "\n";
+            }
+
+            body += append(rejected, "change.request.email.body.rejected");
           }
 
           EmailSetting.sendEmail(subject, body, new String[] { email });
         }
       }
     }
+  }
+
+  private String append(List<String> list, String key)
+  {
+    String body = LocalizationFacade.getFromBundles(key);
+
+    String messages = "\n";
+
+    for (String message : list)
+    {
+      messages += message + "\n";
+    }
+
+    return body.replaceAll("\\{0\\}", messages);
   }
 
   @Transaction
