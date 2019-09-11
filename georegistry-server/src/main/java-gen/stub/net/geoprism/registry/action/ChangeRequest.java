@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.tools.ant.taskdefs.SendEmail;
 import org.json.JSONObject;
 
 import com.runwaysdk.business.Business;
@@ -42,7 +41,6 @@ import com.runwaysdk.system.Users;
 import net.geoprism.EmailSetting;
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.action.ChangeRequestBase;
 
 public class ChangeRequest extends ChangeRequestBase
 {
