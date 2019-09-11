@@ -196,7 +196,7 @@ public class ChangeRequest extends ChangeRequestBase
       // Email the contributor
       SingleActor actor = this.getCreatedBy();
 
-      if (status.equals(AllGovernanceStatus.ACCEPTED) && sendEmail && actor instanceof GeoprismUser)
+      if (sendEmail && actor instanceof GeoprismUser)
       {
         String email = ( (GeoprismUser) actor ).getEmail();
 
