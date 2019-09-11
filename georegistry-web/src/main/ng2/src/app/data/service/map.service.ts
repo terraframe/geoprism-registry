@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response, URLSearchParams, RequestOptions, ResponseContentType } from '@angular/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import 'rxjs/add/operator/map';
@@ -15,19 +15,16 @@ declare var acp: any;
 @Injectable()
 export class MapService {
 
-    constructor( private http: Http ) {
+    constructor( private http: HttpClient ) {
         ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
     }
 
     features(): Promise<{ features: GeoJSONSource, bbox: number[] }> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
         return this.http
-            .get( acp + '/project/features', { search: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as { features: GeoJSONSource, bbox: number[] };
-            } )
+            .get<{ features: GeoJSONSource, bbox: number[] }>( acp + '/project/features', { params: params } )
+            .toPromise();
     }
 
 

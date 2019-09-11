@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output, ViewChild } from '@angular/core';
-import { Response } from '@angular/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -145,8 +145,8 @@ export class CascadingGeoSelector {
             }
 
             this.valid.emit();
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -186,11 +186,11 @@ export class CascadingGeoSelector {
         }
     }
 
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
             let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            bsModalRef.content.message = ( err.localizedMessage || err.message );
+            bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

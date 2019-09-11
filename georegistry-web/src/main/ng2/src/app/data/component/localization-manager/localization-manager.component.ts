@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit } from '@angular/core';
-import { Headers, Http, RequestOptions } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { EventService } from '../../../shared/service/event.service';
@@ -33,69 +33,69 @@ import { NewLocaleModalComponent } from './new-locale-modal.component';
 
 declare var acp: any;
 
-@Component({
-  
-  selector: 'localization-manager',
-  templateUrl: './localization-manager.component.html',
-  styleUrls: []
-})
+@Component( {
+
+    selector: 'localization-manager',
+    templateUrl: './localization-manager.component.html',
+    styleUrls: []
+} )
 export class LocalizationManagerComponent implements OnInit {
 
-  
 
-  constructor(private router: Router, private eventService: EventService, private http: Http, private localizationManagerService: LocalizationManagerService, private modalService: BsModalService) { 
-	  
-  }
 
-  ngOnInit(): void {
-    
-  }
-  
-  ngAfterViewInit() {
-	  
-  }
-  
-  showNewLocaleModal() {
-    let bsModalRef = this.modalService.show( NewLocaleModalComponent, { backdrop: true } );
-  }
-  
-  importLocalization(event: any) {
-    let fileList: FileList = event.target.files;
-    if(fileList.length > 0) {
-        let file: File = fileList[0];
-        let formData:FormData = new FormData();
-        formData.append('file', file, file.name);
-        let headers = new Headers();
-        let options = new RequestOptions({ headers: headers });
-        
-        this.eventService.start();
-        
-        this.http.post(acp + "/localization/importSpreadsheet", formData, options)
-        .toPromise()
-        .then(response => {
-          this.eventService.complete();
-          this.error({message:"Import success"});
-        }).catch(( err: any ) => {
-            console.log(err)
-            this.eventService.complete();
-            this.error( err.json() );
-        } );
+    constructor( private router: Router, private eventService: EventService, private http: HttpClient, private localizationManagerService: LocalizationManagerService, private modalService: BsModalService ) {
+
     }
-  }
-  
-  exportLocalization() {
-    console.log("exporting localization");
-    
-    //this.localizationManagerService.exportLocalization();
-    window.location.href = acp + "/localization/exportSpreadsheet";
-  }
-  
-  public error( err: any ): void {
-      // Handle error
-      if ( err !== null ) {
-        let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-        bsModalRef.content.message = ( err.localizedMessage || err.message );
-      }
-  }
-   
+
+    ngOnInit(): void {
+
+    }
+
+    ngAfterViewInit() {
+
+    }
+
+    showNewLocaleModal() {
+        let bsModalRef = this.modalService.show( NewLocaleModalComponent, { backdrop: true } );
+    }
+
+    importLocalization( event: any ) {
+        let fileList: FileList = event.target.files;
+        if ( fileList.length > 0 ) {
+            let file: File = fileList[0];
+            let formData: FormData = new FormData();
+            formData.append( 'file', file, file.name );
+
+            let headers = new HttpHeaders();
+
+            this.eventService.start();
+
+            this.http.post( acp + "/localization/importSpreadsheet", formData, { headers: headers } )
+                .toPromise()
+                .then( response => {
+                    this.eventService.complete();
+                    this.error( { message: "Import success", error: {} } );
+                } ).catch(( err: HttpErrorResponse ) => {
+                    console.log( err )
+                    this.eventService.complete();
+                    this.error( err );
+                } );
+        }
+    }
+
+    exportLocalization() {
+        console.log( "exporting localization" );
+
+        //this.localizationManagerService.exportLocalization();
+        window.location.href = acp + "/localization/exportSpreadsheet";
+    }
+
+    public error( err: any ): void {
+        // Handle error
+        if ( err !== null ) {
+            let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+            bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
+        }
+    }
+
 }

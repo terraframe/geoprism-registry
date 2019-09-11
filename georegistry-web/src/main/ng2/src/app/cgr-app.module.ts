@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule, XHRBackend, RequestOptions, Http } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { TreeModule } from 'angular-tree-component';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { ModalModule } from 'ngx-bootstrap/modal';
@@ -26,6 +26,9 @@ import { HubComponent } from './component/hub/hub.component';
 import { ForgotPasswordComponent } from './component/forgotpassword/forgotpassword.component';
 import { ForgotPasswordCompleteComponent } from './component/forgotpassword-complete/forgotpassword-complete.component';
 
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpErrorInterceptor } from './service/http-error.interceptor';
+
 import { SharedModule } from './shared/shared.module';
 import { AdminModule } from './admin/admin.module';
 import { DataModule } from './data/data.module';
@@ -36,7 +39,7 @@ import './rxjs-extensions';
     imports: [
         BrowserModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         CgrAppRoutingModule,
         ReactiveFormsModule,
         FileUploadModule,
@@ -54,7 +57,7 @@ import './rxjs-extensions';
         CustomFormsModule,
         SharedModule,
         AdminModule,
-        DataModule        
+        DataModule
     ],
     declarations: [
         CgrAppComponent,
@@ -68,6 +71,11 @@ import './rxjs-extensions';
         routedComponents
     ],
     providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: HttpErrorInterceptor,
+            multi: true
+        }
     ],
     exports: [
         CgrAppComponent,

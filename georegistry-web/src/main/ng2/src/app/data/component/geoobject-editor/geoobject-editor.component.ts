@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRe
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
@@ -160,8 +161,8 @@ export class GeoObjectEditorComponent implements OnInit {
                     this.isValid = true;
                 }
 
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
     }
 
@@ -176,8 +177,8 @@ export class GeoObjectEditorComponent implements OnInit {
                 }
                 
                 console.log( "Fetched GOTs", geoObjectType );
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
     }
 
@@ -200,8 +201,8 @@ export class GeoObjectEditorComponent implements OnInit {
                     this.isValid = true;
                 }
 
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
     }
 
@@ -219,8 +220,8 @@ export class GeoObjectEditorComponent implements OnInit {
 
                 ptn.geoObject = geoObject;
 
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
     }
 
@@ -275,13 +276,13 @@ export class GeoObjectEditorComponent implements OnInit {
         }
     }
 
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
         // TODO
 
         // Handle error
         if ( err !== null ) {
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 
@@ -302,8 +303,8 @@ export class GeoObjectEditorComponent implements OnInit {
                         this.onSuccessCallback();
                     }
 
-                } ).catch(( err: Response ) => {
-                    this.error( err.json() );
+                } ).catch(( err: HttpErrorResponse ) => {
+                    this.error( err );
                 } );
         }
     }

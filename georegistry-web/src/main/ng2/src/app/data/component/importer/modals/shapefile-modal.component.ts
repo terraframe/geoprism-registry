@@ -1,6 +1,8 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from "@angular/common/http";
+
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
 import { SuccessModalComponent } from '../../../../shared/component/modals/success-modal.component';
@@ -20,8 +22,8 @@ export class ShapefileModalComponent implements OnInit {
     message: string = null;
     state: string = 'MAP';
 
-	constructor( private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
-		private localizeService: LocalizationService ) {
+    constructor( private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
+        private localizeService: LocalizationService ) {
     }
 
     ngOnInit(): void {
@@ -86,13 +88,13 @@ export class ShapefileModalComponent implements OnInit {
                 this.configuration = config;
             }
             else {
-				this.bsModalRef.hide()
-				
-				this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
-			    this.bsModalRef.content.message = this.localizeService.decode("upload.success.message");
+                this.bsModalRef.hide()
+
+                this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
+                this.bsModalRef.content.message = this.localizeService.decode( "upload.success.message" );
             }
-        } ).catch(( response: Response ) => {
-            this.error( response.json() );
+        } ).catch(( response: HttpErrorResponse ) => {
+            this.error( response );
         } );
 
     }
@@ -102,15 +104,15 @@ export class ShapefileModalComponent implements OnInit {
 
         this.service.cancelShapefileImport( this.configuration ).then( response => {
             this.bsModalRef.hide()
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 }

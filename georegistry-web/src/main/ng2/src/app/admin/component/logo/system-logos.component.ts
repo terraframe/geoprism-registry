@@ -20,6 +20,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
@@ -75,8 +76,8 @@ export class SystemLogosComponent implements OnInit {
     this.service.getIcons().then(icons => {
       this.icons = icons        
     })
-    .catch(( err: Response ) => {
-      this.error( err.json() );
+    .catch(( err: HttpErrorResponse ) => {
+      this.error( err );
     } );
   }
   
@@ -88,15 +89,15 @@ export class SystemLogosComponent implements OnInit {
     this.service.remove(icon.oid).then(response => {
       icon.custom = false;
     })
-    .catch(( err: Response ) => {
-      this.error( err.json() );
+    .catch(( err: HttpErrorResponse ) => {
+      this.error( err );
     } );
   }  
   
-  error( err: any ): void {
+  error( err: HttpErrorResponse ): void {
     // Handle error
     if ( err !== null ) {
-      this.message = ( err.localizedMessage || err.message );
+      this.message = ( err.error.localizedMessage || err.error.message || err.message );
     }
   }
 }

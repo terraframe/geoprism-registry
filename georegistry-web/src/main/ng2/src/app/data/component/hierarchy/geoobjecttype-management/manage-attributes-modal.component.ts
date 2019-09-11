@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { StepConfig,ModalTypes } from '../../../../shared/model/modal';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
@@ -83,8 +84,8 @@ export class ManageAttributesModalComponent implements OnInit {
               this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
             }
 
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -92,10 +93,10 @@ export class ManageAttributesModalComponent implements OnInit {
         this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageGeoObjectType, "attribute":this.attribute, "termOption":""})
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
             
             console.log(this.message);
         }

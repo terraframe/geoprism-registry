@@ -18,12 +18,16 @@
 ///
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from "@angular/common/http";
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { Application } from '../../shared/model/application';
-import { LoginHeaderComponent } from './login-header.component';
-
+import { ErrorModalComponent } from '../../shared/component/modals/error-modal.component';
 import { SessionService } from '../../shared/service/session.service';
 import { HubService } from '../../shared/service/hub.service';
+
+import { LoginHeaderComponent } from './login-header.component';
 
 declare var acp: any;
 
@@ -37,7 +41,13 @@ export class LoginComponent {
     username: string = '';
     password: string = '';
 
-    constructor( private service: SessionService, private hService: HubService, private router: Router ) {
+    /*
+     * Reference to the modal current showing
+    */
+    private bsModalRef: BsModalRef;
+
+
+    constructor( private service: SessionService, private hService: HubService, private modalService: BsModalService, private router: Router ) {
         this.context = acp as string;
     }
 
@@ -52,12 +62,24 @@ export class LoginComponent {
                     this.router.navigate( ['/menu/true'] );
                 }
             } );
-
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
     open( application: Application ): void {
         window.location.href = this.context + '/' + application.url;
     }
+
+    public error( err: HttpErrorResponse ): void {
+        // Handle error
+        if ( err !== null ) {
+            // TODO: add error modal
+            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
+        }
+
+    }
+
 
 }

@@ -29,13 +29,6 @@ export class TermProblemPageComponent implements OnInit {
         return false;
     }
 
-    handleError( err: any ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
-        }
-    }
-
     onNext(): void {
         if ( this.configuration.exclusions == null ) {
             this.configuration.exclusions = [];

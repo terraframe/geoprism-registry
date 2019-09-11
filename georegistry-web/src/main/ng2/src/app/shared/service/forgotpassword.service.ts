@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 
 import 'rxjs/add/operator/toPromise';
 
@@ -29,23 +29,20 @@ declare var acp: any;
 @Injectable()
 export class ForgotPasswordService {
   
-  constructor(private http: Http, private eventService: EventService) {}
+  constructor(private http: HttpClient, private eventService: EventService) {}
   
-  submit(username:string): Promise<Response> {
-    let headers = new Headers({
+  submit(username:string): Promise<void> {
+    let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });  
     
     this.eventService.start();
   
     return this.http
-      .post(acp + '/forgotpassword/initiate', JSON.stringify({username:username}), {headers: headers})
+      .post<void>(acp + '/forgotpassword/initiate', JSON.stringify({username:username}), {headers: headers})
       .finally(() => {
         this.eventService.complete();
       } )
-      .toPromise()
-      .then((response: any) => {
-        return response.json();
-      });
+      .toPromise();
   }  
 }

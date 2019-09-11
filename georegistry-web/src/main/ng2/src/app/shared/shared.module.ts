@@ -58,7 +58,7 @@ import '../rxjs-extensions';
         CommonModule,
         RouterModule,
         FormsModule,
-        ReactiveFormsModule,                
+        ReactiveFormsModule,
         FileUploadModule,
         ModalModule,
         TreeModule,
@@ -87,7 +87,7 @@ import '../rxjs-extensions';
         ProgressBarComponent,
         ModalStepIndicatorComponent,
         CgrHeaderComponent,
-        ProfileComponent,        
+        ProfileComponent,
         LocalizePipe,
         PhonePipe
     ],
@@ -127,7 +127,7 @@ import '../rxjs-extensions';
         LocalizePipe,
         PhonePipe,
         CommonModule,
-        FormsModule, 
+        FormsModule,
         ReactiveFormsModule
     ],
     entryComponents: [

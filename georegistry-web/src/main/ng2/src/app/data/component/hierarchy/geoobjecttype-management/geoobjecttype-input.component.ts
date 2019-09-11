@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { StepConfig } from '../../../../shared/model/modal';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
@@ -75,8 +76,8 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
             this.close();
 
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -115,10 +116,10 @@ export class GeoObjectTypeInputComponent implements OnInit {
         return true;
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
             
             console.log(this.message);
         }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { GeoObjectType, MasterList } from '../../model/registry';
 
@@ -49,8 +50,8 @@ export class PublishModalComponent implements OnInit {
         if ( this.master == null || !this.readonly ) {
             this.iService.listGeoObjectTypes( true ).then( types => {
                 this.types = types;
-            } ).catch(( err: any ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse) => {
+                this.error( err );
             } );
 
             this.master = {
@@ -97,8 +98,8 @@ export class PublishModalComponent implements OnInit {
         if ( this.master.typeCode != null && this.master.typeCode.length > 0 ) {
             this.iService.getHierarchiesForType( this.master.typeCode, true ).then( hierarchies => {
                 this.master.hierarchies = hierarchies;
-            } ).catch(( err: any ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse) => {
+                this.error( err );
             } );
         }
         else {
@@ -111,8 +112,8 @@ export class PublishModalComponent implements OnInit {
 
             this.onMasterListChange.next( response );
             this.bsModalRef.hide();
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse) => {
+            this.error( err );
         } );
     }
 
@@ -120,10 +121,10 @@ export class PublishModalComponent implements OnInit {
         this.bsModalRef.hide()
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

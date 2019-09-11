@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';
 
@@ -99,8 +100,8 @@ export class SubmitChangeRequestComponent implements OnInit {
 	
 	        // this.currentGeoObjectType = this.geoObjectTypes[1];
 	
-	    }).catch((err: Response) => {
-	        this.error(err.json());
+	    }).catch((err: HttpErrorResponse) => {
+	        this.error(err);
         });
         
     }
@@ -150,8 +151,8 @@ export class SubmitChangeRequestComponent implements OnInit {
                 this.preGeoObject = geoObject;
                 this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
 
-            }).catch((err: Response) => {
-                this.error(err.json());
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
             });
     }
     
@@ -180,8 +181,8 @@ export class SubmitChangeRequestComponent implements OnInit {
 			this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
 			this.bsModalRef.content.message = this.localizeService.decode("change.request.success.message");
 
-	    }).catch(( err: Response ) => {
-	      this.error( err.json() );
+	    }).catch(( err: HttpErrorResponse ) => {
+	      this.error( err );
 	    });
         
         this.isValid = false;

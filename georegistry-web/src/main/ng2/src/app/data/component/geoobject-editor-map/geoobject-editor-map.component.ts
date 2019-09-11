@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
@@ -302,7 +303,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
                     let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
 
                     this.map.fitBounds( bounds, { padding: 50 } );
-                } ).catch(( err: Response ) => {
+                } ).catch(( err: HttpErrorResponse ) => {
                     this.error( err );
                 } );
         }
@@ -396,7 +397,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
         return this.postGeoObject;
     }
 
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
         // TODO
         console.log( "ERROR", err );
 

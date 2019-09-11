@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
@@ -34,125 +34,104 @@ declare var acp: any;
 @Injectable()
 export class RegistryService {
 
-    constructor( private http: Http, private eventService: EventService ) { }
+    constructor( private http: HttpClient, private eventService: EventService ) { }
 
     init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], locales: string[] }> {
-        return this.http.get( acp + '/cgr/init' )
-            .toPromise()
-            .then( response => {
-                return response.json() as { types: GeoObjectType[], hierarchies: HierarchyType[], locales: string[] };
-            } )
+        return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], locales: string[] }>( acp + '/cgr/init' )
+            .toPromise();
     }
 
     getGeoObjectTypes( types: any ): Promise<GeoObjectType[]> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
-        params.set( 'types', JSON.stringify( types ) );
+        params = params.set( 'types', JSON.stringify( types ) );
 
         return this.http
-            .get( acp + '/cgr/geoobjecttype/get-all', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as GeoObjectType[];
-            } )
+            .get<GeoObjectType[]>( acp + '/cgr/geoobjecttype/get-all', { params: params } )
+            .toPromise();
     }
 
     getParentGeoObjects( childId: string, childTypeCode: string, parentTypes: any, recursive: boolean ): Promise<ParentTreeNode> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
-        params.set( 'childId', childId )
-        params.set( 'childTypeCode', childTypeCode )
-        params.set( 'parentTypes', JSON.stringify( parentTypes ) )
-        params.set( 'recursive', JSON.stringify( recursive ) );
+        params = params.set( 'childId', childId )
+        params = params.set( 'childTypeCode', childTypeCode )
+        params = params.set( 'parentTypes', JSON.stringify( parentTypes ) )
+        params = params.set( 'recursive', JSON.stringify( recursive ) );
 
         return this.http
-            .get( acp + '/cgr/geoobject/get-parent-geoobjects', { params: params } )
+            .get<ParentTreeNode>( acp + '/cgr/geoobject/get-parent-geoobjects', { params: params } )
             .toPromise()
-            .then( response => {
-                return response.json() as ParentTreeNode;
-            } )
     }
 
     getChildGeoObjects( parentId: string, parentTypeCode: string, childrenTypes: any, recursive: boolean ): Promise<ChildTreeNode> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
-        params.set( 'parentId', parentId )
-        params.set( 'parentTypeCode', parentTypeCode )
-        params.set( 'childrenTypes', JSON.stringify( childrenTypes ) )
-        params.set( 'recursive', JSON.stringify( recursive ) );
+        params = params.set( 'parentId', parentId )
+        params = params.set( 'parentTypeCode', parentTypeCode )
+        params = params.set( 'childrenTypes', JSON.stringify( childrenTypes ) )
+        params = params.set( 'recursive', JSON.stringify( recursive ) );
 
         return this.http
-            .get( acp + '/cgr/geoobject/getchildren', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as ChildTreeNode;
-            } )
+            .get<ChildTreeNode>( acp + '/cgr/geoobject/getchildren', { params: params } )
+            .toPromise();
     }
 
     newGeoObjectInstance( typeCode: string ): Promise<any> {
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/cgr/geoobject/newGeoObjectInstance', JSON.stringify( { 'typeCode': typeCode } ), { headers: headers } )
+            .post<any>( acp + '/cgr/geoobject/newGeoObjectInstance', JSON.stringify( { 'typeCode': typeCode } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as any;
-            } )
+            .toPromise();
     }
 
     createGeoObjectType( gtJSON: string ): Promise<GeoObjectType> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/create', JSON.stringify( { 'gtJSON': gtJSON } ), { headers: headers } )
+            .post<GeoObjectType>( acp + '/cgr/geoobjecttype/create', JSON.stringify( { 'gtJSON': gtJSON } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as GeoObjectType;
-            } )
+            .toPromise();
     }
 
     updateGeoObjectType( gtJSON: GeoObjectType ): Promise<GeoObjectType> {
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/update', JSON.stringify( { "gtJSON": gtJSON } ), { headers: headers } )
+            .post<GeoObjectType>( acp + '/cgr/geoobjecttype/update', JSON.stringify( { "gtJSON": gtJSON } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as GeoObjectType;
-            } )
+            .toPromise();
     }
 
-    deleteGeoObjectType( code: string ): Promise<Response> {
-        let headers = new Headers( {
+    deleteGeoObjectType( code: string ): Promise<void> {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/delete', JSON.stringify( { code: code } ), { headers: headers } )
+            .post<void>( acp + '/cgr/geoobjecttype/delete', JSON.stringify( { code: code } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -161,26 +140,23 @@ export class RegistryService {
 
     addAttributeType( geoObjTypeId: string, attribute: Attribute ): Promise<Attribute> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/addattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute } ), { headers: headers } )
+            .post<Attribute>( acp + '/cgr/geoobjecttype/addattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as Attribute;
-            } )
+            .toPromise();
     }
 
     updateAttributeType( geoObjTypeId: string, attribute: Attribute ): Promise<Attribute> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -188,19 +164,16 @@ export class RegistryService {
 
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute } ), { headers: headers } )
+            .post<Attribute>( acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as Attribute;
-            } )
+            .toPromise();
     }
 
     deleteAttributeType( geoObjTypeId: string, attributeName: string ): Promise<boolean> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -208,19 +181,16 @@ export class RegistryService {
 
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeName': attributeName } ), { headers: headers } )
+            .post<boolean>( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeName': attributeName } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json();
-            } )
+            .toPromise();
     }
 
     addAttributeTermTypeOption( parentTermCode: string, term: Term ): Promise<Term> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -228,19 +198,16 @@ export class RegistryService {
 
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/addterm', JSON.stringify( { 'parentTermCode': parentTermCode, 'termJSON': term } ), { headers: headers } )
+            .post<Term>( acp + '/cgr/geoobjecttype/addterm', JSON.stringify( { 'parentTermCode': parentTermCode, 'termJSON': term } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as Term;
-            } )
+            .toPromise();
     }
 
     updateAttributeTermTypeOption( termJSON: Term ): Promise<Term> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -248,19 +215,16 @@ export class RegistryService {
 
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/updateterm', JSON.stringify( { 'termJSON': termJSON } ), { headers: headers } )
+            .post<Term>( acp + '/cgr/geoobjecttype/updateterm', JSON.stringify( { 'termJSON': termJSON } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as Term;
-            } )
+            .toPromise();
     }
 
     deleteAttributeTermTypeOption( termCode: string ): Promise<Attribute> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -268,79 +232,64 @@ export class RegistryService {
 
 
         return this.http
-            .post( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { 'termCode': termCode } ), { headers: headers } )
+            .post<Attribute>( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { 'termCode': termCode } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json();
-            } )
+            .toPromise();
     }
 
     getGeoObject( id: string, typeCode: string ): Promise<GeoObject> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
-        params.set( 'id', id )
-        params.set( 'typeCode', typeCode );
+        params = params.set( 'id', id )
+        params = params.set( 'typeCode', typeCode );
 
         return this.http
-            .get( acp + '/cgr/geoobject/get', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as GeoObject;
-            } )
+            .get<GeoObject>( acp + '/cgr/geoobject/get', { params: params } )
+            .toPromise();
     }
 
     getGeoObjectBounds( code: string, typeCode: string ): Promise<number[]> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
-        params.set( 'code', code )
-        params.set( 'typeCode', typeCode );
+        params = params.set( 'code', code )
+        params = params.set( 'typeCode', typeCode );
 
         return this.http
-            .get( acp + '/cgr/geoobject/get-bounds', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as number[];
-            } )
+            .get<number[]>( acp + '/cgr/geoobject/get-bounds', { params: params } )
+            .toPromise();
     }
 
     getGeoObjectByCode( code: string, typeCode: string ): Promise<GeoObject> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
-        params.set( 'code', code )
-        params.set( 'typeCode', typeCode );
+        params = params.set( 'code', code )
+        params = params.set( 'typeCode', typeCode );
 
         return this.http
-            .get( acp + '/cgr/geoobject/get-code', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as GeoObject;
-            } )
+            .get<GeoObject>( acp + '/cgr/geoobject/get-code', { params: params } )
+            .toPromise();
     }
 
     getHierarchiesForGeoObject( code: string, typeCode: string ): Promise<any> {
-        let params: URLSearchParams = new URLSearchParams();
-        params.set( 'code', code );
-        params.set( 'typeCode', typeCode );
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'code', code );
+        params = params.set( 'typeCode', typeCode );
 
         this.eventService.start();
 
         return this.http
-            .get( acp + '/cgr/geoobject/get-hierarchies', { params: params } )
+            .get<any>( acp + '/cgr/geoobject/get-hierarchies', { params: params } )
             .finally(() => {
                 this.eventService.complete();
             } )
             .toPromise()
-            .then( response => {
-                return response.json() as any;
-            } )
     }
 
     getGeoObjectSuggestions( text: string, type: string, parent: string, hierarchy: string ): Promise<GeoObject> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -355,16 +304,12 @@ export class RegistryService {
         }
 
         return this.http
-            .post( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
-            .toPromise()
-            .then( response => {
-                return response.json();
-            } );
-
+            .post<GeoObject>( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
+            .toPromise();
     }
 
     getGeoObjectSuggestionsTypeAhead( text: string, type: string ): Promise<GeoObject> {
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -374,100 +319,85 @@ export class RegistryService {
         } as any;
 
         return this.http
-            .post( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
-            .toPromise()
-            .then( response => {
-                return response.json();
-            } );
+            .post<GeoObject>( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
+            .toPromise();
     }
 
     getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
-        let params: URLSearchParams = new URLSearchParams();
+        let params: HttpParams = new HttpParams();
 
         return this.http
-            .get( acp + '/master-list/list-all', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as { locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] };
-            } )
+            .get<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }>( acp + '/master-list/list-all', { params: params } )
+            .toPromise();
     }
 
     createMasterList( list: MasterList ): Promise<MasterList> {
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/master-list/create', JSON.stringify( { list: list } ), { headers: headers } )
+            .post<MasterList>( acp + '/master-list/create', JSON.stringify( { list: list } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response.json() as MasterList;
-            } )
+            .toPromise();
     }
 
-    deleteMasterList( oid: string ): Promise<Response> {
-        let headers = new Headers( {
+    deleteMasterList( oid: string ): Promise<void> {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/master-list/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post<void>( acp + '/master-list/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
             .toPromise()
     }
 
-    publishMasterList( oid: string ): Observable<Response> {
-        let headers = new Headers( {
+    publishMasterList( oid: string ): Observable<MasterList> {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
-        return this.http.post( acp + '/master-list/publish', JSON.stringify( { oid: oid } ), { headers: headers } );
+        return this.http.post<MasterList>( acp + '/master-list/publish', JSON.stringify( { oid: oid } ), { headers: headers } );
     }
 
     getMasterList( oid: string ): Promise<MasterList> {
-        let params: URLSearchParams = new URLSearchParams();
-        params.set( 'oid', oid );
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'oid', oid );
 
         return this.http
-            .get( acp + '/master-list/get', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as MasterList;
-            } )
+            .get<MasterList>( acp + '/master-list/get', { params: params } )
+            .toPromise();
     }
 
     /*
      * Not really part of the RegistryService
      */
-    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject, isNew: boolean, masterListId: string ): Promise<Response> {
-        let headers = new Headers( {
+    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject, isNew: boolean, masterListId: string ): Promise<void> {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
         return this.http
-            .post( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject, isNew: isNew, masterListId: masterListId } ), { headers: headers } )
+            .post<void>( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject, isNew: isNew, masterListId: masterListId } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
-            .toPromise()
-            .then( response => {
-                return response;
-            } )
+            .toPromise();
     }
 
     data( oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string } ): Promise<any> {
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -489,15 +419,12 @@ export class RegistryService {
         }
 
         return this.http
-            .post( acp + '/master-list/data', JSON.stringify( params ), { headers: headers } )
-            .toPromise()
-            .then( response => {
-                return response.json() as any;
-            } )
+            .post<any>( acp + '/master-list/data', JSON.stringify( params ), { headers: headers } )
+            .toPromise();
     }
 
     values( oid: string, value: string, attributeName: string, valueAttribute: string, filter: { attribute: string, value: string }[] ): Promise<{ label: string, value: string }[]> {
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
@@ -517,23 +444,17 @@ export class RegistryService {
 
 
         return this.http
-            .post( acp + '/master-list/values', JSON.stringify( params ), { headers: headers } )
-            .toPromise()
-            .then( response => {
-                return response.json() as any;
-            } )
+            .post<{ label: string, value: string }[]>( acp + '/master-list/values', JSON.stringify( params ), { headers: headers } )
+            .toPromise();
     }
 
     progress( oid: string ): Promise<Progress> {
-        let params: URLSearchParams = new URLSearchParams();
-        params.set( 'oid', oid );
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'oid', oid );
 
         return this.http
-            .get( acp + '/master-list/progress', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response.json() as Progress;
-            } )
+            .get<Progress>( acp + '/master-list/progress', { params: params } )
+            .toPromise();
     }
 
 

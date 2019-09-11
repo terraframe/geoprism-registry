@@ -32,7 +32,7 @@ export class LocationProblemPageComponent implements OnInit {
     handleError( err: any ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

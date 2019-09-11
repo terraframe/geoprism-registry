@@ -20,6 +20,7 @@
 import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
@@ -52,10 +53,9 @@ export class AccountInviteComponent implements OnInit {
 
         this.service.newInvite().then(( account: Account ) => {
             this.invite.groups = account.groups;
-        } )
-            .catch(( err: Response ) => {
-                this.error( err.json() );
-            } );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
     }
 
     cancel(): void {
@@ -85,15 +85,15 @@ export class AccountInviteComponent implements OnInit {
 
         this.service.inviteUser( this.invite, roleIds ).then( response => {
             this.bsModalRef.hide();
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 }

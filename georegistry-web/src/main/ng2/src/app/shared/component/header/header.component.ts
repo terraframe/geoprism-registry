@@ -39,9 +39,12 @@ export class CgrHeaderComponent {
     }
 
     logout(): void {
-        this.sessionService.logout().then( response => {
-            this.router.navigate( ['/login'] );
-        } );
+        
+        window.location.href = acp + '/session/logout';
+        
+//        this.sessionService.logout().then( response => {
+//            this.router.navigate( ['/login'] );
+//        } );
     }
 
     getUsername() {

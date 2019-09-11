@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 
 import 'rxjs/add/operator/toPromise';
 
@@ -31,45 +31,39 @@ declare var acp: any;
 @Injectable()
 export class ProfileService {
 
-    constructor( service: EventService, private http: Http ) { }
+    constructor( service: EventService, private http: HttpClient ) { }
 
     get(): Promise<Profile> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         return this.http
-            .post( acp + '/account/get', { headers: headers } )
-            .toPromise()
-            .then(( response: any ) => {
-                return response.json() as Profile;
-            } )
+            .post<Profile>( acp + '/account/get', { headers: headers } )
+            .toPromise();
     }
 
 
     apply( profile: Profile ): Promise<Profile> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         return this.http
-            .post( acp + '/account/apply', JSON.stringify( { account: profile } ), { headers: headers } )
-            .toPromise()
-            .then(( response: any ) => {
-                return response.json() as Profile;
-            } )
+            .post<Profile>( acp + '/account/apply', JSON.stringify( { account: profile } ), { headers: headers } )
+            .toPromise();
     }
 
-    unlock( oid: string ): Promise<Response> {
+    unlock( oid: string ): Promise<void> {
 
-        let headers = new Headers( {
+        let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         return this.http
-            .post( acp + '/account/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post<void>( acp + '/account/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
             .toPromise()
     }
 }

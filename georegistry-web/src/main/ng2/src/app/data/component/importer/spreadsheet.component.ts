@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
@@ -21,7 +22,7 @@ declare var acp: string;
     styleUrls: []
 } )
 export class SpreadsheetComponent implements OnInit {
-	
+
     /*
      * List of geo object types from the system
      */
@@ -40,9 +41,9 @@ export class SpreadsheetComponent implements OnInit {
     /*
      * File uploader
      */
-	uploader: FileUploader;
-	
-	@ViewChild( 'myFile' )
+    uploader: FileUploader;
+
+    @ViewChild( 'myFile' )
     fileRef: ElementRef;
 
 
@@ -52,8 +53,8 @@ export class SpreadsheetComponent implements OnInit {
         this.service.listGeoObjectTypes( true ).then( types => {
             this.types = types;
 
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
 
         let options: FileUploaderOptions = {
@@ -72,14 +73,14 @@ export class SpreadsheetComponent implements OnInit {
         };
         this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
             this.fileRef.nativeElement.value = "";
-			this.eventService.complete();
+            this.eventService.complete();
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );
 
             this.bsModalRef = this.modalService.show( SpreadsheetModalComponent, { backdrop: true } );
             this.bsModalRef.content.configuration = configuration;
-		};
+        };
         this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
             this.error( JSON.parse( response ) );
         }
@@ -91,16 +92,19 @@ export class SpreadsheetComponent implements OnInit {
             this.uploader.uploadAll();
         }
         else {
-            this.error( { message: this.localizationService.decode( 'io.missing.file' ) } );
+            this.error( {
+                message: this.localizationService.decode( 'io.missing.file' ),
+                error:{},
+            } );
         }
-	}
-	
+    }
+
 
     public error( err: any ): void {
         // Handle error
         if ( err !== null ) {
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 
@@ -54,8 +55,8 @@ export class DataExportComponent implements OnInit {
         this.service.listGeoObjectTypes( false ).then( types => {
             this.types = types;
 
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse) => {
+            this.error( err );
         } );
     }
 
@@ -65,8 +66,8 @@ export class DataExportComponent implements OnInit {
             this.service.getHierarchiesForType( code, false ).then( hierarchies => {
                 this.hierarchies = hierarchies;
                 this.hierarchy = null;
-            } ).catch(( err: any ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse) => {
+                this.error( err );
             } );
         }
         else {
@@ -86,11 +87,11 @@ export class DataExportComponent implements OnInit {
         }
     }
 
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule, XHRBackend, RequestOptions, Http } from '@angular/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TreeModule } from 'angular-tree-component';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { ModalModule } from 'ngx-bootstrap/modal';
@@ -88,7 +88,7 @@ import '../rxjs-extensions';
         CommonModule,
         RouterModule,
         FormsModule,
-        HttpModule,
+        HttpClientModule,
         ReactiveFormsModule,
         FileUploadModule,
         ModalModule,

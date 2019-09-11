@@ -1,5 +1,5 @@
 import { Input, Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
-import { Headers, Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -32,8 +32,8 @@ export class AddRemoveChildDetailComponent {
   {
     this.changeRequestService.applyAction(this.action).then( response => {
 		this.unlockAction();
-      } ).catch(( err: Response ) => {
-          this.error( err.json() );
+      } ).catch(( err: HttpErrorResponse ) => {
+          this.error( err );
       } );
   }
   
@@ -45,17 +45,17 @@ export class AddRemoveChildDetailComponent {
   unlockAction()
   {
     this.changeRequestService.unlockAction(this.action.oid).then( response => {
-      } ).catch(( err: Response ) => {
-          this.error( err.json() );
+      } ).catch(( err: HttpErrorResponse ) => {
+          this.error( err );
       } );
   }
   
-  public error( err: any ): void {
+  public error( err: HttpErrorResponse ): void {
       // Handle error
       if ( err !== null ) {
         // TODO: add error modal
           this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-          this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+          this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
       }
 
   }

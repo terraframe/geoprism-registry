@@ -57,7 +57,7 @@ export class TermProblemComponent implements OnInit {
                     label: response.label
                 };
             } ).catch( e => {
-                this.onError.emit( e.json() );
+                this.onError.emit( e.error );
             } );
         }
     }
@@ -72,7 +72,7 @@ export class TermProblemComponent implements OnInit {
                 term: term
             };
         } ).catch( e => {
-            this.onError.emit( e.json() );
+            this.onError.emit( e.error );
         } );
     }
 
@@ -101,7 +101,7 @@ export class TermProblemComponent implements OnInit {
                     this.problem.resolved = false;
                     this.problem.action = null;
                 } ).catch( e => {
-                    this.onError.emit( e.json() );
+                    this.onError.emit( e.error );
                 } );
             }
             else if ( action.name == 'OPTION' ) {
@@ -111,7 +111,7 @@ export class TermProblemComponent implements OnInit {
                     this.problem.resolved = false;
                     this.problem.action = null;
                 } ).catch( e => {
-                    this.onError.emit( e.json() );
+                    this.onError.emit( e.error );
                 } );
             }
         }

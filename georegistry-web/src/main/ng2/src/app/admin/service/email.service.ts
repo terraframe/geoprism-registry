@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 
 import 'rxjs/add/operator/toPromise';
 
@@ -31,7 +31,7 @@ declare var acp: any;
 @Injectable()
 export class EmailService {
   
-  constructor(private http: Http, private eventService: EventService) {
+  constructor(private http: HttpClient, private eventService: EventService) {
   }
   
   getInstance(): Promise<Email> {
@@ -39,31 +39,25 @@ export class EmailService {
     this.eventService.start();
     
     return this.http
-      .get(acp + '/email/getInstance')
+      .get<Email>(acp + '/email/getInstance')
       .finally(() => {
         this.eventService.complete();
       } )
-      .toPromise()
-      .then(response => {
-        return response.json() as Email;
-      })
+      .toPromise();
   }  
   
   apply(email:Email): Promise<Email> {
-    let headers = new Headers({
+    let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
     
     this.eventService.start();
   
     return this.http
-      .post(acp + '/email/apply', JSON.stringify({setting:email}), {headers: headers})
+      .post<Email>(acp + '/email/apply', JSON.stringify({setting:email}), {headers: headers})
       .finally(() => {
         this.eventService.complete();
       } )
-      .toPromise()
-      .then((response: any) => {
-        return response.json() as Email;
-      })
+      .toPromise();
   }  
 }

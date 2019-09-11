@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { Headers, Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import 'rxjs/add/operator/toPromise';
 
 import { EventService } from '../../shared/service/event.service';
@@ -31,30 +31,33 @@ declare var acp: any;
 export class LocalizationManagerService {
 
 
-    constructor( private http: Http, private eventService: EventService ) { }
+    constructor( private http: HttpClient, private eventService: EventService ) { }
 
 
     getNewLocaleInfo(): Promise<AllLocaleInfo> {
         return this.http
-            .get( acp + '/localization/getNewLocaleInformation' )
-            .toPromise()
-            .then( response => {
-                return response.json() as AllLocaleInfo;
-            } )
+            .get<AllLocaleInfo>( acp + '/localization/getNewLocaleInformation' )
+            .toPromise();
     }
 
-    installLocale( language: string, country: string, variant: string ): Promise<Response> {
-        let params: URLSearchParams = new URLSearchParams();
-        params.set( 'language', language );
-        params.set( 'country', country );
-        params.set( 'variant', variant );
+    installLocale( language: string, country: string, variant: string ): Promise<void> {
+        let params: HttpParams = new HttpParams();
+
+        if ( language != null ) {
+            params = params.set( 'language', language );
+        }
+
+        if ( country != null ) {
+            params = params.set( 'country', country );
+        }
+
+        if ( variant != null ) {
+            params = params.set( 'variant', variant );
+        }
 
         return this.http
-            .get( acp + '/localization/installLocale', { params: params } )
-            .toPromise()
-            .then( response => {
-                return response;
-            } )
+            .get<void>( acp + '/localization/installLocale', { params: params } )
+            .toPromise();
     }
 
 }

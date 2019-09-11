@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
-import { Response } from '@angular/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
@@ -50,8 +50,8 @@ export class RequestTableComponent {
 
 				this.requests = requests;
 
-            } ).catch(( response: Response ) => {
-                this.error( response.json() );
+            } ).catch(( response: HttpErrorResponse ) => {
+                this.error( response );
             } )
 
     }
@@ -64,8 +64,8 @@ export class RequestTableComponent {
         this.service.getAllActions( selected.selected[0].oid ).then(actions => {
 			
 			this.actions = actions;
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse) => {
+            this.error( err );
         } );
     }
 
@@ -77,8 +77,8 @@ export class RequestTableComponent {
 
                 // TODO: Determine if there is a way to update an individual record
                 this.refresh();
-            } ).catch(( response: Response ) => {
-                this.error( response.json() );
+            } ).catch(( response: HttpErrorResponse ) => {
+                this.error( response );
             } );
         }
 	}
@@ -91,8 +91,8 @@ export class RequestTableComponent {
 
     //             // TODO: Determine if there is a way to update an individual record
     //             this.refresh();
-    //         } ).catch(( response: Response ) => {
-    //             this.error( response.json() );
+    //         } ).catch(( response: HttpErrorResponse ) => {
+    //             this.error( response );
     //         } );
     //     }
 	// }
@@ -103,8 +103,8 @@ export class RequestTableComponent {
 
 		this.service.applyActionStatusProperties(action).then( response => {
 			// this.crtable.refresh()
-		} ).catch(( err: Response ) => {
-			this.error( err.json() );
+		} ).catch(( err: HttpErrorResponse ) => {
+			this.error( err );
 		} );
 	}
 
@@ -113,8 +113,8 @@ export class RequestTableComponent {
         if ( changeRequest != null ) {
             this.service.approveAllActions( changeRequest.oid, this.actions ).then( actions => {
                 this.actions = actions;
-            } ).catch(( response: Response ) => {
-                this.error( response.json() );
+            } ).catch(( response: HttpErrorResponse ) => {
+                this.error( response );
             } );
         }
     }
@@ -126,17 +126,17 @@ export class RequestTableComponent {
 
                 // TODO: Determine if there is a way to update an individual record
                 // this.refresh();
-            } ).catch(( response: Response ) => {
-                this.error( response.json() );
+            } ).catch(( response: HttpErrorResponse ) => {
+                this.error( response );
             } );
         }
     }
 
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
             let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            bsModalRef.content.message = ( err.localizedMessage || err.message );
+            bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
 	}
 	
@@ -161,8 +161,8 @@ export class RequestTableComponent {
 
 		   this.service.getAllRequests(criteria).then( requests => {
 				this.requests = requests;
-            } ).catch(( response: Response ) => {
-                this.error( response.json() );
+            } ).catch(( response: HttpErrorResponse ) => {
+                this.error( response );
 			} )
 			
 		this.filterCriteria = criteria;

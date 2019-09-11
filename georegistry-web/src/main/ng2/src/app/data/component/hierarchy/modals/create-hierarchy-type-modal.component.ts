@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { HierarchyType } from '../../../model/hierarchy';
 import { HierarchyService } from '../../../service/hierarchy.service';
@@ -45,24 +46,24 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
             this.hierarchyService.updateHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
                 this.onHierarchytTypeCreate.next( data );
                 this.bsModalRef.hide();
-            } ).catch(( err: any ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse) => {
+                this.error( err );
             } );
         }
         else {
             this.hierarchyService.createHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {
                 this.onHierarchytTypeCreate.next( data );
                 this.bsModalRef.hide();
-            } ).catch(( err: any ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse) => {
+                this.error( err );
             } );
         }
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
 
             console.log( this.message );
         }

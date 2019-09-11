@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -107,8 +108,8 @@ export class HierarchyComponent implements OnInit {
           this.setHierarchies( response.hierarchies );
 
           this.setNodesOnInit(desiredHierarchy);
-      } ).catch(( err: Response ) => {
-          this.error( err.json() );
+      } ).catch(( err: HttpErrorResponse ) => {
+          this.error( err );
       } );
     }
 
@@ -342,8 +343,8 @@ export class HierarchyComponent implements OnInit {
             let pos = this.getHierarchyTypePosition( code );
             this.hierarchies.splice( pos, 1 );
 
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -412,8 +413,8 @@ export class HierarchyComponent implements OnInit {
             
             this.refreshAll(null);
             
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -558,8 +559,8 @@ export class HierarchyComponent implements OnInit {
             // Update the available GeoObjectTypes
             this.changeDetectorRef.detectChanges()
 
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -579,12 +580,12 @@ export class HierarchyComponent implements OnInit {
         return true;
     }
 
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
             // TODO: add error modal
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
 
     }

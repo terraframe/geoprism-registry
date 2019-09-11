@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { TreeNode } from 'angular-tree-component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 
@@ -36,12 +37,12 @@ export class NewLocaleModalComponent {
       .then( allLocaleInfoIN => {
         this.allLocaleInfo = allLocaleInfoIN;
         this.eventService.complete();
-      }).catch(( err: any ) => {
+      }).catch(( err: HttpErrorResponse) => {
         console.log(err);
         
         this.bsModalRef.hide();
         this.eventService.complete();
-        this.error( err.json() );
+        this.error( err );
       });
     }
 
@@ -52,12 +53,12 @@ export class NewLocaleModalComponent {
       .then( () => {
         this.eventService.complete();
         this.bsModalRef.hide();
-      }).catch(( err: any ) => {
+      }).catch(( err: HttpErrorResponse) => {
         console.log(err);
         
         this.bsModalRef.hide();
         this.eventService.complete();
-        this.error( err.json() );
+        this.error( err );
       });
     }
     
@@ -67,11 +68,11 @@ export class NewLocaleModalComponent {
       
     }
     
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
       // Handle error
       if ( err !== null ) {
           let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-          bsModalRef.content.message = ( err.localizedMessage || err.message );
+          bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
       }
     }
 }

@@ -56,7 +56,7 @@ export class LocationProblemComponent implements OnInit {
                     label: response.label
                 };
             } ).catch( e => {
-                this.onError.emit( e.json() );
+                this.onError.emit( e.error );
             } );
         }
     }
@@ -94,7 +94,7 @@ export class LocationProblemComponent implements OnInit {
                     this.entityLabel = null;
                     this.hasSynonym = ( this.entityLabel != null );
                 } ).catch( e => {
-                    this.onError.emit( e.json() );
+                    this.onError.emit( e.error );
                 } );
             }
 

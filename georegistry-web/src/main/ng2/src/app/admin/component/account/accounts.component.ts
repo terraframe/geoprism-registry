@@ -19,12 +19,12 @@
 
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { Response } from '@angular/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { MessageContainer } from '../../../shared/model/core';
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
+import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
 import { User, PageResult, Account } from '../../model/account';
@@ -39,7 +39,7 @@ declare let acp: string;
     templateUrl: './accounts.component.html',
     styles: ['./accounts.css']
 } )
-export class AccountsComponent implements OnInit, MessageContainer {
+export class AccountsComponent implements OnInit {
     res: PageResult = {
         resultSet: [],
         count: 0,
@@ -59,8 +59,8 @@ export class AccountsComponent implements OnInit, MessageContainer {
     ngOnInit(): void {
         this.service.page( 1 ).then( res => {
             this.res = res;
-        } ).catch(( err: Response ) => {
-            this.service.error( err, this );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -68,8 +68,8 @@ export class AccountsComponent implements OnInit, MessageContainer {
         this.service.remove( user.oid ).then( response => {
             this.res.resultSet = this.res.resultSet.filter( h => h.oid !== user.oid );
         } )
-            .catch(( err: Response ) => {
-                this.service.error( err, this );
+            .catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
     }
 
@@ -129,8 +129,8 @@ export class AccountsComponent implements OnInit, MessageContainer {
     onPageChange( pageNumber: number ): void {
         this.service.page( pageNumber ).then( res => {
             this.res = res;
-        } ).catch(( err: Response ) => {
-            this.service.error( err, this );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -144,7 +144,13 @@ export class AccountsComponent implements OnInit, MessageContainer {
         } );
     }
 
-    setMessage( message: string ) {
-        this.message = message;
+    public error( err: HttpErrorResponse ): void {
+        // Handle error
+        if ( err !== null ) {
+            // TODO: add error modal
+            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
+        }
+
     }
 }

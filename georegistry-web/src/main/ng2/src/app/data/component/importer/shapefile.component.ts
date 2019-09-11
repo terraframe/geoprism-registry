@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { ShapefileModalComponent } from './modals/shapefile-modal.component';
@@ -50,8 +51,8 @@ export class ShapefileComponent implements OnInit {
         this.service.listGeoObjectTypes( true ).then( types => {
             this.types = types;
 
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
 
         let options: FileUploaderOptions = {
@@ -88,7 +89,7 @@ export class ShapefileComponent implements OnInit {
             this.uploader.uploadAll();
         }
         else {
-            this.error( { message: this.localizationService.decode( 'io.missing.file' ) } );
+            this.error( { message: this.localizationService.decode( 'io.missing.file' ), error: {} } );
         }
     }
 
@@ -96,7 +97,7 @@ export class ShapefileComponent implements OnInit {
         // Handle error
         if ( err !== null ) {
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

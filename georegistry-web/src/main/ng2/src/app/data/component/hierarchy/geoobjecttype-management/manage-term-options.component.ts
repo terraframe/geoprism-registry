@@ -9,6 +9,7 @@ import {
 import { NgControl, Validators, FormBuilder } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { StepConfig,ModalTypes } from '../../../../shared/model/modal';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
@@ -141,8 +142,8 @@ export class ManageTermOptionsComponent implements OnInit {
 
             this.enableTermOptionForm = false;
 
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
 
     }
@@ -159,7 +160,7 @@ export class ManageTermOptionsComponent implements OnInit {
 
             this.clearTermOption();
 
-        } ).catch(( err: any ) => {
+        } ).catch(( err: HttpErrorResponse) => {
             this.error( err );
         } );
 
@@ -203,13 +204,13 @@ export class ManageTermOptionsComponent implements OnInit {
         this.geoObjectTypeManagementService.setModalState( { "state": GeoObjectTypeModalStates.editAttribute, "attribute": this.attribute, "termOption": "" } )
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         if ( err !== null ) {
             // TODO: add error modal
             //   this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            //   this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+            //   this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
 
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

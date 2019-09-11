@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { GeoObjectType } from '../../../model/registry';
 
@@ -46,8 +47,8 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
         this.registryService.createGeoObjectType( JSON.stringify( this.geoObjectType ) ).then( data => {
             this.onGeoObjTypeCreate.next( data );
             this.bsModalRef.hide();
-        } ).catch(( err: any ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse) => {
+            this.error( err );
         } );
 
     }
@@ -60,10 +61,10 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
         this.geoObjectType.isGeometryEditable = !this.geoObjectType.isGeometryEditable;
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
 
             console.log( this.message );
         }

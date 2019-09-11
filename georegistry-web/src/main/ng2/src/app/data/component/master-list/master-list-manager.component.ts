@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList } from '../../model/registry';
 
@@ -40,8 +41,8 @@ export class MasterListManagerComponent implements OnInit {
             this.localizeService.setLocales( response.locales );
 
             this.lists = response.lists;
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -69,8 +70,8 @@ export class MasterListManagerComponent implements OnInit {
             this.bsModalRef.content.onMasterListChange.subscribe( ret => {
                 pair.label = ret.displayLabel.localizedValue;
             } );
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -90,16 +91,16 @@ export class MasterListManagerComponent implements OnInit {
                     return value.oid !== list.oid;
                 } );
 
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
         } );
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

@@ -9,6 +9,7 @@ import {
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
+import { HttpErrorResponse } from "@angular/common/http";
 
 
 import { Step, StepConfig } from '../../../../shared/model/modal';
@@ -83,8 +84,8 @@ export class EditTermOptionInputComponent implements OnInit {
         
         this.registryService.updateAttributeTermTypeOption( this.termOption ).then( data => {
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -104,10 +105,10 @@ export class EditTermOptionInputComponent implements OnInit {
         this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""})
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
             
             console.log(this.message);
         }

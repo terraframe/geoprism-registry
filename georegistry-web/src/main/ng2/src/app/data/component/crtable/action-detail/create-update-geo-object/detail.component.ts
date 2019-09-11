@@ -1,5 +1,5 @@
 import { Input, Component, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, ViewEncapsulation, HostListener } from '@angular/core';
-import { Headers, Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
@@ -73,7 +73,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
         this.changeRequestService.applyAction( action ).then( response => {
             this.endEdit();
-        } ).catch(( err: Response ) => {
+        } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
     }
@@ -105,7 +105,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
                 .then( geoObject => {
                     this.preGeoObject = geoObject;
 
-                } ).catch(( err: Response ) => {
+                } ).catch(( err: HttpErrorResponse ) => {
                     console.log( "Error", err );
                     this.error( err );
                 } );
@@ -146,7 +146,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
             if ( this.geometryEditor != null ) {
                 this.geometryEditor.enableEditing( true );
             }
-        } ).catch(( err: Response ) => {
+        } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
     }
@@ -157,7 +157,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
             if ( this.geometryEditor != null ) {
                 this.geometryEditor.enableEditing( false );
             }
-        } ).catch(( err: Response ) => {
+        } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
     }
@@ -204,26 +204,22 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     //
     //     yield crs.unlockAction(actionOid).then( response => {
     //       this.readOnly = true;
-    //     } ).catch(( err: Response ) => {
-    //       this.error( err.json() );
+    //     } ).catch(( err: HttpErrorResponse ) => {
+    //       this.error( err );
     //     } );
     //
     //     console.log("UnlockActionSync Checkpoint", "End MakeMeLookSync");
     //   });
     // }
 
-    public error( err: any ): void {
+    public error( err: HttpErrorResponse ): void {
         console.log( err );
-
-        if ( err.json != null ) {
-            err = err.json();
-        }
 
         // Handle error
         if ( err !== null ) {
             // TODO: add error modal
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.localizedMessage || err.message );
+            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
 
     }

@@ -4,6 +4,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '../../../model/registry';
 
@@ -55,10 +56,10 @@ export class ManageGeoObjectTypeModalComponent implements OnInit {
         this.bsModalRef.hide();
     }
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
             
             console.log(this.message);
         }

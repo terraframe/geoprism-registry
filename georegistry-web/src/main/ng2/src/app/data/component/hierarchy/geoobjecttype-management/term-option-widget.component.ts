@@ -111,15 +111,5 @@ export class TermOptionWidgetComponent implements OnInit {
     openAddTermOptionForm(): void {
         this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption": ""})
 
-    }
-    
-    error( err: any ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
-            
-            console.log(this.message);
-        }
-    }
-
+    }    
 }

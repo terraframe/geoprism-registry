@@ -20,6 +20,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Inject, Input } from '@angular/core';
 import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
 
@@ -32,103 +33,103 @@ import { SystemLogo } from '../../model/system-logo';
 
 declare var acp: any;
 
-@Component({
-  
-  selector: 'system-logo',
-  templateUrl: './system-logo.component.html',
-  styles: []
-})
+@Component( {
+
+    selector: 'system-logo',
+    templateUrl: './system-logo.component.html',
+    styles: []
+} )
 export class SystemLogoComponent implements OnInit {
-  oid: SystemLogo;
-  message: string = null;
+    oid: SystemLogo;
+    message: string = null;
 
-  public uploader:FileUploader;
-  public dropActive:boolean = false;
+    public uploader: FileUploader;
+    public dropActive: boolean = false;
 
-  @ViewChild('uploadEl') 
-  private uploadElRef: ElementRef;  
-  
-  file: any;
-  context: string;
+    @ViewChild( 'uploadEl' )
+    private uploadElRef: ElementRef;
 
-  constructor(
-    private router: Router,      
-    private route: ActivatedRoute,
-    private location: Location,
-    private iconService: SystemLogoService,
-    private eventService: EventService) {
-    this.context = acp as string;	  
-  }
+    file: any;
+    context: string;
 
-  ngOnInit(): void {
-    this.oid = this.route.snapshot.params['oid'];
-        
-    let options:FileUploaderOptions = {
-      autoUpload: false,
-      queueLimit: 1,
-      removeAfterUpload: true,
-      url: acp + '/logo/apply'
-    };    
-    
-    this.uploader = new FileUploader(options);
-    this.uploader.onBeforeUploadItem = (fileItem: any) => {
-      this.eventService.start();
-    };    
-    this.uploader.onCompleteItem = (item:any, response:any, status:any, headers:any) => {
-      this.eventService.complete();
-    };    
-    this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-      this.location.back();
-    };
-    this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-      this.eventService.error(response, null);  
-    };
-    this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-      form.append('oid', this.oid);        
-    };        
-  }
-  
-  ngAfterViewInit() {
-    let that = this;
-  
-    this.uploader.onAfterAddingFile = (item => {
-      this.uploadElRef.nativeElement.value = ''
-        
-      let reader = new FileReader();
-        reader.onload = function(e: any) {
-        that.file = reader.result;
-      };
-      reader.readAsDataURL(item._file);
-    });
-  }
-  
-  fileOver(e:any):void {
-    this.dropActive = e;
-  }  
-  
-  cancel(): void {
-    this.location.back();      
-  } 
-  
-  onSubmit(): void {
-    if(this.file == null) {
-      this.location.back();
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private location: Location,
+        private iconService: SystemLogoService,
+        private eventService: EventService ) {
+        this.context = acp as string;
     }
-    else {    
-      this.uploader.uploadAll();      
+
+    ngOnInit(): void {
+        this.oid = this.route.snapshot.params['oid'];
+
+        let options: FileUploaderOptions = {
+            autoUpload: false,
+            queueLimit: 1,
+            removeAfterUpload: true,
+            url: acp + '/logo/apply'
+        };
+
+        this.uploader = new FileUploader( options );
+        this.uploader.onBeforeUploadItem = ( fileItem: any ) => {
+            this.eventService.start();
+        };
+        this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
+            this.eventService.complete();
+        };
+        this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
+            this.location.back();
+        };
+        this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
+            this.error( response );
+        };
+        this.uploader.onBuildItemForm = ( fileItem: any, form: any ) => {
+            form.append( 'oid', this.oid );
+        };
     }
-  }  
-  
-  clear(): void {
-    this.file = null;
-    
-    this.uploader.clearQueue()    
-  }
-  
-  error( err: any ): void {
-    // Handle error
-    if ( err !== null ) {
-      this.message = ( err.localizedMessage || err.message );
+
+    ngAfterViewInit() {
+        let that = this;
+
+        this.uploader.onAfterAddingFile = ( item => {
+            this.uploadElRef.nativeElement.value = ''
+
+            let reader = new FileReader();
+            reader.onload = function( e: any ) {
+                that.file = reader.result;
+            };
+            reader.readAsDataURL( item._file );
+        } );
     }
-  }
+
+    fileOver( e: any ): void {
+        this.dropActive = e;
+    }
+
+    cancel(): void {
+        this.location.back();
+    }
+
+    onSubmit(): void {
+        if ( this.file == null ) {
+            this.location.back();
+        }
+        else {
+            this.uploader.uploadAll();
+        }
+    }
+
+    clear(): void {
+        this.file = null;
+
+        this.uploader.clearQueue()
+    }
+
+    error( err: string ): void {
+        // Handle error
+        if ( err !== null ) {
+            this.message = err;
+        }
+    }
 }

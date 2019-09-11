@@ -20,6 +20,7 @@
 import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { HttpErrorResponse } from "@angular/common/http";
 
 import { ForgotPasswordService } from '../../shared/service/forgotpassword.service';
 
@@ -54,15 +55,15 @@ export class ForgotPasswordComponent implements OnInit {
       .then(response => {
         this.emailIsSent = true;
       })
-      .catch(( err: Response ) => {
-        this.error( err.json() );
+      .catch(( err: HttpErrorResponse ) => {
+        this.error( err );
       } );
   }
   
-  error( err: any ): void {
+  error( err: HttpErrorResponse ): void {
     // Handle error
     if ( err !== null ) {
-      this.message = ( err.localizedMessage || err.message );
+      this.message = ( err.error.localizedMessage || err.error.message || err.message );
     }
   }
 }

@@ -18,13 +18,12 @@
 ///
 
 import { Component, Input, OnInit } from '@angular/core';
-import { Response } from '@angular/http';
+import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+
 import { Location } from '@angular/common';
 import 'rxjs/add/operator/switchMap';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
-
-import { MessageContainer } from '../../../shared/model/core';
 
 import { Account, User } from '../../model/account';
 import { AccountService } from '../../service/account.service';
@@ -34,7 +33,7 @@ import { AccountService } from '../../service/account.service';
     templateUrl: './account.component.html',
     styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
 } )
-export class AccountComponent implements OnInit, MessageContainer {
+export class AccountComponent implements OnInit {
 
     message: string = null;
     account: Account;
@@ -42,22 +41,18 @@ export class AccountComponent implements OnInit, MessageContainer {
     @Input()
     set oid( oid: string ) {
         if ( oid === 'NEW' ) {
-            this.service.newInstance()
-                .then( data => {
-                    this.account = data;
-                } )
-                .catch(( err: Response ) => {
-                    this.service.error( err, this );
-                } );
+            this.service.newInstance().then( data => {
+                this.account = data;
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
         }
         else if ( oid ) {
-            this.service.edit( oid )
-                .then( data => {
-                    this.account = data;
-                } )
-                .catch(( err: Response ) => {
-                    this.service.error( err, this );
-                } );
+            this.service.edit( oid ).then( data => {
+                this.account = data;
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
         }
     }
 
@@ -110,12 +105,17 @@ export class AccountComponent implements OnInit, MessageContainer {
         this.service.apply( this.account.user, roleIds ).then( data => {
             this.onEdit.next( data );
             this.bsModalRef.hide();
-        } ).catch(( err: Response ) => {
-            this.service.error( err, this );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
-    setMessage( message: string ) {
-        this.message = message;
+    public error( err: HttpErrorResponse ): void {
+        // Handle error
+        if ( err !== null ) {
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
+        }
+
     }
+
 }

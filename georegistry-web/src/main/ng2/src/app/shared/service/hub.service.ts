@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response, URLSearchParams } from '@angular/http';
+import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 
 import 'rxjs/add/operator/toPromise';
 
@@ -31,19 +31,16 @@ declare var acp: any;
 @Injectable()
 export class HubService {
   
-  constructor(service: EventService, private http: Http) {}
+  constructor(service: EventService, private http: HttpClient) {}
   
   applications(): Promise<Application[]> {
 
-    let headers = new Headers({
+    let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });  
   
     return this.http
-      .post(acp + '/menu/applications', {headers: headers})
-      .toPromise()
-      .then((response: any) => {
-        return response.json() as Application[];
-      })
+      .post<Application[]>(acp + '/menu/applications', {headers: headers})
+      .toPromise();
   }  
 }

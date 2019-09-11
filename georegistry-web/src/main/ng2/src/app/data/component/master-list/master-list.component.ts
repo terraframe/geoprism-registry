@@ -6,6 +6,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList } from '../../model/registry';
 
@@ -83,8 +84,8 @@ export class MasterListComponent implements OnInit {
 
         this.service.data( this.list.oid, pageNumber, this.page.pageSize, this.filter, this.sort ).then( page => {
             this.page = page;
-        } ).catch(( err: Response ) => {
-            this.error( err.json() );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
     }
 
@@ -129,8 +130,8 @@ export class MasterListComponent implements OnInit {
                 options.unshift( { label: '[' + this.localizeService.decode( "masterlist.nofilter" ) + ']', value: null } );
 
                 observer.next( options );
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
         } );
     }
@@ -250,9 +251,6 @@ export class MasterListComponent implements OnInit {
 
             this.pService.complete();
         } ).toPromise()
-            .then( response => {
-                return response.json() as MasterList;
-            } )
             .then( list => {
                 this.list = list;
                 this.list.attributes.forEach( attribute => {
@@ -261,8 +259,8 @@ export class MasterListComponent implements OnInit {
 
                 // Refresh the resultSet
                 this.onPageChange( 1 );
-            } ).catch(( err: Response ) => {
-                this.error( err.json() );
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
             } );
 
         this.pService.start();
@@ -308,10 +306,10 @@ export class MasterListComponent implements OnInit {
     }
 
 
-    error( err: any ): void {
+    error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
+            this.message = ( err.error.localizedMessage || err.error.message || err.message );
         }
     }
 

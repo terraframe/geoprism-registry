@@ -97,14 +97,4 @@ export class AttributeInputComponent implements OnInit {
         
         return false;
     }
-
-    error( err: any ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.localizedMessage || err.message );
-            
-            console.log(this.message);
-        }
-    }
-
 }
