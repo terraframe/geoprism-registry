@@ -24,8 +24,8 @@
               <ul *dropdownMenu class="dropdown-menu">
                 <!-- GeoRegistry specific links -->
                 <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
-                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
-                <li role="menuitem"><a class="dropdown-item" routerLink="/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
+                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
                 <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
                 
