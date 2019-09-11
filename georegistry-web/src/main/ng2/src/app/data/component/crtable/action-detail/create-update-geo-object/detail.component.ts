@@ -15,6 +15,8 @@ import { ErrorModalComponent } from '../../../../../shared/component/modals/erro
 import { ComponentCanDeactivate } from "../../../../../shared/service/pending-changes-guard";
 
 
+import { ActionDetailComponent } from '../action-detail-modal.component';
+
 declare var acp: any;
 declare var $: any;
 
@@ -25,7 +27,7 @@ declare var $: any;
     styleUrls: ['./crtable-detail-create-geo-object.css'],
     encapsulation: ViewEncapsulation.None
 } )
-export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactivate {
+export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
 
     @Input() action: any;
 

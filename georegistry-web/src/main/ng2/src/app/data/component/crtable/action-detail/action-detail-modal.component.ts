@@ -5,6 +5,10 @@ import { Action } from 'rxjs/scheduler/Action';
 import { GeoObject, GeoObjectType } from '../../../model/registry';
 import { CreateUpdateGeoObjectDetailComponent } from './create-update-geo-object/detail.component';
 
+export interface ActionDetailComponent {
+    endEdit(): void;
+}
+
 @Component( {
     selector: 'action-detail-modal',
     templateUrl: './action-detail-modal.component.html',
@@ -12,14 +16,15 @@ import { CreateUpdateGeoObjectDetailComponent } from './create-update-geo-object
 } )
 export class ActionDetailModalComponent {
 
-	action: any;
-	
-	@ViewChild("cuDetail") cuDetail: CreateUpdateGeoObjectDetailComponent;
+    action: any;
 
-	@Input() 
-	set curAction(action: any){
-		this.action = action;
-	}
+    @ViewChild( "cuDetail" ) cuDetail: ActionDetailComponent;
+    @ViewChild( "arDetail" ) arDetail: ActionDetailComponent;
+
+    @Input()
+    set curAction( action: any ) {
+        this.action = action;
+    }
 
     /*
      * Called on confirm
@@ -31,11 +36,17 @@ export class ActionDetailModalComponent {
     ngOnInit(): void {
 
     }
-    
+
     cancel(): void {
-      this.cuDetail.endEdit();
-    
-      this.bsModalRef.hide();
+        if ( this.cuDetail != null ) {
+            this.cuDetail.endEdit();
+        }
+
+        if ( this.arDetail != null ) {
+            this.arDetail.endEdit();
+        }
+
+        this.bsModalRef.hide();
     }
 
     confirm(): void {
