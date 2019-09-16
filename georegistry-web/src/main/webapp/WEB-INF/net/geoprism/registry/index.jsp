@@ -65,7 +65,7 @@
 <body>
     <cgr-app>
     <style type="text/css">
-      uasdm-app {
+      cgr-app {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -81,7 +81,7 @@
           Cantarell,
           Helvetica,
           sans-serif;
-        font-size: 1.5em;
+        font-size: 5em;
         text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
       }
       
