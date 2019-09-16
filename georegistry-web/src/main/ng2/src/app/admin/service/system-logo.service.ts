@@ -33,11 +33,11 @@ export class SystemLogoService {
 
     constructor( private http: HttpClient, private eventService: EventService ) { }
 
-    getIcons(): Promise<SystemLogo[]> {
+    getIcons(): Promise<{ icons: SystemLogo[] }> {
         this.eventService.start();
 
         return this.http
-            .get<SystemLogo[]>( acp + '/logo/getAll' )
+            .get<{ icons: SystemLogo[] }>( acp + '/logo/getAll' )
             .finally(() => {
                 this.eventService.complete();
             } )

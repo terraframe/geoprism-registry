@@ -132,13 +132,13 @@ const routes: Routes = [
     },
     {
         path: 'uploads',
-        redirectTo: '/shapefile',
+        redirectTo: '/data',
         canActivate: [MaintainerGuard]
     },
     {
           path: 'data',
           component: DataPageComponent,
-          canActivate: [ContributerGuard]
+          canActivate: [MaintainerGuard]
     },
     {
         path: 'change-requests',

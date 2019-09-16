@@ -73,8 +73,9 @@ export class SystemLogosComponent implements OnInit {
   }
     
   getIcons() : void {
-    this.service.getIcons().then(icons => {
-      this.icons = icons        
+    this.service.getIcons().then(resp => {
+        
+      this.icons = resp.icons;        
     })
     .catch(( err: HttpErrorResponse ) => {
       this.error( err );
