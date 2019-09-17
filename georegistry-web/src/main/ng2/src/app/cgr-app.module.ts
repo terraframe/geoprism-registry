@@ -36,7 +36,7 @@ import { HubService } from './core/service/hub.service';
 
 import { SharedModule } from './shared/shared.module';
 import { AdminModule } from './admin/admin.module';
-import { DataModule } from './data/data.module';
+import { RegistryModule } from './registry/registry.module';
 
 import './rxjs-extensions';
 
@@ -62,7 +62,7 @@ import './rxjs-extensions';
         CustomFormsModule,
         SharedModule.forRoot(),
         AdminModule,
-        DataModule
+        RegistryModule
     ],
     declarations: [
         CgrAppComponent,
@@ -83,7 +83,7 @@ import './rxjs-extensions';
         },
         ForgotPasswordService,
         ForgotPasswordCompleteService,
-        HubService,        
+        HubService,
     ],
     exports: [
         CgrAppComponent,

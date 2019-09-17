@@ -14,13 +14,11 @@ import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DatePipe } from '@angular/common';
 import { CustomFormsModule } from 'ng2-validation'
 
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './component/form-fields/localized-text/localized-text.component';
-
 import { HierarchyComponent } from './component/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './component/localization-manager/localization-manager.component';
 import { CreateHierarchyTypeModalComponent } from './component/hierarchy/modals/create-hierarchy-type-modal.component';
@@ -58,6 +56,13 @@ import { GeoObjectEditorComponent } from './component/geoobject-editor/geoobject
 import { GeoObjectEditorMapComponent } from './component/geoobject-editor-map/geoobject-editor-map.component';
 import { CascadingGeoSelector } from './component/cascading-geo-selector/cascading-geo-selector';
 import { ActionDetailModalComponent } from './component/crtable/action-detail/action-detail-modal.component';
+import { ShapefileComponent } from './component/importer/shapefile.component';
+import { SpreadsheetComponent } from './component/importer/spreadsheet.component';
+import { DataExportComponent } from './component/data-export/data-export.component';
+import { MasterListComponent } from './component/master-list/master-list.component';
+
+import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
+
 import { GeoObjectTypePipe } from './pipe/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './pipe/geoobject-attribute-excludes.pipe';
 import { ToEpochDateTimePipe } from './pipe/to-epoch-date-time.pipe';
@@ -69,14 +74,7 @@ import { IOService } from './service/io.service';
 import { MapService } from './service/map.service';
 import { GeoObjectTypeManagementService } from './service/geoobjecttype-management.service'
 
-import { ShapefileComponent } from './component/importer/shapefile.component';
-import { SpreadsheetComponent } from './component/importer/spreadsheet.component';
-import { DataExportComponent } from './component/data-export/data-export.component';
-import { MasterListComponent } from './component/master-list/master-list.component';
-
-
-import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
-
+import { RegistryRoutingModule } from './registry-routing.module';
 import { SharedModule } from '../shared/shared.module';
 
 import '../rxjs-extensions';
@@ -99,9 +97,9 @@ import '../rxjs-extensions';
         ProgressbarModule,
         CollapseModule,
         NgxPaginationModule,
-        BrowserAnimationsModule,
         CustomFormsModule,
         SharedModule,
+        RegistryRoutingModule        
     ],
     declarations: [
         HierarchyComponent,
@@ -191,4 +189,4 @@ import '../rxjs-extensions';
         ActionDetailModalComponent,
     ]
 } )
-export class DataModule { }
+export class RegistryModule { }
