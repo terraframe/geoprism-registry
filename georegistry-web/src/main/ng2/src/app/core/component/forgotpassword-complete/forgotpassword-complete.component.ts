@@ -25,7 +25,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
 
-import { ForgotPasswordCompleteService } from '../../shared/service/forgotpassword-complete.service';
+import { ForgotPasswordCompleteService } from '../../service/forgotpassword-complete.service';
 
 
 @Component({

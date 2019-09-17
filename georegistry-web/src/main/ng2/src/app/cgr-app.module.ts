@@ -20,14 +20,19 @@ import { CustomFormsModule } from 'ng2-validation'
 import { CgrAppComponent } from './cgr-app.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 
-import { LoginComponent } from './component/login/login.component';
-import { LoginHeaderComponent } from './component/login/login-header.component';
-import { HubComponent } from './component/hub/hub.component';
-import { ForgotPasswordComponent } from './component/forgotpassword/forgotpassword.component';
-import { ForgotPasswordCompleteComponent } from './component/forgotpassword-complete/forgotpassword-complete.component';
+import { LoginComponent } from './core/component/login/login.component';
+import { LoginHeaderComponent } from './core/component/login/login-header.component';
+import { HubComponent } from './core/component/hub/hub.component';
+import { ForgotPasswordComponent } from './core/component/forgotpassword/forgotpassword.component';
+import { ForgotPasswordCompleteComponent } from './core/component/forgotpassword-complete/forgotpassword-complete.component';
 
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpErrorInterceptor } from './service/http-error.interceptor';
+import { HttpErrorInterceptor } from './core/service/http-error.interceptor';
+
+import { ForgotPasswordService } from './core/service/forgotpassword.service';
+import { ForgotPasswordCompleteService } from './core/service/forgotpassword-complete.service';
+import { HubService } from './core/service/hub.service';
+
 
 import { SharedModule } from './shared/shared.module';
 import { AdminModule } from './admin/admin.module';
@@ -55,7 +60,7 @@ import './rxjs-extensions';
         BrowserAnimationsModule,
         PasswordStrengthBarModule,
         CustomFormsModule,
-        SharedModule,
+        SharedModule.forRoot(),
         AdminModule,
         DataModule
     ],
@@ -75,7 +80,10 @@ import './rxjs-extensions';
             provide: HTTP_INTERCEPTORS,
             useClass: HttpErrorInterceptor,
             multi: true
-        }
+        },
+        ForgotPasswordService,
+        ForgotPasswordCompleteService,
+        HubService,        
     ],
     exports: [
         CgrAppComponent,

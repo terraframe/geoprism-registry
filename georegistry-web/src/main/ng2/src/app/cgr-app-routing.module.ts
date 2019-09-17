@@ -14,131 +14,59 @@ import { MasterListComponent } from './data/component/master-list/master-list.co
 import { DataPageComponent } from './data/component/data-page/data-page.component';
 import { ChangeRequestPageComponent } from './data/component/change-request-page/change-request-page.component';
 
-import { LoginComponent } from './component/login/login.component'
-import { HubComponent } from './component/hub/hub.component';
-import { ForgotPasswordComponent } from './component/forgotpassword/forgotpassword.component'
-import { ForgotPasswordCompleteComponent } from './component/forgotpassword-complete/forgotpassword-complete.component'
+import { LoginComponent } from './core/component/login/login.component'
+import { HubComponent } from './core/component/hub/hub.component';
+import { ForgotPasswordComponent } from './core/component/forgotpassword/forgotpassword.component'
+import { ForgotPasswordCompleteComponent } from './core/component/forgotpassword-complete/forgotpassword-complete.component'
 
 import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from './shared/service/guard.service';
 import { PendingChangesGuard } from "./shared/service/pending-changes-guard";
 
-// TODO : Can't dynamically load the Admin Module due to a chunking error
-import { AccountsComponent } from './admin/component/account/accounts.component';
-import { AccountInviteComponent } from './admin/component/account/account-invite.component';
-import { AccountInviteCompleteComponent } from './admin/component/account/account-invite-complete.component';
-import { AccountComponent} from './admin/component/account/account.component';
-import { SystemLogoComponent } from './admin/component/logo/system-logo.component';
-import { SystemLogosComponent } from './admin/component/logo/system-logos.component';
-import { EmailComponent } from './admin/component/email/email.component';
-
-
 const routes: Routes = [
     {
-      path: '',
-      redirectTo: '/menu',
-      pathMatch: 'full'
+        path: '',
+        redirectTo: '/menu',
+        pathMatch: 'full'
     },
     {
-      path: 'login',
-      component: LoginComponent,
-      data: { title: 'login.title' }    
+        path: 'login',
+        component: LoginComponent,
+        data: { title: 'login.title' }
     },
     {
-      path: 'menu',
-      component: HubComponent,
-      canActivate: [ AuthGuard ],
-      data: { title: 'login.header' }    
+        path: 'menu',
+        component: HubComponent,
+        canActivate: [AuthGuard],
+        data: { title: 'login.header' }
     },
     {
-      path: 'menu/:value',
-      component: HubComponent,
-      canActivate: [ AuthGuard ],
-      data: { title: 'login.header' }    
+        path: 'menu/:value',
+        component: HubComponent,
+        canActivate: [AuthGuard],
+        data: { title: 'login.header' }
     },
     {
-	    path: 'forgotpassword',
-	    component: ForgotPasswordComponent,
-	    data: { title: 'useraccounts.title' }                
-  	},
-  	{
-	    path: 'forgotpassword-complete/:token',
-	    component: ForgotPasswordCompleteComponent
-  	},
-  	{
-      path: 'admin',
-      canActivate: [ AuthGuard ],
-      redirectTo: 'admin/accounts',
-      pathMatch: 'full'
+        path: 'forgotpassword',
+        component: ForgotPasswordComponent,
+        data: { title: 'useraccounts.title' }
     },
     {
-      path: 'admin/logos',
-      canActivate: [ AuthGuard ],
-      component: SystemLogosComponent,
-      data: { title: 'System_Configuration' }                
+        path: 'forgotpassword-complete/:token',
+        component: ForgotPasswordCompleteComponent
     },
     {
-      path: 'admin/logo/:oid',
-      canActivate: [ AuthGuard ],
-      component: SystemLogoComponent,
-      data: { title: 'System_Configuration' }            
-      
+        path: 'admin',
+        loadChildren: "./admin/admin.module#AdminModule"
     },
-    {
-      path: 'admin/email',
-      canActivate: [ AuthGuard ],
-      component: EmailComponent,
-      data: { title: 'System_Configuration' }            
-      
-    },
-  	{
-      path: 'admin/accounts',
-      canActivate: [ AuthGuard ],
-      component: AccountsComponent,    
-      data: { title: 'useraccounts.title' }                
-    },
-    {
-      path: 'admin/account/:oid',
-      component: AccountComponent,
-    //   resolve: {
-    //     account: AccountResolver
-    //   },        
-      canActivate: [ AuthGuard ],
-      data: { title: 'account.title' }
-    },
-    {
-      path: 'admin/invite',
-      component: AccountInviteComponent,
-      data: { title: 'account.title' }
-    },
-    {
-      path: 'admin/invite-complete/:token',
-      component: AccountInviteCompleteComponent,
-      data: { title: 'account.title' }
-    },     
     {
         path: 'hierarchies',
         component: HierarchyComponent,
         canActivate: [MaintainerGuard]
     },
     {
-        path: 'lists',
-        redirectTo: '/master-lists',
-        canActivate: [ContributerGuard]
-    },
-    {
-        path: 'requests',
-        redirectTo: '/change-request',
+        path: 'data',
+        component: DataPageComponent,
         canActivate: [MaintainerGuard]
-    },
-    {
-        path: 'uploads',
-        redirectTo: '/data',
-        canActivate: [MaintainerGuard]
-    },
-    {
-          path: 'data',
-          component: DataPageComponent,
-          canActivate: [MaintainerGuard]
     },
     {
         path: 'change-requests',
@@ -164,7 +92,7 @@ const routes: Routes = [
         path: 'change-request',
         component: SubmitChangeRequestComponent,
         canActivate: [ContributerGuard]
-    }    
+    }
 ];
 
 @NgModule( {
@@ -174,7 +102,7 @@ const routes: Routes = [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         AdminGuard,
         MaintainerGuard,
-        ContributerGuard        
+        ContributerGuard
     ]
 } )
 export class CgrAppRoutingModule { }

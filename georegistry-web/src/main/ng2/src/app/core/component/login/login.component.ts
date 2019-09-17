@@ -22,10 +22,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-import { Application } from '../../shared/model/application';
-import { ErrorModalComponent } from '../../shared/component/modals/error-modal.component';
-import { SessionService } from '../../shared/service/session.service';
-import { HubService } from '../../shared/service/hub.service';
+import { Application } from '../../../shared/model/application';
+import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { SessionService } from '../../../shared/service/session.service';
+import { HubService } from '../../service/hub.service';
 
 import { LoginHeaderComponent } from './login-header.component';
 

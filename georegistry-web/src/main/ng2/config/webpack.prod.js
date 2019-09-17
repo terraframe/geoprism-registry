@@ -32,9 +32,9 @@ module.exports = webpackMerge(commonConfig, {
     },
 	output : {
 		path : path.resolve('../webapp/dist'),
-		publicPath : '/',
 		filename : '[name].js',
-		chunkFilename : '[id].chunk.js'
+		chunkFilename : '[id].chunk.js',
+		publicPath : '../dist/', // The public path is relative to the hosted page (/georegistry/cgr/manage) ->	/georegistry/dist
 	},
 
 	plugins : [ 

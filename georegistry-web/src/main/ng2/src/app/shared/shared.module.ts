@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -13,7 +13,6 @@ import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
 import { CustomFormsModule } from 'ng2-validation'
 
@@ -36,9 +35,6 @@ import { ProgressService } from './service/progress.service';
 import { EventService } from './service/event.service';
 import { ModalStepIndicatorService } from './service/modal-step-indicator.service';
 import { SessionService } from './service/session.service';
-import { ForgotPasswordService } from './service/forgotpassword.service';
-import { ForgotPasswordCompleteService } from './service/forgotpassword-complete.service';
-import { HubService } from './service/hub.service';
 
 import { LocalizePipe } from './pipe/localize.pipe';
 import { PhonePipe } from './pipe/phone.pipe';
@@ -69,7 +65,6 @@ import '../rxjs-extensions';
         ProgressbarModule,
         CollapseModule,
         NgxPaginationModule,
-        BrowserAnimationsModule,
         PasswordStrengthBarModule,
         CustomFormsModule
     ],
@@ -90,24 +85,6 @@ import '../rxjs-extensions';
         ProfileComponent,
         LocalizePipe,
         PhonePipe
-    ],
-    providers: [
-        CookieService,
-        AuthService,
-        SessionService,
-        ProfileService,
-        ForgotPasswordService,
-        ForgotPasswordCompleteService,
-        HubService,
-        LocalizationService,
-        ModalStepIndicatorService,
-        EventService,
-        ProgressService,
-        AdminGuard,
-        MaintainerGuard,
-        ContributerGuard,
-        AuthGuard,
-        PendingChangesGuard
     ],
     exports: [
         LocalizeComponent,
@@ -140,4 +117,25 @@ import '../rxjs-extensions';
         ProfileComponent
     ]
 } )
-export class SharedModule { }
+export class SharedModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: SharedModule,
+            providers: [
+                CookieService,
+                AuthService,
+                SessionService,
+                ProfileService,
+                LocalizationService,
+                ModalStepIndicatorService,
+                EventService,
+                ProgressService,
+                AdminGuard,
+                MaintainerGuard,
+                ContributerGuard,
+                AuthGuard,
+                PendingChangesGuard
+            ]
+        };
+    }
+}

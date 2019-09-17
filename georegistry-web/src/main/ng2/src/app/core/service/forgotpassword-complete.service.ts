@@ -22,7 +22,7 @@ import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/comm
 
 import 'rxjs/add/operator/toPromise';
 
-import { EventService } from './event.service'
+import { EventService } from '../../shared/service/event.service'
 
 declare var acp: any;
 

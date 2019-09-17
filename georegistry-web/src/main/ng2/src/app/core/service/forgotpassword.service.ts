@@ -22,25 +22,27 @@ import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/comm
 
 import 'rxjs/add/operator/toPromise';
 
-import { EventService } from './event.service';
-
-import { Application } from '../model/application';
+import { EventService } from '../../shared/service/event.service'
 
 declare var acp: any;
 
 @Injectable()
-export class HubService {
+export class ForgotPasswordService {
   
-  constructor(service: EventService, private http: HttpClient) {}
+  constructor(private http: HttpClient, private eventService: EventService) {}
   
-  applications(): Promise<Application[]> {
-
+  submit(username:string): Promise<void> {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });  
+    
+    this.eventService.start();
   
     return this.http
-      .post<Application[]>(acp + '/menu/applications', {headers: headers})
+      .post<void>(acp + '/forgotpassword/initiate', JSON.stringify({username:username}), {headers: headers})
+      .finally(() => {
+        this.eventService.complete();
+      } )
       .toPromise();
   }  
 }
