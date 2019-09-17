@@ -33,10 +33,7 @@ import { ForgotPasswordService } from './core/service/forgotpassword.service';
 import { ForgotPasswordCompleteService } from './core/service/forgotpassword-complete.service';
 import { HubService } from './core/service/hub.service';
 
-
 import { SharedModule } from './shared/shared.module';
-import { AdminModule } from './admin/admin.module';
-import { RegistryModule } from './registry/registry.module';
 
 import './rxjs-extensions';
 
@@ -61,8 +58,6 @@ import './rxjs-extensions';
         PasswordStrengthBarModule,
         CustomFormsModule,
         SharedModule.forRoot(),
-        AdminModule,
-        RegistryModule
     ],
     declarations: [
         CgrAppComponent,

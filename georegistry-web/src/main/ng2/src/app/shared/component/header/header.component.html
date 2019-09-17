@@ -23,14 +23,14 @@
            
               <ul *dropdownMenu class="dropdown-menu">
                 <!-- GeoRegistry specific links -->
-                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
-                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
-                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
+                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
                 <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
-                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
                 
                 <hr *ngIf="isAdmin">
-                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li>
+                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/registry/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li>
                 <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
                 <li *ngIf="isAdmin" role="menuitem">
                     <a class="user-command-link" routerLink="/admin/accounts"><localize key="accounts.link"></localize></a>

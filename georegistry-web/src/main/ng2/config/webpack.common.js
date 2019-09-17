@@ -16,15 +16,6 @@ module.exports = {
   },
   module: {
     rules: [
-//    {
-//            test: /\.ts$/,
-//            loaders: [
-//            'ng-router-loader',        
-//            {
-//              loader: 'awesome-typescript-loader',
-//              options: { configFileName: helpers.root('tsconfig.json') }
-//            } , 'angular2-template-loader']
-//          },
       {
           test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
           loader: '@ngtools/webpack'
@@ -55,13 +46,6 @@ module.exports = {
   },
 
   plugins: [
-    // Workaround for angular/angular#11580
-//    new webpack.ContextReplacementPlugin(
-//      // The (\\|\/) piece accounts for path separators in *nix and Windows
-//      /\@angular(\\|\/)core(\\|\/)esm5/,
-//      helpers.root('./src'), // location of your src
-//      {} // a map of your routes
-//    ),
     new ngToolsWebpack.AngularCompilerPlugin({
       tsConfigPath: './tsconfig.json',
       entryModule: './src/app/cgr-app.module#CgrAppModule',
