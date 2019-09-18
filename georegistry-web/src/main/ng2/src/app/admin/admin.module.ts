@@ -56,15 +56,15 @@ import '../rxjs-extensions';
         PasswordStrengthBarModule,
         CustomFormsModule,
         SharedModule,
-        AdminRoutingModule        
+        AdminRoutingModule
     ],
     declarations: [
         // Global components
         SystemLogoComponent,
         SystemLogosComponent,
         AccountsComponent,
-        AccountInviteComponent,
         AccountInviteCompleteComponent,
+        AccountInviteComponent,
         AccountComponent,
         SystemLogoComponent,
         SystemLogosComponent,
@@ -78,6 +78,10 @@ import '../rxjs-extensions';
         SystemLogoService,
         EmailService,
         AccountService
+    ],
+    entryComponents: [
+        AccountInviteComponent,
+        AccountComponent
     ]
 } )
 export class AdminModule { }

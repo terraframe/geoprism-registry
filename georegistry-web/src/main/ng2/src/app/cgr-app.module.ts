@@ -45,7 +45,7 @@ import './rxjs-extensions';
         CgrAppRoutingModule,
         ReactiveFormsModule,
         FileUploadModule,
-        ModalModule.forRoot(),
+//        ModalModule.forRoot(),
         TreeModule.forRoot(),
         ContextMenuModule.forRoot(),
         BsDropdownModule.forRoot(),

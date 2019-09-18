@@ -88,7 +88,7 @@ import '../rxjs-extensions';
         HttpClientModule,
         ReactiveFormsModule,
         FileUploadModule,
-        ModalModule,
+//        ModalModule.forRoot(),
         TreeModule,
         ContextMenuModule,
         BsDropdownModule,
