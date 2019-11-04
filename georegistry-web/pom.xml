@@ -128,6 +128,7 @@
                     -Djava.rmi.server.hostname=127.0.0.1
                     -Dbirt-server=true
                     -Denvcfg=${project.basedir}/../envcfg
+                    -Dproject.basedir=${project.basedir}
                   </cargo.jvmargs>
                 </properties>
               </configuration>
