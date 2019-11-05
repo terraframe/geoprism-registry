@@ -53,6 +53,7 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -243,6 +244,9 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
       assignDefaultRolePermissions(mdStruct);
     }
 
+    // Create the MdGeoVertexClass
+    GeoVertexType.create(universal.getUniversalId());
+
     // Build the parent class term root if it does not exist.
     TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
 
@@ -298,7 +302,7 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
     MdBusiness mdBusiness = universal.getMdBusiness();
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);
 
-    return new ServerGeoObjectType(geoObjType, universal, mdBusiness);
+    return new ServerGeoObjectType(geoObjType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
   }
 
   public GeoObjectType convertAttributeTypes(Universal uni, GeoObjectType gt, MdBusiness mdBusiness)

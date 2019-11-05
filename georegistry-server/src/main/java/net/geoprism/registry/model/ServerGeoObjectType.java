@@ -14,8 +14,6 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -24,12 +22,15 @@ import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -51,25 +52,29 @@ import net.geoprism.registry.MasterList;
 import net.geoprism.registry.conversion.AttributeTypeBuilder;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
 import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectType
 {
-  //  private Logger        logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
+  // private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
 
-  private GeoObjectType type;
+  private GeoObjectType  type;
 
-  private Universal     universal;
+  private Universal      universal;
 
-  private MdBusiness    mdBusiness;
+  private MdBusiness     mdBusiness;
 
-  public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness)
+  private MdGeoVertexDAO mdVertex;
+
+  public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness, MdGeoVertexDAO mdVertex)
   {
     this.type = go;
     this.universal = universal;
     this.mdBusiness = mdBusiness;
+    this.mdVertex = mdVertex;
   }
 
   public GeoObjectType getType()
@@ -203,6 +208,8 @@ public class ServerGeoObjectType
         it.close();
       }
     }
+
+    GeoVertexType.remove(this.universal.getUniversalId());
 
     /*
      * Delete all Attribute references
@@ -400,6 +407,8 @@ public class ServerGeoObjectType
 
     MasterList.createMdAttribute(this, attributeType);
 
+    this.mdVertex.copyAttribute(MdAttributeDAO.get(mdAttribute.getOid()));
+
     return mdAttribute;
   }
 
@@ -453,6 +462,13 @@ public class ServerGeoObjectType
       {
         MasterList.deleteMdAttribute(this.universal, optional.get());
       }
+    }
+
+    MdAttributeDAOIF mdAttributeDAO = this.mdVertex.definesAttribute(attributeName);
+
+    if (mdAttributeDAO != null)
+    {
+      mdAttributeDAO.getBusinessDAO().delete();
     }
   }
 
@@ -579,7 +595,7 @@ public class ServerGeoObjectType
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness);
+    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
   }
 
   public static ServerGeoObjectType get(Universal universal)
@@ -588,6 +604,6 @@ public class ServerGeoObjectType
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness);
+    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
   }
 }
