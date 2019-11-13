@@ -9,8 +9,10 @@ import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.ontology.TermHacker;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.Condition;
@@ -32,7 +34,8 @@ import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.ServerHierarchyTypeConverter;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType
@@ -44,11 +47,14 @@ public class ServerHierarchyType
 
   private MdTermRelationship entityRelationship;
 
-  public ServerHierarchyType(HierarchyType type, MdTermRelationship universalRelationship, MdTermRelationship entityRelationship)
+  private MdEdgeDAOIF        mdEdge;
+
+  public ServerHierarchyType(HierarchyType type, MdTermRelationship universalRelationship, MdTermRelationship entityRelationship, MdEdgeDAOIF mdEdge)
   {
     this.type = type;
     this.universalRelationship = universalRelationship;
     this.entityRelationship = entityRelationship;
+    this.mdEdge = mdEdge;
   }
 
   public MdTermRelationship getEntityRelationship()
@@ -79,6 +85,16 @@ public class ServerHierarchyType
   public void setUniversalRelationship(MdTermRelationship universalRelationship)
   {
     this.universalRelationship = universalRelationship;
+  }
+
+  public MdEdgeDAOIF getMdEdge()
+  {
+    return mdEdge;
+  }
+
+  public void setMdEdge(MdEdgeDAOIF mdEdge)
+  {
+    this.mdEdge = mdEdge;
   }
 
   public HierarchyType getType()
@@ -113,7 +129,7 @@ public class ServerHierarchyType
 
   private void refresh()
   {
-    ServerHierarchyType updated = new ServerHierarchyTypeBuilder().get(this.universalRelationship);
+    ServerHierarchyType updated = new ServerHierarchyTypeConverter().get(this.universalRelationship);
 
     this.type = updated.getType();
     this.universalRelationship = updated.getUniversalRelationship();
@@ -134,8 +150,8 @@ public class ServerHierarchyType
   {
     this.entityRelationship.lock();
 
-    ServiceFactory.getConversionService().populate(this.entityRelationship.getDisplayLabel(), hierarchyType.getLabel());
-    ServiceFactory.getConversionService().populate(this.entityRelationship.getDescription(), hierarchyType.getDescription());
+    LocalizedValueConverter.populate(this.entityRelationship.getDisplayLabel(), hierarchyType.getLabel());
+    LocalizedValueConverter.populate(this.entityRelationship.getDescription(), hierarchyType.getDescription());
 
     this.entityRelationship.apply();
 
@@ -410,11 +426,13 @@ public class ServerHierarchyType
   {
     String universalKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
     String geoEntityKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+    String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
 
     MdTermRelationship universalRelationship = MdTermRelationship.getByKey(universalKey);
     MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
 
-    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship);
+    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship, mdEdge);
   }
 
   public static ServerHierarchyType get(MdTermRelationship universalRelationship)
@@ -423,10 +441,12 @@ public class ServerHierarchyType
     HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
 
     String geoEntityKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+    String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
 
     MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
 
-    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship);
+    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship, mdEdge);
   }
 
   /**
@@ -508,6 +528,11 @@ public class ServerHierarchyType
     {
       return GISConstants.GEO_PACKAGE + "." + hierarchyCode;
     }
+  }
+
+  public static String buildMdEdgeKey(String hierarchyCode)
+  {
+    return RegistryConstants.UNIVERSAL_GRAPH_PACKAGE + "." + hierarchyCode;
   }
 
   /**

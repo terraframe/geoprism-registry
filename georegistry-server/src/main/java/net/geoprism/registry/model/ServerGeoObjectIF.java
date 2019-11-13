@@ -37,9 +37,9 @@ public interface ServerGeoObjectIF
 
   public void removeChild(ServerGeoObjectIF child, String hierarchyCode);
 
-  public void removeParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType);
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
-  public ParentTreeNode addParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType);
+  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
   public void apply(String statusCode, boolean isImport);
 }

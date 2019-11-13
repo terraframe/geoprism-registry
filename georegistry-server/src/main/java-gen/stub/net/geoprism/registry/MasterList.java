@@ -107,7 +107,8 @@ import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.conversion.AttributeTypeBuilder;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
@@ -600,8 +601,8 @@ public class MasterList extends MasterListBase
 
       mdAttribute.setAttributeName(attributeType.getName());
 
-      ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-      ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+      LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+      LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
       mdAttribute.setDefiningMdClass(mdBusiness);
       mdAttribute.apply();
@@ -612,8 +613,8 @@ public class MasterList extends MasterListBase
       cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getName());
       cloneAttribute.setValue(MdAttributeCharacterInfo.SIZE, "255");
       cloneAttribute.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
-      ServiceFactory.getConversionService().populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
-      ServiceFactory.getConversionService().populate(cloneAttribute.getDescription(), attributeType.getDescription());
+      LocalizedValueConverter.populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
+      LocalizedValueConverter.populate(cloneAttribute.getDescription(), attributeType.getDescription());
       cloneAttribute.setDefiningMdClass(mdBusiness);
       cloneAttribute.apply();
 
@@ -623,8 +624,8 @@ public class MasterList extends MasterListBase
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      ServiceFactory.getConversionService().populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (defaultLocale)");
-      ServiceFactory.getConversionService().populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (defaultLocale)");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
       mdAttributeDefaultLocale.apply();
 
       metadata.addPair(mdAttributeDefaultLocale, cloneAttribute);
@@ -635,8 +636,8 @@ public class MasterList extends MasterListBase
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        ServiceFactory.getConversionService().populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
-        ServiceFactory.getConversionService().populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
+        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
+        LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
 
         metadata.addPair(mdAttributeLocale, cloneAttribute);
@@ -645,9 +646,9 @@ public class MasterList extends MasterListBase
       // MdAttributeUUID mdAttributeOid = new MdAttributeUUID();
       // mdAttributeOid.setValue(MdAttributeConcreteInfo.NAME,
       // attributeType.getName() + "Oid");
-      // ServiceFactory.getConversionService().populate(mdAttributeOid.getDisplayLabel(),
+      // AbstractBuilder.populate(mdAttributeOid.getDisplayLabel(),
       // attributeType.getLabel());
-      // ServiceFactory.getConversionService().populate(mdAttributeOid.getDescription(),
+      // AbstractBuilder.populate(mdAttributeOid.getDescription(),
       // attributeType.getDescription());
       // mdAttributeOid.setDefiningMdClass(mdBusiness);
       // mdAttributeOid.apply();
@@ -660,8 +661,8 @@ public class MasterList extends MasterListBase
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      ServiceFactory.getConversionService().populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (defaultLocale)");
-      ServiceFactory.getConversionService().populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (defaultLocale)");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
       mdAttributeDefaultLocale.apply();
 
       for (Locale locale : locales)
@@ -670,8 +671,8 @@ public class MasterList extends MasterListBase
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        ServiceFactory.getConversionService().populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.toString() + ")");
-        ServiceFactory.getConversionService().populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
+        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.toString() + ")");
+        LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
       }
     }
@@ -1339,7 +1340,7 @@ public class MasterList extends MasterListBase
 
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.addProperty(MasterList.LEAF, type.isLeaf());
-    object.add(MasterList.DISPLAYLABEL, new AttributeTypeBuilder().convert(this.getDisplayLabel()).toJSON(serializer));
+    object.add(MasterList.DISPLAYLABEL, new AttributeTypeConverter().convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
     object.addProperty(MasterList.LISTABSTRACT, this.getListAbstract());
     object.addProperty(MasterList.PROCESS, this.getProcess());
@@ -1394,7 +1395,7 @@ public class MasterList extends MasterListBase
       }
 
       list.setUniversal(type.getUniversal());
-      ServiceFactory.getConversionService().populate(list.getDisplayLabel(), label);
+      LocalizedValueConverter.populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
       list.setListAbstract(object.get(MasterList.LISTABSTRACT).getAsString());
       list.setProcess(object.get(MasterList.PROCESS).getAsString());

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -42,11 +42,11 @@ import net.geoprism.registry.service.ServiceFactory;
  * @author nathan
  *
  */
-public class TermBuilder
+public class TermConverter
 {
   private String rootClassifierKey;
 
-  public TermBuilder(String rootClassifierKey)
+  public TermConverter(String rootClassifierKey)
   {
     this.rootClassifierKey = rootClassifierKey;
   }
@@ -62,7 +62,7 @@ public class TermBuilder
 
   private Term buildTermFromClassifier(Classifier classifier)
   {
-    LocalizedValue label = new AttributeTypeBuilder().convert(classifier.getDisplayLabel());
+    LocalizedValue label = new AttributeTypeConverter().convert(classifier.getDisplayLabel());
 
     Term term = new Term(classifier.getClassifierId(), label, new LocalizedValue(""));
 
@@ -81,7 +81,7 @@ public class TermBuilder
     classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
     // This will set the value of the display label to the locale of the user
     // performing the action.
-    ServiceFactory.getConversionService().populate(classifier.getDisplayLabel(), term.getLabel());
+    LocalizedValueConverter.populate(classifier.getDisplayLabel(), term.getLabel());
 
     classifier.apply();
 
@@ -103,7 +103,7 @@ public class TermBuilder
     classifier.lock();
     classifier.setClassifierId(termCode);
 
-    ServiceFactory.getConversionService().populate(classifier.getDisplayLabel(), value);
+    LocalizedValueConverter.populate(classifier.getDisplayLabel(), value);
 
     classifier.apply();
 

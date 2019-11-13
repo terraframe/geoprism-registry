@@ -49,9 +49,10 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.MasterList;
-import net.geoprism.registry.conversion.AttributeTypeBuilder;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
-import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.service.ServiceFactory;
@@ -110,6 +111,16 @@ public class ServerGeoObjectType
   public void setMdBusiness(MdBusiness mdBusiness)
   {
     this.mdBusiness = mdBusiness;
+  }
+
+  public MdGeoVertexDAO getMdVertex()
+  {
+    return mdVertex;
+  }
+
+  public void setMdVertex(MdGeoVertexDAO mdVertex)
+  {
+    this.mdVertex = mdVertex;
   }
 
   public String getCode()
@@ -220,7 +231,7 @@ public class ServerGeoObjectType
     this.universal.delete(false);
 
     // Delete the term root
-    Classifier classRootTerm = TermBuilder.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
+    Classifier classRootTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
     classRootTerm.delete();
   }
 
@@ -230,7 +241,7 @@ public class ServerGeoObjectType
 
     Universal universal = updateGeoObjectType(geoObjectTypeModified);
 
-    ServerGeoObjectType geoObjectTypeModifiedApplied = new ServerGeoObjectTypeBuilder().build(universal);
+    ServerGeoObjectType geoObjectTypeModifiedApplied = new ServerGeoObjectTypeConverter().build(universal);
 
     // If this did not error out then add to the cache
     ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied.getType());
@@ -246,8 +257,8 @@ public class ServerGeoObjectType
     this.universal.lock();
 
     this.universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
-    ServiceFactory.getConversionService().populate(universal.getDisplayLabel(), geoObjectType.getLabel());
-    ServiceFactory.getConversionService().populate(universal.getDescription(), geoObjectType.getDescription());
+    LocalizedValueConverter.populate(universal.getDisplayLabel(), geoObjectType.getLabel());
+    LocalizedValueConverter.populate(universal.getDescription(), geoObjectType.getDescription());
 
     this.universal.apply();
 
@@ -274,7 +285,7 @@ public class ServerGeoObjectType
 
     MdAttributeConcrete mdAttribute = this.createMdAttributeFromAttributeType(attrType);
 
-    attrType = new AttributeTypeBuilder().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    attrType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     this.type.addAttribute(attrType);
 
@@ -357,8 +368,8 @@ public class ServerGeoObjectType
       mdAttribute.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
     }
 
-    ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-    ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+    LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+    LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
     mdAttribute.setDefiningMdClass(this.mdBusiness);
     mdAttribute.apply();
@@ -368,17 +379,17 @@ public class ServerGeoObjectType
       MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
 
       // Build the parent class term root if it does not exist.
-      Classifier classTerm = TermBuilder.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
+      Classifier classTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
 
       // Create the root term node for this attribute
-      Classifier attributeTermRoot = TermBuilder.buildIfNotExistAttribute(this.mdBusiness, mdAttributeTerm.getAttributeName(), classTerm);
+      Classifier attributeTermRoot = TermConverter.buildIfNotExistAttribute(this.mdBusiness, mdAttributeTerm.getAttributeName(), classTerm);
 
       // Make this the root term of the multi-attribute
       attributeTermRoot.addClassifierTermAttributeRoots(mdAttributeTerm).apply();
 
       AttributeTermType attributeTermType = (AttributeTermType) attributeType;
 
-      LocalizedValue label = new ServerGeoObjectTypeBuilder().convert(attributeTermRoot.getDisplayLabel());
+      LocalizedValue label = new ServerGeoObjectTypeConverter().convert(attributeTermRoot.getDisplayLabel());
 
       org.commongeoregistry.adapter.Term term = new org.commongeoregistry.adapter.Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
       attributeTermType.setRootTerm(term);
@@ -442,7 +453,7 @@ public class ServerGeoObjectType
     {
       if (mdAttributeConcreteDAOIF instanceof MdAttributeTermDAOIF || mdAttributeConcreteDAOIF instanceof MdAttributeMultiTermDAOIF)
       {
-        String attributeTermKey = TermBuilder.buildtAtttributeKey(this.mdBusiness.getTypeName(), mdAttributeConcreteDAOIF.definesAttribute());
+        String attributeTermKey = TermConverter.buildtAtttributeKey(this.mdBusiness.getTypeName(), mdAttributeConcreteDAOIF.definesAttribute());
 
         try
         {
@@ -494,7 +505,7 @@ public class ServerGeoObjectType
     AttributeType attrType = AttributeType.parse(attrObj);
 
     MdAttributeConcrete mdAttribute = this.updateMdAttributeFromAttributeType(attrType);
-    attrType = new AttributeTypeBuilder().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    attrType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     this.type.addAttribute(attrType);
 
@@ -532,8 +543,8 @@ public class ServerGeoObjectType
       {
         // The name cannot be updated
         // mdAttribute.setAttributeName(attributeType.getName());
-        ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-        ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+        LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+        LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
         if (attributeType instanceof AttributeFloatType)
         {
@@ -557,9 +568,9 @@ public class ServerGeoObjectType
         AttributeTermType attributeTermType = (AttributeTermType) attributeType;
 
         org.commongeoregistry.adapter.Term getRootTerm = attributeTermType.getRootTerm();
-        String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(getRootTerm.getCode());
+        String classifierKey = TermConverter.buildClassifierKeyFromTermCode(getRootTerm.getCode());
 
-        TermBuilder termBuilder = new TermBuilder(classifierKey);
+        TermConverter termBuilder = new TermConverter(classifierKey);
         attributeTermType.setRootTerm(termBuilder.build());
       }
 

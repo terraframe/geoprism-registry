@@ -1,0 +1,49 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version_gis.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdEdge name="net.geoprism.registry.graph.LocatedIn" label="Located In" parent="net.geoprism.registry.graph.GeoVertex" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
+        <attributes>
+          <dateTime name="startDate" label="Start Date" required="false" />
+          <dateTime name="endDate" label="Start Date" required="false" />
+        </attributes>      
+      </mdEdge>
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>      
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryContributor">
+        <grant>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.APIConsumer">
+        <grant>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+    </permissions>        
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdEdge" key="net.geoprism.registry.graph.LocatedIn"/>    
+    </delete>
+  </undoIt>
+</version>

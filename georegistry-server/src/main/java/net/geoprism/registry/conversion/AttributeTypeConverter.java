@@ -34,7 +34,7 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.service.ServiceFactory;
 
-public class AttributeTypeBuilder extends AbstractBuilder
+public class AttributeTypeConverter extends LocalizedValueConverter
 {
   public AttributeType build(MdAttributeConcreteDAOIF mdAttribute)
   {
@@ -96,7 +96,7 @@ public class AttributeTypeBuilder extends AbstractBuilder
 
           BusinessDAO classy = (BusinessDAO) rel.getChild();
 
-          TermBuilder termBuilder = new TermBuilder(classy.getKey());
+          TermConverter termBuilder = new TermConverter(classy.getKey());
           Term adapterTerm = termBuilder.build();
 
           attributeType.setRootTerm(adapterTerm);

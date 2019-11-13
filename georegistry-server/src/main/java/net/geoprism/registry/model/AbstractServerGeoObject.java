@@ -36,11 +36,11 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.ServerGeoObjectFactory;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.conversion.ServerHierarchyTypeConverter;
 import net.geoprism.registry.service.ConversionService;
+import net.geoprism.registry.service.ServerGeoObjectService;
 
-public abstract class AbstractServerGeoObject
+public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 {
   private ServerGeoObjectType type;
 
@@ -152,7 +152,7 @@ public abstract class AbstractServerGeoObject
     {
       MdTermRelationship mdRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(relationshipType);
 
-      ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdRel);
+      ServerHierarchyType ht = new ServerHierarchyTypeConverter().get(mdRel);
 
       map.put(relationshipType, ht);
     }
@@ -199,6 +199,8 @@ public abstract class AbstractServerGeoObject
 
   protected static ParentTreeNode internalGetParentGeoObjects(ServerGeoObjectIF child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
   {
+    ServerGeoObjectService service = new ServerGeoObjectService();
+
     ParentTreeNode tnRoot = new ParentTreeNode(child.getGeoObject(), htIn != null ? htIn.getType() : null);
 
     if (child.getType().isLeaf())
@@ -224,7 +226,7 @@ public abstract class AbstractServerGeoObject
         if (parentRunwayId != null && parentRunwayId.length() > 0)
         {
           GeoEntity geParent = GeoEntity.get(parentRunwayId);
-          ServerGeoObjectIF parent = ServerGeoObjectFactory.build(geParent);
+          ServerGeoObjectIF parent = service.build(geParent);
           Universal uni = parent.getType().getUniversal();
 
           if (parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()))
@@ -262,7 +264,7 @@ public abstract class AbstractServerGeoObject
 
         if (!geParent.getOid().equals(GeoEntity.getRoot().getOid()) && ( parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()) ))
         {
-          ServerGeoObjectIF parent = ServerGeoObjectFactory.build(geParent);
+          ServerGeoObjectIF parent = service.build(geParent);
           ServerHierarchyType ht = htMap.get(tnrParent.getRelationshipType());
 
           ParentTreeNode tnParent;

@@ -49,10 +49,10 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ExcludeConfiguration;
 import net.geoprism.ontology.GeoEntityUtilDTO;
-import net.geoprism.registry.conversion.ServerGeoObjectFactory;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**
@@ -64,6 +64,8 @@ import net.geoprism.registry.service.ServiceFactory;
 @Controller(url = "registrylocation")
 public class RegistryLocationController
 {
+  private ServerGeoObjectService service = new ServerGeoObjectService();
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF fetchGeoObjectFromGeoEntity(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
   {
@@ -152,7 +154,7 @@ public class RegistryLocationController
     JSONObject jsParent = new JSONObject(sjsParent);
     String oid = jsParent.getString("oid");
 
-    ServerGeoObjectIF goParent = ServerGeoObjectFactory.build(oid);
+    ServerGeoObjectIF goParent = service.getGeoObjectByEntityId(oid);
 
     ParentTreeNode ptnChild = new ParentTreeNode(newGo, null);
     ptnChild.addParent(new ParentTreeNode(goParent.getGeoObject(), currentHt.getType()));
@@ -206,7 +208,7 @@ public class RegistryLocationController
   @Request(RequestType.SESSION)
   private GeoObject getGeoObject(String sessionId, String id)
   {
-    ServerGeoObjectIF object = ServerGeoObjectFactory.build(id);
+    ServerGeoObjectIF object = service.getGeoObjectByEntityId(id);
 
     return object.getGeoObject();
   }

@@ -30,13 +30,13 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 
-public class ServerLeafGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
+public class LeafServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
-  private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
+  private Logger logger = LoggerFactory.getLogger(LeafServerGeoObject.class);
 
-  public ServerLeafGeoObject(ServerGeoObjectType type, GeoObject go, Business business)
+  public LeafServerGeoObject(ServerGeoObjectType type, GeoObject go, Business business)
   {
     super(type, go, business);
   }
@@ -96,7 +96,7 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public void removeParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType)
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     String refAttrName = hierarchyType.getParentReferenceAttributeName(parent.getType().getUniversal());
 
@@ -106,7 +106,7 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public ParentTreeNode addParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType)
+  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     Universal parentUniversal = parent.getType().getUniversal();
     Universal childUniversal = this.getType().getUniversal();
@@ -117,7 +117,7 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
     GeoEntity.validateUniversalRelationship(childUniversal, parentUniversal, universalRelationshipType);
 
     this.getBusiness().appLock();
-    this.getBusiness().setValue(refAttrName, parent.getGeoEntity().getOid());
+    this.getBusiness().setValue(refAttrName, ( (TreeServerGeoObject) parent ).getGeoEntity().getOid());
     this.getBusiness().apply();
 
     ParentTreeNode node = new ParentTreeNode(this.getGeoObject(), hierarchyType.getType());
@@ -138,7 +138,7 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
       this.getBusiness().setValue(GeoObject.CODE, this.getGeoObject().getCode());
     }
 
-    ServiceFactory.getConversionService().populate((LocalStruct) this.getBusiness().getStruct(GeoObject.DISPLAY_LABEL), this.getGeoObject().getDisplayLabel());
+    LocalizedValueConverter.populate((LocalStruct) this.getBusiness().getStruct(GeoObject.DISPLAY_LABEL), this.getGeoObject().getDisplayLabel());
 
     Geometry geom = this.getGeoObject().getGeometry();
     if (geom != null)
@@ -157,15 +157,12 @@ public class ServerLeafGeoObject extends AbstractServerGeoObject implements Serv
       }
     }
 
-    if (!isImport && !this.getBusiness().isNew()
-        && !this.getGeoObject().getType().isGeometryEditable()
-        && this.getBusiness().isModified(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
+    if (!isImport && !this.getBusiness().isNew() && !this.getGeoObject().getType().isGeometryEditable() && this.getBusiness().isModified(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
     {
       throw new GeometryUpdateException();
     }
 
     Term status = this.populateBusiness(statusCode);
-
     this.getBusiness().apply();
 
     /*

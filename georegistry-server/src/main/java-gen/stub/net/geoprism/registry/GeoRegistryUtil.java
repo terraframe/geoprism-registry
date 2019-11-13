@@ -42,7 +42,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.conversion.ServerHierarchyTypeConverter;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -67,7 +67,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
 
-    ServerHierarchyType sType = new ServerHierarchyTypeBuilder().createHierarchyType(hierarchyType);
+    ServerHierarchyType sType = new ServerHierarchyTypeConverter().createHierarchyType(hierarchyType);
 
     // The transaction did not error out, so it is safe to put into the cache.
     adapter.getMetadataCache().addHierarchyType(sType.getType());

@@ -1,5 +1,6 @@
 package net.geoprism.registry.graph;
 
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
 import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
@@ -24,6 +25,8 @@ public class GeoVertexType extends GeoVertexTypeBase
     child.setValue(MdGeoVertexInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
     child.setValue(MdGeoVertexInfo.NAME, code);
     child.setValue(MdGeoVertexInfo.SUPER_MD_VERTEX, mdGeoVertexDAO.getOid());
+    child.setValue(MdGeoVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.TRUE);
+    child.setValue(MdGeoVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     child.apply();
 
     return child;

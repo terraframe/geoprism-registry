@@ -13,7 +13,12 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.ComponentInfo;
+import com.runwaysdk.constants.IndexTypes;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
+import com.runwaysdk.constants.MdAttributeConcreteInfo;
+import com.runwaysdk.constants.MdAttributeEnumerationInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -25,10 +30,16 @@ import com.runwaysdk.dataaccess.MdAttributeStructDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
 import com.runwaysdk.dataaccess.MdLocalStructDAOIF;
+import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeEnumerationDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
+import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.mapping.GeoserverFacade;
@@ -55,11 +66,10 @@ import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.WMSService;
 
-public class ServerGeoObjectTypeBuilder extends AbstractBuilder
+public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 {
   /**
    * Adds default attributes to the given {@link MdBusinessDAO} according to the
@@ -185,6 +195,51 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
   }
 
   @Transaction
+  public void createDefaultAttributes(Universal universal, MdGraphClassDAOIF mdClass)
+  {
+    MdAttributeUUIDDAO uuidMdAttr = MdAttributeUUIDDAO.newInstance();
+    uuidMdAttr.setValue(MdAttributeConcreteInfo.NAME, RegistryConstants.UUID);
+    uuidMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, RegistryConstants.UUID_LABEL);
+    uuidMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, RegistryConstants.UUID_LABEL);
+    uuidMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
+    uuidMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+    uuidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
+    uuidMdAttr.apply();
+
+    // DefaultAttribute.CODE - defined by GeoEntity geoId
+    MdAttributeCharacterDAO codeMdAttr = MdAttributeCharacterDAO.newInstance();
+    codeMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.CODE.getName());
+    codeMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultLocalizedName());
+    codeMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultDescription());
+    codeMdAttr.setValue(MdAttributeCharacterInfo.SIZE, MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
+    codeMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
+    codeMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+    codeMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
+    codeMdAttr.apply();
+
+    MdEnumeration geoObjectStatusEnum = MdEnumeration.getMdEnumeration(GeoObjectStatus.CLASS);
+
+    MdAttributeEnumerationDAO objStatusNdAttrEnum = MdAttributeEnumerationDAO.newInstance();
+    objStatusNdAttrEnum.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.STATUS.getName());
+    objStatusNdAttrEnum.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.STATUS.getDefaultLocalizedName());
+    objStatusNdAttrEnum.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.STATUS.getDefaultDescription());
+    objStatusNdAttrEnum.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+    objStatusNdAttrEnum.setValue(MdAttributeEnumerationInfo.MD_ENUMERATION, geoObjectStatusEnum.getOid());
+    objStatusNdAttrEnum.setValue(MdAttributeEnumerationInfo.SELECT_MULTIPLE, MdAttributeBooleanInfo.FALSE);
+    objStatusNdAttrEnum.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
+    objStatusNdAttrEnum.apply();
+
+    // DefaultAttribute.DISPLAY_LABEL
+    MdAttributeLocalCharacterEmbeddedDAO labelMdAttr = MdAttributeLocalCharacterEmbeddedDAO.newInstance();
+    labelMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.DISPLAY_LABEL.getName());
+    labelMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
+    labelMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
+    labelMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
+    labelMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+    labelMdAttr.apply();
+  }
+
+  @Transaction
   public ServerGeoObjectType create(String json)
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(json, ServiceFactory.getAdapter());
@@ -205,8 +260,8 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
     universal.setIsLeafType(geoObjectType.isLeaf());
     universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
 
-    new ConversionService().populate(universal.getDisplayLabel(), geoObjectType.getLabel());
-    new ConversionService().populate(universal.getDescription(), geoObjectType.getDescription());
+    populate(universal.getDisplayLabel(), geoObjectType.getLabel());
+    populate(universal.getDescription(), geoObjectType.getDescription());
 
     com.runwaysdk.system.gis.geo.GeometryType geometryType = GeometryTypeFactory.get(geoObjectType.getGeometryType());
 
@@ -221,8 +276,8 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
     mdBusiness.setGenerateSource(false);
     mdBusiness.setPublish(false);
     mdBusiness.setIsAbstract(false);
-    mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
-    mdBusiness.getDescription().setValue(universal.getDescription().getValue());
+    mdBusiness.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, universal.getDisplayLabel().getValue());
+    mdBusiness.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, universal.getDescription().getValue());
     mdBusiness.apply();
 
     // Add the default attributes.
@@ -245,10 +300,13 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
     }
 
     // Create the MdGeoVertexClass
-    GeoVertexType.create(universal.getUniversalId());
+    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId());
+    this.createDefaultAttributes(universal, mdVertex);
+
+    assignDefaultRolePermissions(mdVertex);
 
     // Build the parent class term root if it does not exist.
-    TermBuilder.buildIfNotExistdMdBusinessClassifier(mdBusiness);
+    TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
 
     ServerGeoObjectType serverGeoObjectType = this.build(universal);
 
@@ -313,7 +371,7 @@ public class ServerGeoObjectTypeBuilder extends AbstractBuilder
 
       // Standard attributes are defined by default on the GeoObjectType
 
-      AttributeTypeBuilder builder = new AttributeTypeBuilder();
+      AttributeTypeConverter builder = new AttributeTypeConverter();
 
       List<? extends MdAttributeConcreteDAOIF> definedMdAttributeList = mdBusinessDAOIF.getAllDefinedMdAttributes();
 

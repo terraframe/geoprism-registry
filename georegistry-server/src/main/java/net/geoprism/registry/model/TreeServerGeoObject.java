@@ -9,8 +9,6 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -29,22 +27,22 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.WKTParsingProblem;
 import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.ServerGeoObjectFactory;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.service.ServerGeoObjectService;
 
-public class ServerTreeGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
+public class TreeServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
-  private Logger    logger = LoggerFactory.getLogger(ServerTreeGeoObject.class);
-
   private GeoEntity geoEntity;
 
-  public ServerTreeGeoObject(ServerGeoObjectType type, GeoObject geoObject, GeoEntity geoEntity, Business business)
+  public TreeServerGeoObject(ServerGeoObjectType type, GeoObject geoObject, GeoEntity geoEntity, Business business)
   {
     super(type, geoObject, business);
 
@@ -106,7 +104,7 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
   @Override
   public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
   {
-    return ServerTreeGeoObject.internalGetChildGeoObjects(this, childrenTypes, recursive, null);
+    return TreeServerGeoObject.internalGetChildGeoObjects(this, childrenTypes, recursive, null);
   }
 
   @Transaction
@@ -125,14 +123,14 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public ParentTreeNode addParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType)
+  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     if (!hierarchyType.getUniversalType().equals(AllowedIn.CLASS))
     {
       GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
     }
 
-    this.geoEntity.addLink(parent.getGeoEntity(), hierarchyType.getEntityType());
+    this.geoEntity.addLink( ( (TreeServerGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
 
     ParentTreeNode node = new ParentTreeNode(this.getGeoObject(), hierarchyType.getType());
     node.addParent(new ParentTreeNode(parent.getGeoObject(), hierarchyType.getType()));
@@ -141,9 +139,9 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public void removeParent(ServerTreeGeoObject parent, ServerHierarchyType hierarchyType)
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
-    this.geoEntity.removeLink( ( (ServerTreeGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
+    this.geoEntity.removeLink( ( (TreeServerGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
   }
 
   @Override
@@ -168,9 +166,10 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
       this.geoEntity.setGeoId(this.getGeoObject().getCode());
     }
 
-    ServiceFactory.getConversionService().populate(this.geoEntity.getDisplayLabel(), this.getGeoObject().getDisplayLabel());
+    LocalizedValueConverter.populate(this.geoEntity.getDisplayLabel(), this.getGeoObject().getDisplayLabel());
 
     Geometry geom = this.getGeoObject().getGeometry();
+
     if (geom != null)
     {
       if (!this.isValidGeometry(geom))
@@ -185,8 +184,12 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
       try
       {
         GeometryHelper geometryHelper = new GeometryHelper();
-        this.geoEntity.setGeoPoint(geometryHelper.getGeoPoint(geom));
-        this.geoEntity.setGeoMultiPolygon(geometryHelper.getGeoMultiPolygon(geom));
+
+        Point point = geometryHelper.getGeoPoint(geom);
+        MultiPolygon multipolygon = geometryHelper.getGeoMultiPolygon(geom);
+
+        this.geoEntity.setGeoPoint(point);
+        this.geoEntity.setGeoMultiPolygon(multipolygon);
         this.geoEntity.setWkt(geom.toText());
       }
       catch (Exception e)
@@ -209,7 +212,6 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
     this.geoEntity.apply();
 
     Term statusTerm = populateBusiness(statusCode);
-
     this.getBusiness().apply();
 
     /*
@@ -224,6 +226,8 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
     Map<String, ServerHierarchyType> htMap = parent.getHierarchyTypeMap(relationshipTypes);
 
     ChildTreeNode tnRoot = new ChildTreeNode(parent.getGeoObject(), htIn != null ? htIn.getType() : null);
+
+    ServerGeoObjectService service = new ServerGeoObjectService();
 
     /*
      * Handle leaf node children
@@ -268,7 +272,7 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
                 for (Business child : children)
                 {
                   // Do something
-                  ServerGeoObjectIF goChild = ServerGeoObjectFactory.build(childType, child);
+                  ServerGeoObjectIF goChild = service.build(childType, child);
 
                   tnRoot.addChild(new ChildTreeNode(goChild.getGeoObject(), ht.getType()));
                 }
@@ -298,13 +302,13 @@ public class ServerTreeGeoObject extends AbstractServerGeoObject implements Serv
         ServerHierarchyType ht = htMap.get(tnrChild.getRelationshipType());
 
         ServerGeoObjectType childType = ServerGeoObjectType.get(uni);
-        ServerGeoObjectIF child = ServerGeoObjectFactory.build(childType, geChild);
+        ServerGeoObjectIF child = service.build(childType, geChild);
 
         ChildTreeNode tnChild;
 
         if (recursive)
         {
-          tnChild = ServerTreeGeoObject.internalGetChildGeoObjects(child, childrenTypes, recursive, ht);
+          tnChild = TreeServerGeoObject.internalGetChildGeoObjects(child, childrenTypes, recursive, ht);
         }
         else
         {

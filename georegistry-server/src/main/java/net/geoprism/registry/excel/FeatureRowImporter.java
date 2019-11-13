@@ -46,8 +46,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.ServerGeoObjectBuilder;
-import net.geoprism.registry.conversion.ServerGeoObjectFactory;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -65,6 +63,7 @@ import net.geoprism.registry.query.CodeRestriction;
 import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.query.NonUniqueResultException;
 import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
 
@@ -72,9 +71,13 @@ public abstract class FeatureRowImporter
 {
   protected GeoObjectConfiguration configuration;
 
+  protected ServerGeoObjectService service;
+
   public FeatureRowImporter(GeoObjectConfiguration configuration)
   {
     this.configuration = configuration;
+    this.service = new ServerGeoObjectService();
+
   }
 
   protected abstract Geometry getGeometry(FeatureRow row);
@@ -182,7 +185,7 @@ public abstract class FeatureRowImporter
             }
           }
 
-          ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
+          ServerGeoObjectService builder = new ServerGeoObjectService();
           ServerGeoObjectIF sObject = builder.apply(entity, isNew, GeoObjectStatusTerm.ACTIVE.code, true);
 
           if (parent != null)
@@ -344,7 +347,7 @@ public abstract class FeatureRowImporter
 
     if (parent != null)
     {
-      return ServerGeoObjectFactory.getGeoObject(parent);
+      return service.getGeoObject(parent);
     }
 
     return null;
@@ -374,7 +377,7 @@ public abstract class FeatureRowImporter
 
       if (result != null)
       {
-        return ServerGeoObjectFactory.getGeoObject(result);
+        return service.getGeoObject(result);
       }
       else
       {
