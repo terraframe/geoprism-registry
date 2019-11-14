@@ -1,26 +1,47 @@
 package net.geoprism.registry.model;
 
 import java.sql.ResultSet;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessEnumeration;
+import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -28,29 +49,59 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dashboard.GeometryUpdateException;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.service.RegistryIdService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class LeafServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
   private Logger logger = LoggerFactory.getLogger(LeafServerGeoObject.class);
 
-  public LeafServerGeoObject(ServerGeoObjectType type, GeoObject go, Business business)
+  public LeafServerGeoObject(ServerGeoObjectType type, Business business)
   {
-    super(type, go, business);
+    super(type, business);
   }
 
   @Override
   public String getCode()
   {
-    return this.getGeoObject().getCode();
+    return this.getBusiness().getValue(DefaultAttribute.CODE.getName());
   }
 
   @Override
-  public String getUid()
+  public void setCode(String code)
   {
-    return this.getGeoObject().getUid();
+    this.getBusiness().setValue(GeoObject.CODE, code);
+  }
+
+  @Override
+  public void setGeometry(Geometry geometry)
+  {
+    if (geometry != null)
+    {
+      if (!this.isValidGeometry(geometry))
+      {
+        GeometryTypeException ex = new GeometryTypeException();
+        ex.setActualType(geometry.getGeometryType());
+        ex.setExpectedType(this.getType().getGeometryType().name());
+
+        throw ex;
+      }
+      else
+      {
+        this.getBusiness().setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, geometry);
+      }
+    }
+  }
+
+  public void setLabel(LocalizedValue label)
+  {
+    LocalizedValueConverter.populate((LocalStruct) this.getBusiness().getStruct(GeoObject.DISPLAY_LABEL), label);
   }
 
   @Override
@@ -63,12 +114,6 @@ public class LeafServerGeoObject extends AbstractServerGeoObject implements Serv
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs()
   {
     return this.getBusiness().getMdAttributeDAOs();
-  }
-
-  @Override
-  public String getValue(String attributeName)
-  {
-    return this.getBusiness().getValue(attributeName);
   }
 
   @Override
@@ -126,49 +171,23 @@ public class LeafServerGeoObject extends AbstractServerGeoObject implements Serv
     return node;
   }
 
-  public void apply(String statusCode, boolean isImport)
+  @Override
+  public void lock()
   {
     if (!this.getBusiness().isNew())
     {
       this.getBusiness().appLock();
     }
+  }
 
-    if (this.getGeoObject().getCode() != null)
-    {
-      this.getBusiness().setValue(GeoObject.CODE, this.getGeoObject().getCode());
-    }
-
-    LocalizedValueConverter.populate((LocalStruct) this.getBusiness().getStruct(GeoObject.DISPLAY_LABEL), this.getGeoObject().getDisplayLabel());
-
-    Geometry geom = this.getGeoObject().getGeometry();
-    if (geom != null)
-    {
-      if (!this.isValidGeometry(geom))
-      {
-        GeometryTypeException ex = new GeometryTypeException();
-        ex.setActualType(geom.getGeometryType());
-        ex.setExpectedType(this.getType().getGeometryType().name());
-
-        throw ex;
-      }
-      else
-      {
-        this.getBusiness().setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, geom);
-      }
-    }
-
-    if (!isImport && !this.getBusiness().isNew() && !this.getGeoObject().getType().isGeometryEditable() && this.getBusiness().isModified(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
+  public void apply(boolean isImport)
+  {
+    if (!isImport && !this.getBusiness().isNew() && !this.getType().isGeometryEditable() && this.getBusiness().isModified(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
     {
       throw new GeometryUpdateException();
     }
 
-    Term status = this.populateBusiness(statusCode);
     this.getBusiness().apply();
-
-    /*
-     * Update the returned GeoObject
-     */
-    this.getGeoObject().setStatus(status);
   }
 
   @Override
@@ -279,5 +298,122 @@ public class LeafServerGeoObject extends AbstractServerGeoObject implements Serv
 
     return bboxArr.toString();
 
+  }
+
+  @Override
+  public GeoObject getGeoObject()
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    ServerGeoObjectType type = this.getType();
+
+    Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(type.getType());
+
+    GeoObject geoObj = new GeoObject(type.getType(), type.getGeometryType(), attributeMap);
+
+    if (this.getBusiness().isNew() && !this.getBusiness().isAppliedToDB())
+    {
+      geoObj.setUid(RegistryIdService.getInstance().next());
+
+      geoObj.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get());
+    }
+    else
+    {
+      geoObj.setUid(this.getBusiness().getValue(RegistryConstants.UUID));
+
+      Map<String, AttributeType> attributes = type.getAttributeMap();
+      attributes.forEach((attributeName, attribute) -> {
+        if (attributeName.equals(DefaultAttribute.STATUS.getName()))
+        {
+          BusinessEnumeration busEnum = this.getBusiness().getEnumValues(attributeName).get(0);
+          GeoObjectStatus gos = GeoObjectStatus.valueOf(busEnum.name());
+          Term statusTerm = ServiceFactory.getConversionService().geoObjectStatusToTerm(gos);
+
+          geoObj.setStatus(statusTerm);
+        }
+        else if (attributeName.equals(DefaultAttribute.TYPE.getName()))
+        {
+          // Ignore
+        }
+        else if (this.getBusiness().hasAttribute(attributeName))
+        {
+          String value = this.getBusiness().getValue(attributeName);
+
+          if (value != null && value.length() > 0)
+          {
+            if (attribute instanceof AttributeTermType)
+            {
+              Classifier classifier = Classifier.get(value);
+
+              try
+              {
+                geoObj.setValue(attributeName, classifier.getClassifierId());
+              }
+              catch (UnknownTermException e)
+              {
+                TermValueException ex = new TermValueException();
+                ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+                ex.setCode(e.getCode());
+
+                throw e;
+              }
+
+            }
+            else if (attribute instanceof AttributeDateType)
+            {
+              try
+              {
+                geoObj.setValue(attributeName, format.parse(value));
+              }
+              catch (ParseException e)
+              {
+                throw new RuntimeException(e);
+              }
+            }
+            else if (attribute instanceof AttributeBooleanType)
+            {
+              geoObj.setValue(attributeName, new Boolean(value));
+            }
+            else if (attribute instanceof AttributeFloatType)
+            {
+              geoObj.setValue(attributeName, new Double(value));
+            }
+            else if (attribute instanceof AttributeIntegerType)
+            {
+              geoObj.setValue(attributeName, new Long(value));
+            }
+            else
+            {
+              geoObj.setValue(attributeName, value);
+            }
+          }
+        }
+      });
+    }
+
+    geoObj.setCode(this.getBusiness().getValue(DefaultAttribute.CODE.getName()));
+
+    String localizedValue = ( (AttributeLocal) BusinessFacade.getEntityDAO(this.getBusiness()).getAttributeIF(DefaultAttribute.DISPLAY_LABEL.getName()) ).getValue(Session.getCurrentLocale());
+    geoObj.getDisplayLabel().setValue(localizedValue);
+
+    geoObj.setGeometry((Geometry) this.getBusiness().getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
+
+    return geoObj;
+  }
+
+  public static Business getByCode(ServerGeoObjectType type, String code)
+  {
+    BusinessQuery query = new QueryFactory().businessQuery(type.definesType());
+    query.WHERE(query.aCharacter(DefaultAttribute.CODE.getName()).EQ(code));
+
+    try (OIterator<Business> iterator = query.getIterator())
+    {
+      if (iterator.hasNext())
+      {
+        return iterator.next();
+      }
+    }
+
+    return null;
   }
 }

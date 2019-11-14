@@ -5,25 +5,45 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.vividsolutions.jts.geom.Geometry;
+
+import net.geoprism.registry.GeoObjectStatus;
 
 public interface ServerGeoObjectIF
 {
+  public ServerGeoObjectType getType();
+
+  public void lock();
+
+  public void populate(GeoObject geoObject);
+
   public GeoObject getGeoObject();
 
   public String getCode();
 
+  public void setCode(String geoId);
+
+  public void setStatus(GeoObjectStatus status);
+
+  public void setGeometry(Geometry geometry);
+
   public String getUid();
+
+  public void setUid(String uid);
 
   public String getRunwayId();
 
-  public ServerGeoObjectType getType();
+  public String getValue(String attributeName);
+
+  public void setValue(String attributeName, Object value);
+
+  public void setLabel(LocalizedValue label);
 
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs();
-
-  public String getValue(String attributeName);
 
   public String bbox();
 
@@ -41,5 +61,6 @@ public interface ServerGeoObjectIF
 
   public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
-  public void apply(String statusCode, boolean isImport);
+  public void apply(boolean isImport);
+
 }

@@ -16,6 +16,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.service.ServiceFactory;
@@ -128,7 +129,8 @@ public class LocalizedValueConverter
 
   public static LocalizedValue populate(GraphObject graphObject)
   {
-    String value = (String) graphObject.getObjectValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
+    String attributeName = Session.getCurrentLocale().toString();
+    String value = (String) ( graphObject.hasAttribute(attributeName) ? graphObject.getObjectValue(attributeName) : graphObject.getObjectValue(MdAttributeLocalInfo.DEFAULT_LOCALE) );
 
     LocalizedValue localizedValue = new LocalizedValue(value);
     localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, value);

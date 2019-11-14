@@ -10,16 +10,16 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.VertexServerGeoObject;
 
-public class CompositeConverter implements ServerGeoObjectConverterIF
+public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
 {
-  private ServerGeoObjectConverterIF bConverter;
+  private ServerGeoObjectStrategyIF bConverter;
 
-  private VertexGeoObjectConverter   vConverter;
+  private VertexGeoObjectStrategy   vConverter;
 
-  public CompositeConverter(ServerGeoObjectConverterIF converter)
+  public CompositeGeoObjectStrategy(ServerGeoObjectStrategyIF converter)
   {
     this.bConverter = converter;
-    this.vConverter = new VertexGeoObjectConverter(converter.getType());
+    this.vConverter = new VertexGeoObjectStrategy(converter.getType());
   }
 
   @Override
@@ -45,6 +45,30 @@ public class CompositeConverter implements ServerGeoObjectConverterIF
     VertexObject dbVertex = GeoVertex.getVertex(this.getType(), business.getUid());
 
     VertexServerGeoObject vertex = this.vConverter.constructFromDB(dbVertex);
+
+    return new CompositeServerGeoObject(business, vertex);
+  }
+
+  @Override
+  public ServerGeoObjectIF getGeoObjectByCode(String code)
+  {
+    ServerGeoObjectIF business = this.bConverter.getGeoObjectByCode(code);
+
+    if (business != null)
+    {
+      VertexServerGeoObject vertex = this.vConverter.getGeoObjectByCode(code);
+
+      return new CompositeServerGeoObject(business, vertex);
+    }
+
+    return null;
+  }
+
+  @Override
+  public ServerGeoObjectIF newInstance()
+  {
+    ServerGeoObjectIF business = this.bConverter.newInstance();
+    VertexServerGeoObject vertex = this.vConverter.newInstance();
 
     return new CompositeServerGeoObject(business, vertex);
   }

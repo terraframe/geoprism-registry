@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
@@ -46,6 +45,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -82,7 +82,7 @@ public abstract class FeatureRowImporter
 
   protected abstract Geometry getGeometry(FeatureRow row);
 
-  protected abstract void setValue(GeoObject entity, AttributeType attributeType, String attributeName, Object value);
+  protected abstract void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value);
 
   public GeoObjectConfiguration getConfiguration()
   {
@@ -118,24 +118,23 @@ public abstract class FeatureRowImporter
 
       String geoId = this.getCode(row);
 
-      GeoObject entity;
+      ServerGeoObjectIF entity;
+
       boolean isNew = false;
 
       if (geoId != null && geoId.length() > 0)
       {
-        try
+        entity = service.getGeoObjectByCode(geoId, this.configuration.getType());
+
+        if (entity == null)
         {
-          // try an update
-          isNew = false;
-          entity = ServiceFactory.getUtilities().getGeoObjectByCode(geoId, this.configuration.getType().getCode());
-        }
-        catch (DataNotFoundException e)
-        {
-          // create a new entity
           isNew = true;
-          entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
+
+          entity = service.newInstance(this.configuration.getType());
           entity.setCode(geoId);
         }
+
+        entity.setStatus(GeoObjectStatus.ACTIVE);
 
         Geometry geometry = (Geometry) this.getGeometry(row);
         LocalizedValue entityName = this.getName(row);
@@ -185,8 +184,7 @@ public abstract class FeatureRowImporter
             }
           }
 
-          ServerGeoObjectService builder = new ServerGeoObjectService();
-          ServerGeoObjectIF sObject = builder.apply(entity, isNew, GeoObjectStatusTerm.ACTIVE.code, true);
+          entity.apply(true);
 
           if (parent != null)
           {
@@ -197,7 +195,7 @@ public abstract class FeatureRowImporter
 
             if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
             {
-              parent.addChild(sObject, hierarchyCode);
+              parent.addChild(entity, hierarchyCode);
             }
           }
           else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
@@ -417,7 +415,7 @@ public abstract class FeatureRowImporter
     return null;
   }
 
-  protected void setTermValue(GeoObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {

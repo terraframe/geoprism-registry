@@ -166,7 +166,9 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode)
   {
-    return ServiceFactory.getUtilities().getGeoObjectByCode(code, typeCode);
+    ServerGeoObjectIF object = service.getGeoObjectByCode(code, typeCode);
+
+    return object.getGeoObject();
   }
 
   @Request(RequestType.SESSION)
@@ -174,8 +176,7 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    ServerGeoObjectIF object = service.apply(geoObject, true, null, false);
+    ServerGeoObjectIF object = service.apply(geoObject, true, false);
 
     return object.getGeoObject();
   }
@@ -186,7 +187,7 @@ public class RegistryService
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
     ServerGeoObjectService service = new ServerGeoObjectService();
-    ServerGeoObjectIF object = service.apply(geoObject, false, null, false);
+    ServerGeoObjectIF object = service.apply(geoObject, false, false);
 
     return object.getGeoObject();
   }

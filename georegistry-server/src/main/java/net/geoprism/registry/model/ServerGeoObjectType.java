@@ -133,6 +133,11 @@ public class ServerGeoObjectType
     return this.type.getGeometryType();
   }
 
+  public boolean isGeometryEditable()
+  {
+    return this.type.isGeometryEditable();
+  }
+
   public boolean isLeaf()
   {
     return this.type.isLeaf();
@@ -617,4 +622,5 @@ public class ServerGeoObjectType
 
     return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
   }
+
 }

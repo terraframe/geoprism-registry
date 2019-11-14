@@ -22,14 +22,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 
@@ -37,8 +35,6 @@ import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.CodeRestriction;
-import net.geoprism.registry.query.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class AdapterUtilities
@@ -50,21 +46,6 @@ public class AdapterUtilities
 
   public AdapterUtilities()
   {
-  }
-
-  public GeoObject getGeoObjectByCode(String code, String typeCode)
-  {
-    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
-    query.setRestriction(new CodeRestriction(code));
-
-    GeoObject gObject = query.getSingleResult();
-
-    if (gObject == null)
-    {
-      throw new DataNotFoundException("Unable to find GeoObject with code [" + code + "]", query.getType().getMdBusinessDAO());
-    }
-
-    return gObject;
   }
 
   /**

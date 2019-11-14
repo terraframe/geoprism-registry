@@ -26,6 +26,17 @@ public abstract class GeoVertex extends GeoVertexBase
     return query.getSingleResult();
   }
 
+  public static VertexObject getVertexByCode(ServerGeoObjectType type, String code)
+  {
+    String statement = "SELECT FROM " + type.getMdVertex().getDBClassName();
+    statement += " WHERE code = :code";
+
+    VertexQuery<GeoVertex> query = new VertexQuery<GeoVertex>(statement);
+    query.setParameter("code", code);
+
+    return query.getSingleResult();
+  }
+
   public static VertexObject newInstance(ServerGeoObjectType type)
   {
     VertexObjectDAO dao = VertexObjectDAO.newInstance(type.getMdVertex());

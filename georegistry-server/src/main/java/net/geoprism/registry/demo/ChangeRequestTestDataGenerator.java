@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.demo;
 
@@ -43,6 +43,8 @@ import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**
@@ -65,7 +67,7 @@ public class ChangeRequestTestDataGenerator
 
     buildInTransaction();
   }
-  
+
   private static void buildInTransaction()
   {
     genChangeRequest("CR1", Instant.now().minus(3, ChronoUnit.DAYS), true, false);
@@ -98,13 +100,15 @@ public class ChangeRequestTestDataGenerator
   @Transaction
   private static void genChangeRequest(String genKey, Instant when, boolean includeRemove, boolean includeAdd)
   {
+    ServerGeoObjectService service = new ServerGeoObjectService();
+
     GeoObject goNewChild = ServiceFactory.getAdapter().newGeoObjectInstance("Cambodia_District");
     goNewChild.setCode(genKey + "_CODE");
     goNewChild.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, genKey + "_LABEL");
     goNewChild.setWKTGeometry("MULTIPOLYGON (((10000 10000, 12300 40000, 16800 50000, 12354 60000, 13354 60000, 17800 50000, 13300 40000, 11000 10000, 10000 10000)))");
 
-    GeoObject testAddChildParent = ServiceFactory.getUtilities().getGeoObjectByCode("855 01", "Cambodia_Province");
-    GeoObject testAddChild = ServiceFactory.getUtilities().getGeoObjectByCode("855 0109", "Cambodia_District");
+    ServerGeoObjectIF testAddChildParent = service.getGeoObjectByCode("855 01", "Cambodia_Province");
+    ServerGeoObjectIF testAddChild = service.getGeoObjectByCode("855 0109", "Cambodia_District");
 
     List<AbstractActionDTO> actions = new ArrayList<AbstractActionDTO>();
 

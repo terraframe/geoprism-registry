@@ -47,7 +47,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), sJson);
 
     ServerGeoObjectService builder = new ServerGeoObjectService();
-    builder.apply(geoObject, true, null, false);
+    builder.apply(geoObject, true, false);
   }
 
   @Override

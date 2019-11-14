@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -44,14 +43,11 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 {
   private ServerGeoObjectType type;
 
-  private GeoObject           geoObject;
-
   private Business            business;
 
-  public AbstractServerGeoObject(ServerGeoObjectType type, GeoObject go, Business business)
+  public AbstractServerGeoObject(ServerGeoObjectType type, Business business)
   {
     this.type = type;
-    this.geoObject = go;
     this.business = business;
   }
 
@@ -65,16 +61,6 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
     this.type = type;
   }
 
-  public GeoObject getGeoObject()
-  {
-    return geoObject;
-  }
-
-  public void setGeoObject(GeoObject geoObject)
-  {
-    this.geoObject = geoObject;
-  }
-
   public Business getBusiness()
   {
     return business;
@@ -85,19 +71,40 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
     this.business = business;
   }
 
+  @Override
+  public String getUid()
+  {
+    return this.getBusiness().getValue(RegistryConstants.UUID);
+  }
+
+  @Override
+  public void setUid(String uid)
+  {
+    this.getBusiness().setValue(RegistryConstants.UUID, uid);
+  }
+
+  @Override
+  public void setStatus(GeoObjectStatus status)
+  {
+    this.getBusiness().setValue(DefaultAttribute.STATUS.getName(), status.getOid());
+  }
+
+  @Override
+  public String getValue(String attributeName)
+  {
+    return this.getBusiness().getValue(attributeName);
+  }
+
+  @Override
+  public void setValue(String attributeName, Object value)
+  {
+    this.getBusiness().setValue(attributeName, value);
+  }
+
   @SuppressWarnings("unchecked")
-  protected Term populateBusiness(String statusCode)
+  public void populate(GeoObject geoObject)
   {
     GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(geoObject.getStatus());
-
-    if (statusCode != null)
-    {
-      gos = ConversionService.getInstance().termToGeoObjectStatus(statusCode);
-    }
-
-    this.business.setValue(RegistryConstants.UUID, geoObject.getUid());
-    this.business.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
-    this.business.setValue(DefaultAttribute.STATUS.getName(), gos.getOid());
 
     Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
@@ -141,7 +148,11 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
       }
     });
 
-    return ConversionService.getInstance().geoObjectStatusToTerm(gos);
+    this.setUid(geoObject.getUid());
+    this.setCode(geoObject.getCode());
+    this.setStatus(gos);
+    this.setLabel(geoObject.getDisplayLabel());
+    this.setGeometry(geoObject.getGeometry());
   }
 
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
