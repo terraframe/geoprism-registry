@@ -68,7 +68,7 @@ import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.conversion.ServerHierarchyTypeConverter;
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -144,7 +144,7 @@ public class RegistryService
           continue;
         }
 
-        ServerHierarchyType ht = new ServerHierarchyTypeConverter().get(mdTermRel);
+        ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdTermRel);
 
         adapter.getMetadataCache().addHierarchyType(ht.getType());
       }
@@ -160,7 +160,7 @@ public class RegistryService
   {
     ServerGeoObjectIF object = this.service.getGeoObject(uid, geoObjectTypeCode);
 
-    return object.getGeoObject();
+    return object.toGeoObject();
   }
 
   @Request(RequestType.SESSION)
@@ -168,7 +168,7 @@ public class RegistryService
   {
     ServerGeoObjectIF object = service.getGeoObjectByCode(code, typeCode);
 
-    return object.getGeoObject();
+    return object.toGeoObject();
   }
 
   @Request(RequestType.SESSION)
@@ -178,7 +178,7 @@ public class RegistryService
 
     ServerGeoObjectIF object = service.apply(geoObject, true, false);
 
-    return object.getGeoObject();
+    return object.toGeoObject();
   }
 
   @Request(RequestType.SESSION)
@@ -189,7 +189,7 @@ public class RegistryService
     ServerGeoObjectService service = new ServerGeoObjectService();
     ServerGeoObjectIF object = service.apply(geoObject, false, false);
 
-    return object.getGeoObject();
+    return object.toGeoObject();
   }
 
   @Request(RequestType.SESSION)

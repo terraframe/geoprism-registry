@@ -35,7 +35,7 @@ import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.ServerHierarchyTypeConverter;
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType
@@ -129,7 +129,7 @@ public class ServerHierarchyType
 
   private void refresh()
   {
-    ServerHierarchyType updated = new ServerHierarchyTypeConverter().get(this.universalRelationship);
+    ServerHierarchyType updated = new ServerHierarchyTypeBuilder().get(this.universalRelationship);
 
     this.type = updated.getType();
     this.universalRelationship = updated.getUniversalRelationship();
@@ -449,6 +449,20 @@ public class ServerHierarchyType
     return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship, mdEdge);
   }
 
+  public static ServerHierarchyType get(MdEdgeDAOIF mdEdge)
+  {
+    String code = buildHierarchyKeyFromMdEdge(mdEdge);
+    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
+
+    String universalKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
+    String geoEntityKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+
+    MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
+    MdTermRelationship universalRelationship = MdTermRelationship.getByKey(universalKey);
+
+    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship, mdEdge);
+  }
+
   /**
    * Turns the given {@link HierarchyType} code into the corresponding
    * {@link MdTermRelationship} key for the {@link Universal} relationship.
@@ -508,6 +522,11 @@ public class ServerHierarchyType
     }
   }
 
+  public static String buildHierarchyKeyFromMdEdge(MdEdgeDAOIF mdEdge)
+  {
+    return mdEdge.getTypeName();
+  }
+
   /**
    * Turns the given {@link MdTermRelationShip} key for a {@link Universal} into
    * the corresponding {@link MdTermRelationship} key for the {@link GeoEntity}
@@ -549,4 +568,5 @@ public class ServerHierarchyType
 
     return mdTermRelKey.substring(startIndex, mdTermRelKey.length());
   }
+
 }

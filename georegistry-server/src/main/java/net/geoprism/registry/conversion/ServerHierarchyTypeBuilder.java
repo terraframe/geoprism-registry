@@ -40,7 +40,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
-public class ServerHierarchyTypeConverter extends LocalizedValueConverter
+public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 {
   @Transaction
   public ServerHierarchyType createHierarchyType(HierarchyType hierarchyType)
@@ -203,8 +203,8 @@ public class ServerHierarchyTypeConverter extends LocalizedValueConverter
     mdEdgeDAO.setValue(MdEdgeInfo.NAME, hierarchyType.getCode());
     mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
     mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
-    this.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, hierarchyType.getLabel());
-    this.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, hierarchyType.getDescription());
+    populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, hierarchyType.getLabel());
+    populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, hierarchyType.getDescription());
     mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
     mdEdgeDAO.apply();
 

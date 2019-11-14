@@ -165,8 +165,8 @@ public class LeafServerGeoObject extends AbstractServerGeoObject implements Serv
     this.getBusiness().setValue(refAttrName, ( (TreeServerGeoObject) parent ).getGeoEntity().getOid());
     this.getBusiness().apply();
 
-    ParentTreeNode node = new ParentTreeNode(this.getGeoObject(), hierarchyType.getType());
-    node.addParent(new ParentTreeNode(parent.getGeoObject(), hierarchyType.getType()));
+    ParentTreeNode node = new ParentTreeNode(this.toGeoObject(), hierarchyType.getType());
+    node.addParent(new ParentTreeNode(parent.toGeoObject(), hierarchyType.getType()));
 
     return node;
   }
@@ -301,7 +301,7 @@ public class LeafServerGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public GeoObject getGeoObject()
+  public GeoObject toGeoObject()
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

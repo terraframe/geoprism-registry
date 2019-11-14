@@ -35,7 +35,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.ServerHierarchyTypeConverter;
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 
@@ -163,7 +163,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
     {
       MdTermRelationship mdRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(relationshipType);
 
-      ServerHierarchyType ht = new ServerHierarchyTypeConverter().get(mdRel);
+      ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdRel);
 
       map.put(relationshipType, ht);
     }
@@ -212,7 +212,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
   {
     ServerGeoObjectService service = new ServerGeoObjectService();
 
-    ParentTreeNode tnRoot = new ParentTreeNode(child.getGeoObject(), htIn != null ? htIn.getType() : null);
+    ParentTreeNode tnRoot = new ParentTreeNode(child.toGeoObject(), htIn != null ? htIn.getType() : null);
 
     if (child.getType().isLeaf())
     {
@@ -252,7 +252,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
             }
             else
             {
-              tnParent = new ParentTreeNode(parent.getGeoObject(), ht.getType());
+              tnParent = new ParentTreeNode(parent.toGeoObject(), ht.getType());
             }
 
             tnRoot.addParent(tnParent);
@@ -285,7 +285,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
           }
           else
           {
-            tnParent = new ParentTreeNode(parent.getGeoObject(), ht.getType());
+            tnParent = new ParentTreeNode(parent.toGeoObject(), ht.getType());
           }
 
           tnRoot.addParent(tnParent);

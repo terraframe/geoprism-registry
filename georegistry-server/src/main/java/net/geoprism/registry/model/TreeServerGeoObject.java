@@ -221,8 +221,8 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
 
     this.geoEntity.addLink( ( (TreeServerGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
 
-    ParentTreeNode node = new ParentTreeNode(this.getGeoObject(), hierarchyType.getType());
-    node.addParent(new ParentTreeNode(parent.getGeoObject(), hierarchyType.getType()));
+    ParentTreeNode node = new ParentTreeNode(this.toGeoObject(), hierarchyType.getType());
+    node.addParent(new ParentTreeNode(parent.toGeoObject(), hierarchyType.getType()));
 
     return node;
   }
@@ -246,19 +246,25 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
   @Override
   public void apply(boolean isImport)
   {
-    if (!isImport && !this.geoEntity.isNew() && !this.getType().isGeometryEditable() && this.geoEntity.isModified(GeoEntity.WKT))
+    boolean isNew = this.geoEntity.isNew();
+
+    if (!isImport && !isNew && !this.getType().isGeometryEditable() && this.geoEntity.isModified(GeoEntity.WKT))
     {
       throw new GeometryUpdateException();
     }
 
     this.geoEntity.apply();
 
-    this.getBusiness().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, this.geoEntity.getOid());
+    if (isNew)
+    {
+      this.getBusiness().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, this.geoEntity.getOid());
+    }
+
     this.getBusiness().apply();
   }
 
   @Override
-  public GeoObject getGeoObject()
+  public GeoObject toGeoObject()
   {
     ServerGeoObjectType type = this.getType();
 
@@ -393,7 +399,7 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
     String[] relationshipTypes = TermUtil.getAllParentRelationships(parent.getRunwayId());
     Map<String, ServerHierarchyType> htMap = parent.getHierarchyTypeMap(relationshipTypes);
 
-    ChildTreeNode tnRoot = new ChildTreeNode(parent.getGeoObject(), htIn != null ? htIn.getType() : null);
+    ChildTreeNode tnRoot = new ChildTreeNode(parent.toGeoObject(), htIn != null ? htIn.getType() : null);
 
     ServerGeoObjectService service = new ServerGeoObjectService();
 
@@ -442,7 +448,7 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
                   // Do something
                   ServerGeoObjectIF goChild = service.build(childType, child);
 
-                  tnRoot.addChild(new ChildTreeNode(goChild.getGeoObject(), ht.getType()));
+                  tnRoot.addChild(new ChildTreeNode(goChild.toGeoObject(), ht.getType()));
                 }
               }
               finally
@@ -480,7 +486,7 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
         }
         else
         {
-          tnChild = new ChildTreeNode(child.getGeoObject(), ht.getType());
+          tnChild = new ChildTreeNode(child.toGeoObject(), ht.getType());
         }
 
         tnRoot.addChild(tnChild);

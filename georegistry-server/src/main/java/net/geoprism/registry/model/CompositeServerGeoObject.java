@@ -47,9 +47,9 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public GeoObject getGeoObject()
+  public GeoObject toGeoObject()
   {
-    return this.business.getGeoObject();
+    return this.business.toGeoObject();
   }
 
   @Override

@@ -157,7 +157,7 @@ public class RegistryLocationController
     ServerGeoObjectIF goParent = service.getGeoObjectByEntityId(oid);
 
     ParentTreeNode ptnChild = new ParentTreeNode(newGo, null);
-    ptnChild.addParent(new ParentTreeNode(goParent.getGeoObject(), currentHt.getType()));
+    ptnChild.addParent(new ParentTreeNode(goParent.toGeoObject(), currentHt.getType()));
 
     // TODO : We can't show all available options because the auto-complete
     // doesn't know what the GeoObjectType is and can't search without it.
@@ -210,7 +210,7 @@ public class RegistryLocationController
   {
     ServerGeoObjectIF object = service.getGeoObjectByEntityId(id);
 
-    return object.getGeoObject();
+    return object.toGeoObject();
   }
 
   private JSONObject serializeGo(String sessionId, GeoObject go)

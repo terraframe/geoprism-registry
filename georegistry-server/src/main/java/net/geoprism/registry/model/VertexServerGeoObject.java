@@ -1,12 +1,13 @@
 package net.geoprism.registry.model;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -23,17 +24,34 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.json.JSONArray;
+import org.json.JSONException;
 
+import com.amazonaws.internal.config.Builder;
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
+import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.business.graph.VertexQuery;
+import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Session;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.ontology.TermUtil;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -44,6 +62,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
@@ -52,6 +71,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class VertexServerGeoObject implements ServerGeoObjectIF
@@ -224,19 +244,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
 
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
-    Map<String, ServerHierarchyType> map = new HashMap<String, ServerHierarchyType>();
-
-    // TODO
-    // for (String relationshipType : relationshipTypes)
-    // {
-    // MdEdgeDAOIF mdRel = MdEdgeDAO.getMdEdgeDAO(relationshipType);
-    //
-    // ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdRel);
-    //
-    // map.put(relationshipType, ht);
-    // }
-
-    return map;
+    throw new UnsupportedOperationException();
   }
 
   protected boolean isValidGeometry(Geometry geometry)
@@ -327,7 +335,28 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
   @Override
   public String bbox()
   {
-    // TODO Auto-generated method stub
+    Geometry geometry = this.getGeometry();
+
+    if (geometry != null)
+    {
+      try
+      {
+        Envelope e = geometry.getEnvelopeInternal();
+
+        JSONArray bboxArr = new JSONArray();
+        bboxArr.put(e.getMinX());
+        bboxArr.put(e.getMinY());
+        bboxArr.put(e.getMaxX());
+        bboxArr.put(e.getMaxY());
+
+        return bboxArr.toString();
+      }
+      catch (JSONException ex)
+      {
+        throw new ProgrammingErrorException(ex);
+      }
+    }
+
     return null;
   }
 
@@ -349,15 +378,13 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
   @Override
   public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return internalGetChildGeoObjects(this, childrenTypes, recursive, null);
   }
 
   @Override
   public ParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
-    // TODO Auto-generated method stub
-    return null;
+    return internalGetParentGeoObjects(this, parentTypes, recursive, null);
   }
 
   @Override
@@ -370,8 +397,8 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
 
     this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge()).apply();
 
-    ParentTreeNode node = new ParentTreeNode(this.getGeoObject(), hierarchyType.getType());
-    node.addParent(new ParentTreeNode(parent.getGeoObject(), hierarchyType.getType()));
+    ParentTreeNode node = new ParentTreeNode(this.toGeoObject(), hierarchyType.getType());
+    node.addParent(new ParentTreeNode(parent.toGeoObject(), hierarchyType.getType()));
 
     return node;
   }
@@ -383,7 +410,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public GeoObject getGeoObject()
+  public GeoObject toGeoObject()
   {
     Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(type.getType());
 
@@ -504,6 +531,179 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
     }
 
     throw new UnsupportedOperationException("Unsupported geometry type [" + geometryType.name() + "]");
+  }
+
+  public static VertexObject getVertex(ServerGeoObjectType type, String uuid)
+  {
+    String statement = "SELECT FROM " + type.getMdVertex().getDBClassName();
+    statement += " WHERE uuid = :uuid";
+
+    VertexQuery<GeoVertex> query = new VertexQuery<GeoVertex>(statement);
+    query.setParameter("uuid", uuid);
+
+    return query.getSingleResult();
+  }
+
+  public static VertexObject getVertexByCode(ServerGeoObjectType type, String code)
+  {
+    String statement = "SELECT FROM " + type.getMdVertex().getDBClassName();
+    statement += " WHERE code = :code";
+
+    VertexQuery<GeoVertex> query = new VertexQuery<GeoVertex>(statement);
+    query.setParameter("code", code);
+
+    return query.getSingleResult();
+  }
+
+  public static VertexObject newInstance(ServerGeoObjectType type)
+  {
+    VertexObjectDAO dao = VertexObjectDAO.newInstance(type.getMdVertex());
+
+    return VertexObject.instantiate(dao);
+  }
+
+  private static ChildTreeNode internalGetChildGeoObjects(VertexServerGeoObject parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn)
+  {
+    ChildTreeNode tnRoot = new ChildTreeNode(parent.toGeoObject(), htIn != null ? htIn.getType() : null);
+
+    Map<String, Object> parameters = new HashedMap<String, Object>();
+    parameters.put("rid", parent.getVertex().getRID());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT OUT(");
+
+    if (htIn != null)
+    {
+      statement.append("'" + htIn.getMdEdge().getDBClassName() + "'");
+    }
+    statement.append(")");
+
+    if (childrenTypes.length > 0)
+    {
+      statement.append("[");
+
+      for (int i = 0; i < childrenTypes.length; i++)
+      {
+        ServerGeoObjectType type = ServerGeoObjectType.get(childrenTypes[i]);
+
+        if (i > 0)
+        {
+          statement.append(" OR ");
+        }
+
+        statement.append("@class = :" + i);
+
+        parameters.put(Integer.toString(i), type.getMdVertex().getDBClassName());
+      }
+
+      statement.append("]");
+    }
+
+    statement.append(" FROM :rid");
+
+    VertexQuery<EdgeObject> query = new VertexQuery<EdgeObject>(statement.toString(), parameters);
+
+    List<EdgeObject> edges = query.getResults();
+
+    for (EdgeObject edge : edges)
+    {
+      MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
+      VertexObject childVertex = edge.getChild();
+
+      MdVertexDAOIF mdVertex = (MdVertexDAOIF) childVertex.getMdClass();
+
+      ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
+      ServerGeoObjectType childType = ServerGeoObjectType.get(mdVertex);
+
+      VertexServerGeoObject child = new VertexServerGeoObject(childType, childVertex);
+
+      ChildTreeNode tnChild;
+
+      if (recursive)
+      {
+        tnChild = internalGetChildGeoObjects(child, childrenTypes, recursive, ht);
+      }
+      else
+      {
+        tnChild = new ChildTreeNode(child.toGeoObject(), ht.getType());
+      }
+
+      tnRoot.addChild(tnChild);
+    }
+
+    return tnRoot;
+  }
+
+  protected static ParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
+  {
+    ParentTreeNode tnRoot = new ParentTreeNode(child.toGeoObject(), htIn != null ? htIn.getType() : null);
+
+    Map<String, Object> parameters = new HashedMap<String, Object>();
+    parameters.put("rid", child.getVertex().getRID());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT IN(");
+
+    if (htIn != null)
+    {
+      statement.append("'" + htIn.getMdEdge().getDBClassName() + "'");
+    }
+    statement.append(")");
+
+    if (parentTypes.length > 0)
+    {
+      statement.append("[");
+
+      for (int i = 0; i < parentTypes.length; i++)
+      {
+        ServerGeoObjectType type = ServerGeoObjectType.get(parentTypes[i]);
+
+        if (i > 0)
+        {
+          statement.append(" OR ");
+        }
+
+        statement.append("@class = :" + i);
+
+        parameters.put(Integer.toString(i), type.getMdVertex().getDBClassName());
+      }
+
+      statement.append("]");
+    }
+
+    statement.append(" FROM :rid");
+
+    VertexQuery<EdgeObject> query = new VertexQuery<EdgeObject>(statement.toString(), parameters);
+
+    List<EdgeObject> edges = query.getResults();
+
+    for (EdgeObject edge : edges)
+    {
+      MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
+      VertexObject parentVertex = edge.getParent();
+
+      MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
+
+      ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
+      ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
+
+      VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex);
+
+      ParentTreeNode tnParent;
+
+      if (recursive)
+      {
+        tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
+      }
+      else
+      {
+        tnParent = new ParentTreeNode(parent.toGeoObject(), ht.getType());
+      }
+
+      tnRoot.addParent(tnParent);
+    }
+
+    return tnRoot;
   }
 
 }

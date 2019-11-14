@@ -17,11 +17,7 @@ public interface ServerGeoObjectIF
 {
   public ServerGeoObjectType getType();
 
-  public void lock();
-
-  public void populate(GeoObject geoObject);
-
-  public GeoObject getGeoObject();
+  public GeoObject toGeoObject();
 
   public String getCode();
 
@@ -61,6 +57,9 @@ public interface ServerGeoObjectIF
 
   public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
-  public void apply(boolean isImport);
+  public void lock();
 
+  public void populate(GeoObject geoObject);
+
+  public void apply(boolean isImport);
 }

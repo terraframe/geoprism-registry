@@ -26,11 +26,12 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -49,8 +50,8 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.MasterList;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
@@ -62,15 +63,15 @@ public class ServerGeoObjectType
 {
   // private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
 
-  private GeoObjectType  type;
+  private GeoObjectType type;
 
-  private Universal      universal;
+  private Universal     universal;
 
-  private MdBusiness     mdBusiness;
+  private MdBusiness    mdBusiness;
 
-  private MdGeoVertexDAO mdVertex;
+  private MdVertexDAOIF mdVertex;
 
-  public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness, MdGeoVertexDAO mdVertex)
+  public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness, MdVertexDAOIF mdVertex)
   {
     this.type = go;
     this.universal = universal;
@@ -113,12 +114,12 @@ public class ServerGeoObjectType
     this.mdBusiness = mdBusiness;
   }
 
-  public MdGeoVertexDAO getMdVertex()
+  public MdVertexDAOIF getMdVertex()
   {
     return mdVertex;
   }
 
-  public void setMdVertex(MdGeoVertexDAO mdVertex)
+  public void setMdVertex(MdVertexDAOIF mdVertex)
   {
     this.mdVertex = mdVertex;
   }
@@ -423,7 +424,7 @@ public class ServerGeoObjectType
 
     MasterList.createMdAttribute(this, attributeType);
 
-    this.mdVertex.copyAttribute(MdAttributeDAO.get(mdAttribute.getOid()));
+    ( (MdVertexDAO) this.mdVertex ).copyAttribute(MdAttributeDAO.get(mdAttribute.getOid()));
 
     return mdAttribute;
   }
@@ -621,6 +622,16 @@ public class ServerGeoObjectType
     MdBusiness mdBusiness = universal.getMdBusiness();
 
     return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
+  }
+
+  public static ServerGeoObjectType get(MdVertexDAOIF mdVertex)
+  {
+    GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(mdVertex.getTypeName()).get();
+
+    Universal universal = ServerGeoObjectType.geoObjectTypeToUniversal(geoObjectType);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+
+    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
   }
 
 }
