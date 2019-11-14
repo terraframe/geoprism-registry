@@ -4,7 +4,6 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import com.runwaysdk.business.graph.VertexObject;
 
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -42,7 +41,7 @@ public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
   {
     ServerGeoObjectIF business = this.bConverter.constructFromDB(dbObject);
 
-    VertexObject dbVertex = GeoVertex.getVertex(this.getType(), business.getUid());
+    VertexObject dbVertex = VertexServerGeoObject.getVertex(this.getType(), business.getUid());
 
     VertexServerGeoObject vertex = this.vConverter.constructFromDB(dbVertex);
 

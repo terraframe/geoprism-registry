@@ -31,7 +31,7 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
   {
     if (!isNew)
     {
-      VertexObject vertex = GeoVertex.getVertex(type, geoObject.getUid());
+      VertexObject vertex = VertexServerGeoObject.getVertex(type, geoObject.getUid());
 
       return new VertexServerGeoObject(type, vertex);
     }
@@ -44,7 +44,7 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
         throw ex;
       }
 
-      VertexObject vertex = GeoVertex.newInstance(type);
+      VertexObject vertex = VertexServerGeoObject.newInstance(type);
 
       return new VertexServerGeoObject(type, vertex);
     }
@@ -61,7 +61,7 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
   @Override
   public VertexServerGeoObject getGeoObjectByCode(String code)
   {
-    VertexObject vertex = GeoVertex.getVertexByCode(type, code);
+    VertexObject vertex = VertexServerGeoObject.getVertexByCode(type, code);
 
     if (vertex != null)
     {
@@ -74,7 +74,7 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
   @Override
   public VertexServerGeoObject newInstance()
   {
-    VertexObject vertex = GeoVertex.newInstance(type);
+    VertexObject vertex = VertexServerGeoObject.newInstance(type);
 
     return new VertexServerGeoObject(type, vertex);
   }
