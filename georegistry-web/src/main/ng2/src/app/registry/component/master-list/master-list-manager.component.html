@@ -52,7 +52,7 @@
                             <tr *ngFor="let list of lists; let i = index;"> 
                                 <th scope="row">{{i + 1}}</th> 
                                 <td>
-                                    <a [routerLink]="'/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
+                                    <a [routerLink]="'/registry/master-list/' + list.oid" routerLinkActive="active">{{list.label}}</a>
                                 </td> 
                                 <td>{{list.createDate}}</td> 
                                 <!-- <td>{{list.lastUpdateDate}}</td>  -->
