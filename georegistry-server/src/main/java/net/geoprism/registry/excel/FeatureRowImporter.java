@@ -37,7 +37,6 @@ import com.runwaysdk.ProblemIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
@@ -55,13 +54,14 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.SridException;
-import net.geoprism.registry.io.SynonymRestriction;
 import net.geoprism.registry.io.TermProblem;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.query.CodeRestriction;
-import net.geoprism.registry.query.GeoObjectQuery;
-import net.geoprism.registry.query.NonUniqueResultException;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.NonUniqueResultException;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -275,7 +275,7 @@ public abstract class FeatureRowImporter
   {
     List<Location> locations = this.configuration.getLocations();
 
-    GeoObject parent = null;
+    ServerGeoObjectIF parent = null;
 
     JsonArray context = new JsonArray();
 
@@ -293,13 +293,13 @@ public abstract class FeatureRowImporter
         }
 
         // Search
-        GeoObjectQuery query = new GeoObjectQuery(location.getType());
-        query.setRestriction(new SynonymRestriction(label.toString(), parent, this.configuration.getHierarchy().getEntityRelationship()));
+        ServerGeoObjectQuery query = this.service.createQuery(location.getType());
+        query.setRestriction(new ServerSynonymRestriction(label.toString(), parent, this.configuration.getHierarchy()));
 
         try
         {
 
-          GeoObject result = query.getSingleResult();
+          ServerGeoObjectIF result = query.getSingleResult();
 
           if (result != null)
           {
@@ -327,7 +327,7 @@ public abstract class FeatureRowImporter
               }
             }
 
-            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
+            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent.toGeoObject(), context));
 
             return null;
           }
@@ -345,7 +345,7 @@ public abstract class FeatureRowImporter
 
     if (parent != null)
     {
-      return service.getGeoObject(parent);
+      return this.service.getGeoObjectByCode(parent.getCode(), parent.getType());
     }
 
     return null;

@@ -7,7 +7,8 @@ import com.runwaysdk.business.graph.VertexObject;
 import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.VertexServerGeoObject;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
 
 public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
 {
@@ -70,6 +71,12 @@ public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
     VertexServerGeoObject vertex = this.vConverter.newInstance();
 
     return new CompositeServerGeoObject(business, vertex);
+  }
+
+  @Override
+  public ServerGeoObjectQuery createQuery()
+  {
+    return this.bConverter.createQuery();
   }
 
 }

@@ -50,7 +50,9 @@ import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = "geoobject-editor")
@@ -131,13 +133,16 @@ public class GeoObjectEditorController
       // Update the master list record
       if (masterListId != null)
       {
+        ServerGeoObjectService service = new ServerGeoObjectService();
+        ServerGeoObjectIF geoObject = service.getGeoObject(go);
+        
         if (!isNew)
         {
-          MasterList.get(masterListId).updateRecord(go);
+          MasterList.get(masterListId).updateRecord(geoObject);
         }
         else
         {
-          MasterList.get(masterListId).publishRecord(go);
+          MasterList.get(masterListId).publishRecord(geoObject);
         }
       }
 

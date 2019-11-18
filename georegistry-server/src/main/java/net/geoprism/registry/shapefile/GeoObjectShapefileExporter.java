@@ -71,11 +71,9 @@ import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -86,6 +84,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
@@ -310,21 +309,21 @@ public class GeoObjectShapefileExporter
         builder.set(this.getColumnName(attribute.getName() + " " + locale.toString()), value.getValue(locale));
       }
 
-      Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
+      Map<String, LocationInfo> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
 
       ancestors.forEach(ancestor -> {
         String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
 
-        ValueObject vObject = map.get(ancestor.getCode());
+        LocationInfo vObject = map.get(ancestor.getCode());
 
         if (vObject != null)
         {
-          builder.set(this.getColumnName(code), vObject.getValue(GeoEntity.GEOID));
-          builder.set(this.getColumnName(ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+          builder.set(this.getColumnName(code), vObject.getCode());
+          builder.set(this.getColumnName(ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), vObject.getLabel());
 
           for (Locale locale : locales)
           {
-            builder.set(this.getColumnName(ancestor.getCode() + " " + locale.toString()), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+            builder.set(this.getColumnName(ancestor.getCode() + " " + locale.toString()), vObject.getLabel(locale));
           }
         }
       });

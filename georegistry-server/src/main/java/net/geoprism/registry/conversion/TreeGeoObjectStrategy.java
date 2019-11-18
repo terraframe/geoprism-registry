@@ -8,7 +8,9 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.TreeServerGeoObject;
+import net.geoprism.registry.model.postgres.TreeServerGeoObject;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.postgres.TreeGeoObjectQuery;
 import net.geoprism.registry.service.RegistryIdService;
 
 public class TreeGeoObjectStrategy extends LocalizedValueConverter implements ServerGeoObjectStrategyIF
@@ -91,5 +93,11 @@ public class TreeGeoObjectStrategy extends LocalizedValueConverter implements Se
     Business business = new Business(type.definesType());
 
     return new TreeServerGeoObject(type, entity, business);
+  }
+
+  @Override
+  public ServerGeoObjectQuery createQuery()
+  {
+    return new TreeGeoObjectQuery(type);
   }
 }

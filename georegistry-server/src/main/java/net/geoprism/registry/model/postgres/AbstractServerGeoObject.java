@@ -1,4 +1,4 @@
-package net.geoprism.registry.model;
+package net.geoprism.registry.model.postgres;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,8 +16,10 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.ontology.TermAndRel;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -36,6 +38,11 @@ import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.io.GeoObjectUtil;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 
@@ -90,9 +97,18 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public String getValue(String attributeName)
+  public Object getValue(String attributeName)
   {
-    return this.getBusiness().getValue(attributeName);
+    MdAttributeConcreteDAOIF mdAttribute = this.getBusiness().getMdAttributeDAO(attributeName);
+
+    Object value = this.getBusiness().getObjectValue(attributeName);
+
+    if (mdAttribute instanceof MdAttributeTermDAOIF)
+    {
+      return Classifier.get((String) value);
+    }
+
+    return value;
   }
 
   @Override
@@ -151,7 +167,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
     this.setUid(geoObject.getUid());
     this.setCode(geoObject.getCode());
     this.setStatus(gos);
-    this.setLabel(geoObject.getDisplayLabel());
+    this.setDisplayLabel(geoObject.getDisplayLabel());
     this.setGeometry(geoObject.getGeometry());
   }
 
@@ -208,6 +224,12 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
     return true;
   }
 
+  @Override
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
+  {
+    return GeoObjectUtil.getAncestorMap(this.toGeoObject(), hierarchy);
+  }
+
   protected static ParentTreeNode internalGetParentGeoObjects(ServerGeoObjectIF child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
   {
     ServerGeoObjectService service = new ServerGeoObjectService();
@@ -232,7 +254,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 
       mdAttributes.forEach(mdAttribute -> {
 
-        String parentRunwayId = child.getValue(mdAttribute.definesAttribute());
+        String parentRunwayId = (String) child.getValue(mdAttribute.definesAttribute());
 
         if (parentRunwayId != null && parentRunwayId.length() > 0)
         {

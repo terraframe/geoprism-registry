@@ -12,6 +12,7 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class CompositeServerGeoObject implements ServerGeoObjectIF
 {
@@ -86,6 +87,12 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
+  public Geometry getGeometry()
+  {
+    return this.business.getGeometry();
+  }
+
+  @Override
   public void setStatus(GeoObjectStatus status)
   {
     this.business.setStatus(status);
@@ -93,10 +100,16 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public void setLabel(LocalizedValue label)
+  public void setDisplayLabel(LocalizedValue label)
   {
-    this.business.setLabel(label);
-    this.vertex.setLabel(label);
+    this.business.setDisplayLabel(label);
+    this.vertex.setDisplayLabel(label);
+  }
+
+  @Override
+  public LocalizedValue getDisplayLabel()
+  {
+    return this.business.getDisplayLabel();
   }
 
   @Override
@@ -118,7 +131,7 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public String getValue(String attributeName)
+  public Object getValue(String attributeName)
   {
     return this.business.getValue(attributeName);
   }
@@ -140,6 +153,12 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
     return this.business.getHierarchyTypeMap(relationshipTypes);
+  }
+
+  @Override
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
+  {
+    return this.business.getAncestorMap(hierarchy);
   }
 
   @Override
@@ -214,5 +233,4 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
     this.business.apply(isImport);
     this.vertex.apply(isImport);
   }
-
 }

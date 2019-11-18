@@ -1,13 +1,13 @@
-package net.geoprism.registry.model;
+package net.geoprism.registry.model.graph;
 
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 
 import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -27,30 +27,20 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.amazonaws.internal.config.Builder;
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
-import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.business.graph.VertexQuery;
-import com.runwaysdk.business.ontology.TermAndRel;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -62,19 +52,21 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class VertexServerGeoObject implements ServerGeoObjectIF
+public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
 {
   private ServerGeoObjectType type;
 
@@ -144,9 +136,21 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public void setLabel(LocalizedValue label)
+  public void setDisplayLabel(LocalizedValue label)
   {
     LocalizedValueConverter.populate(this.vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName()), label);
+  }
+
+  @Override
+  public String getLabel()
+  {
+    return (String) this.vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName()).getObjectValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
+  }
+
+  @Override
+  public String getLabel(Locale locale)
+  {
+    return (String) this.vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName()).getObjectValue(locale.toString());
   }
 
   @Override
@@ -206,7 +210,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
     this.setUid(geoObject.getUid());
     this.setCode(geoObject.getCode());
     this.setStatus(gos);
-    this.setLabel(geoObject.getDisplayLabel());
+    this.setDisplayLabel(geoObject.getDisplayLabel());
     this.setGeometry(geoObject.getGeometry());
   }
 
@@ -245,6 +249,38 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
+  {
+    TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
+    String dbClassName = this.getMdClass().getDBClassName();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("MATCH ");
+    statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
+    statement.append(".in('" + hierarchy.getMdEdge().getDBClassName() + "')");
+    statement.append("{as: ancestor, while: ($depth < 10)}");
+    statement.append("RETURN $elements");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("rid", this.vertex.getRID());
+
+    List<VertexObject> results = query.getResults();
+    results.forEach(result -> {
+      MdVertexDAOIF mdClass = (MdVertexDAOIF) result.getMdClass();
+      ServerGeoObjectType vType = ServerGeoObjectType.get(mdClass);
+
+      map.put(vType.getUniversal().getKey(), new VertexServerGeoObject(type, result));
+    });
+
+    return map;
+  }
+
+  private MdVertexDAOIF getMdClass()
+  {
+    return (MdVertexDAOIF) this.vertex.getMdClass();
   }
 
   protected boolean isValidGeometry(Geometry geometry)
@@ -293,7 +329,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
   @Override
   public String getUid()
   {
-    return (String) this.vertex.getObjectValue(DefaultAttribute.UID.getName());
+    return (String) this.vertex.getObjectValue(RegistryConstants.UUID);
   }
 
   @Override
@@ -310,9 +346,22 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public String getValue(String attributeName)
+  public Object getValue(String attributeName)
   {
-    return this.vertex.getValue(attributeName);
+    if (attributeName.equals(DefaultAttribute.CODE.getName()))
+    {
+      return this.getCode();
+    }
+    else if (attributeName.equals(DefaultAttribute.UID.getName()))
+    {
+      return this.getUid();
+    }
+    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    {
+      return this.getDisplayLabel();
+    }
+
+    return this.vertex.getObjectValue(attributeName);
   }
 
   @Override
@@ -501,7 +550,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
     return LocalizedValueConverter.populate(graphObject);
   }
 
-  private Geometry getGeometry()
+  public Geometry getGeometry()
   {
     GeometryType geometryType = this.getType().getGeometryType();
 
@@ -538,7 +587,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
     String statement = "SELECT FROM " + type.getMdVertex().getDBClassName();
     statement += " WHERE uuid = :uuid";
 
-    VertexQuery<GeoVertex> query = new VertexQuery<GeoVertex>(statement);
+    GraphQuery<GeoVertex> query = new GraphQuery<GeoVertex>(statement);
     query.setParameter("uuid", uuid);
 
     return query.getSingleResult();
@@ -549,7 +598,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
     String statement = "SELECT FROM " + type.getMdVertex().getDBClassName();
     statement += " WHERE code = :code";
 
-    VertexQuery<GeoVertex> query = new VertexQuery<GeoVertex>(statement);
+    GraphQuery<GeoVertex> query = new GraphQuery<GeoVertex>(statement);
     query.setParameter("code", code);
 
     return query.getSingleResult();
@@ -601,7 +650,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
 
     statement.append(" FROM :rid");
 
-    VertexQuery<EdgeObject> query = new VertexQuery<EdgeObject>(statement.toString(), parameters);
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
 
@@ -673,7 +722,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
 
     statement.append(" FROM :rid");
 
-    VertexQuery<EdgeObject> query = new VertexQuery<EdgeObject>(statement.toString(), parameters);
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
 
@@ -705,5 +754,4 @@ public class VertexServerGeoObject implements ServerGeoObjectIF
 
     return tnRoot;
   }
-
 }

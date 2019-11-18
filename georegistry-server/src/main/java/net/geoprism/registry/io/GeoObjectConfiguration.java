@@ -50,7 +50,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
 

@@ -27,23 +27,25 @@ public interface ServerGeoObjectIF
 
   public void setGeometry(Geometry geometry);
 
+  public Geometry getGeometry();
+
   public String getUid();
 
   public void setUid(String uid);
 
   public String getRunwayId();
 
-  public String getValue(String attributeName);
+  public Object getValue(String attributeName);
 
   public void setValue(String attributeName, Object value);
 
-  public void setLabel(LocalizedValue label);
+  public void setDisplayLabel(LocalizedValue label);
+
+  public LocalizedValue getDisplayLabel();
 
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs();
 
   public String bbox();
-
-  public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes);
 
   public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive);
 
@@ -62,4 +64,8 @@ public interface ServerGeoObjectIF
   public void populate(GeoObject geoObject);
 
   public void apply(boolean isImport);
+
+  public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes);
+
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy);
 }

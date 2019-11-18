@@ -5,9 +5,10 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import com.runwaysdk.business.graph.VertexObject;
 
 import net.geoprism.registry.InvalidRegistryIdException;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.VertexServerGeoObject;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.RegistryIdService;
 
 public class VertexGeoObjectStrategy extends LocalizedValueConverter implements ServerGeoObjectStrategyIF
@@ -77,5 +78,11 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
     VertexObject vertex = VertexServerGeoObject.newInstance(type);
 
     return new VertexServerGeoObject(type, vertex);
+  }
+
+  @Override
+  public ServerGeoObjectQuery createQuery()
+  {
+    return new VertexGeoObjectQuery(type);
   }
 }

@@ -5,9 +5,11 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import com.runwaysdk.business.Business;
 
 import net.geoprism.registry.InvalidRegistryIdException;
-import net.geoprism.registry.model.LeafServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.postgres.LeafServerGeoObject;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.postgres.LeafGeoObjectQuery;
 import net.geoprism.registry.service.RegistryIdService;
 
 public class LeafGeoObjectStrategy extends LocalizedValueConverter implements ServerGeoObjectStrategyIF
@@ -79,6 +81,12 @@ public class LeafGeoObjectStrategy extends LocalizedValueConverter implements Se
     Business business = new Business(type.definesType());
 
     return new LeafServerGeoObject(type, business);
+  }
+
+  @Override
+  public ServerGeoObjectQuery createQuery()
+  {
+    return new LeafGeoObjectQuery(type);
   }
 
 }

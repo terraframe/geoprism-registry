@@ -177,7 +177,7 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
   {
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
-      entity.setLabel((LocalizedValue) value);
+      entity.setDisplayLabel((LocalizedValue) value);
     }
     else if (attributeType instanceof AttributeTermType)
     {

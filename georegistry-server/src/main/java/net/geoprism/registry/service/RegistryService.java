@@ -73,9 +73,9 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.GeoObjectIterator;
-import net.geoprism.registry.query.GeoObjectQuery;
-import net.geoprism.registry.query.LookupRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectIterator;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.LookupRestriction;
 
 public class RegistryService
 {

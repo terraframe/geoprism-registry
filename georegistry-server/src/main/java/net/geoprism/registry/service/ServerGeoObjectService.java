@@ -13,6 +13,8 @@ import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
@@ -110,6 +112,13 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
     return strategy.constructFromDB(dbObject);
+  }
+
+  public ServerGeoObjectQuery createQuery(ServerGeoObjectType type)
+  {
+    return new VertexGeoObjectQuery(type);
+    // ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
+    // return strategy.createQuery();
   }
 
 }

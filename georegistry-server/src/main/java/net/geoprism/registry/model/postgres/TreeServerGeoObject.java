@@ -1,4 +1,4 @@
-package net.geoprism.registry.model;
+package net.geoprism.registry.model.postgres;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,6 +54,9 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -131,9 +134,15 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public void setLabel(LocalizedValue label)
+  public void setDisplayLabel(LocalizedValue label)
   {
     LocalizedValueConverter.populate(this.geoEntity.getDisplayLabel(), label);
+  }
+
+  @Override
+  public LocalizedValue getDisplayLabel()
+  {
+    return LocalizedValueConverter.convert(geoEntity.getDisplayLabel());
   }
 
   @Override
@@ -149,15 +158,15 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public String getValue(String attributeName)
+  public Object getValue(String attributeName)
   {
     if (attributeName.equals(DefaultAttribute.CODE.getName()))
     {
-      return this.getGeoEntity().getGeoId();
+      return this.getCode();
     }
     else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
-      return this.getGeoEntity().getDisplayLabel().getValue();
+      return this.getDisplayLabel();
     }
 
     return this.getBusiness().getValue(attributeName);
@@ -356,13 +365,13 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
     }
 
     geoObj.setCode(geoEntity.getGeoId());
-    geoObj.getDisplayLabel().setValue(geoEntity.getDisplayLabel().getValue());
+    geoObj.setDisplayLabel(this.getDisplayLabel());
     geoObj.setGeometry(this.getGeometry());
 
     return geoObj;
   }
 
-  private Geometry getGeometry()
+  public Geometry getGeometry()
   {
     GeometryType geometryType = this.getType().getGeometryType();
 

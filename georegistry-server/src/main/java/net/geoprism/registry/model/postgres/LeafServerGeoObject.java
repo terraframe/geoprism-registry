@@ -1,4 +1,4 @@
-package net.geoprism.registry.model;
+package net.geoprism.registry.model.postgres;
 
 import java.sql.ResultSet;
 import java.text.ParseException;
@@ -30,18 +30,15 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
-import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -55,6 +52,9 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -99,9 +99,21 @@ public class LeafServerGeoObject extends AbstractServerGeoObject implements Serv
     }
   }
 
-  public void setLabel(LocalizedValue label)
+  @Override
+  public Geometry getGeometry()
+  {
+    return (Geometry) this.getBusiness().getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+  }
+
+  public void setDisplayLabel(LocalizedValue label)
   {
     LocalizedValueConverter.populate((LocalStruct) this.getBusiness().getStruct(GeoObject.DISPLAY_LABEL), label);
+  }
+
+  @Override
+  public LocalizedValue getDisplayLabel()
+  {
+    return LocalizedValueConverter.convert((LocalStruct) this.getBusiness().getStruct(DefaultAttribute.DISPLAY_LABEL.getName()));
   }
 
   @Override
@@ -392,10 +404,7 @@ public class LeafServerGeoObject extends AbstractServerGeoObject implements Serv
     }
 
     geoObj.setCode(this.getBusiness().getValue(DefaultAttribute.CODE.getName()));
-
-    String localizedValue = ( (AttributeLocal) BusinessFacade.getEntityDAO(this.getBusiness()).getAttributeIF(DefaultAttribute.DISPLAY_LABEL.getName()) ).getValue(Session.getCurrentLocale());
-    geoObj.getDisplayLabel().setValue(localizedValue);
-
+    geoObj.setDisplayLabel(this.getDisplayLabel());
     geoObj.setGeometry((Geometry) this.getBusiness().getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
     return geoObj;

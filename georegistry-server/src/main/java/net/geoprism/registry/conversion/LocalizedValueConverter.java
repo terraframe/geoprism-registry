@@ -57,7 +57,7 @@ public class LocalizedValueConverter
     }
   }
 
-  public LocalizedValue convert(LocalStruct localStruct)
+  public static LocalizedValue convert(LocalStruct localStruct)
   {
     LocalizedValue label = new LocalizedValue(localStruct.getValue());
     label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, localStruct.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
@@ -72,7 +72,7 @@ public class LocalizedValueConverter
     return label;
   }
 
-  public LocalizedValue convert(String value, Map<String, String> map)
+  public static LocalizedValue convert(String value, Map<String, String> map)
   {
     LocalizedValue localizedValue = new LocalizedValue(value);
     localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, map.get(MdAttributeLocalInfo.DEFAULT_LOCALE));

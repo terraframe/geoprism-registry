@@ -46,7 +46,7 @@ import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
