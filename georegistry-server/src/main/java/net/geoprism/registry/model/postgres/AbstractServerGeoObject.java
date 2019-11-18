@@ -99,11 +99,24 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
   @Override
   public Object getValue(String attributeName)
   {
+    if (attributeName.equals(DefaultAttribute.CODE.getName()))
+    {
+      return this.getCode();
+    }
+    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    {
+      return this.getDisplayLabel();
+    }
+    else if (attributeName.equals(DefaultAttribute.UID.getName()))
+    {
+      return this.getUid();
+    }
+
     MdAttributeConcreteDAOIF mdAttribute = this.getBusiness().getMdAttributeDAO(attributeName);
 
     Object value = this.getBusiness().getObjectValue(attributeName);
 
-    if (mdAttribute instanceof MdAttributeTermDAOIF)
+    if (value != null && mdAttribute instanceof MdAttributeTermDAOIF)
     {
       return Classifier.get((String) value);
     }

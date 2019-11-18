@@ -34,6 +34,7 @@ import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -361,7 +362,16 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
       return this.getDisplayLabel();
     }
 
-    return this.vertex.getObjectValue(attributeName);
+    MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);
+
+    Object value = this.vertex.getObjectValue(attributeName);
+
+    if (value != null && mdAttribute instanceof MdAttributeTermDAOIF)
+    {
+      return Classifier.get((String) value);
+    }
+
+    return value;
   }
 
   @Override

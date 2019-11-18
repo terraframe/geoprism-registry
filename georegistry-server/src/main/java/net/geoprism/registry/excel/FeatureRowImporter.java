@@ -133,6 +133,10 @@ public abstract class FeatureRowImporter
           entity = service.newInstance(this.configuration.getType());
           entity.setCode(geoId);
         }
+        else
+        {
+          entity.lock();
+        }
 
         entity.setStatus(GeoObjectStatus.ACTIVE);
 
@@ -434,7 +438,7 @@ public abstract class FeatureRowImporter
         }
         else
         {
-          entity.setValue(attributeName, classifier.getClassifierId());
+          entity.setValue(attributeName, classifier.getOid());
         }
       }
       catch (UnknownTermException e)

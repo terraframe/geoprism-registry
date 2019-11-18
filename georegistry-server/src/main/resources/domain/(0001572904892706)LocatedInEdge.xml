@@ -11,21 +11,21 @@
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>      
-          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
             <operation name="ALL" />
           </mdRelationshipPermission>          
         </grant>
       </role>
       <role roleName="commongeoregistry.RegistryMaintainer">
         <grant>      
-          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
             <operation name="ALL" />
           </mdRelationshipPermission>          
         </grant>
       </role>
       <role roleName="commongeoregistry.RegistryContributor">
         <grant>          
-          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdRelationshipPermission>          
@@ -33,7 +33,7 @@
       </role>
       <role roleName="commongeoregistry.APIConsumer">
         <grant>          
-          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+          <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdRelationshipPermission>          

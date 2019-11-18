@@ -158,21 +158,6 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public Object getValue(String attributeName)
-  {
-    if (attributeName.equals(DefaultAttribute.CODE.getName()))
-    {
-      return this.getCode();
-    }
-    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
-    {
-      return this.getDisplayLabel();
-    }
-
-    return this.getBusiness().getValue(attributeName);
-  }
-
-  @Override
   public void setValue(String attributeName, Object value)
   {
     if (attributeName.equals(DefaultAttribute.CODE.getName()))

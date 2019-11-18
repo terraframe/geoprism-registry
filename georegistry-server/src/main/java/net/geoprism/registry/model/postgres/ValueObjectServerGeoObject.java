@@ -176,9 +176,16 @@ public class ValueObjectServerGeoObject implements ServerGeoObjectIF
     else if (attributeType instanceof AttributeTermType)
     {
       String value = this.valueObject.getValue(attributeName);
-      Classifier classifier = Classifier.get(value);
 
-      return classifier;
+      if (value != null)
+      {
+
+        Classifier classifier = Classifier.get(value);
+
+        return classifier;
+      }
+
+      return null;
     }
 
     return this.valueObject.getValue(attributeName);

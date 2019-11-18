@@ -1,14 +1,14 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version_gis.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-    <create>
+    <create>    
       <mdVertex name="net.geoprism.registry.graph.GeoVertexType" label="Geo Vertex Type" generateController="false">
         <attributes>
           <char name="code" label="Code" size="256" required="true" />
-          <reference name="universal" label="Universal" required="true" type="com.runwaysdk.system.gis.geo.Universal" />
+          <reference name="universal" label="Universal" required="true" type="com.runwaysdk.system.gis.geo.Universal" />                
         </attributes>
-      </mdVertex>
-
-      <mdGeoVertex name="net.geoprism.registry.graph.GeoVertex" label="Geo Vertex" isAbstract="true" enableChangeOverTime="true">
+      </mdVertex>    
+      
+      <mdGeoVertex name="net.geoprism.registry.graph.GeoVertex" label="Geo Vertex" isAbstract="true">
         <attributes>
         </attributes>
       </mdGeoVertex>
@@ -16,8 +16,8 @@
   </doIt>
   <undoIt>
     <delete>
-      <object type="com.runwaysdk.system.gis.metadata.graph.MdGeoVertex" key="net.geoprism.registry.graph.GeoVertex" />
-      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.GeoVertexType" />
+      <object type="com.runwaysdk.system.gis.metadata.graph.MdGeoVertex" key="net.geoprism.registry.graph.GeoVertex"/>    
+      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.GeoVertexType"/>    
     </delete>
   </undoIt>
 </version>
