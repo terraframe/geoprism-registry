@@ -101,10 +101,14 @@ public abstract class AbstractGeoObjectQuery implements ServerGeoObjectQuery
 
   protected void selectTermAttribute(ValueQuery vQuery, BusinessQuery bQuery, MdAttributeDAOIF mdAttribute)
   {
-    ClassifierQuery classifierQuery = new ClassifierQuery(vQuery);
-
-    vQuery.WHERE(new LeftJoinEq(bQuery.get(mdAttribute.definesAttribute()), classifierQuery.getOid()));
-    vQuery.SELECT(classifierQuery.getOid(mdAttribute.definesAttribute(), mdAttribute.definesAttribute()));
+//    ClassifierQuery classifierQuery = new ClassifierQuery(vQuery);
+//
+//    vQuery.WHERE(new LeftJoinEq(bQuery.get(mdAttribute.definesAttribute()), classifierQuery.getOid()));
+//    vQuery.SELECT(classifierQuery.getOid(mdAttribute.definesAttribute(), mdAttribute.definesAttribute()));
+    
+//    vQuery.SELECT(classifierQuery.getOid(mdAttribute.definesAttribute(), mdAttribute.definesAttribute()));
+    
+    vQuery.SELECT(bQuery.get(mdAttribute.definesAttribute(), mdAttribute.definesAttribute()));
   }
 
   protected void selectLabelAttribute(ValueQuery vQuery, AttributeLocalIF label)

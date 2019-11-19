@@ -177,12 +177,9 @@ public class ValueObjectServerGeoObject implements ServerGeoObjectIF
     {
       String value = this.valueObject.getValue(attributeName);
 
-      if (value != null)
+      if (value != null && value.length() > 0)
       {
-
-        Classifier classifier = Classifier.get(value);
-
-        return classifier;
+        return Classifier.get(value);
       }
 
       return null;
@@ -303,7 +300,7 @@ public class ValueObjectServerGeoObject implements ServerGeoObjectIF
         {
           String value = valueObject.getValue(attributeName);
 
-          if (value != null)
+          if (value != null && value.length() > 0)
           {
             if (attribute instanceof AttributeTermType)
             {
