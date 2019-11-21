@@ -209,14 +209,14 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     mdEdgeDAO.apply();
 
     MdAttributeDateTimeDAO startDate = MdAttributeDateTimeDAO.newInstance();
-    startDate.setValue(MdAttributeDateTimeInfo.NAME, "startDate");
+    startDate.setValue(MdAttributeDateTimeInfo.NAME, GeoVertex.START_DATE);
     startDate.setStructValue(MdAttributeDateTimeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Start Date");
     startDate.setStructValue(MdAttributeDateTimeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Start Date");
     startDate.setValue(MdAttributeDateTimeInfo.DEFINING_MD_CLASS, mdEdgeDAO.getOid());
     startDate.apply();
 
     MdAttributeDateTimeDAO endDate = MdAttributeDateTimeDAO.newInstance();
-    endDate.setValue(MdAttributeDateTimeInfo.NAME, "endDate");
+    endDate.setValue(MdAttributeDateTimeInfo.NAME, GeoVertex.END_DATE);
     endDate.setStructValue(MdAttributeDateTimeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "End Date");
     endDate.setStructValue(MdAttributeDateTimeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "End Date");
     endDate.setValue(MdAttributeDateTimeInfo.DEFINING_MD_CLASS, mdEdgeDAO.getOid());

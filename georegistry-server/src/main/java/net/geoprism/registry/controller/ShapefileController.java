@@ -4,22 +4,26 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 
@@ -36,6 +40,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.DataUploaderDTO;
+import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.service.ShapefileService;
 
 @Controller(url = "shapefile")
@@ -49,13 +54,19 @@ public class ShapefileController
   }
 
   @Endpoint(url = "get-shapefile-configuration", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException
+  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {
       String fileName = file.getFilename();
 
-      JsonObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, fileName, stream);
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+      Date sDate = startDate != null ? format.parse(startDate) : null;
+      Date eDate = endDate != null ? format.parse(endDate) : null;
+
+      JsonObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
 
       // object.add("options", service.getOptions(request.getSessionId()));
       // object.put("classifiers", new

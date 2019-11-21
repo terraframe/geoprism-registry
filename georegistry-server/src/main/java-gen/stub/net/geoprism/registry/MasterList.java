@@ -1156,7 +1156,7 @@ public class MasterList extends MasterListBase
 
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
 
-    DateFormat filterFormat = new SimpleDateFormat("YYYY-MM-DD");
+    DateFormat filterFormat = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
     filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     if (filterJson != null && filterJson.length() > 0)
@@ -1213,7 +1213,7 @@ public class MasterList extends MasterListBase
 
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
-    DateFormat filterFormat = new SimpleDateFormat("YYYY-MM-DD");
+    DateFormat filterFormat = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
     filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     JsonArray results = new JsonArray();

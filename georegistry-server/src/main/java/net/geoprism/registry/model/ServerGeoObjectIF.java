@@ -1,17 +1,24 @@
 package net.geoprism.registry.model;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.service.ServiceFactory;
 
 public interface ServerGeoObjectIF
 {
@@ -25,7 +32,11 @@ public interface ServerGeoObjectIF
 
   public void setStatus(GeoObjectStatus status);
 
+  public void setStatus(GeoObjectStatus status, Date startDate, Date endDate);
+
   public void setGeometry(Geometry geometry);
+
+  public void setGeometry(Geometry geometry, Date startDate, Date endDate);
 
   public Geometry getGeometry();
 
@@ -39,7 +50,11 @@ public interface ServerGeoObjectIF
 
   public void setValue(String attributeName, Object value);
 
+  public void setValue(String attributeName, Object value, Date startDate, Date endDate);
+
   public void setDisplayLabel(LocalizedValue label);
+
+  public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate);
 
   public LocalizedValue getDisplayLabel();
 
@@ -47,17 +62,21 @@ public interface ServerGeoObjectIF
 
   public String bbox();
 
-  public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive);
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive);
 
-  public ParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive);
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive);
 
-  public ParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode);
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode);
+
+  public ServerParentTreeNode addChild(ServerGeoObjectIF entity, String hierarchyCode, Date startDate, Date endDate);
 
   public void removeChild(ServerGeoObjectIF child, String hierarchyCode);
 
-  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
-  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate);
+
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
   public void lock();
 
@@ -68,4 +87,6 @@ public interface ServerGeoObjectIF
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes);
 
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy);
+
+  public JsonArray getHierarchiesForGeoObject();
 }

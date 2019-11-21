@@ -1,12 +1,11 @@
 package net.geoprism.registry.model;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.vividsolutions.jts.geom.Geometry;
@@ -14,7 +13,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
-public class CompositeServerGeoObject implements ServerGeoObjectIF
+public class CompositeServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
   private ServerGeoObjectIF     business;
 
@@ -87,6 +86,13 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
+  public void setGeometry(Geometry geometry, Date startDate, Date endDate)
+  {
+    this.business.setGeometry(geometry, startDate, endDate);
+    this.vertex.setGeometry(geometry, startDate, endDate);
+  }
+
+  @Override
   public Geometry getGeometry()
   {
     return this.business.getGeometry();
@@ -100,10 +106,24 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
+  public void setStatus(GeoObjectStatus status, Date startDate, Date endDate)
+  {
+    this.business.setStatus(status, startDate, endDate);
+    this.vertex.setStatus(status, startDate, endDate);
+  }
+
+  @Override
   public void setDisplayLabel(LocalizedValue label)
   {
     this.business.setDisplayLabel(label);
     this.vertex.setDisplayLabel(label);
+  }
+
+  @Override
+  public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
+  {
+    this.business.setDisplayLabel(value, startDate, endDate);
+    this.vertex.setDisplayLabel(value, startDate, endDate);
   }
 
   @Override
@@ -144,6 +164,13 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
+  public void setValue(String attributeName, Object value, Date startDate, Date endDate)
+  {
+    this.business.setValue(attributeName, value, startDate, endDate);
+    this.vertex.setValue(attributeName, value, startDate, endDate);
+  }
+
+  @Override
   public String bbox()
   {
     return this.business.bbox();
@@ -162,24 +189,35 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
   {
     return this.business.getChildGeoObjects(childrenTypes, recursive);
   }
 
   @Override
-  public ParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
     return this.business.getParentGeoObjects(parentTypes, recursive);
   }
 
   @Override
-  public ParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
   {
     CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
 
-    ParentTreeNode ptn = this.business.addChild(cChild.business, hierarchyCode);
+    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchyCode);
     this.vertex.addChild(cChild.vertex, hierarchyCode);
+
+    return ptn;
+  }
+
+  @Override
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  {
+    CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
+
+    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchyCode, startDate, endDate);
+    this.vertex.addChild(cChild.vertex, hierarchyCode, startDate, endDate);
 
     return ptn;
   }
@@ -203,12 +241,23 @@ public class CompositeServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     CompositeServerGeoObject cParent = (CompositeServerGeoObject) parent;
 
-    ParentTreeNode ptn = this.business.addParent(cParent.business, hierarchyType);
+    ServerParentTreeNode ptn = this.business.addParent(cParent.business, hierarchyType);
     this.vertex.addParent(cParent.vertex, hierarchyType);
+
+    return ptn;
+  }
+
+  @Override
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
+  {
+    CompositeServerGeoObject cParent = (CompositeServerGeoObject) parent;
+
+    ServerParentTreeNode ptn = this.business.addParent(cParent.business, hierarchyType, startDate, endDate);
+    this.vertex.addParent(cParent.vertex, hierarchyType, startDate, endDate);
 
     return ptn;
   }

@@ -18,12 +18,15 @@
  */
 package net.geoprism.registry.io;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -41,6 +44,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
@@ -57,6 +61,10 @@ import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
 public class GeoObjectConfiguration
 {
   public static final String             PARENT_EXCLUSION  = "##PARENT##";
+
+  public static final String             START_DATE        = "startDate";
+
+  public static final String             END_DATE          = "endDate";
 
   public static final String             TARGET            = "target";
 
@@ -100,6 +108,8 @@ public class GeoObjectConfiguration
 
   public static final String             LATITUDE_KEY      = "georegistry.latitude.label";
 
+  public static final String             DATE_FORMAT       = "yyyy-MM-dd";
+
   private Map<String, ShapefileFunction> functions;
 
   private ServerGeoObjectType            type;
@@ -123,6 +133,10 @@ public class GeoObjectConfiguration
   private ServerHierarchyType            hierarchy;
 
   private Boolean                        postalCode;
+
+  private Date                           startDate;
+
+  private Date                           endDate;
 
   public GeoObjectConfiguration()
   {
@@ -173,6 +187,26 @@ public class GeoObjectConfiguration
   public void setFilename(String filename)
   {
     this.filename = filename;
+  }
+
+  public Date getStartDate()
+  {
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate)
+  {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
   }
 
   public Map<String, ShapefileFunction> getFunctions()
@@ -288,6 +322,9 @@ public class GeoObjectConfiguration
   @Request
   public JsonObject toJson()
   {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     JsonObject type = this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
@@ -331,6 +368,16 @@ public class GeoObjectConfiguration
     config.addProperty(GeoObjectConfiguration.DIRECTORY, this.getDirectory());
     config.addProperty(GeoObjectConfiguration.FILENAME, this.getFilename());
     config.addProperty(GeoObjectConfiguration.POSTAL_CODE, this.isPostalCode());
+
+    if (this.getStartDate() != null)
+    {
+      config.addProperty(GeoObjectConfiguration.START_DATE, format.format(this.getStartDate()));
+    }
+
+    if (this.getEndDate() != null)
+    {
+      config.addProperty(GeoObjectConfiguration.END_DATE, format.format(this.getEndDate()));
+    }
 
     if (this.hierarchy != null)
     {
@@ -384,6 +431,9 @@ public class GeoObjectConfiguration
   @Request
   public static GeoObjectConfiguration parse(String json, boolean includeCoordinates)
   {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     JsonObject config = new JsonParser().parse(json).getAsJsonObject();
     JsonObject type = config.get(TYPE).getAsJsonObject();
     JsonArray locations = config.has(LOCATIONS) ? config.get(LOCATIONS).getAsJsonArray() : new JsonArray();
@@ -397,6 +447,23 @@ public class GeoObjectConfiguration
     configuration.setType(got);
     configuration.setIncludeCoordinates(includeCoordinates);
     configuration.setPostalCode(config.has(POSTAL_CODE) && config.get(POSTAL_CODE).getAsBoolean());
+
+    try
+    {
+      if (config.has(GeoObjectConfiguration.START_DATE))
+      {
+        configuration.setStartDate(format.parse(config.get(GeoObjectConfiguration.START_DATE).getAsString()));
+      }
+
+      if (config.has(GeoObjectConfiguration.END_DATE))
+      {
+        configuration.setEndDate(format.parse(config.get(GeoObjectConfiguration.END_DATE).getAsString()));
+      }
+    }
+    catch (ParseException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
 
     if (config.has(HIERARCHY))
     {

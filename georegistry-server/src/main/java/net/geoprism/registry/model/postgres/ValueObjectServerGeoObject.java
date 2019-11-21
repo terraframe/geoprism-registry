@@ -2,6 +2,7 @@ package net.geoprism.registry.model.postgres;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -11,10 +12,8 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
-import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -32,7 +31,6 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
-import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -42,14 +40,17 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.AbstractServerGeoObject;
 import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class ValueObjectServerGeoObject implements ServerGeoObjectIF
+public class ValueObjectServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
   private ServerGeoObjectType type;
 
@@ -234,25 +235,37 @@ public class ValueObjectServerGeoObject implements ServerGeoObjectIF
   }
 
   @Override
-  public ParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
   {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  {
+    return this.addChild(child, hierarchyCode);
+  }
+
+  @Override
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
+  {
+    return this.addParent(parent, hierarchyType);
+  }
+
+  @Override
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
   {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
     throw new UnsupportedOperationException();
   }
@@ -385,5 +398,29 @@ public class ValueObjectServerGeoObject implements ServerGeoObjectIF
   public Geometry getGeometry()
   {
     return (Geometry) this.valueObject.getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+  }
+
+  @Override
+  public void setStatus(GeoObjectStatus status, Date startDate, Date endDate)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setGeometry(Geometry geometry, Date startDate, Date endDate)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setValue(String attributeName, Object value, Date startDate, Date endDate)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
+  {
+    throw new UnsupportedOperationException();
   }
 }

@@ -6,6 +6,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.runwaysdk.ComponentIF;
@@ -300,7 +301,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     }
 
     // Create the MdGeoVertexClass
-    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId());
+    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), geoObjectType.getFrequency());
     this.createDefaultAttributes(universal, mdVertex);
 
     assignDefaultRolePermissions(mdVertex);
@@ -349,18 +350,34 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
   public ServerGeoObjectType build(Universal universal)
   {
+    MdBusiness mdBusiness = universal.getMdBusiness();
+    MdGeoVertexDAO mdVertex = GeoVertexType.getMdGeoVertex(universal.getUniversalId());
     com.runwaysdk.system.gis.geo.GeometryType geoPrismgeometryType = universal.getGeometryType().get(0);
 
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = GeometryTypeFactory.get(geoPrismgeometryType);
 
-    LocalizedValue label = this.convert(universal.getDisplayLabel());
-    LocalizedValue description = this.convert(universal.getDescription());
-    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsLeafType(), universal.getIsGeometryEditable(), ServiceFactory.getAdapter());
+    FrequencyType frequency = getFrequency(mdVertex);
 
-    MdBusiness mdBusiness = universal.getMdBusiness();
+    LocalizedValue label = convert(universal.getDisplayLabel());
+    LocalizedValue description = convert(universal.getDescription());
+    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsLeafType(), universal.getIsGeometryEditable(), frequency, ServiceFactory.getAdapter());
+
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);
 
-    return new ServerGeoObjectType(geoObjType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
+    return new ServerGeoObjectType(geoObjType, universal, mdBusiness, mdVertex);
+  }
+
+  private FrequencyType getFrequency(MdGeoVertexDAO mdVertex)
+  {
+    if (mdVertex != null)
+    {
+      String name = mdVertex.getFrequency();
+
+      return FrequencyType.valueOf(name);
+    }
+
+    // Special case for root
+    return FrequencyType.ANNUAL;
   }
 
   public GeoObjectType convertAttributeTypes(Universal uni, GeoObjectType gt, MdBusiness mdBusiness)

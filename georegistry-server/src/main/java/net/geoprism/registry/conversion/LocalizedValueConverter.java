@@ -1,5 +1,6 @@
 package net.geoprism.registry.conversion;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -127,7 +128,7 @@ public class LocalizedValueConverter
     }
   }
 
-  public static LocalizedValue populate(GraphObject graphObject)
+  public static LocalizedValue convert(GraphObject graphObject)
   {
     String attributeName = Session.getCurrentLocale().toString();
     String value = (String) ( graphObject.hasAttribute(attributeName) ? graphObject.getObjectValue(attributeName) : graphObject.getObjectValue(MdAttributeLocalInfo.DEFAULT_LOCALE) );
@@ -145,17 +146,32 @@ public class LocalizedValueConverter
     return localizedValue;
   }
 
-  public static void populate(GraphObject graphObject, LocalizedValue label)
+  public static void populate(GraphObject graphObject, String attributeName, LocalizedValue value)
   {
-    graphObject.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+    graphObject.setEmbeddedValue(attributeName, MdAttributeLocalInfo.DEFAULT_LOCALE, value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
 
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     for (Locale locale : locales)
     {
-      if (label.contains(locale))
+      if (value.contains(locale))
       {
-        graphObject.setValue(locale.toString(), label.getValue(locale));
+        graphObject.setEmbeddedValue(attributeName, locale.toString(), value.getValue(locale));
+      }
+    }
+  }
+
+  public static void populate(GraphObject graphObject, String attributeName, LocalizedValue value, Date startDate, Date endDate)
+  {
+    graphObject.setEmbeddedValue(attributeName, MdAttributeLocalInfo.DEFAULT_LOCALE, value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), startDate, endDate);
+
+    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+
+    for (Locale locale : locales)
+    {
+      if (value.contains(locale))
+      {
+        graphObject.setEmbeddedValue(attributeName, locale.toString(), value.getValue(locale), startDate, endDate);
       }
     }
   }

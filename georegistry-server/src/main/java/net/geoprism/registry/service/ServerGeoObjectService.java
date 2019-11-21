@@ -116,9 +116,9 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectQuery createQuery(ServerGeoObjectType type)
   {
-    return new VertexGeoObjectQuery(type);
-//     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-//     return strategy.createQuery();
+//    return new VertexGeoObjectQuery(type);
+     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
+     return strategy.createQuery();
   }
 
 }

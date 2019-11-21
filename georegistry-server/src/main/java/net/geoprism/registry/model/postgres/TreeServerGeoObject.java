@@ -2,6 +2,7 @@ package net.geoprism.registry.model.postgres;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,10 +13,8 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
-import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -54,14 +53,16 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class TreeServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
+public class TreeServerGeoObject extends RelationalServerGeoObject implements ServerGeoObjectIF
 {
   private GeoEntity geoEntity;
 
@@ -179,13 +180,13 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
   }
 
   @Override
-  public ParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
-    return AbstractServerGeoObject.internalGetParentGeoObjects(this, parentTypes, recursive, null);
+    return RelationalServerGeoObject.internalGetParentGeoObjects(this, parentTypes, recursive, null);
   }
 
   @Override
-  public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
   {
     return TreeServerGeoObject.internalGetChildGeoObjects(this, childrenTypes, recursive, null);
   }
@@ -199,14 +200,20 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
 
   @Transaction
   @Override
-  public ParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
   {
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
     return child.addParent(this, hierarchyType);
   }
 
   @Override
-  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  {
+    return this.addChild(child, hierarchyCode);
+  }
+
+  @Override
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     if (!hierarchyType.getUniversalType().equals(AllowedIn.CLASS))
     {
@@ -215,10 +222,16 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
 
     this.geoEntity.addLink( ( (TreeServerGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
 
-    ParentTreeNode node = new ParentTreeNode(this.toGeoObject(), hierarchyType.getType());
-    node.addParent(new ParentTreeNode(parent.toGeoObject(), hierarchyType.getType()));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType));
 
     return node;
+  }
+
+  @Override
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
+  {
+    return this.addParent(parent, hierarchyType);
   }
 
   @Override
@@ -388,12 +401,12 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
     throw new UnsupportedOperationException("Unsupported geometry type [" + geometryType.name() + "]");
   }
 
-  private static ChildTreeNode internalGetChildGeoObjects(ServerGeoObjectIF parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn)
+  private static ServerChildTreeNode internalGetChildGeoObjects(ServerGeoObjectIF parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn)
   {
     String[] relationshipTypes = TermUtil.getAllParentRelationships(parent.getRunwayId());
     Map<String, ServerHierarchyType> htMap = parent.getHierarchyTypeMap(relationshipTypes);
 
-    ChildTreeNode tnRoot = new ChildTreeNode(parent.toGeoObject(), htIn != null ? htIn.getType() : null);
+    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn);
 
     ServerGeoObjectService service = new ServerGeoObjectService();
 
@@ -442,7 +455,7 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
                   // Do something
                   ServerGeoObjectIF goChild = service.build(childType, child);
 
-                  tnRoot.addChild(new ChildTreeNode(goChild.toGeoObject(), ht.getType()));
+                  tnRoot.addChild(new ServerChildTreeNode(goChild, ht));
                 }
               }
               finally
@@ -472,7 +485,7 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
         ServerGeoObjectType childType = ServerGeoObjectType.get(uni);
         ServerGeoObjectIF child = service.build(childType, geChild);
 
-        ChildTreeNode tnChild;
+        ServerChildTreeNode tnChild;
 
         if (recursive)
         {
@@ -480,7 +493,7 @@ public class TreeServerGeoObject extends AbstractServerGeoObject implements Serv
         }
         else
         {
-          tnChild = new ChildTreeNode(child.toGeoObject(), ht.getType());
+          tnChild = new ServerChildTreeNode(child, ht);
         }
 
         tnRoot.addChild(tnChild);

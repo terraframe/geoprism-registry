@@ -210,14 +210,14 @@ public class RegistryService
   public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
-    return object.getChildGeoObjects(childrenTypes, recursive);
+    return object.getChildGeoObjects(childrenTypes, recursive).toNode();
   }
 
   @Request(RequestType.SESSION)
   public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(childId, childGeoObjectTypeCode);
-    return object.getParentGeoObjects(parentTypes, recursive);
+    return object.getParentGeoObjects(parentTypes, recursive).toNode();
   }
 
   @Request(RequestType.SESSION)
@@ -226,7 +226,7 @@ public class RegistryService
     ServerGeoObjectIF parent = this.service.getGeoObject(parentId, parentGeoObjectTypeCode);
     ServerGeoObjectIF child = this.service.getGeoObject(childId, childGeoObjectTypeCode);
 
-    return parent.addChild(child, hierarchyCode);
+    return parent.addChild(child, hierarchyCode).toNode();
   }
 
   public Boolean exists(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
@@ -868,7 +868,7 @@ public class RegistryService
     GeoObject go = this.getGeoObjectByCode(sessionId, code, typeCode);
     ServerGeoObjectIF geoObject = this.service.getGeoObject(go);
 
-    return ServiceFactory.getUtilities().getHierarchiesForGeoObject(geoObject);
+    return geoObject.getHierarchiesForGeoObject();
   }
 
   @Request(RequestType.SESSION)

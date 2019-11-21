@@ -56,31 +56,31 @@ public class GeoObjectConverter extends FeatureRowImporter
   {
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
-      entity.setDisplayLabel((LocalizedValue) value);
+      entity.setDisplayLabel((LocalizedValue) value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeTermType)
     {
-      this.setTermValue(entity, attributeType, attributeName, value);
+      this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeIntegerType)
     {
-      entity.setValue(attributeName, new Long((String) value));
+      entity.setValue(attributeName, new Long((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeFloatType)
     {
-      entity.setValue(attributeName, new Double((String) value));
+      entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeCharacterType)
     {
-      entity.setValue(attributeName, value.toString());
+      entity.setValue(attributeName, value.toString(), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeBooleanType)
     {
-      entity.setValue(attributeName, value);
+      entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else
     {
-      entity.setValue(attributeName, value);
+      entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
   }
 

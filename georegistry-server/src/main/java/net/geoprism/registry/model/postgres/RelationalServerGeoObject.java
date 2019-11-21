@@ -1,5 +1,6 @@
 package net.geoprism.registry.model.postgres;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -10,7 +11,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
@@ -39,20 +40,22 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.io.GeoObjectUtil;
+import net.geoprism.registry.model.AbstractServerGeoObject;
+import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 
-public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
+public abstract class RelationalServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
   private ServerGeoObjectType type;
 
   private Business            business;
 
-  public AbstractServerGeoObject(ServerGeoObjectType type, Business business)
+  public RelationalServerGeoObject(ServerGeoObjectType type, Business business)
   {
     this.type = type;
     this.business = business;
@@ -94,6 +97,30 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
   public void setStatus(GeoObjectStatus status)
   {
     this.getBusiness().setValue(DefaultAttribute.STATUS.getName(), status.getOid());
+  }
+
+  @Override
+  public void setStatus(GeoObjectStatus status, Date startDate, Date endDate)
+  {
+    this.setStatus(status);
+  }
+
+  @Override
+  public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
+  {
+    this.setDisplayLabel(value);
+  }
+
+  @Override
+  public void setGeometry(Geometry geometry, Date startDate, Date endDate)
+  {
+    this.setGeometry(geometry);
+  }
+
+  @Override
+  public void setValue(String attributeName, Object value, Date startDate, Date endDate)
+  {
+    this.setValue(attributeName, value);
   }
 
   @Override
@@ -243,11 +270,11 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
     return GeoObjectUtil.getAncestorMap(this.toGeoObject(), hierarchy);
   }
 
-  protected static ParentTreeNode internalGetParentGeoObjects(ServerGeoObjectIF child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
+  protected static ServerParentTreeNode internalGetParentGeoObjects(ServerGeoObjectIF child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
   {
     ServerGeoObjectService service = new ServerGeoObjectService();
 
-    ParentTreeNode tnRoot = new ParentTreeNode(child.toGeoObject(), htIn != null ? htIn.getType() : null);
+    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn);
 
     if (child.getType().isLeaf())
     {
@@ -277,17 +304,17 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 
           if (parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()))
           {
-            ParentTreeNode tnParent;
+            ServerParentTreeNode tnParent;
 
             ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
 
             if (recursive)
             {
-              tnParent = AbstractServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
+              tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
             }
             else
             {
-              tnParent = new ParentTreeNode(parent.toGeoObject(), ht.getType());
+              tnParent = new ServerParentTreeNode(parent, ht);
             }
 
             tnRoot.addParent(tnParent);
@@ -313,14 +340,14 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
           ServerGeoObjectIF parent = service.build(geParent);
           ServerHierarchyType ht = htMap.get(tnrParent.getRelationshipType());
 
-          ParentTreeNode tnParent;
+          ServerParentTreeNode tnParent;
           if (recursive)
           {
-            tnParent = AbstractServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
+            tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
           }
           else
           {
-            tnParent = new ParentTreeNode(parent.toGeoObject(), ht.getType());
+            tnParent = new ServerParentTreeNode(parent, ht);
           }
 
           tnRoot.addParent(tnParent);

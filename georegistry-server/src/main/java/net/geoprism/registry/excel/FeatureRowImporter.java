@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.excel;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -138,19 +139,21 @@ public abstract class FeatureRowImporter
           entity.lock();
         }
 
-        entity.setStatus(GeoObjectStatus.ACTIVE);
+        entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
 
         Geometry geometry = (Geometry) this.getGeometry(row);
         LocalizedValue entityName = this.getName(row);
 
         if (entityName != null && this.hasValue(entityName))
         {
+          entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+
           if (geometry != null)
           {
             // if (geometry.isValid() && geometry.getSRID() == 4326)
             if (geometry.isValid())
             {
-              entity.setGeometry(geometry);
+              entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
             }
             else
             {
@@ -199,7 +202,7 @@ public abstract class FeatureRowImporter
 
             if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
             {
-              parent.addChild(entity, hierarchyCode);
+              parent.addChild(entity, hierarchyCode, this.configuration.getStartDate(), this.configuration.getEndDate());
             }
           }
           else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
@@ -298,7 +301,7 @@ public abstract class FeatureRowImporter
 
         // Search
         ServerGeoObjectQuery query = this.service.createQuery(location.getType());
-        query.setRestriction(new ServerSynonymRestriction(label.toString(), parent, this.configuration.getHierarchy()));
+        query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), this.configuration.getEndDate(), parent, this.configuration.getHierarchy()));
 
         try
         {
@@ -331,7 +334,7 @@ public abstract class FeatureRowImporter
               }
             }
 
-            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent.toGeoObject(), context));
+            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent != null ? parent.toGeoObject() : null, context));
 
             return null;
           }
@@ -419,7 +422,7 @@ public abstract class FeatureRowImporter
     return null;
   }
 
-  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
@@ -438,7 +441,7 @@ public abstract class FeatureRowImporter
         }
         else
         {
-          entity.setValue(attributeName, classifier.getOid());
+          entity.setValue(attributeName, classifier.getOid(), startDate, endDate);
         }
       }
       catch (UnknownTermException e)

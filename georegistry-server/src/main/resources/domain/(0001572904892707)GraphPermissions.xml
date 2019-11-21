@@ -1,0 +1,58 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version_gis.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="com.runwaysdk.graph.EmbeddedLocalValue">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="com.runwaysdk.graph.EmbeddedLocalValue">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryContributor">
+        <grant>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertex">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+          <mdBusinessPermission type="com.runwaysdk.graph.EmbeddedLocalValue">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.APIConsumer">
+        <grant>          
+          <mdBusinessPermission type="com.runwaysdk.graph.EmbeddedLocalValue">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                    
+          <mdRelationshipPermission type="net.geoprism.registry.graph.LocatedIn">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+    </permissions>        
+  </doIt>
+  <undoIt>
+    <delete>
+    </delete>
+  </undoIt>
+</version>

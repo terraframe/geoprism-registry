@@ -13,10 +13,8 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
-import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -30,8 +28,8 @@ import org.json.JSONException;
 import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -59,15 +57,18 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.AbstractServerGeoObject;
 import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
+public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo
 {
   private ServerGeoObjectType type;
 
@@ -125,9 +126,33 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
   }
 
   @Override
+  public void setGeometry(Geometry geometry, Date startDate, Date endDate)
+  {
+    if (!this.isValidGeometry(geometry))
+    {
+      GeometryTypeException ex = new GeometryTypeException();
+      ex.setActualType(geometry.getGeometryType());
+      ex.setExpectedType(this.getType().getGeometryType().name());
+
+      throw ex;
+    }
+
+    // Populate the correct geom field
+    String geometryAttribute = this.getGeometryAttributeName();
+
+    this.getVertex().setValue(geometryAttribute, geometry, startDate, endDate);
+  }
+
+  @Override
   public void setStatus(GeoObjectStatus status)
   {
     this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid());
+  }
+
+  @Override
+  public void setStatus(GeoObjectStatus status, Date startDate, Date endDate)
+  {
+    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), startDate, endDate);
   }
 
   @Override
@@ -137,9 +162,15 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
   }
 
   @Override
-  public void setDisplayLabel(LocalizedValue label)
+  public void setDisplayLabel(LocalizedValue value)
   {
-    LocalizedValueConverter.populate(this.vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName()), label);
+    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value);
+  }
+
+  @Override
+  public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
+  {
+    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
   }
 
   @Override
@@ -157,7 +188,27 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
   @Override
   public void setValue(String attributeName, Object value)
   {
-    this.vertex.setValue(attributeName, value);
+    if (attributeName.contentEquals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    {
+      this.setDisplayLabel((LocalizedValue) value);
+    }
+    else
+    {
+      this.vertex.setValue(attributeName, value);
+    }
+  }
+
+  @Override
+  public void setValue(String attributeName, Object value, Date startDate, Date endDate)
+  {
+    if (attributeName.contentEquals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    {
+      this.setDisplayLabel((LocalizedValue) value, startDate, endDate);
+    }
+    else
+    {
+      this.vertex.setValue(attributeName, value, startDate, endDate);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -428,26 +479,36 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
 
   @Transaction
   @Override
-  public ParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
   {
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
+
     return child.addParent(this, hierarchyType);
   }
 
+  @Transaction
   @Override
-  public ChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  {
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
+
+    return child.addParent(this, hierarchyType, startDate, endDate);
+  }
+
+  @Override
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
   {
     return internalGetChildGeoObjects(this, childrenTypes, recursive, null);
   }
 
   @Override
-  public ParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
     return internalGetParentGeoObjects(this, parentTypes, recursive, null);
   }
 
   @Override
-  public ParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     if (!hierarchyType.getUniversalType().equals(AllowedIn.CLASS))
     {
@@ -456,8 +517,27 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
 
     this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge()).apply();
 
-    ParentTreeNode node = new ParentTreeNode(this.toGeoObject(), hierarchyType.getType());
-    node.addParent(new ParentTreeNode(parent.toGeoObject(), hierarchyType.getType()));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType));
+
+    return node;
+  }
+
+  @Override
+  public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
+  {
+    if (!hierarchyType.getUniversalType().equals(AllowedIn.CLASS))
+    {
+      GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
+    }
+
+    EdgeObject edge = this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge());
+    edge.setValue(GeoVertex.START_DATE, startDate);
+    edge.setValue(GeoVertex.END_DATE, startDate);
+    edge.apply();
+
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType));
 
     return node;
   }
@@ -557,7 +637,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
   {
     GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName());
 
-    return LocalizedValueConverter.populate(graphObject);
+    return LocalizedValueConverter.convert(graphObject);
   }
 
   public Geometry getGeometry()
@@ -621,9 +701,9 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
     return VertexObject.instantiate(dao);
   }
 
-  private static ChildTreeNode internalGetChildGeoObjects(VertexServerGeoObject parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn)
+  private static ServerChildTreeNode internalGetChildGeoObjects(VertexServerGeoObject parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn)
   {
-    ChildTreeNode tnRoot = new ChildTreeNode(parent.toGeoObject(), htIn != null ? htIn.getType() : null);
+    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn);
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", parent.getVertex().getRID());
@@ -676,7 +756,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
 
       VertexServerGeoObject child = new VertexServerGeoObject(childType, childVertex);
 
-      ChildTreeNode tnChild;
+      ServerChildTreeNode tnChild;
 
       if (recursive)
       {
@@ -684,7 +764,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
       }
       else
       {
-        tnChild = new ChildTreeNode(child.toGeoObject(), ht.getType());
+        tnChild = new ServerChildTreeNode(child, ht);
       }
 
       tnRoot.addChild(tnChild);
@@ -693,9 +773,9 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
     return tnRoot;
   }
 
-  protected static ParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
+  protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
   {
-    ParentTreeNode tnRoot = new ParentTreeNode(child.toGeoObject(), htIn != null ? htIn.getType() : null);
+    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn);
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", child.getVertex().getRID());
@@ -748,7 +828,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
 
       VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex);
 
-      ParentTreeNode tnParent;
+      ServerParentTreeNode tnParent;
 
       if (recursive)
       {
@@ -756,7 +836,7 @@ public class VertexServerGeoObject implements ServerGeoObjectIF, LocationInfo
       }
       else
       {
-        tnParent = new ParentTreeNode(parent.toGeoObject(), ht.getType());
+        tnParent = new ServerParentTreeNode(parent, ht);
       }
 
       tnRoot.addParent(tnParent);
