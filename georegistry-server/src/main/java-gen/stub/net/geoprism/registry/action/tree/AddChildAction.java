@@ -30,6 +30,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -44,8 +45,9 @@ public class AddChildAction extends AddChildActionBase
 
     ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
     ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
-    parent.addChild(child, this.getHierarchyTypeCode());
+    parent.addChild(child, ht);
   }
 
   @Override

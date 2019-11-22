@@ -1,5 +1,7 @@
 package net.geoprism.registry.conversion;
 
+import java.util.Date;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import com.runwaysdk.business.Business;
@@ -96,7 +98,7 @@ public class TreeGeoObjectStrategy extends LocalizedValueConverter implements Se
   }
 
   @Override
-  public ServerGeoObjectQuery createQuery()
+  public ServerGeoObjectQuery createQuery(Date date)
   {
     return new TreeGeoObjectQuery(type);
   }

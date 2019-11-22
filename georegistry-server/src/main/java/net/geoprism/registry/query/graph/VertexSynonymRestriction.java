@@ -58,7 +58,7 @@ public class VertexSynonymRestriction implements VertexGeoObjectRestriction
     {
       MdEdgeDAOIF mdEdge = this.hierarchyType.getMdEdge();
 
-      statement.append(".in('" + mdEdge.getDBClassName() + "'){as: parent, where: (uuid=:uuid), while: ($depth < 10)}");
+      statement.append(".in('" + mdEdge.getDBClassName() + "'){as: parent, where: (uuid=:uuid), while: (true)}");
 
       parameters.put("uuid", this.parent.getUid());
     }

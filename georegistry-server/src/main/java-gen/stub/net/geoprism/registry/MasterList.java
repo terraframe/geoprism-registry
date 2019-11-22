@@ -22,11 +22,11 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -38,7 +38,6 @@ import java.util.TimeZone;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -85,7 +84,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
 import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
@@ -108,22 +106,19 @@ import com.vividsolutions.jts.geom.Point;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
+import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.postgres.GeoObjectIterator;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.service.ConversionService;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -159,6 +154,16 @@ public class MasterList extends MasterListBase
   public MasterList()
   {
     super();
+  }
+
+  public Date getPeriod()
+  {
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+    cal.clear();
+    cal.set(2019, Calendar.NOVEMBER, 13);
+
+    return cal.getTime();
   }
 
   @Override
@@ -210,9 +215,10 @@ public class MasterList extends MasterListBase
       Map<HierarchyType, List<GeoObjectType>> ancestorMap = this.getAncestorMap(type);
       Collection<AttributeType> attributes = type.getAttributeMap().values();
 
-      ServerGeoObjectService service = new ServerGeoObjectService();
-
-      ServerGeoObjectQuery query = service.createQuery(type);
+//      ServerGeoObjectService service = new ServerGeoObjectService();
+//      ServerGeoObjectQuery query = service.createQuery(type, this.getPeriod());
+      VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getPeriod());
+      
       Long count = query.getCount();
       long current = 0;
 
@@ -224,9 +230,12 @@ public class MasterList extends MasterListBase
 
         for (ServerGeoObjectIF result : results)
         {
-          Business business = new Business(mdBusiness.definesType());
+          if (result.getStatus().equals(GeoObjectStatus.ACTIVE))
+          {
+            Business business = new Business(mdBusiness.definesType());
 
-          publish(result, business, attributes, ancestorMap, locales);
+            publish(result, business, attributes, ancestorMap, locales);
+          }
 
           ProgressService.put(this.getOid(), new Progress(current++, count, ""));
         }

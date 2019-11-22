@@ -13,6 +13,13 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
+/**
+ * A wrapper class around a relational server geo object and a vertex server geo
+ * object. Used to populate both the relational object and the vertex object
+ * when importing data from the shapefile importer
+ * 
+ * @author terraframe
+ */
 public class CompositeServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
   private ServerGeoObjectIF     business;
@@ -113,6 +120,12 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   }
 
   @Override
+  public GeoObjectStatus getStatus()
+  {
+    return this.business.getStatus();
+  }
+
+  @Override
   public void setDisplayLabel(LocalizedValue label)
   {
     this.business.setDisplayLabel(label);
@@ -201,23 +214,23 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   }
 
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy)
   {
     CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
 
-    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchyCode);
-    this.vertex.addChild(cChild.vertex, hierarchyCode);
+    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchy);
+    this.vertex.addChild(cChild.vertex, hierarchy);
 
     return ptn;
   }
 
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy, Date startDate, Date endDate)
   {
     CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
 
-    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchyCode, startDate, endDate);
-    this.vertex.addChild(cChild.vertex, hierarchyCode, startDate, endDate);
+    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchy, startDate, endDate);
+    this.vertex.addChild(cChild.vertex, hierarchy, startDate, endDate);
 
     return ptn;
   }

@@ -148,15 +148,15 @@ public class LeafServerGeoObject extends RelationalServerGeoObject implements Se
   }
 
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy)
   {
     throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
   }
 
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy, Date startDate, Date endDate)
   {
-    return this.addChild(child, hierarchyCode);
+    return this.addChild(child, hierarchy);
   }
 
   @Override
@@ -184,8 +184,8 @@ public class LeafServerGeoObject extends RelationalServerGeoObject implements Se
     this.getBusiness().setValue(refAttrName, ( (TreeServerGeoObject) parent ).getGeoEntity().getOid());
     this.getBusiness().apply();
 
-    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType);
-    node.addParent(new ServerParentTreeNode(parent, hierarchyType));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, null);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType, null));
 
     return node;
   }

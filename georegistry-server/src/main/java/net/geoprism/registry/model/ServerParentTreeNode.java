@@ -2,10 +2,13 @@ package net.geoprism.registry.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 public class ServerParentTreeNode extends ServerTreeNode
 {
@@ -16,10 +19,12 @@ public class ServerParentTreeNode extends ServerTreeNode
    * 
    * @param geoObject
    * @param hierarchyType
+   * @param date
+   *          TODO
    */
-  public ServerParentTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType)
+  public ServerParentTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType, Date date)
   {
-    super(geoObject, hierarchyType);
+    super(geoObject, hierarchyType, date);
 
     this.parents = Collections.synchronizedList(new LinkedList<ServerParentTreeNode>());
   }
@@ -78,7 +83,10 @@ public class ServerParentTreeNode extends ServerTreeNode
 
   public ParentTreeNode toNode()
   {
-    ParentTreeNode node = new ParentTreeNode(this.getGeoObject().toGeoObject(), this.getHierarchyType() != null ? this.getHierarchyType().getType() : null);
+    GeoObject geoObject = this.getGeoObject().toGeoObject();
+    HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
+
+    ParentTreeNode node = new ParentTreeNode(geoObject, ht);
 
     for (ServerParentTreeNode parent : this.parents)
     {

@@ -1,5 +1,7 @@
 package net.geoprism.registry.conversion;
 
+import java.util.Date;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -18,6 +20,6 @@ public interface ServerGeoObjectStrategyIF
 
   public ServerGeoObjectIF newInstance();
 
-  public ServerGeoObjectQuery createQuery();
+  public ServerGeoObjectQuery createQuery(Date date);
 
 }

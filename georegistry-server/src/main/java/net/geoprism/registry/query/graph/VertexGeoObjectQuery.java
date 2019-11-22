@@ -1,5 +1,6 @@
 package net.geoprism.registry.query.graph;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,13 +18,16 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
 {
   private ServerGeoObjectType        type;
 
+  private Date                       date;
+
   private ServerGeoObjectRestriction restriction;
 
   private Integer                    limit;
 
-  public VertexGeoObjectQuery(ServerGeoObjectType type)
+  public VertexGeoObjectQuery(ServerGeoObjectType type, Date date)
   {
     this.type = type;
+    this.date = date;
   }
 
   public ServerGeoObjectType getType()
@@ -113,7 +117,7 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
 
     if (vertex != null)
     {
-      return new VertexServerGeoObject(type, vertex);
+      return new VertexServerGeoObject(type, vertex, this.date);
     }
 
     return null;
@@ -128,7 +132,7 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
 
     for (VertexObject result : results)
     {
-      list.add(new VertexServerGeoObject(type, result));
+      list.add(new VertexServerGeoObject(type, result, this.date));
     }
 
     return list;

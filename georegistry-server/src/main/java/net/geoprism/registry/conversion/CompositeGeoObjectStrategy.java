@@ -1,5 +1,7 @@
 package net.geoprism.registry.conversion;
 
+import java.util.Date;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import com.runwaysdk.business.graph.VertexObject;
@@ -10,6 +12,11 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 
+/**
+ * Strategy used for creating CompositeServerGeoObjects
+ * 
+ * @author terraframe
+ */
 public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
 {
   private ServerGeoObjectStrategyIF bConverter;
@@ -74,9 +81,9 @@ public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
   }
 
   @Override
-  public ServerGeoObjectQuery createQuery()
+  public ServerGeoObjectQuery createQuery(Date date)
   {
-    return this.bConverter.createQuery();
+    return this.bConverter.createQuery(date);
   }
 
 }

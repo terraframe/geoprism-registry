@@ -1,5 +1,7 @@
 package net.geoprism.registry.service;
 
+import java.util.Date;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import com.runwaysdk.business.Business;
@@ -14,7 +16,6 @@ import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
@@ -114,11 +115,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     return strategy.constructFromDB(dbObject);
   }
 
-  public ServerGeoObjectQuery createQuery(ServerGeoObjectType type)
+  public ServerGeoObjectQuery createQuery(ServerGeoObjectType type, Date date)
   {
-//    return new VertexGeoObjectQuery(type);
-     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-     return strategy.createQuery();
+    // return new VertexGeoObjectQuery(type, date);
+    ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
+    return strategy.createQuery(date);
   }
 
 }

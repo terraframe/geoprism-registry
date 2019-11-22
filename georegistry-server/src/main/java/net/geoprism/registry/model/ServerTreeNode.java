@@ -1,5 +1,7 @@
 package net.geoprism.registry.model;
 
+import java.util.Date;
+
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 
 public abstract class ServerTreeNode
@@ -8,11 +10,13 @@ public abstract class ServerTreeNode
 
   private ServerHierarchyType hierarchyType;
 
-  public ServerTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType)
+  private Date                date;
+
+  public ServerTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType, Date date)
   {
     this.geoObject = geoObject;
-
     this.hierarchyType = hierarchyType;
+    this.date = date;
   }
 
   public ServerGeoObjectIF getGeoObject()
@@ -23,6 +27,11 @@ public abstract class ServerTreeNode
   public ServerHierarchyType getHierarchyType()
   {
     return hierarchyType;
+  }
+
+  public Date getDate()
+  {
+    return date;
   }
 
   public abstract TreeNode toNode();

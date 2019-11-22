@@ -42,7 +42,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -225,33 +224,9 @@ public class RegistryService
   {
     ServerGeoObjectIF parent = this.service.getGeoObject(parentId, parentGeoObjectTypeCode);
     ServerGeoObjectIF child = this.service.getGeoObject(childId, childGeoObjectTypeCode);
+    ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
-    return parent.addChild(child, hierarchyCode).toNode();
-  }
-
-  public Boolean exists(String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
-  {
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
-
-    ServerGeoObjectIF parent = this.service.getGeoObject(parentId, parentGeoObjectTypeCode);
-    ServerGeoObjectIF child = this.service.getGeoObject(childId, childGeoObjectTypeCode);
-
-    if (parent.getType().isLeaf())
-    {
-      throw new UnsupportedOperationException("Virtual leaf nodes cannot have children.");
-    }
-    else if (child.getType().isLeaf())
-    {
-      return false;
-    }
-    else
-    {
-      RelationshipQuery query = new QueryFactory().relationshipQuery(hierarchyType.getEntityRelationship().definesType());
-      query.WHERE(query.parentOid().EQ(parent.getRunwayId()));
-      query.AND(query.childOid().EQ(child.getRunwayId()));
-
-      return ( query.getCount() > 0 );
-    }
+    return parent.addChild(child, ht).toNode();
   }
 
   @Request(RequestType.SESSION)

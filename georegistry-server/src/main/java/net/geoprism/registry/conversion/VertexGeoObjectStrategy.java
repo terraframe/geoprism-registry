@@ -1,5 +1,7 @@
 package net.geoprism.registry.conversion;
 
+import java.util.Date;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import com.runwaysdk.business.graph.VertexObject;
@@ -81,8 +83,8 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
   }
 
   @Override
-  public ServerGeoObjectQuery createQuery()
+  public ServerGeoObjectQuery createQuery(Date date)
   {
-    return new VertexGeoObjectQuery(type);
+    return new VertexGeoObjectQuery(type, date);
   }
 }

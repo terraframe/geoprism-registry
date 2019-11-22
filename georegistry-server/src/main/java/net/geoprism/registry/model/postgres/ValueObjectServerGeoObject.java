@@ -83,6 +83,14 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   }
 
   @Override
+  public GeoObjectStatus getStatus()
+  {
+    String value = this.valueObject.getValue(DefaultAttribute.STATUS.getName());
+
+    return GeoObjectStatus.get(value);
+  }
+
+  @Override
   public void setCode(String code)
   {
     throw new UnsupportedOperationException();
@@ -235,15 +243,15 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   }
 
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy)
   {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy, Date startDate, Date endDate)
   {
-    return this.addChild(child, hierarchyCode);
+    return this.addChild(child, hierarchy);
   }
 
   @Override

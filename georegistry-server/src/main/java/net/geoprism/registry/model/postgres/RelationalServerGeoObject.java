@@ -106,6 +106,14 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   }
 
   @Override
+  public GeoObjectStatus getStatus()
+  {
+    String value = this.getBusiness().getValue(DefaultAttribute.STATUS.getName());
+
+    return GeoObjectStatus.get(value);
+  }
+
+  @Override
   public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
   {
     this.setDisplayLabel(value);
@@ -274,7 +282,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   {
     ServerGeoObjectService service = new ServerGeoObjectService();
 
-    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn);
+    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, null);
 
     if (child.getType().isLeaf())
     {
@@ -314,7 +322,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
             }
             else
             {
-              tnParent = new ServerParentTreeNode(parent, ht);
+              tnParent = new ServerParentTreeNode(parent, ht, null);
             }
 
             tnRoot.addParent(tnParent);
@@ -347,7 +355,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
           }
           else
           {
-            tnParent = new ServerParentTreeNode(parent, ht);
+            tnParent = new ServerParentTreeNode(parent, ht, null);
           }
 
           tnRoot.addParent(tnParent);

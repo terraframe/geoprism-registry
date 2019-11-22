@@ -1,24 +1,17 @@
 package net.geoprism.registry.model;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.system.gis.geo.Universal;
 import com.vividsolutions.jts.geom.Geometry;
 
-import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.service.ServiceFactory;
 
 public interface ServerGeoObjectIF
 {
@@ -28,7 +21,9 @@ public interface ServerGeoObjectIF
 
   public String getCode();
 
-  public void setCode(String geoId);
+  public void setCode(String code);
+
+  public GeoObjectStatus getStatus();
 
   public void setStatus(GeoObjectStatus status);
 
@@ -66,9 +61,9 @@ public interface ServerGeoObjectIF
 
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive);
 
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode);
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy);
 
-  public ServerParentTreeNode addChild(ServerGeoObjectIF entity, String hierarchyCode, Date startDate, Date endDate);
+  public ServerParentTreeNode addChild(ServerGeoObjectIF entity, ServerHierarchyType hierarchy, Date startDate, Date endDate);
 
   public void removeChild(ServerGeoObjectIF child, String hierarchyCode);
 

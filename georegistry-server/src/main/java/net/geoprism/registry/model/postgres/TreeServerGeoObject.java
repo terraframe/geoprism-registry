@@ -26,6 +26,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
@@ -200,16 +201,15 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
 
   @Transaction
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy)
   {
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
-    return child.addParent(this, hierarchyType);
+    return child.addParent(this, hierarchy);
   }
 
   @Override
-  public ServerParentTreeNode addChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
+  public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy, Date startDate, Date endDate)
   {
-    return this.addChild(child, hierarchyCode);
+    return this.addChild(child, hierarchy);
   }
 
   @Override
@@ -220,12 +220,24 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
     }
 
-    this.geoEntity.addLink( ( (TreeServerGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
+    if (this.geoEntity.isNew() || !this.exists(parent, hierarchyType))
+    {
+      this.geoEntity.addLink( ( (TreeServerGeoObject) parent ).getGeoEntity(), hierarchyType.getEntityType());
+    }
 
-    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType);
-    node.addParent(new ServerParentTreeNode(parent, hierarchyType));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, null);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType, null));
 
     return node;
+  }
+
+  private boolean exists(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  {
+    RelationshipQuery query = new QueryFactory().relationshipQuery(hierarchyType.getEntityRelationship().definesType());
+    query.WHERE(query.parentOid().EQ(parent.getRunwayId()));
+    query.AND(query.childOid().EQ(this.getRunwayId()));
+
+    return ( query.getCount() > 0 );
   }
 
   @Override
@@ -406,7 +418,7 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
     String[] relationshipTypes = TermUtil.getAllParentRelationships(parent.getRunwayId());
     Map<String, ServerHierarchyType> htMap = parent.getHierarchyTypeMap(relationshipTypes);
 
-    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn);
+    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn, null);
 
     ServerGeoObjectService service = new ServerGeoObjectService();
 
@@ -455,7 +467,7 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
                   // Do something
                   ServerGeoObjectIF goChild = service.build(childType, child);
 
-                  tnRoot.addChild(new ServerChildTreeNode(goChild, ht));
+                  tnRoot.addChild(new ServerChildTreeNode(goChild, ht, null));
                 }
               }
               finally
@@ -493,7 +505,7 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
         }
         else
         {
-          tnChild = new ServerChildTreeNode(child, ht);
+          tnChild = new ServerChildTreeNode(child, ht, null);
         }
 
         tnRoot.addChild(tnChild);

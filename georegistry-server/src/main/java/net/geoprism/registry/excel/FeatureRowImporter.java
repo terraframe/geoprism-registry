@@ -63,7 +63,6 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.NonUniqueResultException;
-import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
@@ -195,15 +194,7 @@ public abstract class FeatureRowImporter
 
           if (parent != null)
           {
-            String parentTypeCode = parent.getType().getCode();
-            String typeCode = entity.getType().getCode();
-            String hierarchyCode = this.configuration.getHierarchy().getCode();
-            RegistryService service = ServiceFactory.getRegistryService();
-
-            if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
-            {
-              parent.addChild(entity, hierarchyCode, this.configuration.getStartDate(), this.configuration.getEndDate());
-            }
+            parent.addChild(entity, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
           }
           else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
           {
@@ -300,7 +291,7 @@ public abstract class FeatureRowImporter
         }
 
         // Search
-        ServerGeoObjectQuery query = this.service.createQuery(location.getType());
+        ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
         query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), this.configuration.getEndDate(), parent, this.configuration.getHierarchy()));
 
         try
@@ -334,7 +325,7 @@ public abstract class FeatureRowImporter
               }
             }
 
-            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent != null ? parent.toGeoObject() : null, context));
+            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
 
             return null;
           }
