@@ -1,7 +1,6 @@
 package net.geoprism.registry;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -89,7 +88,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class MasterListVersion extends MasterListVersionBase
@@ -591,7 +589,7 @@ public class MasterListVersion extends MasterListVersionBase
         // this.setPublishDate(new Date());
         this.apply();
 
-        return this.toJSON();
+        return this.toJSON(true);
       }
       finally
       {
@@ -746,13 +744,11 @@ public class MasterListVersion extends MasterListVersionBase
     this.publish(object, business, attributes, ancestorMap, locales);
   }
 
-  public JsonObject toJSON()
+  public JsonObject toJSON(boolean includeAttribute)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    Locale locale = Session.getCurrentLocale();
-    LocaleSerializer serializer = new LocaleSerializer(locale);
     MasterList masterlist = this.getMasterlist();
 
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
@@ -769,7 +765,11 @@ public class MasterListVersion extends MasterListVersionBase
     object.addProperty(MasterListVersion.MASTERLIST, masterlist.getOid());
     object.addProperty(MasterListVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));
-    object.add(MasterListVersion.ATTRIBUTES, this.getAttributesAsJson());
+
+    if (includeAttribute)
+    {
+      object.add(MasterListVersion.ATTRIBUTES, this.getAttributesAsJson());
+    }
 
     return object;
   }

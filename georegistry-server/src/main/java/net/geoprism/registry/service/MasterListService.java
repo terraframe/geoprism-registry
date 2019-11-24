@@ -21,6 +21,7 @@ package net.geoprism.registry.service;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -122,6 +123,22 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
+  public JsonArray getVersions(String sessionId, String oid)
+  {
+    JsonArray response = new JsonArray();
+
+    MasterList list = MasterList.get(oid);
+    List<MasterListVersion> versions = list.getVersions();
+
+    for (MasterListVersion version : versions)
+    {
+      response.add(version.toJSON(false));
+    }
+
+    return response;
+  }
+
+  @Request(RequestType.SESSION)
   public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter, String sort)
   {
     return MasterList.get(oid).data(pageNumber, pageSize, filter, sort);
@@ -150,4 +167,5 @@ public class MasterListService
   {
     return ProgressService.progress(oid).toJson();
   }
+
 }

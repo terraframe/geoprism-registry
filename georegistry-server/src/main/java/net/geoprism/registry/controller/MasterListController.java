@@ -103,6 +103,14 @@ public class MasterListController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonArray response = this.service.getVersions(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "data")
   public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "sort") String sort)
   {
