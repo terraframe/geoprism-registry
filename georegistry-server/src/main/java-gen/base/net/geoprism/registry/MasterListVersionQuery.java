@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1552122756)
+@com.runwaysdk.business.ClassSignature(hash = 1846431676)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -284,6 +284,23 @@ public  class MasterListVersionQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.MasterListVersion.OWNER, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableMoment getPublishDate()
+  {
+    return getPublishDate(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getPublishDate(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.getComponentQuery().get(net.geoprism.registry.MasterListVersion.PUBLISHDATE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getPublishDate(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.getComponentQuery().get(net.geoprism.registry.MasterListVersion.PUBLISHDATE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableLong getSeq()
   {
     return getSeq(null);
@@ -442,6 +459,9 @@ public  class MasterListVersionQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableMoment getPublishDate();
+    public com.runwaysdk.query.SelectableMoment getPublishDate(String alias);
+    public com.runwaysdk.query.SelectableMoment getPublishDate(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
@@ -690,6 +710,23 @@ public  class MasterListVersionQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.MasterListVersion.OWNER,  alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableMoment getPublishDate()
+  {
+    return getPublishDate(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getPublishDate(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.MasterListVersion.PUBLISHDATE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getPublishDate(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.MasterListVersion.PUBLISHDATE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableLong getSeq()
   {
     return getSeq(null);
@@ -825,6 +862,9 @@ public  class MasterListVersionQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableMoment getPublishDate();
+    public com.runwaysdk.query.SelectableMoment getPublishDate(String alias);
+    public com.runwaysdk.query.SelectableMoment getPublishDate(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
@@ -1120,6 +1160,23 @@ public  class MasterListVersionQuery extends com.runwaysdk.query.GeneratedBusine
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.MasterListVersion.OWNER,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableMoment getPublishDate()
+  {
+    return getPublishDate(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getPublishDate(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.MasterListVersion.PUBLISHDATE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getPublishDate(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.MasterListVersion.PUBLISHDATE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableLong getSeq()

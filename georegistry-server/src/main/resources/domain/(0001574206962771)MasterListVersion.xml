@@ -27,7 +27,8 @@
         <attributes>
           <reference name="masterlist" type="net.geoprism.registry.MasterList" required="true" label="Master List" />
           <reference name="mdBusiness" type="com.runwaysdk.system.metadata.MdBusiness" required="true" label="MdTable" />          
-          <date name="forDate" label="For Date" />
+          <date name="forDate" label="For Date" required="true" immutable="true" />
+          <date name="publishDate" label="Publish Date" />
         </attributes>
       </mdBusiness>
       <mdBusiness name="net.geoprism.registry.MasterListAttributeGroup" label="Master List Attribute Group" generateController="false" cacheAlgorithm="everything">

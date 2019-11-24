@@ -586,7 +586,7 @@ public class MasterListVersion extends MasterListVersionBase
           ProgressService.put(this.getOid(), new Progress(current++, count, ""));
         }
 
-        // this.setPublishDate(new Date());
+        this.setPublishDate(new Date());
         this.apply();
 
         return this.toJSON(true);
@@ -765,6 +765,7 @@ public class MasterListVersion extends MasterListVersionBase
     object.addProperty(MasterListVersion.MASTERLIST, masterlist.getOid());
     object.addProperty(MasterListVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));
+    object.addProperty(MasterListVersion.PUBLISHDATE, format.format(this.getPublishDate()));
 
     if (includeAttribute)
     {

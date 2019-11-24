@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -59358963)
+@com.runwaysdk.business.ClassSignature(hash = 668921683)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -23,10 +23,11 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
   public static java.lang.String MDBUSINESS = "mdBusiness";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String PUBLISHDATE = "publishDate";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -59358963;
+  private static final long serialVersionUID = 668921683;
   
   public MasterListVersionBase()
   {
@@ -426,6 +427,34 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
     else
     {
       setValue(OWNER, oid);
+    }
+  }
+  
+  public java.util.Date getPublishDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(PUBLISHDATE));
+  }
+  
+  public void validatePublishDate()
+  {
+    this.validateAttribute(PUBLISHDATE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getPublishDateMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterListVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(PUBLISHDATE);
+  }
+  
+  public void setPublishDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(PUBLISHDATE, "");
+    }
+    else
+    {
+      setValue(PUBLISHDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
     }
   }
   
