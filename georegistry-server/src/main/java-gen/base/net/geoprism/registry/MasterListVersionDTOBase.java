@@ -1,12 +1,12 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1186398595)
-public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.business.BusinessDTO
+@com.runwaysdk.business.ClassSignature(hash = -897727859)
+public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
-  public final static String CLASS = "net.geoprism.registry.MasterListAttributeGroup";
-  private static final long serialVersionUID = -1186398595;
+  public final static String CLASS = "net.geoprism.registry.MasterListVersion";
+  private static final long serialVersionUID = -897727859;
   
-  protected MasterListAttributeGroupDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected MasterListVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(clientRequest);
   }
@@ -17,7 +17,7 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
   * @param businessDTO The BusinessDTO to duplicate
   * @param clientRequest The clientRequest this DTO should use to communicate with the server.
   */
-  protected MasterListAttributeGroupDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected MasterListVersionDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(businessDTO, clientRequest);
   }
@@ -30,18 +30,18 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String FORDATE = "forDate";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
+  public static java.lang.String MASTERLIST = "masterlist";
+  public static java.lang.String MDBUSINESS = "mdBusiness";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String SOURCEATTRIBUTE = "sourceAttribute";
-  public static java.lang.String TARGETATTRIBUTE = "targetAttribute";
   public static java.lang.String TYPE = "type";
-  public static java.lang.String VERSION = "version";
   public java.util.Date getCreateDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(CREATEDATE));
@@ -151,6 +151,43 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getEntityDomainMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(ENTITYDOMAIN).getAttributeMdDTO();
+  }
+  
+  public java.util.Date getForDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(FORDATE));
+  }
+  
+  public void setForDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(FORDATE, "");
+    }
+    else
+    {
+      setValue(FORDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+    }
+  }
+  
+  public boolean isForDateWritable()
+  {
+    return isWritable(FORDATE);
+  }
+  
+  public boolean isForDateReadable()
+  {
+    return isReadable(FORDATE);
+  }
+  
+  public boolean isForDateModified()
+  {
+    return isModified(FORDATE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeDateMdDTO getForDateMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeDateMdDTO) getAttributeDTO(FORDATE).getAttributeMdDTO();
   }
   
   public String getKeyName()
@@ -289,6 +326,104 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LOCKEDBY).getAttributeMdDTO();
   }
   
+  public net.geoprism.registry.MasterListDTO getMasterlist()
+  {
+    if(getValue(MASTERLIST) == null || getValue(MASTERLIST).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.MasterListDTO.get(getRequest(), getValue(MASTERLIST));
+    }
+  }
+  
+  public String getMasterlistOid()
+  {
+    return getValue(MASTERLIST);
+  }
+  
+  public void setMasterlist(net.geoprism.registry.MasterListDTO value)
+  {
+    if(value == null)
+    {
+      setValue(MASTERLIST, "");
+    }
+    else
+    {
+      setValue(MASTERLIST, value.getOid());
+    }
+  }
+  
+  public boolean isMasterlistWritable()
+  {
+    return isWritable(MASTERLIST);
+  }
+  
+  public boolean isMasterlistReadable()
+  {
+    return isReadable(MASTERLIST);
+  }
+  
+  public boolean isMasterlistModified()
+  {
+    return isModified(MASTERLIST);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getMasterlistMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(MASTERLIST).getAttributeMdDTO();
+  }
+  
+  public com.runwaysdk.system.metadata.MdBusinessDTO getMdBusiness()
+  {
+    if(getValue(MDBUSINESS) == null || getValue(MDBUSINESS).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.system.metadata.MdBusinessDTO.get(getRequest(), getValue(MDBUSINESS));
+    }
+  }
+  
+  public String getMdBusinessOid()
+  {
+    return getValue(MDBUSINESS);
+  }
+  
+  public void setMdBusiness(com.runwaysdk.system.metadata.MdBusinessDTO value)
+  {
+    if(value == null)
+    {
+      setValue(MDBUSINESS, "");
+    }
+    else
+    {
+      setValue(MDBUSINESS, value.getOid());
+    }
+  }
+  
+  public boolean isMdBusinessWritable()
+  {
+    return isWritable(MDBUSINESS);
+  }
+  
+  public boolean isMdBusinessReadable()
+  {
+    return isReadable(MDBUSINESS);
+  }
+  
+  public boolean isMdBusinessModified()
+  {
+    return isModified(MDBUSINESS);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getMdBusinessMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(MDBUSINESS).getAttributeMdDTO();
+  }
+  
   public com.runwaysdk.system.ActorDTO getOwner()
   {
     if(getValue(OWNER) == null || getValue(OWNER).trim().equals(""))
@@ -388,158 +523,11 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
   }
   
-  public com.runwaysdk.system.metadata.MdAttributeDTO getSourceAttribute()
-  {
-    if(getValue(SOURCEATTRIBUTE) == null || getValue(SOURCEATTRIBUTE).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdAttributeDTO.get(getRequest(), getValue(SOURCEATTRIBUTE));
-    }
-  }
-  
-  public String getSourceAttributeOid()
-  {
-    return getValue(SOURCEATTRIBUTE);
-  }
-  
-  public void setSourceAttribute(com.runwaysdk.system.metadata.MdAttributeDTO value)
-  {
-    if(value == null)
-    {
-      setValue(SOURCEATTRIBUTE, "");
-    }
-    else
-    {
-      setValue(SOURCEATTRIBUTE, value.getOid());
-    }
-  }
-  
-  public boolean isSourceAttributeWritable()
-  {
-    return isWritable(SOURCEATTRIBUTE);
-  }
-  
-  public boolean isSourceAttributeReadable()
-  {
-    return isReadable(SOURCEATTRIBUTE);
-  }
-  
-  public boolean isSourceAttributeModified()
-  {
-    return isModified(SOURCEATTRIBUTE);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getSourceAttributeMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(SOURCEATTRIBUTE).getAttributeMdDTO();
-  }
-  
-  public com.runwaysdk.system.metadata.MdAttributeDTO getTargetAttribute()
-  {
-    if(getValue(TARGETATTRIBUTE) == null || getValue(TARGETATTRIBUTE).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdAttributeDTO.get(getRequest(), getValue(TARGETATTRIBUTE));
-    }
-  }
-  
-  public String getTargetAttributeOid()
-  {
-    return getValue(TARGETATTRIBUTE);
-  }
-  
-  public void setTargetAttribute(com.runwaysdk.system.metadata.MdAttributeDTO value)
-  {
-    if(value == null)
-    {
-      setValue(TARGETATTRIBUTE, "");
-    }
-    else
-    {
-      setValue(TARGETATTRIBUTE, value.getOid());
-    }
-  }
-  
-  public boolean isTargetAttributeWritable()
-  {
-    return isWritable(TARGETATTRIBUTE);
-  }
-  
-  public boolean isTargetAttributeReadable()
-  {
-    return isReadable(TARGETATTRIBUTE);
-  }
-  
-  public boolean isTargetAttributeModified()
-  {
-    return isModified(TARGETATTRIBUTE);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getTargetAttributeMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(TARGETATTRIBUTE).getAttributeMdDTO();
-  }
-  
-  public net.geoprism.registry.MasterListVersionDTO getVersion()
-  {
-    if(getValue(VERSION) == null || getValue(VERSION).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.MasterListVersionDTO.get(getRequest(), getValue(VERSION));
-    }
-  }
-  
-  public String getVersionOid()
-  {
-    return getValue(VERSION);
-  }
-  
-  public void setVersion(net.geoprism.registry.MasterListVersionDTO value)
-  {
-    if(value == null)
-    {
-      setValue(VERSION, "");
-    }
-    else
-    {
-      setValue(VERSION, value.getOid());
-    }
-  }
-  
-  public boolean isVersionWritable()
-  {
-    return isWritable(VERSION);
-  }
-  
-  public boolean isVersionReadable()
-  {
-    return isReadable(VERSION);
-  }
-  
-  public boolean isVersionModified()
-  {
-    return isModified(VERSION);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getVersionMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(VERSION).getAttributeMdDTO();
-  }
-  
-  public static net.geoprism.registry.MasterListAttributeGroupDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
+  public static net.geoprism.registry.MasterListVersionDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
   {
     com.runwaysdk.business.EntityDTO dto = (com.runwaysdk.business.EntityDTO)clientRequest.get(oid);
     
-    return (net.geoprism.registry.MasterListAttributeGroupDTO) dto;
+    return (net.geoprism.registry.MasterListVersionDTO) dto;
   }
   
   public void apply()
@@ -558,9 +546,9 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
     getRequest().delete(this.getOid());
   }
   
-  public static net.geoprism.registry.MasterListAttributeGroupQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
+  public static net.geoprism.registry.MasterListVersionQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
   {
-    return (net.geoprism.registry.MasterListAttributeGroupQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.MasterListAttributeGroupDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
+    return (net.geoprism.registry.MasterListVersionQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.MasterListVersionDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
   }
   
   public void lock()
@@ -568,12 +556,12 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
     getRequest().lock(this);
   }
   
-  public static net.geoprism.registry.MasterListAttributeGroupDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.MasterListVersionDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListAttributeGroupDTO.CLASS, "lock", _declaredTypes);
-    return (net.geoprism.registry.MasterListAttributeGroupDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListVersionDTO.CLASS, "lock", _declaredTypes);
+    return (net.geoprism.registry.MasterListVersionDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public void unlock()
@@ -581,12 +569,12 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
     getRequest().unlock(this);
   }
   
-  public static net.geoprism.registry.MasterListAttributeGroupDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.MasterListVersionDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListAttributeGroupDTO.CLASS, "unlock", _declaredTypes);
-    return (net.geoprism.registry.MasterListAttributeGroupDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListVersionDTO.CLASS, "unlock", _declaredTypes);
+    return (net.geoprism.registry.MasterListVersionDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
 }

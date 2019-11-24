@@ -20,30 +20,31 @@
 -->
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
+    <delete>
+    </delete>
     <create>
-<!-- 
-       <mdBusiness name="net.geoprism.registry.MasterListAttributeGroup" label="Master List Attribute Group" generateController="false" cacheAlgorithm="everything">
+      <mdBusiness name="net.geoprism.registry.MasterListVersion" label="Master List" generateController="false">
         <attributes>
-          <reference name="masterList" type="net.geoprism.registry.MasterList" required="true" label="Master List" />
+          <reference name="masterlist" type="net.geoprism.registry.MasterList" required="true" label="Master List" />
+          <reference name="mdBusiness" type="com.runwaysdk.system.metadata.MdBusiness" required="true" label="MdTable" />          
+          <date name="forDate" label="For Date" />
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.MasterListAttributeGroup" label="Master List Attribute Group" generateController="false" cacheAlgorithm="everything">
+        <attributes>
+          <reference name="version" type="net.geoprism.registry.MasterListVersion" required="true" label="Version" />
           <reference name="sourceAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Source" />
           <reference name="targetAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Target" />
         </attributes>
       </mdBusiness>    
- -->
+      
     </create>
-     <createOrUpdate>    
-       <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.nofilter">
-	     <attribute name="storeTag" value="UIText" />
-	     <attribute name="storeKey" value="masterlist.nofilter" />
-	     <attributeStruct name="storeValue">
-	       <attribute name="defaultLocale" value="NO FILTER" />
-	     </attributeStruct>
-       </object>    
-    </createOrUpdate>    
     <permissions>
-<!-- 
       <role roleName="geoprism.admin.Administrator">
         <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterListVersion">
+            <operation name="ALL" />
+          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.MasterListAttributeGroup">
             <operation name="ALL" />
           </mdBusinessPermission>
@@ -51,6 +52,9 @@
       </role>
       <role roleName="commongeoregistry.RegistryMaintainer">
         <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterListVersion">
+            <operation name="ALL" />
+          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.MasterListAttributeGroup">
             <operation name="ALL" />
           </mdBusinessPermission>
@@ -58,6 +62,10 @@
       </role>
       <role roleName="commongeoregistry.RegistryContributor">
         <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterListVersion">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.MasterListAttributeGroup">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
@@ -66,18 +74,26 @@
       </role>
       <role roleName="commongeoregistry.APIConsumer">
         <grant>
+          <mdBusinessPermission type="net.geoprism.registry.MasterListVersion">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.MasterListAttributeGroup">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
         </grant>
       </role>
- -->    
     </permissions>
+
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.MasterListAttributeGroup" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+<!-- 
+      <object key="net.geoprism.registry.MasterList.mdBusiness" type="com.runwaysdk.system.metadata.MdAttribute" />
+ -->    
+      <object key="net.geoprism.registry.MasterListAttributeGroup" type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object key="net.geoprism.registry.MasterListVersion" type="com.runwaysdk.system.metadata.MdBusiness"></object>
     </delete>
   </undoIt>
 </version>

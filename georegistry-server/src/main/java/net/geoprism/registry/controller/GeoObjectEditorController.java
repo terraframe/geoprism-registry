@@ -43,6 +43,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -135,14 +136,14 @@ public class GeoObjectEditorController
       {
         ServerGeoObjectService service = new ServerGeoObjectService();
         ServerGeoObjectIF geoObject = service.getGeoObject(go);
-        
+
         if (!isNew)
         {
-          MasterList.get(masterListId).updateRecord(geoObject);
+          MasterListVersion.get(masterListId).updateRecord(geoObject);
         }
         else
         {
-          MasterList.get(masterListId).publishRecord(geoObject);
+          MasterListVersion.get(masterListId).publishRecord(geoObject);
         }
       }
 
