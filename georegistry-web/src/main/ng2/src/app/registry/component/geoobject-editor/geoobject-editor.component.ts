@@ -130,7 +130,6 @@ export class GeoObjectEditorComponent implements OnInit {
             this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
             this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
 
-            console.log( "Fetched newGeoObjectInstance", retJson );
         } );
     }
 
@@ -167,7 +166,6 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     private fetchGeoObjectType( code: string ) {
-        console.log( "fetching type", code );
         this.registryService.getGeoObjectTypes( [code] )
             .then( geoObjectType => {
                 this.geoObjectType = geoObjectType[0];
@@ -176,7 +174,6 @@ export class GeoObjectEditorComponent implements OnInit {
                     this.areGeometriesValid = true;                    
                 }
                 
-                console.log( "Fetched GOTs", geoObjectType );
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
             } );
@@ -244,7 +241,6 @@ export class GeoObjectEditorComponent implements OnInit {
             return;
         }
 
-        console.log( "Changing to page", nextPage );
 
         this.persistModelChanges();
 

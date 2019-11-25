@@ -50,6 +50,7 @@ import { RequestTableComponent } from './component/crtable/request-table.compone
 import { CreateUpdateGeoObjectDetailComponent } from './component/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './component/crtable/action-detail/add-remove-child/detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
+import { ManageVersionsModalComponent } from './component/geoobject-shared-attribute-editor/manage-versions-modal.component';
 import { SubmitChangeRequestComponent } from './component/submit-change-request/submit-change-request.component';
 import { ChangeRequestPageComponent } from './component/change-request-page/change-request-page.component';
 import { GeoObjectEditorComponent } from './component/geoobject-editor/geoobject-editor.component';
@@ -60,6 +61,7 @@ import { ShapefileComponent } from './component/importer/shapefile.component';
 import { SpreadsheetComponent } from './component/importer/spreadsheet.component';
 import { DataExportComponent } from './component/data-export/data-export.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
+import { MasterListHistoryComponent } from './component/master-list/master-list-history.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -133,6 +135,7 @@ import '../rxjs-extensions';
         LocalizedInputComponent,
         LocalizedTextComponent,
         GeoObjectSharedAttributeEditorComponent,
+        ManageVersionsModalComponent,
         SubmitChangeRequestComponent,
         GeoObjectEditorComponent,
         GeoObjectAttributeExcludesPipe,
@@ -147,6 +150,7 @@ import '../rxjs-extensions';
         SpreadsheetComponent,
         DataExportComponent,
         MasterListComponent,
+        MasterListHistoryComponent,
         // Master List screens
         MasterListManagerComponent,
         PublishModalComponent,
@@ -180,6 +184,7 @@ import '../rxjs-extensions';
         GeoObjectTypeInputComponent,
         ManageTermOptionsComponent,
         GeoObjectSharedAttributeEditorComponent,
+        ManageVersionsModalComponent,
         SubmitChangeRequestComponent,
         GeoObjectEditorComponent,
         PublishModalComponent,

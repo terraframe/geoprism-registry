@@ -27,6 +27,7 @@ import { GeoObject, GeoObjectType, Attribute, Term, MasterList, ParentTreeNode, 
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
+import { templateJitUrl } from '@angular/compiler';
 
 declare var acp: any;
 
@@ -41,6 +42,7 @@ export class RegistryService {
             .toPromise();
     }
 
+    // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
     getGeoObjectTypes( types: any ): Promise<GeoObjectType[]> {
         let params: HttpParams = new HttpParams();
 
@@ -329,6 +331,78 @@ export class RegistryService {
         return this.http
             .get<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }>( acp + '/master-list/list-all', { params: params } )
             .toPromise();
+    }
+
+    getMasterListHistory(code: string): any {
+        let temp = {
+            frequency: "ANNUAL",
+            geoObjectType: {
+                "code":"Cambodia_Commune",
+                "label":{
+                    "localizedValue":"Commune",
+                    "localeValues":[{"locale":"defaultLocale","value":"Commune"}]},
+                "description":{"localizedValue":"","localeValues":[{"locale":"defaultLocale","value":""}]},
+                "geometryType":"MULTIPOLYGON","isLeaf":"false","isGeometryEditable":true,
+                "attributes":[
+                    {"code":"displayLabel","type":"local","label":{"localizedValue":"Display Label","localeValues":[]},"description":{"localizedValue":"Label of the location","localeValues":[]},"isDefault":true,"required":true,"unique":false},
+                    {"code":"uid","type":"character","label":{"localizedValue":"UID","localeValues":[]},"description":{"localizedValue":"The internal globally unique identifier ID","localeValues":[]},"isDefault":true,"required":true,"unique":false},
+                    {"code":"sequence","type":"integer","label":{"localizedValue":"Sequence","localeValues":[]},"description":{"localizedValue":"The sequence number of the GeoObject that is incremented when the object is updated","localeValues":[]},"isDefault":true,"required":false,"unique":false},
+                    {"code":"code","type":"character","label":{"localizedValue":"Code","localeValues":[{"locale":"defaultLocale","value":"Code"}]},"description":{"localizedValue":"Human readable unique identified","localeValues":[{"locale":"defaultLocale","value":"Human readable unique identified"}]},"isDefault":true,"required":true,"unique":true},
+                    {"code":"lastUpdateDate","type":"date","label":{"localizedValue":"Date Last Updated","localeValues":[]},"description":{"localizedValue":"The date the object was updated","localeValues":[]},"isDefault":true,"required":false,"unique":false},
+                    {"code":"type","type":"character","label":{"localizedValue":"Type","localeValues":[]},"description":{"localizedValue":"The type of the GeoObject","localeValues":[]},"isDefault":true,"required":false,"unique":false},
+                    {"code":"createDate","type":"date","label":{"localizedValue":"Date Created","localeValues":[]},"description":{"localizedValue":"The date the object was created","localeValues":[]},"isDefault":true,"required":false,"unique":false},
+                    {"code":"status","type":"term","label":{"localizedValue":"Status","localeValues":[{"locale":"defaultLocale","value":"Status"}]},"description":{"localizedValue":"The status of the GeoObject","localeValues":[{"locale":"defaultLocale","value":"The status of the GeoObject"}]},"isDefault":true,"required":true,"unique":false,"rootTerm":{"code":"CGR:Status-Root","label":{"localizedValue":"GeoObject Status","localeValues":[]},"description":{"localizedValue":"The status of a GeoObject changes during the governance lifecycle.","localeValues":[]},"children":[{"code":"CGR:Status-New","label":{"localizedValue":"New","localeValues":[]},"description":{"localizedValue":"A newly created GeoObject that has not been submitted for approval.","localeValues":[]},"children":[]},{"code":"CGR:Status-Active","label":{"localizedValue":"Active","localeValues":[]},"description":{"localizedValue":"The GeoObject is a part of the master list.","localeValues":[]},"children":[]},{"code":"CGR:Status-Pending","label":{"localizedValue":"Pending","localeValues":[]},"description":{"localizedValue":"Edits to the GeoObject are pending approval","localeValues":[]},"children":[]},{"code":"CGR:Status-Inactive","label":{"localizedValue":"Inactive","localeValues":[]},"description":{"localizedValue":"The object is not considered a source of truth","localeValues":[]},"children":[]}]}}
+                ]
+            },
+            history: [
+                {
+                    period: "2017",
+                    createDate: "12/31/2017",
+                    forDate: "11/20/2017",
+                    createdBy: "Justin Lewis",
+                    owner: "Justin Lewis",
+                    oid: "c5605cac-7592-4816-b32b-f800a60005d7"
+                },
+                {
+                    period: "2018",
+                    createDate: "12/31/2018",
+                    forDate: "11/20/2018",
+                    createdBy: "Justin Lewis",
+                    owner: "Justin Lewis",
+                    oid: "c5605cac-7592-4816-b32b-f800a60005d7"
+                },
+                {
+                    period: "2019",
+                    createDate: "12/31/2019",
+                    forDate: "11/20/2019",
+                    createdBy: "Justin Lewis",
+                    owner: "Justin Lewis",
+                    oid: "c5605cac-7592-4816-b32b-f800a60005d7"
+                }
+            ]
+        }
+        return temp;
+    }
+
+    getAttributeVersions(attributeId: string): any {
+        let temp = {
+            versions: [
+                {
+                    id: 1,
+                    value: "East Facility",
+                    from: "2014-01-01T23:28:56.782Z",
+                    to: "2016-01-01T23:28:56.782Z"
+                },
+                {
+                    id: 2,
+                    value: "North East Facility",
+                    from: "2016-01-01T23:28:56.782Z",
+                    to: "2018-01-01T23:28:56.782Z"
+                }
+            ]
+        }
+
+        return temp;
     }
 
     createMasterList( list: MasterList ): Promise<MasterList> {

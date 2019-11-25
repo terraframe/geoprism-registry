@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterList } from '../../model/registry';
+import { MasterList, GeoObjectType } from '../../model/registry';
 
 import { PublishModalComponent } from './publish-modal.component';
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
@@ -19,7 +20,7 @@ import { AuthService } from '../../../shared/service/auth.service';
 } )
 export class MasterListManagerComponent implements OnInit {
     message: string = null;
-    lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[];
+    gots: GeoObjectType[];
     /*
      * Reference to the modal current showing
     */
@@ -29,32 +30,39 @@ export class MasterListManagerComponent implements OnInit {
     isMaintainer: boolean;
     isContributor: boolean;
 
-    constructor( public service: RegistryService, private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService ) {
+    constructor( public service: RegistryService, private modalService: BsModalService, private router: Router,
+        private localizeService: LocalizationService, authService: AuthService ) {
       this.isAdmin = authService.isAdmin();
       this.isMaintainer = this.isAdmin || authService.isMaintainer();
       this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
     }
 
     ngOnInit(): void {
-        this.service.getMasterLists().then( response => {
 
-            this.localizeService.setLocales( response.locales );
+        this.service.getGeoObjectTypes([]).then( response => {
+            
+            // this.localizeService.setLocales( response.locales );
 
-            this.lists = response.lists;
+            this.gots = response;
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
+
     }
 
     onCreate(): void {
-        this.bsModalRef = this.modalService.show( PublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
-        this.bsModalRef.content.onMasterListChange.subscribe( list => {
-            this.lists.push( { label: list.displayLabel.localizedValue, oid: list.oid, createDate: list.createDate, lastUpdateDate: list.lastUpdateDate } );
-        } );
+        // this.bsModalRef = this.modalService.show( PublishModalComponent, {
+        //     animated: true,
+        //     backdrop: true,
+        //     ignoreBackdropClick: true,
+        // } );
+        // this.bsModalRef.content.onMasterListChange.subscribe( list => {
+        //     this.lists.push( { label: list.displayLabel.localizedValue, oid: list.oid, createDate: list.createDate, lastUpdateDate: list.lastUpdateDate } );
+        // } );
+    }
+
+    onView(code: string): void {
+        this.router.navigate(['/registry/master-list-history/', code])
     }
 
     onEdit( pair: { label: string, oid: string } ): void {
@@ -85,16 +93,27 @@ export class MasterListManagerComponent implements OnInit {
         this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + list.label + ']';
         this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
 
-        this.bsModalRef.content.onConfirm.subscribe( data => {
-            this.service.deleteMasterList( list.oid ).then( response => {
-                this.lists = this.lists.filter(( value, index, arr ) => {
-                    return value.oid !== list.oid;
-                } );
+        // this.bsModalRef.content.onConfirm.subscribe( data => {
+        //     this.service.deleteMasterList( list.oid ).then( response => {
+        //         this.lists = this.lists.filter(( value, index, arr ) => {
+        //             return value.oid !== list.oid;
+        //         } );
 
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
-        } );
+        //     } ).catch(( err: HttpErrorResponse ) => {
+        //         this.error( err );
+        //     } );
+        // } );
+    }
+
+    getLastUpdateDate( geoObjectType: GeoObjectType): string {
+        // for(let i=0; i<geoObjectType.attributes.length; i++;) {
+        //     let attr = geoObjectType.attributes[i];
+        //     if(attr.code === "lastUpdateDate"){
+        //         return 
+        //     }
+        // });
+
+        return null;
     }
 
     error( err: HttpErrorResponse ): void {
