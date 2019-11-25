@@ -37,7 +37,6 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -157,45 +156,41 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   @Transaction
   public static InputStream exportMasterListShapefile(String oid, String filterJson)
   {
-//    MasterList list = MasterList.get(oid);
-//    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
-//
-//    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> list.isValid(mdAttribute)).collect(Collectors.toList());
-//
-//    try
-//    {
-//      MasterListShapefileExporter exporter = new MasterListShapefileExporter(list, mdBusiness, mdAttributes, filterJson);
-//
-//      return exporter.export();
-//    }
-//    catch (IOException e)
-//    {
-//      throw new ProgrammingErrorException(e);
-//    }
-    
-    return null;
+    MasterListVersion version = MasterListVersion.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
+
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
+
+    try
+    {
+      MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, filterJson);
+
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   @Transaction
   public static InputStream exportMasterListExcel(String oid, String filterJson)
   {
-//    MasterList list = MasterList.get(oid);
-//    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
-//
-//    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> list.isValid(mdAttribute)).collect(Collectors.toList());
-//
-//    try
-//    {
-//      MasterListExcelExporter exporter = new MasterListExcelExporter(list, mdBusiness, mdAttributes, filterJson);
-//
-//      return exporter.export();
-//    }
-//    catch (IOException e)
-//    {
-//      throw new ProgrammingErrorException(e);
-//    }
-    
-    return null;
+    MasterListVersion version = MasterListVersion.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
+
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
+
+    try
+    {
+      MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson);
+
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
 }
