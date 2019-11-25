@@ -40,7 +40,7 @@
 	color:white;
 }
 
-.btn {
+/* .btn {
 	border: 2px solid; 
 }
 .btn:disabled {
@@ -80,7 +80,7 @@
 .clickable:hover .arrow.arrow-right {
 	transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
-}
+} */
 
 tr.row-active {
 	background-color:#f7f7f7;

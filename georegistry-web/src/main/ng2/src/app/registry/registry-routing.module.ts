@@ -11,6 +11,7 @@ import { DataExportComponent } from './component/data-export/data-export.compone
 import { SubmitChangeRequestComponent } from './component/submit-change-request/submit-change-request.component';
 import { MasterListManagerComponent } from './component/master-list/master-list-manager.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
+import { MasterListHistoryComponent } from './component/master-list/master-list-history.component';
 import { DataPageComponent } from './component/data-page/data-page.component';
 import { ChangeRequestPageComponent } from './component/change-request-page/change-request-page.component';
 
@@ -51,6 +52,11 @@ const routes: Routes = [
     {
         path: 'master-list/:oid',
         component: MasterListComponent,
+        canActivate: [ContributerGuard]
+    },
+    {
+        path: 'master-list-history/:oid',
+        component: MasterListHistoryComponent,
         canActivate: [ContributerGuard]
     },
     {

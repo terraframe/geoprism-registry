@@ -29,7 +29,7 @@
 			</label>
 			</div> -->
 
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <h4 *ngIf="isMaintainer">
                     <b> <a href="#" (click)="onView($event)"><localize key="masterlist.view"></localize> </a></b>
                 </h4>
@@ -39,7 +39,7 @@
                     : {{list.publishDate}}
                 </h4>
             </div>
-            <div class="col-md-4" style="text-align: right;">
+            <div class="col-md-6" style="text-align: right;">
                 <!-- <h4>Master List Controls</h4> -->
                 <button type="submit" (click)="clearFilters()" class="btn btn-default" role="button">
                     <localize key="masterlist.clearFilters"></localize>

@@ -1,0 +1,99 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+    <progress-bar></progress-bar>
+
+    <div id="app-container" class="container-fluid">
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <!-- <div class="row" style="padding: 30px 0 0 0;">
+            <div class="col-md-12">
+                <a routerLink="/master-lists"> 
+                    <i class="fa fa-arrow-left"></i> 
+                    <localize key="masterlist.backToLists"></localize>
+                </a>
+            </div>
+        </div> -->
+
+        <div class="py-5">
+            <h2>
+                <localize key="masterlist.manager.title"></localize>
+            </h2>
+        </div>
+
+        <div class="row">
+            <div *ngIf="history" class="col-md-12">
+                <h3>
+                    {{history.geoObjectType.label.localizedValue}}
+                </h3>
+            </div>
+        </div>
+
+        <div *ngIf="history" style="margin-top: 30px;margin-bottom: 30px;" class="row">
+
+            <div class="col-md-12">
+                <form #myForm="ngForm">
+                    <div class="form-group">
+                        <label for="forDate" style="display: block;margin-bottom:0;">Publishing for:</label>
+                        <input id="forDate"  required type="date" name="forDate" [(ngModel)]="publishMLVersion" #forDate="ngModel">
+
+                        <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="forDate.invalid">
+                            Publish New Version
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- <div class="row form-group">
+            <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+        </div> -->
+        <div class="row form-group">
+            <div *ngIf="history" class="col-md-12 table-responsive" style="">
+                <table class="list-table table">
+                    <thead>
+                        <tr>
+                            <!-- <th *ngFor="let attribute of history.history" class="label-column">
+
+								<a (click)="" style="display: table-cell; word-break: keep-all; word-wrap: normal;">{{history.displayLabel}} </a> 
+
+                            </th> -->
+
+                            <th style="width: 20%;" class="label-column">Period</th>
+                            <th style="width: 50%" class="label-column">Actions</th>
+                            <th style="width: 15%" class="label-column">For Date</th>
+                            <th style="width: 15%" class="label-column">Create Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item"> -->
+                        <tr *ngFor="let result of history.history">
+                            <td style="width: 20%;" class="label-column">
+                                <a [routerLink]="'/master-list/' + result.oid" routerLinkActive="active">{{ result.period }}</a>
+                            </td>
+                            <td style="width: 50%">
+                                <button type="submit" (click)="onView(result.oid)" class="btn btn-primary" role="button">View</button>
+                                <button type="submit" (click)="onEdit()" class="btn btn-primary" role="button">Edit</button>
+                                <button type="submit" (click)="onDelete()" class="btn btn-danger" role="button">Delete</button>
+                            </td>
+                            <td style="width: 15%" class="label-column">
+                                {{ result.forDate }}
+                            </td>
+                            <td style="width: 15%" class="label-column">
+                                {{ result.createDate }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- <div class="row form-group">
+            <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+        </div> -->
+
+
+
+    </div>
+    <!-- </div> -->
+</div>

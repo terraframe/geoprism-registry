@@ -25,6 +25,12 @@
                                                     <p class="warning-text" *ngIf="!isNew && this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code].trim() !== this.preGeoObject.properties[attr.code]">
                                                         <localize key="change.request.changed.value.prefix"></localize> {{this.preGeoObject.properties[attr.code]}}
                                                     </p>
+
+                                                    <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                        <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                            Manage Versions
+                                                        </button>
+                                                    </div>
                                             </div>
                                             
                                             <div *ngIf="attr.type === 'local'">
@@ -36,6 +42,13 @@
                                                   <p class="warning-text" *ngIf="!isNew && localeValue.value.trim() !== preGeoObject.properties[attr.code].localeValues[i].value">
                                                     <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code].localeValues[i].value}}
                                                   </p>
+
+                                                  <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                    <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                        Manage Versions
+                                                    </button>
+                                                  </div>
+
                                                 </li>
                                               </ul>                                            
                                             </div>
@@ -47,6 +60,12 @@
                                                 <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
                                                         <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code] | date}}
                                                     </p>
+
+                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                    <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                        Manage Versions
+                                                    </button>
+                                                  </div>
                                             </div>
 
                                             <div *ngIf="attr.type === 'boolean'">
@@ -67,6 +86,12 @@
                                                 <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] !== undefined && preGeoObject.properties[attr.code] !== postGeoObject.properties[attr.code]">
                                                   <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                 </p>
+
+                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                    <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                        Manage Versions
+                                                    </button>
+                                                  </div>
                                             </div>
 
                                             <div *ngIf="attr.type === 'float'">
@@ -76,6 +101,12 @@
                                                 <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code].trim() !== preGeoObject.properties[attr.code]">
                                                         <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                     </p>
+
+                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                    <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                        Manage Versions
+                                                    </button>
+                                                  </div>
                                             </div>
 
                                             <div *ngIf="attr.type === 'integer'">
@@ -85,6 +116,12 @@
                                                 <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code].trim() !== preGeoObject.properties[attr.code]">
                                                   <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                 </p>
+
+                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                    <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                        Manage Versions
+                                                    </button>
+                                                  </div>
                                             </div>
 
                                             <div *ngIf="attr.type === 'term'">
@@ -99,6 +136,12 @@
                                                 <p class="warning-text" *ngIf="!isNew && isStatusChanged(postGeoObject.properties[attr.code], preGeoObject.properties[attr.code])">
                                                   <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                 </p>
+
+                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                    <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                        Manage Versions
+                                                    </button>
+                                                  </div>
                                             </div>
 
                                         </li>

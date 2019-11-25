@@ -1,0 +1,69 @@
+<div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="text-center">
+        <h2 *ngIf="!readonly">
+            <localize key="type.publish.title"></localize>
+        </h2>
+    </div>
+    <!-- <div class="col-md-12 order-md-1"> -->
+    <form #form="ngForm" class="modal-form">
+
+        <fieldset>
+            <div class="row-holder">
+
+                <div class="label-holder"></div>
+                <div class="holder">
+                    <form #myForm="ngForm">
+                        <table *ngIf="versions" class="table"> 
+                            <thead> 
+                                <tr> 
+                                    <th>Value</th> 
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th></th>
+                                </tr> 
+                            </thead> 
+                            <tbody> 
+                                <tr *ngFor="let version of versions.versions; let i = index;"> 
+                                    <td>{{version.value}}</td> 
+                                    <td>
+                                        <input type="date" name="fromDate_{{i}}" [ngModel]="version.from | date:'yyyy-MM-dd'" (ngModelChange)="version.from = $event">
+                                    </td> 
+                                    <td>{{version.to | date:'MM-dd-yyyy'}}</td>
+                                    <td><i class="fa fa-times delete-btn" (click)="remove(version)" *ngIf="version.removable"></i></td>
+                                </tr> 
+                            </tbody> 
+                        </table>
+
+                        <div class="form-group">
+                            <label for="value" style="display: block;margin-bottom:0;">Value</label>
+                            <input id="val" style="width:auto;" required type="text" name="val" [(ngModel)]="attr" #val="ngModel" [disabled]="true">
+
+                            <button type="submit" style="margin-left: 15px;" (click)="onAddNewVersion()" class="btn btn-primary" role="button" [disabled]="val.invalid || valAdded">
+                                Add To History
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder"></div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                            <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+                        </button>
+                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+                            <localize key="io.ok"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+    <!-- </div> -->
+</div>

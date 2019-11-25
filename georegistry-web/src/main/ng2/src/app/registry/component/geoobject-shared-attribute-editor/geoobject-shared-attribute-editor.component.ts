@@ -4,6 +4,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
 
 import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
+import { ManageVersionsModalComponent } from './manage-versions-modal.component';
 
 import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
@@ -127,6 +128,23 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 }
             }
         }
+    }
+
+
+    onManageAttributeVersions(attribute: Attribute): void {
+        this.bsModalRef = this.modalService.show( ManageVersionsModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+
+        // TODO: sending the properties like this is wrong
+        this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
+        this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
+            console.log(versionObj)
+
+            // TODO: set the version on the GeoObject attribute
+        } );
     }
 
     onSelectPropertyOption( event: any, option: any ): void {
