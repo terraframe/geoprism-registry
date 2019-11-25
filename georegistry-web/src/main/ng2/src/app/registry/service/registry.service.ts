@@ -23,7 +23,7 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList, ParentTreeNode, ChildTreeNode } from '../model/registry';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -333,58 +333,25 @@ export class RegistryService {
             .toPromise();
     }
 
-    getMasterListHistory(code: string): any {
-        let temp = {
-            frequency: "ANNUAL",
-            geoObjectType: {
-                "code":"Cambodia_Commune",
-                "label":{
-                    "localizedValue":"Commune",
-                    "localeValues":[{"locale":"defaultLocale","value":"Commune"}]},
-                "description":{"localizedValue":"","localeValues":[{"locale":"defaultLocale","value":""}]},
-                "geometryType":"MULTIPOLYGON","isLeaf":"false","isGeometryEditable":true,
-                "attributes":[
-                    {"code":"displayLabel","type":"local","label":{"localizedValue":"Display Label","localeValues":[]},"description":{"localizedValue":"Label of the location","localeValues":[]},"isDefault":true,"required":true,"unique":false},
-                    {"code":"uid","type":"character","label":{"localizedValue":"UID","localeValues":[]},"description":{"localizedValue":"The internal globally unique identifier ID","localeValues":[]},"isDefault":true,"required":true,"unique":false},
-                    {"code":"sequence","type":"integer","label":{"localizedValue":"Sequence","localeValues":[]},"description":{"localizedValue":"The sequence number of the GeoObject that is incremented when the object is updated","localeValues":[]},"isDefault":true,"required":false,"unique":false},
-                    {"code":"code","type":"character","label":{"localizedValue":"Code","localeValues":[{"locale":"defaultLocale","value":"Code"}]},"description":{"localizedValue":"Human readable unique identified","localeValues":[{"locale":"defaultLocale","value":"Human readable unique identified"}]},"isDefault":true,"required":true,"unique":true},
-                    {"code":"lastUpdateDate","type":"date","label":{"localizedValue":"Date Last Updated","localeValues":[]},"description":{"localizedValue":"The date the object was updated","localeValues":[]},"isDefault":true,"required":false,"unique":false},
-                    {"code":"type","type":"character","label":{"localizedValue":"Type","localeValues":[]},"description":{"localizedValue":"The type of the GeoObject","localeValues":[]},"isDefault":true,"required":false,"unique":false},
-                    {"code":"createDate","type":"date","label":{"localizedValue":"Date Created","localeValues":[]},"description":{"localizedValue":"The date the object was created","localeValues":[]},"isDefault":true,"required":false,"unique":false},
-                    {"code":"status","type":"term","label":{"localizedValue":"Status","localeValues":[{"locale":"defaultLocale","value":"Status"}]},"description":{"localizedValue":"The status of the GeoObject","localeValues":[{"locale":"defaultLocale","value":"The status of the GeoObject"}]},"isDefault":true,"required":true,"unique":false,"rootTerm":{"code":"CGR:Status-Root","label":{"localizedValue":"GeoObject Status","localeValues":[]},"description":{"localizedValue":"The status of a GeoObject changes during the governance lifecycle.","localeValues":[]},"children":[{"code":"CGR:Status-New","label":{"localizedValue":"New","localeValues":[]},"description":{"localizedValue":"A newly created GeoObject that has not been submitted for approval.","localeValues":[]},"children":[]},{"code":"CGR:Status-Active","label":{"localizedValue":"Active","localeValues":[]},"description":{"localizedValue":"The GeoObject is a part of the master list.","localeValues":[]},"children":[]},{"code":"CGR:Status-Pending","label":{"localizedValue":"Pending","localeValues":[]},"description":{"localizedValue":"Edits to the GeoObject are pending approval","localeValues":[]},"children":[]},{"code":"CGR:Status-Inactive","label":{"localizedValue":"Inactive","localeValues":[]},"description":{"localizedValue":"The object is not considered a source of truth","localeValues":[]},"children":[]}]}}
-                ]
-            },
-            history: [
-                {
-                    period: "2017",
-                    createDate: "12/31/2017",
-                    forDate: "11/20/2017",
-                    createdBy: "Justin Lewis",
-                    owner: "Justin Lewis",
-                    oid: "c5605cac-7592-4816-b32b-f800a60005d7"
-                },
-                {
-                    period: "2018",
-                    createDate: "12/31/2018",
-                    forDate: "11/20/2018",
-                    createdBy: "Justin Lewis",
-                    owner: "Justin Lewis",
-                    oid: "c5605cac-7592-4816-b32b-f800a60005d7"
-                },
-                {
-                    period: "2019",
-                    createDate: "12/31/2019",
-                    forDate: "11/20/2019",
-                    createdBy: "Justin Lewis",
-                    owner: "Justin Lewis",
-                    oid: "c5605cac-7592-4816-b32b-f800a60005d7"
-                }
-            ]
-        }
-        return temp;
+    getMasterListHistory( oid: string ): Promise<MasterList> {
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'oid', oid );
+
+        return this.http
+            .get<MasterList>( acp + '/master-list/versions', { params: params } )
+            .toPromise();
     }
 
-    getAttributeVersions(attributeId: string): any {
+    getMasterListVersion( oid: string ): Promise<MasterListVersion> {
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'oid', oid );
+
+        return this.http
+            .get<MasterListVersion>( acp + '/master-list/version', { params: params } )
+            .toPromise();
+    }
+
+    getAttributeVersions( attributeId: string ): any {
         let temp = {
             versions: [
                 {
@@ -420,6 +387,21 @@ export class RegistryService {
             .toPromise();
     }
 
+    createMasterListVersion( oid: string, forDate: string ): Promise<MasterListVersion> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<MasterListVersion>( acp + '/master-list/create-version', JSON.stringify( { oid: oid, forDate: forDate } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+    }
+
     deleteMasterList( oid: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -435,12 +417,27 @@ export class RegistryService {
             .toPromise()
     }
 
-    publishMasterList( oid: string ): Observable<MasterList> {
+    deleteMasterListVersion( oid: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
-        return this.http.post<MasterList>( acp + '/master-list/publish', JSON.stringify( { oid: oid } ), { headers: headers } );
+        this.eventService.start();
+
+        return this.http
+            .post<void>( acp + '/master-list/remove-version', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+    }
+
+    publishMasterList( oid: string ): Observable<MasterListVersion> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        return this.http.post<MasterListVersion>( acp + '/master-list/publish', JSON.stringify( { oid: oid } ), { headers: headers } );
     }
 
     getMasterList( oid: string ): Promise<MasterList> {

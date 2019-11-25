@@ -84,13 +84,24 @@ public class MasterListController
     return new RestResponse();
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
-  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "forDate") String forDate) throws ParseException
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-version")
+  public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "forDate") String forDate) throws ParseException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    JsonObject response = this.service.publish(request.getSessionId(), oid, format.parse(forDate));
+    JsonObject response = this.service.createVersion(request.getSessionId(), oid, format.parse(forDate));
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
+  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+    JsonObject response = this.service.publish(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
   }
@@ -106,9 +117,25 @@ public class MasterListController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
   public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
-    JsonArray response = this.service.getVersions(request.getSessionId(), oid);
+    JsonObject response = this.service.getVersions(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "version")
+  public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonObject response = this.service.getVersion(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove-version")
+  public ResponseIF removeVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    this.service.removeVersion(request.getSessionId(), oid);
+
+    return new RestResponse();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "data")

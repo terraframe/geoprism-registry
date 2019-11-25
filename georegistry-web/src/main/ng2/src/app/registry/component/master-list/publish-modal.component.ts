@@ -73,7 +73,6 @@ export class PublishModalComponent implements OnInit {
                 telephoneNumber: '',
                 email: '',
                 hierarchies: [],
-				attributes:[],
 				leaf: false
             };
         }

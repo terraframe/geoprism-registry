@@ -8,10 +8,10 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterList } from '../../model/registry';
+import { MasterList, MasterListVersion } from '../../model/registry';
 
+import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { PublishModalComponent } from './publish-modal.component';
-import { ExportFormatModalComponent } from './export-format-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
 import { ProgressService } from '../../../shared/service/progress.service';
@@ -30,19 +30,8 @@ declare var acp: string;
 } )
 export class MasterListHistoryComponent implements OnInit {
     message: string = null;
-    history: any = null;
-    publishMLVersion: {forDate: Date};
-
-    p: number = 1;
-    current: string = '';
-    filter: { attribute: string, value: string, label: string }[] = [];
-    selected: string[] = [];
-    page: any = {
-        count: 0,
-        pageNumber: 1,
-        pageSize: 100,
-        results: []
-    };
+    list: MasterList = null;
+    forDate: string = '';
 
     /*
      * Reference to the modal current showing
@@ -65,14 +54,9 @@ export class MasterListHistoryComponent implements OnInit {
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );
 
-        // this.service.getMasterListHistory( oid ).then( listHist => {
-        //     this.history = listHist;
-
-        //     // this.onPageChange( 1 );
-        // } );
-
-        this.history = this.service.getMasterListHistory(oid);
-        
+        this.service.getMasterListHistory( oid ).then( list => {
+            this.list = list;
+        } );
     }
 
 
@@ -90,36 +74,52 @@ export class MasterListHistoryComponent implements OnInit {
     onPublish(): void {
         this.message = null;
 
-        // let subscription = Observable.interval( 1000 ).subscribe(() => {
-        //     this.service.progress( this.list.oid ).then( progress => {
-        //         this.pService.progress( progress );
-        //     } );
-        // } );
+        this.service.createMasterListVersion( this.list.oid, this.forDate ).then( version => {
+            this.list.versions.push( version );
 
-        // this.service.publishMasterList( this.list.oid ).finally(() => {
-        //     subscription.unsubscribe();
-
-        //     this.pService.complete();
-        // } ).toPromise()
-        //     .then( list => {
-        //         this.list = list;
-        //         this.list.attributes.forEach( attribute => {
-        //             attribute.isCollapsed = true;
-        //         } );
-
-        //         // Refresh the resultSet
-        //         this.onPageChange( 1 );
-        //     } ).catch(( err: HttpErrorResponse ) => {
-        //         this.error( err );
-        //     } );
-
-        // this.pService.start();
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
     }
 
-    onView( oid: string ): void {
+    onViewMetadata( event: any ): void {
         event.preventDefault();
 
-        this.router.navigate(['/registry/master-list/', oid])
+        this.bsModalRef = this.modalService.show( PublishModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+        this.bsModalRef.content.readonly = true;
+        this.bsModalRef.content.master = this.list;
+    }
+
+
+    onView( version: MasterListVersion ): void {
+        event.preventDefault();
+
+        this.router.navigate( ['/registry/master-list/', version.oid] )
+    }
+
+    onDelete( version: MasterListVersion ): void {
+        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + version.forDate + ']';
+        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+
+        this.bsModalRef.content.onConfirm.subscribe( data => {
+            this.service.deleteMasterListVersion( version.oid ).then( response => {
+                this.list.versions = this.list.versions.filter(( value, index, arr ) => {
+                    return value.oid !== version.oid;
+                } );
+
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
+        } );
     }
 
 

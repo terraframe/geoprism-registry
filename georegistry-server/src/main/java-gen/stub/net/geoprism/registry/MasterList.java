@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry;
 
-import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -38,7 +35,6 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -48,7 +44,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServiceFactory;
@@ -172,290 +167,12 @@ public class MasterList extends MasterListBase
     return list;
   }
 
-  public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
-  {
-    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-    NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
-
-    JsonArray results = new JsonArray();
-
-    // MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
-    // List<? extends MdAttributeConcreteDAOIF> mdAttributes =
-    // mdBusiness.definesAttributes();
-    //
-    // BusinessQuery query = this.buildQuery(filterJson);
-    //
-    // if (sort != null && sort.length() > 0)
-    // {
-    // JsonObject jObject = new JsonParser().parse(sort).getAsJsonObject();
-    // String attribute = jObject.get("attribute").getAsString();
-    // String order = jObject.get("order").getAsString();
-    //
-    // if (order.equalsIgnoreCase("DESC"))
-    // {
-    // query.ORDER_BY_DESC(query.getS(attribute));
-    // }
-    // else
-    // {
-    // query.ORDER_BY_ASC(query.getS(attribute));
-    // }
-    //
-    // if (!attribute.equals(DefaultAttribute.CODE.getName()))
-    // {
-    // query.ORDER_BY_ASC(query.aCharacter(DefaultAttribute.CODE.getName()));
-    // }
-    // }
-    //
-    // OIterator<Business> iterator = query.getIterator(pageSize, pageNumber);
-    //
-    // try
-    // {
-    // while (iterator.hasNext())
-    // {
-    // Business row = iterator.next();
-    // JsonObject object = new JsonObject();
-    //
-    // MdAttributeConcreteDAOIF mdGeometry =
-    // mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-    //
-    // if (mdGeometry instanceof MdAttributePointDAOIF)
-    // {
-    // Point point = (Point) row.getObjectValue(mdGeometry.definesAttribute());
-    //
-    // if (point != null)
-    // {
-    // object.addProperty("longitude", point.getX());
-    // object.addProperty("latitude", point.getY());
-    // }
-    // }
-    // object.addProperty(ORIGINAL_OID, row.getValue(ORIGINAL_OID));
-    //
-    // for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
-    // {
-    // if (this.isValid(mdAttribute))
-    // {
-    // String attributeName = mdAttribute.definesAttribute();
-    // Object value = row.getObjectValue(attributeName);
-    //
-    // if (value != null)
-    // {
-    //
-    // if (value instanceof Double)
-    // {
-    // object.addProperty(mdAttribute.definesAttribute(),
-    // numberFormat.format((Double) value));
-    // }
-    // else if (value instanceof Number)
-    // {
-    // object.addProperty(mdAttribute.definesAttribute(), (Number) value);
-    // }
-    // else if (value instanceof Boolean)
-    // {
-    // object.addProperty(mdAttribute.definesAttribute(), (Boolean) value);
-    // }
-    // else if (value instanceof String)
-    // {
-    // object.addProperty(mdAttribute.definesAttribute(), (String) value);
-    // }
-    // else if (value instanceof Character)
-    // {
-    // object.addProperty(mdAttribute.definesAttribute(), (Character) value);
-    // }
-    // else if (value instanceof Date)
-    // {
-    // object.addProperty(mdAttribute.definesAttribute(),
-    // dateFormat.format((Date) value));
-    // }
-    // }
-    // }
-    // }
-    //
-    // results.add(object);
-    // }
-    // }
-    // finally
-    // {
-    // iterator.close();
-    // }
-
-    JsonObject page = new JsonObject();
-    // page.addProperty("pageNumber", pageNumber);
-    // page.addProperty("pageSize", pageSize);
-    // page.addProperty("filter", filterJson);
-    // page.addProperty("count", query.getCount());
-    // page.add("results", results);
-
-    return page;
-  }
-
-  public BusinessQuery buildQuery(String filterJson)
-  {
-    // MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
-    //
-    // BusinessQuery query = new
-    // QueryFactory().businessQuery(mdBusiness.definesType());
-    //
-    // DateFormat filterFormat = new
-    // SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
-    // filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    //
-    // if (filterJson != null && filterJson.length() > 0)
-    // {
-    // JsonArray filters = new JsonParser().parse(filterJson).getAsJsonArray();
-    //
-    // for (int i = 0; i < filters.size(); i++)
-    // {
-    // JsonObject filter = filters.get(i).getAsJsonObject();
-    //
-    // String attribute = filter.get("attribute").getAsString();
-    //
-    // if (mdBusiness.definesAttribute(attribute) instanceof
-    // MdAttributeMomentDAOIF)
-    // {
-    // JsonObject jObject = filter.get("value").getAsJsonObject();
-    //
-    // try
-    // {
-    // if (jObject.has("start") && !jObject.get("start").isJsonNull())
-    // {
-    // String date = jObject.get("start").getAsString();
-    //
-    // if (date.length() > 0)
-    // {
-    // query.WHERE(query.aDateTime(attribute).GE(filterFormat.parse(date)));
-    // }
-    // }
-    //
-    // if (jObject.has("end") && !jObject.get("end").isJsonNull())
-    // {
-    // String date = jObject.get("end").getAsString();
-    //
-    // if (date.length() > 0)
-    // {
-    // query.WHERE(query.aDateTime(attribute).LE(filterFormat.parse(date)));
-    // }
-    // }
-    // }
-    // catch (ParseException e)
-    // {
-    // throw new ProgrammingErrorException(e);
-    // }
-    // }
-    // else
-    // {
-    // String value = filter.get("value").getAsString();
-    //
-    // query.WHERE(query.get(attribute).EQ(value));
-    // }
-    // }
-    // }
-    // return query;
-    return null;
-  }
-
-  public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
-  {
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
-    filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-    JsonArray results = new JsonArray();
-
-    // MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
-    //
-    // ValueQuery vQuery = new ValueQuery(new QueryFactory());
-    //
-    // BusinessQuery query = new BusinessQuery(vQuery,
-    // mdBusiness.definesType());
-    //
-    // vQuery.SELECT_DISTINCT(query.get(attributeName, "label"),
-    // query.get(valueAttribute, "value"));
-    //
-    // vQuery.FROM(query);
-    //
-    // if (filterJson != null && filterJson.length() > 0)
-    // {
-    // JsonArray filters = new JsonParser().parse(filterJson).getAsJsonArray();
-    //
-    // for (int i = 0; i < filters.size(); i++)
-    // {
-    // JsonObject filter = filters.get(i).getAsJsonObject();
-    //
-    // String attribute = filter.get("attribute").getAsString();
-    //
-    // if (mdBusiness.definesAttribute(attribute) instanceof
-    // MdAttributeMomentDAOIF)
-    // {
-    // JsonObject jObject = filter.get("value").getAsJsonObject();
-    //
-    // try
-    // {
-    // if (jObject.has("start") && !jObject.get("start").isJsonNull())
-    // {
-    // String date = jObject.get("start").getAsString();
-    //
-    // if (date.length() > 0)
-    // {
-    // vQuery.WHERE(query.aDateTime(attribute).GE(filterFormat.parse(date)));
-    // }
-    // }
-    //
-    // if (jObject.has("end") && !jObject.get("end").isJsonNull())
-    // {
-    // String date = jObject.get("end").getAsString();
-    //
-    // if (date.length() > 0)
-    // {
-    // vQuery.WHERE(query.aDateTime(attribute).LE(filterFormat.parse(date)));
-    // }
-    // }
-    // }
-    // catch (ParseException e)
-    // {
-    // throw new ProgrammingErrorException(e);
-    // }
-    // }
-    // else
-    // {
-    // String v = filter.get("value").getAsString();
-    //
-    // vQuery.WHERE(query.get(attribute).EQ(v));
-    // }
-    // }
-    // }
-    //
-    // if (value != null && value.length() > 0)
-    // {
-    // vQuery.WHERE(query.aCharacter(attributeName).LIKEi("%" + value + "%"));
-    // }
-    //
-    // vQuery.ORDER_BY_ASC(query.get(attributeName));
-    //
-    // OIterator<ValueObject> it = vQuery.getIterator(100, 1);
-    //
-    // try
-    // {
-    // while (it.hasNext())
-    // {
-    // ValueObject vObject = it.next();
-    //
-    // JsonObject result = new JsonObject();
-    // result.addProperty("label", vObject.getValue("label"));
-    // result.addProperty("value", vObject.getValue("value"));
-    //
-    // results.add(result);
-    // }
-    // }
-    // finally
-    // {
-    // it.close();
-    // }
-
-    return results;
-  }
-
   public JsonObject toJSON()
+  {
+    return this.toJSON(false);
+  }
+
+  public JsonObject toJSON(boolean includeVersions)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -498,6 +215,20 @@ public class MasterList extends MasterListBase
       object.addProperty(MasterList.PUBLISHDATE, format.format(this.getPublishDate()));
     }
 
+    if (includeVersions)
+    {
+      List<MasterListVersion> versions = this.getVersions();
+
+      JsonArray jVersions = new JsonArray();
+
+      for (MasterListVersion version : versions)
+      {
+        jVersions.add(version.toJSON(false));
+      }
+
+      object.add("versions", jVersions);
+    }
+
     return object;
   }
 
@@ -521,19 +252,21 @@ public class MasterList extends MasterListBase
     }
   }
 
+  @Transaction
   public MasterListVersion getOrCreateVersion(Date forDate)
   {
-    MasterListVersionQuery query = new MasterListVersionQuery(new QueryFactory());
-    query.WHERE(query.getMasterlist().EQ(this));
-    query.AND(query.getForDate().EQ(forDate));
-
-    try (OIterator<? extends MasterListVersion> it = query.getIterator())
-    {
-      if (it.hasNext())
-      {
-        return it.next();
-      }
-    }
+    // MasterListVersionQuery query = new MasterListVersionQuery(new
+    // QueryFactory());
+    // query.WHERE(query.getMasterlist().EQ(this));
+    // query.AND(query.getForDate().EQ(forDate));
+    //
+    // try (OIterator<? extends MasterListVersion> it = query.getIterator())
+    // {
+    // if (it.hasNext())
+    // {
+    // return it.next();
+    // }
+    // }
 
     return MasterListVersion.create(this, forDate);
   }

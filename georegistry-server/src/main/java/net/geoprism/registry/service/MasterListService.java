@@ -21,7 +21,6 @@ package net.geoprism.registry.service;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -108,10 +107,20 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject publish(String sessionId, String oid, Date forDate)
+  public JsonObject createVersion(String sessionId, String oid, Date forDate)
   {
     MasterList masterList = MasterList.get(oid);
     MasterListVersion version = masterList.getOrCreateVersion(forDate);
+
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+    return version.toJSON(false);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject publish(String sessionId, String oid)
+  {
+    MasterListVersion version = MasterListVersion.get(oid);
 
     return version.publish();
   }
@@ -123,31 +132,28 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getVersions(String sessionId, String oid)
+  public JsonObject getVersions(String sessionId, String oid)
   {
-    JsonArray response = new JsonArray();
+    return MasterList.get(oid).toJSON(true);
+  }
 
-    MasterList list = MasterList.get(oid);
-    List<MasterListVersion> versions = list.getVersions();
-
-    for (MasterListVersion version : versions)
-    {
-      response.add(version.toJSON(false));
-    }
-
-    return response;
+  @Request(RequestType.SESSION)
+  public JsonObject getVersion(String sessionId, String oid)
+  {
+    return MasterListVersion.get(oid).toJSON(true);
   }
 
   @Request(RequestType.SESSION)
   public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter, String sort)
   {
-    return MasterList.get(oid).data(pageNumber, pageSize, filter, sort);
+    MasterListVersion version = MasterListVersion.get(oid);
+    return version.data(pageNumber, pageSize, filter, sort);
   }
 
   @Request(RequestType.SESSION)
   public JsonArray values(String sessionId, String oid, String value, String attributeName, String valueAttribute, String filterJson)
   {
-    return MasterList.get(oid).values(value, attributeName, valueAttribute, filterJson);
+    return MasterListVersion.get(oid).values(value, attributeName, valueAttribute, filterJson);
   }
 
   @Request(RequestType.SESSION)
@@ -166,6 +172,22 @@ public class MasterListService
   public JsonObject progress(String sessionId, String oid)
   {
     return ProgressService.progress(oid).toJson();
+  }
+
+  @Request(RequestType.SESSION)
+  public void removeVersion(String sessionId, String oid)
+  {
+    try
+    {
+      MasterListVersion.get(oid).delete();
+
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    }
+    catch (DataNotFoundException e)
+    {
+      // Do nothing
+    }
+
   }
 
 }

@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -897727859)
+@com.runwaysdk.business.ClassSignature(hash = -1682334253)
 public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterListVersion";
-  private static final long serialVersionUID = -897727859;
+  private static final long serialVersionUID = -1682334253;
   
   protected MasterListVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -39,6 +39,7 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
   public static java.lang.String MDBUSINESS = "mdBusiness";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String PUBLISHDATE = "publishDate";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
@@ -471,6 +472,43 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getOwnerMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(OWNER).getAttributeMdDTO();
+  }
+  
+  public java.util.Date getPublishDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(PUBLISHDATE));
+  }
+  
+  public void setPublishDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(PUBLISHDATE, "");
+    }
+    else
+    {
+      setValue(PUBLISHDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+    }
+  }
+  
+  public boolean isPublishDateWritable()
+  {
+    return isWritable(PUBLISHDATE);
+  }
+  
+  public boolean isPublishDateReadable()
+  {
+    return isReadable(PUBLISHDATE);
+  }
+  
+  public boolean isPublishDateModified()
+  {
+    return isModified(PUBLISHDATE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeDateMdDTO getPublishDateMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeDateMdDTO) getAttributeDTO(PUBLISHDATE).getAttributeMdDTO();
   }
   
   public Long getSeq()
