@@ -816,14 +816,19 @@ public class MasterListVersion extends MasterListVersionBase
 
       return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
     }
-    else if (frequency.equals(FrequencyType.WEEKLY))
+    else if (frequency.equals(FrequencyType.MONTHLY))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
+      calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 
-      int week = calendar.get(Calendar.WEEK_OF_YEAR);
+      Date startOfWeek = calendar.getTime();
 
-      return "W" + week + " " + Integer.toString(calendar.get(Calendar.YEAR));
+      calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+
+      Date endOfWeek = calendar.getTime();
+
+      return format.format(startOfWeek) + " - " + format.format(endOfWeek);
     }
 
     return format.format(this.getForDate());
