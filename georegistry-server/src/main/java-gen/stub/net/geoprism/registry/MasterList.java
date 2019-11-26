@@ -271,6 +271,11 @@ public class MasterList extends MasterListBase
     return MasterListVersion.create(this, forDate);
   }
 
+  public ServerGeoObjectType getGeoObjectType()
+  {
+    return ServerGeoObjectType.get(this.getUniversal());
+  }
+
   public static MasterList fromJSON(JsonObject object)
   {
     try
@@ -421,4 +426,5 @@ public class MasterList extends MasterListBase
 
     return true;
   }
+
 }

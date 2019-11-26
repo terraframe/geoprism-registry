@@ -164,7 +164,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     Set<String> value = this.vertex.getObjectValue(DefaultAttribute.STATUS.getName(), this.date);
 
-    return GeoObjectStatus.get(value.iterator().next());
+    if (value != null && value.size() > 0)
+    {
+      return GeoObjectStatus.get(value.iterator().next());
+    }
+
+    return GeoObjectStatus.INACTIVE;
   }
 
   @Override
@@ -465,6 +470,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       return this.getDisplayLabel();
+    }
+    else if (attributeName.equals(DefaultAttribute.STATUS.getName()))
+    {
+      return this.getStatus();
     }
 
     MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);

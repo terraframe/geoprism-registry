@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -28,6 +29,7 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
@@ -126,6 +128,8 @@ public class MasterListVersion extends MasterListVersionBase
   public static String      DEPENDENCY       = "dependency";
 
   public static String      DEFAULT_LOCALE   = "DefaultLocale";
+
+  public static String      PERIOD           = "period";
 
   public MasterListVersion()
   {
@@ -775,6 +779,7 @@ public class MasterListVersion extends MasterListVersionBase
     object.addProperty(MasterListVersion.MASTERLIST, masterlist.getOid());
     object.addProperty(MasterListVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));
+    object.addProperty(MasterListVersion.PERIOD, this.getPeriod(masterlist, format));
 
     if (this.getPublishDate() != null)
     {
@@ -787,6 +792,41 @@ public class MasterListVersion extends MasterListVersionBase
     }
 
     return object;
+  }
+
+  private String getPeriod(MasterList masterlist, SimpleDateFormat format)
+  {
+    ServerGeoObjectType type = masterlist.getGeoObjectType();
+
+    FrequencyType frequency = type.getFrequency();
+
+    if (frequency.equals(FrequencyType.ANNUAL))
+    {
+      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      calendar.setTime(this.getForDate());
+
+      return Integer.toString(calendar.get(Calendar.YEAR));
+    }
+    else if (frequency.equals(FrequencyType.QUARTER))
+    {
+      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      calendar.setTime(this.getForDate());
+
+      int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
+
+      return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
+    }
+    else if (frequency.equals(FrequencyType.WEEKLY))
+    {
+      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      calendar.setTime(this.getForDate());
+
+      int week = calendar.get(Calendar.WEEK_OF_YEAR);
+
+      return "W" + week + " " + Integer.toString(calendar.get(Calendar.YEAR));
+    }
+
+    return format.format(this.getForDate());
   }
 
   private JsonArray getAttributesAsJson()
@@ -1287,12 +1327,12 @@ public class MasterListVersion extends MasterListVersionBase
 
     TableMetadata metadata = null;
 
-//    if (version.isNew())
-//    {
-      metadata = version.createTable();
+    // if (version.isNew())
+    // {
+    metadata = version.createTable();
 
-      version.setMdBusiness(metadata.getMdBusiness());
-//    }
+    version.setMdBusiness(metadata.getMdBusiness());
+    // }
 
     version.apply();
 
@@ -1308,10 +1348,10 @@ public class MasterListVersion extends MasterListVersionBase
       }
     }
 
-//    if (version.isNew())
-//    {
-      MasterListVersion.assignDefaultRolePermissions(version.getMdBusiness());
-//    }
+    // if (version.isNew())
+    // {
+    MasterListVersion.assignDefaultRolePermissions(version.getMdBusiness());
+    // }
 
     return version;
   }

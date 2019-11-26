@@ -77,7 +77,7 @@
                         <!-- <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item"> -->
                         <tr *ngFor="let version of list.versions">
                             <td style="width: 20%;" class="label-column">
-                                <a [routerLink]="'/master-list/' + version.oid" routerLinkActive="active">{{ version.period }}</a>
+                                <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">{{ version.period }}</a>
                             </td>
                             <td style="width: 50%">
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">View</button>

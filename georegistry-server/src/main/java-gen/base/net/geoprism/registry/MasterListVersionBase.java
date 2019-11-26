@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 668921683)
+@com.runwaysdk.business.ClassSignature(hash = 1555383424)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -27,7 +27,7 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 668921683;
+  private static final long serialVersionUID = 1555383424;
   
   public MasterListVersionBase()
   {
@@ -132,7 +132,7 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
   
   public java.util.Date getForDate()
   {
-    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(FORDATE));
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(FORDATE));
   }
   
   public void validateForDate()
@@ -140,10 +140,10 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
     this.validateAttribute(FORDATE);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getForDateMd()
+  public static com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF getForDateMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterListVersion.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(FORDATE);
+    return (com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF)mdClassIF.definesAttribute(FORDATE);
   }
   
   public void setForDate(java.util.Date value)
@@ -154,7 +154,7 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
     }
     else
     {
-      setValue(FORDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+      setValue(FORDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
     }
   }
   

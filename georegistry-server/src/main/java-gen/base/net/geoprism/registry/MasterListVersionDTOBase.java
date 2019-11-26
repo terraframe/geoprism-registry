@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1682334253)
+@com.runwaysdk.business.ClassSignature(hash = -292244736)
 public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterListVersion";
-  private static final long serialVersionUID = -1682334253;
+  private static final long serialVersionUID = -292244736;
   
   protected MasterListVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -156,7 +156,7 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
   
   public java.util.Date getForDate()
   {
-    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(FORDATE));
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(FORDATE));
   }
   
   public void setForDate(java.util.Date value)
@@ -167,7 +167,7 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
     }
     else
     {
-      setValue(FORDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+      setValue(FORDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
     }
   }
   
@@ -186,9 +186,9 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
     return isModified(FORDATE);
   }
   
-  public final com.runwaysdk.transport.metadata.AttributeDateMdDTO getForDateMd()
+  public final com.runwaysdk.transport.metadata.AttributeDateTimeMdDTO getForDateMd()
   {
-    return (com.runwaysdk.transport.metadata.AttributeDateMdDTO) getAttributeDTO(FORDATE).getAttributeMdDTO();
+    return (com.runwaysdk.transport.metadata.AttributeDateTimeMdDTO) getAttributeDTO(FORDATE).getAttributeMdDTO();
   }
   
   public String getKeyName()
