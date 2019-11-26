@@ -126,7 +126,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     // Populate the correct geom field
     String geometryAttribute = this.getGeometryAttributeName();
 
-    this.getVertex().setValue(geometryAttribute, geometry);
+    this.getVertex().setValue(geometryAttribute, geometry, null, null);
   }
 
   @Override
@@ -150,7 +150,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setStatus(GeoObjectStatus status)
   {
-    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid());
+    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), null, null);
   }
 
   @Override
@@ -181,7 +181,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setDisplayLabel(LocalizedValue value)
   {
-    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value);
+    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, null, null);
   }
 
   @Override
@@ -225,7 +225,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
     else
     {
-      this.vertex.setValue(attributeName, value);
+      this.vertex.setValue(attributeName, value, null, null);
     }
   }
 
@@ -633,11 +633,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       attributes.forEach((attributeName, attribute) -> {
         if (attributeName.equals(DefaultAttribute.STATUS.getName()))
         {
-          Set<String> value = vertex.getObjectValue(attributeName, this.date);
-          String oid = value.iterator().next();
-
-          GeoObjectStatus gos = GeoObjectStatus.valueOf(oid);
-          Term statusTerm = ServiceFactory.getConversionService().geoObjectStatusToTerm(gos);
+          Term statusTerm = ServiceFactory.getConversionService().geoObjectStatusToTerm(this.getStatus());
 
           geoObj.setStatus(statusTerm);
         }

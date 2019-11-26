@@ -26,6 +26,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
     ServerGeoObjectIF geoObject = strategy.constructFromGeoObject(object, isNew);
+
+    if (!isNew)
+    {
+      geoObject.lock();
+    }
+
     geoObject.populate(object);
     geoObject.apply(isImport);
 
