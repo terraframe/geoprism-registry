@@ -57,6 +57,59 @@
           <attribute name="defaultLocale" value="End Date" />
         </attributeStruct>
       </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.forDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.forDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="For Date" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.createDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.createDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Date" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publishNewVersion">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publishNewVersion" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish New Version" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.period">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.period" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Period" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.actions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.actions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Actions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.view">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publishingFor">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publishingFor" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publishing for:" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
   </doIt>
   <undoIt>

@@ -41,11 +41,11 @@
             <div class="col-md-12">
                 <form #myForm="ngForm">
                     <div class="form-group">
-                        <label for="forDate" style="display: block;margin-bottom:0;">Publishing for:</label>
+                        <label for="forDate" style="display: block;margin-bottom:0;"><localize key="masterlist.publishingFor"></localize></label>
                         <input id="forDate" type="date" name="forDate" [(ngModel)]="forDate" required>
 
                         <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
-                            Publish New Version
+                            <localize key="masterlist.publishNewVersion"></localize>
                         </button>
                     </div>
                 </form>
@@ -67,10 +67,10 @@
 
                             </th> -->
 
-                            <th style="width: 20%" class="label-column">Period</th>
-                            <th style="width: 50%" class="label-column">Actions</th>
-                            <th style="width: 15%" class="label-column">For Date</th>
-                            <th style="width: 15%" class="label-column">Create Date</th>
+                            <th style="width: 20%" class="label-column"><localize key="masterlist.period"></localize></th>
+                            <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
+                            <th style="width: 15%" class="label-column"><localize key="masterlist.forDate"></localize></th>
+                            <th style="width: 15%" class="label-column"><localize key="masterlist.createDate"></localize></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,11 +80,11 @@
                                 <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">{{ version.period }}</a>
                             </td>
                             <td style="width: 50%">
-                                <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">View</button>
+                                <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
 <!-- 
                                 <button type="submit" (click)="onEdit(version)" class="btn btn-primary" role="button">Edit</button>
  -->                                
-                                <button type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button">Delete</button>
+                                <button type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
                             </td>
                             <td style="width: 15%" class="label-column">
                                 {{ version.forDate }}

@@ -18,10 +18,12 @@
                         <thead> 
                             <tr> 
                                 <th style="width:70%;">
-                                    Master Lists
+                                  <localize key="masterlist.menu"></localize>                                      
                                 </th> 
                                 <th *ngIf="isAdmin || isMaintainer" style="width:30%;">
-                                    <button type="submit" (click)="onCreate()" class="btn btn-primary pull-right" role="button">Create</button>                                
+                                    <button type="submit" (click)="onCreate()" class="btn btn-primary pull-right" role="button">
+                                      <localize key="hierarchy.management.button.create"></localize>                                      
+                                    </button>                                
                                 </th>
                             </tr> 
                         </thead> 
@@ -30,10 +32,10 @@
                                 <td style="width:70%; vertical-align: middle;">
                                     <a [routerLink]="'/registry/master-list-history/' + list.oid" routerLinkActive="active">{{list.label}}</a>
                                 </td> 
-                                <td *ngIf="isAdmin || isMaintainer" style="width:30%;">
-                                    <button type="submit" (click)="onView(list.oid)" class="btn btn-primary" role="button">View</button>
-                                    <button type="submit" (click)="onEdit(list)" class="btn btn-primary" role="button">Edit</button>
-                                    <button type="submit" (click)="onDelete(list)" class="btn btn-danger" role="button">Delete</button>
+                                <td *ngIf="isAdmin || isMaintainer" style="width:30%;">                                
+                                    <button type="submit" (click)="onView(list.oid)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
+                                    <button type="submit" (click)="onEdit(list)" class="btn btn-primary" role="button"><localize key="modal.button.edit"></localize></button>
+                                    <button type="submit" (click)="onDelete(list)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
                                 </td> 
                             </tr> 
                         </tbody> 
