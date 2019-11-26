@@ -12,4 +12,5 @@ public abstract class GeoVertex extends GeoVertexBase
   {
     super();
   }
+
 }

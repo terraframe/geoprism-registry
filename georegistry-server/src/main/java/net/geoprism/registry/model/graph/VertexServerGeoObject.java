@@ -1,12 +1,17 @@
 package net.geoprism.registry.model.graph;
 
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.commongeoregistry.adapter.Term;
@@ -33,6 +38,7 @@ import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -594,12 +600,51 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
     }
 
-    if (this.getVertex().isNew() || !this.exists(parent, hierarchyType, startDate, endDate))
+    // if (this.getVertex().isNew() || !this.exists(parent, hierarchyType,
+    // startDate, endDate))
     {
-      EdgeObject edge = this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge());
-      edge.setValue(GeoVertex.START_DATE, startDate);
-      edge.setValue(GeoVertex.END_DATE, endDate);
-      edge.apply();
+      SortedSet<EdgeObject> edges = this.getEdges(hierarchyType);
+
+      EdgeObject newEdge = this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge());
+      newEdge.setValue(GeoVertex.START_DATE, startDate);
+      newEdge.setValue(GeoVertex.END_DATE, endDate);
+
+      edges.add(newEdge);
+
+      // // An entry already exists at the given start time
+      // if (!result)
+      // {
+      // for (EdgeObject e : edges)
+      // {
+      // if (startDate.equals(e.getObjectValue(GeoVertex.START_DATE)))
+      // {
+      // e
+      // }
+      // }
+      // }
+
+      EdgeObject prev = null;
+
+      for (EdgeObject current : edges)
+      {
+        if (prev != null)
+        {
+          Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+          cal.setTime(current.getObjectValue(GeoVertex.START_DATE));
+          cal.add(Calendar.DAY_OF_YEAR, -1);
+
+          prev.setValue(GeoVertex.END_DATE, cal.getTime());
+        }
+
+        prev = current;
+      }
+
+      edges.last().setValue(GeoVertex.END_DATE, ValueOverTime.INFINITY_END_DATE);
+
+      for (EdgeObject e : edges)
+      {
+        e.apply();
+      }
     }
 
     ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, startDate);
@@ -759,6 +804,31 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     return query.getSingleResult();
+  }
+
+  private SortedSet<EdgeObject> getEdges(ServerHierarchyType hierarchyType)
+  {
+    TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new Comparator<EdgeObject>()
+    {
+      @Override
+      public int compare(EdgeObject o1, EdgeObject o2)
+      {
+        Date d1 = o1.getObjectValue(GeoVertex.START_DATE);
+        Date d2 = o2.getObjectValue(GeoVertex.START_DATE);
+
+        return d1.compareTo(d2);
+      }
+    });
+
+    String statement = "SELECT FROM " + hierarchyType.getMdEdge().getDBClassName();
+    statement += " WHERE in = :child";
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
+    query.setParameter("child", this.getVertex().getRID());
+
+    set.addAll(query.getResults());
+
+    return set;
   }
 
   public static VertexObject getVertex(ServerGeoObjectType type, String uuid)

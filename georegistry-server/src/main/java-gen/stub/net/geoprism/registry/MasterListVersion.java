@@ -820,11 +820,12 @@ public class MasterListVersion extends MasterListVersionBase
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
-      calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+      calendar.set(Calendar.DAY_OF_MONTH, 1);
 
       Date startOfWeek = calendar.getTime();
 
-      calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+      calendar.add(Calendar.MONTH, 1);
+      calendar.add(Calendar.DAY_OF_YEAR, -1);
 
       Date endOfWeek = calendar.getTime();
 
