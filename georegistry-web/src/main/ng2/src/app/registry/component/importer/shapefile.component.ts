@@ -38,11 +38,6 @@ export class ShapefileComponent implements OnInit {
     startDate: string = null;
 
     /*
-     * Currently start date
-     */
-    endDate: string = null;
-
-    /*
      * Reference to the modal current showing
      */
     bsModalRef: BsModalRef;
@@ -77,10 +72,6 @@ export class ShapefileComponent implements OnInit {
 
             if ( this.startDate != null ) {
                 form.append( 'startDate', this.startDate );
-            }
-
-            if ( this.endDate != null ) {
-                form.append( 'endDate', this.endDate );
             }
         };
         this.uploader.onBeforeUploadItem = ( fileItem: any ) => {
