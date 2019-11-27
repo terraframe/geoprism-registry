@@ -229,7 +229,7 @@ export class MasterListComponent implements OnInit {
     }
 
     onGoto( data ): void {
-        const oid = data.originalOid;
+        const oid = data.code;
 
         if ( oid != null && oid.length > 0 ) {
             window.open( acp + "/nav/management#/locations/" + oid, '_blank' );
