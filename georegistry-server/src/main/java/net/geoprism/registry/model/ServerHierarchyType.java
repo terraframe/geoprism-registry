@@ -170,6 +170,8 @@ public class ServerHierarchyType
     GeoEntity.getStrategy().shutdown(this.entityRelationship.definesType());
 
     this.entityRelationship.delete();
+    
+    ((MdEdgeDAO)this.getMdEdge()).delete();
   }
 
   public void addToHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)

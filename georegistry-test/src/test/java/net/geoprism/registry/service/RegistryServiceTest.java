@@ -51,8 +51,8 @@ import com.vividsolutions.jts.geom.Point;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryController;
-import net.geoprism.registry.test.TestDataSet.TestGeoObjectInfo;
-import net.geoprism.registry.test.TestDataSet.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class RegistryServiceTest
@@ -98,7 +98,7 @@ public class RegistryServiceTest
   {
     GeoObject geoObj = testData.adapter.getGeoObject(testData.COLORADO.getRegistryId(), testData.COLORADO.getGeoObjectType().getCode());
 
-    testData.COLORADO.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+    testData.COLORADO.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.PENDING);
   }
 
   @Test
@@ -132,7 +132,7 @@ public class RegistryServiceTest
     GeoObject geoObj = testData.adapter.getGeoObjectByCode(testData.COLORADO.getCode(), testData.COLORADO.getGeoObjectType().getCode());
 
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(testData.adapter, geoObj.toJSON().toString()).toJSON().toString());
-    testData.assertGeoObjectStatus(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+    testData.assertGeoObjectStatus(geoObj, DefaultTerms.GeoObjectStatusTerm.PENDING);
   }
 
   @Test

@@ -35,7 +35,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
-import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.RegistryService;
 
@@ -43,55 +43,55 @@ public class USATestData extends TestDataSet
 {
   public final String                TEST_DATA_KEY    = "USATestData";
 
-  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo("Country");
+  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Country");
 
-  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo("State");
+  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "State");
 
-  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo("County");
+  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "County");
 
-  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo("Area");
+  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Area");
 
-  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo("District", true);
+  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "District", true);
 
-  public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo("USA", COUNTRY);
+  public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(this, "USA", COUNTRY);
 
-  public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo("CANADA", COUNTRY);
+  public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(this, "CANADA", COUNTRY);
 
-  public final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo("Colorado", STATE);
+  public final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo(this, "Colorado", STATE);
 
-  public final TestGeoObjectInfo     CO_D_ONE         = new TestGeoObjectInfo("ColoradoDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_ONE         = new TestGeoObjectInfo(this, "ColoradoDistrictOne", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo("ColoradoDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo(this, "ColoradoDistrictTwo", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo("ColoradoDistrictThree", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(this, "ColoradoDistrictThree", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo("ColoradoCountyOne", COUNTY);
+  public final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(this, "ColoradoCountyOne", COUNTY);
 
-  public final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo("ColoradoAreaOne", AREA);
+  public final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(this, "ColoradoAreaOne", AREA);
 
-  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo("Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
+  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this, "Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
 
-  public final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo("WashingtonDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(this, "WashingtonDistrictOne", DISTRICT);
 
-  public final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo("WashingtonDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(this, "WashingtonDistrictTwo", DISTRICT);
 
   /**
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
 
-  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo("Mexico_City_GOT");
+  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(this, "Mexico_City_GOT");
 
-  public final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo("Mexico_State_GOT");
+  public final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(this, "Mexico_State_GOT");
 
-  public final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo("Mexico", COUNTRY);
+  public final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(this, "Mexico", COUNTRY);
 
-  public final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo("Mexico City One", MEXICO_CITY_GOT);
+  public final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(this, "Mexico City One", MEXICO_CITY_GOT);
 
-  public final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo("Mexico City Two", MEXICO_CITY_GOT);
+  public final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(this, "Mexico City Two", MEXICO_CITY_GOT);
 
-  public final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo("Mexico State One", MEXICO_STATE);
+  public final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(this, "Mexico State One", MEXICO_STATE);
 
-  public final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo("Mexico State Two", MEXICO_STATE);
+  public final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(this, "Mexico State Two", MEXICO_STATE);
 
   {
     managedGeoObjectTypeInfos.add(COUNTRY);
@@ -260,6 +260,6 @@ public class USATestData extends TestDataSet
   @Request
   public void refreshTerms(AttributeTermType attribute)
   {
-    attribute.setRootTerm(new TermBuilder(TermBuilder.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
+    attribute.setRootTerm(new TermConverter(TermConverter.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
   }
 }
