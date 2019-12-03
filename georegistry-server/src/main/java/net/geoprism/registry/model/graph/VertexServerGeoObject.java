@@ -39,6 +39,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -492,6 +493,24 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     return value;
+  }
+  
+  @Override
+  public Object getValue(String attributeName, Date date)
+  {
+    return this.vertex.getObjectValue(attributeName, date);
+  }
+  
+  @Override
+  public ValueOverTimeCollection getValuesOverTime(String attributeName)
+  {
+    return this.vertex.getValuesOverTime(attributeName);
+  }
+  
+  @Override
+  public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
+  {
+    this.vertex.setValuesOverTime(attributeName, collection);
   }
 
   @Override

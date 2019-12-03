@@ -30,6 +30,7 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -195,6 +196,24 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
     }
 
     return this.valueObject.getValue(attributeName);
+  }
+  
+  @Override
+  public Object getValue(String attributeName, Date date)
+  {
+    return this.getValue(attributeName);
+  }
+
+  @Override
+  public ValueOverTimeCollection getValuesOverTime(String attributeName)
+  {
+    throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
+  }
+
+  @Override
+  public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
+  {
+    throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
   }
 
   @Override

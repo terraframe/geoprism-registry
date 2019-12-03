@@ -365,7 +365,7 @@ public class GovernanceTest
     // testAddChildParent.getChildrenAsGeoEntity(LocatedIn.CLASS).getAll().size());
 
     // Test CreateGeoObject and UpdateGeoObject CR2
-    GeoObjectQuery createGEQCR2 = new GeoObjectQuery(testNewCR2.getGeoObjectType().getGeoObjectType(GeometryType.POLYGON));
+    GeoObjectQuery createGEQCR2 = new GeoObjectQuery(testNewCR2.getGeoObjectType().getGeoObjectType());
     createGEQCR2.setRestriction(new CodeRestriction(testNewCR2.getCode()));
     List<GeoObject> createGEQCR2All = createGEQCR2.getIterator().getAll();
     Assert.assertEquals(1, createGEQCR2All.size());

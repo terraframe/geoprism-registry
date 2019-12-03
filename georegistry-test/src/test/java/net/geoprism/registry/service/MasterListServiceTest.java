@@ -57,7 +57,7 @@ public class MasterListServiceTest
   @BeforeClass
   public static void setUp()
   {
-    testData = USATestData.newTestData(GeometryType.POLYGON, true);
+    testData = USATestData.newTestData(true);
 
     adminCR = testData.adminClientRequest;
 

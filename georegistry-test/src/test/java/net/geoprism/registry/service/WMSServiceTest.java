@@ -45,7 +45,7 @@ public class WMSServiceTest
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(GeometryType.POLYGON, true);
+    this.testData = USATestData.newTestData(true);
 
     this.adminCR = testData.adminClientRequest;
   }
@@ -60,7 +60,7 @@ public class WMSServiceTest
   @Request
   public void testCreateDeleteDatabaseViewOnTreeType() throws SQLException
   {
-    ServerGeoObjectType type = this.testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = this.testData.STATE.getGeoObjectType();
 
     WMSService service = new WMSService();
 
@@ -89,7 +89,7 @@ public class WMSServiceTest
   @Request
   public void testCreateDeleteDatabaseViewOnLeafType() throws SQLException
   {
-    ServerGeoObjectType type = this.testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = this.testData.DISTRICT.getGeoObjectType();
 
     WMSService service = new WMSService();
 

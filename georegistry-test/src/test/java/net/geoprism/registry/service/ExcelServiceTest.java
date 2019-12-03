@@ -94,7 +94,7 @@ public class ExcelServiceTest
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(GeometryType.POINT, false);
+    this.testData = USATestData.newTestData(false);
 
     this.adminCR = testData.adminClientRequest;
 
@@ -132,7 +132,7 @@ public class ExcelServiceTest
   @Request
   public void testGetAttributeInformation()
   {
-    PostalCodeFactory.remove(testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON));
+    PostalCodeFactory.remove(testData.STATE.getGeoObjectType());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -178,7 +178,7 @@ public class ExcelServiceTest
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
@@ -331,7 +331,7 @@ public class ExcelServiceTest
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
@@ -386,7 +386,7 @@ public class ExcelServiceTest
 
       Assert.assertNotNull(istream);
 
-      ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+      ServerGeoObjectType type = testData.STATE.getGeoObjectType();
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
       GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
@@ -436,7 +436,7 @@ public class ExcelServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(), new BasicColumnFunction("Parent")));
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -456,14 +456,14 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithPostalCode()
   {
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
       @Override
       public Location build(ShapefileFunction function)
       {
-        ServerGeoObjectType type = testData.COUNTRY.getGeoObjectType(GeometryType.POINT);
+        ServerGeoObjectType type = testData.COUNTRY.getGeoObjectType();
 
         DelegateShapefileFunction delegate = new DelegateShapefileFunction(function)
         {
@@ -501,7 +501,7 @@ public class ExcelServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(), new BasicColumnFunction("Parent")));
 
     service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -534,7 +534,7 @@ public class ExcelServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(), new BasicColumnFunction("Parent")));
     configuration.addExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, "00");
 
     JsonObject result = service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
@@ -542,7 +542,7 @@ public class ExcelServiceTest
     Assert.assertFalse(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON));
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType());
     query.setRestriction(new CodeRestriction("0001"));
 
     Assert.assertNull(query.getSingleResult());
@@ -565,7 +565,7 @@ public class ExcelServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(), new BasicColumnFunction("Parent")));
 
     JsonObject result = service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
 
@@ -576,7 +576,7 @@ public class ExcelServiceTest
     Assert.assertEquals(1, problems.size());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON));
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType());
     query.setRestriction(new CodeRestriction("0001"));
 
     Assert.assertNull(query.getSingleResult());
@@ -654,7 +654,7 @@ public class ExcelServiceTest
     Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.get("attributeLabel").getAsString());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POINT));
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType());
     query.setRestriction(new CodeRestriction("0001"));
 
     Assert.assertNull(query.getSingleResult());
