@@ -28,7 +28,7 @@
                                 <tr *ngFor="let version of versions.versions; let i = index;"> 
                                     <td>{{version.value}}</td> 
                                     <td>
-                                        <input type="date" name="fromDate_{{i}}" [ngModel]="version.from | date:'yyyy-MM-dd'" (ngModelChange)="version.from = $event">
+                                        <input type="date" name="fromDate-{{i}}" [ngModel]="version.from | date:'yyyy-MM-dd'" (ngModelChange)="version.from = $event">
                                     </td> 
                                     <td>{{version.to | date:'MM-dd-yyyy'}}</td>
                                     <td><i class="fa fa-times delete-btn" (click)="remove(version)" *ngIf="version.removable"></i></td>

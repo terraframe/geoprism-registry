@@ -357,14 +357,14 @@ export class RegistryService {
                 {
                     id: 1,
                     value: "East Facility",
-                    from: "2014-01-01T23:28:56.782Z",
-                    to: "2016-01-01T23:28:56.782Z"
+                    start: "2014-01-01T23:28:56.782Z",
+                    end: "2016-01-01T23:28:56.782Z"
                 },
                 {
                     id: 2,
                     value: "North East Facility",
-                    from: "2016-01-01T23:28:56.782Z",
-                    to: "2018-01-01T23:28:56.782Z"
+                    start: "2016-01-01T23:28:56.782Z",
+                    end: "2018-01-01T23:28:56.782Z"
                 }
             ]
         }
