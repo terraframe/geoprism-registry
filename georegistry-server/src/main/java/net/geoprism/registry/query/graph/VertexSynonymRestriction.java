@@ -16,24 +16,20 @@ public class VertexSynonymRestriction implements VertexGeoObjectRestriction
 
   private ServerHierarchyType hierarchyType;
 
-  private Date                startDate;
+  private Date                date;
   
-  private Date                endDate;
-  
-  public VertexSynonymRestriction(String label, Date startDate, Date endDate)
+  public VertexSynonymRestriction(String label, Date date)
   {
     this.label = label;
-    this.startDate = startDate;
-    this.endDate = endDate;
+    this.date = date;
     this.parent = null;
     this.hierarchyType = null;
   }
 
-  public VertexSynonymRestriction(String label, Date startDate, Date endDate, ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public VertexSynonymRestriction(String label, Date date, ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     this.label = label;
-    this.startDate = startDate;
-    this.endDate = endDate;
+    this.date = date;
     this.parent = parent;
     this.hierarchyType = hierarchyType;
   }
@@ -48,17 +44,23 @@ public class VertexSynonymRestriction implements VertexGeoObjectRestriction
      * (uuid='85b678c2-df93-4e5b-b6c4-b264b82f9f2c'), while: ($depth < 10)}
      * RETURN location, parent ORDER BY location.code LIMIT 10
      */
+    
+//    vQuery.AND(OR.get(geQuery.getGeoId().EQ(this.label), F.TRIM(geQuery.getDisplayLabel().localize()).EQi(this.label), F.TRIM(this.localize(labelQuery)).EQi(this.label)));
+    
 
     // TODO auto generate coalesce localization
-    statement.append(",where: (coalesce(displayLabel.defaultLocale) = :label)");
-
+    statement.append(",where: (code = :label");
+    statement.append(" OR displayLabel_cot CONTAINS (:date BETWEEN startDate AND endDate AND COALESCE(value.defaultLocale) = :label)");
+    statement.append(" OR out('geo_vertex_has_synonym').label CONTAINS :label)");
+    
     parameters.put("label", this.label);
+    parameters.put("date", this.date);
 
     if (this.parent != null && this.hierarchyType != null)
     {
       MdEdgeDAOIF mdEdge = this.hierarchyType.getMdEdge();
 
-      statement.append(".in('" + mdEdge.getDBClassName() + "'){as: parent, where: (uuid=:uuid), while: (true)}");
+      statement.append("}.in('" + mdEdge.getDBClassName() + "'){where: (uuid=:uuid), while: (true)");
 
       parameters.put("uuid", this.parent.getUid());
     }

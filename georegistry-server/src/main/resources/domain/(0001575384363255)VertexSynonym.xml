@@ -1,0 +1,67 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdVertex name="net.geoprism.registry.graph.GeoVertexSynonym" label="Synonym" generateController="false"  generateSource="true">
+        <attributes>
+          <char name="label" label="Label" required="true" size="4000" />
+        </attributes>
+      </mdVertex>
+    
+      <mdEdge name="net.geoprism.registry.graph.GeoVertexHasSynonym" label="GeoVertex Has Synonym" parent="net.geoprism.registry.graph.GeoVertex" child="net.geoprism.registry.graph.GeoVertexSynonym" generateSource="true">
+      </mdEdge>
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryContributor">
+        <grant>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.APIConsumer">
+        <grant>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                    
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+    </permissions>        
+    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdEdge" key="net.geoprism.registry.graph.GeoVertexHasSynonym"/>    
+      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.GeoVertexSynonym"/>    
+    </delete>
+  </undoIt>
+</version>

@@ -106,6 +106,6 @@ public class ServerSynonymRestriction implements ServerGeoObjectRestriction
   @Override
   public VertexGeoObjectRestriction create(VertexGeoObjectQuery query)
   {
-    return new VertexSynonymRestriction(this.label, this.startDate, this.endDate, this.parent, this.hierarchyType);
+    return new VertexSynonymRestriction(this.label, this.startDate, this.parent, this.hierarchyType);
   }
 }

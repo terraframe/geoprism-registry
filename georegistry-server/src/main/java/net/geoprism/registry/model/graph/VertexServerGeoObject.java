@@ -58,6 +58,7 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.graph.GeoVertexSynonym;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.AbstractServerGeoObject;
 import net.geoprism.registry.model.LocationInfo;
@@ -72,6 +73,7 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo
 {
+
   private ServerGeoObjectType type;
 
   private VertexObject        vertex;
@@ -829,6 +831,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     set.addAll(query.getResults());
 
     return set;
+  }
+
+  public String addSynonym(String label)
+  {
+    GeoVertexSynonym synonym = new GeoVertexSynonym();
+    synonym.setValue(GeoVertexSynonym.LABEL, label);
+    synonym.apply();
+
+    this.vertex.addChild(synonym, GeoVertex.HAS_SYNONYM).apply();
+
+    return synonym.getOid();
   }
 
   public static VertexObject getVertex(ServerGeoObjectType type, String uuid)
