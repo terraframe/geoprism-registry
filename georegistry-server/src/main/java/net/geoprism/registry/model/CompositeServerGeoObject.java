@@ -8,6 +8,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoObjectStatus;
@@ -167,6 +168,24 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   public Object getValue(String attributeName)
   {
     return this.business.getValue(attributeName);
+  }
+  
+  @Override
+  public Object getValue(String attributeName, Date date)
+  {
+    return this.vertex.getValue(attributeName, date);
+  }
+  
+  @Override
+  public ValueOverTimeCollection getValuesOverTime(String attributeName)
+  {
+    return this.vertex.getValuesOverTime(attributeName);
+  }
+
+  @Override
+  public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
+  {
+    this.vertex.setValuesOverTime(attributeName, collection);
   }
 
   @Override

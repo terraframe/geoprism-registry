@@ -27,6 +27,7 @@ import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -105,6 +106,24 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_ATTRIBUTE_VERSIONS)
+  public ResponseIF getAttributeVersions(ClientRequestIF request, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "attributeName") String attributeName) throws JSONException
+  {
+    ValueOverTimeCollectionDTO dto = this.registryService.getAttributeVersions(request.getSessionId(), geoObjectCode, geoObjectTypeCode, attributeName);
+
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(dto.toJSON(serializer));
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_SET_ATTRIBUTE_VERSIONS)
+  public ResponseIF setAttributeVersions(ClientRequestIF request, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "attributeName") String attributeName, @RequestParamter(name = "collection") String collection) throws JSONException
+  {
+    this.registryService.setAttributeVersions(request.getSessionId(), geoObjectCode, geoObjectTypeCode, attributeName, collection);
+
+    return new RestResponse();
   }
 
   /**

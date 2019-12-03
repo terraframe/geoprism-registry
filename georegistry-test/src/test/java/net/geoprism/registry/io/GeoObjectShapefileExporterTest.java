@@ -55,8 +55,8 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.GeoObjectIterator;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.GeoObjectIterator;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.test.ListIterator;
@@ -71,7 +71,7 @@ public class GeoObjectShapefileExporterTest
   @BeforeClass
   public static void setUp()
   {
-    testData = USATestData.newTestData(GeometryType.POLYGON, true);
+    testData = USATestData.newTestData(true);
 
     adminCR = testData.adminClientRequest;
 
@@ -140,7 +140,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     List<GeoObject> objects = new GeoObjectQuery(type).getIterator().getAll();
@@ -200,7 +200,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testWriteToFile() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
@@ -226,7 +226,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();

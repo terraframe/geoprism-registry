@@ -3,7 +3,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { GeoObjectType, MasterList, Attribute } from '../../model/registry';
+import { GeoObject, GeoObjectType, MasterList, Attribute, ValueOverTime } from '../../model/registry';
 
 import { RegistryService } from '../../service/registry.service';
 
@@ -23,17 +23,25 @@ export class ManageVersionsModalComponent implements OnInit {
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
      */
-    onAttributeVersionChange: Subject<MasterList>;
+    onAttributeVersionChange: Subject<ValueOverTime[]>;
 
     attr: any;
     valAdded: boolean = false;
+    
+    geoObjectType: GeoObjectType;
+    
+    geoObject: GeoObject;
+    
+    attributeCode: string;
 
     @Input("attribute") 
     set attribute(attribute: any) {
         this.attr = attribute;
-        this.versions = this.service.getAttributeVersions(attribute.code);
+        this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode ).then( valueOverTimeCollection => {
+            this.versions = valueOverTimeCollection;
+        } );
     }
-    versions: any;
+    versions: ValueOverTime[];
 
     newVersion: {value:string, from:Date, to:string};
 
@@ -48,7 +56,12 @@ export class ManageVersionsModalComponent implements OnInit {
     onAddNewVersion(): void {
         console.log(this.attr);
 
-        this.versions.versions.push({id: Math.random() ,value: this.attr, from: new Date(), to: new Date(), removable: true});
+        let vot: ValueOverTime = new ValueOverTime();
+        vot.startDate = new Date();
+        vot.endDate = new Date();
+        vot.value = this.attr;
+        
+        this.versions.push(vot);
 
         this.valAdded = true;
 
@@ -56,9 +69,9 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     remove(version: any ): void {
-        for(let i=0; i<this.versions.versions.length; i++){
-            if(this.versions.versions[i].id === version.id){
-                this.versions.versions.splice(i, 1);
+        for(let i=0; i<this.versions.length; i++){
+            if(this.versions[i].startDate === version.startDate){
+                this.versions.splice(i, 1);
                 this.valAdded = false;
             }
         }

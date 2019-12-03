@@ -1,1 +1,1 @@
-net.geoprism.georegistry.GeoregistryTestPatcher
+net.geoprism.registry.test.integration.GeoregistryTestPatcher

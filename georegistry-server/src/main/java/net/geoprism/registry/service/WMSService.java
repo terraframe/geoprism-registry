@@ -145,6 +145,17 @@ public class WMSService
 
     Database.dropView(viewName, null, false);
   }
+  
+  @Transaction
+  public void deleteDatabaseViewIfExists(String typeCode)
+  {
+    String viewName = this.getViewName(typeCode);
+
+//    if (Database.view)
+//    {
+      Database.dropView(viewName, null, false);
+//    }
+  }
 
   @Transaction
   public String createDatabaseView(ServerGeoObjectType type, boolean forceGeneration)

@@ -23,7 +23,7 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode } from '../model/registry';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode, ValueOverTime } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -351,25 +351,42 @@ export class RegistryService {
             .toPromise();
     }
 
-    getAttributeVersions( attributeId: string ): any {
-        let temp = {
-            versions: [
-                {
-                    id: 1,
-                    value: "East Facility",
-                    from: "2014-01-01T23:28:56.782Z",
-                    to: "2016-01-01T23:28:56.782Z"
-                },
-                {
-                    id: 2,
-                    value: "North East Facility",
-                    from: "2016-01-01T23:28:56.782Z",
-                    to: "2018-01-01T23:28:56.782Z"
-                }
-            ]
-        }
+    getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): Promise<ValueOverTime[]> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+        
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'geoObjectCode', geoObjectCode );
+        params = params.set( 'geoObjectTypeCode', geoObjectTypeCode );
+        params = params.set( 'attributeName', attributeName );
+        
+        return this.http
+            .get<ValueOverTime[]>( acp + '/cgr/geoobject/getAttributeVersions', { params: params } )
+            .toPromise();
+    }
+    
+    setAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string, collection: ValueOverTime[] ): Promise<Response> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+        
+        let params = {
+            geoObjectCode: geoObjectCode,
+            geoObjectTypeCode: geoObjectTypeCode,
+            attributeName: attributeName,
+            collection: collection
+            
+        } as any;
 
-        return temp;
+        this.eventService.start();
+
+        return this.http
+            .post<Response>( acp + '/cgr/geoobject/setAttributeVersions', JSON.stringify( params ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
     }
 
     createMasterList( list: MasterList ): Promise<MasterList> {
