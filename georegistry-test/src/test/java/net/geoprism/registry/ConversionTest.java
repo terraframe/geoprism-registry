@@ -53,7 +53,7 @@ public class ConversionTest
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(GeometryType.MULTIPOLYGON, false);
+    this.testData = USATestData.newTestData(false);
 
     this.adminCR = testData.adminClientRequest;
   }

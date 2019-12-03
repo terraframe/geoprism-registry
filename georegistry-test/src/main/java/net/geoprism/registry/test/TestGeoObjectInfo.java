@@ -8,6 +8,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -74,12 +75,25 @@ public class TestGeoObjectInfo
 
     private void initialize(String genKey, TestGeoObjectTypeInfo testUni)
     {
-      this.code = this.testDataSet.getTestDataKey() + genKey + "Code";
-      this.displayLabel = this.testDataSet.getTestDataKey() + " " + genKey + " Display Label";
-      this.wkt = "POLYGON ((100 100, 123 400, 168 500, 123 600, 133 600, 178 500, 133 400, 110 100, 100 100))";
+      this.code = this.testDataSet.getTestDataKey() + genKey;
+      this.displayLabel = this.testDataSet.getTestDataKey() + " " + genKey;
       this.geoObjectType = testUni;
       this.children = new LinkedList<TestGeoObjectInfo>();
       this.parents = new LinkedList<TestGeoObjectInfo>();
+      
+      GeometryType geom = this.getGeoObjectType().getGeometryType();
+      if (geom == GeometryType.POLYGON)
+      {
+        this.wkt = "POLYGON ((100 100, 123 400, 168 500, 123 600, 133 600, 178 500, 133 400, 110 100, 100 100))";
+      }
+      else if (geom == GeometryType.POINT)
+      {
+        this.wkt = "POINT (110 80)";
+      }
+      else
+      {
+        throw new UnsupportedOperationException("Add a default geometry if you want to use this geometry type.");
+      }
     }
 
     public void setCode(String code)

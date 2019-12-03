@@ -26,7 +26,7 @@ import net.geoprism.registry.service.WMSService;
 
 public class TestGeoObjectTypeInfo
   {
-    private final TestDataSet testDataSet;
+    private TestDataSet testDataSet;
 
     private Universal                   universal;
 
@@ -48,18 +48,23 @@ public class TestGeoObjectTypeInfo
 
     protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey)
     {
-      this(testDataSet, genKey, false);
+      initialize(testDataSet, genKey, GeometryType.POLYGON);
     }
-
-    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, boolean isLeaf)
+    
+    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, GeometryType geomType)
+    {
+      initialize(testDataSet, genKey, geomType);
+    }
+    
+    private void initialize(TestDataSet testDataSet, String genKey, GeometryType geomType)
     {
       this.testDataSet = testDataSet;
       this.code = this.testDataSet.getTestDataKey() + genKey + "Code";
       this.displayLabel = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey + " Display Label");
       this.description = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey + " Description");
       this.children = new LinkedList<TestGeoObjectTypeInfo>();
-      this.geomType = GeometryType.POLYGON;
-      this.isLeaf = isLeaf;
+      this.geomType = geomType;
+      this.isLeaf = false; // Leaf types are not supported anymore
       this.frequency = FrequencyType.DAILY;
     }
 
@@ -145,23 +150,23 @@ public class TestGeoObjectTypeInfo
     }
 
     @Request
-    public void apply(GeometryType geometryType)
+    public void apply()
     {
-      ServerGeoObjectType type = applyInTrans(geometryType);
+      ServerGeoObjectType type = applyInTrans();
 
       // If this did not error out then add to the cache
       this.testDataSet.adapter.getMetadataCache().addGeoObjectType(type.getType());
     }
 
     @Transaction
-    private ServerGeoObjectType applyInTrans(GeometryType geometryType)
+    private ServerGeoObjectType applyInTrans()
     {
       if (this.testDataSet.debugMode >= 1)
       {
         System.out.println("Applying TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
 
-      GeoObjectType got = new GeoObjectType(this.getCode(), geometryType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, frequency, this.testDataSet.adapter);
+      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, frequency, this.testDataSet.adapter);
 //      ServerGeoObjectType type = new ServerGeoObjectTypeBuilder().create(got);
       ServerGeoObjectType type = new ServerGeoObjectTypeConverter().create(got);
 
@@ -211,7 +216,7 @@ public class TestGeoObjectTypeInfo
       this.universal = null;
     }
 
-    public ServerGeoObjectType getGeoObjectType(GeometryType geometryType)
+    public ServerGeoObjectType getGeoObjectType()
     {
       // if (this.getUniversal() != null)
       // {

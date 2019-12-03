@@ -9,6 +9,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonArray;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoObjectStatus;
@@ -42,6 +43,12 @@ public interface ServerGeoObjectIF
   public String getRunwayId();
 
   public Object getValue(String attributeName);
+  
+  public Object getValue(String attributeName, Date date);
+  
+  public ValueOverTimeCollection getValuesOverTime(String attributeName);
+  
+  public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection);
 
   public void setValue(String attributeName, Object value);
 

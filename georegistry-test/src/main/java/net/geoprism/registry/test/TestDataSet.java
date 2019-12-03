@@ -27,7 +27,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.Assert;
@@ -82,17 +81,6 @@ abstract public class TestDataSet
   public ClientSession                       adminSession                    = null;
 
   public ClientRequestIF                     adminClientRequest              = null;
-
-  protected GeometryType                     geometryType;                                                            // TODO
-                                                                                                                      // :
-                                                                                                                      // This
-                                                                                                                      // doesn't
-                                                                                                                      // seem
-                                                                                                                      // like
-                                                                                                                      // it
-                                                                                                                      // should
-                                                                                                                      // be
-                                                                                                                      // necessary
 
   protected boolean                          includeData;
 
@@ -167,7 +155,7 @@ abstract public class TestDataSet
   {
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
-      uni.apply(this.geometryType);
+      uni.apply();
     }
 
     adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
@@ -221,7 +209,7 @@ abstract public class TestDataSet
     {
       if (got.isPersisted())
       {
-        new WMSService().deleteDatabaseView(got.getGeoObjectType(geometryType));
+        new WMSService().deleteDatabaseView(got.getGeoObjectType());
       }
     }
 

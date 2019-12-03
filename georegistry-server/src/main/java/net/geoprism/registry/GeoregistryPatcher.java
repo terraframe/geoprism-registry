@@ -18,24 +18,39 @@
  */
 package net.geoprism.registry;
 
+import org.commongeoregistry.adapter.metadata.FrequencyType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.runwaysdk.business.ontology.OntologyStrategyBuilderIF;
 import com.runwaysdk.business.ontology.OntologyStrategyFactory;
 import com.runwaysdk.business.ontology.OntologyStrategyIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.geo.UniversalQuery;
+import com.runwaysdk.system.graph.ChangeFrequency;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdBusinessQuery;
+import com.runwaysdk.system.metadata.MdClass;
+import com.runwaysdk.system.metadata.MdClassQuery;
+import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
 import net.geoprism.GeoprismPatcher;
 import net.geoprism.GeoprismPatcherIF;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.demo.ChangeRequestTestDataGenerator;
+import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatcherIF
 {
+  private static final Logger logger = LoggerFactory.getLogger(GeoregistryPatcher.class);
+  
   @Override
   @Transaction
   public void runWithTransaction()
@@ -52,20 +67,36 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
     super.importLocationData();
 
     QueryFactory qf = new QueryFactory();
-    MdBusinessQuery mbq = new MdBusinessQuery(qf);
+    UniversalQuery mbq = new UniversalQuery(qf);
 
-    mbq.WHERE(mbq.getPackageName().EQ(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE));
+//    mbq.WHERE(mbq.getPackageName().EQ(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE));
+    mbq.WHERE(mbq.getKeyName().NE("ROOT"));
 
-    OIterator<? extends MdBusiness> it = mbq.getIterator();
+    OIterator<? extends Universal> it = mbq.getIterator();
 
     while (it.hasNext())
     {
-      MdBusiness biz = it.next();
-
-      System.out.println("Assigning default role permissions for [" + biz.definesType() + "].");
-
+      Universal universal = it.next();
+      MdBusiness mdBusiness = universal.getMdBusiness();
       ServerGeoObjectTypeConverter builder = new ServerGeoObjectTypeConverter();
-      builder.assignDefaultRolePermissions(biz);
+      
+      // Create the MdGeoVertexClass
+      MdVertex mdv = (MdVertex) getMdClassIfExist(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE, universal.getUniversalId());
+      
+      if (mdv == null)
+      {
+        logger.info("Creating Vertex objects for [" + mdBusiness.definesType() + "].");
+        
+        MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), FrequencyType.DAILY);
+        builder.createDefaultAttributes(universal, mdVertex);
+  
+        logger.info("Assigning default role permissions for [" + mdBusiness.definesType() + "].");
+  
+        builder.assignDefaultRolePermissions(mdBusiness);
+  
+        // Build the parent class term root if it does not exist.
+        TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
+      }
     }
   }
 
@@ -80,5 +111,26 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
         return DatabaseAllPathsStrategy.factory(GeoEntity.CLASS);
       }
     });
+  }
+  
+  public MdClass getMdClassIfExist(String pack, String type)
+  {
+    MdClassQuery mbq = new MdClassQuery(new QueryFactory());
+    mbq.WHERE(mbq.getPackageName().EQ(pack));
+    mbq.WHERE(mbq.getTypeName().EQ(type));
+    OIterator<? extends MdClass> it = mbq.getIterator();
+    try
+    {
+      while (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+
+    return null;
   }
 }

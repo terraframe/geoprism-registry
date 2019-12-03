@@ -51,7 +51,7 @@ public class USATestData extends TestDataSet
 
   public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Area");
 
-  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "District", true);
+  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "District", GeometryType.POINT);
 
   public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(this, "USA", COUNTRY);
 
@@ -128,25 +128,25 @@ public class USATestData extends TestDataSet
 
     TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
 
-    USATestData data = new USATestData(adapter, GeometryType.POLYGON, true);
+    USATestData data = new USATestData(adapter, true);
 
     return data;
   }
 
   public static USATestData newTestData()
   {
-    return USATestData.newTestData(GeometryType.POLYGON, true);
+    return USATestData.newTestData(true);
   }
 
   @Request
-  public static USATestData newTestData(GeometryType geometryType, boolean includeData)
+  public static USATestData newTestData(boolean includeData)
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
     GeoserverFacade.setService(new NullGeoserverService());
 
     TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
 
-    USATestData data = new USATestData(adapter, geometryType, includeData);
+    USATestData data = new USATestData(adapter, includeData);
     // data.setDebugMode(2);
     data.setUp();
 
@@ -167,16 +167,10 @@ public class USATestData extends TestDataSet
     return data;
   }
 
-  public USATestData(TestRegistryAdapterClient adapter, GeometryType geometryType, boolean includeData)
+  public USATestData(TestRegistryAdapterClient adapter, boolean includeData)
   {
     this.adapter = adapter;
-    this.geometryType = geometryType;
     this.includeData = includeData;
-  }
-
-  public void setGeometryType(GeometryType geometryType)
-  {
-    this.geometryType = geometryType;
   }
 
   @Transaction
@@ -185,7 +179,7 @@ public class USATestData extends TestDataSet
   {
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
-      uni.apply(this.geometryType);
+      uni.apply();
     }
 
     COUNTRY.getUniversal().addLink(Universal.getRoot(), AllowedIn.CLASS);

@@ -51,7 +51,7 @@ public class GeoObjectUtilTest
   @BeforeClass
   public static void setUp()
   {
-    testData = USATestData.newTestData(GeometryType.POLYGON, true);
+    testData = USATestData.newTestData(true);
 
     adminCR = testData.adminClientRequest;
 
@@ -77,7 +77,7 @@ public class GeoObjectUtilTest
   @Request
   public void testGetAncestorMapForTreeType()
   {
-    ServerGeoObjectType type = testData.AREA.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.AREA.getGeoObjectType();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
 //    GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_A_ONE.getCode(), type.getCode());
@@ -116,7 +116,7 @@ public class GeoObjectUtilTest
   @Test
   public void testGetAncestorMapForTreeLeaf()
   {
-    ServerGeoObjectType type = testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = testData.DISTRICT.getGeoObjectType();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
 //    GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_D_ONE.getCode(), type.getCode());

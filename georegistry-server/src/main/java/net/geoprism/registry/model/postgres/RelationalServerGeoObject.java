@@ -22,6 +22,7 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
@@ -129,6 +130,24 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   public void setValue(String attributeName, Object value, Date startDate, Date endDate)
   {
     this.setValue(attributeName, value);
+  }
+  
+  @Override
+  public Object getValue(String attributeName, Date date)
+  {
+    return this.getValue(attributeName);
+  }
+
+  @Override
+  public ValueOverTimeCollection getValuesOverTime(String attributeName)
+  {
+    throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
+  }
+  
+  @Override
+  public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
+  {
+    throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
   }
 
   @Override
