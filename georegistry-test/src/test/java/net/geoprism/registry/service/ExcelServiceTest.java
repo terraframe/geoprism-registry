@@ -51,6 +51,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -62,18 +63,18 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.conversion.ServerGeoObjectBuilder;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.io.DelegateShapefileFunction;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.CodeRestriction;
-import net.geoprism.registry.query.GeoObjectIterator;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectIterator;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.test.USATestData;
 
 public class ExcelServiceTest
@@ -138,7 +139,7 @@ public class ExcelServiceTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
+    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), null, null, "test-spreadsheet.xlsx", istream);
 
     Assert.assertFalse(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
 
@@ -191,7 +192,7 @@ public class ExcelServiceTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
+    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), null, null, "test-spreadsheet.xlsx", istream);
 
     Assert.assertTrue(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
   }
@@ -378,8 +379,8 @@ public class ExcelServiceTest
       geoObj.setValue(this.testDate.getName(), calendar.getTime());
       geoObj.setValue(this.testBoolean.getName(), true);
 
-      ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
-      geoObj = builder.apply(geoObj, true, null, false).getGeoObject();
+      ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+      geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -419,8 +420,8 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
-    builder.apply(geoObj, true, null, false).getGeoObject();
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -484,8 +485,8 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
-    builder.apply(geoObj, true, null, false);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -661,7 +662,7 @@ public class ExcelServiceTest
 
   private JsonObject getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm)
   {
-    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
+    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), null, null, "test-spreadsheet.xlsx", istream);
     JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 

@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -2171058)
+@com.runwaysdk.business.ClassSignature(hash = -1241986572)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -199,29 +181,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.MasterListAttributeGroup.LOCKEDBY, mdAttributeIF, this, alias, displayLabel);
 
   }
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList()
-  {
-    return getMasterList(null);
-
-  }
- 
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST);
-
-    return (net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST, mdAttributeIF, this, alias, null);
-
-  }
- 
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias, String displayLabel)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST);
-
-    return (net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST, mdAttributeIF, this, alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableUUID getOid()
   {
     return getOid(null);
@@ -359,6 +318,29 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.MasterListAttributeGroup.TYPE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion()
+  {
+    return getVersion(null);
+
+  }
+ 
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.MasterListAttributeGroup.VERSION);
+
+    return (net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.MasterListAttributeGroup.VERSION, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.MasterListAttributeGroup.VERSION);
+
+    return (net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.MasterListAttributeGroup.VERSION, mdAttributeIF, this, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -379,10 +361,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
-    else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST)) 
-    {
-       return new net.geoprism.registry.MasterListQuery.MasterListQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
     else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -394,6 +372,10 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.TARGETATTRIBUTE)) 
     {
        return new com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.VERSION)) 
+    {
+       return new net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -455,9 +437,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel);
-    public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList();
-    public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias);
-    public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableUUID getOid();
     public com.runwaysdk.query.SelectableUUID getOid(String alias);
     public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel);
@@ -479,6 +458,9 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion();
+    public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias);
+    public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.MasterListAttributeGroup masterListAttributeGroup);
 
@@ -633,23 +615,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.LOCKEDBY,  alias, displayLabel);
 
   }
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList()
-  {
-    return getMasterList(null);
-
-  }
- 
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias)
-  {
-    return (net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST, alias, null);
-
-  }
- 
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias, String displayLabel)
-  {
-    return (net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST,  alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableUUID getOid()
   {
     return getOid(null);
@@ -769,6 +734,23 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterListAttributeGroup.TYPE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion()
+  {
+    return getVersion(null);
+
+  }
+ 
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias)
+  {
+    return (net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.VERSION, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.VERSION,  alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -789,10 +771,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
-    else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST)) 
-    {
-       return new net.geoprism.registry.MasterListQuery.MasterListQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
     else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -804,6 +782,10 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.TARGETATTRIBUTE)) 
     {
        return new com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.VERSION)) 
+    {
+       return new net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -842,9 +824,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel);
-    public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList();
-    public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias);
-    public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableUUID getOid();
     public com.runwaysdk.query.SelectableUUID getOid(String alias);
     public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel);
@@ -866,6 +845,9 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion();
+    public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias);
+    public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.MasterListAttributeGroup ... masterListAttributeGroup);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.MasterListAttributeGroup ... masterListAttributeGroup);
@@ -1069,23 +1051,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.LOCKEDBY,  alias, displayLabel);
 
   }
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList()
-  {
-    return getMasterList(null);
-
-  }
- 
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias)
-  {
-    return (net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST, alias, null);
-
-  }
- 
-  public net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF getMasterList(String alias, String displayLabel)
-  {
-    return (net.geoprism.registry.MasterListQuery.MasterListQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST,  alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableUUID getOid()
   {
     return getOid(null);
@@ -1205,6 +1170,23 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterListAttributeGroup.TYPE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion()
+  {
+    return getVersion(null);
+
+  }
+ 
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias)
+  {
+    return (net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.VERSION, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF)this.get(net.geoprism.registry.MasterListAttributeGroup.VERSION,  alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1225,10 +1207,6 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
-    else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.MASTERLIST)) 
-    {
-       return new net.geoprism.registry.MasterListQuery.MasterListQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
     else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -1240,6 +1218,10 @@ public  class MasterListAttributeGroupQuery extends com.runwaysdk.query.Generate
     else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.TARGETATTRIBUTE)) 
     {
        return new com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.MasterListAttributeGroup.VERSION)) 
+    {
+       return new net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {

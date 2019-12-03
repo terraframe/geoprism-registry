@@ -8,7 +8,7 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterList } from '../../model/registry';
+import { MasterList, MasterListVersion } from '../../model/registry';
 
 import { PublishModalComponent } from './publish-modal.component';
 import { ExportFormatModalComponent } from './export-format-modal.component';
@@ -30,7 +30,7 @@ declare var acp: string;
 } )
 export class MasterListComponent implements OnInit {
     message: string = null;
-    list: MasterList = null;
+    list: MasterListVersion = null;
     p: number = 1;
     current: string = '';
     filter: { attribute: string, value: string, label: string }[] = [];
@@ -68,8 +68,8 @@ export class MasterListComponent implements OnInit {
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );
 
-        this.service.getMasterList( oid ).then( list => {
-            this.list = list;
+        this.service.getMasterListVersion( oid ).then( version => {
+            this.list = version;
             this.list.attributes.forEach( attribute => {
                 attribute.isCollapsed = true;
             } );
@@ -159,7 +159,7 @@ export class MasterListComponent implements OnInit {
             if ( attribute.value.end != null ) {
                 label += attribute.value.end;
             }
-            
+
             label += ']';
 
             this.filter.push( { attribute: attribute.base, value: attribute.value, label: label } );
@@ -229,7 +229,7 @@ export class MasterListComponent implements OnInit {
     }
 
     onGoto( data ): void {
-        const oid = data.originalOid;
+        const oid = data.code;
 
         if ( oid != null && oid.length > 0 ) {
             window.open( acp + "/nav/management#/locations/" + oid, '_blank' );
@@ -264,18 +264,6 @@ export class MasterListComponent implements OnInit {
             } );
 
         this.pService.start();
-    }
-
-    onView( event: any ): void {
-        event.preventDefault();
-
-        this.bsModalRef = this.modalService.show( PublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
-        this.bsModalRef.content.readonly = true;
-        this.bsModalRef.content.master = this.list;
     }
 
     onNewGeoObject(): void {

@@ -49,6 +49,8 @@ import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.postgres.ValueObjectContainer;
 
 public class GeoObjectUtil
 {
@@ -77,9 +79,9 @@ public class GeoObjectUtil
     return builder.toString();
   }
 
-  public static Map<String, ValueObject> getAncestorMap(GeoObject object, ServerHierarchyType hierarchy)
+  public static Map<String, LocationInfo> getAncestorMap(GeoObject object, ServerHierarchyType hierarchy)
   {
-    Map<String, ValueObject> map = new HashMap<String, ValueObject>();
+    Map<String, LocationInfo> map = new HashMap<String, LocationInfo>();
 
     if (object.getType().isLeaf())
     {
@@ -127,7 +129,7 @@ public class GeoObjectUtil
           ValueObject vObject = it.next();
           String key = vObject.getValue(Universal.KEYNAME);
 
-          map.put(key, vObject);
+          map.put(key, new ValueObjectContainer(vObject));
         }
       }
       finally
@@ -174,7 +176,7 @@ public class GeoObjectUtil
           ValueObject vObject = it.next();
           String key = vObject.getValue(Universal.KEYNAME);
 
-          map.put(key, vObject);
+          map.put(key, new ValueObjectContainer(vObject));
         }
       }
       finally

@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -66,7 +69,7 @@ import net.geoprism.registry.shapefile.NullLogger;
 public class ShapefileService
 {
   @Request(RequestType.SESSION)
-  public JsonObject getShapefileConfiguration(String sessionId, String type, String fileName, InputStream fileStream)
+  public JsonObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
   {
     // Save the file to the file system
     try
@@ -94,6 +97,9 @@ public class ShapefileService
 
       if (dbfs.length > 0)
       {
+        SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
         JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
 
         JsonObject object = new JsonObject();
@@ -103,6 +109,16 @@ public class ShapefileService
         object.addProperty(GeoObjectConfiguration.DIRECTORY, root.getName());
         object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
         object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+
+        if (startDate != null)
+        {
+          object.addProperty(GeoObjectConfiguration.START_DATE, format.format(startDate));
+        }
+
+        if (endDate != null)
+        {
+          object.addProperty(GeoObjectConfiguration.END_DATE, format.format(endDate));
+        }
 
         return object;
       }

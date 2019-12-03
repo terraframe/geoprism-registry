@@ -37,7 +37,6 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -46,7 +45,7 @@ import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
@@ -157,14 +156,14 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   @Transaction
   public static InputStream exportMasterListShapefile(String oid, String filterJson)
   {
-    MasterList list = MasterList.get(oid);
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
+    MasterListVersion version = MasterListVersion.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
 
-    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> list.isValid(mdAttribute)).collect(Collectors.toList());
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
     try
     {
-      MasterListShapefileExporter exporter = new MasterListShapefileExporter(list, mdBusiness, mdAttributes, filterJson);
+      MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, filterJson);
 
       return exporter.export();
     }
@@ -177,14 +176,14 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   @Transaction
   public static InputStream exportMasterListExcel(String oid, String filterJson)
   {
-    MasterList list = MasterList.get(oid);
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(list.getMdBusinessOid());
+    MasterListVersion version = MasterListVersion.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
 
-    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> list.isValid(mdAttribute)).collect(Collectors.toList());
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
     try
     {
-      MasterListExcelExporter exporter = new MasterListExcelExporter(list, mdBusiness, mdAttributes, filterJson);
+      MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson);
 
       return exporter.export();
     }

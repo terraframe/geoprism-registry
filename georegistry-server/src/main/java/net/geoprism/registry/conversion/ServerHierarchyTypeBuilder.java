@@ -6,13 +6,22 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
+import com.runwaysdk.constants.MdAttributeDateTimeInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
+import com.runwaysdk.constants.graph.MdEdgeInfo;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.metadata.MdAttributeDateTimeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
@@ -27,10 +36,11 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
-public class ServerHierarchyTypeBuilder extends AbstractBuilder
+public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 {
   @Transaction
   public ServerHierarchyType createHierarchyType(HierarchyType hierarchyType)
@@ -89,6 +99,13 @@ public class ServerHierarchyTypeBuilder extends AbstractBuilder
     this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelGeoEntity);
 
     GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
+
+    MdEdgeDAO mdEdge = this.createMdEdge(hierarchyType);
+
+    this.grantWritePermissionsOnMdTermRel(mdEdge);
+    this.grantWritePermissionsOnMdTermRel(maintainer, mdEdge);
+    this.grantReadPermissionsOnMdTermRel(consumer, mdEdge);
+    this.grantReadPermissionsOnMdTermRel(contributor, mdEdge);
 
     return this.get(mdTermRelUniversal);
   }
@@ -168,14 +185,54 @@ public class ServerHierarchyTypeBuilder extends AbstractBuilder
     return mdTermRelationship;
   }
 
-  private void grantWritePermissionsOnMdTermRel(MdTermRelationship mdTermRelationship)
+  /**
+   * It creates an {@link MdTermRelationship} to model the relationship between
+   * {@link GeoEntity}s.
+   * 
+   * Needs to occur in a transaction.
+   * 
+   * @param hierarchyType
+   * @return
+   */
+  public MdEdgeDAO createMdEdge(HierarchyType hierarchyType)
+  {
+    MdVertexDAOIF mdBusGeoEntity = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
+
+    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
+    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
+    mdEdgeDAO.setValue(MdEdgeInfo.NAME, hierarchyType.getCode());
+    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
+    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
+    populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, hierarchyType.getLabel());
+    populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, hierarchyType.getDescription());
+    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
+    mdEdgeDAO.apply();
+
+    MdAttributeDateTimeDAO startDate = MdAttributeDateTimeDAO.newInstance();
+    startDate.setValue(MdAttributeDateTimeInfo.NAME, GeoVertex.START_DATE);
+    startDate.setStructValue(MdAttributeDateTimeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Start Date");
+    startDate.setStructValue(MdAttributeDateTimeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Start Date");
+    startDate.setValue(MdAttributeDateTimeInfo.DEFINING_MD_CLASS, mdEdgeDAO.getOid());
+    startDate.apply();
+
+    MdAttributeDateTimeDAO endDate = MdAttributeDateTimeDAO.newInstance();
+    endDate.setValue(MdAttributeDateTimeInfo.NAME, GeoVertex.END_DATE);
+    endDate.setStructValue(MdAttributeDateTimeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "End Date");
+    endDate.setStructValue(MdAttributeDateTimeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "End Date");
+    endDate.setValue(MdAttributeDateTimeInfo.DEFINING_MD_CLASS, mdEdgeDAO.getOid());
+    endDate.apply();
+
+    return mdEdgeDAO;
+  }
+
+  private void grantWritePermissionsOnMdTermRel(ComponentIF mdTermRelationship)
   {
     RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
 
     grantWritePermissionsOnMdTermRel(adminRole, mdTermRelationship);
   }
 
-  public void grantWritePermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
+  public void grantWritePermissionsOnMdTermRel(RoleDAO role, ComponentIF mdTermRelationship)
   {
     role.grantPermission(Operation.ADD_PARENT, mdTermRelationship.getOid());
     role.grantPermission(Operation.ADD_CHILD, mdTermRelationship.getOid());
@@ -189,7 +246,7 @@ public class ServerHierarchyTypeBuilder extends AbstractBuilder
     role.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
   }
 
-  public void grantReadPermissionsOnMdTermRel(RoleDAO role, MdTermRelationship mdTermRelationship)
+  public void grantReadPermissionsOnMdTermRel(RoleDAO role, ComponentIF mdTermRelationship)
   {
     role.grantPermission(Operation.READ, mdTermRelationship.getOid());
     role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
@@ -202,12 +259,14 @@ public class ServerHierarchyTypeBuilder extends AbstractBuilder
    */
   public ServerHierarchyType get(MdTermRelationship universalRelationship)
   {
-    AttributeTypeBuilder builder = new AttributeTypeBuilder();
+    AttributeTypeConverter builder = new AttributeTypeConverter();
 
     String hierarchyKey = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(universalRelationship.getKey());
     String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(hierarchyKey);
+    String mdEdgeKey = ServerHierarchyType.buildMdEdgeKey(hierarchyKey);
 
     MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
 
     LocalizedValue displayLabel = builder.convert(entityRelationship.getDisplayLabel());
     LocalizedValue description = builder.convert(entityRelationship.getDescription());
@@ -241,7 +300,7 @@ public class ServerHierarchyTypeBuilder extends AbstractBuilder
       ht.addRootGeoObjects(node);
     }
 
-    return new ServerHierarchyType(ht, universalRelationship, entityRelationship);
+    return new ServerHierarchyType(ht, universalRelationship, entityRelationship, mdEdge);
   }
 
   private HierarchyType.HierarchyNode buildHierarchy(HierarchyType.HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)

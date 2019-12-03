@@ -27,7 +27,7 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.conversion.ServerGeoObjectBuilder;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
@@ -46,8 +46,8 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 
     GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), sJson);
 
-    ServerGeoObjectBuilder builder = new ServerGeoObjectBuilder();
-    builder.apply(geoObject, false, null, false);
+    ServerGeoObjectService builder = new ServerGeoObjectService();
+    builder.apply(geoObject, false, false);
   }
 
   @Override

@@ -1,4 +1,4 @@
-import {LocalizedValue} from '../../shared/model/core';
+import { LocalizedValue } from '../../shared/model/core';
 
 export class TreeEntity {
     id: string;
@@ -43,6 +43,7 @@ export class GeoObjectType {
     label: LocalizedValue;
     description: LocalizedValue;
     geometryType: string;
+    frequency: string;
     isLeaf: boolean;
     isGeometryEditable: boolean;
     attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
@@ -156,6 +157,18 @@ export class MasterList {
     telephoneNumber: string;
     email: string;
     hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
-    attributes: any[];
     leaf: boolean;
+    versions?: MasterListVersion[]
+}
+
+export class MasterListVersion {
+    displayLabel: string;
+    oid: string;
+    typeCode: string;
+    leaf: boolean;
+    masterlist: string;
+    forDate: string;
+    createDate: string;
+    publishDate: string;
+    attributes: any[];
 }

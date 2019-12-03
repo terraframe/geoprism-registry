@@ -33,6 +33,11 @@ export class ShapefileComponent implements OnInit {
     code: string = null;
 
     /*
+     * Currently start date
+     */
+    startDate: string = null;
+
+    /*
      * Reference to the modal current showing
      */
     bsModalRef: BsModalRef;
@@ -64,6 +69,10 @@ export class ShapefileComponent implements OnInit {
         this.uploader = new FileUploader( options );
         this.uploader.onBuildItemForm = ( fileItem: any, form: any ) => {
             form.append( 'type', this.code );
+
+            if ( this.startDate != null ) {
+                form.append( 'startDate', this.startDate );
+            }
         };
         this.uploader.onBeforeUploadItem = ( fileItem: any ) => {
             this.eventService.start();

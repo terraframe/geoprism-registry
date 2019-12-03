@@ -18,7 +18,8 @@
  */
 package net.geoprism.registry.excel;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -37,6 +38,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.LatLonException;
 import net.geoprism.registry.io.Location;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 
 public class GeoObjectConverter extends FeatureRowImporter
 {
@@ -50,31 +52,35 @@ public class GeoObjectConverter extends FeatureRowImporter
   }
 
   @Override
-  protected void setValue(GeoObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
   {
-    if (attributeType instanceof AttributeTermType)
+    if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
-      this.setTermValue(entity, attributeType, attributeName, value);
+      entity.setDisplayLabel((LocalizedValue) value, this.configuration.getStartDate(), this.configuration.getEndDate());
+    }
+    else if (attributeType instanceof AttributeTermType)
+    {
+      this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeIntegerType)
     {
-      entity.setValue(attributeName, new Long((String) value));
+      entity.setValue(attributeName, new Long((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeFloatType)
     {
-      entity.setValue(attributeName, new Double((String) value));
+      entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeCharacterType)
     {
-      entity.setValue(attributeName, value.toString());
+      entity.setValue(attributeName, value.toString(), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeBooleanType)
     {
-      entity.setValue(attributeName, value);
+      entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else
     {
-      entity.setValue(attributeName, value);
+      entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
   }
 

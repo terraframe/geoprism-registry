@@ -22,6 +22,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -58,11 +61,14 @@ public class ExcelService
 {
 
   @Request(RequestType.SESSION)
-  public JsonObject getExcelConfiguration(String sessionId, String type, String fileName, InputStream fileStream)
+  public JsonObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
   {
     // Save the file to the file system
     try
     {
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
 
       String name = SessionPredicate.generateId();
@@ -89,6 +95,16 @@ public class ExcelService
       object.addProperty(GeoObjectConfiguration.DIRECTORY, directory.getName());
       object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
       object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+
+      if (startDate != null)
+      {
+        object.addProperty(GeoObjectConfiguration.START_DATE, format.format(startDate));
+      }
+
+      if (endDate != null)
+      {
+        object.addProperty(GeoObjectConfiguration.END_DATE, format.format(endDate));
+      }
 
       return object;
     }

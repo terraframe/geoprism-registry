@@ -28,10 +28,11 @@
   <map uri="account" controller="net.geoprism.AdminController">
     <action method="account" uri=""/>
   </map>
-
+  
   <map uri="app" forward="/index.jsp"/>
   
   <!-- GeoRegistry URLs -->  
   <package name="net.geoprism.registry"/>  
   
+  <map uri="home" forward="/cgr/manage" />
 </mappings>

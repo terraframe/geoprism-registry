@@ -21,24 +21,31 @@
             </h2>
         </div>
 
-        <div class="row">
-            <div *ngIf="history" class="col-md-12">
+        <div *ngIf="list" class="row">
+            <div class="col-md-12">
                 <h3>
-                    {{history.geoObjectType.label.localizedValue}}
+                    {{list.displayLabel.localizedValue}}
                 </h3>
             </div>
         </div>
+        <div *ngIf="list" class="row">
+            <div class="col-md-12">
+                <h5>
+                    <b> <a href="#" (click)="onViewMetadata($event)"><localize key="masterlist.view"></localize> </a></b>
+                </h5>
+            </div>
+        </div>
 
-        <div *ngIf="history" style="margin-top: 30px;margin-bottom: 30px;" class="row">
+        <div *ngIf="list" style="margin-top: 30px;margin-bottom: 30px;" class="row">
 
             <div class="col-md-12">
                 <form #myForm="ngForm">
                     <div class="form-group">
-                        <label for="forDate" style="display: block;margin-bottom:0;">Publishing for:</label>
-                        <input id="forDate"  required type="date" name="forDate" [(ngModel)]="publishMLVersion" #forDate="ngModel">
+                        <label for="forDate" style="display: block;margin-bottom:0;"><localize key="masterlist.publishingFor"></localize></label>
+                        <input id="forDate" type="date" name="forDate" [(ngModel)]="forDate" required>
 
-                        <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="forDate.invalid">
-                            Publish New Version
+                        <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
+                            <localize key="masterlist.publishNewVersion"></localize>
                         </button>
                     </div>
                 </form>
@@ -50,7 +57,7 @@
             <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
         </div> -->
         <div class="row form-group">
-            <div *ngIf="history" class="col-md-12 table-responsive" style="">
+            <div *ngIf="list" class="col-md-12 table-responsive" style="">
                 <table class="list-table table">
                     <thead>
                         <tr>
@@ -60,28 +67,30 @@
 
                             </th> -->
 
-                            <th style="width: 20%;" class="label-column">Period</th>
-                            <th style="width: 50%" class="label-column">Actions</th>
-                            <th style="width: 15%" class="label-column">For Date</th>
-                            <th style="width: 15%" class="label-column">Create Date</th>
+                            <th style="width: 20%" class="label-column"><localize key="masterlist.period"></localize></th>
+                            <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
+                            <th style="width: 15%" class="label-column"><localize key="masterlist.forDate"></localize></th>
+                            <th style="width: 15%" class="label-column"><localize key="masterlist.createDate"></localize></th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item"> -->
-                        <tr *ngFor="let result of history.history">
+                        <tr *ngFor="let version of list.versions">
                             <td style="width: 20%;" class="label-column">
-                                <a [routerLink]="'/master-list/' + result.oid" routerLinkActive="active">{{ result.period }}</a>
+                                <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">{{ version.period }}</a>
                             </td>
                             <td style="width: 50%">
-                                <button type="submit" (click)="onView(result.oid)" class="btn btn-primary" role="button">View</button>
-                                <button type="submit" (click)="onEdit()" class="btn btn-primary" role="button">Edit</button>
-                                <button type="submit" (click)="onDelete()" class="btn btn-danger" role="button">Delete</button>
+                                <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
+<!-- 
+                                <button type="submit" (click)="onEdit(version)" class="btn btn-primary" role="button">Edit</button>
+ -->                                
+                                <button type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
                             </td>
                             <td style="width: 15%" class="label-column">
-                                {{ result.forDate }}
+                                {{ version.forDate }}
                             </td>
                             <td style="width: 15%" class="label-column">
-                                {{ result.createDate }}
+                                {{ version.createDate }}
                             </td>
                         </tr>
                     </tbody>

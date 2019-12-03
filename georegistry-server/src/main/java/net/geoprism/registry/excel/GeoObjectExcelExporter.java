@@ -50,16 +50,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
@@ -220,11 +219,11 @@ public class GeoObjectExcelExporter
     }
 
     // Write the parent values
-    Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
+    Map<String, LocationInfo> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
 
     for (GeoObjectType ancestor : ancestors)
     {
-      ValueObject vObject = map.get(ancestor.getCode());
+      LocationInfo vObject = map.get(ancestor.getCode());
 
       Cell codeCell = row.createCell(col++);
       Cell labelCell = row.createCell(col++);
@@ -236,15 +235,15 @@ public class GeoObjectExcelExporter
 
       if (vObject != null)
       {
-        codeCell.setCellValue(vObject.getValue(GeoEntity.GEOID));
-        labelCell.setCellValue(vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+        codeCell.setCellValue(vObject.getCode());
+        labelCell.setCellValue(vObject.getLabel());
 
         for (int i = 0; i < locales.size(); i++)
         {
           Locale locale = locales.get(i);
 
           Cell cell = row.getCell(labelCell.getColumnIndex() + i + 1);
-          cell.setCellValue(vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+          cell.setCellValue(vObject.getLabel(locale));
         }
       }
     }

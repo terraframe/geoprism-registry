@@ -63,6 +63,8 @@ export class ImportConfiguration {
     locationProblems: LocationProblem[];
     termProblems: TermProblem[];
     exclusions: Exclusion[];
-    hierarchies: {code:string, label:string}[];
+    hierarchies: { code: string, label: string }[];
+    startDate: string;
+    endDate: string;
 }
 

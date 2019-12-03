@@ -23,7 +23,6 @@
     <create>
       <mdBusiness name="net.geoprism.registry.MasterList" label="Master List" generateController="false">
         <attributes>
-          <reference name="mdBusiness" type="com.runwaysdk.system.metadata.MdBusiness" required="true" label="MdTable" />
           <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" required="true" label="Universal" />
           <localChar name="displayLabel" label="Label" required="true" />
           <char name="code" label="Code" size="255" required="true" indexType="unique index" />

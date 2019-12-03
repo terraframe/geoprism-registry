@@ -18,23 +18,25 @@
                         <thead> 
                             <tr> 
                                 <th style="width:70%;">
-                                    Master Lists
+                                  <localize key="masterlist.menu"></localize>                                      
                                 </th> 
-                                <th style="width:30%;"></th>
+                                <th *ngIf="isAdmin || isMaintainer" style="width:30%;">
+                                    <button type="submit" (click)="onCreate()" class="btn btn-primary pull-right" role="button">
+                                      <localize key="hierarchy.management.button.create"></localize>                                      
+                                    </button>                                
+                                </th>
                             </tr> 
                         </thead> 
                         <tbody> 
-                            <tr *ngFor="let got of gots; let i = index;"> 
+                            <tr *ngFor="let list of lists; let i = index;"> 
                                 <td style="width:70%; vertical-align: middle;">
-                                    <a [routerLink]="'/registry/master-list-history/' + got.code" routerLinkActive="active">{{got.label.localizedValue}}</a>
+                                    <a [routerLink]="'/registry/master-list-history/' + list.oid" routerLinkActive="active">{{list.label}}</a>
                                 </td> 
-                                <td style="width:30%;">
-                                    <button type="submit" style="width: 100%;" (click)="onView(got.code)" class="btn btn-primary" role="button">View</button>
+                                <td *ngIf="isAdmin || isMaintainer" style="width:30%;">                                
+                                    <button type="submit" (click)="onView(list.oid)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
+                                    <button type="submit" (click)="onEdit(list)" class="btn btn-primary" role="button"><localize key="modal.button.edit"></localize></button>
+                                    <button type="submit" (click)="onDelete(list)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
                                 </td> 
-                                <!-- <td *ngIf="isAdmin || isMaintainer" class="text-center">
-                                    <i class="fa fa-pencil clickable" (click)="onEdit(got)"> </i> 
-                                    <i class="fa fa-times delete-btn clickable" (click)="deleteMasterList(got)"></i>
-                                </td> -->
                             </tr> 
                         </tbody> 
                     </table>

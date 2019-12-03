@@ -13,9 +13,8 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -24,11 +23,15 @@ import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
@@ -48,16 +51,18 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.MasterList;
-import net.geoprism.registry.conversion.AttributeTypeBuilder;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeBuilder;
-import net.geoprism.registry.conversion.TermBuilder;
+import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectType
 {
-  //  private Logger        logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
+  // private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
 
   private GeoObjectType type;
 
@@ -65,11 +70,14 @@ public class ServerGeoObjectType
 
   private MdBusiness    mdBusiness;
 
-  public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness)
+  private MdVertexDAOIF mdVertex;
+
+  public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness, MdVertexDAOIF mdVertex)
   {
     this.type = go;
     this.universal = universal;
     this.mdBusiness = mdBusiness;
+    this.mdVertex = mdVertex;
   }
 
   public GeoObjectType getType()
@@ -107,6 +115,16 @@ public class ServerGeoObjectType
     this.mdBusiness = mdBusiness;
   }
 
+  public MdVertexDAOIF getMdVertex()
+  {
+    return mdVertex;
+  }
+
+  public void setMdVertex(MdVertexDAOIF mdVertex)
+  {
+    this.mdVertex = mdVertex;
+  }
+
   public String getCode()
   {
     return this.type.getCode();
@@ -115,6 +133,16 @@ public class ServerGeoObjectType
   public GeometryType getGeometryType()
   {
     return this.type.getGeometryType();
+  }
+
+  public FrequencyType getFrequency()
+  {
+    return this.type.getFrequency();
+  }
+
+  public boolean isGeometryEditable()
+  {
+    return this.type.isGeometryEditable();
   }
 
   public boolean isLeaf()
@@ -204,6 +232,8 @@ public class ServerGeoObjectType
       }
     }
 
+    GeoVertexType.remove(this.universal.getUniversalId());
+
     /*
      * Delete all Attribute references
      */
@@ -213,7 +243,7 @@ public class ServerGeoObjectType
     this.universal.delete(false);
 
     // Delete the term root
-    Classifier classRootTerm = TermBuilder.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
+    Classifier classRootTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
     classRootTerm.delete();
   }
 
@@ -223,7 +253,7 @@ public class ServerGeoObjectType
 
     Universal universal = updateGeoObjectType(geoObjectTypeModified);
 
-    ServerGeoObjectType geoObjectTypeModifiedApplied = new ServerGeoObjectTypeBuilder().build(universal);
+    ServerGeoObjectType geoObjectTypeModifiedApplied = new ServerGeoObjectTypeConverter().build(universal);
 
     // If this did not error out then add to the cache
     ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied.getType());
@@ -239,8 +269,8 @@ public class ServerGeoObjectType
     this.universal.lock();
 
     this.universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
-    ServiceFactory.getConversionService().populate(universal.getDisplayLabel(), geoObjectType.getLabel());
-    ServiceFactory.getConversionService().populate(universal.getDescription(), geoObjectType.getDescription());
+    LocalizedValueConverter.populate(universal.getDisplayLabel(), geoObjectType.getLabel());
+    LocalizedValueConverter.populate(universal.getDescription(), geoObjectType.getDescription());
 
     this.universal.apply();
 
@@ -267,7 +297,7 @@ public class ServerGeoObjectType
 
     MdAttributeConcrete mdAttribute = this.createMdAttributeFromAttributeType(attrType);
 
-    attrType = new AttributeTypeBuilder().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    attrType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     this.type.addAttribute(attrType);
 
@@ -350,8 +380,8 @@ public class ServerGeoObjectType
       mdAttribute.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
     }
 
-    ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-    ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+    LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+    LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
     mdAttribute.setDefiningMdClass(this.mdBusiness);
     mdAttribute.apply();
@@ -361,17 +391,17 @@ public class ServerGeoObjectType
       MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
 
       // Build the parent class term root if it does not exist.
-      Classifier classTerm = TermBuilder.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
+      Classifier classTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
 
       // Create the root term node for this attribute
-      Classifier attributeTermRoot = TermBuilder.buildIfNotExistAttribute(this.mdBusiness, mdAttributeTerm.getAttributeName(), classTerm);
+      Classifier attributeTermRoot = TermConverter.buildIfNotExistAttribute(this.mdBusiness, mdAttributeTerm.getAttributeName(), classTerm);
 
       // Make this the root term of the multi-attribute
       attributeTermRoot.addClassifierTermAttributeRoots(mdAttributeTerm).apply();
 
       AttributeTermType attributeTermType = (AttributeTermType) attributeType;
 
-      LocalizedValue label = new ServerGeoObjectTypeBuilder().convert(attributeTermRoot.getDisplayLabel());
+      LocalizedValue label = new ServerGeoObjectTypeConverter().convert(attributeTermRoot.getDisplayLabel());
 
       org.commongeoregistry.adapter.Term term = new org.commongeoregistry.adapter.Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
       attributeTermType.setRootTerm(term);
@@ -399,6 +429,8 @@ public class ServerGeoObjectType
     }
 
     MasterList.createMdAttribute(this, attributeType);
+
+    ( (MdVertexDAO) this.mdVertex ).copyAttribute(MdAttributeDAO.get(mdAttribute.getOid()));
 
     return mdAttribute;
   }
@@ -433,7 +465,7 @@ public class ServerGeoObjectType
     {
       if (mdAttributeConcreteDAOIF instanceof MdAttributeTermDAOIF || mdAttributeConcreteDAOIF instanceof MdAttributeMultiTermDAOIF)
       {
-        String attributeTermKey = TermBuilder.buildtAtttributeKey(this.mdBusiness.getTypeName(), mdAttributeConcreteDAOIF.definesAttribute());
+        String attributeTermKey = TermConverter.buildtAtttributeKey(this.mdBusiness.getTypeName(), mdAttributeConcreteDAOIF.definesAttribute());
 
         try
         {
@@ -453,6 +485,13 @@ public class ServerGeoObjectType
       {
         MasterList.deleteMdAttribute(this.universal, optional.get());
       }
+    }
+
+    MdAttributeDAOIF mdAttributeDAO = this.mdVertex.definesAttribute(attributeName);
+
+    if (mdAttributeDAO != null)
+    {
+      mdAttributeDAO.getBusinessDAO().delete();
     }
   }
 
@@ -478,7 +517,7 @@ public class ServerGeoObjectType
     AttributeType attrType = AttributeType.parse(attrObj);
 
     MdAttributeConcrete mdAttribute = this.updateMdAttributeFromAttributeType(attrType);
-    attrType = new AttributeTypeBuilder().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    attrType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     this.type.addAttribute(attrType);
 
@@ -516,8 +555,8 @@ public class ServerGeoObjectType
       {
         // The name cannot be updated
         // mdAttribute.setAttributeName(attributeType.getName());
-        ServiceFactory.getConversionService().populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-        ServiceFactory.getConversionService().populate(mdAttribute.getDescription(), attributeType.getDescription());
+        LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+        LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
         if (attributeType instanceof AttributeFloatType)
         {
@@ -541,9 +580,9 @@ public class ServerGeoObjectType
         AttributeTermType attributeTermType = (AttributeTermType) attributeType;
 
         org.commongeoregistry.adapter.Term getRootTerm = attributeTermType.getRootTerm();
-        String classifierKey = TermBuilder.buildClassifierKeyFromTermCode(getRootTerm.getCode());
+        String classifierKey = TermConverter.buildClassifierKeyFromTermCode(getRootTerm.getCode());
 
-        TermBuilder termBuilder = new TermBuilder(classifierKey);
+        TermConverter termBuilder = new TermConverter(classifierKey);
         attributeTermType.setRootTerm(termBuilder.build());
       }
 
@@ -579,7 +618,7 @@ public class ServerGeoObjectType
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness);
+    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
   }
 
   public static ServerGeoObjectType get(Universal universal)
@@ -588,6 +627,17 @@ public class ServerGeoObjectType
 
     MdBusiness mdBusiness = universal.getMdBusiness();
 
-    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness);
+    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
   }
+
+  public static ServerGeoObjectType get(MdVertexDAOIF mdVertex)
+  {
+    GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(mdVertex.getTypeName()).get();
+
+    Universal universal = ServerGeoObjectType.geoObjectTypeToUniversal(geoObjectType);
+    MdBusiness mdBusiness = universal.getMdBusiness();
+
+    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
+  }
+
 }

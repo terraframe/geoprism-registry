@@ -1,286 +1,93 @@
 package net.geoprism.registry.model;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 
-import com.runwaysdk.business.Business;
-import com.runwaysdk.business.ontology.TermAndRel;
-import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdTermRelationship;
-import com.runwaysdk.system.ontology.TermUtil;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.ServerGeoObjectFactory;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
-import net.geoprism.registry.service.ConversionService;
+import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.service.ServiceFactory;
 
-public abstract class AbstractServerGeoObject
+public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 {
-  private ServerGeoObjectType type;
 
-  private GeoObject           geoObject;
-
-  private Business            business;
-
-  public AbstractServerGeoObject(ServerGeoObjectType type, GeoObject go, Business business)
+  public JsonArray getHierarchiesForGeoObject()
   {
-    this.type = type;
-    this.geoObject = go;
-    this.business = business;
-  }
+    ServerGeoObjectType geoObjectType = this.getType();
 
-  public ServerGeoObjectType getType()
-  {
-    return type;
-  }
+    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    JsonArray hierarchies = new JsonArray();
+    Universal root = Universal.getRoot();
 
-  public void setType(ServerGeoObjectType type)
-  {
-    this.type = type;
-  }
-
-  public GeoObject getGeoObject()
-  {
-    return geoObject;
-  }
-
-  public void setGeoObject(GeoObject geoObject)
-  {
-    this.geoObject = geoObject;
-  }
-
-  public Business getBusiness()
-  {
-    return business;
-  }
-
-  public void setBusiness(Business business)
-  {
-    this.business = business;
-  }
-
-  @SuppressWarnings("unchecked")
-  protected Term populateBusiness(String statusCode)
-  {
-    GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(geoObject.getStatus());
-
-    if (statusCode != null)
+    for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      gos = ConversionService.getInstance().termToGeoObjectStatus(statusCode);
-    }
+      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
-    this.business.setValue(RegistryConstants.UUID, geoObject.getUid());
-    this.business.setValue(DefaultAttribute.CODE.getName(), geoObject.getCode());
-    this.business.setValue(DefaultAttribute.STATUS.getName(), gos.getOid());
+      // Note: Ordered ancestors always includes self
+      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
 
-    Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
-    attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      ParentTreeNode ptnAncestors = this.getParentGeoObjects(null, true).toNode();
+
+      if (uniParents.size() > 1)
       {
-        // Ignore the attributes
-      }
-      else if (this.business.hasAttribute(attributeName) && !this.business.getMdAttributeDAO(attributeName).isSystem())
-      {
-        if (attribute instanceof AttributeTermType)
+        JsonObject object = new JsonObject();
+        object.addProperty("code", hierarchyType.getCode());
+        object.addProperty("label", hierarchyType.getLabel().getValue());
+
+        JsonArray pArray = new JsonArray();
+
+        for (Object parent : uniParents)
         {
-          Iterator<String> it = (Iterator<String>) geoObject.getValue(attributeName);
+          ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
 
-          if (it.hasNext())
+          if (!pType.getCode().equals(geoObjectType.getCode()))
           {
-            String code = it.next();
+            JsonObject pObject = new JsonObject();
+            pObject.addProperty("code", pType.getCode());
+            pObject.addProperty("label", pType.getLabel().getValue());
 
-            String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
-            Classifier classifier = Classifier.getByKey(classifierKey);
-
-            this.business.setValue(attributeName, classifier.getOid());
-          }
-          else
-          {
-            this.business.setValue(attributeName, (String) null);
-          }
-        }
-        else
-        {
-          Object value = geoObject.getValue(attributeName);
-
-          if (value != null)
-          {
-            this.business.setValue(attributeName, value);
-          }
-          else
-          {
-            this.business.setValue(attributeName, (String) null);
-          }
-        }
-      }
-    });
-
-    return ConversionService.getInstance().geoObjectStatusToTerm(gos);
-  }
-
-  public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
-  {
-    Map<String, ServerHierarchyType> map = new HashMap<String, ServerHierarchyType>();
-
-    for (String relationshipType : relationshipTypes)
-    {
-      MdTermRelationship mdRel = (MdTermRelationship) MdTermRelationship.getMdRelationship(relationshipType);
-
-      ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdRel);
-
-      map.put(relationshipType, ht);
-    }
-
-    return map;
-  }
-
-  protected boolean isValidGeometry(Geometry geometry)
-  {
-    if (geometry != null)
-    {
-      GeometryType type = this.type.getGeometryType();
-
-      if (type.equals(GeometryType.LINE) && ! ( geometry instanceof LineString ))
-      {
-        return false;
-      }
-      else if (type.equals(GeometryType.MULTILINE) && ! ( geometry instanceof MultiLineString ))
-      {
-        return false;
-      }
-      else if (type.equals(GeometryType.POINT) && ! ( geometry instanceof Point ))
-      {
-        return false;
-      }
-      else if (type.equals(GeometryType.MULTIPOINT) && ! ( geometry instanceof MultiPoint ))
-      {
-        return false;
-      }
-      else if (type.equals(GeometryType.POLYGON) && ! ( geometry instanceof Polygon ))
-      {
-        return false;
-      }
-      else if (type.equals(GeometryType.MULTIPOLYGON) && ! ( geometry instanceof MultiPolygon ))
-      {
-        return false;
-      }
-
-      return true;
-    }
-
-    return true;
-  }
-
-  protected static ParentTreeNode internalGetParentGeoObjects(ServerGeoObjectIF child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
-  {
-    ParentTreeNode tnRoot = new ParentTreeNode(child.getGeoObject(), htIn != null ? htIn.getType() : null);
-
-    if (child.getType().isLeaf())
-    {
-      List<MdAttributeDAOIF> mdAttributes = child.getMdAttributeDAOs().stream().filter(mdAttribute -> {
-        if (mdAttribute instanceof MdAttributeReferenceDAOIF)
-        {
-          MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
-
-          if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
-          {
-            return true;
-          }
-        }
-
-        return false;
-      }).collect(Collectors.toList());
-
-      mdAttributes.forEach(mdAttribute -> {
-
-        String parentRunwayId = child.getValue(mdAttribute.definesAttribute());
-
-        if (parentRunwayId != null && parentRunwayId.length() > 0)
-        {
-          GeoEntity geParent = GeoEntity.get(parentRunwayId);
-          ServerGeoObjectIF parent = ServerGeoObjectFactory.build(geParent);
-          Universal uni = parent.getType().getUniversal();
-
-          if (parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()))
-          {
-            ParentTreeNode tnParent;
-
-            ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
-
-            if (recursive)
+            List<ParentTreeNode> ptns = ptnAncestors.findParentOfType(pType.getCode());
+            for (ParentTreeNode ptn : ptns)
             {
-              tnParent = AbstractServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
-            }
-            else
-            {
-              tnParent = new ParentTreeNode(parent.getGeoObject(), ht.getType());
+              if (ptn.getHierachyType().getCode().equals(hierarchyType.getCode()))
+              {
+                pObject.add("ptn", ptn.toJSON());
+                break; // TODO Sibling ancestors
+              }
             }
 
-            tnRoot.addParent(tnParent);
+            pArray.add(pObject);
           }
         }
-      });
 
-    }
-    else
-    {
-      String[] relationshipTypes = TermUtil.getAllChildRelationships(child.getRunwayId());
+        object.add("parents", pArray);
 
-      Map<String, ServerHierarchyType> htMap = child.getHierarchyTypeMap(relationshipTypes);
-
-      TermAndRel[] tnrParents = TermUtil.getDirectAncestors(child.getRunwayId(), relationshipTypes);
-      for (TermAndRel tnrParent : tnrParents)
-      {
-        GeoEntity geParent = (GeoEntity) tnrParent.getTerm();
-        Universal uni = geParent.getUniversal();
-
-        if (!geParent.getOid().equals(GeoEntity.getRoot().getOid()) && ( parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()) ))
-        {
-          ServerGeoObjectIF parent = ServerGeoObjectFactory.build(geParent);
-          ServerHierarchyType ht = htMap.get(tnrParent.getRelationshipType());
-
-          ParentTreeNode tnParent;
-          if (recursive)
-          {
-            tnParent = AbstractServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
-          }
-          else
-          {
-            tnParent = new ParentTreeNode(parent.getGeoObject(), ht.getType());
-          }
-
-          tnRoot.addParent(tnParent);
-        }
+        hierarchies.add(object);
       }
     }
 
-    return tnRoot;
-  }
+    if (hierarchies.size() == 0)
+    {
+      /*
+       * This is a root type so include all hierarchies
+       */
 
+      for (HierarchyType hierarchyType : hierarchyTypes)
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", hierarchyType.getCode());
+        object.addProperty("label", hierarchyType.getLabel().getValue());
+        object.add("parents", new JsonArray());
+
+        hierarchies.add(object);
+      }
+    }
+
+    return hierarchies;
+  }
 }

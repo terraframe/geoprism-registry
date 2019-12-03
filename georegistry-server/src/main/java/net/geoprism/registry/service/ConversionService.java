@@ -43,37 +43,40 @@ public class ConversionService
     return ServiceFactory.getConversionService();
   }
 
-  public void populate(LocalStruct struct, LocalizedValue label)
-  {
-    struct.setValue(label.getValue());
-    struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
-
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-    for (Locale locale : locales)
-    {
-      if (label.contains(locale))
-      {
-        struct.setValue(locale, label.getValue(locale));
-      }
-    }
-  }
-
-  public void populate(LocalStruct struct, LocalizedValue label, String suffix)
-  {
-    struct.setValue(label.getValue());
-    struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE) + suffix);
-
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-    for (Locale locale : locales)
-    {
-      if (label.contains(locale))
-      {
-        struct.setValue(locale, label.getValue(locale) + suffix);
-      }
-    }
-  }
+  // public void populate(LocalStruct struct, LocalizedValue label)
+  // {
+  // struct.setValue(label.getValue());
+  // struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE,
+  // label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+  //
+  // List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+  //
+  // for (Locale locale : locales)
+  // {
+  // if (label.contains(locale))
+  // {
+  // struct.setValue(locale, label.getValue(locale));
+  // }
+  // }
+  // }
+  //
+  // public void populate(LocalStruct struct, LocalizedValue label, String
+  // suffix)
+  // {
+  // struct.setValue(label.getValue());
+  // struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE,
+  // label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE) + suffix);
+  //
+  // List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+  //
+  // for (Locale locale : locales)
+  // {
+  // if (label.contains(locale))
+  // {
+  // struct.setValue(locale, label.getValue(locale) + suffix);
+  // }
+  // }
+  // }
 
   public Term getTerm(String code)
   {

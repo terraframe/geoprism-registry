@@ -28,9 +28,10 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.conversion.ServerGeoObjectFactory;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class AddChildAction extends AddChildActionBase
@@ -40,10 +41,13 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectIF parent = ServerGeoObjectFactory.getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = ServerGeoObjectFactory.getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerGeoObjectService service = new ServerGeoObjectService();
 
-    parent.addChild(child, this.getHierarchyTypeCode());
+    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
+
+    parent.addChild(child, ht);
   }
 
   @Override
