@@ -46,19 +46,6 @@ public class VertexSynonymRestriction implements VertexGeoObjectRestriction
   @Override
   public void restrict(StringBuilder statement, Map<String, Object> parameters)
   {
-    /*
-     * MATCH {class: district0, as: location, where:
-     * (coalesce(displayLabel.defaultLocale) = 'Anlong Veaeng')}
-     * .in('located_in0'){as: parent, where:
-     * (uuid='85b678c2-df93-4e5b-b6c4-b264b82f9f2c'), while: ($depth < 10)}
-     * RETURN location, parent ORDER BY location.code LIMIT 10
-     */
-
-    // vQuery.AND(OR.get(geQuery.getGeoId().EQ(this.label),
-    // F.TRIM(geQuery.getDisplayLabel().localize()).EQi(this.label),
-    // F.TRIM(this.localize(labelQuery)).EQi(this.label)));
-
-    // TODO auto generate coalesce localization
     statement.append(",where: (code = :label");
     statement.append(" OR displayLabel_cot CONTAINS (:date BETWEEN startDate AND endDate AND " + localize("value") + " = :label)");
     statement.append(" OR out('geo_vertex_has_synonym').label CONTAINS :label)");
