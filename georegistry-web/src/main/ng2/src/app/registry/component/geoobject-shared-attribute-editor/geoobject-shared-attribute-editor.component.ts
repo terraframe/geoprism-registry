@@ -142,7 +142,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.bsModalRef.content.geoObject = this.preGeoObject;
         this.bsModalRef.content.geoObjectType = this.geoObjectType;
         this.bsModalRef.content.attributeCode = attribute.code;
-        this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
+        this.bsModalRef.content.attribute = attribute;
+        // this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
         this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
             console.log(versionObj)
 

@@ -67,6 +67,7 @@ export class ValueOverTime {
     startDate: Date;
     endDate: Date;
     value: any;
+    removable?: boolean;
 }
 
 export class Attribute {

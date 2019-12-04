@@ -18,30 +18,46 @@
                         <table *ngIf="versions" class="table"> 
                             <thead> 
                                 <tr> 
-                                    <th>Value</th> 
-                                    <th>From</th>
-                                    <th>To</th>
+                                    <th><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th> 
+                                    <th><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
+                                    <th><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
                                     <th></th>
                                 </tr> 
                             </thead> 
                             <tbody> 
-                                <tr *ngFor="let version of versions.versions; let i = index;"> 
-                                    <td>{{version.value}}</td> 
-                                    <td>
-                                        <input type="date" name="fromDate-{{i}}" [ngModel]="version.from | date:'yyyy-MM-dd'" (ngModelChange)="version.from = $event">
+                                <tr *ngFor="let version of versions; let i = index;"> 
+                                    <td *ngIf="attr.type === 'local'">
+                                        <div *ngFor="let loc of version.value.localeValues">
+                                            <p *ngIf="loc.locale === 'defaultLocale'">{{loc.value}}</p>
+                                        </div>
                                     </td> 
-                                    <td>{{version.to | date:'MM-dd-yyyy'}}</td>
+                                    <td *ngIf="attr.type !== 'local'">
+                                        <p>{{version.value}}</p>
+                                    </td> 
+
+                                    <td>
+                                        <input type="date" name="startDate-{{i}}" [ngModel]="version.startDate | date:'yyyy-MM-dd'" (ngModelChange)="version.startDate = $event">
+                                    </td> 
+                                    <td>{{version.endDate | date:'MM-dd-yyyy'}}</td>
                                     <td><i class="fa fa-times delete-btn" (click)="remove(version)" *ngIf="version.removable"></i></td>
-                                </tr> 
+                                </tr>  
                             </tbody> 
                         </table>
 
                         <div class="form-group">
-                            <label for="value" style="display: block;margin-bottom:0;">Value</label>
-                            <input id="val" style="width:auto;" required type="text" name="val" [(ngModel)]="attr" #val="ngModel" [disabled]="true">
+                            <!-- <label for="value" style="display: block;margin-bottom:0;">Value</label> -->
+
+                            <!-- <td *ngIf="attr.type === 'local'">
+                                <div *ngFor="let loc of attr.value.localeValues"> -->
+                                    <input id="val" style="width:auto;" required type="hidden" name="val" [(ngModel)]="attr" #val="ngModel" [disabled]="true">
+                                <!-- </div>
+                            </td>   
+                            <td *ngIf="attr.type !== 'local'">
+                                <input id="val" style="width:auto;" required type="text" name="val" [(ngModel)]="attr" #val="ngModel" [disabled]="true">
+                            </td>  -->
 
                             <button type="submit" style="margin-left: 15px;" (click)="onAddNewVersion()" class="btn btn-primary" role="button" [disabled]="val.invalid || valAdded">
-                                Add To History
+                                <localize key="changeovertime.manageVersions.button.label.addToHistory"></localize>
                             </button>
                         </div>
                     </form>

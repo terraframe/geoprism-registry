@@ -35,11 +35,14 @@ export class ManageVersionsModalComponent implements OnInit {
     attributeCode: string;
 
     @Input("attribute") 
-    set attribute(attribute: any) {
+    set attribute(attribute: Attribute) {
         this.attr = attribute;
-        this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode ).then( valueOverTimeCollection => {
-            this.versions = valueOverTimeCollection;
-        } );
+        // this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode ).then( valueOverTimeCollection => {
+        //     this.versions = valueOverTimeCollection;
+        // } );
+
+        this.versions = this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode );
+      
     }
     versions: ValueOverTime[];
 
@@ -54,12 +57,11 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     onAddNewVersion(): void {
-        console.log(this.attr);
 
         let vot: ValueOverTime = new ValueOverTime();
         vot.startDate = new Date();
         vot.endDate = new Date();
-        vot.value = this.attr;
+        vot.value = this.attr; // TODO: change to version entry
         
         this.versions.push(vot);
 

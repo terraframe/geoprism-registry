@@ -19,7 +19,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, TestScheduler } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
@@ -351,21 +351,34 @@ export class RegistryService {
             .toPromise();
     }
 
-    getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): Promise<ValueOverTime[]> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+    // getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): Promise<ValueOverTime[]> {
+    //     let headers = new HttpHeaders( {
+    //         'Content-Type': 'application/json'
+    //     } );
         
-        let params: HttpParams = new HttpParams();
-        params = params.set( 'geoObjectCode', geoObjectCode );
-        params = params.set( 'geoObjectTypeCode', geoObjectTypeCode );
-        params = params.set( 'attributeName', attributeName );
+    //     let params: HttpParams = new HttpParams();
+    //     params = params.set( 'geoObjectCode', geoObjectCode );
+    //     params = params.set( 'geoObjectTypeCode', geoObjectTypeCode );
+    //     params = params.set( 'attributeName', attributeName );
         
-        return this.http
-            .get<ValueOverTime[]>( acp + '/cgr/geoobject/getAttributeVersions', { params: params } )
-            .toPromise();
+    //     return this.http
+    //         .get<ValueOverTime[]>( acp + '/cgr/geoobject/getAttributeVersions', { params: params } )
+    //         .toPromise();
+    // }
+
+
+    getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): any[] {
+        let test =[
+            {"startDate":1546300800000,"endDate":95649033600000,"value":{"localeValues":[
+                {"locale":"defaultLocale","value":"Anlong Veaeng"}]}}
+        ]
+
+        // let test = [{"startDate":1546300800000,"endDate":95649033600000,"value":"test"}];
+
+        return test;
     }
     
+
     setAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string, collection: ValueOverTime[] ): Promise<Response> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'

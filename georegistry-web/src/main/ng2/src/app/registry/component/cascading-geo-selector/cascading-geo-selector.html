@@ -11,7 +11,7 @@
         <div class="holder">
           <div class="container">
             <div class="row">
-              <div class="col-sm-1" style="float:left;width:150px;" *ngFor="let parent of hierarchy.parents; let i = index">
+              <div class="col-sm-12" style="float:left;width:150px;" *ngFor="let parent of hierarchy.parents; let i = index">
                 {{parent.label}}
               
                 <input style="width:150px;" type="text" class="form-control" autocomplete="off"
@@ -24,8 +24,19 @@
                   typeaheadOptionField="name" 
                   [typeaheadMinLength]="0"
                   [typeaheadWaitMs]="300">
+
               </div>
               
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                  <div class="button-holder" style="padding: 20px 0 20px 0;">
+                      <button type="submit" style="" (click)="onManageAttributeVersions(null)" class="btn btn-primary" role="button">
+                          <localize key="changeovertime.manageVersions.button.label"></localize>
+                      </button>
+                  </div>
+              </div>
             </div>
           </div>
         </div>
