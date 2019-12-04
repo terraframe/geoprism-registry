@@ -74,6 +74,7 @@ import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
@@ -852,8 +853,9 @@ public class RegistryService
   public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
   {
     ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
+    ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
 
-    return geoObject.getHierarchiesForGeoObject();
+    return pot.toJSON();
   }
 
   @Request(RequestType.SESSION)
@@ -885,41 +887,12 @@ public class RegistryService
   {
     return this.service.getGeoObject(geoObject).bbox();
   }
-<<<<<<< HEAD
 
-  @Request(RequestType.SESSION)
-  public ValueOverTimeCollectionDTO getAttributeVersions(String sessionId, String geoObjectCode, String geoObjectTypeCode, String attributeName)
-  {
-    ServerGeoObjectIF serverGO = service.getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
-    GeoObject go = serverGO.toGeoObject();
-    AttributeType type = go.getType().getAttribute(attributeName).get();
-
-    ValueOverTimeCollection collection = serverGO.getValuesOverTime(attributeName);
-
-    ValueOverTimeCollectionDTO dto = ValueOverTimeConverter.colToDTO(collection, type);
-
-    return dto;
-  }
-
-=======
-  
->>>>>>> refs/remotes/origin/dev
   @Request(RequestType.SESSION)
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String sessionId, String code, String typeCode)
   {
-<<<<<<< HEAD
-    ServerGeoObjectIF serverGO = service.getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
-    GeoObject go = serverGO.toGeoObject();
-    AttributeType type = go.getType().getAttribute(attributeName).get();
-
-    ValueOverTimeCollectionDTO collectionDTO = ValueOverTimeCollectionDTO.fromJSON(sCollection, type, adapter);
-
-    ValueOverTimeCollection collection = ValueOverTimeConverter.dtoToCol(collectionDTO);
-
-    serverGO.setValuesOverTime(attributeName, collection);
-=======
     ServerGeoObjectIF goServer = service.getGeoObjectByCode(code, typeCode);
-    
+
     VertexServerGeoObject goVertex;
     if (goServer instanceof VertexServerGeoObject)
     {
@@ -933,11 +906,9 @@ public class RegistryService
     {
       throw new UnsupportedOperationException();
     }
-    
-    GeoObjectOverTime goTime = goVertex.toGeoObjectOverTime();
-    
-    return goTime;
->>>>>>> refs/remotes/origin/dev
-  }
 
+    GeoObjectOverTime goTime = goVertex.toGeoObjectOverTime();
+
+    return goTime;
+  }
 }
