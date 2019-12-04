@@ -4,14 +4,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
 
 import junit.framework.Assert;
@@ -65,15 +68,23 @@ public class RegistryVersionTest
     
     GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(testData.COLORADO.getCode(), testData.COLORADO.getGeoObjectType().getCode());
     
-    SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     
     try
     {
       Assert.assertEquals(testData.COLORADO.getCode(), goTime.getCode());
-      Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, goTime.getStatus(dateFormat.parse("01-01-1990")).getCode());
-      Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.NEW.code, goTime.getStatus(dateFormat.parse("02-01-1990")).getCode());
-      Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, goTime.getStatus(dateFormat.parse("03-01-1990")).getCode());
+      Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, goTime.getStatus(dateFormat.parse("1990-01-01")).getCode());
+      Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.NEW.code, goTime.getStatus(dateFormat.parse("1990-02-01")).getCode());
+      Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, goTime.getStatus(dateFormat.parse("1990-03-01")).getCode());
+      
+      ValueOverTimeCollectionDTO allStatus = goTime.getAllValues(DefaultAttribute.STATUS.getName());
+      Assert.assertEquals("1990-01-01", dateFormat.format(allStatus.get(0).getStartDate()));
+      Assert.assertEquals("1990-01-31", dateFormat.format(allStatus.get(0).getEndDate()));
+      Assert.assertEquals("1990-02-01", dateFormat.format(allStatus.get(1).getStartDate()));
+      Assert.assertEquals("1990-02-28", dateFormat.format(allStatus.get(1).getEndDate()));
+      Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
+      Assert.assertEquals(dateFormat.format(ValueOverTime.INFINITY_END_DATE), dateFormat.format(allStatus.get(2).getEndDate()));
     }
     catch (ParseException e)
     {

@@ -61,7 +61,7 @@ public class MasterListServiceTest
 
     adminCR = testData.adminClientRequest;
 
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false);
+    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
     testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(adminCR.getSessionId(), testData.STATE.getCode(), testTerm.toJSON().toString());
 
     reload();
