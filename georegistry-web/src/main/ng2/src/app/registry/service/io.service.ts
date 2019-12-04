@@ -137,14 +137,14 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<Synonym>( acp + '/uploader/createGeoEntitySynonym', JSON.stringify( { entityId: entityId, label: label } ), { headers: headers } )
+            .post<Synonym>( acp + '/geo-synonym/createGeoEntitySynonym', JSON.stringify( { entityId: entityId, label: label } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
             .toPromise();
     }
 
-    deleteGeoObjectSynonym( synonymId: string ): Promise<void> {
+    deleteGeoObjectSynonym( synonymId: string, vOid: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
@@ -152,7 +152,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/uploader/deleteGeoEntitySynonym', JSON.stringify( { synonymId: synonymId } ), { headers: headers } )
+            .post<void>( acp + '/geo-synonym/deleteGeoEntitySynonym', JSON.stringify( { synonymId: synonymId, vOid: vOid } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

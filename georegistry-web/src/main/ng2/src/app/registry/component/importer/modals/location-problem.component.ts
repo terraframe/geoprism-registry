@@ -53,6 +53,7 @@ export class LocationProblemComponent implements OnInit {
                 this.problem.action = {
                     name: 'SYNONYM',
                     synonymId: response.synonymId,
+                    vOid: response.vOid, 
                     label: response.label
                 };
             } ).catch( e => {
@@ -87,7 +88,7 @@ export class LocationProblemComponent implements OnInit {
             else if ( action.name == 'SYNONYM' ) {
                 this.onError.emit( null );
 
-                this.service.deleteGeoObjectSynonym( action.synonymId ).then( response => {
+                this.service.deleteGeoObjectSynonym( action.synonymId, action.vOid ).then( response => {
                     this.problem.resolved = false;
                     this.problem.action = null;
 

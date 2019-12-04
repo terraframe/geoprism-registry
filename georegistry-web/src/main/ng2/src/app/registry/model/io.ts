@@ -49,6 +49,7 @@ export class Exclusion {
 export class Synonym {
     label: string;
     synonymId: string;
+    vOid?: string;
 }
 
 export class ImportConfiguration {
