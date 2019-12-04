@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 
 import com.google.gson.JsonArray;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;

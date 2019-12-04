@@ -44,6 +44,8 @@ public class TestGeoObjectTypeInfo
 
     private List<TestGeoObjectTypeInfo> children;
     
+    private ServerGeoObjectType         serverObject;
+    
     private FrequencyType             frequency;
 
     protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey)
@@ -110,14 +112,21 @@ public class TestGeoObjectTypeInfo
     
     public ServerGeoObjectType getServerObject()
     {
-      Optional<GeoObjectType> got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code);
-      
-      if (got.isPresent())
+      if (this.serverObject != null)
       {
-        return ServerGeoObjectType.get(getCode());
+        return this.serverObject;
       }
-      
-      return null;
+      else
+      {
+        Optional<GeoObjectType> got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code);
+        
+        if (got.isPresent())
+        {
+          return ServerGeoObjectType.get(getCode());
+        }
+        
+        return null;
+      }
     }
 
     public List<TestGeoObjectTypeInfo> getChildren()
@@ -148,18 +157,18 @@ public class TestGeoObjectTypeInfo
       Assert.assertEquals(displayLabel.getValue(), uni.getDisplayLabel().getValue());
       Assert.assertEquals(description.getValue(), uni.getDescription().getValue());
     }
-
+    
     @Request
     public void apply()
     {
-      ServerGeoObjectType type = applyInTrans();
+      applyInTrans();
 
       // If this did not error out then add to the cache
-      this.testDataSet.adapter.getMetadataCache().addGeoObjectType(type.getType());
+      this.testDataSet.adapter.getMetadataCache().addGeoObjectType(this.serverObject.getType());
     }
 
     @Transaction
-    private ServerGeoObjectType applyInTrans()
+    private void applyInTrans()
     {
       if (this.testDataSet.debugMode >= 1)
       {
@@ -168,13 +177,11 @@ public class TestGeoObjectTypeInfo
 
       GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, frequency, this.testDataSet.adapter);
 //      ServerGeoObjectType type = new ServerGeoObjectTypeBuilder().create(got);
-      ServerGeoObjectType type = new ServerGeoObjectTypeConverter().create(got);
+      this.serverObject = new ServerGeoObjectTypeConverter().create(got);
 
-      universal = type.getUniversal();
+      universal = this.serverObject.getUniversal();
 
       this.setUid(universal.getOid());
-
-      return type;
     }
 
     @Request

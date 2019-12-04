@@ -23,11 +23,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.DefaultTerms;
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
+import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.geometry.jts.GeometryBuilder;
@@ -48,7 +50,6 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
-import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryController;
 import net.geoprism.registry.test.TestGeoObjectInfo;
