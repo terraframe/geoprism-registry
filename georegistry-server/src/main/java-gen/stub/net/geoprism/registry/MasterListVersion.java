@@ -993,12 +993,12 @@ public class MasterListVersion extends MasterListVersionBase
 
   private void addDependency(Map<String, JsonArray> dependencies, String attributeName, String dependency)
   {
-    if (!dependencies.containsKey(attributeName))
-    {
-      dependencies.put(attributeName, new JsonArray());
-    }
-
-    dependencies.get(attributeName).add(dependency);
+//    if (!dependencies.containsKey(attributeName))
+//    {
+//      dependencies.put(attributeName, new JsonArray());
+//    }
+//
+//    dependencies.get(attributeName).add(dependency);
   }
 
   public void removeAttributeType(AttributeType attributeType)
