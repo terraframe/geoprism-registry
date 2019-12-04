@@ -20,8 +20,10 @@ import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
@@ -31,6 +33,7 @@ import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.ElementInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -170,6 +173,18 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public GeoObjectStatus getStatus()
   {
     Set<String> value = this.vertex.getObjectValue(DefaultAttribute.STATUS.getName(), this.date);
+
+    if (value != null && value.size() > 0)
+    {
+      return GeoObjectStatus.get(value.iterator().next());
+    }
+
+    return GeoObjectStatus.INACTIVE;
+  }
+  
+  public GeoObjectStatus getStatus(Date date)
+  {
+    Set<String> value = this.vertex.getObjectValue(DefaultAttribute.STATUS.getName(), date);
 
     if (value != null && value.size() > 0)
     {
@@ -744,10 +759,140 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return geoObj;
   }
+  
+  public GeoObjectOverTime toGeoObjectOverTime()
+  {
+    Map<String, ValueOverTimeCollectionDTO> votAttributeMap = GeoObjectOverTime.buildVotAttributeMap(type.getType());
+    Map<String, Attribute> attributeMap = GeoObjectOverTime.buildAttributeMap(type.getType());
 
+    GeoObjectOverTime geoObj = new GeoObjectOverTime(type.getType(), votAttributeMap, attributeMap);
+
+    if (vertex.isNew())// && !vertex.isAppliedToDB())
+    {
+      geoObj.setUid(RegistryIdService.getInstance().next());
+
+      geoObj.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get(), this.date, this.date);
+    }
+    else
+    {
+      Map<String, AttributeType> attributes = type.getAttributeMap();
+      attributes.forEach((attributeName, attribute) -> {
+        if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
+        {
+          ValueOverTimeCollection votc = this.getValuesOverTime(this.getGeometryAttributeName());
+          
+          for (ValueOverTime vot : votc)
+          {
+            Object value = vot.getValue();
+            
+            geoObj.setValue(attributeName, value, vot.getStartDate(), vot.getEndDate());
+          }
+        }
+        else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+        {
+          ValueOverTimeCollection votc = this.getValuesOverTime(attributeName);
+          
+          for (ValueOverTime vot : votc)
+          {
+            Object value = this.getDisplayLabel(vot.getStartDate());
+            
+            geoObj.setValue(attributeName, value, vot.getStartDate(), vot.getEndDate());
+          }
+        }
+        else if (vertex.hasAttribute(attributeName))
+        {
+          if (attribute.isChangeOverTime())
+          {
+            ValueOverTimeCollection votc = this.getValuesOverTime(attributeName);
+            
+            for (ValueOverTime vot : votc)
+            {
+              if (attributeName.equals(DefaultAttribute.STATUS.getName()))
+              {
+                Term statusTerm = ServiceFactory.getConversionService().geoObjectStatusToTerm(this.getStatus(vot.getStartDate()));
+    
+                geoObj.setStatus(statusTerm, vot.getStartDate(), vot.getEndDate());
+              }
+              else
+              {
+                Object value = vot.getValue();
+                
+                if (value != null)
+                {
+                  if (attribute instanceof AttributeTermType)
+                  {
+                    Classifier classifier = Classifier.get((String) value);
+      
+                    try
+                    {
+                      geoObj.setValue(attributeName, classifier.getClassifierId(), vot.getStartDate(), vot.getEndDate());
+                    }
+                    catch (UnknownTermException e)
+                    {
+                      TermValueException ex = new TermValueException();
+                      ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+                      ex.setCode(e.getCode());
+      
+                      throw e;
+                    }
+                  }
+                  else
+                  {
+                    geoObj.setValue(attributeName, value, vot.getStartDate(), vot.getEndDate());
+                  }
+                }
+              }
+            }
+          }
+          else
+          {
+            Object value = this.getValue(attributeName);
+            
+            if (value != null)
+            {
+              if (attribute instanceof AttributeTermType)
+              {
+                Classifier classifier = Classifier.get((String) value);
+
+                try
+                {
+                  geoObj.setValue(attributeName, classifier.getClassifierId());
+                }
+                catch (UnknownTermException e)
+                {
+                  TermValueException ex = new TermValueException();
+                  ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+                  ex.setCode(e.getCode());
+
+                  throw e;
+                }
+              }
+              else
+              {
+                geoObj.setValue(attributeName, value);
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    geoObj.setUid(vertex.getObjectValue(RegistryConstants.UUID));
+    geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
+
+    return geoObj;
+  }
+  
   public LocalizedValue getDisplayLabel()
   {
     GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), this.date);
+
+    return LocalizedValueConverter.convert(graphObject);
+  }
+  
+  public LocalizedValue getDisplayLabel(Date date)
+  {
+    GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), date);
 
     return LocalizedValueConverter.convert(graphObject);
   }

@@ -28,9 +28,9 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
@@ -46,7 +46,6 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
@@ -71,10 +70,11 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.graph.ValueOverTimeConverter;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.LookupRestriction;
@@ -878,32 +878,28 @@ public class RegistryService
   {
     return this.service.getGeoObject(geoObject).bbox();
   }
-
-  @Request(RequestType.SESSION)
-  public ValueOverTimeCollectionDTO getAttributeVersions(String sessionId, String geoObjectCode, String geoObjectTypeCode, String attributeName)
-  {
-    ServerGeoObjectIF serverGO = service.getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
-    GeoObject go = serverGO.toGeoObject();
-    AttributeType type = go.getType().getAttribute(attributeName).get();
-    
-    ValueOverTimeCollection collection = serverGO.getValuesOverTime(attributeName);
-    
-    ValueOverTimeCollectionDTO dto = ValueOverTimeConverter.colToDTO(collection, type);
-    
-    return dto;
-  }
   
   @Request(RequestType.SESSION)
-  public void setAttributeVersions(String sessionId, String geoObjectCode, String geoObjectTypeCode, String attributeName, String sCollection)
+  public GeoObjectOverTime getGeoObjectOverTimeByCode(String sessionId, String code, String typeCode)
   {
-    ServerGeoObjectIF serverGO = service.getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
-    GeoObject go = serverGO.toGeoObject();
-    AttributeType type = go.getType().getAttribute(attributeName).get();
+    ServerGeoObjectIF goServer = service.getGeoObjectByCode(code, typeCode);
     
-    ValueOverTimeCollectionDTO collectionDTO = ValueOverTimeCollectionDTO.fromJSON(sCollection, type, adapter);
+    VertexServerGeoObject goVertex;
+    if (goServer instanceof VertexServerGeoObject)
+    {
+      goVertex = (VertexServerGeoObject) goServer;
+    }
+    else if (goServer instanceof CompositeServerGeoObject)
+    {
+      goVertex = ( (CompositeServerGeoObject) goServer ).getVertex();
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
     
-    ValueOverTimeCollection collection = ValueOverTimeConverter.dtoToCol(collectionDTO);
+    GeoObjectOverTime goTime = goVertex.toGeoObjectOverTime();
     
-    serverGO.setValuesOverTime(attributeName, collection);
+    return goTime;
   }
 }

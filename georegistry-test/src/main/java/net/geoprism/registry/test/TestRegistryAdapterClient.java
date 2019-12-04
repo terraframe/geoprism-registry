@@ -26,6 +26,7 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -112,6 +113,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode));
   }
   
+  public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)
+  {
+    return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTimeByCode(this.clientRequest, code, typeCode));
+  }
+  
   public GeoObject createGeoObject(String jGeoObj)
   {
     return responseToGeoObject(this.controller.createGeoObject(this.clientRequest, jGeoObj));
@@ -178,6 +184,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     Object obj = AbstractResponseSerializer.serialize((AbstractRestResponse) resp);
     
     return obj.toString();
+  }
+  
+  protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseIF resp)
+  {
+    return GeoObjectOverTime.fromJSON(this, responseToString(resp));
   }
   
   protected GeoObject responseToGeoObject(ResponseIF resp)
