@@ -755,6 +755,14 @@ public class RegistryController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies-over-time")
+  public ResponseIF getHierarchiesForGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode)
+  {
+    JsonArray response = this.registryService.getHierarchiesForGeoObjectOverTime(request.getSessionId(), code, typeCode);
+    
+    return new RestBodyResponse(response);
+  }
+  
   /**
    * Returns an array of (label, entityId) pairs that under the given
    * parent/hierarchy and have the given label.

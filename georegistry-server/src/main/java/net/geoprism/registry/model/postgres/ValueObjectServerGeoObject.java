@@ -48,6 +48,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -197,7 +198,7 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
 
     return this.valueObject.getValue(attributeName);
   }
-  
+
   @Override
   public Object getValue(String attributeName, Date date)
   {
@@ -293,6 +294,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
 
   @Override
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
   {
     throw new UnsupportedOperationException();
   }

@@ -843,8 +843,15 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode)
   {
-    GeoObject go = this.getGeoObjectByCode(sessionId, code, typeCode);
-    ServerGeoObjectIF geoObject = this.service.getGeoObject(go);
+    ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
+
+    return geoObject.getHierarchiesForGeoObject();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
+  {
+    ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
 
     return geoObject.getHierarchiesForGeoObject();
   }
@@ -885,25 +892,26 @@ public class RegistryService
     ServerGeoObjectIF serverGO = service.getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
     GeoObject go = serverGO.toGeoObject();
     AttributeType type = go.getType().getAttribute(attributeName).get();
-    
+
     ValueOverTimeCollection collection = serverGO.getValuesOverTime(attributeName);
-    
+
     ValueOverTimeCollectionDTO dto = ValueOverTimeConverter.colToDTO(collection, type);
-    
+
     return dto;
   }
-  
+
   @Request(RequestType.SESSION)
   public void setAttributeVersions(String sessionId, String geoObjectCode, String geoObjectTypeCode, String attributeName, String sCollection)
   {
     ServerGeoObjectIF serverGO = service.getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
     GeoObject go = serverGO.toGeoObject();
     AttributeType type = go.getType().getAttribute(attributeName).get();
-    
+
     ValueOverTimeCollectionDTO collectionDTO = ValueOverTimeCollectionDTO.fromJSON(sCollection, type, adapter);
-    
+
     ValueOverTimeCollection collection = ValueOverTimeConverter.dtoToCol(collectionDTO);
-    
+
     serverGO.setValuesOverTime(attributeName, collection);
   }
+
 }

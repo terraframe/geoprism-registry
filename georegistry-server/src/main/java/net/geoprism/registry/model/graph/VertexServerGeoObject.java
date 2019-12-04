@@ -3,7 +3,9 @@ package net.geoprism.registry.model.graph;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -68,6 +70,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -496,19 +499,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return value;
   }
-  
+
   @Override
   public Object getValue(String attributeName, Date date)
   {
     return this.vertex.getObjectValue(attributeName, date);
   }
-  
+
   @Override
   public ValueOverTimeCollection getValuesOverTime(String attributeName)
   {
     return this.vertex.getValuesOverTime(attributeName);
   }
-  
+
   @Override
   public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
   {
@@ -591,6 +594,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
     return internalGetParentGeoObjects(this, parentTypes, recursive, null, this.date);
+  }
+
+  @Override
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
+  {
+    final Map<String, List<ServerParentTreeNode>> results = internalGetParentOverTime(this, parentTypes, recursive, null);
+
+    return new ServerParentTreeNodeOverTime(results);
   }
 
   @Override
@@ -1003,6 +1014,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     statement.append(" FROM :rid");
 
+    if (date != null)
+    {
+      statement.append(" WHERE :date BETWEEN startDate AND endDate");
+      parameters.put("date", date);
+    }
+
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
@@ -1034,5 +1051,85 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     return tnRoot;
+  }
+
+  protected static Map<String, List<ServerParentTreeNode>> internalGetParentOverTime(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
+  {
+    Map<String, List<ServerParentTreeNode>> map = new HashMap<String, List<ServerParentTreeNode>>();
+
+    Map<String, Object> parameters = new HashedMap<String, Object>();
+    parameters.put("rid", child.getVertex().getRID());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT IN(");
+
+    if (htIn != null)
+    {
+      statement.append("'" + htIn.getMdEdge().getDBClassName() + "'");
+    }
+    statement.append(")");
+
+    if (parentTypes.length > 0)
+    {
+      statement.append("[");
+
+      for (int i = 0; i < parentTypes.length; i++)
+      {
+        ServerGeoObjectType type = ServerGeoObjectType.get(parentTypes[i]);
+
+        if (i > 0)
+        {
+          statement.append(" OR ");
+        }
+
+        statement.append("@class = :" + i);
+
+        parameters.put(Integer.toString(i), type.getMdVertex().getDBClassName());
+      }
+
+      statement.append("]");
+    }
+
+    statement.append(" FROM :rid");
+    statement.append(" ORDER BY ASC startDate");
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
+
+    List<EdgeObject> edges = query.getResults();
+
+    for (EdgeObject edge : edges)
+    {
+      MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
+      VertexObject parentVertex = edge.getParent();
+
+      MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
+
+      ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
+      ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
+
+      Date date = edge.getObjectValue(GeoVertex.START_DATE);
+
+      ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date);
+
+      VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
+
+      ServerParentTreeNode tnParent;
+
+      if (recursive)
+      {
+        tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
+      }
+      else
+      {
+        tnParent = new ServerParentTreeNode(parent, ht, date);
+      }
+
+      tnRoot.addParent(tnParent);
+
+      map.putIfAbsent(ht.getCode(), new LinkedList<ServerParentTreeNode>());
+      map.get(ht.getCode()).add(tnRoot);
+    }
+
+    return map;
   }
 }
