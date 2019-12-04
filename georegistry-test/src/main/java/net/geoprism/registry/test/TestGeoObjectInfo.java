@@ -417,6 +417,16 @@ public class TestGeoObjectInfo
     {
       return geoObjectType;
     }
+    
+    public ServerGeoObjectIF getServerObject()
+    {
+      if (this.serverGO == null)
+      {
+        this.serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode());
+      }
+      
+      return this.serverGO;
+    }
 
     /**
      * Applies the GeoObject which is represented by this test data into the
@@ -432,33 +442,33 @@ public class TestGeoObjectInfo
     @Request
     public void apply()
     {
-      applyInTrans();
+      ServerGeoObjectIF localServerGO = applyInTrans();
       
       if (!this.geoObjectType.getIsLeaf())
       {
-        this.geoEntity = GeoEntity.get(this.serverGO.getRunwayId());
+        this.geoEntity = GeoEntity.get(localServerGO.getRunwayId());
         this.business = TreeServerGeoObject.getBusiness(this.geoEntity);
         
         this.oid = this.geoEntity.getOid();
       }
       else
       {
-        this.business  = Business.get(this.serverGO.getRunwayId());
+        this.business  = Business.get(localServerGO.getRunwayId());
         this.oid = this.business.getOid();
       }
       
-      this.registryId = this.serverGO.getUid();
+      this.registryId = localServerGO.getUid();
     }
 
     @Transaction
-    private void applyInTrans()
+    private ServerGeoObjectIF applyInTrans()
     {
       if (this.testDataSet.debugMode >= 1)
       {
         System.out.println("Applying TestGeoObjectInfo [" + this.getCode() + "].");
       }
       
-      this.serverGO = new ServerGeoObjectService().apply(this.asGeoObject(), true, false);
+      return new ServerGeoObjectService().apply(this.asGeoObject(), true, false);
 
 //      if (!this.geoObjectType.getIsLeaf())
 //      {

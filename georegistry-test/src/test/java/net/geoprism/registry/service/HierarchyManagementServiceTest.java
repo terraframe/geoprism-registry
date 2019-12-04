@@ -425,7 +425,7 @@ public class HierarchyManagementServiceTest
 
     String gtJSON = province.toJSON().toString();
 
-    AttributeType testChar = AttributeType.factory("testChar", new LocalizedValue("testCharLocalName"), new LocalizedValue("testCharLocalDescrip"), AttributeCharacterType.TYPE, false, false);
+    AttributeType testChar = AttributeType.factory("testChar", new LocalizedValue("testCharLocalName"), new LocalizedValue("testCharLocalDescrip"), AttributeCharacterType.TYPE, false, false, false);
 
     service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
     String attributeTypeJSON = testChar.toJSON().toString();
@@ -453,7 +453,7 @@ public class HierarchyManagementServiceTest
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, FrequencyType.DAILY, registry);
     String gtJSON = province.toJSON().toString();
 
-    AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false);
+    AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
 
     service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
@@ -475,7 +475,7 @@ public class HierarchyManagementServiceTest
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, FrequencyType.DAILY, registry);
     String gtJSON = province.toJSON().toString();
 
-    AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false);
+    AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
 
     service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
@@ -497,7 +497,7 @@ public class HierarchyManagementServiceTest
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, FrequencyType.DAILY, registry);
     String gtJSON = province.toJSON().toString();
 
-    AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanName"), new LocalizedValue("testBooleanDescrip"), AttributeBooleanType.TYPE, false, false);
+    AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanName"), new LocalizedValue("testBooleanDescrip"), AttributeBooleanType.TYPE, false, false, false);
 
     service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
@@ -647,7 +647,7 @@ public class HierarchyManagementServiceTest
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), false, true, FrequencyType.DAILY, registry);
     String geoObjectTypeCode = province.getCode();
 
-    AttributeTermType attributeTermType = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description"), AttributeTermType.TYPE, false, false);
+    AttributeTermType attributeTermType = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description"), AttributeTermType.TYPE, false, false, false);
     Term term = new Term(PROVINCE.getCode() + "_" + "testTerm", new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description"));
     attributeTermType.setRootTerm(term);
 
