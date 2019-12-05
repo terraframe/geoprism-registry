@@ -170,13 +170,13 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     return this.business.getValue(attributeName);
   }
-  
+
   @Override
   public Object getValue(String attributeName, Date date)
   {
     return this.vertex.getValue(attributeName, date);
   }
-  
+
   @Override
   public ValueOverTimeCollection getValuesOverTime(String attributeName)
   {
@@ -231,6 +231,12 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
     return this.business.getParentGeoObjects(parentTypes, recursive);
+  }
+
+  @Override
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
+  {
+    return this.vertex.getParentsOverTime(parentTypes, recursive);
   }
 
   @Override

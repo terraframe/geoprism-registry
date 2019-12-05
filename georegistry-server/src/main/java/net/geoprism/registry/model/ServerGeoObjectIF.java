@@ -45,11 +45,11 @@ public interface ServerGeoObjectIF
   public String getRunwayId();
 
   public Object getValue(String attributeName);
-  
+
   public Object getValue(String attributeName, Date date);
-  
+
   public ValueOverTimeCollection getValuesOverTime(String attributeName);
-  
+
   public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection);
 
   public void setValue(String attributeName, Object value);
@@ -69,6 +69,8 @@ public interface ServerGeoObjectIF
   public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive);
 
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive);
+
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive);
 
   public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy);
 
@@ -95,4 +97,5 @@ public interface ServerGeoObjectIF
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy);
 
   public JsonArray getHierarchiesForGeoObject();
+
 }

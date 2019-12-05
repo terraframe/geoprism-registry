@@ -50,6 +50,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 
@@ -134,7 +135,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   {
     this.setValue(attributeName, value);
   }
-  
+
   @Override
   public Object getValue(String attributeName, Date date)
   {
@@ -146,9 +147,15 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   {
     throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
   }
-  
+
   @Override
   public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
+  {
+    throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
+  }
+
+  @Override
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
   {
     throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
   }
