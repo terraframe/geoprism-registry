@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -306,6 +307,13 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     this.business.populate(geoObject);
     this.vertex.populate(geoObject);
+  }
+  
+  @Override
+  public void populate(GeoObjectOverTime goTime)
+  {
+    this.business.populate(goTime);
+    this.vertex.populate(goTime);
   }
 
   @Override

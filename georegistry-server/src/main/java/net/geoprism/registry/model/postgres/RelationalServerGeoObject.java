@@ -11,7 +11,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
@@ -236,6 +239,77 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     this.setStatus(gos);
     this.setDisplayLabel(geoObject.getDisplayLabel());
     this.setGeometry(geoObject.getGeometry());
+  }
+  
+  @Override
+  public void populate(GeoObjectOverTime goTime)
+  {
+    Map<String, AttributeType> attributes = goTime.getType().getAttributeMap();
+    attributes.forEach((attributeName, attribute) -> {
+      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      {
+        // Ignore the attributes
+      }
+      else if (this.business.hasAttribute(attributeName) && !this.business.getMdAttributeDAO(attributeName).isSystem())
+      {
+        if (attribute instanceof AttributeTermType)
+        {
+          Iterator<String> it = (Iterator<String>) goTime.getValue(attributeName);
+
+          if (it.hasNext())
+          {
+            String code = it.next();
+
+            String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
+            Classifier classifier = Classifier.getByKey(classifierKey);
+
+            this.business.setValue(attributeName, classifier.getOid());
+          }
+          else
+          {
+            this.business.setValue(attributeName, (String) null);
+          }
+        }
+        else
+        {
+          Object value = goTime.getValue(attributeName);
+
+          if (value != null)
+          {
+            this.business.setValue(attributeName, value);
+          }
+          else
+          {
+            this.business.setValue(attributeName, (String) null);
+          }
+        }
+      }
+    });
+    
+    ValueOverTimeCollectionDTO votcDL = goTime.getAllValues(DefaultAttribute.DISPLAY_LABEL.getName());
+    if (votcDL.size() > 0)
+    {
+      ValueOverTimeDTO votDTO = votcDL.get(votcDL.size()-1);
+      this.setDisplayLabel(goTime.getDisplayLabel(votDTO.getStartDate()));
+    }
+    
+    ValueOverTimeCollectionDTO votcGeom = goTime.getAllValues(DefaultAttribute.GEOMETRY.getName());
+    if (votcGeom.size() > 0)
+    {
+      ValueOverTimeDTO votDTO = votcGeom.get(votcGeom.size()-1);
+      this.setGeometry(goTime.getGeometry(votDTO.getStartDate()));
+    }
+    
+    ValueOverTimeCollectionDTO votcStatus = goTime.getAllValues(DefaultAttribute.STATUS.getName());
+    if (votcStatus.size() > 0)
+    {
+      ValueOverTimeDTO votDTO = votcStatus.get(votcStatus.size()-1);
+      GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+      this.setStatus(gos);
+    }
+
+    this.setUid(goTime.getUid());
+    this.setCode(goTime.getCode());
   }
 
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)

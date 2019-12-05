@@ -3,6 +3,7 @@ package net.geoprism.registry.conversion;
 import java.util.Date;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.business.graph.VertexObject;
 
@@ -44,6 +45,30 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
       {
         InvalidRegistryIdException ex = new InvalidRegistryIdException();
         ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+
+      VertexObject vertex = VertexServerGeoObject.newInstance(type);
+
+      return new VertexServerGeoObject(type, vertex);
+    }
+  }
+  
+  @Override
+  public VertexServerGeoObject constructFromGeoObjectOverTime(GeoObjectOverTime goTime, boolean isNew)
+  {
+    if (!isNew)
+    {
+      VertexObject vertex = VertexServerGeoObject.getVertex(type, goTime.getUid());
+
+      return new VertexServerGeoObject(type, vertex);
+    }
+    else
+    {
+      if (!RegistryIdService.getInstance().isIssuedId(goTime.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(goTime.getUid());
         throw ex;
       }
 

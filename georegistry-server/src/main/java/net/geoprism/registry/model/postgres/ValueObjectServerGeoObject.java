@@ -13,6 +13,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -129,6 +130,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
 
   @Override
   public void populate(GeoObject geoObject)
+  {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public void populate(GeoObjectOverTime goTime)
   {
     throw new UnsupportedOperationException();
   }

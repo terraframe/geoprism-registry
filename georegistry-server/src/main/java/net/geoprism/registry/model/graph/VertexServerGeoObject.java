@@ -24,22 +24,25 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.constants.ElementInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
@@ -78,6 +81,8 @@ import net.geoprism.registry.service.ServiceFactory;
 public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo
 {
 
+  private Logger logger = LoggerFactory.getLogger(VertexServerGeoObject.class);
+  
   private ServerGeoObjectType type;
 
   private VertexObject        vertex;
@@ -319,6 +324,86 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.setStatus(gos);
     this.setDisplayLabel(geoObject.getDisplayLabel());
     this.setGeometry(geoObject.getGeometry());
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public void populate(GeoObjectOverTime goTime)
+  {
+    Map<String, AttributeType> attributes = goTime.getType().getAttributeMap();
+    attributes.forEach((attributeName, attribute) -> {
+      if (attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      {
+        // Ignore the attributes
+      }
+      else if (attributeName.equals(DefaultAttribute.STATUS.getName()))
+      {
+        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+        {
+          GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+          
+          this.setStatus(gos, votDTO.getStartDate(), votDTO.getEndDate());
+        }
+      }
+      else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
+      {
+        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+        {
+          Geometry geom = goTime.getGeometry(votDTO.getStartDate());
+          
+          this.setGeometry(geom, votDTO.getStartDate(), votDTO.getEndDate());
+        }
+      }
+      else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+      {
+        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+        {
+          LocalizedValue label = goTime.getDisplayLabel(votDTO.getStartDate());
+          
+          this.setDisplayLabel(label, votDTO.getStartDate(), votDTO.getEndDate());
+        }
+      }
+      else if (this.vertex.hasAttribute(attributeName) && !this.vertex.getMdAttributeDAO(attributeName).isSystem())
+      {
+        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+        {
+          if (attribute instanceof AttributeTermType)
+          {
+            Iterator<String> it = (Iterator<String>) goTime.getValue(attributeName, votDTO.getStartDate());
+  
+            if (it.hasNext())
+            {
+              String code = it.next();
+  
+              String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
+              Classifier classifier = Classifier.getByKey(classifierKey);
+  
+              this.vertex.setValue(attributeName, classifier.getOid());
+            }
+            else
+            {
+              this.vertex.setValue(attributeName, (String) null);
+            }
+          }
+          else
+          {
+            Object value = goTime.getValue(attributeName, votDTO.getStartDate());
+  
+            if (value != null)
+            {
+              this.vertex.setValue(attributeName, value, votDTO.getStartDate(), votDTO.getEndDate());
+            }
+            else
+            {
+              this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
+            }
+          }
+        }
+      }
+    });
+
+    this.setUid(goTime.getUid());
+    this.setCode(goTime.getCode());
   }
 
   private String getGeometryAttributeName()

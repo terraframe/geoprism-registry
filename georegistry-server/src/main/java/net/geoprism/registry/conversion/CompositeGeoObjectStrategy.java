@@ -3,6 +3,7 @@ package net.geoprism.registry.conversion;
 import java.util.Date;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.business.graph.VertexObject;
 
@@ -40,6 +41,15 @@ public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
   {
     ServerGeoObjectIF business = this.bConverter.constructFromGeoObject(geoObject, isNew);
     VertexServerGeoObject vertex = this.vConverter.constructFromGeoObject(geoObject, isNew);
+
+    return new CompositeServerGeoObject(business, vertex);
+  }
+  
+  @Override
+  public ServerGeoObjectIF constructFromGeoObjectOverTime(GeoObjectOverTime goTime, boolean isNew)
+  {
+    ServerGeoObjectIF business = this.bConverter.constructFromGeoObjectOverTime(goTime, isNew);
+    VertexServerGeoObject vertex = this.vConverter.constructFromGeoObjectOverTime(goTime, isNew);
 
     return new CompositeServerGeoObject(business, vertex);
   }
