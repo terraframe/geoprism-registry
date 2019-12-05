@@ -3,6 +3,7 @@ package net.geoprism.registry.service;
 import java.util.Date;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -38,6 +39,26 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     // Return the refreshed copy of the geoObject
     return this.build(type, geoObject.getRunwayId());
+  }
+  
+  @Transaction
+  public ServerGeoObjectIF apply(GeoObjectOverTime goTime, boolean isNew, boolean isImport)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(goTime.getType());
+    ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
+
+    ServerGeoObjectIF goServer = strategy.constructFromGeoObjectOverTime(goTime, isNew);
+
+    if (!isNew)
+    {
+      goServer.lock();
+    }
+
+    goServer.populate(goTime);
+    goServer.apply(isImport);
+
+    // Return the refreshed copy of the geoObject
+    return this.build(type, goServer.getRunwayId());
   }
 
   public ServerGeoObjectIF newInstance(ServerGeoObjectType type)

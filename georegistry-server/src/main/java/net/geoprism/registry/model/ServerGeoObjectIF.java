@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 
@@ -44,11 +45,11 @@ public interface ServerGeoObjectIF
   public String getRunwayId();
 
   public Object getValue(String attributeName);
-  
+
   public Object getValue(String attributeName, Date date);
-  
+
   public ValueOverTimeCollection getValuesOverTime(String attributeName);
-  
+
   public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection);
 
   public void setValue(String attributeName, Object value);
@@ -69,6 +70,8 @@ public interface ServerGeoObjectIF
 
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive);
 
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive);
+
   public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy);
 
   public ServerParentTreeNode addChild(ServerGeoObjectIF entity, ServerHierarchyType hierarchy, Date startDate, Date endDate);
@@ -84,6 +87,8 @@ public interface ServerGeoObjectIF
   public void lock();
 
   public void populate(GeoObject geoObject);
+  
+  public void populate(GeoObjectOverTime goTime);
 
   public void apply(boolean isImport);
 
@@ -92,4 +97,5 @@ public interface ServerGeoObjectIF
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy);
 
   public JsonArray getHierarchiesForGeoObject();
+
 }

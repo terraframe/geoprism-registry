@@ -3,6 +3,7 @@ package net.geoprism.registry.conversion;
 import java.util.Date;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -49,6 +50,35 @@ public class TreeGeoObjectStrategy extends LocalizedValueConverter implements Se
       {
         InvalidRegistryIdException ex = new InvalidRegistryIdException();
         ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+
+      GeoEntity entity = new GeoEntity();
+      entity.setUniversal(type.getUniversal());
+
+      Business business = new Business(type.definesType());
+
+      return new TreeServerGeoObject(type, entity, business);
+    }
+  }
+  
+  public TreeServerGeoObject constructFromGeoObjectOverTime(GeoObjectOverTime goTime, boolean isNew)
+  {
+    if (!isNew)
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(goTime.getUid(), type.getType());
+
+      GeoEntity entity = GeoEntity.get(runwayId);
+      Business business = TreeServerGeoObject.getBusiness(entity);
+
+      return new TreeServerGeoObject(type, entity, business);
+    }
+    else
+    {
+      if (!RegistryIdService.getInstance().isIssuedId(goTime.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(goTime.getUid());
         throw ex;
       }
 

@@ -13,6 +13,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -48,6 +49,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -132,6 +134,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public void populate(GeoObjectOverTime goTime)
+  {
+    throw new UnsupportedOperationException();
+  }
 
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
@@ -197,7 +205,7 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
 
     return this.valueObject.getValue(attributeName);
   }
-  
+
   @Override
   public Object getValue(String attributeName, Date date)
   {
@@ -293,6 +301,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
 
   @Override
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
   {
     throw new UnsupportedOperationException();
   }

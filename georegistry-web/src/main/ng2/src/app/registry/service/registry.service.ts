@@ -282,7 +282,7 @@ export class RegistryService {
         this.eventService.start();
 
         return this.http
-            .get<any>( acp + '/cgr/geoobject/get-hierarchies', { params: params } )
+            .get<any>( acp + '/cgr/geoobject/get-hierarchies-over-time', { params: params } )
             .finally(() => {
                 this.eventService.complete();
             } )
