@@ -2,10 +2,12 @@ package net.geoprism.registry.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.dataaccess.AttributeGeometry;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.junit.After;
@@ -13,9 +15,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
+import com.vividsolutions.jts.geom.Geometry;
 
 import junit.framework.Assert;
 import net.geoprism.registry.GeoObjectStatus;
@@ -85,6 +89,10 @@ public class RegistryVersionTest
       Assert.assertEquals("1990-02-28", dateFormat.format(allStatus.get(1).getEndDate()));
       Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
       Assert.assertEquals(dateFormat.format(ValueOverTime.INFINITY_END_DATE), dateFormat.format(allStatus.get(2).getEndDate()));
+      
+      Geometry expectedGeom = testData.COLORADO.asGeoObject().getGeometry();
+      Geometry actualGeom = ( (AttributeGeometry) goTime.getAttribute(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
+      Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
     }
     catch (ParseException e)
     {
