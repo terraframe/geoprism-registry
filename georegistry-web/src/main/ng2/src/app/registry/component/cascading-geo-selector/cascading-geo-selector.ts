@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { ParentTreeNode, GeoObject } from '../../model/registry';
+import { ParentTreeNode, GeoObject, HierarchyOverTime } from '../../model/registry';
 import { RegistryService } from '../../service/registry.service';
 
 import { ManageVersionsModalComponent } from '../geoobject-shared-attribute-editor/manage-versions-modal.component';
@@ -19,13 +19,17 @@ import { ErrorModalComponent } from '../../../shared/component/modals/error-moda
 } )
 export class CascadingGeoSelector {
 
-    @Input() hierarchies: any;
+    @Input() hierarchies: HierarchyOverTime[];
 
     @Output() valid = new EventEmitter<boolean>();
 
     @Input() isValid: boolean = true;
 
     @ViewChild( "mainForm" ) mainForm;
+
+    @Input() forDate: Date = new Date();
+
+    cHierarchies: any[] = [];
 
     parentMap: any = {};
 
@@ -36,23 +40,52 @@ export class CascadingGeoSelector {
     }
 
     ngOnInit(): void {
-        for ( var i = 0; i < this.hierarchies.length; ++i ) {
-            var hierarchy = this.hierarchies[i];
 
-            for ( var j = 0; j < hierarchy.parents.length; ++j ) {
-                if ( hierarchy.parents[j].ptn == null ) {
-                    var ptn = new ParentTreeNode();
 
-                    ptn.geoObject = this.newGeoObject();
-                    ptn.hierarchyType = hierarchy.code;
 
-                    hierarchy.parents[j].ptn = ptn;
-                }
-            }
-        }
+        //        for ( var i = 0; i < this.hierarchies.length; ++i ) {
+        //            var hierarchy = this.hierarchies[i];
+        //
+        //            for ( var j = 0; j < hierarchy.parents.length; ++j ) {
+        //                if ( hierarchy.parents[j].ptn == null ) {
+        //                    var ptn = new ParentTreeNode();
+        //
+        //                    ptn.geoObject = this.newGeoObject();
+        //                    ptn.hierarchyType = hierarchy.code;
+        //
+        //                    hierarchy.parents[j].ptn = ptn;
+        //                }
+        //            }
+        //        }
+        
+        this.calculate();
 
-        console.log( "hierarchies after populate", this.hierarchies );
+        console.log( "hierarchies after populate", this.cHierarchies );
     }
+
+    calculate(): any {
+        const time = this.forDate.getTime();
+
+        this.cHierarchies = [];
+        this.hierarchies.forEach( hierarchy => {
+            const object = {};
+            object['label'] = hierarchy.label;
+            object['code'] = hierarchy.code;
+
+            hierarchy.entries.forEach( pot => {
+                const startDate = Date.parse( pot.startDate );
+                const endDate = Date.parse( pot.endDate );
+
+                if ( time >= startDate && time <= endDate ) {
+                    object['parents'] = pot.parents;
+                }
+            } );
+
+            this.cHierarchies.push( object );
+        } );
+    }
+
+
 
     valueChange( newValue: string, index: number, hierarchy: any ): void {
         let invalid: boolean = false;
@@ -165,30 +198,30 @@ export class CascadingGeoSelector {
     }
 
     public static staticGetParents( hierarchies: any ): ParentTreeNode {
-        let ptn = new ParentTreeNode();
-        ptn.parents = [];
-
-        for ( var i = 0; i < hierarchies.length; ++i ) {
-            let hierarchy: any = hierarchies[i];
-
-            if ( hierarchy.parents.length > 0 ) {
-                let parent: any = hierarchy.parents[hierarchy.parents.length - 1];
-
-                if ( parent.ptn != null && parent.ptn.geoObject != null && parent.ptn.geoObject.properties.code.length > 0 ) {
-                    ptn.parents.push( parent.ptn );
-                }
-            }
-        }
-
-        if ( ptn.parents.length > 0 ) {
-            return ptn;
-        }
-        else {
+//        let ptn = new ParentTreeNode();
+//        ptn.parents = [];
+//
+//        for ( var i = 0; i < hierarchies.length; ++i ) {
+//            let hierarchy: any = hierarchies[i];
+//
+//            if ( hierarchy.parents.length > 0 ) {
+//                let parent: any = hierarchy.parents[hierarchy.parents.length - 1];
+//
+//                if ( parent.ptn != null && parent.ptn.geoObject != null && parent.ptn.geoObject.properties.code.length > 0 ) {
+//                    ptn.parents.push( parent.ptn );
+//                }
+//            }
+//        }
+//
+//        if ( ptn.parents.length > 0 ) {
+//            return ptn;
+//        }
+//        else {
             return null;
-        }
+//        }
     }
 
-    onManageAttributeVersions(attribute: any): void {
+    onManageAttributeVersions( attribute: any ): void {
         this.bsModalRef = this.modalService.show( ManageVersionsModalComponent, {
             animated: true,
             backdrop: true,
@@ -203,7 +236,7 @@ export class CascadingGeoSelector {
         // this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
         //     console.log(versionObj)
 
-            // TODO: set the version on the GeoObject attribute
+        // TODO: set the version on the GeoObject attribute
         // } );
     }
 

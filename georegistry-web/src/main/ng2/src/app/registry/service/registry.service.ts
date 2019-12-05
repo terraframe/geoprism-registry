@@ -23,7 +23,7 @@ import { Observable, TestScheduler } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode, ValueOverTime, GeoObjectOverTime } from '../model/registry';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -274,7 +274,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    getHierarchiesForGeoObject( code: string, typeCode: string ): Promise<any> {
+    getHierarchiesForGeoObject( code: string, typeCode: string ): Promise<HierarchyOverTime[]> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'code', code );
         params = params.set( 'typeCode', typeCode );
@@ -282,7 +282,7 @@ export class RegistryService {
         this.eventService.start();
 
         return this.http
-            .get<any>( acp + '/cgr/geoobject/get-hierarchies-over-time', { params: params } )
+            .get<HierarchyOverTime[]>( acp + '/cgr/geoobject/get-hierarchies-over-time', { params: params } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -492,7 +492,7 @@ export class RegistryService {
     /*
      * Not really part of the RegistryService
      */
-    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string ): Promise<void> {
+    applyGeoObjectEdit( parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );

@@ -43,7 +43,6 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
@@ -94,8 +93,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
   }
 
-  private Logger logger = LoggerFactory.getLogger(VertexServerGeoObject.class);
-  
+  private Logger              logger = LoggerFactory.getLogger(VertexServerGeoObject.class);
+
   private ServerGeoObjectType type;
 
   private VertexObject        vertex;
@@ -338,7 +337,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.setDisplayLabel(geoObject.getDisplayLabel());
     this.setGeometry(geoObject.getGeometry());
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public void populate(GeoObjectOverTime goTime)
@@ -354,7 +353,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
           GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
-          
+
           this.setStatus(gos, votDTO.getStartDate(), votDTO.getEndDate());
         }
       }
@@ -363,7 +362,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
           Geometry geom = goTime.getGeometry(votDTO.getStartDate());
-          
+
           this.setGeometry(geom, votDTO.getStartDate(), votDTO.getEndDate());
         }
       }
@@ -372,7 +371,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
           LocalizedValue label = goTime.getDisplayLabel(votDTO.getStartDate());
-          
+
           this.setDisplayLabel(label, votDTO.getStartDate(), votDTO.getEndDate());
         }
       }
@@ -383,14 +382,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           if (attribute instanceof AttributeTermType)
           {
             Iterator<String> it = (Iterator<String>) goTime.getValue(attributeName, votDTO.getStartDate());
-  
+
             if (it.hasNext())
             {
               String code = it.next();
-  
+
               String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
               Classifier classifier = Classifier.getByKey(classifierKey);
-  
+
               this.vertex.setValue(attributeName, classifier.getOid());
             }
             else
@@ -401,7 +400,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           else
           {
             Object value = goTime.getValue(attributeName, votDTO.getStartDate());
-  
+
             if (value != null)
             {
               this.vertex.setValue(attributeName, value, votDTO.getStartDate(), votDTO.getEndDate());
@@ -1381,8 +1380,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
 
       Date date = edge.getObjectValue(GeoVertex.START_DATE);
+      Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
 
       ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date);
+      tnRoot.setEndDate(endDate);
 
       VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
 

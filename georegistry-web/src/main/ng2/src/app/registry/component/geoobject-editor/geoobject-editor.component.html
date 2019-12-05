@@ -36,8 +36,11 @@
 
 
         <!-- Parents tab -->
-        <div *ngIf="this.tabIndex === 1 && this.hierarchies != null">
-          <cascading-geo-selector #parentSelector [isValid]="this.isValid" (valid)="this.onValidChange()" [hierarchies]="this.hierarchies"></cascading-geo-selector>
+        <div *ngIf="this.tabIndex === 1 && this.postHierarchies != null">
+          <cascading-geo-selector #parentSelector 
+            [isValid]="this.isValid" (valid)="this.onValidChange()"
+            [hierarchies]="this.postHierarchies">
+          </cascading-geo-selector>
         </div>
 
          <!-- Geometry tab -->

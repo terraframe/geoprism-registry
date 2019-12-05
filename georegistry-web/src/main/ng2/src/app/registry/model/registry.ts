@@ -184,3 +184,17 @@ export class MasterListVersion {
     publishDate: string;
     attributes: any[];
 }
+
+export class HierarchyOverTime {
+    code: string;
+    label: string;
+    entries: {
+        startDate: string;
+        endDate: string;
+        parents: {
+            code: string;
+            label: string;
+            geoObject: GeoObject;
+        }[];
+    }[];
+}

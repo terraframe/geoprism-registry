@@ -12,6 +12,8 @@ public abstract class ServerTreeNode
 
   private Date                date;
 
+  private Date                endDate;
+
   public ServerTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType, Date date)
   {
     this.geoObject = geoObject;
@@ -32,6 +34,16 @@ public abstract class ServerTreeNode
   public Date getDate()
   {
     return date;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
   }
 
   public abstract TreeNode toNode();

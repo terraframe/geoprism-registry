@@ -132,7 +132,7 @@ public class ServerParentTreeNodeOverTime
               final GeoObject geoObject = ptns.get(0).getGeoObject().toGeoObject();
               geoObject.setGeometry(null);
 
-              pObject.add("ptn", geoObject.toJSON());
+              pObject.add("geoObject", geoObject.toJSON());
             }
 
             pArray.add(pObject);
@@ -141,6 +141,7 @@ public class ServerParentTreeNodeOverTime
 
         JsonObject object = new JsonObject();
         object.addProperty("startDate", format.format(node.getDate()));
+        object.addProperty("endDate", format.format(node.getEndDate()));
         object.add("parents", pArray);
 
         entries.add(object);
@@ -208,10 +209,10 @@ public class ServerParentTreeNodeOverTime
     {
       final JsonObject parent = parents.get(k).getAsJsonObject();
 
-      if (parent.has("ptn"))
+      if (parent.has("geoObject"))
       {
         final String pTypeCode = parent.get("code").getAsString();
-        final String pCode = parent.get("ptn").getAsJsonObject().get("code").getAsString();
+        final String pCode = parent.get("geoObject").getAsJsonObject().get("code").getAsString();
 
         final ServerGeoObjectIF pSGO = new ServerGeoObjectService().getGeoObjectByCode(pCode, pTypeCode);
 
