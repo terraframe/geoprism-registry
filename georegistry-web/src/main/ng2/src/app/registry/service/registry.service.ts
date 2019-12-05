@@ -371,7 +371,7 @@ export class RegistryService {
         params = params.set( 'typeCode', geoObjectTypeCode );
         
         return this.http
-            .get<GeoObjectOverTime>( acp + '/cgr/geoobject/getOverTimeByCode', { params: params } )
+            .get<GeoObjectOverTime>( acp + '/cgr/geoobject-time/get-code', { params: params } )
             .toPromise();
 
     }
