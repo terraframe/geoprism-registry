@@ -23,7 +23,7 @@ import { Observable, TestScheduler } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode, ValueOverTime } from '../model/registry';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode, ValueOverTime, GeoObjectOverTime } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -351,32 +351,42 @@ export class RegistryService {
             .toPromise();
     }
 
-    // getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): Promise<ValueOverTime[]> {
-    //     let headers = new HttpHeaders( {
-    //         'Content-Type': 'application/json'
-    //     } );
+    getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): Promise<GeoObjectOverTime> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
         
-    //     let params: HttpParams = new HttpParams();
-    //     params = params.set( 'geoObjectCode', geoObjectCode );
-    //     params = params.set( 'geoObjectTypeCode', geoObjectTypeCode );
-    //     params = params.set( 'attributeName', attributeName );
+        // let params: HttpParams = new HttpParams();
+        // params = params.set( 'geoObjectCode', geoObjectCode );
+        // params = params.set( 'geoObjectTypeCode', geoObjectTypeCode );
+        // params = params.set( 'attributeName', attributeName );
         
-    //     return this.http
-    //         .get<ValueOverTime[]>( acp + '/cgr/geoobject/getAttributeVersions', { params: params } )
-    //         .toPromise();
-    // }
+        // return this.http
+        //     .get<ValueOverTime[]>( acp + '/cgr/geoobject/getAttributeVersions', { params: params } )
+        //     .toPromise();
 
 
-    getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): any[] {
-        let test =[
-            {"startDate":1546300800000,"endDate":95649033600000,"value":{"localeValues":[
-                {"locale":"defaultLocale","value":"Anlong Veaeng"}]}}
-        ]
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'code', geoObjectCode );
+        params = params.set( 'typeCode', geoObjectTypeCode );
+        
+        return this.http
+            .get<GeoObjectOverTime>( acp + '/cgr/geoobject/getOverTimeByCode', { params: params } )
+            .toPromise();
 
-        // let test = [{"startDate":1546300800000,"endDate":95649033600000,"value":"test"}];
-
-        return test;
     }
+
+
+    // getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): any[] {
+    //     let test =[
+    //         {"startDate":1546300800000,"endDate":95649033600000,"value":{"localeValues":[
+    //             {"locale":"defaultLocale","value":"Anlong Veaeng"}]}}
+    //     ]
+
+    //     // let test = [{"startDate":1546300800000,"endDate":95649033600000,"value":"test"}];
+
+    //     return test;
+    // }
     
 
     setAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string, collection: ValueOverTime[] ): Promise<Response> {

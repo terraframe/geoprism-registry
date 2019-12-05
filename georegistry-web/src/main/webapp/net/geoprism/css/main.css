@@ -2791,8 +2791,8 @@ input[type="text"]:-moz-placeholder{color:#333;}
 input[type="text"]:disabled {
     color: #999;
     box-shadow: none;
-    border-color: #767676;
-    border-color: var(--theme-input-text-border);
+    border-color: #ccc;
+    border-color: var(--theme-input-text-border-disabled);
 }
 
 input[type="textarea"]{

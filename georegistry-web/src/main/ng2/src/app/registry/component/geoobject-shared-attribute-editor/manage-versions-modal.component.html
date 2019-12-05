@@ -14,8 +14,8 @@
 
                 <div class="label-holder"></div>
                 <div class="holder">
-                    <form #myForm="ngForm">
-                        <table *ngIf="versions" class="table"> 
+                    <form *ngIf="geoObjectOverTime" #myForm="ngForm">
+                        <table class="table"> 
                             <thead> 
                                 <tr> 
                                     <th><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th> 
@@ -25,7 +25,7 @@
                                 </tr> 
                             </thead> 
                             <tbody> 
-                                <tr *ngFor="let version of versions; let i = index;"> 
+                                <tr *ngFor="let version of geoObjectOverTime.attributes[attr.code].values; let i = index;"> 
                                     <td *ngIf="attr.type === 'local'">
                                         <div *ngFor="let loc of version.value.localeValues">
                                             <p *ngIf="loc.locale === 'defaultLocale'">{{loc.value}}</p>
@@ -47,18 +47,22 @@
                         <div class="form-group">
                             <!-- <label for="value" style="display: block;margin-bottom:0;">Value</label> -->
 
-                            <!-- <td *ngIf="attr.type === 'local'">
-                                <div *ngFor="let loc of attr.value.localeValues"> -->
-                                    <input id="val" style="width:auto;" required type="hidden" name="val" [(ngModel)]="attr" #val="ngModel" [disabled]="true">
-                                <!-- </div>
+                            <td *ngIf="attr.type === 'local'">
+                                <div *ngFor="let loc of geoObject.properties[this.attr.code].localeValues"> 
+                                    <input id="val" style="width:auto;" type="text" name="val" [(ngModel)]="loc.value" #val="ngModel" [disabled]="true">
+                                    
+                                    <button type="submit" style="margin-left: 15px;" (click)="onAddNewVersion()" class="btn btn-primary" role="button" [disabled]="val.invalid || !canAddVersion()">
+                                        <localize key="changeovertime.manageVersions.button.label.addToHistory"></localize>
+                                    </button>
+                                </div>
                             </td>   
                             <td *ngIf="attr.type !== 'local'">
-                                <input id="val" style="width:auto;" required type="text" name="val" [(ngModel)]="attr" #val="ngModel" [disabled]="true">
-                            </td>  -->
+                                <input id="val" style="width:auto;" required type="text" name="val" [(ngModel)]="geoObject.properties[this.attr.code]" #val="ngModel" [disabled]="true">
+                            </td>  
 
-                            <button type="submit" style="margin-left: 15px;" (click)="onAddNewVersion()" class="btn btn-primary" role="button" [disabled]="val.invalid || valAdded">
+                            <!-- <button type="submit" style="margin-left: 15px;" (click)="onAddNewVersion()" class="btn btn-primary" role="button" [disabled]="val.invalid || valAdded || !canAddVersion()">
                                 <localize key="changeovertime.manageVersions.button.label.addToHistory"></localize>
-                            </button>
+                            </button> -->
                         </div>
                     </form>
                 </div>
