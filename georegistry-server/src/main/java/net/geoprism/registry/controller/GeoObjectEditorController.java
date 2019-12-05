@@ -52,6 +52,8 @@ import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -76,8 +78,6 @@ public class GeoObjectEditorController
   @Transaction
   private GeoObjectOverTime applyInTransaction(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId)
   {
-    GeoObjectOverTime timeGO;
-
     Map<String, String> roles = Session.getCurrentSession().getUserRoles();
 
     if (roles.keySet().contains(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE))
@@ -117,37 +117,31 @@ public class GeoObjectEditorController
     }
     else
     {
+      ServerGeoObjectService service = new ServerGeoObjectService();
 
-      if (!isNew)
-      {
-        timeGO = RegistryService.getInstance().updateGeoObjectOverTime(sessionId, sGO.toString());
-      }
-      else
-      {
-        timeGO = RegistryService.getInstance().createGeoObjectOverTime(sessionId, sGO.toString());
-      }
+      GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
 
-      ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
+      ServerGeoObjectIF serverGO = service.apply(timeGO, isNew, false);
+      final ServerGeoObjectType type = serverGO.getType();
 
-      applyPtn(sessionId, ptn);
+      ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
+
+      serverGO.setParents(ptnOt);
 
       // Update the master list record
       if (masterListId != null)
       {
-        ServerGeoObjectService service = new ServerGeoObjectService();
-        ServerGeoObjectIF geoObject = service.getGeoObject(timeGO);
-
         if (!isNew)
         {
-          MasterListVersion.get(masterListId).updateRecord(geoObject);
+          MasterListVersion.get(masterListId).updateRecord(serverGO);
         }
         else
         {
-          MasterListVersion.get(masterListId).publishRecord(geoObject);
+          MasterListVersion.get(masterListId).publishRecord(serverGO);
         }
       }
 
-      return timeGO;
+      return serverGO.toGeoObjectOverTime();
     }
 
     return null;

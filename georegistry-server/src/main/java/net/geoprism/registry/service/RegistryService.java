@@ -189,7 +189,6 @@ public class RegistryService
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    ServerGeoObjectService service = new ServerGeoObjectService();
     ServerGeoObjectIF object = service.apply(geoObject, false, false);
 
     return object.toGeoObject();

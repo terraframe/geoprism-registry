@@ -259,7 +259,7 @@ public class RegistryLocationController
       // goChild.getType().getCode(), "LocatedIn");
 
       ParentTreeNode ptn = ParentTreeNode.fromJSON(sjsPTN, ServiceFactory.getAdapter());
-      new GeoObjectEditorController().applyPtn(sessionId, ptn);
+      this.applyPtn(sessionId, ptn);
     }
     else
     {
@@ -277,4 +277,51 @@ public class RegistryLocationController
 
     return new RestBodyResponse(object);
   }
+
+  public void applyPtn(String sessionId, ParentTreeNode ptn)
+  {
+    GeoObject child = ptn.getGeoObject();
+    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();
+
+    // Remove all existing relationships which aren't what we're trying to
+    // create
+    for (ParentTreeNode ptnDbParent : childDbParents)
+    {
+      boolean shouldRemove = true;
+
+      for (ParentTreeNode ptnParent : ptn.getParents())
+      {
+        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
+        {
+          shouldRemove = false;
+        }
+      }
+
+      if (shouldRemove)
+      {
+        RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
+      }
+    }
+
+    // Create new relationships that don't already exist
+    for (ParentTreeNode ptnParent : ptn.getParents())
+    {
+      boolean alreadyExists = false;
+
+      for (ParentTreeNode ptnDbParent : childDbParents)
+      {
+        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
+        {
+          alreadyExists = true;
+        }
+      }
+
+      if (!alreadyExists)
+      {
+        GeoObject parent = ptnParent.getGeoObject();
+        RegistryService.getInstance().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
+      }
+    }
+  }
+
 }

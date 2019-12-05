@@ -246,6 +246,12 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   }
 
   @Override
+  public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
+  {
+    this.vertex.setParents(parentsOverTime);
+  }
+
+  @Override
   public ServerParentTreeNode addChild(ServerGeoObjectIF child, ServerHierarchyType hierarchy)
   {
     CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
