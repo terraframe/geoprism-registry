@@ -26,9 +26,9 @@
                                                         <localize key="change.request.changed.value.prefix"></localize> {{this.preGeoObject.properties[attr.code]}}
                                                     </p>
 
-                                                    <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                    <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                         <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                            Manage Versions
+                                                            <localize key="changeovertime.manageVersions.button.label"></localize>
                                                         </button>
                                                     </div>
                                             </div>
@@ -43,9 +43,9 @@
                                                     <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code].localeValues[i].value}}
                                                   </p>
 
-                                                  <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                  <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                        Manage Versions
+                                                        <localize key="changeovertime.manageVersions.button.label"></localize>
                                                     </button>
                                                   </div>
 
@@ -61,9 +61,9 @@
                                                         <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code] | date}}
                                                     </p>
 
-                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                        Manage Versions
+                                                        <localize key="changeovertime.manageVersions.button.label"></localize>
                                                     </button>
                                                   </div>
                                             </div>
@@ -87,9 +87,9 @@
                                                   <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                 </p>
 
-                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                        Manage Versions
+                                                        <localize key="changeovertime.manageVersions.button.label"></localize>
                                                     </button>
                                                   </div>
                                             </div>
@@ -102,9 +102,9 @@
                                                         <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                     </p>
 
-                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                        Manage Versions
+                                                        <localize key="changeovertime.manageVersions.button.label"></localize>
                                                     </button>
                                                   </div>
                                             </div>
@@ -117,9 +117,9 @@
                                                   <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                 </p>
 
-                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                        Manage Versions
+                                                        <localize key="changeovertime.manageVersions.button.label"></localize>
                                                     </button>
                                                   </div>
                                             </div>
@@ -137,9 +137,9 @@
                                                   <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
                                                 </p>
 
-                                                <div class="button-holder" style="padding: 20px 0 20px 0;">
+                                                <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                        Manage Versions
+                                                        <localize key="changeovertime.manageVersions.button.label"></localize>
                                                     </button>
                                                   </div>
                                             </div>

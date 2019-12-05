@@ -3,6 +3,7 @@ package net.geoprism.registry.conversion;
 import java.util.Date;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.business.Business;
 
@@ -31,6 +32,7 @@ public class LeafGeoObjectStrategy extends LocalizedValueConverter implements Se
     return this.type;
   }
 
+  @Override
   public LeafServerGeoObject constructFromGeoObject(GeoObject geoObject, boolean isNew)
   {
     if (!isNew)
@@ -47,6 +49,32 @@ public class LeafGeoObjectStrategy extends LocalizedValueConverter implements Se
       {
         InvalidRegistryIdException ex = new InvalidRegistryIdException();
         ex.setRegistryId(geoObject.getUid());
+        throw ex;
+      }
+
+      Business business = new Business(type.definesType());
+
+      return new LeafServerGeoObject(type, business);
+    }
+  }
+  
+  @Override
+  public LeafServerGeoObject constructFromGeoObjectOverTime(GeoObjectOverTime goTime, boolean isNew)
+  {
+    if (!isNew)
+    {
+      String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(goTime.getUid(), goTime.getType());
+
+      Business business = Business.get(runwayId);
+
+      return new LeafServerGeoObject(type, business);
+    }
+    else
+    {
+      if (!RegistryIdService.getInstance().isIssuedId(goTime.getUid()))
+      {
+        InvalidRegistryIdException ex = new InvalidRegistryIdException();
+        ex.setRegistryId(goTime.getUid());
         throw ex;
       }
 

@@ -21,6 +21,7 @@ package net.geoprism.registry.action.geoobject;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONObject;
 
@@ -44,10 +45,10 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   {
     String sJson = this.getGeoObjectJson();
 
-    GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), sJson);
+    GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
     ServerGeoObjectService builder = new ServerGeoObjectService();
-    builder.apply(geoObject, false, false);
+    builder.apply(goTime, false, false);
   }
 
   @Override

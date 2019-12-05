@@ -70,6 +70,7 @@
   /* Inputs */
  --theme-input-text-border: #767676;
  --theme-input-text-border-active: #6BA542;
+ --theme-input-text-border-disabled: #ccc;
 
   /* Dimensions */
  --theme-header-height: 144px;

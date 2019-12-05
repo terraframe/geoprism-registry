@@ -3,7 +3,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { GeoObject, GeoObjectType, MasterList, Attribute, ValueOverTime } from '../../model/registry';
+import { GeoObject, GeoObjectType, MasterList, Attribute, ValueOverTime, GeoObjectOverTime } from '../../model/registry';
 
 import { RegistryService } from '../../service/registry.service';
 
@@ -23,10 +23,9 @@ export class ManageVersionsModalComponent implements OnInit {
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
      */
-    onAttributeVersionChange: Subject<ValueOverTime[]>;
+    onAttributeVersionChange: Subject<GeoObjectOverTime>;
 
     attr: any;
-    valAdded: boolean = false;
     
     geoObjectType: GeoObjectType;
     
@@ -35,15 +34,18 @@ export class ManageVersionsModalComponent implements OnInit {
     attributeCode: string;
 
     @Input("attribute") 
-    set attribute(attribute: any) {
+    set attribute(attribute: Attribute) {
         this.attr = attribute;
         this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode ).then( valueOverTimeCollection => {
-            this.versions = valueOverTimeCollection;
+            this.geoObjectOverTime = valueOverTimeCollection;
         } );
-    }
-    versions: ValueOverTime[];
 
-    newVersion: {value:string, from:Date, to:string};
+        // this.geoObjectOverTime = this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode );
+      
+    }
+    geoObjectOverTime: GeoObjectOverTime;
+
+    newVersion: ValueOverTime;
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
 
@@ -54,39 +56,61 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     onAddNewVersion(): void {
-        console.log(this.attr);
 
         let vot: ValueOverTime = new ValueOverTime();
         vot.startDate = new Date();
         vot.endDate = new Date();
-        vot.value = this.attr;
+        vot.value = this.geoObject.properties[this.attr.code];
         
-        this.versions.push(vot);
-
-        this.valAdded = true;
+        this.geoObjectOverTime.attributes[this.attr.code].values.push(vot);
 
         // TODO: persist new value and inject returned data into list
     }
 
-    remove(version: any ): void {
-        for(let i=0; i<this.versions.length; i++){
-            if(this.versions[i].startDate === version.startDate){
-                this.versions.splice(i, 1);
-                this.valAdded = false;
-            }
+    canAddVersion(): boolean {
+        let hasVal = true;
+
+        if(this.geoObjectOverTime && this.geoObject){
+            this.geoObjectOverTime.attributes[this.attr.code].values.forEach(val => {
+                
+                let historyVal = val.value;
+                if(this.attr.type === 'local'){
+                    
+                    if( this.getDefaultLocaleVal(historyVal) === this.getDefaultLocaleVal(this.geoObject.properties[this.attr.code]) ){
+                        hasVal = false;
+                    }
+                }
+            });
         }
+
+        return hasVal;
+    }
+
+    getDefaultLocaleVal(locale: any): string {
+        let defVal = null;
+
+        locale.localeValues.forEach(locVal => {
+            if(locVal.locale === 'defaultLocale'){
+               defVal = locVal.value;             
+            }
+      
+        })
+
+        return defVal; 
+    }
+
+    remove(version: any ): void {
+        // for(let i=0; i<this.geoObjectOverTime.length; i++){
+        //     if(this.geoObjectOverTime[i].startDate === version.startDate){
+        //         this.geoObjectOverTime.splice(i, 1);
+        //         this.valAdded = false;
+        //     }
+        // }
     }
 
     onSubmit(): void {
-        // this.service.createMasterList( this.master ).then( response => {
-
-        //     this.onMasterListChange.next( response );
-        //     this.bsModalRef.hide();
-        // } ).catch(( err: HttpErrorResponse) => {
-        //     this.error( err );
-        // } );
         
-        this.onAttributeVersionChange.next( this.versions );
+        this.onAttributeVersionChange.next( this.geoObjectOverTime );
 
         this.bsModalRef.hide();
     }

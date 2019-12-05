@@ -6,14 +6,14 @@
     <div id="app-container" class="container-fluid">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <!-- <div class="row" style="padding: 30px 0 0 0;">
+
+        <div class="row" style="padding: 30px 0 0 0;">
             <div class="col-md-12">
-                <a routerLink="/master-lists"> 
-                    <i class="fa fa-arrow-left"></i> 
-                    <localize key="masterlist.backToLists"></localize>
+                <a [routerLink]="'/registry/master-lists'">
+                  <i class="fa fa-arrow-left"></i> <localize key="masterlist.back"></localize>
                 </a>
             </div>
-        </div> -->
+        </div>
 
         <div class="py-5">
             <h2>
@@ -67,7 +67,6 @@
 
                             </th> -->
 
-                            <th style="width: 20%" class="label-column"><localize key="masterlist.period"></localize></th>
                             <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
                             <th style="width: 15%" class="label-column"><localize key="masterlist.forDate"></localize></th>
                             <th style="width: 15%" class="label-column"><localize key="masterlist.createDate"></localize></th>
@@ -76,10 +75,7 @@
                     <tbody>
                         <!-- <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item"> -->
                         <tr *ngFor="let version of list.versions">
-                            <td style="width: 20%;" class="label-column">
-                                <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">{{ version.period }}</a>
-                            </td>
-                            <td style="width: 50%">
+                            <td style="width: 70%">
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
 <!-- 
                                 <button type="submit" (click)="onEdit(version)" class="btn btn-primary" role="button">Edit</button>

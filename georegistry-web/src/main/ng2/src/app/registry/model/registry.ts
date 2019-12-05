@@ -63,10 +63,15 @@ export class GeoObjectType {
 //     rootTerm: string;
 // }
 
+export class GeoObjectOverTime {
+    attributes: any;
+}
+
 export class ValueOverTime {
     startDate: Date;
     endDate: Date;
     value: any;
+    removable?: boolean;
 }
 
 export class Attribute {

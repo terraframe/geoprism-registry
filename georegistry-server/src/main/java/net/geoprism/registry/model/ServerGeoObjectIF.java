@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 
@@ -88,6 +89,8 @@ public interface ServerGeoObjectIF
   public void lock();
 
   public void populate(GeoObject geoObject);
+  
+  public void populate(GeoObjectOverTime goTime);
 
   public void apply(boolean isImport);
 

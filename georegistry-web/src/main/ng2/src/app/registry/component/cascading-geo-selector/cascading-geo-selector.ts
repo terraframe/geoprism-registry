@@ -7,6 +7,8 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ParentTreeNode, GeoObject } from '../../model/registry';
 import { RegistryService } from '../../service/registry.service';
 
+import { ManageVersionsModalComponent } from '../geoobject-shared-attribute-editor/manage-versions-modal.component';
+
 import { LocalizedValue } from '../../../shared/model/core';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 
@@ -184,6 +186,25 @@ export class CascadingGeoSelector {
         else {
             return null;
         }
+    }
+
+    onManageAttributeVersions(attribute: any): void {
+        this.bsModalRef = this.modalService.show( ManageVersionsModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+
+        // TODO: sending the properties like this is wrong
+        // this.bsModalRef.content.geoObject = this.preGeoObject;
+        // this.bsModalRef.content.geoObjectType = this.geoObjectType;
+        // this.bsModalRef.content.attributeCode = attribute.code;
+        // this.bsModalRef.content.attribute = attribute;
+        // this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
+        //     console.log(versionObj)
+
+            // TODO: set the version on the GeoObject attribute
+        // } );
     }
 
     public error( err: HttpErrorResponse ): void {
