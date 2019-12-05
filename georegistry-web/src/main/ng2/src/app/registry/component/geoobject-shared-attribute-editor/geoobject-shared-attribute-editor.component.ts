@@ -159,7 +159,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     isDifferent( attribute: Attribute ): boolean {
-        return this.calculatedPreObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code];
+        return this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code];
     }
 
     onSelectPropertyOption( event: any, option: any ): void {
