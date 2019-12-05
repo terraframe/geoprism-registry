@@ -305,6 +305,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   }
 
   @Override
+  public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     throw new UnsupportedOperationException();

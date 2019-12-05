@@ -52,6 +52,8 @@ import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -111,92 +113,44 @@ public class GeoObjectEditorController
         request.addAction(action).apply();
       }
 
+      // ServerParentTreeNodeOverTime ptnOt =
+      // ServerParentTreeNodeOverTime.fromJSON(sPtn);
+
       ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
 
       applyChangeRequest(sessionId, request, ptn, isNew, base, sequence);
     }
     else
     {
+      ServerGeoObjectService service = new ServerGeoObjectService();
 
-      if (!isNew)
-      {
-        go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
-      }
-      else
-      {
-        go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
-      }
+      GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), sGo);
 
-      ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
+      ServerGeoObjectIF object = service.apply(geoObject, isNew, false);
+      final ServerGeoObjectType type = object.getType();
 
-      applyPtn(sessionId, ptn);
+      ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
+
+      object.setParents(ptnOt);
 
       // Update the master list record
       if (masterListId != null)
       {
-        ServerGeoObjectService service = new ServerGeoObjectService();
-        ServerGeoObjectIF geoObject = service.getGeoObject(go);
 
         if (!isNew)
         {
-          MasterListVersion.get(masterListId).updateRecord(geoObject);
+          MasterListVersion.get(masterListId).updateRecord(object);
         }
         else
         {
-          MasterListVersion.get(masterListId).publishRecord(geoObject);
+          MasterListVersion.get(masterListId).publishRecord(object);
         }
       }
 
-      return go;
+      return object.toGeoObject();
     }
 
     return null;
-  }
-
-  public void applyPtn(String sessionId, ParentTreeNode ptn)
-  {
-    GeoObject child = ptn.getGeoObject();
-    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();
-
-    // Remove all existing relationships which aren't what we're trying to
-    // create
-    for (ParentTreeNode ptnDbParent : childDbParents)
-    {
-      boolean shouldRemove = true;
-
-      for (ParentTreeNode ptnParent : ptn.getParents())
-      {
-        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-        {
-          shouldRemove = false;
-        }
-      }
-
-      if (shouldRemove)
-      {
-        RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
-      }
-    }
-
-    // Create new relationships that don't already exist
-    for (ParentTreeNode ptnParent : ptn.getParents())
-    {
-      boolean alreadyExists = false;
-
-      for (ParentTreeNode ptnDbParent : childDbParents)
-      {
-        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-        {
-          alreadyExists = true;
-        }
-      }
-
-      if (!alreadyExists)
-      {
-        GeoObject parent = ptnParent.getGeoObject();
-        RegistryService.getInstance().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
-      }
-    }
   }
 
   public void applyChangeRequest(String sessionId, ChangeRequest request, ParentTreeNode ptn, boolean isNew, Instant base, int sequence)

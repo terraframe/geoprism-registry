@@ -158,6 +158,12 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   }
 
   @Override
+  public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
+  {
+    throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
+  }
+
+  @Override
   public Object getValue(String attributeName)
   {
     if (attributeName.equals(DefaultAttribute.CODE.getName()))
