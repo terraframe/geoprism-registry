@@ -1,4 +1,8 @@
 <div class="modal-body text-center">
+    <div>
+      Showing for date: {{forDate}}
+    </div>
+    
     <form class="modal-form" style="overflow: visible;">
         <div class="row-holder">
             <div class="label-holder"></div>
@@ -18,9 +22,17 @@
         </div>
 
         <!-- Attributes tab -->
-        <geoobject-shared-attribute-editor *ngIf="this.tabIndex === 0 && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
-            #attributeEditor [isValid]="this.isValid" (valid)="this.onValidChange()" [allowCodeEdit]="this.isNewGeoObject" [geoObjectType]="this.geoObjectType"
-            [preGeoObject]="this.goPropertiesPre" [postGeoObject]="this.goPropertiesPost" [isNew]="this.isNewGeoObject"></geoobject-shared-attribute-editor>
+        <geoobject-shared-attribute-editor 
+            *ngIf="this.tabIndex === 0 && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
+            #attributeEditor 
+            [isValid]="this.isValid" (valid)="this.onValidChange()" 
+            [allowCodeEdit]="this.isNewGeoObject" 
+            [geoObjectType]="this.geoObjectType"
+            [preGeoObject]="this.goPropertiesPre" 
+            [postGeoObject]="this.goPropertiesPost" 
+            [forDate]="this.forDate" 
+            [isNew]="this.isNewGeoObject">
+        </geoobject-shared-attribute-editor>
 
 
         <!-- Parents tab -->

@@ -18,48 +18,43 @@
 
 
                                             <div *ngIf="attr.type === 'character'">
-                                                <input *ngIf="postGeoObject" type="text"
-                                                    [(ngModel)]="postGeoObject.properties[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}"
-                                                    [disabled]="readOnly || (attr.code === 'code' && !this.allowCodeEdit)" required="attr.code === 'code'"> 
+                                              <input *ngIf="postGeoObject" type="text" [ngModel]="calculatedPostObject[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled required="attr.code === 'code'"> 
 
-                                                    <p class="warning-text" *ngIf="!isNew && this.preGeoObject.properties[attr.code] && this.postGeoObject.properties[attr.code].trim() !== this.preGeoObject.properties[attr.code]">
-                                                        <localize key="change.request.changed.value.prefix"></localize> {{this.preGeoObject.properties[attr.code]}}
-                                                    </p>
+                                              <p class="warning-text" *ngIf="!isNew && isDifferent(attr)">
+                                                <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code]}}
+                                              </p>
 
-                                                    <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
-                                                        <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                            <localize key="changeovertime.manageVersions.button.label"></localize>
-                                                        </button>
-                                                    </div>
+                                              <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
+                                                <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                  <localize key="changeovertime.manageVersions.button.label"></localize>
+                                                </button>
+                                               </div>
                                             </div>
                                             
                                             <div *ngIf="attr.type === 'local'">
                                               <ul class="list-group">
-                                                <li class="list-group-item" *ngFor="let localeValue of postGeoObject.properties[attr.code].localeValues; let i = index">
+                                                <li class="list-group-item" *ngFor="let localeValue of calculatedPostObject[attr.code].localeValues; let i = index">
                                                   <h5>{{localeValue.locale}}</h5>
-                                                  <input [disabled]="readOnly" required="localeValue.locale === 'defaultLocale'" *ngIf="postGeoObject" type="text" [(ngModel)]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale"> 
+                                                  <input disabled [required]="localeValue.locale === 'defaultLocale'" type="text" [ngModel]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale"> 
 
-                                                  <p class="warning-text" *ngIf="!isNew && localeValue.value.trim() !== preGeoObject.properties[attr.code].localeValues[i].value">
-                                                    <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code].localeValues[i].value}}
+                                                  <p class="warning-text" *ngIf="!isNew && localeValue.value.trim() !== calculatedPreObject[attr.code].localeValues[i].value">
+                                                    <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code].localeValues[i].value}}
                                                   </p>
-
-                                                  <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
-                                                    <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                        <localize key="changeovertime.manageVersions.button.label"></localize>
-                                                    </button>
-                                                  </div>
-
                                                 </li>
                                               </ul>                                            
+                                              <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
+                                                <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                                  <localize key="changeovertime.manageVersions.button.label"></localize>
+                                                </button>
+                                              </div>                                          
                                             </div>
 
                                             <div *ngIf="attr.type === 'date'">
-                                                <input type="date" [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
-                                                     id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
+                                                <input type="date" [ngModel]="calculatedPostObject[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
                                                     
-                                                <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
-                                                        <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code] | date}}
-                                                    </p>
+                                                <p class="warning-text" *ngIf="!isNew && calculatedPostObject[attr.code] && calculatedPostObject[attr.code] !== calculatedPreObject[attr.code]">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code] | date}}
+                                                </p>
 
                                                 <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
                                                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
@@ -70,21 +65,17 @@
 
                                             <div *ngIf="attr.type === 'boolean'">
                                                 <label>
-                                                    <input type="radio" [checked]="this.postGeoObject.properties[attr.code] === true"
-                                                        [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
-                                                        [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true">
+                                                    <input type="radio" [checked]="calculatedPostObject[attr.code] === true" disabled [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true">
                                                     <localize key="change.request.boolean.option.true"></localize>
                                                 </label>
 
                                                 <label>
-                                                    <input type="radio" [checked]="this.postGeoObject.properties[attr.code] === false"
-                                                        [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
-                                                        [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false">
+                                                    <input type="radio" [checked]="calculatedPostObject[attr.code] === false" disabled [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false">
                                                     <localize key="change.request.boolean.option.false"></localize>
                                                 </label>
                                                 
-                                                <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] !== undefined && preGeoObject.properties[attr.code] !== postGeoObject.properties[attr.code]">
-                                                  <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                <p class="warning-text" *ngIf="!isNew && calculatedPostObject[attr.code] && calculatedPostObject[attr.code] !== calculatedPreObject[attr.code]">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code]}}
                                                 </p>
 
                                                 <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
@@ -95,11 +86,11 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'float'">
-                                                <input [disabled]="readOnly" type="number" [(ngModel)]="postGeoObject.properties[attr.code]"
+                                                <input disabled type="number" [(ngModel)]="calculatedPostObject[attr.code]"
                                                     id="mod-{{attr.code}}" name="mod-{{attr.code}}">
 
-                                                <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code].trim() !== preGeoObject.properties[attr.code]">
-                                                        <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                <p class="warning-text" *ngIf="!isNew && calculatedPreObject[attr.code] && calculatedPostObject[attr.code].trim() !== calculatedPreObject[attr.code]">
+                                                        <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code]}}
                                                     </p>
 
                                                 <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
@@ -110,11 +101,10 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'integer'">
-                                                <input type="number" [(ngModel)]="postGeoObject.properties[attr.code]" [disabled]="readOnly"
-                                                    id="mod-{{attr.code}}" name="mod-{{attr.code}}">
+                                                <input type="number" [(ngModel)]="calculatedPostObject[attr.code]" disabled id="mod-{{attr.code}}" name="mod-{{attr.code}}">
 
-                                                <p class="warning-text" *ngIf="!isNew && preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code].trim() !== preGeoObject.properties[attr.code]">
-                                                  <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                <p class="warning-text" *ngIf="!isNew && calculatedPreObject[attr.code] && calculatedPostObject[attr.code].trim() !== calculatedPreObject[attr.code]">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code]}}
                                                 </p>
 
                                                 <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
@@ -125,16 +115,15 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'term'">
-                                                <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float:none;" [disabled]="readOnly"
-                                                    (change)="onSelectPropertyOption($event)" [(ngModel)]="postGeoObject.properties[attr.code]">
+                                                <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float:none;" disabled [(ngModel)]="calculatedPostObject[attr.code]">
                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
                                                 </select>
 
                                                 <!-- 
-                                                <p class="warning-text" *ngIf="preGeoObject.properties[attr.code] && postGeoObject.properties[attr.code] !== preGeoObject.properties[attr.code]">
+                                                <p class="warning-text" *ngIf="calculatedPreObject[attr.code] && calculatedPostObject[attr.code] !== calculatedPreObject[attr.code]">
                                                 -->
-                                                <p class="warning-text" *ngIf="!isNew && isStatusChanged(postGeoObject.properties[attr.code], preGeoObject.properties[attr.code])">
-                                                  <localize key="change.request.changed.value.prefix"></localize> {{preGeoObject.properties[attr.code]}}
+                                                <p class="warning-text" *ngIf="!isNew && isStatusChanged(calculatedPostObject[attr.code], calculatedPreObject[attr.code])">
+                                                  <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code]}}
                                                 </p>
 
                                                 <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">

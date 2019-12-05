@@ -82,6 +82,7 @@ export class Attribute {
     isDefault: boolean;
     required: boolean;
     unique: boolean;
+    isChangeOverTime?: boolean;
 
     constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
 

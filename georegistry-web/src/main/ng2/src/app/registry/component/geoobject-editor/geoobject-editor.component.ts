@@ -14,7 +14,7 @@ import { ChangeRequestService } from '../../service/change-request.service';
 import { CascadingGeoSelector } from '../cascading-geo-selector/cascading-geo-selector'
 
 import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
@@ -66,10 +66,10 @@ export class GeoObjectEditorComponent implements OnInit {
     arePropertiesValid: boolean = false;
 
     // The current state of the GeoObject in the GeoRegistry
-    goPropertiesPre: GeoObject;
+    goPropertiesPre: GeoObjectOverTime;
 
     // The state of the GeoObject after our edit has been applied
-    goPropertiesPost: GeoObject;
+    goPropertiesPost: GeoObjectOverTime;
 
     /*
      * GeoObject Geometry Editor
@@ -78,7 +78,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
     areGeometriesValid: boolean = false;
 
-    goGeometries: GeoObject;
+    goGeometries: GeoObjectOverTime;
 
     /*
      * GeoObject Cascading Parent Selector
@@ -90,11 +90,16 @@ export class GeoObjectEditorComponent implements OnInit {
     hierarchies: any;
 
     /*
+     * Date in which the modal is shown for
+     */
+    forDate: Date = new Date();
+
+    /*
      * The final artifacts which will be submitted
      */
     private parentTreeNode: ParentTreeNode;
 
-    private goSubmit: GeoObject;
+    private goSubmit: GeoObjectOverTime;
 
 
     constructor( private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
@@ -134,8 +139,9 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     // Configures the widget to be used in an "Edit Existing" context
-    public configureAsExisting( code: string, typeCode: string ) {
+    public configureAsExisting( code: string, typeCode: string, forDate: string ) {
         this.isNewGeoObject = false;
+        this.forDate = new Date( Date.parse( forDate ) );
 
         this.fetchGeoObject( code, typeCode );
         this.fetchGeoObjectType( typeCode );
@@ -143,7 +149,7 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     private fetchGeoObject( code: string, typeCode: string ) {
-        this.registryService.getGeoObjectByCode( code, typeCode )
+        this.registryService.getGeoObjectOverTime( code, typeCode )
             .then( geoObject => {
                 this.goPropertiesPre = geoObject;
                 this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
@@ -151,8 +157,9 @@ export class GeoObjectEditorComponent implements OnInit {
 
                 if ( this.hierarchies != null ) {
                     this.goSubmit = this.goPropertiesPost;
-                    this.goSubmit.geometry = this.goGeometries.geometry;
-                    this.parentTreeNode.geoObject = this.goSubmit;
+                    
+//                    this.goSubmit.geometry = this.goGeometries.geometry;
+//                    this.parentTreeNode.geoObject = this.goSubmit;
 
                     this.areGeometriesValid = true;
                     this.areParentsValid = true;
@@ -169,13 +176,14 @@ export class GeoObjectEditorComponent implements OnInit {
         this.registryService.getGeoObjectTypes( [code] )
             .then( geoObjectType => {
                 this.geoObjectType = geoObjectType[0];
-                
-                if(!this.geoObjectType.isGeometryEditable) {
-                    this.areGeometriesValid = true;                    
+
+                if ( !this.geoObjectType.isGeometryEditable ) {
+                    this.areGeometriesValid = true;
                 }
-                
+
             } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
+                console.log(err);
+//                this.error( err );
             } );
     }
 
@@ -189,8 +197,9 @@ export class GeoObjectEditorComponent implements OnInit {
 
                 if ( this.goGeometries != null ) {
                     this.goSubmit = this.goPropertiesPost;
-                    this.goSubmit.geometry = this.goGeometries.geometry;
-                    this.parentTreeNode.geoObject = this.goSubmit;
+                    
+//                    this.goSubmit.geometry = this.goGeometries.geometry;
+//                    this.parentTreeNode.geoObject = this.goSubmit;
 
                     this.areGeometriesValid = true;
                     this.areParentsValid = true;
@@ -263,13 +272,13 @@ export class GeoObjectEditorComponent implements OnInit {
 
         this.goSubmit = this.goPropertiesPost;
 
-        if ( this.goSubmit != null && this.goGeometries != null && this.goGeometries.geometry != null ) {
-            this.goSubmit.geometry = this.goGeometries.geometry;
-        }
-
-        if ( this.parentTreeNode != null ) {
-            this.parentTreeNode.geoObject = this.goSubmit;
-        }
+//        if ( this.goSubmit != null && this.goGeometries != null && this.goGeometries.geometry != null ) {
+//            this.goSubmit.geometry = this.goGeometries.geometry;
+//        }
+//
+//        if ( this.parentTreeNode != null ) {
+//            this.parentTreeNode.geoObject = this.goSubmit;
+//        }
     }
 
     public error( err: HttpErrorResponse ): void {

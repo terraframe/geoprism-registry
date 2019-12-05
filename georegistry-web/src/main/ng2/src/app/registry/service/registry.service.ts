@@ -351,7 +351,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): Promise<GeoObjectOverTime> {
+    getGeoObjectOverTime( geoObjectCode: string, geoObjectTypeCode: string ): Promise<GeoObjectOverTime> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
@@ -492,7 +492,7 @@ export class RegistryService {
     /*
      * Not really part of the RegistryService
      */
-    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObject, isNew: boolean, masterListId: string ): Promise<void> {
+    applyGeoObjectEdit( parentTreeNode: ParentTreeNode, geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );

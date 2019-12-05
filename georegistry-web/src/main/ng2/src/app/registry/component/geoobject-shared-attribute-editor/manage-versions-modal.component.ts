@@ -36,7 +36,7 @@ export class ManageVersionsModalComponent implements OnInit {
     @Input("attribute") 
     set attribute(attribute: Attribute) {
         this.attr = attribute;
-        this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode ).then( valueOverTimeCollection => {
+        this.service.getGeoObjectOverTime( this.geoObject.properties.code, this.geoObjectType.code ).then( valueOverTimeCollection => {
             this.geoObjectOverTime = valueOverTimeCollection;
         } );
 

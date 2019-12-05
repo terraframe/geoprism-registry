@@ -12,7 +12,7 @@ import { ChangeRequestService } from '../../service/change-request.service';
 
 
 import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
@@ -45,12 +45,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     /*
 	 * The current state of the GeoObject in the GeoRegistry
 	 */
-    @Input() preGeoObject: GeoObject = null;
+    @Input() preGeoObject: GeoObjectOverTime = null;
 
-	/*
-	 * The state of the GeoObject after our Change Request has been approved 
+    calculatedPreObject: any = {};
+
+    /*
+	 * The state of the GeoObject being modified
 	 */
-    @Input() postGeoObject: any = {};
+    @Input() postGeoObject: GeoObjectOverTime = null;
+
+    calculatedPostObject: any = {};
 
     @Input() geoObjectType: GeoObjectType;
 
@@ -62,12 +66,15 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() attributeExcludes: string[] = [];
 
+    @Input() forDate: Date = new Date();
+
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
+
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
 
     @ViewChild( "attributeForm" ) attributeForm;
@@ -80,6 +87,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     ngOnInit(): void {
         this.preGeoObject = JSON.parse( JSON.stringify( this.preGeoObject ) ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
+
         if ( this.postGeoObject == null ) {
             this.postGeoObject = JSON.parse( JSON.stringify( this.preGeoObject ) ); // Object.assign is a shallow copy. We want a deep copy.
         }
@@ -90,48 +98,47 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.attributeForm.statusChanges.subscribe( result => {
             this.isValid = ( result === "VALID" );
             this.valid.emit( this.isValid );
-        }
-        );
+        } );
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
         }
 
-        // Convert types from server to frontend
-        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
-            var attr = this.geoObjectType.attributes[i];
+        this.calculatedPreObject = this.calculate( this.preGeoObject );
+        this.calculatedPostObject = this.calculate( this.postGeoObject );
+    }
 
-            // The front-end uses the date format 'yyyy-mm-dd'. Our backend expects dates in epoch format.
-            if ( attr.type === "date" && this.preGeoObject.properties[attr.code] != null ) {
-                var date = this.datePipe.transform( this.preGeoObject.properties[attr.code], 'yyyy-MM-dd' );
+    calculate( goot: GeoObjectOverTime ): any {
+        const object = {};
 
-                this.preGeoObject.properties[attr.code] = date;
+        const time = this.forDate.getTime();
 
-                if ( this.postGeoObject.properties[attr.code] != null ) {
-                    var postDate = this.datePipe.transform( this.postGeoObject.properties[attr.code], 'yyyy-MM-dd' );
+        for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+            let attr = this.geoObjectType.attributes[i];
 
-                    this.postGeoObject.properties[attr.code] = postDate;
-                }
+            if ( attr.isChangeOverTime ) {
+                let values = goot.attributes[attr.code].values;
+
+                values.forEach( vot => {
+
+                    const startDate = Date.parse( vot.startDate );
+                    const endDate = Date.parse( vot.endDate );
+
+                    if ( time >= startDate && time <= endDate ) {
+                        object[attr.code] = vot.value;
+                    }
+                } );
             }
-            // Sometimes booleans come back from the server as "false" instead of an actual boolean
-            else if ( attr.type === "boolean" && this.preGeoObject.properties[attr.code] !== null ) {
-                var val = this.preGeoObject.properties[attr.code];
-                var bool = ( val === "true" ) || ( val === true );
-
-                this.preGeoObject.properties[attr.code] = bool;
-
-                if ( this.postGeoObject.properties[attr.code] != null ) {
-                    var postVal = this.postGeoObject.properties[attr.code];
-                    var postBool = ( postVal === "true" ) || ( postVal === true );
-
-                    this.postGeoObject.properties[attr.code] = postBool;
-                }
+            else {
+                object[attr.code] = goot.attributes[attr.code];
             }
         }
+
+        return object;
     }
 
 
-    onManageAttributeVersions(attribute: Attribute): void {
+    onManageAttributeVersions( attribute: Attribute ): void {
         this.bsModalRef = this.modalService.show( ManageVersionsModalComponent, {
             animated: true,
             backdrop: true,
@@ -145,10 +152,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.bsModalRef.content.attribute = attribute;
         // this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
         this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
-            console.log(versionObj)
+            console.log( versionObj )
 
             // TODO: set the version on the GeoObject attribute
         } );
+    }
+
+    isDifferent( attribute: Attribute ): boolean {
+        return this.calculatedPreObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code];
     }
 
     onSelectPropertyOption( event: any, option: any ): void {
@@ -238,19 +249,19 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     public getGeoObject(): any {
-        // The front-end uses the 'yyyy-mm-dd' date format. Our backend expects dates in epoch format.
-        var submitGO = JSON.parse( JSON.stringify( this.postGeoObject ) );
-        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
-            var attr = this.geoObjectType.attributes[i];
-
-            if ( attr.type === "date" && this.postGeoObject.properties[attr.code] != null ) {
-                var parts = this.postGeoObject.properties[attr.code].split( '-' );
-                var date = new Date( parts[0], parts[1] - 1, parts[2] );
-
-                submitGO.properties[attr.code] = date.getTime();
-            }
-        }
-
-        return submitGO;
+        //        // The front-end uses the 'yyyy-mm-dd' date format. Our backend expects dates in epoch format.
+        //        var submitGO = JSON.parse( JSON.stringify( this.postGeoObject ) );
+        //        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+        //            var attr = this.geoObjectType.attributes[i];
+        //
+        //            if ( attr.type === "date" && this.postGeoObject.properties[attr.code] != null ) {
+        //                var parts = this.postGeoObject.properties[attr.code].split( '-' );
+        //                var date = new Date( parts[0], parts[1] - 1, parts[2] );
+        //
+        //                submitGO.properties[attr.code] = date.getTime();
+        //            }
+        //        }
+        //
+        //        return submitGO;
     }
 }
