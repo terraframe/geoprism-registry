@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.json.JSONException;
 
@@ -52,14 +51,12 @@ import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = "geoobject-editor")
-public class GeoObjectEditorController
+public class GeoObjectEditorControllerNoOverTime
 {
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId) throws JSONException
@@ -70,14 +67,16 @@ public class GeoObjectEditorController
   }
 
   @Request(RequestType.SESSION)
-  public GeoObjectOverTime applyInReq(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId)
+  public GeoObject applyInReq(String sessionId, String ptn, String go, Boolean isNew, String masterListId)
   {
-    return applyInTransaction(sessionId, ptn, sGO, isNew, masterListId);
+    return applyInTransaction(sessionId, ptn, go, isNew, masterListId);
   }
 
   @Transaction
-  private GeoObjectOverTime applyInTransaction(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId)
+  private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, Boolean isNew, String masterListId)
   {
+    GeoObject go;
+
     Map<String, String> roles = Session.getCurrentSession().getUserRoles();
 
     if (roles.keySet().contains(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE))
@@ -94,7 +93,7 @@ public class GeoObjectEditorController
         UpdateGeoObjectAction action = new UpdateGeoObjectAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
         action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setGeoObjectJson(sGO);
+        action.setGeoObjectJson(sGo);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
         action.apply();
         request.addAction(action).apply();
@@ -104,7 +103,7 @@ public class GeoObjectEditorController
         CreateGeoObjectAction action = new CreateGeoObjectAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
         action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setGeoObjectJson(sGO);
+        action.setGeoObjectJson(sGo);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
         action.apply();
 
@@ -117,31 +116,37 @@ public class GeoObjectEditorController
     }
     else
     {
-      ServerGeoObjectService service = new ServerGeoObjectService();
 
-      GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
+      if (!isNew)
+      {
+        go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
+      }
+      else
+      {
+        go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
+      }
 
-      ServerGeoObjectIF serverGO = service.apply(timeGO, isNew, false);
-      final ServerGeoObjectType type = serverGO.getType();
+      ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
 
-      ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
-
-      serverGO.setParents(ptnOt);
+      applyPtn(sessionId, ptn);
 
       // Update the master list record
       if (masterListId != null)
       {
+        ServerGeoObjectService service = new ServerGeoObjectService();
+        ServerGeoObjectIF geoObject = service.getGeoObject(go);
+
         if (!isNew)
         {
-          MasterListVersion.get(masterListId).updateRecord(serverGO);
+          MasterListVersion.get(masterListId).updateRecord(geoObject);
         }
         else
         {
-          MasterListVersion.get(masterListId).publishRecord(serverGO);
+          MasterListVersion.get(masterListId).publishRecord(geoObject);
         }
       }
 
-      return serverGO.toGeoObjectOverTime();
+      return go;
     }
 
     return null;

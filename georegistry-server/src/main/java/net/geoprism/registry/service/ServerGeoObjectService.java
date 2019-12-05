@@ -76,6 +76,15 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     return strategy.constructFromGeoObject(go, false);
   }
+  
+  public ServerGeoObjectIF getGeoObject(GeoObjectOverTime timeGO)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(timeGO.getType());
+
+    ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
+
+    return strategy.constructFromGeoObjectOverTime(timeGO, false);
+  }
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, String typeCode)
   {

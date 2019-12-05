@@ -324,6 +324,12 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     this.setUid(goTime.getUid());
     this.setCode(goTime.getCode());
   }
+  
+  @Override
+  public GeoObjectOverTime toGeoObjectOverTime()
+  {
+    throw new UnsupportedOperationException("GeoObjectOverTime only supported with Vertex GeoObjects.");
+  }
 
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
