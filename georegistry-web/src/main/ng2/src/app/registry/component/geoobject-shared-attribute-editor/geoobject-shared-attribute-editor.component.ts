@@ -159,7 +159,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     isDifferent( attribute: Attribute ): boolean {
-        return this.calculatedPreObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code];
+        return this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code];
     }
 
     onSelectPropertyOption( event: any, option: any ): void {
@@ -183,6 +183,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         return null;
     }
+    
     removeStatuses( arr: any[] ) {
         var newI = -1;
         for ( var i = 0; i < arr.length; ++i ) {
@@ -249,6 +250,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     public getGeoObject(): any {
+        return this.postGeoObject;
+        
         //        // The front-end uses the 'yyyy-mm-dd' date format. Our backend expects dates in epoch format.
         //        var submitGO = JSON.parse( JSON.stringify( this.postGeoObject ) );
         //        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
