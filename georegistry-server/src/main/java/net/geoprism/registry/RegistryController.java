@@ -108,8 +108,8 @@ public class RegistryController
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_TIME_CODE)
-  public ResponseIF getGeoObjectOverTimeByCode(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_TYPE_CODE) String typeCode) throws JSONException
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_GET_CODE)
+  public ResponseIF getGeoObjectOverTimeByCode(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_CODE_PARAM_TYPE_CODE) String typeCode) throws JSONException
   {
     GeoObjectOverTime geoObject = this.registryService.getGeoObjectOverTimeByCode(request.getSessionId(), code, typeCode);
 
@@ -177,6 +177,15 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_CREATE)
+  public ResponseIF createGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_CREATE_PARAM_GEOOBJECT) String jGeoObj)
+  {
+    GeoObjectOverTime geoObject = this.registryService.createGeoObjectOverTime(request.getSessionId(), jGeoObj);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(geoObject.toJSON(serializer));
+  }
 
   /**
    * TODO : Not part of the official API (yet). Currently used for the GeoObject
@@ -215,6 +224,15 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_UPDATE)
+  public ResponseIF updateGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_UPDATE_PARAM_GEOOBJECT) String jGeoObj)
+  {
+    GeoObjectOverTime goTime = this.registryService.updateGeoObjectOverTime(request.getSessionId(), jGeoObj);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(goTime.toJSON(serializer));
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)

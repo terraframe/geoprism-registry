@@ -893,22 +893,26 @@ public class RegistryService
   {
     ServerGeoObjectIF goServer = service.getGeoObjectByCode(code, typeCode);
 
-    VertexServerGeoObject goVertex;
-    if (goServer instanceof VertexServerGeoObject)
-    {
-      goVertex = (VertexServerGeoObject) goServer;
-    }
-    else if (goServer instanceof CompositeServerGeoObject)
-    {
-      goVertex = ( (CompositeServerGeoObject) goServer ).getVertex();
-    }
-    else
-    {
-      throw new UnsupportedOperationException();
-    }
+    return goServer.toGeoObjectOverTime();
+  }
+  
+  @Request(RequestType.SESSION)
+  public GeoObjectOverTime updateGeoObjectOverTime(String sessionId, String jGeoObj)
+  {
+    GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
 
-    GeoObjectOverTime goTime = goVertex.toGeoObjectOverTime();
-
-    return goTime;
+    ServerGeoObjectIF object = service.apply(goTime, false, false);
+    
+    return object.toGeoObjectOverTime();
+  }
+  
+  @Request(RequestType.SESSION)
+  public GeoObjectOverTime createGeoObjectOverTime(String sessionId, String jGeoObj)
+  {
+    GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
+    
+    ServerGeoObjectIF object = service.apply(goTime, true, false);
+    
+    return object.toGeoObjectOverTime();
   }
 }

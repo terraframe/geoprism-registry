@@ -316,6 +316,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public GeoObjectOverTime toGeoObjectOverTime()
+  {
+    throw new UnsupportedOperationException("Not implemented yet.");
+  }
 
   @Override
   public GeoObject toGeoObject()

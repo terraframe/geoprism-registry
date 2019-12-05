@@ -60,6 +60,12 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     return this.business.toGeoObject();
   }
+  
+  @Override
+  public GeoObjectOverTime toGeoObjectOverTime()
+  {
+    return this.vertex.toGeoObjectOverTime();
+  }
 
   @Override
   public void setCode(String code)

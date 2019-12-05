@@ -21,6 +21,8 @@ public interface ServerGeoObjectIF
   public ServerGeoObjectType getType();
 
   public GeoObject toGeoObject();
+  
+  public GeoObjectOverTime toGeoObjectOverTime();
 
   public String getCode();
 

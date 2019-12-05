@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.json.JSONException;
 
@@ -42,7 +43,6 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -68,15 +68,15 @@ public class GeoObjectEditorController
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject applyInReq(String sessionId, String ptn, String go, Boolean isNew, String masterListId)
+  public GeoObjectOverTime applyInReq(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId)
   {
-    return applyInTransaction(sessionId, ptn, go, isNew, masterListId);
+    return applyInTransaction(sessionId, ptn, sGO, isNew, masterListId);
   }
 
   @Transaction
-  private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, Boolean isNew, String masterListId)
+  private GeoObjectOverTime applyInTransaction(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId)
   {
-    GeoObject go;
+    GeoObjectOverTime timeGO;
 
     Map<String, String> roles = Session.getCurrentSession().getUserRoles();
 
@@ -94,7 +94,7 @@ public class GeoObjectEditorController
         UpdateGeoObjectAction action = new UpdateGeoObjectAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
         action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setGeoObjectJson(sGo);
+        action.setGeoObjectJson(sGO);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
         action.apply();
         request.addAction(action).apply();
@@ -104,7 +104,7 @@ public class GeoObjectEditorController
         CreateGeoObjectAction action = new CreateGeoObjectAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
         action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setGeoObjectJson(sGo);
+        action.setGeoObjectJson(sGO);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
         action.apply();
 
@@ -120,11 +120,11 @@ public class GeoObjectEditorController
 
       if (!isNew)
       {
-        go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
+        timeGO = RegistryService.getInstance().updateGeoObjectOverTime(sessionId, sGO.toString());
       }
       else
       {
-        go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
+        timeGO = RegistryService.getInstance().createGeoObjectOverTime(sessionId, sGO.toString());
       }
 
       ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
@@ -135,7 +135,7 @@ public class GeoObjectEditorController
       if (masterListId != null)
       {
         ServerGeoObjectService service = new ServerGeoObjectService();
-        ServerGeoObjectIF geoObject = service.getGeoObject(go);
+        ServerGeoObjectIF geoObject = service.getGeoObject(timeGO);
 
         if (!isNew)
         {
@@ -147,7 +147,7 @@ public class GeoObjectEditorController
         }
       }
 
-      return go;
+      return timeGO;
     }
 
     return null;
