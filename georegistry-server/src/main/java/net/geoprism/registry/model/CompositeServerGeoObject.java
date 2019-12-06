@@ -8,11 +8,13 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 /**
@@ -22,233 +24,224 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
  * 
  * @author terraframe
  */
-public class CompositeServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
+public class CompositeServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, VertexComponent
 {
-  private ServerGeoObjectIF     business;
+  private ServerGeoObjectIF     rSGO;
 
-  private VertexServerGeoObject vertex;
+  private VertexServerGeoObject vSGO;
 
-  public CompositeServerGeoObject(ServerGeoObjectIF business, VertexServerGeoObject vertex)
+  public CompositeServerGeoObject(ServerGeoObjectIF rSGO, VertexServerGeoObject vSGO)
   {
     super();
-    this.business = business;
-    this.vertex = vertex;
+    this.rSGO = rSGO;
+    this.vSGO = vSGO;
   }
 
-  public ServerGeoObjectIF getBusiness()
+  public VertexServerGeoObject getVertexServerGeoObject()
   {
-    return business;
+    return vSGO;
   }
 
-  public void setBusiness(ServerGeoObjectIF business)
+  @Override
+  public VertexObject getVertex()
   {
-    this.business = business;
-  }
-
-  public VertexServerGeoObject getVertex()
-  {
-    return vertex;
-  }
-
-  public void setVertex(VertexServerGeoObject vertex)
-  {
-    this.vertex = vertex;
+    return this.vSGO.getVertex();
   }
 
   @Override
   public GeoObject toGeoObject()
   {
-    return this.business.toGeoObject();
+    return this.rSGO.toGeoObject();
   }
 
   @Override
   public GeoObjectOverTime toGeoObjectOverTime()
   {
-    return this.vertex.toGeoObjectOverTime();
+    return this.vSGO.toGeoObjectOverTime();
   }
 
   @Override
   public void setCode(String code)
   {
-    this.business.setCode(code);
-    this.vertex.setCode(code);
+    this.rSGO.setCode(code);
+    this.vSGO.setCode(code);
   }
 
   @Override
   public String getCode()
   {
-    return this.business.getCode();
+    return this.rSGO.getCode();
   }
 
   @Override
   public void setUid(String uid)
   {
-    this.business.setUid(uid);
-    this.vertex.setUid(uid);
+    this.rSGO.setUid(uid);
+    this.vSGO.setUid(uid);
   }
 
   @Override
   public String getUid()
   {
-    return this.business.getUid();
+    return this.rSGO.getUid();
   }
 
   @Override
   public void setGeometry(Geometry geometry)
   {
-    this.business.setGeometry(geometry);
-    this.vertex.setGeometry(geometry);
+    this.rSGO.setGeometry(geometry);
+    this.vSGO.setGeometry(geometry);
   }
 
   @Override
   public void setGeometry(Geometry geometry, Date startDate, Date endDate)
   {
-    this.business.setGeometry(geometry, startDate, endDate);
-    this.vertex.setGeometry(geometry, startDate, endDate);
+    this.rSGO.setGeometry(geometry, startDate, endDate);
+    this.vSGO.setGeometry(geometry, startDate, endDate);
   }
 
   @Override
   public Geometry getGeometry()
   {
-    return this.business.getGeometry();
+    return this.rSGO.getGeometry();
   }
 
   @Override
   public void setStatus(GeoObjectStatus status)
   {
-    this.business.setStatus(status);
-    this.vertex.setStatus(status);
+    this.rSGO.setStatus(status);
+    this.vSGO.setStatus(status);
   }
 
   @Override
   public void setStatus(GeoObjectStatus status, Date startDate, Date endDate)
   {
-    this.business.setStatus(status, startDate, endDate);
-    this.vertex.setStatus(status, startDate, endDate);
+    this.rSGO.setStatus(status, startDate, endDate);
+    this.vSGO.setStatus(status, startDate, endDate);
   }
 
   @Override
   public GeoObjectStatus getStatus()
   {
-    return this.business.getStatus();
+    return this.rSGO.getStatus();
   }
 
   @Override
   public void setDisplayLabel(LocalizedValue label)
   {
-    this.business.setDisplayLabel(label);
-    this.vertex.setDisplayLabel(label);
+    this.rSGO.setDisplayLabel(label);
+    this.vSGO.setDisplayLabel(label);
   }
 
   @Override
   public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
   {
-    this.business.setDisplayLabel(value, startDate, endDate);
-    this.vertex.setDisplayLabel(value, startDate, endDate);
+    this.rSGO.setDisplayLabel(value, startDate, endDate);
+    this.vSGO.setDisplayLabel(value, startDate, endDate);
   }
 
   @Override
   public LocalizedValue getDisplayLabel()
   {
-    return this.business.getDisplayLabel();
+    return this.rSGO.getDisplayLabel();
   }
 
   @Override
   public String getRunwayId()
   {
-    return this.business.getRunwayId();
+    return this.rSGO.getRunwayId();
   }
 
   @Override
   public ServerGeoObjectType getType()
   {
-    return this.business.getType();
+    return this.rSGO.getType();
   }
 
   @Override
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs()
   {
-    return this.business.getMdAttributeDAOs();
+    return this.rSGO.getMdAttributeDAOs();
   }
 
   @Override
   public Object getValue(String attributeName)
   {
-    return this.business.getValue(attributeName);
+    return this.rSGO.getValue(attributeName);
   }
 
   @Override
   public Object getValue(String attributeName, Date date)
   {
-    return this.vertex.getValue(attributeName, date);
+    return this.vSGO.getValue(attributeName, date);
   }
 
   @Override
   public ValueOverTimeCollection getValuesOverTime(String attributeName)
   {
-    return this.vertex.getValuesOverTime(attributeName);
+    return this.vSGO.getValuesOverTime(attributeName);
   }
 
   @Override
   public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
   {
-    this.vertex.setValuesOverTime(attributeName, collection);
+    this.vSGO.setValuesOverTime(attributeName, collection);
   }
 
   @Override
   public void setValue(String attributeName, Object value)
   {
-    this.business.setValue(attributeName, value);
-    this.vertex.setValue(attributeName, value);
+    this.rSGO.setValue(attributeName, value);
+    this.vSGO.setValue(attributeName, value);
   }
 
   @Override
   public void setValue(String attributeName, Object value, Date startDate, Date endDate)
   {
-    this.business.setValue(attributeName, value, startDate, endDate);
-    this.vertex.setValue(attributeName, value, startDate, endDate);
+    this.rSGO.setValue(attributeName, value, startDate, endDate);
+    this.vSGO.setValue(attributeName, value, startDate, endDate);
   }
 
   @Override
   public String bbox()
   {
-    return this.business.bbox();
+    return this.rSGO.bbox();
   }
 
   @Override
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
-    return this.business.getHierarchyTypeMap(relationshipTypes);
+    return this.rSGO.getHierarchyTypeMap(relationshipTypes);
   }
 
   @Override
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
   {
-    return this.business.getAncestorMap(hierarchy);
+    return this.rSGO.getAncestorMap(hierarchy);
   }
 
   @Override
   public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
   {
-    return this.business.getChildGeoObjects(childrenTypes, recursive);
+    return this.rSGO.getChildGeoObjects(childrenTypes, recursive);
   }
 
   @Override
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
-    return this.vertex.getParentGeoObjects(parentTypes, recursive);
+    return this.vSGO.getParentGeoObjects(parentTypes, recursive);
   }
 
   @Override
   public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
   {
-    return this.vertex.getParentsOverTime(parentTypes, recursive);
+    return this.vSGO.getParentsOverTime(parentTypes, recursive);
   }
 
   @Override
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
   {
-    this.vertex.setParents(parentsOverTime);
+    this.vSGO.setParents(parentsOverTime);
   }
 
   @Override
@@ -256,8 +249,8 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
 
-    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchy);
-    this.vertex.addChild(cChild.vertex, hierarchy);
+    ServerParentTreeNode ptn = this.rSGO.addChild(cChild.rSGO, hierarchy);
+    this.vSGO.addChild(cChild.vSGO, hierarchy);
 
     return ptn;
   }
@@ -267,8 +260,8 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
 
-    ServerParentTreeNode ptn = this.business.addChild(cChild.business, hierarchy, startDate, endDate);
-    this.vertex.addChild(cChild.vertex, hierarchy, startDate, endDate);
+    ServerParentTreeNode ptn = this.rSGO.addChild(cChild.rSGO, hierarchy, startDate, endDate);
+    this.vSGO.addChild(cChild.vSGO, hierarchy, startDate, endDate);
 
     return ptn;
   }
@@ -278,8 +271,8 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     CompositeServerGeoObject cChild = (CompositeServerGeoObject) child;
 
-    this.business.removeChild(cChild.business, hierarchyCode);
-    this.vertex.removeChild(cChild.vertex, hierarchyCode);
+    this.rSGO.removeChild(cChild.rSGO, hierarchyCode);
+    this.vSGO.removeChild(cChild.vSGO, hierarchyCode);
   }
 
   @Override
@@ -287,8 +280,8 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     CompositeServerGeoObject cParent = (CompositeServerGeoObject) parent;
 
-    this.business.removeParent(cParent.business, hierarchyType);
-    this.vertex.removeParent(cParent.vertex, hierarchyType);
+    this.rSGO.removeParent(cParent.rSGO, hierarchyType);
+    this.vSGO.removeParent(cParent.vSGO, hierarchyType);
   }
 
   @Override
@@ -296,8 +289,8 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     CompositeServerGeoObject cParent = (CompositeServerGeoObject) parent;
 
-    ServerParentTreeNode ptn = this.business.addParent(cParent.business, hierarchyType);
-    this.vertex.addParent(cParent.vertex, hierarchyType);
+    ServerParentTreeNode ptn = this.rSGO.addParent(cParent.rSGO, hierarchyType);
+    this.vSGO.addParent(cParent.vSGO, hierarchyType);
 
     return ptn;
   }
@@ -307,8 +300,8 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     CompositeServerGeoObject cParent = (CompositeServerGeoObject) parent;
 
-    ServerParentTreeNode ptn = this.business.addParent(cParent.business, hierarchyType, startDate, endDate);
-    this.vertex.addParent(cParent.vertex, hierarchyType, startDate, endDate);
+    ServerParentTreeNode ptn = this.rSGO.addParent(cParent.rSGO, hierarchyType, startDate, endDate);
+    this.vSGO.addParent(cParent.vSGO, hierarchyType, startDate, endDate);
 
     return ptn;
   }
@@ -316,35 +309,35 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   @Override
   public void lock()
   {
-    this.business.lock();
-    this.vertex.lock();
+    this.rSGO.lock();
+    this.vSGO.lock();
   }
 
   @Override
   public void populate(GeoObject geoObject)
   {
-    this.business.populate(geoObject);
-    this.vertex.populate(geoObject);
+    this.rSGO.populate(geoObject);
+    this.vSGO.populate(geoObject);
   }
 
   @Override
   public void populate(GeoObjectOverTime goTime)
   {
-    this.business.populate(goTime);
-    this.vertex.populate(goTime);
+    this.rSGO.populate(goTime);
+    this.vSGO.populate(goTime);
   }
 
   @Override
   public void apply(boolean isImport)
   {
-    this.business.apply(isImport);
-    this.vertex.apply(isImport);
+    this.rSGO.apply(isImport);
+    this.vSGO.apply(isImport);
   }
 
   @Override
   public void setDate(Date date)
   {
-    this.business.setDate(date);
-    this.vertex.setDate(date);
+    this.rSGO.setDate(date);
+    this.vSGO.setDate(date);
   }
 }

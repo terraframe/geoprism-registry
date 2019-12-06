@@ -51,6 +51,7 @@ import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
+import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
@@ -131,6 +132,11 @@ public class GeoObjectEditorController
       // Update the master list record
       if (masterListId != null)
       {
+        if (serverGO instanceof CompositeServerGeoObject)
+        {
+          serverGO = ( (CompositeServerGeoObject) serverGO ).getVertexServerGeoObject();
+        }
+
         if (!isNew)
         {
           MasterListVersion.get(masterListId).updateRecord(serverGO);

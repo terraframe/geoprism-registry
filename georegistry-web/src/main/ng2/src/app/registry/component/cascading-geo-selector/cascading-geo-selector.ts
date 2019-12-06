@@ -7,7 +7,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ParentTreeNode, GeoObject, HierarchyOverTime } from '../../model/registry';
 import { RegistryService } from '../../service/registry.service';
 
-import { ManageVersionsModalComponent } from '../geoobject-shared-attribute-editor/manage-versions-modal.component';
+import { ManageParentVersionsModalComponent } from './manage-parent-versions-modal.component';
 
 import { LocalizedValue } from '../../../shared/model/core';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
@@ -67,7 +67,23 @@ export class CascadingGeoSelector {
                 const endDate = Date.parse( pot.endDate );
 
                 if ( time >= startDate && time <= endDate ) {
-                    object['parents'] = pot.parents;
+                    let parents = [];
+
+                    hierarchy.types.forEach( type => {
+                        let parent: any = {
+                            code: type.code,
+                            label: type.label
+                        }
+
+                        if ( pot.parents[type.code] != null ) {
+                            parent.text = pot.parents[type.code].text;
+                            parent.geoObject = pot.parents[type.code].geoObject;
+                        }
+
+                        parents.push( parent );
+                    } );
+
+                    object['parents'] = parents;
                 }
             } );
 
@@ -181,58 +197,26 @@ export class CascadingGeoSelector {
     }
 
     public getIsValid(): boolean {
-        return this.getParents() != null;
+        return true;
     }
 
     public getHierarchies(): any {
         return this.hierarchies;
     }
 
-    public getParents(): any {
-        return CascadingGeoSelector.staticGetParents( this.hierarchies );
-    }
+    onManageVersions( code: string ): void {
 
-    public static staticGetParents( hierarchies: any ): ParentTreeNode {
-        //        let ptn = new ParentTreeNode();
-        //        ptn.parents = [];
-        //
-        //        for ( var i = 0; i < hierarchies.length; ++i ) {
-        //            let hierarchy: any = hierarchies[i];
-        //
-        //            if ( hierarchy.parents.length > 0 ) {
-        //                let parent: any = hierarchy.parents[hierarchy.parents.length - 1];
-        //
-        //                if ( parent.ptn != null && parent.geoObject != null && parent.geoObject.properties.code.length > 0 ) {
-        //                    ptn.parents.push( parent.ptn );
-        //                }
-        //            }
-        //        }
-        //
-        //        if ( ptn.parents.length > 0 ) {
-        //            return ptn;
-        //        }
-        //        else {
-        return null;
-        //        }
-    }
+        const hierarchy = this.hierarchies.find( h => h.code === code );
 
-    onManageAttributeVersions( attribute: any ): void {
-        this.bsModalRef = this.modalService.show( ManageVersionsModalComponent, {
+        this.bsModalRef = this.modalService.show( ManageParentVersionsModalComponent, {
             animated: true,
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-
-        // TODO: sending the properties like this is wrong
-        // this.bsModalRef.content.geoObject = this.preGeoObject;
-        // this.bsModalRef.content.geoObjectType = this.geoObjectType;
-        // this.bsModalRef.content.attributeCode = attribute.code;
-        // this.bsModalRef.content.attribute = attribute;
-        // this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
-        //     console.log(versionObj)
-
-        // TODO: set the version on the GeoObject attribute
-        // } );
+        this.bsModalRef.content.init( hierarchy );
+        this.bsModalRef.content.onVersionChange.subscribe( hierarchy => {
+            this.calculate();
+        } );
     }
 
     public error( err: HttpErrorResponse ): void {

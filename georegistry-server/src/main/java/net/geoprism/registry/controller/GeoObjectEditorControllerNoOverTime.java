@@ -32,7 +32,6 @@ import org.json.JSONException;
 
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
@@ -55,7 +54,6 @@ import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
-@Controller(url = "geoobject-editor")
 public class GeoObjectEditorControllerNoOverTime
 {
   @Endpoint(error = ErrorSerialization.JSON)
