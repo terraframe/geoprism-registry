@@ -28,7 +28,7 @@
         <geoobject-shared-attribute-editor 
             *ngIf="this.tabIndex === 0 && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
             #attributeEditor 
-            [isValid]="this.isValid" (valid)="this.onValidChange()" 
+            (valid)="this.onValidChange()" 
             [allowCodeEdit]="this.isNewGeoObject" 
             [geoObjectType]="this.geoObjectType"
             [preGeoObject]="this.goPropertiesPre" 

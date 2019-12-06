@@ -22,6 +22,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerParentTreeNodeOverTime
 {
@@ -214,9 +215,10 @@ public class ServerParentTreeNodeOverTime
       if (parent.has("geoObject"))
       {
         final String pTypeCode = parent.get("code").getAsString();
-        final String pCode = parent.get("geoObject").getAsJsonObject().get("code").getAsString();
+        final JsonObject go = parent.get("geoObject").getAsJsonObject();
 
-        final ServerGeoObjectIF pSGO = new ServerGeoObjectService().getGeoObjectByCode(pCode, pTypeCode);
+        GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), go.toString());
+        final ServerGeoObjectIF pSGO = new ServerGeoObjectService().getGeoObjectByCode(geoObject.getCode(), pTypeCode);
 
         return new ServerParentTreeNode(pSGO, ht, date);
       }

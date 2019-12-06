@@ -711,6 +711,8 @@ public class MasterListVersion extends MasterListVersionBase
   @Transaction
   public void updateRecord(ServerGeoObjectIF object)
   {
+    object.setDate(this.getForDate());
+
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
@@ -743,6 +745,8 @@ public class MasterListVersion extends MasterListVersionBase
   @Transaction
   public void publishRecord(ServerGeoObjectIF object)
   {
+    object.setDate(this.getForDate());
+
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
@@ -993,12 +997,12 @@ public class MasterListVersion extends MasterListVersionBase
 
   private void addDependency(Map<String, JsonArray> dependencies, String attributeName, String dependency)
   {
-//    if (!dependencies.containsKey(attributeName))
-//    {
-//      dependencies.put(attributeName, new JsonArray());
-//    }
-//
-//    dependencies.get(attributeName).add(dependency);
+    // if (!dependencies.containsKey(attributeName))
+    // {
+    // dependencies.put(attributeName, new JsonArray());
+    // }
+    //
+    // dependencies.get(attributeName).add(dependency);
   }
 
   public void removeAttributeType(AttributeType attributeType)

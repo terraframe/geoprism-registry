@@ -58,10 +58,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
 
-    @Input() isValid: boolean = true;
-
-    @Output() valid = new EventEmitter<boolean>();
-
     @Input() allowCodeEdit: boolean = false;
 
     @Input() attributeExcludes: string[] = [];
@@ -71,9 +67,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
+    
+    @Output() valid = new EventEmitter<boolean>();
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
+    isValid: boolean = true;
 
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
 
@@ -95,10 +94,13 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.postGeoObject = JSON.parse( JSON.stringify( this.postGeoObject ) ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
         }
 
-        this.attributeForm.statusChanges.subscribe( result => {
-            this.isValid = ( result === "VALID" );
-            this.valid.emit( this.isValid );
-        } );
+//        this.attributeForm.statusChanges.subscribe( result => {
+//            this.isValid = ( result === "VALID" );
+//            
+//            console.log("Emitting: ", this.isValid);
+//            
+//            this.valid.emit( this.isValid );
+//        } );
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );

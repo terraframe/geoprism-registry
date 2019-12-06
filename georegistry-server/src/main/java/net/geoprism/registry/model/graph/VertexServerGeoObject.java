@@ -30,8 +30,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
@@ -92,8 +90,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return d1.compareTo(d2);
     }
   }
-
-  private Logger              logger = LoggerFactory.getLogger(VertexServerGeoObject.class);
 
   private ServerGeoObjectType type;
 
@@ -746,7 +742,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       {
         final ServerGeoObjectIF parent = entry.getGeoObject();
 
-        EdgeObject newEdge = this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge());
+        EdgeObject newEdge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
         newEdge.setValue(GeoVertex.START_DATE, entry.getDate());
 
         edges.add(newEdge);
@@ -772,7 +768,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     if (this.getVertex().isNew() || !this.exists(parent, hierarchyType, null, null))
     {
-      EdgeObject edge = this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge());
+      EdgeObject edge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
       edge.apply();
     }
 
@@ -792,7 +788,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     SortedSet<EdgeObject> edges = this.getEdges(hierarchyType);
 
-    EdgeObject newEdge = this.getVertex().addParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge());
+    EdgeObject newEdge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
     newEdge.setValue(GeoVertex.START_DATE, startDate);
     newEdge.setValue(GeoVertex.END_DATE, endDate);
 
@@ -815,7 +811,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
-    this.getVertex().removeParent( ( (VertexServerGeoObject) parent ).getVertex(), hierarchyType.getMdEdge());
+    this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
   }
 
   @Override
@@ -1089,7 +1085,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
-    query.setParameter("parent", ( (VertexServerGeoObject) parent ).getVertex().getRID());
+    query.setParameter("parent", ( (VertexComponent) parent ).getVertex().getRID());
     query.setParameter("child", this.getVertex().getRID());
 
     if (startDate != null)
