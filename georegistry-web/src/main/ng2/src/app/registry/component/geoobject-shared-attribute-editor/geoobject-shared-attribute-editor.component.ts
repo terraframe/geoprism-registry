@@ -107,7 +107,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.calculatedPreObject = this.calculate( this.preGeoObject );
         this.calculatedPostObject = this.calculate( this.postGeoObject );
     }
-    
+
     ngOnChanges( changes: SimpleChanges ) {
         this.calculatedPreObject = this.calculate( this.preGeoObject );
         this.calculatedPostObject = this.calculate( this.postGeoObject );
@@ -163,8 +163,20 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         } );
     }
 
-    isDifferent( attribute: Attribute ): boolean {
-        return this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code];
+    isDifferentText( attribute: Attribute ): boolean {
+        if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {
+            return true;
+        }
+
+        return ( this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code] );
+    }
+
+    isDifferentValue( attribute: Attribute ): boolean {
+        if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {
+            return true;
+        }
+
+        return ( this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code] !== this.calculatedPreObject[attribute.code] );
     }
 
     onSelectPropertyOption( event: any, option: any ): void {
@@ -188,7 +200,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         return null;
     }
-    
+
     removeStatuses( arr: any[] ) {
         var newI = -1;
         for ( var i = 0; i < arr.length; ++i ) {
@@ -217,7 +229,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     isStatusChanged( post, pre ) {
-        if ( pre.length == 0 || post.length == 0 ) {
+
+        if ( pre != null && post == null ) {
+            return true;
+        }
+
+        if ( pre == null || post == null || pre.length == 0 || post.length == 0 ) {
             return false;
         }
 
@@ -256,7 +273,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     public getGeoObject(): any {
         return this.postGeoObject;
-        
+
         //        // The front-end uses the 'yyyy-mm-dd' date format. Our backend expects dates in epoch format.
         //        var submitGO = JSON.parse( JSON.stringify( this.postGeoObject ) );
         //        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
