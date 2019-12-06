@@ -20,6 +20,8 @@ import { RegistryService } from '../../service/registry.service';
 import { IOService } from '../../service/io.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
+import Utils from '../../utility/Utils';
+
 
 @Component( {
     selector: 'manage-versions-modal',
@@ -48,14 +50,12 @@ export class ManageVersionsModalComponent implements OnInit {
     message: string = null;
 
     readonly: boolean = false;
-
     
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
      */
     onAttributeVersionChange: Subject<GeoObjectOverTime>;
 
-    // attr: Attribute;
     attribute: Attribute;
     
     geoObjectType: GeoObjectType;
@@ -76,7 +76,7 @@ export class ManageVersionsModalComponent implements OnInit {
         let dt = new Date(event);
         let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
-        vAttribute.startDate = this.formatDateString(dt);
+        vAttribute.startDate = Utils.formatDateString(dt);
 
         this.snapDates(vAttributes);
 
@@ -103,12 +103,12 @@ export class ManageVersionsModalComponent implements OnInit {
             // Only change those older than the most recent
             if(i < attributeArr.length - 1){
 
-                vAttr.endDate = this.formatDateString(new Date(new Date(lastStartDate).getTime() - 1));
+                vAttr.endDate = Utils.formatDateString(new Date(new Date(lastStartDate).getTime() - 1));
             }
             else{
                 // This should be the last entry in the array ONLY
                 // Set end date to infinity
-                vAttr.endDate = this.formatDateString(new Date('5000-12-31'));
+                vAttr.endDate = Utils.formatDateString(new Date('5000-12-31'));
             }
 
             lastStartDate = new Date(vAttr.startDate);
@@ -116,17 +116,12 @@ export class ManageVersionsModalComponent implements OnInit {
         }
     }
 
-    formatDateString(dateObj: Date): string{
-        const day = dateObj.getUTCDate();
-
-        return dateObj.getUTCFullYear() + "-" + ( dateObj.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
-    }
 
     onAddNewVersion(): void {
 
         let vot: ValueOverTime = new ValueOverTime();
-        vot.startDate = this.formatDateString(new Date());
-        vot.endDate = this.formatDateString(new Date());
+        vot.startDate = Utils.formatDateString(new Date());
+        vot.endDate = Utils.formatDateString(new Date());
         vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]} // TODO handle different types
         
         this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
@@ -134,24 +129,6 @@ export class ManageVersionsModalComponent implements OnInit {
         this.snapDates(this.geoObjectOverTime.attributes[this.attribute.code].values);
     }
 
-    canAddVersion(): boolean {
-        let hasVal = true;
-
-        if(this.geoObjectOverTime){
-            this.geoObjectOverTime.attributes[this.attribute.code].values.forEach(val => {
-                
-                let historyVal = val.value;
-                if(this.attribute.type === 'local'){
-                    
-                    if( this.getDefaultLocaleVal(historyVal) === this.getDefaultLocaleVal(this.geoObjectOverTime.attributes[this.attribute.code]) ){
-                        hasVal = false;
-                    }
-                }
-            });
-        }
-
-        return hasVal;
-    }
 
     getVersionData(attribute: Attribute) {
         let versions: ValueOverTime[] = [];
@@ -187,39 +164,12 @@ export class ManageVersionsModalComponent implements OnInit {
                 let attrOpts = attr.rootTerm.children;
 
                 if ( attrOpts.length > 0 ) {
-                    return this.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                    return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
                 }
             }
         }
 
         return null;
-    }
-
-    removeStatuses( arr: any[] ) {
-        var newI = -1;
-        for ( var i = 0; i < arr.length; ++i ) {
-            if ( arr[i].code === "CGR:Status-New" ) {
-                newI = i;
-                break;
-            }
-        }
-        if ( newI != -1 ) {
-            arr.splice( newI, 1 );
-        }
-
-
-        var pendI = 0;
-        for ( var i = 0; i < arr.length; ++i ) {
-            if ( arr[i].code === "CGR:Status-Pending" ) {
-                pendI = i;
-                break;
-            }
-        }
-        if ( pendI != -1 ) {
-            arr.splice( pendI, 1 );
-        }
-
-        return arr;
     }
 
     remove(version: any ): void {

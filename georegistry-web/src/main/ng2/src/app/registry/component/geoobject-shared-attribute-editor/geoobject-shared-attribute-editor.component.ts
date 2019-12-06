@@ -3,10 +3,8 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
 
-import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
 
-import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
 import { ChangeRequestService } from '../../service/change-request.service';
 
@@ -16,9 +14,7 @@ import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDe
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
-import { Observable } from 'rxjs';
-import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { mergeMap } from 'rxjs/operators';
+import Utils from '../../utility/Utils';
 
 declare var acp: string;
 
@@ -205,39 +201,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 let attrOpts = attr.rootTerm.children;
 
                 if ( attrOpts.length > 0 ) {
-                    return this.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );;
+                    return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );;
                 }
             }
         }
 
         return null;
-    }
-
-    removeStatuses( arr: any[] ) {
-        var newI = -1;
-        for ( var i = 0; i < arr.length; ++i ) {
-            if ( arr[i].code === "CGR:Status-New" ) {
-                newI = i;
-                break;
-            }
-        }
-        if ( newI != -1 ) {
-            arr.splice( newI, 1 );
-        }
-
-
-        var pendI = 0;
-        for ( var i = 0; i < arr.length; ++i ) {
-            if ( arr[i].code === "CGR:Status-Pending" ) {
-                pendI = i;
-                break;
-            }
-        }
-        if ( pendI != -1 ) {
-            arr.splice( pendI, 1 );
-        }
-
-        return arr;
     }
 
     isStatusChanged( post, pre ) {
