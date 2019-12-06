@@ -68,8 +68,8 @@ export class GeoObjectOverTime {
 }
 
 export class ValueOverTime {
-    startDate: Date;
-    endDate: Date;
+    startDate: string;
+    endDate: string;
     value: any;
     removable?: boolean;
 }
