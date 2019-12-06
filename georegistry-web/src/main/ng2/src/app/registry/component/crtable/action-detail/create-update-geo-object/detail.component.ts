@@ -5,7 +5,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Observable } from 'rxjs/Observable';
 
-import { GeoObject, GeoObjectType } from '../../../../model/registry';
+import { GeoObjectOverTime, GeoObjectType } from '../../../../model/registry';
 import { AbstractAction } from '../../../../model/crtable';
 
 import { RegistryService } from '../../../../service/registry.service';
@@ -31,9 +31,9 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
     @Input() action: any;
 
-    preGeoObject: GeoObject = null;
+    preGeoObject: GeoObjectOverTime = null;
 
-    postGeoObject: GeoObject = null;
+    postGeoObject: GeoObjectOverTime = null;
 
     geoObjectType: GeoObjectType = null;
 
@@ -103,8 +103,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
             this.action.actionType === "net.geoprism.registry.action.geoobject.UpdateGeoObjectAction"
             //    && typeof this.postGeoObject.properties.createDate !== 'undefined'
         ) {
-            this.registryService.getGeoObjectByCode( this.postGeoObject.properties.code, this.geoObjectType.code )
-                .then( geoObject => {
+            this.registryService.getGeoObjectOverTime( this.postGeoObject.attributes.code, this.geoObjectType.code ).then( geoObject => {
                     this.preGeoObject = geoObject;
 
                 } ).catch(( err: HttpErrorResponse ) => {

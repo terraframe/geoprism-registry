@@ -114,6 +114,37 @@
                                         <div *ngIf="attribute.type === 'integer'">
                                             <h1>TODO</h1>
                                         </div>
+                                        
+                                        <div *ngIf="attribute.type === 'geometry'">
+                                            <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;"> 
+	                                              <table>
+	                                                <thead>
+	                                                  <th>From:</th>
+	                                                  <th>To:</th>
+	                                                  <th>Delete:</th>
+	                                                </thead>
+	                                                <tbody style="text-align: center;">
+	                                                  <tr>
+	                                                    <td style="width:60%">
+                                                          <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="vAttribute.startDate = $event">
+                                                        </td>
+                                                        <td style="padding-top:10px; width:30%">
+                                                          <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
+                                                        </td>
+                                                        <td style="vertical-align: middle; width: 10%;padding: 5px; text-align: center;">
+                                                          <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                        </td>
+                                                      </tr>
+                                                      <tr>
+                                                        <td>
+                                                          <button *ngIf="this.editingGeometry != i" (click)="editGeometry(i)"><localize key="changeovertime.manageVersions.geometry.edit"></localize></button>
+	                                                      <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable" [geometryValue]="this.vAttribute.value" (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
+                                                        </td>
+                                                      </tr>
+                                                    </tbody>
+                                                  </table>
+                                            </tr>
+                                        </div>
 
                                     </li>
 

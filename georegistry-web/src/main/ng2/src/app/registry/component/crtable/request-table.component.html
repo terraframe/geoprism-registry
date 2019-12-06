@@ -97,11 +97,11 @@
 											<i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="fa fa-chain-broken vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
 
 											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-												<li>Update <b>{{action.geoObjectJson.properties.displayLabel.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ]</li>
+												<li>Update <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ]</li>
 												<li>on {{action.createActionDate}}</li>
 											</ul>
 											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-												<li>Create <b>{{action.geoObjectJson.properties.displayLabel.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ] </li>
+												<li>Create <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ] </li>
 												<li>on {{action.createActionDate}}</li>
 											</ul>
 											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">

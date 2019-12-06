@@ -169,6 +169,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
             this.calculate();
         } );
+        this.bsModalRef.content.tfInit();
     }
 
     isDifferentText( attribute: Attribute ): boolean {

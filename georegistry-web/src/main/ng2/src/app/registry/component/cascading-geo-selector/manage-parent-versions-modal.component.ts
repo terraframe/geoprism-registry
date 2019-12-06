@@ -139,14 +139,53 @@ export class ManageParentVersionsModalComponent implements OnInit {
         } );
     }
 
-
-
     onSubmit(): void {
 
         this.onVersionChange.next( this.hierarchy );
 
         this.bsModalRef.hide();
     }
+
+    onDateChange( event: any ): any {
+        this.snapDates();
+    }
+
+    snapDates() {
+        var dateOffset = ( 24 * 60 * 60 * 1000 ) * 1; //1 days
+        // Sort the data
+        this.hierarchy.entries.sort( function( a, b ) {
+
+            if ( a == null ) {
+                return -1;
+            }
+            else if ( b == null ) {
+                return 1;
+            }
+
+            let first: any = new Date( a.startDate );
+            let next: any = new Date( b.startDate );
+            return first - next;
+        } );
+
+
+        let lastStartDate: Date;
+        let lastEndDate: Date;
+        for ( let i = 1; i < this.hierarchy.entries.length; i++ ) {
+            let prev = this.hierarchy.entries[i - 1];
+            let current = this.hierarchy.entries[i];
+
+            prev.endDate = this.formatDateString( new Date( new Date( current.startDate ).getTime() - dateOffset ) );
+        }
+
+        this.hierarchy.entries[this.hierarchy.entries.length - 1].endDate = '5000-12-31';
+    }
+
+    formatDateString( dateObj: Date ): string {
+        const day = dateObj.getUTCDate();
+
+        return dateObj.getUTCFullYear() + "-" + ( dateObj.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
+    }
+
 
     error( err: HttpErrorResponse ): void {
         // Handle error

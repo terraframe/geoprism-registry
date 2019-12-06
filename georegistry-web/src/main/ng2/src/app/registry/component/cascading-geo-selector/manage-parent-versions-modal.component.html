@@ -46,7 +46,7 @@
                                                 
                                                 </td>
                                                 <td style="vertical-align: bottom;">
-                                                  <input style="width: 100%;" type="date" name="startDate-{{i}}" [(ngModel)]="entry.startDate" required />
+                                                  <input style="width: 100%;" type="date" name="startDate-{{i}}" [(ngModel)]="entry.startDate" (change)="snapDates()" required />
                                                 </td> 
                                                 <td style="vertical-align: bottom;">
                                                   <p style="font-size: 14px;"> {{entry.endDate | date:'MM-dd-yyyy'}} </p>
