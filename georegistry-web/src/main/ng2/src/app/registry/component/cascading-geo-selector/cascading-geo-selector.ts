@@ -116,7 +116,7 @@ export class CascadingGeoSelector {
         go.properties = {
             uid: "",
             code: "",
-            displayLabel: new LocalizedValue(),
+            displayLabel: new LocalizedValue(null, null),
             type: "",
             status: [""],
             sequence: "",

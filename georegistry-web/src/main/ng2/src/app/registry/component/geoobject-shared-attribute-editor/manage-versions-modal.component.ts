@@ -140,13 +140,29 @@ export class ManageVersionsModalComponent implements OnInit {
         vot.startDate = this.formatDateString(new Date());
         vot.endDate = this.formatDateString(new Date());
         
-        if (this.geoObjectType.type === "local")
+        let attributeType = null;
+        for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
         {
-          vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]};
+          if (this.geoObjectType.attributes[i].code === this.attribute.code)
+          {
+            attributeType = this.geoObjectType.attributes[i].type;
+          }
+        }
+        
+        if (this.isNewGeoObject)
+        {
+        	if (attributeType === "local")
+	        {
+	          vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]};
+	        }
+	        else if (attributeType === 'geometry')
+	        {
+	          vot.value = {"type":"MultiPolygon", "coordinates":[]};
+	        }
         }
         else
         {
-          vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value;
+	      vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value;
         }
         
         this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
