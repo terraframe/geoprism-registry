@@ -167,6 +167,12 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   }
 
   @Override
+  public void setDate(Date date)
+  {
+    // Do nothing
+  }
+
+  @Override
   public Object getValue(String attributeName)
   {
     if (attributeName.equals(DefaultAttribute.CODE.getName()))
@@ -253,7 +259,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     this.setDisplayLabel(geoObject.getDisplayLabel());
     this.setGeometry(geoObject.getGeometry());
   }
-  
+
   @Override
   public void populate(GeoObjectOverTime goTime)
   {
@@ -298,25 +304,25 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
         }
       }
     });
-    
+
     ValueOverTimeCollectionDTO votcDL = goTime.getAllValues(DefaultAttribute.DISPLAY_LABEL.getName());
     if (votcDL.size() > 0)
     {
-      ValueOverTimeDTO votDTO = votcDL.get(votcDL.size()-1);
+      ValueOverTimeDTO votDTO = votcDL.get(votcDL.size() - 1);
       this.setDisplayLabel(goTime.getDisplayLabel(votDTO.getStartDate()));
     }
-    
+
     ValueOverTimeCollectionDTO votcGeom = goTime.getAllValues(DefaultAttribute.GEOMETRY.getName());
     if (votcGeom.size() > 0)
     {
-      ValueOverTimeDTO votDTO = votcGeom.get(votcGeom.size()-1);
+      ValueOverTimeDTO votDTO = votcGeom.get(votcGeom.size() - 1);
       this.setGeometry(goTime.getGeometry(votDTO.getStartDate()));
     }
-    
+
     ValueOverTimeCollectionDTO votcStatus = goTime.getAllValues(DefaultAttribute.STATUS.getName());
     if (votcStatus.size() > 0)
     {
-      ValueOverTimeDTO votDTO = votcStatus.get(votcStatus.size()-1);
+      ValueOverTimeDTO votDTO = votcStatus.get(votcStatus.size() - 1);
       GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
       this.setStatus(gos);
     }
@@ -324,7 +330,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     this.setUid(goTime.getUid());
     this.setCode(goTime.getCode());
   }
-  
+
   @Override
   public GeoObjectOverTime toGeoObjectOverTime()
   {

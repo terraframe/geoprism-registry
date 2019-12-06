@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -76,6 +77,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.query.ServerLookupRestriction;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.LookupRestriction;
@@ -216,9 +219,15 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date forDate)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(childId, childGeoObjectTypeCode);
+
+    if (forDate != null)
+    {
+      object.setDate(forDate);
+    }
+
     return object.getParentGeoObjects(parentTypes, recursive).toNode();
   }
 
@@ -704,38 +713,68 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode)
+  public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode, Date date)
   {
-    GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
-    query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
-    query.setLimit(10);
-
-    GeoObjectIterator it = query.getIterator();
-
-    try
+    if (date != null)
     {
-      JsonArray results = new JsonArray();
+      final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-      while (it.hasNext())
+      ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
+
+      final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, date);
+      query.setRestriction(new ServerLookupRestriction(text, date, parentCode, ht));
+      query.setLimit(10);
+
+      final List<ServerGeoObjectIF> results = query.getResults();
+
+      JsonArray array = new JsonArray();
+
+      for (ServerGeoObjectIF object : results)
       {
-        GeoObject object = it.next();
-
         JsonObject result = new JsonObject();
-        result.addProperty("id", it.currentOid());
-        result.addProperty("name", object.getLocalizedDisplayLabel());
+        result.addProperty("id", object.getRunwayId());
+        result.addProperty("name", object.getDisplayLabel().getValue());
         result.addProperty(GeoObject.CODE, object.getCode());
         result.addProperty(GeoObject.UID, object.getUid());
 
-        results.add(result);
+        array.add(result);
       }
 
-      return results;
-    }
-    finally
-    {
-      it.close();
-    }
+      return array;
 
+    }
+    else
+    {
+      GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
+      query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
+      query.setLimit(10);
+
+      GeoObjectIterator it = query.getIterator();
+
+      try
+      {
+        JsonArray results = new JsonArray();
+
+        while (it.hasNext())
+        {
+          GeoObject object = it.next();
+
+          JsonObject result = new JsonObject();
+          result.addProperty("id", it.currentOid());
+          result.addProperty("name", object.getLocalizedDisplayLabel());
+          result.addProperty(GeoObject.CODE, object.getCode());
+          result.addProperty(GeoObject.UID, object.getUid());
+
+          results.add(result);
+        }
+
+        return results;
+      }
+      finally
+      {
+        it.close();
+      }
+    }
   }
 
   @Request(RequestType.SESSION)
@@ -894,24 +933,24 @@ public class RegistryService
 
     return goServer.toGeoObjectOverTime();
   }
-  
+
   @Request(RequestType.SESSION)
   public GeoObjectOverTime updateGeoObjectOverTime(String sessionId, String jGeoObj)
   {
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
 
     ServerGeoObjectIF object = service.apply(goTime, false, false);
-    
+
     return object.toGeoObjectOverTime();
   }
-  
+
   @Request(RequestType.SESSION)
   public GeoObjectOverTime createGeoObjectOverTime(String sessionId, String jGeoObj)
   {
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
-    
+
     ServerGeoObjectIF object = service.apply(goTime, true, false);
-    
+
     return object.toGeoObjectOverTime();
   }
 }

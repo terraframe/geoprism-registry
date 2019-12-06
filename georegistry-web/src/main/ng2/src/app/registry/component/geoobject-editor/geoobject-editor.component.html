@@ -1,9 +1,12 @@
 <div class="modal-body text-center">
-    <div>
-      Showing for date: {{forDate}}
-    </div>
     
     <form class="modal-form" style="overflow: visible;">
+        <div class="row-holder">
+            <div class="label-holder"><label>For Date</label></div>
+            <div class="holder">
+                <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
+            </div>
+        </div>
         <div class="row-holder">
             <div class="label-holder"></div>
             <div class="holder">
@@ -36,10 +39,11 @@
 
 
         <!-- Parents tab -->
-        <div *ngIf="this.tabIndex === 1 && this.postHierarchies != null">
+        <div *ngIf="this.tabIndex === 1 && this.hierarchies != null">
           <cascading-geo-selector #parentSelector 
             [isValid]="this.isValid" (valid)="this.onValidChange()"
-            [hierarchies]="this.postHierarchies">
+            [forDate]="this.forDate"             
+            [hierarchies]="this.hierarchies">
           </cascading-geo-selector>
         </div>
 

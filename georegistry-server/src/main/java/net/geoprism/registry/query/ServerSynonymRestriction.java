@@ -37,26 +37,22 @@ public class ServerSynonymRestriction implements ServerGeoObjectRestriction
 
   private Date                startDate;
 
-  private Date                endDate;
-
   private ServerGeoObjectIF   parent;
 
   private ServerHierarchyType hierarchyType;
 
-  public ServerSynonymRestriction(String label, Date startDate, Date endDate)
+  public ServerSynonymRestriction(String label, Date startDate)
   {
     this.label = label;
     this.startDate = startDate;
-    this.endDate = endDate;
     this.parent = null;
     this.hierarchyType = null;
   }
 
-  public ServerSynonymRestriction(String label, Date startDate, Date endDate, ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public ServerSynonymRestriction(String label, Date startDate, ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     this.label = label;
     this.startDate = startDate;
-    this.endDate = endDate;
     this.parent = parent;
     this.hierarchyType = hierarchyType;
   }

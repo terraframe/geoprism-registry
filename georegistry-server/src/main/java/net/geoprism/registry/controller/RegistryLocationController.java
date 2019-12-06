@@ -86,7 +86,7 @@ public class RegistryLocationController
   @Request(RequestType.SESSION)
   private JSONObject addParentInfoToExistingGO(String sessionId, GeoObject child)
   {
-    ParentTreeNode ptnChild = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false);
+    ParentTreeNode ptnChild = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, null);
 
     // TODO : We can't show all available options because the auto-complete
     // doesn't know what the GeoObjectType is and can't search without it.
@@ -283,7 +283,7 @@ public class RegistryLocationController
   public void applyPtn(String sessionId, ParentTreeNode ptn)
   {
     GeoObject child = ptn.getGeoObject();
-    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();
+    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, null).getParents();
 
     // Remove all existing relationships which aren't what we're trying to
     // create

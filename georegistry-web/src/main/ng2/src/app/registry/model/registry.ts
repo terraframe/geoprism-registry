@@ -194,6 +194,7 @@ export class HierarchyOverTime {
         parents: {
             code: string;
             label: string;
+            text: string;
             geoObject: GeoObject;
         }[];
     }[];

@@ -129,10 +129,12 @@ public class ServerParentTreeNodeOverTime
 
             if (ptns.size() > 0)
             {
-              final GeoObject geoObject = ptns.get(0).getGeoObject().toGeoObject();
+              final ServerGeoObjectIF sGeoObject = ptns.get(0).getGeoObject();
+              final GeoObject geoObject = sGeoObject.toGeoObject();
               geoObject.setGeometry(null);
 
               pObject.add("geoObject", geoObject.toJSON());
+              pObject.addProperty("text", sGeoObject.getDisplayLabel().getValue());
             }
 
             pArray.add(pObject);
