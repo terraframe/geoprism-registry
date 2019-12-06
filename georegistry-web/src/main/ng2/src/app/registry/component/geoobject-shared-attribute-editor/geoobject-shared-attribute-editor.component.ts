@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRe
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
+import { LocalizedValue } from '../../../shared/model/core';
 
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
 
@@ -103,6 +104,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         this.calculate();
+        
+        let geometry: Attribute = new Attribute("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false);
+        this.geoObjectType.attributes.push(geometry);
     }
 
     ngOnChanges( changes: SimpleChanges ) {
@@ -171,6 +175,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         } );
         this.bsModalRef.content.tfInit();
     }
+    
+    //onManageGeometryVersions(): void {
+    //  let geometry: Attribute = new Attribute("geometry", "geometry", null, null, true, false, false);
+    //  this.onManageAttributeVersions(geometry);
+    //}
 
     isDifferentText( attribute: Attribute ): boolean {
         if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {
