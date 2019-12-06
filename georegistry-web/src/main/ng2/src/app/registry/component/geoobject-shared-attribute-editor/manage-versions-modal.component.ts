@@ -85,7 +85,7 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     snapDates(attributeArr: ValueOverTime[]){
-
+        var dateOffset = (24*60*60*1000) * 1; //1 days
         // Sort the data
         attributeArr.sort(function(a, b){
       
@@ -103,7 +103,7 @@ export class ManageVersionsModalComponent implements OnInit {
             // Only change those older than the most recent
             if(i < attributeArr.length - 1){
 
-                vAttr.endDate = this.formatDateString(new Date(new Date(lastStartDate).getTime() - 1));
+                vAttr.endDate = this.formatDateString(new Date(new Date(lastStartDate).getTime() - dateOffset));
             }
             else{
                 // This should be the last entry in the array ONLY
