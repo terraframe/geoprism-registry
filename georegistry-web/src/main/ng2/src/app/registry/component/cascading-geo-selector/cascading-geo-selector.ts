@@ -29,6 +29,8 @@ export class CascadingGeoSelector {
 
     @Input() forDate: Date = new Date();
 
+    dateStr: string;
+
     cHierarchies: any[] = [];
 
     parentMap: any = {};
@@ -40,27 +42,11 @@ export class CascadingGeoSelector {
     }
 
     ngOnInit(): void {
-
-
-
-        //        for ( var i = 0; i < this.hierarchies.length; ++i ) {
-        //            var hierarchy = this.hierarchies[i];
-        //
-        //            for ( var j = 0; j < hierarchy.parents.length; ++j ) {
-        //                if ( hierarchy.parents[j].ptn == null ) {
-        //                    var ptn = new ParentTreeNode();
-        //
-        //                    ptn.geoObject = this.newGeoObject();
-        //                    ptn.hierarchyType = hierarchy.code;
-        //
-        //                    hierarchy.parents[j].ptn = ptn;
-        //                }
-        //            }
-        //        }
-        
         this.calculate();
 
-        console.log( "hierarchies after populate", this.cHierarchies );
+        const day = this.forDate.getUTCDate();
+
+        this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
     }
 
     calculate(): any {
@@ -93,10 +79,10 @@ export class CascadingGeoSelector {
         for ( let i = index; i < hierarchy.parents.length; ++i ) {
             let parent = hierarchy.parents[i];
 
-            parent.ptn.geoObject = this.newGeoObject();
+            parent.geoObject = this.newGeoObject();
 
             if ( i === index ) {
-                parent.ptn.geoObject.properties.displayLabel.localizedValue = newValue;
+                parent.geoObject.properties.displayLabel.localizedValue = newValue;
             }
 
             invalid = true;
@@ -121,29 +107,32 @@ export class CascadingGeoSelector {
         return go;
     }
 
-    getTypeAheadObservable( text, parent, hierarchy, index ) {
+    getTypeAheadObservable( text: string, parent: any, hierarchy: any, index: number ): Observable<any> {
+
         let geoObjectTypeCode = parent.code;
 
         let parentCode = null;
         let hierarchyCode = null;
+
         if ( index > 0 ) {
             let parentParentType = hierarchy.parents[index - 1];
 
-            if ( parentParentType.ptn.geoObject.properties.code != null ) {
+            if ( parentParentType.geoObject.properties.code != null ) {
+
                 hierarchyCode = hierarchy.code;
-                parentCode = parentParentType.ptn.geoObject.properties.code;
+                parentCode = parentParentType.geoObject.properties.code;
             }
         }
 
         return Observable.create(( observer: any ) => {
-            this.registryService.getGeoObjectSuggestions( text, geoObjectTypeCode, parentCode, hierarchyCode ).then( results => {
+            this.registryService.getGeoObjectSuggestions( text, geoObjectTypeCode, parentCode, hierarchyCode, this.dateStr ).then( results => {
                 observer.next( results );
             } );
         } );
     }
 
     typeaheadOnSelect( e: TypeaheadMatch, parent: any, hierarchy: any ): void {
-        let ptn: ParentTreeNode = parent.ptn;
+        //        let ptn: ParentTreeNode = parent.ptn;
 
         let parentTypes = [];
 
@@ -157,9 +146,10 @@ export class CascadingGeoSelector {
             }
         }
 
-        this.registryService.getParentGeoObjects( e.item.uid, parent.code, parentTypes, true ).then( ancestors => {
+        this.registryService.getParentGeoObjects( e.item.uid, parent.code, parentTypes, true, this.dateStr ).then( ancestors => {
 
-            ptn.geoObject = ancestors.geoObject;
+            parent.geoObject = ancestors.geoObject;
+            parent.text = ancestors.geoObject.properties.displayLabel.localizedValue;
 
             for ( let i = 0; i < hierarchy.parents.length; i++ ) {
                 let current = hierarchy.parents[i];
@@ -175,7 +165,8 @@ export class CascadingGeoSelector {
                 }
 
                 if ( ancestor != null ) {
-                    current.ptn.geoObject = ancestor.geoObject;
+                    current.geoObject = ancestor.geoObject;
+                    current.text = ancestor.geoObject.properties.displayLabel.localizedValue;
                 }
             }
 
@@ -198,27 +189,27 @@ export class CascadingGeoSelector {
     }
 
     public static staticGetParents( hierarchies: any ): ParentTreeNode {
-//        let ptn = new ParentTreeNode();
-//        ptn.parents = [];
-//
-//        for ( var i = 0; i < hierarchies.length; ++i ) {
-//            let hierarchy: any = hierarchies[i];
-//
-//            if ( hierarchy.parents.length > 0 ) {
-//                let parent: any = hierarchy.parents[hierarchy.parents.length - 1];
-//
-//                if ( parent.ptn != null && parent.ptn.geoObject != null && parent.ptn.geoObject.properties.code.length > 0 ) {
-//                    ptn.parents.push( parent.ptn );
-//                }
-//            }
-//        }
-//
-//        if ( ptn.parents.length > 0 ) {
-//            return ptn;
-//        }
-//        else {
-            return null;
-//        }
+        //        let ptn = new ParentTreeNode();
+        //        ptn.parents = [];
+        //
+        //        for ( var i = 0; i < hierarchies.length; ++i ) {
+        //            let hierarchy: any = hierarchies[i];
+        //
+        //            if ( hierarchy.parents.length > 0 ) {
+        //                let parent: any = hierarchy.parents[hierarchy.parents.length - 1];
+        //
+        //                if ( parent.ptn != null && parent.geoObject != null && parent.geoObject.properties.code.length > 0 ) {
+        //                    ptn.parents.push( parent.ptn );
+        //                }
+        //            }
+        //        }
+        //
+        //        if ( ptn.parents.length > 0 ) {
+        //            return ptn;
+        //        }
+        //        else {
+        return null;
+        //        }
     }
 
     onManageAttributeVersions( attribute: any ): void {

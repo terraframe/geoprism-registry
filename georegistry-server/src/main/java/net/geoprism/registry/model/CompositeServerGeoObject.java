@@ -60,7 +60,7 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     return this.business.toGeoObject();
   }
-  
+
   @Override
   public GeoObjectOverTime toGeoObjectOverTime()
   {
@@ -236,7 +236,7 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   @Override
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
   {
-    return this.business.getParentGeoObjects(parentTypes, recursive);
+    return this.vertex.getParentGeoObjects(parentTypes, recursive);
   }
 
   @Override
@@ -326,7 +326,7 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
     this.business.populate(geoObject);
     this.vertex.populate(geoObject);
   }
-  
+
   @Override
   public void populate(GeoObjectOverTime goTime)
   {
@@ -339,5 +339,12 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   {
     this.business.apply(isImport);
     this.vertex.apply(isImport);
+  }
+
+  @Override
+  public void setDate(Date date)
+  {
+    this.business.setDate(date);
+    this.vertex.setDate(date);
   }
 }

@@ -134,6 +134,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
+  public void setDate(Date date)
+  {
+    this.date = date;
+  }
+
+  public Date getDate()
+  {
+    return date;
+  }
+
+  @Override
   public void setCode(String code)
   {
     this.vertex.setValue(GeoVertex.GEOID, code);
@@ -357,15 +368,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           this.setStatus(gos, votDTO.getStartDate(), votDTO.getEndDate());
         }
       }
-//      else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
-//      {
-//        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
-//        {
-//          Geometry geom = goTime.getGeometry(votDTO.getStartDate());
-//
-//          this.setGeometry(geom, votDTO.getStartDate(), votDTO.getEndDate());
-//        }
-//      }
+      // else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
+      // {
+      // for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+      // {
+      // Geometry geom = goTime.getGeometry(votDTO.getStartDate());
+      //
+      // this.setGeometry(geom, votDTO.getStartDate(), votDTO.getEndDate());
+      // }
+      // }
       else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
       {
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
@@ -413,7 +424,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
       }
     });
-    
+
     for (ValueOverTimeDTO votDTO : goTime.getAllValues(DefaultAttribute.GEOMETRY.getName()))
     {
       Geometry geom = goTime.getGeometry(votDTO.getStartDate());
@@ -902,17 +913,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
             geoObj.setValue(attributeName, value, vot.getStartDate(), vot.getEndDate());
           }
         }
-//        else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
-//        {
-//          ValueOverTimeCollection votc = this.getValuesOverTime(this.getGeometryAttributeName());
-//
-//          for (ValueOverTime vot : votc)
-//          {
-//            Object value = vot.getValue();
-//
-//            geoObj.setValue(attributeName, value, vot.getStartDate(), vot.getEndDate());
-//          }
-//        }
+        // else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
+        // {
+        // ValueOverTimeCollection votc =
+        // this.getValuesOverTime(this.getGeometryAttributeName());
+        //
+        // for (ValueOverTime vot : votc)
+        // {
+        // Object value = vot.getValue();
+        //
+        // geoObj.setValue(attributeName, value, vot.getStartDate(),
+        // vot.getEndDate());
+        // }
+        // }
         else if (vertex.hasAttribute(attributeName))
         {
           if (attribute.isChangeOverTime())
@@ -990,7 +1003,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
       });
     }
-    
+
     ValueOverTimeCollection votc = this.getValuesOverTime(this.getGeometryAttributeName());
     for (ValueOverTime vot : votc)
     {
@@ -1202,15 +1215,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       for (int i = 0; i < childrenTypes.length; i++)
       {
         ServerGeoObjectType type = ServerGeoObjectType.get(childrenTypes[i]);
+        final String paramName = "p" + Integer.toString(i);
 
         if (i > 0)
         {
           statement.append(" OR ");
         }
 
-        statement.append("@class = :" + i);
+        statement.append("out.@class = :" + paramName);
 
-        parameters.put(Integer.toString(i), type.getMdVertex().getDBClassName());
+        parameters.put(paramName, type.getMdVertex().getDBClassName());
       }
 
       statement.append("]");
@@ -1288,15 +1302,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         for (int i = 0; i < parentTypes.length; i++)
         {
           ServerGeoObjectType type = ServerGeoObjectType.get(parentTypes[i]);
+          final String paramName = "p" + Integer.toString(i);
 
           if (i > 0)
           {
             statement.append(" OR ");
           }
 
-          statement.append("out.@class = :" + i);
+          statement.append("out.@class = :" + paramName);
 
-          parameters.put(Integer.toString(i), type.getMdVertex().getDBClassName());
+          parameters.put(paramName, type.getMdVertex().getDBClassName());
         }
         statement.append(")");
       }

@@ -292,7 +292,7 @@ public abstract class FeatureRowImporter
 
         // Search
         ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
-        query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), this.configuration.getEndDate(), parent, this.configuration.getHierarchy()));
+        query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), parent, this.configuration.getHierarchy()));
 
         try
         {

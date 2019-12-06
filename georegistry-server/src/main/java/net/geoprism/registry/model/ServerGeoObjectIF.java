@@ -7,7 +7,6 @@ import java.util.Map;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 
 import com.google.gson.JsonArray;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -21,7 +20,7 @@ public interface ServerGeoObjectIF
   public ServerGeoObjectType getType();
 
   public GeoObject toGeoObject();
-  
+
   public GeoObjectOverTime toGeoObjectOverTime();
 
   public String getCode();
@@ -91,7 +90,7 @@ public interface ServerGeoObjectIF
   public void lock();
 
   public void populate(GeoObject geoObject);
-  
+
   public void populate(GeoObjectOverTime goTime);
 
   public void apply(boolean isImport);
@@ -102,4 +101,5 @@ public interface ServerGeoObjectIF
 
   public JsonArray getHierarchiesForGeoObject();
 
+  public void setDate(Date date);
 }

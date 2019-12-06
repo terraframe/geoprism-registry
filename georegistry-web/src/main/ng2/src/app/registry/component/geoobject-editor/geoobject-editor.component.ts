@@ -87,9 +87,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
     areParentsValid: boolean = false;
 
-    preHierarchies: HierarchyOverTime[];
-
-    postHierarchies: HierarchyOverTime[];
+    hierarchies: HierarchyOverTime[];
 
     /*
      * Date in which the modal is shown for
@@ -134,8 +132,7 @@ export class GeoObjectEditorComponent implements OnInit {
             this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
             this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
 
-            this.preHierarchies = retJson.hierarchies;
-            this.postHierarchies = JSON.parse( JSON.stringify( this.preHierarchies ) );
+            this.hierarchies = retJson.hierarchies;
         } );
     }
 
@@ -186,8 +183,7 @@ export class GeoObjectEditorComponent implements OnInit {
     private fetchHierarchies( code: string, typeTypeCode: string ) {
         this.registryService.getHierarchiesForGeoObject( code, typeTypeCode )
             .then(( hierarchies: any ) => {                
-                this.preHierarchies = hierarchies;
-                this.postHierarchies = JSON.parse( JSON.stringify( this.preHierarchies ) );
+                this.hierarchies = hierarchies;
                 
                 //                this.parentTreeNode = CascadingGeoSelector.staticGetParents( this.hierarchies );
                 this.areParentsValid = true;
@@ -251,7 +247,7 @@ export class GeoObjectEditorComponent implements OnInit {
             this.goGeometries = this.geometryEditor.saveDraw();
         }
         if ( this.parentSelector != null ) {
-            this.postHierarchies = this.parentSelector.getHierarchies();
+            this.hierarchies = this.parentSelector.getHierarchies();
         }
 
         this.goSubmit = this.goPropertiesPost;
@@ -285,7 +281,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
             this.persistModelChanges();
 
-            this.registryService.applyGeoObjectEdit( this.postHierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId )
+            this.registryService.applyGeoObjectEdit( this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId )
                 .then(() => {
 
                     if ( this.onSuccessCallback != null ) {

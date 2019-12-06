@@ -134,7 +134,7 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   {
     throw new UnsupportedOperationException();
   }
-  
+
   @Override
   public void populate(GeoObjectOverTime goTime)
   {
@@ -222,6 +222,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   public void setValuesOverTime(String attributeName, ValueOverTimeCollection collection)
   {
     throw new UnsupportedOperationException("Value over time operations are only supported on Vertex GeoObjects.");
+  }
+
+  @Override
+  public void setDate(Date date)
+  {
+    // Do nothing
   }
 
   @Override
@@ -322,7 +328,7 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   {
     throw new UnsupportedOperationException();
   }
-  
+
   @Override
   public GeoObjectOverTime toGeoObjectOverTime()
   {

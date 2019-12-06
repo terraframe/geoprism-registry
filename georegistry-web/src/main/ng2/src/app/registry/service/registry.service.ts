@@ -53,13 +53,17 @@ export class RegistryService {
             .toPromise();
     }
 
-    getParentGeoObjects( childId: string, childTypeCode: string, parentTypes: any, recursive: boolean ): Promise<ParentTreeNode> {
+    getParentGeoObjects( childId: string, childTypeCode: string, parentTypes: any, recursive: boolean, date: string ): Promise<ParentTreeNode> {
         let params: HttpParams = new HttpParams();
 
         params = params.set( 'childId', childId )
         params = params.set( 'childTypeCode', childTypeCode )
         params = params.set( 'parentTypes', JSON.stringify( parentTypes ) )
         params = params.set( 'recursive', JSON.stringify( recursive ) );
+
+        if ( date != null ) {
+            params = params.set( 'date', date );
+        }
 
         return this.http
             .get<ParentTreeNode>( acp + '/cgr/geoobject/get-parent-geoobjects', { params: params } )
@@ -289,7 +293,7 @@ export class RegistryService {
             .toPromise()
     }
 
-    getGeoObjectSuggestions( text: string, type: string, parent: string, hierarchy: string ): Promise<GeoObject> {
+    getGeoObjectSuggestions( text: string, type: string, parent: string, hierarchy: string, date: string ): Promise<GeoObject> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -303,6 +307,10 @@ export class RegistryService {
         if ( parent != null && hierarchy != null ) {
             params.parent = parent;
             params.hierarchy = hierarchy;
+        }
+
+        if ( date != null ) {
+            params.date = date;
         }
 
         return this.http
@@ -355,12 +363,12 @@ export class RegistryService {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
-        
+
         // let params: HttpParams = new HttpParams();
         // params = params.set( 'geoObjectCode', geoObjectCode );
         // params = params.set( 'geoObjectTypeCode', geoObjectTypeCode );
         // params = params.set( 'attributeName', attributeName );
-        
+
         // return this.http
         //     .get<ValueOverTime[]>( acp + '/cgr/geoobject/getAttributeVersions', { params: params } )
         //     .toPromise();
@@ -369,7 +377,7 @@ export class RegistryService {
         let params: HttpParams = new HttpParams();
         params = params.set( 'code', geoObjectCode );
         params = params.set( 'typeCode', geoObjectTypeCode );
-        
+
         return this.http
             .get<GeoObjectOverTime>( acp + '/cgr/geoobject-time/get-code', { params: params } )
             .toPromise();
@@ -387,19 +395,19 @@ export class RegistryService {
 
     //     return test;
     // }
-    
+
 
     setAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string, collection: ValueOverTime[] ): Promise<Response> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
-        
+
         let params = {
             geoObjectCode: geoObjectCode,
             geoObjectTypeCode: geoObjectTypeCode,
             attributeName: attributeName,
             collection: collection
-            
+
         } as any;
 
         this.eventService.start();
