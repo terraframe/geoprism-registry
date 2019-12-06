@@ -103,7 +103,7 @@ export class ManageVersionsModalComponent implements OnInit {
             // Only change those older than the most recent
             if(i < attributeArr.length - 1){
 
-                vAttr.endDate = this.formatDateString(new Date(new Date(lastStartDate) - 1));
+                vAttr.endDate = this.formatDateString(new Date(new Date(lastStartDate).getTime() - 1));
             }
             else{
                 // This should be the last entry in the array ONLY
