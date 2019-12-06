@@ -72,7 +72,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 
   private void addGeoObjectType(JSONObject object)
   {
-    GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
+    GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
     GeoObjectType got = go.getType();
 
     object.put("geoObjectType", new JSONObject(got.toJSON().toString()));
@@ -89,7 +89,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   @Override
   protected String getMessage()
   {
-    GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
+    GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
     GeoObjectType got = go.getType();
 
     String message = LocalizationFacade.getFromBundles("change.request.email.update.object");

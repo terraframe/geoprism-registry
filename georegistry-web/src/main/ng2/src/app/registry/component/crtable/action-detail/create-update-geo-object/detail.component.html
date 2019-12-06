@@ -11,11 +11,13 @@
         <geoobject-shared-attribute-editor #attributeEditor *ngIf="preGeoObject" [readOnly]="readOnly" [allowCodeEdit]="true" [geoObjectType]="geoObjectType"
             [postGeoObject]="postGeoObject" [preGeoObject]="preGeoObject"></geoobject-shared-attribute-editor>
 
+<!-- 
 	      <geoobject-editor-map #geometryEditor *ngIf="this.preGeoObject != null && this.postGeoObject != null && this.geoObjectType.isGeometryEditable" [readOnly]="readOnly || !geoObjectType.isGeometryEditable" [postGeoObject]="this.postGeoObject" [preGeoObject]="this.preGeoObject" [geoObjectType]="this.geoObjectType" [isNew]="isNew()"></geoobject-editor-map>
+ -->
 
         <div>
             <label class="detail-label">GeoObjectType : </label>
-            <label class="detail-value">{{action.geoObjectJson.properties.type}}</label>
+            <label class="detail-value">{{action.geoObjectType.code}}</label>
         </div>
 
         <div>
