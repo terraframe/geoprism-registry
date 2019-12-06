@@ -1,7 +1,17 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef, HostBinding } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+  group,
+  query,
+  stagger
+} from '@angular/animations';
 
 import { GeoObject, GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm } from '../../model/registry';
 
@@ -14,7 +24,25 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 @Component( {
     selector: 'manage-versions-modal',
     templateUrl: './manage-versions-modal.component.html',
-    styleUrls: []
+    styleUrls: [],
+    host: { '[@fadeInOut]': 'true' },
+    animations: [
+        [
+            trigger('fadeInOut', [
+                transition('void => *', [
+                    style({
+                        opacity: 0
+                    }),
+                    animate('1000ms')
+                ]),
+                transition('* => void', [
+                    style({
+                        opacity: 0
+                    }),
+                    animate('1000ms')
+                ])
+            ])
+        ]]
 } )
 export class ManageVersionsModalComponent implements OnInit {
     message: string = null;
@@ -38,25 +66,11 @@ export class ManageVersionsModalComponent implements OnInit {
     
     isNewGeoObject: boolean = false;
     
-    // attributeCode: string;
-
-    // @Input("attribute") 
-    // set attribute(attribute: Attribute) {
-    //     this.attr = attribute;
-    //     this.service.getGeoObjectOverTime( this.geoObject.attributes.code, this.geoObjectType.code ).then( valueOverTimeCollection => {
-    //         this.geoObjectOverTime = valueOverTimeCollection;
-    //     } );
-
-    //     // this.geoObjectOverTime = this.service.getAttributeVersions( this.geoObject.properties.code, this.geoObjectType.code, this.attributeCode );
-      
-    // }
-    // geoObjectOverTime: GeoObjectOverTime;
-
     newVersion: ValueOverTime;
     
     editingGeometry: number = -1;
 
-    constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
+    constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, public changeDetectorRef: ChangeDetectorRef ) { }
 
     ngOnInit(): void {
 
@@ -70,13 +84,70 @@ export class ManageVersionsModalComponent implements OnInit {
 	  }
     }
 
+    onDateChange(event: any, vAttribute, Attribute): any {
+        let dt = new Date(event);
+        let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
+
+        vAttribute.startDate = this.formatDateString(dt);
+
+        this.snapDates(vAttributes);
+
+        this.changeDetectorRef.detectChanges()
+
+    }
+
+    snapDates(attributeArr: ValueOverTime[]){
+
+        // Sort the data
+        attributeArr.sort(function(a, b){
+      
+            let first: any = new Date(a.startDate);
+            let next: any = new Date(b.startDate);
+            return first - next;
+        });
+
+
+        let lastStartDate: Date;
+        let lastEndDate: Date;
+        for (let i = attributeArr.length - 1; i >=0 ; i--) {
+            let vAttr = attributeArr[i];
+            
+            // Only change those older than the most recent
+            if(i < attributeArr.length - 1){
+
+                vAttr.endDate = this.formatDateString(new Date(new Date(lastStartDate) - 1));
+            }
+            else{
+                // This should be the last entry in the array ONLY
+                // Set end date to infinity
+                vAttr.endDate = this.formatDateString(new Date('5000-12-31'));
+            }
+
+            lastStartDate = new Date(vAttr.startDate);
+            lastEndDate = new Date(vAttr.endDate);
+        }
+    }
+
+    formatDateString(dateObj: Date): string{
+        const day = dateObj.getUTCDate();
+
+        return dateObj.getUTCFullYear() + "-" + ( dateObj.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
+    }
+
     onAddNewVersion(): void {
 
         let vot: ValueOverTime = new ValueOverTime();
-        vot.startDate = new Date();
-        vot.endDate = new Date();
+        vot.startDate = this.formatDateString(new Date());
+        vot.endDate = this.formatDateString(new Date());
         
-        vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value; // TODO handle different types
+        if (this.geoObjectType.type === "local")
+        {
+          vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]};
+        }
+        else
+        {
+          vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value;
+        }
         
         this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
         
@@ -84,6 +155,8 @@ export class ManageVersionsModalComponent implements OnInit {
 		{
 		  this.editingGeometry = this.geoObjectOverTime.attributes[this.attribute.code].values.length - 1;
 		}
+
+        this.snapDates(this.geoObjectOverTime.attributes[this.attribute.code].values);
     }
 
     canAddVersion(): boolean {
