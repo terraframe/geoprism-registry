@@ -132,8 +132,8 @@ export class ManageVersionsModalComponent implements OnInit {
     onAddNewVersion(): void {
 
         let vot: ValueOverTime = new ValueOverTime();
-        vot.startDate = Utils.formatDateString(new Date());
-        vot.endDate = Utils.formatDateString(new Date());
+        // vot.startDate = Utils.formatDateString(new Date());
+        // vot.endDate = Utils.formatDateString(new Date());
         
         let attributeType = null;
         for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
