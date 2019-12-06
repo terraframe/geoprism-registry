@@ -110,11 +110,27 @@ public class ServerParentTreeNodeOverTime
 
       Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, this.type.getUniversal(), ht.getUniversalType());
 
+      JsonArray types = new JsonArray();
+
+      for (Object parent : uniParents)
+      {
+        ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
+
+        if (!pType.getCode().equals(this.type.getCode()))
+        {
+          JsonObject pObject = new JsonObject();
+          pObject.addProperty("code", pType.getCode());
+          pObject.addProperty("label", pType.getLabel().getValue());
+
+          types.add(pObject);
+        }
+      }
+
       final List<ServerParentTreeNode> nodes = hierarchy.getNodes();
 
       for (ServerParentTreeNode node : nodes)
       {
-        JsonArray pArray = new JsonArray();
+        JsonObject pArray = new JsonObject();
 
         for (Object parent : uniParents)
         {
@@ -122,10 +138,6 @@ public class ServerParentTreeNodeOverTime
 
           if (!pType.getCode().equals(this.type.getCode()))
           {
-            JsonObject pObject = new JsonObject();
-            pObject.addProperty("code", pType.getCode());
-            pObject.addProperty("label", pType.getLabel().getValue());
-
             final List<ServerParentTreeNode> ptns = node.findParentOfType(pType.getCode());
 
             if (ptns.size() > 0)
@@ -134,11 +146,12 @@ public class ServerParentTreeNodeOverTime
               final GeoObject geoObject = sGeoObject.toGeoObject();
               geoObject.setGeometry(null);
 
+              JsonObject pObject = new JsonObject();
               pObject.add("geoObject", geoObject.toJSON());
               pObject.addProperty("text", sGeoObject.getDisplayLabel().getValue());
-            }
 
-            pArray.add(pObject);
+              pArray.add(pType.getCode(), pObject);
+            }
           }
         }
 
@@ -153,6 +166,7 @@ public class ServerParentTreeNodeOverTime
       JsonObject object = new JsonObject();
       object.addProperty("code", ht.getCode());
       object.addProperty("label", ht.getDisplayLabel().getValue());
+      object.add("types", types);
       object.add("entries", entries);
 
       response.add(object);
@@ -175,6 +189,7 @@ public class ServerParentTreeNodeOverTime
     {
       final JsonObject hJSON = array.get(i).getAsJsonObject();
       final String hierarchyCode = hJSON.get("code").getAsString();
+      final JsonArray types = hJSON.get("types").getAsJsonArray();
       final ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
       final JsonArray entries = hJSON.get("entries").getAsJsonArray();
@@ -183,13 +198,13 @@ public class ServerParentTreeNodeOverTime
       {
         final JsonObject entry = entries.get(j).getAsJsonObject();
         final String startDate = entry.get("startDate").getAsString();
-        final JsonArray parents = entry.get("parents").getAsJsonArray();
+        final JsonObject parents = entry.get("parents").getAsJsonObject();
 
         try
         {
           Date date = format.parse(startDate);
 
-          final ServerParentTreeNode parent = parseParent(ht, parents, date);
+          final ServerParentTreeNode parent = parseParent(ht, types, parents, date);
 
           if (parent != null)
           {
@@ -206,19 +221,20 @@ public class ServerParentTreeNodeOverTime
     return node;
   }
 
-  private static ServerParentTreeNode parseParent(final ServerHierarchyType ht, final JsonArray parents, final Date date)
+  private static ServerParentTreeNode parseParent(final ServerHierarchyType ht, final JsonArray types, final JsonObject parents, final Date date)
   {
-    for (int k = ( parents.size() - 1 ); k >= 0; k--)
+    for (int k = ( types.size() - 1 ); k >= 0; k--)
     {
-      final JsonObject parent = parents.get(k).getAsJsonObject();
+      final JsonObject type = types.get(k).getAsJsonObject();
+      final String code = type.get("code").getAsString();
+      final JsonObject parent = parents.get(code).getAsJsonObject();
 
       if (parent.has("geoObject"))
       {
-        final String pTypeCode = parent.get("code").getAsString();
         final JsonObject go = parent.get("geoObject").getAsJsonObject();
 
         GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), go.toString());
-        final ServerGeoObjectIF pSGO = new ServerGeoObjectService().getGeoObjectByCode(geoObject.getCode(), pTypeCode);
+        final ServerGeoObjectIF pSGO = new ServerGeoObjectService().getGeoObjectByCode(geoObject.getCode(), code);
 
         return new ServerParentTreeNode(pSGO, ht, date);
       }
