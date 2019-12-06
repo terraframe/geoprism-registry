@@ -1,7 +1,7 @@
 <div class="modal-body text-center">
     
     <form class="modal-form" style="overflow: visible;">
-        <div class="row-holder">
+        <div class="row-holder" *ngIf="this.tabIndex != 2">
             <div class="label-holder"><label>For Date</label></div>
             <div class="holder">
                 <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
@@ -17,9 +17,11 @@
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
                         <localize key="geoobject.editor.tabOne"></localize>
                     </label>
+                    <!--
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2}" (click)="this.changePage(2);">
                         <localize key="geoobject.editor.tabTwo"></localize>
                     </label>
+                    -->
                 </div>
             </div>
         </div>
@@ -48,7 +50,12 @@
         </div>
 
          <!-- Geometry tab -->
+         <!--
+         <manage-versions-modal *ngIf="this.tabIndex === 2" [geoObjectOverTime]="this.goGeometries" [geoObjectType]="this.geoObjectType" [attribute]="this.goGeometries.attributes.geometry"></manage-versions-modal>
+         -->
+        <!--
         <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable"  (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
+        -->
 
         <div class="row-holder">
             <div class="label-holder"></div>

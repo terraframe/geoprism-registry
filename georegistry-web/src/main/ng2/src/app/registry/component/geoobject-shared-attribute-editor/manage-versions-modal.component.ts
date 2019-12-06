@@ -56,20 +56,32 @@ export class ManageVersionsModalComponent implements OnInit {
     onAttributeVersionChange: Subject<GeoObjectOverTime>;
 
     // attr: Attribute;
-    attribute: Attribute;
+    @Input() attribute: Attribute;
     
-    geoObjectType: GeoObjectType;
+    @Input() geoObjectType: GeoObjectType;
     
-    geoObjectOverTime: GeoObjectOverTime;
+    @Input() geoObjectOverTime: GeoObjectOverTime;
+    
+    goGeometries: GeoObjectOverTime;
+    
+    isNewGeoObject: boolean = false;
     
     newVersion: ValueOverTime;
+    
+    editingGeometry: number = -1;
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, public changeDetectorRef: ChangeDetectorRef ) { }
 
     ngOnInit(): void {
 
 		this.onAttributeVersionChange = new Subject();
-
+    }
+    
+    tfInit(): void {
+      if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length == 1)
+	  {
+	    this.editingGeometry = 0;
+	  }
     }
 
     onDateChange(event: any, vAttribute, Attribute): any {
@@ -127,9 +139,22 @@ export class ManageVersionsModalComponent implements OnInit {
         let vot: ValueOverTime = new ValueOverTime();
         vot.startDate = this.formatDateString(new Date());
         vot.endDate = this.formatDateString(new Date());
-        vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]} // TODO handle different types
+        
+        if (this.geoObjectType.type === "local")
+        {
+          vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]};
+        }
+        else
+        {
+          vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value;
+        }
         
         this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
+        
+        if (this.attribute.code === 'geometry')
+		{
+		  this.editingGeometry = this.geoObjectOverTime.attributes[this.attribute.code].values.length - 1;
+		}
 
         this.snapDates(this.geoObjectOverTime.attributes[this.attribute.code].values);
     }
@@ -151,6 +176,10 @@ export class ManageVersionsModalComponent implements OnInit {
         }
 
         return hasVal;
+    }
+    
+    editGeometry(index: number) {
+      this.editingGeometry = index;
     }
 
     getVersionData(attribute: Attribute) {

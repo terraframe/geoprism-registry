@@ -145,6 +145,8 @@ export class GeoObjectEditorComponent implements OnInit {
             this.goPropertiesPre = retJson.geoObject;
             this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
             this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
+            
+            console.log("this.goGeometries = " + this.goGeometries);
 
             this.hierarchies = retJson.hierarchies;
         } );
@@ -164,9 +166,10 @@ export class GeoObjectEditorComponent implements OnInit {
 
     private fetchGeoObject( code: string, typeCode: string ) {
         this.registryService.getGeoObjectOverTime( code, typeCode ).then( geoObject => {
-            this.goPropertiesPre = geoObject;
-            this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
-            this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
+                this.goPropertiesPre = geoObject;
+                this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
+                this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
+                
 
             this.goSubmit = this.goPropertiesPost;
 
