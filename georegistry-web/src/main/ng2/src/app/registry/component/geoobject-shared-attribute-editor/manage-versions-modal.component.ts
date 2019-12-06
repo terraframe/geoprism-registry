@@ -65,9 +65,9 @@ export class ManageVersionsModalComponent implements OnInit {
     
     tfInit(): void {
       if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length == 1)
-		{
-		  this.editingGeometry = 0;
-		}
+	  {
+	    this.editingGeometry = 0;
+	  }
     }
 
     onAddNewVersion(): void {
@@ -76,17 +76,14 @@ export class ManageVersionsModalComponent implements OnInit {
         vot.startDate = new Date();
         vot.endDate = new Date();
         
-        if (this.attribute.code === "geometry")
-        {
-          //vot.value = {"type":"MultiPolygon","coordinates":[]};
-          vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value; // TODO handle different types
-        }
-        else
-        {
-          vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value; // TODO handle different types
-        }
+        vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value; // TODO handle different types
         
         this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
+        
+        if (this.attribute.code === 'geometry')
+		{
+		  this.editingGeometry = this.geoObjectOverTime.attributes[this.attribute.code].values.length - 1;
+		}
     }
 
     canAddVersion(): boolean {
