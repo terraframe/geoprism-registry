@@ -165,24 +165,22 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     private fetchGeoObject( code: string, typeCode: string ) {
-        this.registryService.getGeoObjectOverTime( code, typeCode )
-            .then( geoObject => {
+        this.registryService.getGeoObjectOverTime( code, typeCode ).then( geoObject => {
                 this.goPropertiesPre = geoObject;
                 this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
                 this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
                 
-                console.log("this.goGeometries = " + JSON.stringify(this.goGeometries));
 
-                this.goSubmit = this.goPropertiesPost;
+            this.goSubmit = this.goPropertiesPost;
 
-                //                    this.goSubmit.geometry = this.goGeometries.geometry;
+            //                    this.goSubmit.geometry = this.goGeometries.geometry;
 
-                this.areGeometriesValid = true;
-                this.arePropertiesValid = true;
-                this.isValid = true;
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
+            this.areGeometriesValid = true;
+            this.arePropertiesValid = true;
+            this.isValid = true;
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
     }
 
     private fetchGeoObjectType( code: string ) {
@@ -242,8 +240,8 @@ export class GeoObjectEditorComponent implements OnInit {
         if ( this.parentSelector != null ) {
             this.areParentsValid = this.parentSelector.getIsValid();
         }
-        
-        console.log(this.arePropertiesValid);
+
+        console.log( this.arePropertiesValid );
 
         this.isValid = this.arePropertiesValid && this.areGeometriesValid && this.areParentsValid;
     }
