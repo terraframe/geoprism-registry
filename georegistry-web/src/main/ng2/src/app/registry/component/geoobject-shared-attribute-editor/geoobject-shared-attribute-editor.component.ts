@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
@@ -104,6 +104,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
         }
 
+        this.calculatedPreObject = this.calculate( this.preGeoObject );
+        this.calculatedPostObject = this.calculate( this.postGeoObject );
+    }
+    
+    ngOnChanges( changes: SimpleChanges ) {
         this.calculatedPreObject = this.calculate( this.preGeoObject );
         this.calculatedPostObject = this.calculate( this.postGeoObject );
     }

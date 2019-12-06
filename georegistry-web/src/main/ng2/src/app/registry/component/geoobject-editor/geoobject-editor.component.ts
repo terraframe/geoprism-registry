@@ -92,7 +92,12 @@ export class GeoObjectEditorComponent implements OnInit {
     /*
      * Date in which the modal is shown for
      */
-    forDate: Date = new Date();
+    dateStr: string = null;
+
+    /*
+     * Date in which the modal is shown for
+     */
+    forDate: Date = null;
 
     /*
      * The final artifacts which will be submitted
@@ -106,6 +111,11 @@ export class GeoObjectEditorComponent implements OnInit {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
+
+        this.forDate = new Date();
+
+        const day = this.forDate.getUTCDate();
+        this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
     }
 
     ngOnInit(): void {
@@ -114,6 +124,10 @@ export class GeoObjectEditorComponent implements OnInit {
 
     setMasterListId( id: string ) {
         this.masterListId = id;
+    }
+
+    handleDateChange(): void {
+        this.forDate = new Date( Date.parse( this.dateStr ) );
     }
 
     setOnSuccessCallback( func: Function ) {
@@ -137,9 +151,11 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     // Configures the widget to be used in an "Edit Existing" context
-    public configureAsExisting( code: string, typeCode: string, forDate: string ) {
+    public configureAsExisting( code: string, typeCode: string, dateStr: string ) {
         this.isNewGeoObject = false;
-        this.forDate = new Date( Date.parse( forDate ) );
+
+        this.dateStr = dateStr;
+        this.forDate = new Date( Date.parse( this.dateStr ) );
 
         this.fetchGeoObject( code, typeCode );
         this.fetchGeoObjectType( typeCode );
@@ -182,9 +198,9 @@ export class GeoObjectEditorComponent implements OnInit {
 
     private fetchHierarchies( code: string, typeTypeCode: string ) {
         this.registryService.getHierarchiesForGeoObject( code, typeTypeCode )
-            .then(( hierarchies: any ) => {                
+            .then(( hierarchies: any ) => {
                 this.hierarchies = hierarchies;
-                
+
                 //                this.parentTreeNode = CascadingGeoSelector.staticGetParents( this.hierarchies );
                 this.areParentsValid = true;
 
