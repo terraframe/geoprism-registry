@@ -58,10 +58,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
 
-    @Input() isValid: boolean = true;
-
-    @Output() valid = new EventEmitter<boolean>();
-
     @Input() allowCodeEdit: boolean = false;
 
     @Input() attributeExcludes: string[] = [];
@@ -71,9 +67,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
+    
+    @Output() valid = new EventEmitter<boolean>();
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
+    isValid: boolean = true;
 
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
 
@@ -95,25 +94,33 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.postGeoObject = JSON.parse( JSON.stringify( this.postGeoObject ) ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
         }
 
-        this.attributeForm.statusChanges.subscribe( result => {
-            this.isValid = ( result === "VALID" );
-            this.valid.emit( this.isValid );
-        } );
+//        this.attributeForm.statusChanges.subscribe( result => {
+//            this.isValid = ( result === "VALID" );
+//            
+//            console.log("Emitting: ", this.isValid);
+//            
+//            this.valid.emit( this.isValid );
+//        } );
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
         }
 
-        this.calculatedPreObject = this.calculate( this.preGeoObject );
-        this.calculatedPostObject = this.calculate( this.postGeoObject );
-    }
-    
-    ngOnChanges( changes: SimpleChanges ) {
-        this.calculatedPreObject = this.calculate( this.preGeoObject );
-        this.calculatedPostObject = this.calculate( this.postGeoObject );
+        this.calculate();
     }
 
-    calculate( goot: GeoObjectOverTime ): any {
+    ngOnChanges( changes: SimpleChanges ) {
+        if ( changes['forDate'] ) {
+            this.calculate();
+        }
+    }
+
+    calculate(): void {
+        this.calculatedPreObject = this.calculateCurrent( this.preGeoObject );
+        this.calculatedPostObject = this.calculateCurrent( this.postGeoObject );
+    }
+
+    calculateCurrent( goot: GeoObjectOverTime ): any {
         const object = {};
 
         const time = this.forDate.getTime();
@@ -130,7 +137,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                     const endDate = Date.parse( vot.endDate );
 
                     if ( time >= startDate && time <= endDate ) {
-                        object[attr.code] = vot.value;
+
+                        if ( attr.type === 'local' ) {
+                            object[attr.code] = JSON.parse( JSON.stringify( vot.value ) );
+                        }
+                        else {
+                            object[attr.code] = vot.value;
+                        }
+
                     }
                 } );
             }
@@ -157,14 +171,24 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.bsModalRef.content.attribute = attribute;
         // this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
         this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
-            console.log( versionObj )
-
-            // TODO: set the version on the GeoObject attribute
+            this.calculate();
         } );
     }
 
-    isDifferent( attribute: Attribute ): boolean {
-        return this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code];
+    isDifferentText( attribute: Attribute ): boolean {
+        if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {
+            return true;
+        }
+
+        return ( this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code] );
+    }
+
+    isDifferentValue( attribute: Attribute ): boolean {
+        if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {
+            return true;
+        }
+
+        return ( this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code] !== this.calculatedPreObject[attribute.code] );
     }
 
     onSelectPropertyOption( event: any, option: any ): void {
@@ -188,7 +212,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         return null;
     }
-    
+
     removeStatuses( arr: any[] ) {
         var newI = -1;
         for ( var i = 0; i < arr.length; ++i ) {
@@ -217,7 +241,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     isStatusChanged( post, pre ) {
-        if ( pre.length == 0 || post.length == 0 ) {
+
+        if ( pre != null && post == null ) {
+            return true;
+        }
+
+        if ( pre == null || post == null || pre.length == 0 || post.length == 0 ) {
             return false;
         }
 
@@ -256,7 +285,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     public getGeoObject(): any {
         return this.postGeoObject;
-        
+
         //        // The front-end uses the 'yyyy-mm-dd' date format. Our backend expects dates in epoch format.
         //        var submitGO = JSON.parse( JSON.stringify( this.postGeoObject ) );
         //        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {

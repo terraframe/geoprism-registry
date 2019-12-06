@@ -14,10 +14,10 @@
               <div class="col-sm-12" style="float:left;width:150px;" *ngFor="let parent of hierarchy.parents; let i = index">
                 {{parent.label}}
 
-<!-- 
                 <input style="width:150px;" type="text" class="form-control" disabled
                   [(ngModel)]="parent.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input">
- -->              
+                  
+ <!-- 
                 <input style="width:150px;" type="text" class="form-control" autocomplete="off"
                   [(ngModel)]="parent.text" name="{{hierarchy.code}}-{{parent.code}}-input"
                   [typeaheadAsync]="true"
@@ -28,7 +28,6 @@
                   [typeaheadMinLength]="0"
                   [typeaheadWaitMs]="300">
  
- <!-- 
                 <input style="width:150px;" type="text" class="form-control" autocomplete="off"
                   [(ngModel)]="parent.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input"
                   [typeaheadAsync]="true"
@@ -48,7 +47,7 @@
             <div class="row">
               <div class="col-sm-12">
                   <div class="button-holder" style="padding: 20px 0 20px 0;">
-                      <button type="submit" style="" (click)="onManageAttributeVersions(hierarchy)" class="btn btn-primary" role="button">
+                      <button type="submit" style="" (click)="onManageVersions(hierarchy.code)" class="btn btn-primary" role="button">
                           <localize key="changeovertime.manageVersions.button.label"></localize>
                       </button>
                   </div>

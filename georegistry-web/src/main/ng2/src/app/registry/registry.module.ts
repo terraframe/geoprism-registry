@@ -55,6 +55,7 @@ import { ChangeRequestPageComponent } from './component/change-request-page/chan
 import { GeoObjectEditorComponent } from './component/geoobject-editor/geoobject-editor.component';
 import { GeoObjectEditorMapComponent } from './component/geoobject-editor-map/geoobject-editor-map.component';
 import { CascadingGeoSelector } from './component/cascading-geo-selector/cascading-geo-selector';
+import { ManageParentVersionsModalComponent } from './component/cascading-geo-selector/manage-parent-versions-modal.component';
 import { ActionDetailModalComponent } from './component/crtable/action-detail/action-detail-modal.component';
 import { ShapefileComponent } from './component/importer/shapefile.component';
 import { SpreadsheetComponent } from './component/importer/spreadsheet.component';
@@ -142,6 +143,7 @@ import '../rxjs-extensions';
         DataPageComponent,
         ChangeRequestPageComponent,
         CascadingGeoSelector,
+        ManageParentVersionsModalComponent,        
         ActionDetailModalComponent,
         HierarchyComponent,
         ShapefileComponent,
@@ -183,6 +185,7 @@ import '../rxjs-extensions';
         ManageTermOptionsComponent,
         GeoObjectSharedAttributeEditorComponent,
         ManageVersionsModalComponent,
+        ManageParentVersionsModalComponent,
         SubmitChangeRequestComponent,
         GeoObjectEditorComponent,
         PublishModalComponent,

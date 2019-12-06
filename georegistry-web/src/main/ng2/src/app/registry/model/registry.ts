@@ -188,14 +188,13 @@ export class MasterListVersion {
 export class HierarchyOverTime {
     code: string;
     label: string;
+    types: {
+        code: string;
+        label: string;
+    }[];
     entries: {
         startDate: string;
         endDate: string;
-        parents: {
-            code: string;
-            label: string;
-            text: string;
-            geoObject: GeoObject;
-        }[];
+        parents: {[k: string]: {text: string; geoObject: GeoObject}};
     }[];
 }
