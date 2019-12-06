@@ -43,13 +43,21 @@ export class ManageParentVersionsModalComponent implements OnInit {
 
     onAddNewVersion(): void {
 
-        //        const entry = {
-        //            startDate: null,
-        //            endDate: null,
-        //            parents: []
-        //        }
-        //
-        //        this.hierarchy.entries.push( entry );
+        let parents = {};
+
+        for ( let i = 0; i < this.hierarchy.types.length; i++ ) {
+            let current = this.hierarchy.types[i];
+
+            parents[current.code] = {};
+        }
+
+        const entry = {
+            startDate: null,
+            endDate: null,
+            parents: parents
+        }
+
+        this.hierarchy.entries.push( entry );
     }
 
     remove( entry: any ): void {
