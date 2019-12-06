@@ -146,9 +146,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         } );
 
         // TODO: sending the properties like this is wrong
-        this.bsModalRef.content.geoObject = this.postGeoObject;
+        this.bsModalRef.content.geoObjectOverTime = this.postGeoObject;
         this.bsModalRef.content.geoObjectType = this.geoObjectType;
-        this.bsModalRef.content.attributeCode = attribute.code;
+        // this.bsModalRef.content.attributeCode = attribute.code;
         this.bsModalRef.content.attribute = attribute;
         // this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
         this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
