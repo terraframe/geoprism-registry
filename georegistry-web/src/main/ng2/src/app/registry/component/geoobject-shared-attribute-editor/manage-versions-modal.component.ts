@@ -135,7 +135,7 @@ export class ManageVersionsModalComponent implements OnInit {
         vot.startDate = Utils.formatDateString(new Date());
         vot.endDate = Utils.formatDateString(new Date());
         
-        if (this.geoObjectType.type === "local")
+        if (this.attribute.type === "local")
         {
           vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]};
         }
