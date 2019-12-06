@@ -39,10 +39,10 @@
                                                                     <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;"> 
                                                                         <td style="vertical-align: bottom; width: 35%;padding: 5px;">
                                                                             <h5>{{loc.locale}}</h5>
-                                                                            <input type="text" class="form-control" id="loc-val-{{idx}}" name="loc-val-{{idx}}" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event">
+                                                                            <input type="text" class="form-control" id="loc-val-{{i}}-{{idx}}" name="loc-val-{{i}}-{{idx}}" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event">
                                                                         </td> 
                                                                         <td style="vertical-align: bottom; width: 35%;padding: 5px;">
-                                                                            <input style="width: 100%;" type="date" name="startDate-{{idx}}" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="version.startDate = $event">
+                                                                            <input style="width: 100%;" type="date" name="startDate-{{i}}-{{idx}}" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="version.startDate = $event">
                                                                         </td> 
                                                                         <td style="vertical-align: bottom; width: 20%;padding: 5px;">
                                                                             <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
