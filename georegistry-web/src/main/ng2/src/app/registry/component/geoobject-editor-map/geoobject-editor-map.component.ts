@@ -10,7 +10,7 @@ import { RegistryService } from '../../service/registry.service';
 import { ChangeRequestService } from '../../service/change-request.service';
 
 import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObject, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
+import { GeoObjectType, GeoObject, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
@@ -57,9 +57,9 @@ export class GeoObjectEditorMapComponent implements OnInit {
     /*
      * The state of the GeoObject after our edit has been applied 
      */
-    @Input() postGeoObject: GeoObject;
+    @Input() postGeoObject: GeoObjectOverTime;
 
-    @Input() preGeoObject: GeoObject;
+    @Input() preGeoObject: GeoObjectOverTime;
 
     @Input() geoObjectType: GeoObjectType;
 
@@ -68,43 +68,51 @@ export class GeoObjectEditorMapComponent implements OnInit {
     @Output() valid = new EventEmitter<boolean>();
 
     @Input() readOnly: boolean = false;
+    
+    @Input() geometryValue: any;
 
     constructor( private registryService: RegistryService ) {
 
     }
 
     ngOnInit(): void {
-
+		
     }
 
     ngAfterViewInit() {
-        //        setTimeout(() => {
+      this.registryService.getGeoObjectOverTime( "22", "Province" )
+            .then( geoObject => {
+              this.postGeoObject = geoObject;
+              this.preGeoObject = geoObject
+              
+              this.postGeoObjectProperties = JSON.parse( JSON.stringify( this.postGeoObject.attributes ) );
 
-        this.postGeoObjectProperties = JSON.parse( JSON.stringify( this.postGeoObject.properties ) );
-
-        ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
-
-        this.map = new Map( {
-            container: 'map',
-            style: 'mapbox://styles/mapbox/satellite-v9',
-            zoom: 2,
-            center: [110.880453, 10.897852]
-        } );
-
-        this.map.on( 'load', () => {
-            this.initMap();
-        } );
-
-        this.map.on( 'draw.create', () => {
-            this.onValidChange();
-        } );
-        this.map.on( 'draw.delete', () => {
-            this.onValidChange();
-        } );
-        this.map.on( 'draw.update', () => {
-            this.onValidChange();
-        } );
-        //        }, 10 );
+		        ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
+		
+		        this.map = new Map( {
+		            container: 'map',
+		            style: 'mapbox://styles/mapbox/satellite-v9',
+		            zoom: 2,
+		            center: [110.880453, 10.897852]
+		        } );
+		
+		        this.map.on( 'load', () => {
+		            this.initMap();
+		        } );
+		
+		        this.map.on( 'draw.create', () => {
+		            this.onValidChange();
+		        } );
+		        this.map.on( 'draw.delete', () => {
+		            this.onValidChange();
+		        } );
+		        this.map.on( 'draw.update', () => {
+		            this.onValidChange();
+		        } );
+              
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
     }
 
     getIsValid(): boolean {
@@ -189,13 +197,13 @@ export class GeoObjectEditorMapComponent implements OnInit {
             }
             this.map.addControl( this.editingControl );
 
-            if ( this.postGeoObject.type != null && this.postGeoObject.geometry != null ) {
-                this.editingControl.add( this.postGeoObject );
+            if ( this.postGeoObject.attributes.type != null && this.postGeoObject.attributes.geometry != null ) {
+                this.editingControl.add( this.geometryValue );
             }
         }
         else {
             if ( this.editingControl != null ) {
-                this.postGeoObject = this.saveDraw();
+                this.geometryValue = this.saveDraw();
                 this.map.removeControl( this.editingControl );
 
                 this.editingControl = null;
@@ -229,12 +237,12 @@ export class GeoObjectEditorMapComponent implements OnInit {
         if ( this.preGeoObject != null ) {
             this.renderGeoObjectAsLayer( this.preGeoObject, "pre", "#EFA22E" )
         }
-        if ( this.readOnly && this.postGeoObject != null ) {
-            this.renderGeoObjectAsLayer( this.postGeoObject, "post", "#3368EF" );
+        if ( this.readOnly && this.geometryValue != null ) {
+            this.renderGeoObjectAsLayer( this.geometryValue, "post", "#3368EF" );
         }
     }
 
-    renderGeoObjectAsLayer( geoObject: GeoObject, prefix: string, color: string ) {
+    renderGeoObjectAsLayer( geoObject: GeoObjectOverTime, prefix: string, color: string ) {
         let sourceName: string = prefix + "-geoobject";
 
         this.map.addSource( sourceName, {
@@ -293,10 +301,10 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
 
     refresh( zoom: boolean ): void {
-        if ( zoom && this.postGeoObject != null && !this.isNew ) {
+        if ( zoom && this.geometryValue != null && !this.isNew ) {
 
-            let code: string = this.postGeoObject.properties.code;
-            let type: string = this.postGeoObject.properties.type;
+            let code: string = this.postGeoObject.attributes.code;
+            let type: string = this.postGeoObject.attributes.type;
 
             this.registryService.getGeoObjectBounds( code, type )
                 .then( boundArr => {
@@ -311,7 +319,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
         this.onValidChange();
     }
 
-    saveDraw(): GeoObject {
+    saveDraw(): GeoObjectOverTime {
         if ( this.editingControl != null ) {
             let featureCollection: any = this.editingControl.getAll();
 
@@ -336,7 +344,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
                         }
                     }
 
-                    this.postGeoObject.geometry = {
+                    this.geometryValue = {
                         coordinates: polygons,
                         type: 'MultiPolygon'
                     };
@@ -357,7 +365,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
                         }
                     }
 
-                    this.postGeoObject.geometry = {
+                    this.geometryValue = {
                         coordinates: points,
                         type: 'MultiPoint'
                     };
@@ -378,17 +386,17 @@ export class GeoObjectEditorMapComponent implements OnInit {
                         }
                     }
 
-                    this.postGeoObject.geometry = {
+                    this.geometryValue = {
                         coordinates: lines,
                         type: 'MultiLineString'
                     };
                 }
                 else {
-                    this.postGeoObject = featureCollection.features[0];
+                    this.geometryValue = featureCollection.features[0];
                 }
 
                 // If they deleted the Primary feature and then re-created it, then the properties won't exist.
-                this.postGeoObject.properties = JSON.parse( JSON.stringify( this.postGeoObjectProperties ) );
+                this.postGeoObject.attributes = JSON.parse( JSON.stringify( this.postGeoObjectProperties ) );
             }
 
             return this.postGeoObject;

@@ -132,6 +132,12 @@
                                                     </button>
                                                   </div>
                                             </div>
+                                            
+                                            <div *ngIf="attr.type === 'geometry'">
+                                              <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
+                                              	<localize key="changeovertime.manageVersions.button.label"></localize>
+                                              </button>
+                                            </div>
 
                                         </li>
                                     </ul>

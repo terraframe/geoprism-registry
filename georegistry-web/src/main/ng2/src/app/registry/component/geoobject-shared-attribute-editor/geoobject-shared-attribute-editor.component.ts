@@ -161,6 +161,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
             // TODO: set the version on the GeoObject attribute
         } );
+        this.bsModalRef.content.tfInit();
     }
 
     isDifferent( attribute: Attribute ): boolean {

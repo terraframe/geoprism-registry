@@ -28,11 +28,15 @@ export class ManageVersionsModalComponent implements OnInit {
     onAttributeVersionChange: Subject<GeoObjectOverTime>;
 
     // attr: Attribute;
-    attribute: Attribute;
+    @Input() attribute: Attribute;
     
-    geoObjectType: GeoObjectType;
+    @Input() geoObjectType: GeoObjectType;
     
-    geoObjectOverTime: GeoObjectOverTime;
+    @Input() geoObjectOverTime: GeoObjectOverTime;
+    
+    goGeometries: GeoObjectOverTime;
+    
+    isNewGeoObject: boolean = false;
     
     // attributeCode: string;
 
@@ -49,13 +53,21 @@ export class ManageVersionsModalComponent implements OnInit {
     // geoObjectOverTime: GeoObjectOverTime;
 
     newVersion: ValueOverTime;
+    
+    editingGeometry: number = -1;
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
 
 		this.onAttributeVersionChange = new Subject();
-
+    }
+    
+    tfInit(): void {
+      if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length == 1)
+		{
+		  this.editingGeometry = 0;
+		}
     }
 
     onAddNewVersion(): void {
@@ -63,7 +75,16 @@ export class ManageVersionsModalComponent implements OnInit {
         let vot: ValueOverTime = new ValueOverTime();
         vot.startDate = new Date();
         vot.endDate = new Date();
-        vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value; // TODO handle different types
+        
+        if (this.attribute.code === "geometry")
+        {
+          //vot.value = {"type":"MultiPolygon","coordinates":[]};
+          vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value; // TODO handle different types
+        }
+        else
+        {
+          vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value; // TODO handle different types
+        }
         
         this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
     }
@@ -85,6 +106,10 @@ export class ManageVersionsModalComponent implements OnInit {
         }
 
         return hasVal;
+    }
+    
+    editGeometry(index: number) {
+      this.editingGeometry = index;
     }
 
     getVersionData(attribute: Attribute) {
