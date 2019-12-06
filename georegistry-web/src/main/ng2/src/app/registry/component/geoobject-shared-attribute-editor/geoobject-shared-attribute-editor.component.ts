@@ -104,16 +104,21 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
         }
 
-        this.calculatedPreObject = this.calculate( this.preGeoObject );
-        this.calculatedPostObject = this.calculate( this.postGeoObject );
+        this.calculate();
     }
 
     ngOnChanges( changes: SimpleChanges ) {
-        this.calculatedPreObject = this.calculate( this.preGeoObject );
-        this.calculatedPostObject = this.calculate( this.postGeoObject );
+        if ( changes['forDate'] ) {
+            this.calculate();
+        }
     }
 
-    calculate( goot: GeoObjectOverTime ): any {
+    calculate(): void {
+        this.calculatedPreObject = this.calculateCurrent( this.preGeoObject );
+        this.calculatedPostObject = this.calculateCurrent( this.postGeoObject );
+    }
+
+    calculateCurrent( goot: GeoObjectOverTime ): any {
         const object = {};
 
         const time = this.forDate.getTime();
@@ -130,7 +135,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                     const endDate = Date.parse( vot.endDate );
 
                     if ( time >= startDate && time <= endDate ) {
-                        object[attr.code] = vot.value;
+
+                        if ( attr.type === 'local' ) {
+                            object[attr.code] = JSON.parse( JSON.stringify( vot.value ) );
+                        }
+                        else {
+                            object[attr.code] = vot.value;
+                        }
+
                     }
                 } );
             }
@@ -157,9 +169,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.bsModalRef.content.attribute = attribute;
         // this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
         this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
-            console.log( versionObj )
-
-            // TODO: set the version on the GeoObject attribute
+            this.calculate();
         } );
     }
 
