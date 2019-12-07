@@ -71,12 +71,10 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.query.postgres.GeoObjectIterator;
@@ -815,39 +813,6 @@ public class RegistryService
     JsonObject jsonObject = go.toJSON(serializer);
     joResp.put("geoObject", new JSONObject(jsonObject.toString()));
 
-    /**
-     * Include information about potential parents
-     */
-    // JSONArray jaHts = new JSONArray();
-
-    // HierarchyType[] hts =
-    // ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-    // for (HierarchyType ht : hts)
-    // {
-    //// JSONObject joHt = new JSONObject();
-    ////
-    //// joHt.put("ht", new JSONObject(joHt.toString()));
-    ////
-    //// jaHts.put(joHt);
-    //
-    // jaHts.put(new JSONObject(ht.toJSON(serializer).toString()));
-    // }
-
-    // ParentTreeNode ptnChild = new ParentTreeNode(go, null);
-
-    // HierarchyType[] hts =
-    // ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-    // for (HierarchyType ht : hts)
-    // {
-    // List<HierarchyNode> hnlRoots = ht.getRootGeoObjectTypes();
-    //
-    // for (HierarchyNode hnlRoot : hnlRoots)
-    // {
-    // ParentTreeNode ptnParent = ptnFromHierarchyNode(hnlRoot);
-    // ptnChild.addParent(ptnParent);
-    // }
-    // }
-
     ServerGeoObjectType type = ServerGeoObjectType.get(go.getType());
 
     JsonArray hierarchies = AdapterUtilities.getInstance().getHierarchiesForType(type, true);
@@ -857,6 +822,28 @@ public class RegistryService
     return joResp.toString();
   }
 
+  @Request(RequestType.SESSION)
+  public String newGeoObjectInstanceOverTime(String sessionId, String typeCode)
+  {
+    final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+    
+    ServerGeoObjectIF go = service.newInstance(type);
+    
+    final GeoObjectOverTime goot = go.toGeoObjectOverTime();
+    ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true);
+
+
+    /**
+     * Serialize the GeoObject and add it to the response
+     */
+    JsonObject response = new JsonObject();
+    
+    response.add("geoObject", goot.toJSON());
+    response.add("hierarchies", pot.toJSON());
+    
+    return response.toString();
+  }
+  
   // private ParentTreeNode ptnFromHierarchyNode(HierarchyNode hn, HierarchyType
   // ht)
   // {

@@ -45,6 +45,8 @@ export class CascadingGeoSelector {
         const day = this.forDate.getUTCDate();
 
         this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
+        
+        // Truncate any hours/minutes/etc which may be part of the date
         this.forDate = new Date( Date.parse( this.dateStr ) );
 
         this.calculate();

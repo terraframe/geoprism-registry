@@ -121,6 +121,14 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "geoobject-time/newGeoObjectInstance")
+  public ResponseIF newGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_NEW_INSTANCE_PARAM_TYPE_CODE) String typeCode)
+  {
+    String resp = this.registryService.newGeoObjectInstanceOverTime(request.getSessionId(), typeCode);
+    
+    return new RestBodyResponse(resp);
+  }
 
   /**
    * Returns a GeoObject with the given uid.

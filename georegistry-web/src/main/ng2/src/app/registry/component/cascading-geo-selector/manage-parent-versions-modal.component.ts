@@ -69,6 +69,8 @@ export class ManageParentVersionsModalComponent implements OnInit {
                 this.hierarchy.entries.splice( i, 1 );
             }
         }
+        
+        this.snapDates();
     }
 
     getTypeAheadObservable( date: string, type: any, entry: any, index: number ): Observable<any> {
