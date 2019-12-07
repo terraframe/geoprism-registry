@@ -10,6 +10,7 @@ import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/a
 import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
 import { ChangeRequestService } from '../../service/change-request.service';
+import { LocalizationService } from '../../../shared/service/localization.service';
 
 import { CascadingGeoSelector } from '../cascading-geo-selector/cascading-geo-selector'
 
@@ -107,7 +108,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
     constructor( private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, authService: AuthService ) {
+        private localizeService: LocalizationService, private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, authService: AuthService ) {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
@@ -142,12 +143,13 @@ export class GeoObjectEditorComponent implements OnInit {
         this.forDate = new Date( Date.parse( this.dateStr ) );
 
         this.fetchGeoObjectType( typeCode );
-        
+        this.fetchLocales();
+
         this.registryService.newGeoObjectOverTime( typeCode ).then( retJson => {
             this.goPropertiesPre = retJson.geoObject;
             this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
             this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
-            
+
             this.hierarchies = retJson.hierarchies;
         } );
     }
@@ -161,14 +163,15 @@ export class GeoObjectEditorComponent implements OnInit {
         this.fetchGeoObject( code, typeCode );
         this.fetchGeoObjectType( typeCode );
         this.fetchHierarchies( code, typeCode );
+        this.fetchLocales();
     }
 
     private fetchGeoObject( code: string, typeCode: string ) {
         this.registryService.getGeoObjectOverTime( code, typeCode ).then( geoObject => {
-                this.goPropertiesPre = geoObject;
-                this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
-                this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
-                
+            this.goPropertiesPre = geoObject;
+            this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
+            this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
+
 
             this.goSubmit = this.goPropertiesPost;
 
@@ -177,6 +180,14 @@ export class GeoObjectEditorComponent implements OnInit {
             this.areGeometriesValid = true;
             this.arePropertiesValid = true;
             this.isValid = true;
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+    }
+
+    private fetchLocales() {
+        this.registryService.getLocales().then( locales => {
+            this.localizeService.setLocales( locales );
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );

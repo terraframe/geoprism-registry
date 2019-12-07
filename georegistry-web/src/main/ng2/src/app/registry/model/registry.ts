@@ -183,6 +183,7 @@ export class MasterListVersion {
     createDate: string;
     publishDate: string;
     attributes: any[];
+    locales?:string[];
 }
 
 export class HierarchyOverTime {

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -32,6 +32,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.gson.JsonArray;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.MdLocalizableInfo;
@@ -124,6 +125,14 @@ public class RegistryLocalizationController
     return new RestBodyResponse(json);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-locales")
+  public ResponseIF getLocales(ClientRequestIF request) throws IOException, ServletException
+  {
+    final JsonArray locales = ServiceFactory.getRegistryService().getLocales(request.getSessionId());
+
+    return new RestBodyResponse(locales);
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF installLocale(ClientRequestIF request, @RequestParamter(name = "language") String language, @RequestParamter(name = "country") String country, @RequestParamter(name = "variant") String variant) throws IOException, ServletException
   {
@@ -150,12 +159,12 @@ public class RegistryLocalizationController
     com.runwaysdk.LocalizationFacade.install(locale);
 
     new WMSService().createAllWMSLayers(true);
-    
+
     // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();   
-    
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
     // Refresh the entire metadata cache
-    ServiceFactory.getRegistryService().refreshMetadataCache();    
+    ServiceFactory.getRegistryService().refreshMetadataCache();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
@@ -187,19 +196,19 @@ public class RegistryLocalizationController
     builder.addLocalizedValueStoreTab("Core Exceptions", LocalizedValueStore.TAG_NAME_ALL_RUNWAY_EXCEPTIONS);
 
     builder.addLocalizedValueStoreTab("UI Text", Arrays.asList(LocalizedValueStore.TAG_NAME_UI_TEXT));
-    
+
     addRegistryMetadata(builder);
 
     return builder.build();
   }
-  
+
   private void addRegistryExceptions(ConfigurationBuilder builder)
   {
     MdAttributeLocal exceptionsLocal = (MdAttributeLocal) BusinessFacade.get(MdLocalizable.getMessageMd());
     ArrayList<MdAttributeLocal> exceptionsLocalAL = new ArrayList<MdAttributeLocal>();
     exceptionsLocalAL.add(exceptionsLocal);
     AttributeLocalTabConfiguration localTabConfig = builder.addAttributeLocalTab("Exceptions", exceptionsLocal.getAttributeName(), exceptionsLocalAL);
-    
+
     AttributeLocalQueryCriteria myCriteria = new AttributeLocalQueryCriteria();
     myCriteria.definingTypeMustNotInclude(GeoEntity.CLASS);
     myCriteria.definingTypeMustNotInclude(LocalizedValueStore.CLASS);
@@ -209,23 +218,26 @@ public class RegistryLocalizationController
     myCriteria.entityKeyMustInclude("com.runwaysdk.localization");
     myCriteria.entityKeyMustInclude("net.geoprism.gis");
     myCriteria.entityKeyMustInclude("net.geoprism.ontology");
-    myCriteria.entityKeyMustInclude("net.geoprism.registry"); // Yes its confusing but these are OR not AND
+    myCriteria.entityKeyMustInclude("net.geoprism.registry"); // Yes its
+                                                              // confusing but
+                                                              // these are OR
+                                                              // not AND
     localTabConfig.addQueryCriteria(myCriteria);
   }
-  
+
   private void addRegistryMetadata(ConfigurationBuilder builder)
   {
     QueryFactory qf = new QueryFactory();
-    
+
     MdAttributeLocalQuery localQuery = new MdAttributeLocalQuery(qf);
-    
-//    localQuery.WHERE(localQuery.getKeyName().LIKE("net.geoprism.registry%"));
-//    
-//    localQuery.WHERE(localQuery.getAttributeName().EQ("displayLabel"));
-    
+
+    // localQuery.WHERE(localQuery.getKeyName().LIKE("net.geoprism.registry%"));
+    //
+    // localQuery.WHERE(localQuery.getAttributeName().EQ("displayLabel"));
+
     localQuery.WHERE(localQuery.getAttributeName().NE(MdLocalizableInfo.MESSAGE));
     localQuery.WHERE(localQuery.getAttributeName().NE(Metadata.DESCRIPTION));
-    
+
     ArrayList<MdAttributeLocal> locals = new ArrayList<MdAttributeLocal>();
     OIterator<? extends MdAttributeLocal> it = localQuery.getIterator();
     try
@@ -239,16 +251,19 @@ public class RegistryLocalizationController
     {
       it.close();
     }
-    
+
     AttributeLocalTabConfiguration localTabConfig = builder.addDynamicAttributeLocalTab("Registry Metadata", locals);
-    
+
     AttributeLocalQueryCriteria myCriteria = new AttributeLocalQueryCriteria();
     myCriteria.definingTypeMustNotInclude(GeoEntity.CLASS);
     myCriteria.definingTypeMustNotInclude(LocalizedValueStore.CLASS);
     myCriteria.definingTypeMustNotInclude(PostalCode.CLASS);
     myCriteria.definingTypeMustNotInclude(Operations.CLASS);
     myCriteria.entityKeyMustInclude("net.geoprism.registry");
-    myCriteria.entityKeyMustInclude("net.geoprism.registry"); // Yes its confusing but these are OR not AND
+    myCriteria.entityKeyMustInclude("net.geoprism.registry"); // Yes its
+                                                              // confusing but
+                                                              // these are OR
+                                                              // not AND
     localTabConfig.addQueryCriteria(myCriteria);
   }
 }

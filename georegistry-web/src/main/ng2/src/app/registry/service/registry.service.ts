@@ -359,6 +359,14 @@ export class RegistryService {
             .toPromise();
     }
 
+    getLocales( ): Promise<string[]> {
+        let params: HttpParams = new HttpParams();
+
+        return this.http
+            .get<string[]>( acp + '/localization/get-locales', { params: params } )
+            .toPromise();
+    }
+
     getGeoObjectOverTime( geoObjectCode: string, geoObjectTypeCode: string ): Promise<GeoObjectOverTime> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
