@@ -104,6 +104,10 @@
 												<li>Create <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ] </li>
 												<li>on {{action.createActionDate}}</li>
 											</ul>
+											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.SetParentAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
+												<li>Set parents of <b>{{action.childCode}}</b>
+												<li>on {{action.createActionDate}}</li>
+											</ul>
 											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
 												<li>Set <b>{{action.childTypeCode}}</b> as a child of <b>{{action.parentTypeCode}}</b> </li>
 												<li>on {{action.createActionDate}}</li>

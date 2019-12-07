@@ -20,6 +20,7 @@ export class ActionDetailModalComponent {
 
     @ViewChild( "cuDetail" ) cuDetail: ActionDetailComponent;
     @ViewChild( "arDetail" ) arDetail: ActionDetailComponent;
+    @ViewChild( "spDetail" ) spDetail: ActionDetailComponent;
 
     @Input()
     set curAction( action: any ) {
@@ -34,7 +35,6 @@ export class ActionDetailModalComponent {
     constructor( public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
-
     }
 
     cancel(): void {
@@ -44,6 +44,10 @@ export class ActionDetailModalComponent {
 
         if ( this.arDetail != null ) {
             this.arDetail.endEdit();
+        }
+
+        if ( this.spDetail != null ) {
+            this.spDetail.endEdit();
         }
 
         this.bsModalRef.hide();

@@ -42,15 +42,19 @@ export class CascadingGeoSelector {
     }
 
     ngOnInit(): void {
-        this.calculate();
-
         const day = this.forDate.getUTCDate();
 
         this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
+        this.forDate = new Date( Date.parse( this.dateStr ) );
+
+        this.calculate();
     }
 
     ngOnChanges( changes: SimpleChanges ) {
-        this.calculate();
+
+        if ( changes['forDate'] ) {
+            this.calculate();
+        }
     }
 
     calculate(): any {
@@ -65,6 +69,14 @@ export class CascadingGeoSelector {
             hierarchy.entries.forEach( pot => {
                 const startDate = Date.parse( pot.startDate );
                 const endDate = Date.parse( pot.endDate );
+
+                console.log( "Date", this.dateStr );
+                console.log( "Start Date", pot.startDate );
+                console.log( "End Date", pot.endDate );
+
+                console.log( "Date", time );
+                console.log( "Start Date", startDate );
+                console.log( "End Date", endDate );
 
                 if ( time >= startDate && time <= endDate ) {
                     let parents = [];
@@ -116,7 +128,7 @@ export class CascadingGeoSelector {
         go.properties = {
             uid: "",
             code: "",
-            displayLabel: new LocalizedValue(null, null),
+            displayLabel: new LocalizedValue( null, null ),
             type: "",
             status: [""],
             sequence: "",

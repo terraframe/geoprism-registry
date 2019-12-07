@@ -5,7 +5,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { ChangeRequest, PageEvent, AbstractAction, AddChildAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from '../../model/crtable';
+import { ChangeRequest, PageEvent, AbstractAction, AddChildAction, SetParentAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from '../../model/crtable';
 
 import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
@@ -26,7 +26,7 @@ export class RequestTableComponent {
 
 	requests: ChangeRequest[] = [];
 
-	actions: AbstractAction[] | AddChildAction[] | CreateGeoObjectAction[] | RemoveChildAction[] | UpdateGeoObjectAction[];
+	actions: AbstractAction[] | SetParentAction[] | AddChildAction[] | CreateGeoObjectAction[] | RemoveChildAction[] | UpdateGeoObjectAction[];
 
 	columns: any[] = [];
 	
