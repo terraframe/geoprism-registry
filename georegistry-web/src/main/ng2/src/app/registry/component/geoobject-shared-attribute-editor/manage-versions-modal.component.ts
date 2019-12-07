@@ -96,41 +96,30 @@ export class ManageVersionsModalComponent implements OnInit {
         var dateOffset = (24*60*60*1000) * 1; //1 days
 
         // Sort the data by start date 
-        votArr.sort(function(a, b){
-            let first: any = new Date(a.startDate);
-            let next: any = new Date(b.startDate);
+        votArr.sort( function( a, b ) {
+
+            if ( a.startDate == null || a.startDate === '') {
+                return 1;
+            }
+            else if ( b.startDate == null  || b.startDate === '' ) {
+                return -1;
+            }
+
+            let first: any = new Date( a.startDate );
+            let next: any = new Date( b.startDate );
             return first - next;
-        });
+        } );
+        
+        for ( let i = 1; i < votArr.length; i++ ) {
+            let prev = votArr[i - 1];
+            let current = votArr[i];
 
-
-        let lastStartDate: Date;
-        let lastEndDate: Date;
-        for(let i = votArr.length - 1; i >=0; i--) {
-            let vot = votArr[i];
-
-            // Only change those older than the most recent
-            if(i < votArr.length - 1){
-                // Assuming if startDate and endDate are null that it's a new object
-                if(vot.startDate && vot.endDate){
-                    vot.endDate = Utils.formatDateString(new Date(new Date(lastStartDate).getTime() - dateOffset));
-                }
-            }
-            else{
-                // This should be the last entry in the array ONLY
-                // Set end date to infinity
-                vot.endDate = Utils.formatDateString(new Date('5000-12-31'));
-            }
-
-            // Avoid falsely createing a date value of 1969 for new entries
-            if(vot.startDate){
-                lastStartDate = new Date(vot.startDate);
-            }
-            else{
-                lastStartDate = null;
-            }
-
-            lastEndDate = new Date(vot.endDate);
+            prev.endDate = Utils.formatDateString( new Date( new Date( current.startDate ).getTime() - dateOffset ) );
         }
+        
+        votArr[votArr.length - 1].endDate = '5000-12-31';
+        
+        console.log(votArr);
     }
 
     onValidChange(geometryValue): void {
@@ -145,27 +134,18 @@ export class ManageVersionsModalComponent implements OnInit {
         vot.startDate = null;  // Utils.formatDateString(new Date());
         vot.endDate = null;  // Utils.formatDateString(new Date());
 
-        let attributeType = null;
-        for(let i = 0; i < this.geoObjectType.attributes.length; ++i)
-        {
-          if(this.geoObjectType.attributes[i].code === this.attribute.code){
-            attributeType = this.geoObjectType.attributes[i].type;
-          }
-        }
-
-
         if(this.isNewGeoObject){
 
-        	if(attributeType === "local"){
+        	if(this.attribute.type === "local"){
 	        //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
                 vot.value = this.lService.create();
             }
-	        else if(attributeType === 'geometry'){
+	        else if(this.attribute.type === 'geometry'){
 	          vot.value = {"type":"MultiPolygon", "coordinates":[]}; // TODO: This incorrectly assumes MultiPolygon
 	        }
         }
         else{
-            if(attributeType === "local"){
+            if(this.attribute.type === "local"){
                 vot.value = this.lService.create();
             }
             // else if(attributeType === 'geometry'){

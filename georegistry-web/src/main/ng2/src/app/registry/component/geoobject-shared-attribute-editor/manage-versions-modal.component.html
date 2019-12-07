@@ -40,7 +40,7 @@
                                                                         <td style="vertical-align: bottom; width: 35%;padding: 5px;">
                                                                             <h5>{{loc.locale}}</h5>
                                                                             {{loc.value}}
-                                                                            <input type="text" class="form-control" id="loc-val-{{i}}-{{idx}}" name="loc-val-{{i}}-{{idx}}" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event">
+                                                                            <input type="text" class="form-control" [name]="'loc-val-' + i + '- ' + idx" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event">
                                                                         </td> 
                                                                     </tr>
                                                                 </table>

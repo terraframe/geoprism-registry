@@ -157,11 +157,11 @@ export class ManageParentVersionsModalComponent implements OnInit {
         // Sort the data
         this.hierarchy.entries.sort( function( a, b ) {
 
-            if ( a == null ) {
-                return -1;
-            }
-            else if ( b == null ) {
+            if ( a.startDate == null || a.startDate === '') {
                 return 1;
+            }
+            else if ( b.startDate == null  || b.startDate === '' ) {
+                return -1;
             }
 
             let first: any = new Date( a.startDate );
@@ -170,8 +170,6 @@ export class ManageParentVersionsModalComponent implements OnInit {
         } );
 
 
-        let lastStartDate: Date;
-        let lastEndDate: Date;
         for ( let i = 1; i < this.hierarchy.entries.length; i++ ) {
             let prev = this.hierarchy.entries[i - 1];
             let current = this.hierarchy.entries[i];
