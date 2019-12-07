@@ -147,6 +147,7 @@ export class ManageVersionsModalComponent implements OnInit {
           }
         }
         
+        
         if (this.isNewGeoObject)
         {
         	if (attributeType === "local")

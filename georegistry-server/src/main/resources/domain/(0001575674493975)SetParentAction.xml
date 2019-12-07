@@ -1,0 +1,45 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.action.geoobject.SetParentAction" label="Set Parent" exported="false" extends="net.geoprism.registry.action.AbstractAction">
+        <attributes>
+          <text name="childCode" label="childCode" required="true" />
+          <text name="childTypeCode" label="childTypeCode" required="true" />        
+          <text name="json" label="json" required="true" />
+        </attributes>
+      </mdBusiness>    
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.SetParentAction">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.SetParentAction">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.SetParentAction">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.action.geoobject.SetParentAction"/>
+    </delete>
+  </undoIt>
+</version>

@@ -21,14 +21,10 @@ package net.geoprism.registry.controller;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.json.JSONException;
 
 import com.runwaysdk.constants.ClientRequestIF;
@@ -48,14 +44,12 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
-import net.geoprism.registry.action.tree.AddChildAction;
-import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
-import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -86,6 +80,8 @@ public class GeoObjectEditorController
       Instant base = Instant.now();
       int sequence = 0;
 
+      GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
+
       ChangeRequest request = new ChangeRequest();
       request.addApprovalStatus(AllGovernanceStatus.PENDING);
       request.apply();
@@ -112,9 +108,16 @@ public class GeoObjectEditorController
         request.addAction(action).apply();
       }
 
-      ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
+      SetParentAction action = new SetParentAction();
+      action.addApprovalStatus(AllGovernanceStatus.PENDING);
+      action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+      action.setChildCode(timeGO.getCode());
+      action.setChildTypeCode(timeGO.getType().getCode());
+      action.setJson(sPtn);
+      action.setApiVersion(CGRAdapterProperties.getApiVersion());
+      action.apply();
 
-      applyChangeRequest(sessionId, request, ptn, isNew, base, sequence);
+      request.addAction(action).apply();
     }
     else
     {
@@ -152,133 +155,4 @@ public class GeoObjectEditorController
 
     return null;
   }
-
-  public void applyPtn(String sessionId, ParentTreeNode ptn)
-  {
-    GeoObject child = ptn.getGeoObject();
-    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, null).getParents();
-
-    // Remove all existing relationships which aren't what we're trying to
-    // create
-    for (ParentTreeNode ptnDbParent : childDbParents)
-    {
-      boolean shouldRemove = true;
-
-      for (ParentTreeNode ptnParent : ptn.getParents())
-      {
-        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-        {
-          shouldRemove = false;
-        }
-      }
-
-      if (shouldRemove)
-      {
-        RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
-      }
-    }
-
-    // Create new relationships that don't already exist
-    for (ParentTreeNode ptnParent : ptn.getParents())
-    {
-      boolean alreadyExists = false;
-
-      for (ParentTreeNode ptnDbParent : childDbParents)
-      {
-        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-        {
-          alreadyExists = true;
-        }
-      }
-
-      if (!alreadyExists)
-      {
-        GeoObject parent = ptnParent.getGeoObject();
-        RegistryService.getInstance().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
-      }
-    }
-  }
-
-  public void applyChangeRequest(String sessionId, ChangeRequest request, ParentTreeNode ptn, boolean isNew, Instant base, int sequence)
-  {
-    GeoObject child = ptn.getGeoObject();
-
-    List<ParentTreeNode> childDbParents = new LinkedList<ParentTreeNode>();
-
-    if (!isNew)
-    {
-      childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, null).getParents();
-
-      // Remove all existing relationships which aren't what we're trying to
-      // create
-      for (ParentTreeNode ptnDbParent : childDbParents)
-      {
-        boolean shouldRemove = true;
-
-        for (ParentTreeNode ptnParent : ptn.getParents())
-        {
-          if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-          {
-            shouldRemove = false;
-          }
-        }
-
-        if (shouldRemove)
-        {
-          GeoObject parent = ptnDbParent.getGeoObject();
-
-          RemoveChildAction action = new RemoveChildAction();
-          action.addApprovalStatus(AllGovernanceStatus.PENDING);
-          action.setChildId(child.getUid());
-          action.setChildTypeCode(child.getType().getCode());
-          action.setParentId(parent.getUid());
-          action.setParentTypeCode(parent.getType().getCode());
-          action.setHierarchyTypeCode(ptnDbParent.getHierachyType().getCode());
-          action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-          action.setApiVersion(CGRAdapterProperties.getApiVersion());
-          action.apply();
-
-          request.addAction(action).apply();
-
-        }
-      }
-    }
-
-    // Create new relationships that don't already exist
-    for (ParentTreeNode ptnParent : ptn.getParents())
-    {
-      boolean alreadyExists = false;
-
-      if (!isNew)
-      {
-        for (ParentTreeNode ptnDbParent : childDbParents)
-        {
-          if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-          {
-            alreadyExists = true;
-          }
-        }
-
-      }
-
-      if (!alreadyExists)
-      {
-        GeoObject parent = ptnParent.getGeoObject();
-
-        AddChildAction action = new AddChildAction();
-        action.addApprovalStatus(AllGovernanceStatus.PENDING);
-        action.setChildId(child.getUid());
-        action.setChildTypeCode(child.getType().getCode());
-        action.setParentId(parent.getUid());
-        action.setParentTypeCode(parent.getType().getCode());
-        action.setHierarchyTypeCode(ptnParent.getHierachyType().getCode());
-        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setApiVersion(CGRAdapterProperties.getApiVersion());
-        action.apply();
-
-        request.addAction(action).apply();
-      }
-    }
-  }
-
 }
