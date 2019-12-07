@@ -33,12 +33,13 @@
                                                         </tr> 
                                                     </thead> 
                                                     <tbody> 
-                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;">
+                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" >
                                                             <td >
                                                                 <table style="width: 100%;">
-                                                                    <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;" [@fadeInOut]> 
+                                                                    <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;" > 
                                                                         <td style="vertical-align: bottom; width: 35%;padding: 5px;">
                                                                             <h5>{{loc.locale}}</h5>
+                                                                            {{loc.value}}
                                                                             <input type="text" class="form-control" id="loc-val-{{i}}-{{idx}}" name="loc-val-{{i}}-{{idx}}" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event">
                                                                         </td> 
                                                                     </tr>
@@ -46,7 +47,7 @@
                                                             </td>
 
                                                             <td style="vertical-align: middle; width: 35%;padding: 5px;">
-                                                                <input style="width: 100%;" type="date" name="startDate-{{i}}-{{idx}}" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: middle; width: 20%;padding: 5px;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -66,7 +67,7 @@
                                                             <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th> 
                                                             <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
                                                             <th style="width: 20%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
-                                                            <th style="width: 10%; text-align: center;">Actions</th>
+                                                            <th style="width: 10%; text-align: center;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
                                                         </tr> 
                                                     </thead> 
                                                     <tbody> 

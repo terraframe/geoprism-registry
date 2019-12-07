@@ -9,7 +9,7 @@ import {
   transition,
 } from '@angular/animations';
 
-import { GeoObject, GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm } from '../../model/registry';
+import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm } from '../../model/registry';
 
 import { RegistryService } from '../../service/registry.service';
 
@@ -66,7 +66,8 @@ export class ManageVersionsModalComponent implements OnInit {
 
     editingGeometry: number = -1;
 
-    constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, public changeDetectorRef: ChangeDetectorRef ) { }
+    constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, 
+        public bsModalRef: BsModalRef, public changeDetectorRef: ChangeDetectorRef ) { }
 
     ngOnInit(): void {
 
@@ -88,15 +89,14 @@ export class ManageVersionsModalComponent implements OnInit {
 
         this.snapDates(vAttributes);
 
-        this.changeDetectorRef.detectChanges()
-
+        this.changeDetectorRef.detectChanges();
     }
 
-    snapDates(attributeArr: ValueOverTime[]){
+    snapDates(votArr: ValueOverTime[]): void{
         var dateOffset = (24*60*60*1000) * 1; //1 days
-        // Sort the data
-        attributeArr.sort(function(a, b){
 
+        // Sort the data by start date 
+        votArr.sort(function(a, b){
             let first: any = new Date(a.startDate);
             let next: any = new Date(b.startDate);
             return first - next;
@@ -105,22 +105,31 @@ export class ManageVersionsModalComponent implements OnInit {
 
         let lastStartDate: Date;
         let lastEndDate: Date;
-        for (let i = attributeArr.length - 1; i >=0 ; i--) {
-            let vAttr = attributeArr[i];
+        for(let i = votArr.length - 1; i >=0; i--) {
+            let vot = votArr[i];
 
             // Only change those older than the most recent
-            if(i < attributeArr.length - 1){
-
-                vAttr.endDate = Utils.formatDateString(new Date(new Date(lastStartDate).getTime() - dateOffset));
+            if(i < votArr.length - 1){
+                // Assuming if startDate and endDate are null that it's a new object
+                if(vot.startDate && vot.endDate){
+                    vot.endDate = Utils.formatDateString(new Date(new Date(lastStartDate).getTime() - dateOffset));
+                }
             }
             else{
                 // This should be the last entry in the array ONLY
                 // Set end date to infinity
-                vAttr.endDate = Utils.formatDateString(new Date('5000-12-31'));
+                vot.endDate = Utils.formatDateString(new Date('5000-12-31'));
             }
 
-            lastStartDate = new Date(vAttr.startDate);
-            lastEndDate = new Date(vAttr.endDate);
+            // Avoid falsely createing a date value of 1969 for new entries
+            if(vot.startDate){
+                lastStartDate = new Date(vot.startDate);
+            }
+            else{
+                lastStartDate = null;
+            }
+
+            lastEndDate = new Date(vot.endDate);
         }
     }
 
@@ -130,39 +139,56 @@ export class ManageVersionsModalComponent implements OnInit {
 
     onAddNewVersion(): void {
 
+        let votArr: ValueOverTime[] = this.geoObjectOverTime.attributes[this.attribute.code].values;
+
         let vot: ValueOverTime = new ValueOverTime();
-        vot.startDate = Utils.formatDateString(new Date());
-        vot.endDate = Utils.formatDateString(new Date());
+        vot.startDate = null;  // Utils.formatDateString(new Date());
+        vot.endDate = null;  // Utils.formatDateString(new Date());
 
         let attributeType = null;
-        for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
+        for(let i = 0; i < this.geoObjectType.attributes.length; ++i)
         {
-          if (this.geoObjectType.attributes[i].code === this.attribute.code)
-          {
+          if(this.geoObjectType.attributes[i].code === this.attribute.code){
             attributeType = this.geoObjectType.attributes[i].type;
           }
         }
 
 
-        if (this.isNewGeoObject){
-        	if (attributeType === "local"){
+        if(this.isNewGeoObject){
+        	if(attributeType === "local"){
 	          vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
 	        }
-	        else if (attributeType === 'geometry'){
+	        else if(attributeType === 'geometry'){
 	          vot.value = {"type":"MultiPolygon", "coordinates":[]}; // TODO: This incorrectly assumes MultiPolygon
 	        }
         }
         else{
-	      vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value;
+            vot.value = this.getEmptyValueOverTimeObject(votArr[0].value);
         }
 
-        this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
+        votArr.push(vot);
 
-        if (this.attribute.code === 'geometry'){
-		  this.editingGeometry = this.geoObjectOverTime.attributes[this.attribute.code].values.length - 1;
+        if(this.attribute.code === 'geometry'){
+		  this.editingGeometry = votArr.length - 1;
 		}
 
-        this.snapDates(this.geoObjectOverTime.attributes[this.attribute.code].values);
+        this.snapDates(votArr);
+
+        // this.changeDetectorRef.detectChanges();
+    }
+
+
+    getEmptyValueOverTimeObject(existingObject: ValueOverTime): ValueOverTime {
+
+        let newObj = JSON.parse(JSON.stringify(existingObject));
+
+        if(this.attribute.type === 'local'){
+            newObj.localeValues.forEach(val => {
+                val.value = null;
+            });
+        }
+
+        return newObj;
     }
 
 
