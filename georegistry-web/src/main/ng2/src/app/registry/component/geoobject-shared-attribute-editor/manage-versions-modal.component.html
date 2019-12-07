@@ -7,14 +7,14 @@
         </h2>
     </div>
     <!-- <div class="col-md-12 order-md-1"> -->
-    <form #form="ngForm" class="modal-form">
+    <form #versionsform="ngForm" class="modal-form">
 
         <fieldset>
             <div class="row-holder">
 
                 <!-- <div class="label-holder"></div> -->
                 <div class="holder" style="width: 100%;border: none;">
-                    <form *ngIf="geoObjectOverTime" #myForm="ngForm">
+                    <div *ngIf="geoObjectOverTime" >
 
                         <div class="panel" style="box-shadow: none;">
                             <div class="panel-body">
@@ -39,15 +39,20 @@
                                                                     <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;" > 
                                                                         <td style="vertical-align: bottom; width: 35%;padding: 5px;">
                                                                             <h5>{{loc.locale}}</h5>
-                                                                            {{loc.value}}
-                                                                            <input type="text" class="form-control" [name]="'loc-val-' + i + '- ' + idx" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event">
+                                                                            <input type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event" [attr.required]="loc.locale === 'defaultLocale'">
+                                                                            <div class="form-input-validation-error-message-wrapper">
+                                                                                <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">Value is required.</p>
+                                                                            </div>
                                                                         </td> 
                                                                     </tr>
                                                                 </table>
                                                             </td>
 
                                                             <td style="vertical-align: middle; width: 35%;padding: 5px;">
-                                                                <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate_' + i" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <div class="form-input-validation-error-message-wrapper">
+                                                                    <p *ngIf="!vAttribute.startDate" class="error-message">Start date is required.</p>
+                                                                </div>
                                                             </td> 
                                                             <td style="vertical-align: middle; width: 20%;padding: 5px;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -58,6 +63,7 @@
                                                         </tr>  
                                                     </tbody> 
                                                 </table>
+
                                         </div> 
                         
                                         <div *ngIf="attribute.type === 'term'">
@@ -81,7 +87,7 @@
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="vAttribute.startDate = $event">
+                                                                <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -149,26 +155,7 @@
                                 </ul>
                             </div>
                         </div>
-
-
-
-                        <!-- <div class="form-group">
-
-                            <td *ngIf="attribute.type === 'local'">
-                                <div *ngFor="let loc of geoObjectOverTime.attributes[this.attribute.code].localeValues"> 
-                                    <input id="val" style="width:auto;" type="text" name="val" [(ngModel)]="loc.value" #val="ngModel" [disabled]="true">
-                                    
-                                    <button type="submit" style="margin-left: 15px;" (click)="onAddNewVersion()" class="btn btn-primary" role="button" [disabled]="val.invalid || !canAddVersion()">
-                                        <localize key="changeovertime.manageVersions.button.label.addToHistory"></localize>
-                                    </button>
-                                </div>
-                            </td>   
-                            <td *ngIf="attribute.type !== 'local'">
-                                <input id="val" style="width:auto;" required type="text" name="val" [(ngModel)]="geoObjectOverTime.attributes[this.attribute.code]" #val="ngModel" [disabled]="true">
-                            </td>  
-
-                        </div> -->
-                    </form>
+                    </div>
                 </div>
 
             </div>
@@ -180,7 +167,7 @@
                         <!-- <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
                             <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
                         </button> -->
-                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!versionsform.valid">
                             <localize key="io.ok"></localize>
                         </button>
                     </div>

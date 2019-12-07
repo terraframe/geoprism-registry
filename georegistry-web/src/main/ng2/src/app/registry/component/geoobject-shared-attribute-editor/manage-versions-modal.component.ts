@@ -81,7 +81,7 @@ export class ManageVersionsModalComponent implements OnInit {
 	  }
     }
 
-    onDateChange(event: any, vAttribute, Attribute): any {
+    onDateChange(event: any, vAttribute: ValueOverTime): any {
         let dt = new Date(event);
         let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
@@ -114,7 +114,12 @@ export class ManageVersionsModalComponent implements OnInit {
             let prev = votArr[i - 1];
             let current = votArr[i];
 
-            prev.endDate = Utils.formatDateString( new Date( new Date( current.startDate ).getTime() - dateOffset ) );
+            if(current.startDate){
+                prev.endDate = Utils.formatDateString( new Date( new Date( current.startDate ).getTime() - dateOffset ) );
+            }
+            else{
+                prev.endDate = '5000-12-31';
+            }
         }
         
         votArr[votArr.length - 1].endDate = '5000-12-31';
