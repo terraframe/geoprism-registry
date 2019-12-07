@@ -65,27 +65,29 @@ export class GeoObjectEditorMapComponent implements OnInit {
 
     @Input() isNew: boolean;
 
-    @Output() valid = new EventEmitter<boolean>();
+    @Output() valid = new EventEmitter<any>();
 
     @Input() readOnly: boolean = false;
     
-    @Input() geometryValue: any;
+    @Input() vAttribute: any;
+    
+    geometryValue: any;
 
     constructor( private registryService: RegistryService ) {
 
     }
 
     ngOnInit(): void {
-		
+		this.geometryValue = this.vAttribute.value;
     }
 
     ngAfterViewInit() {
-      this.registryService.getGeoObjectOverTime( "22", "Province" )
-            .then( geoObject => {
-              this.postGeoObject = geoObject;
-              this.preGeoObject = geoObject
+      //this.registryService.getGeoObjectOverTime( "22", "Province" )
+            //.then( geoObject => {
+              //this.postGeoObject = geoObject;
+              //this.preGeoObject = geoObject
               
-              this.postGeoObjectProperties = JSON.parse( JSON.stringify( this.postGeoObject.attributes ) );
+              this.preGeoObject = this.postGeoObject;
 
 		        ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
 		
@@ -110,9 +112,9 @@ export class GeoObjectEditorMapComponent implements OnInit {
 		            this.onValidChange();
 		        } );
               
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
+            //} ).catch(( err: HttpErrorResponse ) => {
+            //    this.error( err );
+            //} );
     }
 
     getIsValid(): boolean {
@@ -134,7 +136,8 @@ export class GeoObjectEditorMapComponent implements OnInit {
     }
 
     private onValidChange(): void {
-        this.valid.emit();
+        //this.valid.emit(this.saveDraw());
+        this.vAttribute.value = this.saveDraw();
     }
 
     initMap(): void {
@@ -297,7 +300,7 @@ export class GeoObjectEditorMapComponent implements OnInit {
             } );
         }
 
-        ( <any>this.map.getSource( sourceName ) ).setData( geoObject );
+        ( <any>this.map.getSource( sourceName ) ).setData( this.geometryValue );
     }
 
     refresh( zoom: boolean ): void {
@@ -394,15 +397,12 @@ export class GeoObjectEditorMapComponent implements OnInit {
                 else {
                     this.geometryValue = featureCollection.features[0];
                 }
-
-                // If they deleted the Primary feature and then re-created it, then the properties won't exist.
-                this.postGeoObject.attributes = JSON.parse( JSON.stringify( this.postGeoObjectProperties ) );
             }
 
-            return this.postGeoObject;
+            return this.geometryValue;
         }
 
-        return this.postGeoObject;
+        return this.geometryValue;
     }
 
     public error( err: HttpErrorResponse ): void {
