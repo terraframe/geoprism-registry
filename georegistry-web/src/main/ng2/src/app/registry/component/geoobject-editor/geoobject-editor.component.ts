@@ -136,18 +136,18 @@ export class GeoObjectEditorComponent implements OnInit {
 
     // Configures the widget to be used in a "New" context, that is to say
     // that it will be used to create a new GeoObject.
-    public configureAsNew( typeCode: string ) {
+    public configureAsNew( typeCode: string, dateStr: string ) {
         this.isNewGeoObject = true;
+        this.dateStr = dateStr;
+        this.forDate = new Date( Date.parse( this.dateStr ) );
 
         this.fetchGeoObjectType( typeCode );
-
-        this.registryService.newGeoObjectInstance( typeCode ).then( retJson => {
+        
+        this.registryService.newGeoObjectOverTime( typeCode ).then( retJson => {
             this.goPropertiesPre = retJson.geoObject;
             this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
             this.goGeometries = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
             
-            console.log("this.goGeometries = " + this.goGeometries);
-
             this.hierarchies = retJson.hierarchies;
         } );
     }
@@ -155,7 +155,6 @@ export class GeoObjectEditorComponent implements OnInit {
     // Configures the widget to be used in an "Edit Existing" context
     public configureAsExisting( code: string, typeCode: string, dateStr: string ) {
         this.isNewGeoObject = false;
-
         this.dateStr = dateStr;
         this.forDate = new Date( Date.parse( this.dateStr ) );
 

@@ -1,5 +1,7 @@
 package net.geoprism.registry.model;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +17,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -48,6 +51,7 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.MasterList;
@@ -590,6 +594,41 @@ public class ServerGeoObjectType
     }
 
     return null;
+  }
+
+  public List<ServerHierarchyType> getHierarchies()
+  {
+    List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
+
+    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    Universal root = Universal.getRoot();
+
+    for (HierarchyType hierarchyType : hierarchyTypes)
+    {
+      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
+
+      // Note: Ordered ancestors always includes self
+      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, this.getUniversal(), sType.getUniversalType());
+
+      if (parents.size() > 1)
+      {
+        hierarchies.add(sType);
+      }
+    }
+
+    if (hierarchies.size() == 0)
+    {
+      /*
+       * This is a root type so include all hierarchies
+       */
+
+      for (HierarchyType hierarchyType : hierarchyTypes)
+      {
+        hierarchies.add(ServerHierarchyType.get(hierarchyType));
+      }
+    }
+
+    return hierarchies;
   }
 
   /**

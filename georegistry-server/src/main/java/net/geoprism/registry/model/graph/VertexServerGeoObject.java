@@ -722,7 +722,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
   {
-    return internalGetParentOverTime(this, parentTypes, recursive, null);
+    return internalGetParentOverTime(this, parentTypes, recursive);
   }
 
   @Override
@@ -892,7 +892,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
 
-      geoObj.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get(), this.date, this.date);
+      // geoObj.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get(),
+      // this.date, this.date);
     }
     else
     {
@@ -1350,21 +1351,23 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return tnRoot;
   }
 
-  protected static ServerParentTreeNodeOverTime internalGetParentOverTime(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
+  protected static ServerParentTreeNodeOverTime internalGetParentOverTime(VertexServerGeoObject child, String[] parentTypes, boolean recursive)
   {
-    ServerParentTreeNodeOverTime response = new ServerParentTreeNodeOverTime(child.getType());
+    final ServerGeoObjectType cType = child.getType();
+    final List<ServerHierarchyType> hierarchies = cType.getHierarchies();
+
+    ServerParentTreeNodeOverTime response = new ServerParentTreeNodeOverTime(cType);
+
+    for (ServerHierarchyType ht : hierarchies)
+    {
+      response.add(ht);
+    }
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", child.getVertex().getRID());
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT EXPAND(inE(");
-
-    if (htIn != null)
-    {
-      statement.append("'" + htIn.getMdEdge().getDBClassName() + "'");
-    }
-    statement.append(")");
+    statement.append("SELECT EXPAND(inE()");
 
     if (parentTypes != null && parentTypes.length > 0)
     {
@@ -1408,7 +1411,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       Date date = edge.getObjectValue(GeoVertex.START_DATE);
       Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
 
-      ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date);
+      ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date);
       tnRoot.setEndDate(endDate);
 
       VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);

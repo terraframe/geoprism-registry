@@ -383,6 +383,23 @@ export class RegistryService {
             .toPromise();
 
     }
+    
+    newGeoObjectOverTime( typeCode: string ): Promise<any> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<any>( acp + '/cgr/geoobject-time/newGeoObjectInstance', JSON.stringify( { 'typeCode': typeCode } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+    }
+
+    
 
 
     // getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): any[] {
