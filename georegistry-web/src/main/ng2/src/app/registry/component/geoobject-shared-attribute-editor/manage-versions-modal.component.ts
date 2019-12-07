@@ -155,15 +155,22 @@ export class ManageVersionsModalComponent implements OnInit {
 
 
         if(this.isNewGeoObject){
+
         	if(attributeType === "local"){
-	          vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
-	        }
+	        //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
+                vot.value = this.lService.create();
+            }
 	        else if(attributeType === 'geometry'){
 	          vot.value = {"type":"MultiPolygon", "coordinates":[]}; // TODO: This incorrectly assumes MultiPolygon
 	        }
         }
         else{
-            vot.value = this.getEmptyValueOverTimeObject(votArr[0].value);
+            if(attributeType === "local"){
+                vot.value = this.lService.create();
+            }
+            // else if(attributeType === 'geometry'){
+	        //   vot.value = {"type":"MultiPolygon", "coordinates":[]}; // TODO: This incorrectly assumes MultiPolygon
+	        // }
         }
 
         votArr.push(vot);
