@@ -4,13 +4,9 @@ import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   trigger,
-  state,
   style,
   animate,
   transition,
-  group,
-  query,
-  stagger
 } from '@angular/animations';
 
 import { GeoObject, GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm } from '../../model/registry';
@@ -50,35 +46,35 @@ export class ManageVersionsModalComponent implements OnInit {
     message: string = null;
 
     readonly: boolean = false;
-    
+
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
      */
     onAttributeVersionChange: Subject<GeoObjectOverTime>;
 
     @Input() attribute: Attribute;
-    
+
     @Input() geoObjectType: GeoObjectType;
-    
+
     @Input() geoObjectOverTime: GeoObjectOverTime;
-    
+
     goGeometries: GeoObjectOverTime;
-    
+
     isNewGeoObject: boolean = false;
-    
+
     newVersion: ValueOverTime;
-    
+
     editingGeometry: number = -1;
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, public changeDetectorRef: ChangeDetectorRef ) { }
 
     ngOnInit(): void {
 
-		this.onAttributeVersionChange = new Subject();
+        this.onAttributeVersionChange = new Subject();
     }
-    
+
     tfInit(): void {
-      if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length == 1)
+      if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length === 1)
 	  {
 	    this.editingGeometry = 0;
 	  }
@@ -100,7 +96,7 @@ export class ManageVersionsModalComponent implements OnInit {
         var dateOffset = (24*60*60*1000) * 1; //1 days
         // Sort the data
         attributeArr.sort(function(a, b){
-      
+
             let first: any = new Date(a.startDate);
             let next: any = new Date(b.startDate);
             return first - next;
@@ -111,7 +107,7 @@ export class ManageVersionsModalComponent implements OnInit {
         let lastEndDate: Date;
         for (let i = attributeArr.length - 1; i >=0 ; i--) {
             let vAttr = attributeArr[i];
-            
+
             // Only change those older than the most recent
             if(i < attributeArr.length - 1){
 
@@ -135,9 +131,9 @@ export class ManageVersionsModalComponent implements OnInit {
     onAddNewVersion(): void {
 
         let vot: ValueOverTime = new ValueOverTime();
-        // vot.startDate = Utils.formatDateString(new Date());
-        // vot.endDate = Utils.formatDateString(new Date());
-        
+        vot.startDate = Utils.formatDateString(new Date());
+        vot.endDate = Utils.formatDateString(new Date());
+
         let attributeType = null;
         for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
         {
@@ -146,35 +142,30 @@ export class ManageVersionsModalComponent implements OnInit {
             attributeType = this.geoObjectType.attributes[i].type;
           }
         }
-        
-        
-        if (this.isNewGeoObject)
-        {
-        	if (attributeType === "local")
-	        {
-	          vot.value = {"localizedValue":"new thing","localeValues":[{"locale":"defaultLocale","value":"new thing"},{"locale":"km_KH","value":null}]};
+
+
+        if (this.isNewGeoObject){
+        	if (attributeType === "local"){
+	          vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
 	        }
-	        else if (attributeType === 'geometry')
-	        {
-	          vot.value = {"type":"MultiPolygon", "coordinates":[]};
+	        else if (attributeType === 'geometry'){
+	          vot.value = {"type":"MultiPolygon", "coordinates":[]}; // TODO: This incorrectly assumes MultiPolygon
 	        }
         }
-        else
-        {
+        else{
 	      vot.value = this.geoObjectOverTime.attributes[this.attribute.code].values[0].value;
         }
-        
+
         this.geoObjectOverTime.attributes[this.attribute.code].values.push(vot);
-        
-        if (this.attribute.code === 'geometry')
-		{
+
+        if (this.attribute.code === 'geometry'){
 		  this.editingGeometry = this.geoObjectOverTime.attributes[this.attribute.code].values.length - 1;
 		}
 
         this.snapDates(this.geoObjectOverTime.attributes[this.attribute.code].values);
     }
 
-    
+
     editGeometry(index: number) {
       this.editingGeometry = index;
     }
@@ -195,9 +186,9 @@ export class ManageVersionsModalComponent implements OnInit {
 
         locale.localeValues.forEach(locVal => {
             if(locVal.locale === 'defaultLocale'){
-               defVal = locVal.value;             
+               defVal = locVal.value;
             }
-      
+
         })
 
         return defVal; 
@@ -247,7 +238,7 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     onSubmit(): void {
-        
+
         this.onAttributeVersionChange.next( this.geoObjectOverTime );
 
         this.bsModalRef.hide();
