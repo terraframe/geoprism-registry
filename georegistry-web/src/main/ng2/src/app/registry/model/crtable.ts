@@ -1,4 +1,4 @@
-import { GeoObject } from './registry';
+import { GeoObjectOverTime, HierarchyOverTime } from './registry';
 
 export class ChangeRequest {
   oid: string;
@@ -20,11 +20,11 @@ export class AbstractAction {
 }
 
 export class UpdateGeoObjectAction extends AbstractAction {
-  geoObjectJson: GeoObject;
+  geoObjectJson: GeoObjectOverTime;
 }
 
 export class CreateGeoObjectAction extends AbstractAction {
-  geoObjectJson: GeoObject;
+  geoObjectJson: GeoObjectOverTime;
 }
 
 export class AddChildAction extends AbstractAction {
@@ -54,3 +54,10 @@ export class PageEvent {
   type:string;
   data:any;
 }
+
+export class SetParentAction extends AbstractAction {
+  childCode: string;
+  childTypeCode: string;
+  json: HierarchyOverTime[];
+}
+
