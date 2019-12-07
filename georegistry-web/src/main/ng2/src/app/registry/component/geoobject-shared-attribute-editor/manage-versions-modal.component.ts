@@ -128,6 +128,9 @@ export class ManageVersionsModalComponent implements OnInit {
         }
     }
 
+    onValidChange(geometryValue): void {
+      console.log("Valid Change : " + geometryValue);
+    }
 
     onAddNewVersion(): void {
 

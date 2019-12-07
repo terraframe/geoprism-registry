@@ -105,8 +105,20 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         this.calculate();
         
-        let geometry: Attribute = new Attribute("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false);
-        this.geoObjectType.attributes.push(geometry);
+        
+        let geomAttr = null;
+        for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
+        {
+          if (this.geoObjectType.attributes[i].code === 'geometry')
+          {
+            geomAttr = this.geoObjectType.attributes[i];
+          }
+        }
+        if (geomAttr == null)
+        {
+          let geometry: Attribute = new Attribute("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false);
+          this.geoObjectType.attributes.push(geometry);
+        }
     }
 
     ngOnChanges( changes: SimpleChanges ) {

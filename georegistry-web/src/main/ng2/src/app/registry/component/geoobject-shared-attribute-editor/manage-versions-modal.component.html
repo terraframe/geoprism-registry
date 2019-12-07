@@ -137,8 +137,8 @@
                                                       </tr>
                                                       <tr>
                                                         <td>
-                                                          <button *ngIf="this.editingGeometry != i" (click)="editGeometry(i)"><localize key="changeovertime.manageVersions.geometry.edit"></localize></button>
-	                                                      <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable" [geometryValue]="this.vAttribute.value" (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
+                                                          <button *ngIf="this.editingGeometry != i" (click)="editGeometry(i)" role="button"><localize key="changeovertime.manageVersions.button.label"></localize></button>
+	                                                      <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [postGeoObject]="this.geoObjectOverTime" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable" [vAttribute]="this.vAttribute" (valid)="this.onValidChange($event)" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
                                                         </td>
                                                       </tr>
                                                     </tbody>
