@@ -135,18 +135,15 @@ export class ManageVersionsModalComponent implements OnInit {
         // vot.startDate = Utils.formatDateString(new Date());
         // vot.endDate = Utils.formatDateString(new Date());
         
-<<<<<<< HEAD
-        if (this.attribute.code === "local")
-=======
         let attributeType = null;
         for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
->>>>>>> refs/remotes/origin/dev
         {
           if (this.geoObjectType.attributes[i].code === this.attribute.code)
           {
             attributeType = this.geoObjectType.attributes[i].type;
           }
         }
+        
         
         if (this.isNewGeoObject)
         {
