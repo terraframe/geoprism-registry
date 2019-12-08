@@ -83,7 +83,9 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     onDateChange( event: any, vAttribute: ValueOverTime ): any {
-        let dt = new Date( event );
+        let dt = new Date( event.currentTarget.value );
+        //let dt = new Date(event);
+        
         let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
         vAttribute.startDate = Utils.formatDateString( dt );

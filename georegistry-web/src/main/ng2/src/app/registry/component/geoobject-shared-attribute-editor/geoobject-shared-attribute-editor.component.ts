@@ -64,7 +64,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
-    
+
     @Output() valid = new EventEmitter<boolean>();
 
     modifiedTermOption: Term = null;
@@ -93,7 +93,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         this.attributeForm.statusChanges.subscribe( result => {
             this.isValid = ( result === "VALID" || result === "DISABLED" );
-            
+
             this.valid.emit( this.isValid );
         } );
 
@@ -102,20 +102,17 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         this.calculate();
-        
-        
+
+
         let geomAttr = null;
-        for (var i = 0; i < this.geoObjectType.attributes.length; ++i)
-        {
-          if (this.geoObjectType.attributes[i].code === 'geometry')
-          {
-            geomAttr = this.geoObjectType.attributes[i];
-          }
+        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+            if ( this.geoObjectType.attributes[i].code === 'geometry' ) {
+                geomAttr = this.geoObjectType.attributes[i];
+            }
         }
-        if (geomAttr == null)
-        {
-          let geometry: Attribute = new Attribute("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false);
-          this.geoObjectType.attributes.push(geometry);
+        if ( geomAttr == null ) {
+            let geometry: Attribute = new Attribute( "geometry", "geometry", new LocalizedValue( "Geometry", null ), new LocalizedValue( "Geometry", null ), true, false, false );
+            this.geoObjectType.attributes.push( geometry );
         }
     }
 
@@ -166,6 +163,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         return object;
     }
 
+    handleChangeCode(e:any): void {
+        this.postGeoObject.attributes.code = this.calculatedPostObject['code'];
+//        
+//        console.log(this.calculatedPostObject['code'])
+//        console.log(e)
+    }
 
     onManageAttributeVersions( attribute: Attribute ): void {
         this.bsModalRef = this.modalService.show( ManageVersionsModalComponent, {
@@ -186,7 +189,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         } );
         this.bsModalRef.content.tfInit();
     }
-    
+
     //onManageGeometryVersions(): void {
     //  let geometry: Attribute = new Attribute("geometry", "geometry", null, null, true, false, false);
     //  this.onManageAttributeVersions(geometry);

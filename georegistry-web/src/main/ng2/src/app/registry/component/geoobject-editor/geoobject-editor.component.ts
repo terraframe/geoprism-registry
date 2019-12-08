@@ -251,8 +251,8 @@ export class GeoObjectEditorComponent implements OnInit {
             this.areParentsValid = this.parentSelector.getIsValid();
         }
         
-        console.log("Attributes", this.arePropertiesValid);
-        console.log("Parents", this.areParentsValid);
+//        console.log("Attributes", this.arePropertiesValid);
+//        console.log("Parents", this.areParentsValid);
 
 //        this.isValid = this.arePropertiesValid && this.areGeometriesValid && this.areParentsValid;
         this.isValid = this.arePropertiesValid && this.areParentsValid;
