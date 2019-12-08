@@ -1875,7 +1875,7 @@ option[selected]{ font-weight:bold}
     margin-bottom: 50px;
 }
 .btn-group.geobject-editor-tab-holder .btn.full-width-radio-button {
-    width: 33.3%;
+    width: 50%;
     background: white; /* IE fallback */
     background: var(--theme-button-color);
 

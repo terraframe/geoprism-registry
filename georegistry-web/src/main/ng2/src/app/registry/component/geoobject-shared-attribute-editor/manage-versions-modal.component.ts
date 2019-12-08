@@ -166,23 +166,8 @@ export class ManageVersionsModalComponent implements OnInit {
 
         this.snapDates(votArr);
 
-        // this.changeDetectorRef.detectChanges();
+        this.changeDetectorRef.detectChanges();
     }
-
-
-    getEmptyValueOverTimeObject(existingObject: ValueOverTime): ValueOverTime {
-
-        let newObj = JSON.parse(JSON.stringify(existingObject));
-
-        if(this.attribute.type === 'local'){
-            newObj.localeValues.forEach(val => {
-                val.value = null;
-            });
-        }
-
-        return newObj;
-    }
-
 
     editGeometry(index: number) {
       this.editingGeometry = index;
@@ -221,8 +206,14 @@ export class ManageVersionsModalComponent implements OnInit {
                 attr = <AttributeTerm>attr;
                 let attrOpts = attr.rootTerm.children;
 
-                if ( attrOpts.length > 0 ) {
-                    return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                // only remove status of the required status type
+                if ( attrOpts.length > 0){
+                    if(attr.code === "status") {
+                        return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                    }
+                    else{
+                        return attrOpts
+                    }
                 }
             }
         }

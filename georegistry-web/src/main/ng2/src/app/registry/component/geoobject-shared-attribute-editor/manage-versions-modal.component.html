@@ -22,7 +22,7 @@
                                     <!-- <li class="list-group-item" style="text-align:left;" *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;"> -->
                                     <li class="list-group-item" style="text-align:left;">
                                         
-                                        <div *ngIf="attribute.type === 'local'">
+                                        <div *ngIf="attribute.type !== 'geometry'">
                                                 <table class="table table-striped"> 
                                                     <thead style="font-size: 14px;"> 
                                                         <tr> 
@@ -32,7 +32,8 @@
                                                             <th style="width: 10%; text-align: center;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
                                                         </tr> 
                                                     </thead> 
-                                                    <tbody> 
+
+                                                    <tbody *ngIf="attribute.type === 'local'"> 
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" >
                                                             <td >
                                                                 <table style="width: 100%;">
@@ -62,32 +63,21 @@
                                                             </td>
                                                         </tr>  
                                                     </tbody> 
-                                                </table>
 
-                                        </div> 
-                        
-                                        <div *ngIf="attribute.type === 'term'">
-                                                <table class="table table-striped"> 
-                                                    <thead style="font-size: 14px;"> 
-                                                        <tr> 
-                                                            <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th> 
-                                                            <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
-                                                            <th style="width: 20%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
-                                                            <th style="width: 10%; text-align: center;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
-                                                        </tr> 
-                                                    </thead> 
-                                                    <tbody> 
+
+                                                    <!-- TODO: This isn't getting the options on load -->
+                                                    <tbody *ngIf="attribute.type === 'term'"> 
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
                                                             <td style="vertical-align: bottom;">
                                                                 <!-- <h5>{{loc.locale}}</h5> -->
                                                                 <!-- <input type="text" class="form-control" id="loc-val-{{i}}" name="loc-val-{{i}}" [(ngModel)]="version.value" (ngModelChange)="version.value = $event"> -->
-                                                                <select id="mod-{{attribute.code}}" name="mod-term-{{attribute.code}}" class="select-area" style="float:none;" [(ngModel)]="vAttribute.value">
+                                                                <select id="mod-{{attribute.code}}" [name]="'mod-term-' + attribute.code" class="select-area" style="float:none;" [(ngModel)]="vAttribute.value">
                                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attribute.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
                                                                 </select>
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -97,29 +87,119 @@
                                                             </td>
                                                         </tr>  
                                                     </tbody> 
-                                                </table>
-                                        </div>
 
-                                        <div *ngIf="attribute.type === 'character'">
-                                            <h1>TODO</h1>
-                                        </div>
+                                                    
+                                                    <tbody *ngIf="attribute.type === 'character'"> 
+                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
+                                                            <td style="vertical-align: bottom;">
+                                                                
+                                                                <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required>
+                                                            
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
+                                                            </td>
+                                                            <td style="vertical-align: middle;">
+                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                            </td>
+                                                        </tr>  
+                                                    </tbody> 
 
-                                        <div *ngIf="attribute.type === 'date'">
-                                            <h1>TODO</h1>
-                                        </div>
+                                                    
+                                                    <tbody *ngIf="attribute.type === 'date'">
+                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
+                                                            <td style="vertical-align: bottom;">
+                                                                
+                                                                <input type="date" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required> 
+                                                            
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
+                                                            </td>
+                                                            <td style="vertical-align: middle;">
+                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                            </td>
+                                                        </tr>  
+                                                    </tbody>
 
-                                        <div *ngIf="attribute.type === 'boolean'">
-                                            <h1>TODO</h1>
-                                        </div>
 
-                                        <div *ngIf="attribute.type === 'float'">
-                                            <h1>TODO</h1>
-                                        </div>
+                                                    <tbody *ngIf="attribute.type === 'boolean'">
 
-                                        <div *ngIf="attribute.type === 'integer'">
-                                            <h1>TODO</h1>
-                                        </div>
-                                        
+                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
+                                                            <td style="vertical-align: bottom;">
+                                                                
+                                                                <label>
+                                                                    <input type="radio" [checked]="vAttribute.value === true" [value]="true" id="mod-{{vAttribute.value.code}}-true" name="mod-{{vAttribute.value.code}}-true">
+                                                                    <localize key="change.request.boolean.option.true"></localize>
+                                                                </label>
+
+                                                                <label>
+                                                                    <input type="radio" [checked]="vAttribute.value === false"  [value]="false" id="mod-{{vAttribute.value.code}}-false" name="mod-{{vAttribute.value.code}}-false">
+                                                                    <localize key="change.request.boolean.option.false"></localize>
+                                                                </label>
+                                                            
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
+                                                            </td>
+                                                            <td style="vertical-align: middle;">
+                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                            </td>
+                                                        </tr>  
+
+                                                    </tbody>
+
+
+                                                    <tbody *ngIf="attribute.type === 'float'">
+                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
+                                                            <td style="vertical-align: bottom;">
+                                                                
+                                                                <input type="number" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required>
+                                                            
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
+                                                            </td>
+                                                            <td style="vertical-align: middle;">
+                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                            </td>
+                                                        </tr>  
+                                                    </tbody>
+
+
+                                                    <tbody *ngIf="attribute.type === 'integer'">
+                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
+                                                            <td style="vertical-align: bottom;">
+                                                                
+                                                                <input type="number" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required>
+                                                            
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                            </td> 
+                                                            <td style="vertical-align: bottom;">
+                                                                <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
+                                                            </td>
+                                                            <td style="vertical-align: middle;">
+                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                            </td>
+                                                        </tr>  
+                                                    </tbody>
+                                            </table>
+                                        </div> 
+
                                         <div *ngIf="attribute.type === 'geometry'">
                                            <table class="table table-striped">
                                              <thead style="font-size: 14px;">
