@@ -1023,6 +1023,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public LocalizedValue getDisplayLabel()
   {
     GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), this.date);
+    
+    if (graphObject == null)
+    {
+      return null;
+    }
 
     return LocalizedValueConverter.convert(graphObject);
   }
@@ -1030,6 +1035,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public LocalizedValue getDisplayLabel(Date date)
   {
     GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), date);
+    
+    if (graphObject == null)
+    {
+      return null;
+    }
 
     return LocalizedValueConverter.convert(graphObject);
   }
