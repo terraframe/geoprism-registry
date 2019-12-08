@@ -51,7 +51,7 @@
                                                             </td>
 
                                                             <td style="vertical-align: middle; width: 35%;padding: 5px;">
-                                                                <input style="width: 100%;" type="date" [name]="'startDate_' + i" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate_' + i" [ngModel]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                                 <div class="form-input-validation-error-message-wrapper">
                                                                     <p *ngIf="!vAttribute.startDate" class="error-message">Start date is required.</p>
                                                                 </div>
@@ -78,7 +78,7 @@
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -98,7 +98,7 @@
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -118,7 +118,7 @@
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -147,7 +147,7 @@
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -168,7 +168,7 @@
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -188,7 +188,7 @@
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
-                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="onDateChange($event, vAttribute)" required>
+                                                                <input style="width: 100%;" type="date" [name]="'startDate-' + i" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
@@ -211,7 +211,7 @@
                                              <tbody style="text-align: center;">
                                                <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
                                                  <td style="width:60%">
-                                                   <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)">
+                                                   <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)">
                                                  </td>
                                                  <td style="padding-top:10px; width:30%">
                                                    <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>

@@ -38,8 +38,9 @@ export default class Utils {
 	 */
 	static formatDateString(dateObj: Date): string {
         const day = dateObj.getUTCDate();
+        const month = dateObj.getUTCMonth() + 1;
 
-        return dateObj.getUTCFullYear() + "-" + ( dateObj.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
+        return dateObj.getUTCFullYear() + "-" + ( day < 10 ? "0" : "" ) + month + "-" + ( day < 10 ? "0" : "" ) + day;
     }
     
 }
