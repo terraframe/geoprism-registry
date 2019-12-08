@@ -116,6 +116,7 @@
 
                                             <div *ngIf="attr.type === 'term'">
                                                 <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float:none;" disabled [(ngModel)]="calculatedPostObject[attr.code]">
+                                                    <option value="" ></option>
                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
                                                 </select>
 

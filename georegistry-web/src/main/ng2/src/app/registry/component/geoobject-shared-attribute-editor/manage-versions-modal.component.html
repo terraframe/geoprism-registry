@@ -73,6 +73,7 @@
                                                                 <!-- <h5>{{loc.locale}}</h5> -->
                                                                 <!-- <input type="text" class="form-control" id="loc-val-{{i}}" name="loc-val-{{i}}" [(ngModel)]="version.value" (ngModelChange)="version.value = $event"> -->
                                                                 <select id="mod-{{attribute.code}}" [name]="'mod-term-' + attribute.code" class="select-area" style="float:none;" [(ngModel)]="vAttribute.value">
+                                                                    <option value="" ></option>
                                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attribute.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
                                                                 </select>
                                                             
@@ -211,7 +212,7 @@
                                              <tbody style="text-align: center;">
                                                <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
                                                  <td style="width:60%">
-                                                   <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)">
+                                                   <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)" required>
                                                  </td>
                                                  <td style="padding-top:10px; width:30%">
                                                    <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
