@@ -357,6 +357,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
       else if (attributeName.equals(DefaultAttribute.STATUS.getName()))
       {
+        this.getValuesOverTime(attributeName).clear();
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
           GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
@@ -375,6 +376,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       // }
       else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
       {
+        this.getValuesOverTime(attributeName).clear();
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
           LocalizedValue label = goTime.getDisplayLabel(votDTO.getStartDate());
@@ -384,6 +386,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
       else if (this.vertex.hasAttribute(attributeName) && !this.vertex.getMdAttributeDAO(attributeName).isSystem())
       {
+        this.getValuesOverTime(attributeName).clear();
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
           if (attribute instanceof AttributeTermType)
@@ -421,6 +424,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
     });
 
+    this.getValuesOverTime(this.getGeometryAttributeName()).clear();
     for (ValueOverTimeDTO votDTO : goTime.getAllValues(DefaultAttribute.GEOMETRY.getName()))
     {
       Geometry geom = goTime.getGeometry(votDTO.getStartDate());
