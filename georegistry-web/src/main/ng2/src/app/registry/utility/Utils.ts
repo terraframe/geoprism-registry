@@ -40,7 +40,7 @@ export default class Utils {
         const day = dateObj.getUTCDate();
         const month = dateObj.getUTCMonth() + 1;
 
-        return dateObj.getUTCFullYear() + "-" + ( day < 10 ? "0" : "" ) + month + "-" + ( day < 10 ? "0" : "" ) + day;
+        return dateObj.getUTCFullYear() + "-" + ( month < 10 ? "0" : "" ) + month + "-" + ( day < 10 ? "0" : "" ) + day;
     }
     
 }
