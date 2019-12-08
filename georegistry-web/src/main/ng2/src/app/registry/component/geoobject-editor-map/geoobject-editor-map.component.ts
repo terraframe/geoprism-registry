@@ -82,6 +82,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     ngAfterViewInit() {
+      setTimeout(() => {
       //this.registryService.getGeoObjectOverTime( "22", "Province" )
             //.then( geoObject => {
               //this.postGeoObject = geoObject;
@@ -115,6 +116,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
             //} ).catch(( err: HttpErrorResponse ) => {
             //    this.error( err );
             //} );
+      }, 10 );
     }
     
     ngOnDestroy(): void {
