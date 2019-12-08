@@ -323,7 +323,7 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   @Override
   public void populate(GeoObjectOverTime goTime)
   {
-    this.rSGO.populate(goTime);
+    // this.rSGO.populate(goTime);
     this.vSGO.populate(goTime);
   }
 
