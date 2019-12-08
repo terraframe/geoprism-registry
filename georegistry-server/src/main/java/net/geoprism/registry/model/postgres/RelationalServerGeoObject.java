@@ -323,7 +323,8 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     if (votcStatus.size() > 0)
     {
       ValueOverTimeDTO votDTO = votcStatus.get(votcStatus.size() - 1);
-      GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+//      GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+      GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
       this.setStatus(gos);
     }
 
