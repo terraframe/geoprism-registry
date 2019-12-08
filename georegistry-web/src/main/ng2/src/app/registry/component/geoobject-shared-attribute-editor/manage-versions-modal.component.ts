@@ -238,6 +238,10 @@ export class ManageVersionsModalComponent implements OnInit {
         return defVal;
     }
 
+    setDateAttribute(vot: ValueOverTime, val: string): void {
+        vot.value = new Date(val).getTime().toString()
+    }
+
     getGeoObjectTypeTermAttributeOptions( termAttributeCode: string ) {
         for ( let i = 0; i < this.geoObjectType.attributes.length; i++ ) {
             let attr: any = this.geoObjectType.attributes[i];

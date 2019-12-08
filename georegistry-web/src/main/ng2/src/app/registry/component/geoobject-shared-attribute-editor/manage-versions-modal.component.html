@@ -114,7 +114,7 @@
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
                                                             <td style="vertical-align: bottom;">
                                                                 
-                                                                <input type="date" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required> 
+                                                                <input type="date" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="setDateAttribute(vAttribute, $event)" required> 
                                                             
                                                             </td> 
                                                             <td style="vertical-align: bottom;">
