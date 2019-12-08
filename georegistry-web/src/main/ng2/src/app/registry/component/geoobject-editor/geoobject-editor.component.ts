@@ -72,12 +72,12 @@ export class GeoObjectEditorComponent implements OnInit {
     // The state of the GeoObject after our edit has been applied
     goPropertiesPost: GeoObjectOverTime;
 
-    /*
-     * GeoObject Geometry Editor
-     */
-    @ViewChild( "geometryEditor" ) geometryEditor;
-
-    areGeometriesValid: boolean = false;
+//    /*
+//     * GeoObject Geometry Editor
+//     */
+//    @ViewChild( "geometryEditor" ) geometryEditor;
+//
+//    areGeometriesValid: boolean = false;
 
     goGeometries: GeoObjectOverTime;
 
@@ -177,7 +177,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
             //                    this.goSubmit.geometry = this.goGeometries.geometry;
 
-            this.areGeometriesValid = true;
+//            this.areGeometriesValid = true;
             this.arePropertiesValid = true;
             this.isValid = true;
         } ).catch(( err: HttpErrorResponse ) => {
@@ -199,7 +199,7 @@ export class GeoObjectEditorComponent implements OnInit {
                 this.geoObjectType = geoObjectType[0];
 
                 if ( !this.geoObjectType.isGeometryEditable ) {
-                    this.areGeometriesValid = true;
+//                    this.areGeometriesValid = true;
                 }
 
             } ).catch(( err: HttpErrorResponse ) => {
@@ -244,16 +244,18 @@ export class GeoObjectEditorComponent implements OnInit {
         if ( this.attributeEditor != null ) {
             this.arePropertiesValid = this.attributeEditor.getIsValid();
         }
-        if ( this.geometryEditor != null ) {
-            this.areGeometriesValid = this.geometryEditor.getIsValid();
-        }
+//        if ( this.geometryEditor != null ) {
+//            this.areGeometriesValid = this.geometryEditor.getIsValid();
+//        }
         if ( this.parentSelector != null ) {
             this.areParentsValid = this.parentSelector.getIsValid();
         }
+        
+        console.log("Attributes", this.arePropertiesValid);
+        console.log("Parents", this.areParentsValid);
 
-        console.log( this.arePropertiesValid );
-
-        this.isValid = this.arePropertiesValid && this.areGeometriesValid && this.areParentsValid;
+//        this.isValid = this.arePropertiesValid && this.areGeometriesValid && this.areParentsValid;
+        this.isValid = this.arePropertiesValid && this.areParentsValid;
     }
 
     changePage( nextPage: number, force: boolean = false ): void {
@@ -273,9 +275,9 @@ export class GeoObjectEditorComponent implements OnInit {
         if ( this.attributeEditor != null ) {
             this.goPropertiesPost = this.attributeEditor.getGeoObject();
         }
-        if ( this.geometryEditor != null ) {
-            this.goGeometries = this.geometryEditor.saveDraw();
-        }
+//        if ( this.geometryEditor != null ) {
+//            this.goGeometries = this.geometryEditor.saveDraw();
+//        }
         if ( this.parentSelector != null ) {
             this.hierarchies = this.parentSelector.getHierarchies();
         }

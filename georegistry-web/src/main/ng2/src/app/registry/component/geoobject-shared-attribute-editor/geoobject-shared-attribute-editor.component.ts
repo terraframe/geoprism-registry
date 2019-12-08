@@ -91,13 +91,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.postGeoObject = JSON.parse( JSON.stringify( this.postGeoObject ) ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
         }
 
-//        this.attributeForm.statusChanges.subscribe( result => {
-//            this.isValid = ( result === "VALID" );
-//            
-//            console.log("Emitting: ", this.isValid);
-//            
-//            this.valid.emit( this.isValid );
-//        } );
+        this.attributeForm.statusChanges.subscribe( result => {
+            this.isValid = ( result === "VALID" || result === "DISABLED" );
+            
+            this.valid.emit( this.isValid );
+        } );
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
