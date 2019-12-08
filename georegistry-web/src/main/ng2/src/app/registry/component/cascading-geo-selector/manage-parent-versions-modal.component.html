@@ -1,5 +1,6 @@
 <div class="modal-body">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert"><localize key="changeovertime.manageVersions.duplicateDate"></localize></div>
 
     <div class="text-center">
         <h2>
@@ -73,7 +74,7 @@
                 <!-- <div class="label-holder"></div> -->
                 <div class="holder" style="border: none; width: 100%;">
                     <div class="button-holder pull-right">
-                        <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+                        <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid || hasDuplicateDate">
                             <localize key="io.ok"></localize>
                         </button>
                     </div>

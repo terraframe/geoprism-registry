@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -34,7 +34,7 @@ declare var acp: string;
  * This component is used in the master list when editing a row. In the future it will also be used by the navigator and has
  * potential to also be used in the submit change request and manage change requests.
  */
-export class GeoObjectEditorMapComponent implements OnInit {
+export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
     /* 
      * mapbox-gl map
@@ -115,6 +115,10 @@ export class GeoObjectEditorMapComponent implements OnInit {
             //} ).catch(( err: HttpErrorResponse ) => {
             //    this.error( err );
             //} );
+    }
+    
+    ngOnDestroy(): void {
+        this.map.remove();
     }
 
     getIsValid(): boolean {

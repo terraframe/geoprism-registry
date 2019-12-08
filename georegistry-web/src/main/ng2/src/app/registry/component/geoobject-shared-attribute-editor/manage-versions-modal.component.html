@@ -1,5 +1,6 @@
 <div class="modal-body">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert"><localize key="changeovertime.manageVersions.duplicateDate"></localize></div>
 
     <div class="text-center">
         <h2 *ngIf="!readonly">
@@ -210,7 +211,7 @@
                                              <tbody style="text-align: center;">
                                                <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
                                                  <td style="width:60%">
-                                                   <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate | date:'yyyy-MM-dd'" (ngModelChange)="vAttribute.startDate = $event">
+                                                   <input style="width: 100%;" type="date" name="startDate-{{i}}" [ngModel]="vAttribute.startDate" (ngModelChange)="onDateChange($event, vAttribute)">
                                                  </td>
                                                  <td style="padding-top:10px; width:30%">
                                                    <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>

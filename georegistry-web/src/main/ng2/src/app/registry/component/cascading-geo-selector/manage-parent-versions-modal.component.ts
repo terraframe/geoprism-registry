@@ -28,6 +28,8 @@ export class ManageParentVersionsModalComponent implements OnInit {
 
     hierarchy: HierarchyOverTime = null;
 
+    hasDuplicateDate:boolean = false;
+
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
 
@@ -154,6 +156,9 @@ export class ManageParentVersionsModalComponent implements OnInit {
 
     snapDates() {
         var dateOffset = ( 24 * 60 * 60 * 1000 ) * 1; //1 days
+        
+        this.hasDuplicateDate = false;
+        
         // Sort the data
         this.hierarchy.entries.sort( function( a, b ) {
 
@@ -173,8 +178,12 @@ export class ManageParentVersionsModalComponent implements OnInit {
         for ( let i = 1; i < this.hierarchy.entries.length; i++ ) {
             let prev = this.hierarchy.entries[i - 1];
             let current = this.hierarchy.entries[i];
-
+            
             prev.endDate = this.formatDateString( new Date( new Date( current.startDate ).getTime() - dateOffset ) );
+
+            if(prev.startDate === current.startDate) {
+                this.hasDuplicateDate = true;
+            }
         }
 
         this.hierarchy.entries[this.hierarchy.entries.length - 1].endDate = '5000-12-31';
