@@ -999,17 +999,18 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           }
         }
       });
+      
+      ValueOverTimeCollection votc = this.getValuesOverTime(this.getGeometryAttributeName());
+      for (ValueOverTime vot : votc)
+      {
+        Object value = vot.getValue();
+
+        geoObj.setValue(DefaultAttribute.GEOMETRY.getName(), value, vot.getStartDate(), vot.getEndDate());
+      }
+
+      geoObj.setUid(vertex.getObjectValue(RegistryConstants.UUID));
     }
 
-    ValueOverTimeCollection votc = this.getValuesOverTime(this.getGeometryAttributeName());
-    for (ValueOverTime vot : votc)
-    {
-      Object value = vot.getValue();
-
-      geoObj.setValue(DefaultAttribute.GEOMETRY.getName(), value, vot.getStartDate(), vot.getEndDate());
-    }
-
-    geoObj.setUid(vertex.getObjectValue(RegistryConstants.UUID));
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
 
     return geoObj;
