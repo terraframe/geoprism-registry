@@ -360,8 +360,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         this.getValuesOverTime(attributeName).clear();
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
-          GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
-
+          //GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+          GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+          
           this.setStatus(gos, votDTO.getStartDate(), votDTO.getEndDate());
         }
       }
