@@ -20,7 +20,7 @@ package net.geoprism.registry.action.geoobject;
 
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.CreateGeoObjectActionDTO;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONObject;
 
@@ -44,7 +44,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   {
     String sJson = this.getGeoObjectJson();
 
-    GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), sJson);
+    GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
     ServerGeoObjectService builder = new ServerGeoObjectService();
     builder.apply(geoObject, true, false);
@@ -71,7 +71,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
   private void addGeoObjectType(JSONObject object)
   {
-    GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
+    GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
     GeoObjectType got = go.getType();
 
     object.put("geoObjectType", new JSONObject(got.toJSON().toString()));
@@ -88,7 +88,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   @Override
   protected String getMessage()
   {
-    GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
+    GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
     GeoObjectType got = go.getType();
 
     String message = LocalizationFacade.getFromBundles("change.request.email.create.object");
