@@ -401,11 +401,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
               String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
               Classifier classifier = Classifier.getByKey(classifierKey);
 
-              this.vertex.setValue(attributeName, classifier.getOid());
+              this.vertex.setValue(attributeName, classifier.getOid(), votDTO.getStartDate(), votDTO.getEndDate());
             }
             else
             {
-              this.vertex.setValue(attributeName, (String) null);
+              this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
             }
           }
           else
