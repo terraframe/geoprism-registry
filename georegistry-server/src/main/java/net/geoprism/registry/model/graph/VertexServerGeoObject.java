@@ -77,7 +77,7 @@ import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo
+public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo, VertexComponent
 {
   private static class EdgeComparator implements Comparator<EdgeObject>
   {
@@ -401,11 +401,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
               String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
               Classifier classifier = Classifier.getByKey(classifierKey);
 
-              this.vertex.setValue(attributeName, classifier.getOid());
+              this.vertex.setValue(attributeName, classifier.getOid(), votDTO.getStartDate(), votDTO.getEndDate());
             }
             else
             {
-              this.vertex.setValue(attributeName, (String) null);
+              this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
             }
           }
           else

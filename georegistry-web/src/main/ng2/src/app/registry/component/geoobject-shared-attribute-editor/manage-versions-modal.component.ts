@@ -84,18 +84,18 @@ export class ManageVersionsModalComponent implements OnInit {
 
     onDateChange( event: any, vAttribute: ValueOverTime ): any {
 
-//        console.log( event.currentTarget.value );
-//
-//        let dt = new Date( event.currentTarget.value );
+        //        console.log( event.currentTarget.value );
+        //
+        //        let dt = new Date( event.currentTarget.value );
         //let dt = new Date(event);
 
         let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
-//        vAttribute.startDate = Utils.formatDateString( dt );
+        //        vAttribute.startDate = Utils.formatDateString( dt );
 
         this.snapDates( vAttributes );
 
-//        this.changeDetectorRef.detectChanges();
+        //        this.changeDetectorRef.detectChanges();
     }
 
     snapDates( votArr: ValueOverTime[] ): void {
@@ -134,7 +134,9 @@ export class ManageVersionsModalComponent implements OnInit {
             }
         }
 
-        votArr[votArr.length - 1].endDate = '5000-12-31';
+        if ( votArr.length > 0 ) {
+            votArr[votArr.length - 1].endDate = '5000-12-31';
+        }
     }
 
     onValidChange( geometryValue ): void {
@@ -233,8 +235,8 @@ export class ManageVersionsModalComponent implements OnInit {
         return defVal;
     }
 
-    setDateAttribute(vot: ValueOverTime, val: string): void {
-        vot.value = new Date(val).getTime().toString()
+    setDateAttribute( vot: ValueOverTime, val: string ): void {
+        vot.value = new Date( val ).getTime().toString()
     }
 
     getGeoObjectTypeTermAttributeOptions( termAttributeCode: string ) {

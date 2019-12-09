@@ -134,10 +134,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
             let attr = this.geoObjectType.attributes[i];
+            object[attr.code] = null;
 
             if ( attr.isChangeOverTime ) {
                 let values = goot.attributes[attr.code].values;
-
+                
                 values.forEach( vot => {
 
                     const startDate = Date.parse( vot.startDate );

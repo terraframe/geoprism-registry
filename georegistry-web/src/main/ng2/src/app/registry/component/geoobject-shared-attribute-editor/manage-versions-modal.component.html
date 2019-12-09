@@ -221,7 +221,7 @@
                                                    <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
                                                  </td>
                                                  <td>
-                                                   <button *ngIf="this.editingGeometry != i" (click)="editGeometry(i)" role="button"><localize key="changeovertime.manageVersions.geometry.edit"></localize></button>
+                                                   <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button"><localize key="changeovertime.manageVersions.geometry.edit"></localize></button>
                                                    <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [postGeoObject]="this.geoObjectOverTime" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable" [vAttribute]="this.vAttribute" (valid)="this.onValidChange($event)" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
                                                  </td>
                                                </tr>
