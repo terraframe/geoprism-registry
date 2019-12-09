@@ -77,7 +77,7 @@ import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo
+public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo, VertexComponent
 {
   private static class EdgeComparator implements Comparator<EdgeObject>
   {
