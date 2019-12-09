@@ -68,9 +68,9 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     @Output() valid = new EventEmitter<any>();
 
     @Input() readOnly: boolean = false;
-    
+
     @Input() vAttribute: any;
-    
+
     geometryValue: any;
 
     constructor( private registryService: RegistryService ) {
@@ -78,53 +78,53 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-		this.geometryValue = this.vAttribute.value;
+        this.geometryValue = this.vAttribute.value;
     }
 
     ngAfterViewInit() {
-      setTimeout(() => {
-      //this.registryService.getGeoObjectOverTime( "22", "Province" )
+        setTimeout(() => {
+            //this.registryService.getGeoObjectOverTime( "22", "Province" )
             //.then( geoObject => {
-              //this.postGeoObject = geoObject;
-              //this.preGeoObject = geoObject
-              
-              this.preGeoObject = this.postGeoObject;
+            //this.postGeoObject = geoObject;
+            //this.preGeoObject = geoObject
 
-		        ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
-		
-		        this.map = new Map( {
-		            container: 'map',
-		            style: 'mapbox://styles/mapbox/satellite-v9',
-		            zoom: 2,
-		            center: [110.880453, 10.897852]
-		        } );
-		
-		        this.map.on( 'load', () => {
-		            this.initMap();
-		        } );
-		
-		        this.map.on( 'draw.create', () => {
-		            this.onValidChange();
-		        } );
-		        this.map.on( 'draw.delete', () => {
-		            this.onValidChange();
-		        } );
-		        this.map.on( 'draw.update', () => {
-		            this.onValidChange();
-		        } );
-              
+            this.preGeoObject = this.postGeoObject;
+
+            ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
+
+            this.map = new Map( {
+                container: 'map',
+                style: 'mapbox://styles/mapbox/satellite-v9',
+                zoom: 2,
+                center: [110.880453, 10.897852]
+            } );
+
+            this.map.on( 'load', () => {
+                this.initMap();
+            } );
+
+            this.map.on( 'draw.create', () => {
+                this.onValidChange();
+            } );
+            this.map.on( 'draw.delete', () => {
+                this.onValidChange();
+            } );
+            this.map.on( 'draw.update', () => {
+                this.onValidChange();
+            } );
+
             //} ).catch(( err: HttpErrorResponse ) => {
             //    this.error( err );
             //} );
-      }, 10 );
+        }, 10 );
     }
-    
+
     ngOnDestroy(): void {
         this.map.remove();
     }
 
     getIsValid(): boolean {
-        if (! this.readOnly ) {
+        if ( !this.readOnly ) {
             let isValid: boolean = false;
 
             if ( this.editingControl != null ) {
@@ -137,7 +137,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
             return isValid;
         }
-        
+
         return true;
     }
 
@@ -312,17 +312,18 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     refresh( zoom: boolean ): void {
         if ( zoom && this.geometryValue != null && !this.isNew ) {
 
-            let code: string = this.postGeoObject.attributes.code;
-            let type: string = this.postGeoObject.attributes.type;
+            let code: string = this.preGeoObject.attributes.code;
+            let type: string = this.preGeoObject.attributes.type;
 
-            this.registryService.getGeoObjectBounds( code, type )
-                .then( boundArr => {
+            if ( code != null && type != null ) {
+                this.registryService.getGeoObjectBounds( code, type ).then( boundArr => {
                     let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
 
                     this.map.fitBounds( bounds, { padding: 50 } );
                 } ).catch(( err: HttpErrorResponse ) => {
                     this.error( err );
                 } );
+            }
         }
 
         this.onValidChange();
