@@ -28,7 +28,7 @@ export class ManageParentVersionsModalComponent implements OnInit {
 
     hierarchy: HierarchyOverTime = null;
 
-    hasDuplicateDate:boolean = false;
+    hasDuplicateDate: boolean = false;
 
 
     constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
@@ -71,7 +71,7 @@ export class ManageParentVersionsModalComponent implements OnInit {
                 this.hierarchy.entries.splice( i, 1 );
             }
         }
-        
+
         this.snapDates();
     }
 
@@ -156,16 +156,16 @@ export class ManageParentVersionsModalComponent implements OnInit {
 
     snapDates() {
         var dateOffset = ( 24 * 60 * 60 * 1000 ) * 1; //1 days
-        
+
         this.hasDuplicateDate = false;
-        
+
         // Sort the data
         this.hierarchy.entries.sort( function( a, b ) {
 
-            if ( a.startDate == null || a.startDate === '') {
+            if ( a.startDate == null || a.startDate === '' ) {
                 return 1;
             }
-            else if ( b.startDate == null  || b.startDate === '' ) {
+            else if ( b.startDate == null || b.startDate === '' ) {
                 return -1;
             }
 
@@ -178,15 +178,17 @@ export class ManageParentVersionsModalComponent implements OnInit {
         for ( let i = 1; i < this.hierarchy.entries.length; i++ ) {
             let prev = this.hierarchy.entries[i - 1];
             let current = this.hierarchy.entries[i];
-            
+
             prev.endDate = this.formatDateString( new Date( new Date( current.startDate ).getTime() - dateOffset ) );
 
-            if(prev.startDate === current.startDate) {
+            if ( prev.startDate === current.startDate ) {
                 this.hasDuplicateDate = true;
             }
         }
 
-        this.hierarchy.entries[this.hierarchy.entries.length - 1].endDate = '5000-12-31';
+        if ( this.hierarchy.entries.length > 0 ) {
+            this.hierarchy.entries[this.hierarchy.entries.length - 1].endDate = '5000-12-31';
+        }
     }
 
     formatDateString( dateObj: Date ): string {
