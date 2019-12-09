@@ -53,8 +53,8 @@ mvn clean deploy -B
 #npm run build
 cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
 npm install
-npm install typings
-typings install lodash
+# npm install typings
+# typings install lodash
 node -v && npm -v
 node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
 
