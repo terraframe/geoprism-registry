@@ -402,7 +402,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                     };
                 }
                 else {
-                    this.geometryValue = featureCollection.features[0];
+                    this.geometryValue = featureCollection.features[0].geometry;
                 }
             }
 
