@@ -83,16 +83,19 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     onDateChange( event: any, vAttribute: ValueOverTime ): any {
-        let dt = new Date( event.currentTarget.value );
+
+//        console.log( event.currentTarget.value );
+//
+//        let dt = new Date( event.currentTarget.value );
         //let dt = new Date(event);
-        
+
         let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
-        vAttribute.startDate = Utils.formatDateString( dt );
+//        vAttribute.startDate = Utils.formatDateString( dt );
 
         this.snapDates( vAttributes );
 
-        this.changeDetectorRef.detectChanges();
+//        this.changeDetectorRef.detectChanges();
     }
 
     snapDates( votArr: ValueOverTime[] ): void {
@@ -153,52 +156,42 @@ export class ManageVersionsModalComponent implements OnInit {
         else if ( this.attribute.type === 'geometry' ) {
 
             if ( votArr.length > 0 ) {
-              if (this.editingGeometry != -1 && this.editingGeometry != null)
-              {
-                vot.value = votArr[this.editingGeometry].value;
-              }
-              else
-              {
-                vot.value = votArr[0].value;
-              }
+                if ( this.editingGeometry != -1 && this.editingGeometry != null ) {
+                    vot.value = votArr[this.editingGeometry].value;
+                }
+                else {
+                    vot.value = votArr[0].value;
+                }
             }
             else {
-              vot.value = { "type": this.geoObjectType.geometryType, "coordinates": [] };
-            
-              if (this.geoObjectType.geometryType === "MULTIPOLYGON")
-              {
-                vot.value.type = "MultiPolygon";
-              }
-              else if (this.geoObjectType.geometryType === "POLYGON")
-              {
-                vot.value.type = "Polygon";
-              }
-              else if (this.geoObjectType.geometryType === "POINT")
-              {
-                vot.value.type = "Point";
-              }
-              else if (this.geoObjectType.geometryType === "MULTIPOINT")
-              {
-                vot.value.type = "MultiPoint";
-              }
-              else if (this.geoObjectType.geometryType === "LINE")
-              {
-                vot.value.type = "Line";
-              }
-              else if (this.geoObjectType.geometryType === "MULTILINE")
-              {
-                vot.value.type = "MultiLine";
-              }
+                vot.value = { "type": this.geoObjectType.geometryType, "coordinates": [] };
+
+                if ( this.geoObjectType.geometryType === "MULTIPOLYGON" ) {
+                    vot.value.type = "MultiPolygon";
+                }
+                else if ( this.geoObjectType.geometryType === "POLYGON" ) {
+                    vot.value.type = "Polygon";
+                }
+                else if ( this.geoObjectType.geometryType === "POINT" ) {
+                    vot.value.type = "Point";
+                }
+                else if ( this.geoObjectType.geometryType === "MULTIPOINT" ) {
+                    vot.value.type = "MultiPoint";
+                }
+                else if ( this.geoObjectType.geometryType === "LINE" ) {
+                    vot.value.type = "Line";
+                }
+                else if ( this.geoObjectType.geometryType === "MULTILINE" ) {
+                    vot.value.type = "MultiLine";
+                }
             }
         }
-        else if (this.attribute.type === 'term')
-        {
-          var terms = this.getGeoObjectTypeTermAttributeOptions(this.attribute.code);
-          
-          if (terms.length > 0)
-          {
-            vot.value = terms[0].code;
-          }
+        else if ( this.attribute.type === 'term' ) {
+            var terms = this.getGeoObjectTypeTermAttributeOptions( this.attribute.code );
+
+            if ( terms.length > 0 ) {
+                vot.value = terms[0].code;
+            }
         }
 
         votArr.push( vot );
