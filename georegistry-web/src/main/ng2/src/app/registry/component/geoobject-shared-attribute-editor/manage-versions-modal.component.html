@@ -133,16 +133,16 @@
 
                                                     <tbody *ngIf="attribute.type === 'boolean'">
 
-                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
+                                                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;"> 
                                                             <td style="vertical-align: bottom;">
                                                                 
                                                                 <label>
-                                                                    <input type="radio" [checked]="vAttribute.value === true" [value]="true" id="mod-{{vAttribute.value.code}}-true" name="mod-{{vAttribute.value.code}}-true">
+                                                                    <input type="radio" [checked]="vAttribute.value === true" [value]="true" [(ngModel)]="vAttribute.value" id="mod-{{i}}-true" name="mod-{{i}}-true">
                                                                     <localize key="change.request.boolean.option.true"></localize>
                                                                 </label>
 
                                                                 <label>
-                                                                    <input type="radio" [checked]="vAttribute.value === false"  [value]="false" id="mod-{{vAttribute.value.code}}-false" name="mod-{{vAttribute.value.code}}-false">
+                                                                    <input type="radio" [checked]="vAttribute.value === false"  [value]="false" [(ngModel)]="vAttribute.value" id="mod-{{i}}-false" name="mod-{{i}}-false">
                                                                     <localize key="change.request.boolean.option.false"></localize>
                                                                 </label>
                                                             
@@ -232,7 +232,9 @@
                                     </li>
 
                                     <li class="list-group-item" style="text-align:left;">
-                                        <i class="fa fa-plus clickable" (click)="onAddNewVersion()"><localize key="changeovertime.manageVersions.newVersion"></localize></i>
+                                        <i class="fa fa-plus clickable" (click)="onAddNewVersion()">
+                                            <localize key="changeovertime.manageVersions.newVersion"></localize>
+                                        </i>
                                     </li>
                                 </ul>
                             </div>
