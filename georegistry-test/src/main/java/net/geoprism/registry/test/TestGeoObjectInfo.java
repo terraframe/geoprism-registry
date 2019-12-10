@@ -1,6 +1,7 @@
 package net.geoprism.registry.test;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,7 +18,6 @@ import org.junit.Assert;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
-import com.runwaysdk.business.Relationship;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -29,7 +29,6 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.model.postgres.TreeServerGeoObject;
 import net.geoprism.registry.service.ServerGeoObjectService;
@@ -421,7 +420,7 @@ public class TestGeoObjectInfo
 //        return child.getGeoEntity().addLink(geoEntity, relationshipType);
 //      }
       
-      this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject());
+      this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), new Date(), new Date());
     }
 
     private void addParent(TestGeoObjectInfo parent)

@@ -46,6 +46,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.registry.RegistryController;
+import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 
 public class TestRegistryAdapterClient extends RegistryAdapter
 {
@@ -158,6 +159,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     String saCodes = this.serialize(codes);
     
     return responseToHierarchyTypes(this.controller.getHierarchyTypes(this.clientRequest, saCodes));
+  }
+  
+  public JSONArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
+  {
+    return new JSONArray(responseToString(this.controller.getHierarchiesForGeoObjectOverTime(this.clientRequest, code, typeCode)));
   }
   
   public JsonArray listGeoObjectTypes()

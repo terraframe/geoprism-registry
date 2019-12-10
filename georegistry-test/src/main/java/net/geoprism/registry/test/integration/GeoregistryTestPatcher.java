@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.test.integration;
 
-import com.runwaysdk.dataaccess.transaction.Transaction;
-
 import net.geoprism.GeoprismPatcher;
 import net.geoprism.GeoprismPatcherIF;
 
