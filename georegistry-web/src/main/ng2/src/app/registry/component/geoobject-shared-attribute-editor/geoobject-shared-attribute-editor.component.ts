@@ -125,6 +125,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     calculate(): void {
         this.calculatedPreObject = this.calculateCurrent( this.preGeoObject );
         this.calculatedPostObject = this.calculateCurrent( this.postGeoObject );
+        
+        console.log(this.calculatedPostObject);
     }
 
     calculateCurrent( goot: GeoObjectOverTime ): any {
@@ -138,7 +140,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
             if ( attr.isChangeOverTime ) {
                 let values = goot.attributes[attr.code].values;
-                
+
                 values.forEach( vot => {
 
                     const startDate = Date.parse( vot.startDate );
@@ -149,10 +151,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                         if ( attr.type === 'local' ) {
                             object[attr.code] = JSON.parse( JSON.stringify( vot.value ) );
                         }
+                        else if ( attr.type === 'term' && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0 ) {
+                            object[attr.code] = vot.value[0];
+                        }
                         else {
                             object[attr.code] = vot.value;
                         }
-
+                        
+                        
                     }
                 } );
             }
@@ -160,15 +166,15 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 object[attr.code] = goot.attributes[attr.code];
             }
         }
-
+        
         return object;
     }
 
-    handleChangeCode(e:any): void {
+    handleChangeCode( e: any ): void {
         this.postGeoObject.attributes.code = this.calculatedPostObject['code'];
-//        
-//        console.log(this.calculatedPostObject['code'])
-//        console.log(e)
+        //        
+        //        console.log(this.calculatedPostObject['code'])
+        //        console.log(e)
     }
 
     onManageAttributeVersions( attribute: Attribute ): void {
@@ -224,9 +230,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
                 attr = <AttributeTerm>attr;
                 let attrOpts = attr.rootTerm.children;
-
-                if ( attrOpts.length > 0 ) {
-                    return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );;
+                
+                if ( attr.code === "status" ) {
+                    return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                }
+                else {
+                    return attrOpts;
                 }
             }
         }
