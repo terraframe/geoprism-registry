@@ -54,7 +54,7 @@
                                             </div>
 
                                             <div *ngIf="attr.type === 'date'">
-                                                <input type="date" [ngModel]="calculatedPostObject[attr.code]" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
+                                                <input type="date" [ngModel]="calculatedPostObject[attr.code] | date:'yyyy-MM-dd'" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
                                                     
                                                 <p class="warning-text" *ngIf="!isNew && isDifferentValue(attr)">
                                                   <localize key="change.request.changed.value.prefix"></localize> {{calculatedPreObject[attr.code] | date}}
@@ -69,12 +69,12 @@
 
                                             <div *ngIf="attr.type === 'boolean'">
                                                 <label>
-                                                    <input type="radio" [checked]="calculatedPostObject[attr.code] === true" disabled [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true">
+                                                    <input type="radio" [checked]="calculatedPostObject[attr.code]" disabled [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true">
                                                     <localize key="change.request.boolean.option.true"></localize>
                                                 </label>
 
                                                 <label>
-                                                    <input type="radio" [checked]="calculatedPostObject[attr.code] === false" disabled [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false">
+                                                    <input type="radio" [checked]="!calculatedPostObject[attr.code]" disabled [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false">
                                                     <localize key="change.request.boolean.option.false"></localize>
                                                 </label>
                                                 

@@ -3,6 +3,8 @@ package net.geoprism.registry.action.geoobject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.runwaysdk.session.Session;
+
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -55,15 +57,9 @@ public class SetParentAction extends SetParentActionBase
   {
     ServerGeoObjectType childType = ServerGeoObjectType.get(this.getChildTypeCode());
 
-    String message = LocalizationFacade.getFromBundles("change.request.email.add.child");
-    // message = message.replaceAll("\\{0\\}", this.getChildId());
-    // message = message.replaceAll("\\{1\\}",
-    // childType.getLabel().getValue(Session.getCurrentLocale()));
-    // message = message.replaceAll("\\{2\\}", this.getParentId());
-    // message = message.replaceAll("\\{3\\}",
-    // parentType.getLabel().getValue(Session.getCurrentLocale()));
-    // message = message.replaceAll("\\{4\\}",
-    // hierarchyType.getLabel().getValue(Session.getCurrentLocale()));
+    String message = LocalizationFacade.getFromBundles("change.request.email.set.parent");
+    message = message.replaceAll("\\{0\\}", childType.getLabel().getValue(Session.getCurrentLocale()));
+    message = message.replaceAll("\\{1\\}", this.getChildCode());
 
     return message;
   }

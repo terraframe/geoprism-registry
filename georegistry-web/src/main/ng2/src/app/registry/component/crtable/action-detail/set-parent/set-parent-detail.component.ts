@@ -35,9 +35,22 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
     readOnly: boolean = true;
 
     bsModalRef: BsModalRef;
+    
+    /*
+     * Date in which the modal is shown for
+     */
+    dateStr: string = null;
+
+    /*
+     * Date in which the modal is shown for
+     */
+    forDate: Date = null;    
 
     constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService ) {
+        this.forDate = new Date();
 
+        const day = this.forDate.getUTCDate();
+        this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
     }
 
     ngOnInit(): void {
@@ -56,6 +69,10 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
             this.error( err );
         } );
     }
+    
+    handleDateChange(): void {
+        this.forDate = new Date( Date.parse( this.dateStr ) );
+    }    
 
     onSelect( action: AbstractAction ) {
 

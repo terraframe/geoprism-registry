@@ -651,11 +651,25 @@ public class MasterListVersion extends MasterListVersionBase
           {
             LocalizedValue label = (LocalizedValue) value;
 
-            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+            String defaultLocale = label.getValue(LocalizedValue.DEFAULT_LOCALE);
+
+            if (defaultLocale == null)
+            {
+              defaultLocale = "";
+            }
+
+            this.setValue(business, name + DEFAULT_LOCALE, defaultLocale);
 
             for (Locale locale : locales)
             {
-              this.setValue(business, name + locale.toString(), label.getValue(locale));
+              String localeValue = label.getValue(locale);
+
+              if (localeValue == null)
+              {
+                localeValue = "";
+              }
+
+              this.setValue(business, name + locale.toString(), localeValue);
             }
           }
           else

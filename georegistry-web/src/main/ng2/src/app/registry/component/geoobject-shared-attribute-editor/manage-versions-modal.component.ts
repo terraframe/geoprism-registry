@@ -254,7 +254,7 @@ export class ManageVersionsModalComponent implements OnInit {
                         return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
                     }
                     else {
-                        return attrOpts
+                        return attrOpts;
                     }
                 }
             }

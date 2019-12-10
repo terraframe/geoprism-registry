@@ -2,14 +2,28 @@
     <h3 class="action-detail-header">{{action.actionLabel}}</h3>
     
     <div class="detail-content">
+      <div>
+        <localize key="masterlist.forDate"></localize>
+        <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
+      </div>    
+    
+    
         <!-- 
 	  <label class="detail-label">Label : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.displayLabel">
 	  
 	  <label class="detail-label">Code : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.code">
 	  -->
 
-        <geoobject-shared-attribute-editor #attributeEditor *ngIf="preGeoObject" [readOnly]="readOnly" [allowCodeEdit]="true" [geoObjectType]="geoObjectType"
-            [postGeoObject]="postGeoObject" [preGeoObject]="preGeoObject"></geoobject-shared-attribute-editor>
+        <geoobject-shared-attribute-editor 
+          #attributeEditor
+          *ngIf="preGeoObject"
+          [readOnly]="readOnly"
+          [allowCodeEdit]="true"
+          [geoObjectType]="geoObjectType"
+          [postGeoObject]="postGeoObject"
+          [preGeoObject]="preGeoObject"
+          [forDate]="forDate">
+        </geoobject-shared-attribute-editor>
 
 <!-- 
 	      <geoobject-editor-map #geometryEditor *ngIf="this.preGeoObject != null && this.postGeoObject != null && this.geoObjectType.isGeometryEditable" [readOnly]="readOnly || !geoObjectType.isGeometryEditable" [postGeoObject]="this.postGeoObject" [preGeoObject]="this.preGeoObject" [geoObjectType]="this.geoObjectType" [isNew]="isNew()"></geoobject-editor-map>

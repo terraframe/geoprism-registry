@@ -45,8 +45,23 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
     bsModalRef: BsModalRef;
 
+    /*
+     * Date in which the modal is shown for
+     */
+    dateStr: string = null;
+
+    /*
+     * Date in which the modal is shown for
+     */
+    forDate: Date = null;
+
+
     constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService ) {
 
+        this.forDate = new Date();
+
+        const day = this.forDate.getUTCDate();
+        this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
     }
 
     ngOnInit(): void {
@@ -63,6 +78,10 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
     isNew(): boolean {
         return ( this.action.actionType === "net.geoprism.registry.action.geoobject.CreateGeoObjectAction" );
+    }
+
+    handleDateChange(): void {
+        this.forDate = new Date( Date.parse( this.dateStr ) );
     }
 
     applyAction() {
@@ -104,12 +123,12 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
             //    && typeof this.postGeoObject.properties.createDate !== 'undefined'
         ) {
             this.registryService.getGeoObjectOverTime( this.postGeoObject.attributes.code, this.geoObjectType.code ).then( geoObject => {
-                    this.preGeoObject = geoObject;
+                this.preGeoObject = geoObject;
 
-                } ).catch(( err: HttpErrorResponse ) => {
-                    console.log( "Error", err );
-                    this.error( err );
-                } );
+            } ).catch(( err: HttpErrorResponse ) => {
+                console.log( "Error", err );
+                this.error( err );
+            } );
         }
     }
 
