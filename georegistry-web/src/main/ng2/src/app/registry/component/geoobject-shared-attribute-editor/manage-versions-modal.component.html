@@ -72,7 +72,7 @@
                                                             <td style="vertical-align: bottom;">
                                                                 <!-- <h5>{{loc.locale}}</h5> -->
                                                                 <!-- <input type="text" class="form-control" id="loc-val-{{i}}" name="loc-val-{{i}}" [(ngModel)]="version.value" (ngModelChange)="version.value = $event"> -->
-                                                                <select id="mod-{{attribute.code}}" [name]="'mod-term-' + attribute.code" class="select-area" style="float:none;" [(ngModel)]="vAttribute.value">
+                                                                <select id="mod-{{attribute.code}}" [name]="'mod-term-' + i + '-' + attribute.code" class="select-area" style="float:none;" [(ngModel)]="vAttribute.value">
                                                                     <option value="" ></option>
                                                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attribute.code)" [value]="option.code" >{{option.label.localizedValue}}</option>
                                                                 </select>
