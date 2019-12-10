@@ -73,7 +73,7 @@ export class ManageVersionsModalComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this.onAttributeVersionChange = new Subject();
+        this.onAttributeVersionChange = new Subject();        
     }
 
     tfInit(): void {
@@ -144,7 +144,6 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     onAddNewVersion(): void {
-
         let votArr: ValueOverTime[] = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
         let vot: ValueOverTime = new ValueOverTime();

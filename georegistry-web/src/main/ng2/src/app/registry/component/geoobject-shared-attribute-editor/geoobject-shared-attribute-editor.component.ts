@@ -2,7 +2,9 @@ import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRe
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
+
 import { LocalizedValue } from '../../../shared/model/core';
+import { LocalizationService } from '../../../shared/service/localization.service';
 
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
 
@@ -77,7 +79,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     constructor( private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private datePipe: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe ) {
+        private datePipe: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, private lService: LocalizationService ) {
 
     }
 
@@ -125,8 +127,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     calculate(): void {
         this.calculatedPreObject = this.calculateCurrent( this.preGeoObject );
         this.calculatedPostObject = this.calculateCurrent( this.postGeoObject );
-        
-        console.log(this.calculatedPostObject);
     }
 
     calculateCurrent( goot: GeoObjectOverTime ): any {
@@ -137,6 +137,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
             let attr = this.geoObjectType.attributes[i];
             object[attr.code] = null;
+
+            if ( attr.type === 'local' ) {
+                object[attr.code] = this.lService.create();
+            }
 
             if ( attr.isChangeOverTime ) {
                 let values = goot.attributes[attr.code].values;
@@ -151,14 +155,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                         if ( attr.type === 'local' ) {
                             object[attr.code] = JSON.parse( JSON.stringify( vot.value ) );
                         }
-                        else if ( attr.type === 'term' && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0 ) {
+                        else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
                             object[attr.code] = vot.value[0];
                         }
                         else {
                             object[attr.code] = vot.value;
                         }
-                        
-                        
+
+
                     }
                 } );
             }
@@ -166,7 +170,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 object[attr.code] = goot.attributes[attr.code];
             }
         }
-        
+
         return object;
     }
 
@@ -230,7 +234,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
                 attr = <AttributeTerm>attr;
                 let attrOpts = attr.rootTerm.children;
-                
+
                 if ( attr.code === "status" ) {
                     return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
                 }
