@@ -14,8 +14,8 @@
                                 <div class="panel-body">
                                     <ul class="list-group">
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
-                                            <h5>{{attr.label.localizedValue}}</h5>
-
+                                            <h5 *ngIf="attr.code !== 'geometry'">{{attr.label.localizedValue}}</h5>
+                                            <h5 *ngIf="attr.code === 'geometry'"><localize key="shared.attributes.attribute.geometry.label"></localize></h5>
 
                                             <div *ngIf="attr.code === 'code'">
                                               <input *ngIf="postGeoObject" type="text" [(ngModel)]="calculatedPostObject[attr.code]" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" name="mod-{{attr.code}}" [disabled]="!isNew" required> 
