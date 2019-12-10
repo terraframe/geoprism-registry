@@ -20,7 +20,7 @@ public class TestHierarchyTypeInfo
   private final TestDataSet testDataSet;
   
   private String                  code;
-
+  
   private String                  displayLabel;
   
   private String                  oid;
@@ -29,6 +29,13 @@ public class TestHierarchyTypeInfo
   {
     this.testDataSet = testDataSet;
     initialize(genKey);
+  }
+  
+  protected TestHierarchyTypeInfo(TestDataSet testDataSet, String code, String displayLabel)
+  {
+    this.testDataSet = testDataSet;
+    this.code = code;
+    this.displayLabel = displayLabel;
   }
   
   private void initialize(String genKey)

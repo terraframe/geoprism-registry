@@ -134,14 +134,16 @@ public class TestGeoObjectTypeInfo
       return this.children;
     }
 
-    public Relationship addChild(TestGeoObjectTypeInfo child, String relationshipType)
+    public void addChild(TestGeoObjectTypeInfo child, TestHierarchyTypeInfo hierarchy)
     {
       if (!this.children.contains(child))
       {
         this.children.add(child);
       }
 
-      return child.getUniversal().addLink(universal, relationshipType);
+      hierarchy.getServerObject().addToHierarchy(this.getCode(), child.getCode());
+//      this.getServerObject().add(child.getServerObject(), hierarchy.getServerObject());
+//      return child.getUniversal().addLink(universal, hierarchy.getServerObject());
     }
 
     public void assertEquals(GeoObjectType got)

@@ -59,27 +59,33 @@ public class TestGeoObjectInfo
     private List<TestGeoObjectInfo> parents;
     
     private ServerGeoObjectIF serverGO;
+    
+    private String statusCode;
+    
+    private Boolean isNew;
 
-    protected TestGeoObjectInfo(TestDataSet testDataSet, String genKey, TestGeoObjectTypeInfo testUni, String wkt)
+    protected TestGeoObjectInfo(TestDataSet testDataSet, String genKey, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
     {
       this.testDataSet = testDataSet;
-      initialize(genKey, testUni);
+      initialize(genKey, testUni, statusCode, isNew);
       this.wkt = wkt;
     }
 
     protected TestGeoObjectInfo(TestDataSet testDataSet, String genKey, TestGeoObjectTypeInfo testUni)
     {
       this.testDataSet = testDataSet;
-      initialize(genKey, testUni);
+      initialize(genKey, testUni, DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
     }
 
-    private void initialize(String genKey, TestGeoObjectTypeInfo testUni)
+    private void initialize(String genKey, TestGeoObjectTypeInfo testUni, String statusCode, Boolean isNew)
     {
       this.code = this.testDataSet.getTestDataKey() + genKey;
       this.displayLabel = this.testDataSet.getTestDataKey() + " " + genKey;
       this.geoObjectType = testUni;
       this.children = new LinkedList<TestGeoObjectInfo>();
       this.parents = new LinkedList<TestGeoObjectInfo>();
+      this.statusCode = statusCode;
+      this.isNew = isNew;
       
       GeometryType geom = this.getGeoObjectType().getGeometryType();
       if (geom == GeometryType.POLYGON)
@@ -155,6 +161,16 @@ public class TestGeoObjectInfo
     {
       this.oid = oid;
     }
+    
+    public Boolean getIsNew()
+    {
+      return isNew;
+    }
+
+    public void setIsNew(Boolean isNew)
+    {
+      this.isNew = isNew;
+    }
 
     /**
      * Returns the GeoEntity that implements this test GeoObject. Will return
@@ -187,6 +203,7 @@ public class TestGeoObjectInfo
       geoObj.setCode(this.getCode());
       geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
       geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
+      geoObj.setStatus(this.statusCode);
 
       if (registryId != null)
       {
@@ -379,7 +396,7 @@ public class TestGeoObjectInfo
       // TODO : Check MultiPolygon and Point ?
     }
 
-    public Relationship addChild(TestGeoObjectInfo child, String relationshipType)
+    public void addChild(TestGeoObjectInfo child, TestHierarchyTypeInfo hierarchy)
     {
       if (!this.children.contains(child))
       {
@@ -387,22 +404,24 @@ public class TestGeoObjectInfo
       }
       child.addParent(this);
 
-      if (child.getGeoObjectType().getIsLeaf())
-      {
-        ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
-        String refAttrName = hierarchyType.getParentReferenceAttributeName(this.getGeoObjectType().getUniversal());
-
-        Business business = child.getBusiness();
-        business.lock();
-        business.setValue(refAttrName, geoEntity.getOid());
-        business.apply();
-
-        return null;
-      }
-      else
-      {
-        return child.getGeoEntity().addLink(geoEntity, relationshipType);
-      }
+//      if (child.getGeoObjectType().getIsLeaf())
+//      {
+//        ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+//        String refAttrName = hierarchyType.getParentReferenceAttributeName(this.getGeoObjectType().getUniversal());
+//
+//        Business business = child.getBusiness();
+//        business.lock();
+//        business.setValue(refAttrName, geoEntity.getOid());
+//        business.apply();
+//
+//        return null;
+//      }
+//      else
+//      {
+//        return child.getGeoEntity().addLink(geoEntity, relationshipType);
+//      }
+      
+      this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject());
     }
 
     private void addParent(TestGeoObjectInfo parent)
@@ -420,10 +439,10 @@ public class TestGeoObjectInfo
     
     public ServerGeoObjectIF getServerObject()
     {
-      if (this.serverGO == null)
-      {
+//      if (this.serverGO == null)
+//      {
         this.serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode());
-      }
+//      }
       
       return this.serverGO;
     }
@@ -458,6 +477,8 @@ public class TestGeoObjectInfo
       }
       
       this.registryId = localServerGO.getUid();
+      
+      this.isNew = false;
     }
 
     @Transaction
@@ -468,7 +489,7 @@ public class TestGeoObjectInfo
         System.out.println("Applying TestGeoObjectInfo [" + this.getCode() + "].");
       }
       
-      return new ServerGeoObjectService().apply(this.asGeoObject(), true, false);
+      return new ServerGeoObjectService().apply(this.asGeoObject(), this.isNew, false);
 
 //      if (!this.geoObjectType.getIsLeaf())
 //      {
@@ -623,6 +644,7 @@ public class TestGeoObjectInfo
 
       this.business = null;
       this.geoEntity = null;
+      this.isNew = true;
     }
 
     /**

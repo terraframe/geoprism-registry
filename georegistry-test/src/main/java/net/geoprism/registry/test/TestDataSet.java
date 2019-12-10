@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -41,10 +42,8 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.resource.ClasspathResource;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdClass;
@@ -65,6 +64,10 @@ import net.geoprism.registry.service.WMSService;
 abstract public class TestDataSet
 {
   protected int                              debugMode                       = 0;
+  
+  public final TestHierarchyTypeInfo         AllowedIn                       = new TestHierarchyTypeInfo(this, "AllowedIn", "AllowedIn");
+  
+  public final TestHierarchyTypeInfo         LocatedIn                       = new TestHierarchyTypeInfo(this, "LocatedIn", "LocatedIn");
 
   protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos           = new ArrayList<TestGeoObjectInfo>();
 
@@ -87,6 +90,10 @@ abstract public class TestDataSet
   public static final String                 ADMIN_USER_NAME                 = "admin";
 
   public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
+  
+  public static final String                 WKT_DEFAULT_POLYGON             = "POLYGON ((100 100, 123 400, 168 500, 123 600, 133 600, 178 500, 133 400, 110 100, 100 100))";
+  
+  public static final String                 WKT_DEFAULT_POINT               = "POINT (110 80)";
 
   abstract public String getTestDataKey();
 
@@ -148,6 +155,23 @@ abstract public class TestDataSet
     cleanUpClass();
 
     setUpClassInTrans();
+    
+    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
+    adminClientRequest = adminSession.getRequest();
+    adapter.setClientRequest(this.adminClientRequest);
+    
+    RegistryService.getInstance().refreshMetadataCache();
+    adapter.refreshMetadataCache();
+    
+    setUpClassRelationships();
+    
+    RegistryService.getInstance().refreshMetadataCache();
+    adapter.refreshMetadataCache();
+  }
+  
+  public void setUpClassRelationships()
+  {
+    
   }
 
   @Transaction
@@ -157,9 +181,6 @@ abstract public class TestDataSet
     {
       uni.apply();
     }
-
-    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
-    adminClientRequest = adminSession.getRequest();
   }
 
   @Request
@@ -167,7 +188,6 @@ abstract public class TestDataSet
   {
     cleanUpTest();
     
-    adapter.setClientRequest(this.adminClientRequest);
     try
     {
       adapter.getIdService().populate(1000);
@@ -180,8 +200,14 @@ abstract public class TestDataSet
     setUpTestInTrans();
 
     RegistryService.getInstance().refreshMetadataCache();
-
     adapter.refreshMetadataCache();
+    
+    setUpRelationships();
+    
+    RegistryService.getInstance().refreshMetadataCache();
+    adapter.refreshMetadataCache();
+    
+    setUpAfterApply();
   }
 
   @Transaction
@@ -194,6 +220,16 @@ abstract public class TestDataSet
         geo.apply();
       }
     }
+  }
+  
+  protected void setUpRelationships()
+  {
+    
+  }
+  
+  protected void setUpAfterApply()
+  {
+    
   }
 
   @Request
@@ -255,17 +291,17 @@ abstract public class TestDataSet
   private void rebuildAllpaths()
   {
     Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
-    Universal.getStrategy().initialize(AllowedIn.CLASS);
-    GeoEntity.getStrategy().initialize(LocatedIn.CLASS);
+    Universal.getStrategy().initialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
+    GeoEntity.getStrategy().initialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
 
     if (new AllowedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
     {
-      Universal.getStrategy().reinitialize(AllowedIn.CLASS);
+      Universal.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
     }
 
     if (new LocatedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
     {
-      GeoEntity.getStrategy().reinitialize(LocatedIn.CLASS);
+      GeoEntity.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
     }
 
     if (new ClassifierIsARelationshipAllPathsTableQuery(new QueryFactory()).getCount() == 0)
@@ -335,7 +371,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(this, genKey, testUni, wkt);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(this, genKey, testUni, wkt, DefaultTerms.GeoObjectStatusTerm.PENDING.code, true);
 
     info.delete();
 

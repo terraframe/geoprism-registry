@@ -18,9 +18,13 @@
  */
 package net.geoprism.registry.test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
@@ -30,6 +34,8 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
@@ -103,6 +109,18 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return set;
   }
   
+  public JSONArray getGeoObjectSuggestions(String text, String type, String parent, String hierarchy, String date)
+  {
+    try
+    {
+      return new JSONArray(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, hierarchy, date)));
+    }
+    catch (JSONException | ParseException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+  
   public GeoObject getGeoObject(String registryId, String code)
   {
     return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code));
@@ -155,11 +173,18 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToChildTreeNode(this.controller.getChildGeoObjects(this.clientRequest, parentId, parentTypeCode, saChildrenTypes, recursive));
   }
   
-  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, String[] parentTypes, boolean recursive)
+  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, String[] parentTypes, boolean recursive, String date)
   {
     String saParentTypes = this.serialize(parentTypes);
     
-    return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, saParentTypes, recursive));
+    try
+    {
+      return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, saParentTypes, recursive, date));
+    }
+    catch (ParseException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
   
   public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef)
@@ -184,6 +209,15 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     Object obj = AbstractResponseSerializer.serialize((AbstractRestResponse) resp);
     
     return obj.toString();
+  }
+  
+  protected String dateToString(Date date)
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    String sDate = format.format(date);
+    
+    return sDate;
   }
   
   protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseIF resp)

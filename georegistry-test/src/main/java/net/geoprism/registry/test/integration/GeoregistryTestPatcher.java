@@ -26,10 +26,9 @@ import net.geoprism.GeoprismPatcherIF;
 public class GeoregistryTestPatcher extends GeoprismPatcher implements GeoprismPatcherIF
 {
   @Override
-  @Transaction
-  public void runWithTransaction()
+  protected void runWithRequest()
   {
-    super.runWithTransaction();
+    super.runWithRequest();
     
     AndroidIntegrationTestDatabaseBuilder.main(new String[] {});
   }

@@ -20,6 +20,7 @@ package net.geoprism.registry.test;
 
 import java.util.Locale;
 
+import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
@@ -63,13 +64,13 @@ public class USATestData extends TestDataSet
 
   public final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo(this, "ColoradoDistrictTwo", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(this, "ColoradoDistrictThree", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(this, "ColoradoDistrictThree", DISTRICT, TestDataSet.WKT_DEFAULT_POINT, DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, true);
 
   public final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(this, "ColoradoCountyOne", COUNTY);
 
   public final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(this, "ColoradoAreaOne", AREA);
 
-  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this, "Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
+  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this, "Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))", DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
 
   public final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(this, "WashingtonDistrictOne", DISTRICT);
 
@@ -181,21 +182,23 @@ public class USATestData extends TestDataSet
     {
       uni.apply();
     }
+  }
+  
+  @Transaction
+  @Override
+  public void setUpClassRelationships()
+  {
+    COUNTRY.getUniversal().addLink(Universal.getRoot(), com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
+    COUNTRY.addChild(STATE, LocatedIn);
+    STATE.addChild(DISTRICT, LocatedIn);
+    STATE.addChild(COUNTY, LocatedIn);
+    COUNTY.addChild(AREA, LocatedIn);
 
-    COUNTRY.getUniversal().addLink(Universal.getRoot(), AllowedIn.CLASS);
-    COUNTRY.addChild(STATE, AllowedIn.CLASS);
-    STATE.addChild(DISTRICT, AllowedIn.CLASS);
-    STATE.addChild(COUNTY, AllowedIn.CLASS);
-    COUNTY.addChild(AREA, AllowedIn.CLASS);
-
-    COUNTRY.addChild(MEXICO_STATE, AllowedIn.CLASS);
-    MEXICO_STATE.addChild(MEXICO_CITY_GOT, AllowedIn.CLASS);
+    COUNTRY.addChild(MEXICO_STATE, LocatedIn);
+    MEXICO_STATE.addChild(MEXICO_CITY_GOT, LocatedIn);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
     hierarchyType.addParentReferenceToLeafType(STATE.getUniversal(), DISTRICT.getUniversal());
-
-    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
-    adminClientRequest = adminSession.getRequest();
   }
 
   @Transaction
@@ -208,39 +211,60 @@ public class USATestData extends TestDataSet
       {
         geo.apply();
       }
-
-      USA.getGeoEntity().addLink(GeoEntity.getRoot(), LocatedIn.CLASS);
-
-      USA.addChild(COLORADO, LocatedIn.CLASS);
-      COLORADO.addChild(CO_D_ONE, LocatedIn.CLASS);
-      COLORADO.addChild(CO_D_TWO, LocatedIn.CLASS);
-      COLORADO.addChild(CO_D_THREE, LocatedIn.CLASS);
-      COLORADO.addChild(CO_C_ONE, LocatedIn.CLASS);
-      CO_C_ONE.addChild(CO_A_ONE, LocatedIn.CLASS);
-
-      USA.addChild(WASHINGTON, LocatedIn.CLASS);
-      WASHINGTON.addChild(WA_D_ONE, LocatedIn.CLASS);
-      WASHINGTON.addChild(WA_D_TWO, LocatedIn.CLASS);
-
-      MEXICO.addChild(MEXICO_STATE_ONE, LocatedIn.CLASS);
-      MEXICO.addChild(MEXICO_STATE_TWO, LocatedIn.CLASS);
-      MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, LocatedIn.CLASS);
-      MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, LocatedIn.CLASS);
     }
 
     adminSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
+  }
+  
+  @Transaction
+  @Override
+  public void setUpRelationships()
+  {
+    if (this.includeData)
+    {
+      USA.getGeoEntity().addLink(GeoEntity.getRoot(), com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
+
+      USA.addChild(COLORADO, LocatedIn);
+      COLORADO.addChild(CO_D_ONE, LocatedIn);
+      COLORADO.addChild(CO_D_TWO, LocatedIn);
+      COLORADO.addChild(CO_D_THREE, LocatedIn);
+      COLORADO.addChild(CO_C_ONE, LocatedIn);
+      CO_C_ONE.addChild(CO_A_ONE, LocatedIn);
+
+      USA.addChild(WASHINGTON, LocatedIn);
+      WASHINGTON.addChild(WA_D_ONE, LocatedIn);
+      WASHINGTON.addChild(WA_D_TWO, LocatedIn);
+
+      MEXICO.addChild(MEXICO_STATE_ONE, LocatedIn);
+      MEXICO.addChild(MEXICO_STATE_TWO, LocatedIn);
+      MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, LocatedIn);
+      MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, LocatedIn);
+    }
+  }
+  
+  @Transaction
+  @Override
+  protected void setUpAfterApply()
+  {
+    if (this.includeData)
+    {
+      for (TestGeoObjectInfo geo : managedGeoObjectInfos)
+      {
+        geo.apply();
+      }
+    }
   }
 
   @Transaction
   @Override
   public void cleanUpClassInTrans()
   {
-    if (STATE.getUniversal() != null && DISTRICT.getUniversal() != null)
-    {
-      ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
-      hierarchyType.removeParentReferenceToLeafType(STATE.getUniversal(), DISTRICT.getUniversal());
-    }
+//    if (STATE.getUniversal() != null && DISTRICT.getUniversal() != null)
+//    {
+//      ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+//      hierarchyType.removeParentReferenceToLeafType(STATE.getUniversal(), DISTRICT.getUniversal());
+//    }
 
     super.cleanUpClassInTrans();
   }
