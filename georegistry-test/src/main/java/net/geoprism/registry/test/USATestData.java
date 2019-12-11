@@ -44,19 +44,17 @@ public class USATestData extends TestDataSet
 {
   public final String                TEST_DATA_KEY    = "USATestData";
 
-  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Country");
+  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Country", GeometryType.MULTIPOLYGON);
 
-  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "State");
+  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "State", GeometryType.MULTIPOLYGON);
 
-  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "County");
+  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "County", GeometryType.MULTIPOLYGON);
 
-  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Area");
+  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Area", GeometryType.POLYGON);
 
   public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "District", GeometryType.POINT);
 
   public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(this, "USA", COUNTRY);
-
-  public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(this, "CANADA", COUNTRY);
 
   public final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo(this, "Colorado", STATE);
 
@@ -70,12 +68,14 @@ public class USATestData extends TestDataSet
 
   public final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(this, "ColoradoAreaOne", AREA);
 
-  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this, "Washington", STATE, "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))", DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
+  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this, "Washington", STATE, "MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))", DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
 
   public final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(this, "WashingtonDistrictOne", DISTRICT);
 
   public final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(this, "WashingtonDistrictTwo", DISTRICT);
 
+  public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(this, "CANADA", COUNTRY);
+  
   /**
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
@@ -104,12 +104,12 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(USA);
     managedGeoObjectInfos.add(CANADA);
     managedGeoObjectInfos.add(COLORADO);
-    managedGeoObjectInfos.add(WASHINGTON);
     managedGeoObjectInfos.add(CO_D_ONE);
     managedGeoObjectInfos.add(CO_D_TWO);
     managedGeoObjectInfos.add(CO_D_THREE);
     managedGeoObjectInfos.add(CO_C_ONE);
     managedGeoObjectInfos.add(CO_A_ONE);
+    managedGeoObjectInfos.add(WASHINGTON);
     managedGeoObjectInfos.add(WA_D_ONE);
     managedGeoObjectInfos.add(WA_D_TWO);
 
@@ -121,15 +121,20 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(MEXICO_STATE_ONE);
     managedGeoObjectInfos.add(MEXICO_STATE_TWO);
   }
-
+  
   public static USATestData newTestDataForClass()
+  {
+    return newTestDataForClass(true);
+  }
+
+  public static USATestData newTestDataForClass(Boolean includeData)
   {
     LocalProperties.setSkipCodeGenAndCompile(true);
     GeoserverFacade.setService(new NullGeoserverService());
 
     TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
 
-    USATestData data = new USATestData(adapter, true);
+    USATestData data = new USATestData(adapter, includeData);
 
     return data;
   }
@@ -176,7 +181,7 @@ public class USATestData extends TestDataSet
 
   @Transaction
   @Override
-  protected void setUpClassInTrans()
+  protected void setUpMetadataInTrans()
   {
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
@@ -232,9 +237,9 @@ public class USATestData extends TestDataSet
       COLORADO.addChild(CO_C_ONE, LocatedIn);
       CO_C_ONE.addChild(CO_A_ONE, LocatedIn);
 
-      USA.addChild(WASHINGTON, LocatedIn);
-      WASHINGTON.addChild(WA_D_ONE, LocatedIn);
-      WASHINGTON.addChild(WA_D_TWO, LocatedIn);
+//      USA.addChild(WASHINGTON, LocatedIn);
+//      WASHINGTON.addChild(WA_D_ONE, LocatedIn);
+//      WASHINGTON.addChild(WA_D_TWO, LocatedIn);
 
       MEXICO.addChild(MEXICO_STATE_ONE, LocatedIn);
       MEXICO.addChild(MEXICO_STATE_TWO, LocatedIn);

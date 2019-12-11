@@ -128,6 +128,19 @@ public class TestGeoObjectTypeInfo
         return null;
       }
     }
+    
+//    public ServerGeoObjectType getGeoObjectType()
+//    {
+      // if (this.getUniversal() != null)
+      // {
+      // return
+      // registryService.getConversionService().universalToGeoObjectType(this.getUniversal());
+      // }
+      // else
+      // {
+//      return ServerGeoObjectType.get(this.getCode());
+      // }
+//    }
 
     public List<TestGeoObjectTypeInfo> getChildren()
     {
@@ -225,21 +238,17 @@ public class TestGeoObjectTypeInfo
       this.universal = null;
     }
 
-    public ServerGeoObjectType getGeoObjectType()
-    {
-      // if (this.getUniversal() != null)
-      // {
-      // return
-      // registryService.getConversionService().universalToGeoObjectType(this.getUniversal());
-      // }
-      // else
-      // {
-      return ServerGeoObjectType.get(this.getCode());
-      // }
-    }
-    
     public boolean isPersisted()
     {
-      return ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).isPresent();
+      Boolean exists = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).isPresent();
+      
+      if (exists)
+      {
+        MdClass universal = this.testDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
+        
+        exists = universal != null;
+      }
+      
+      return exists;
     }
   }

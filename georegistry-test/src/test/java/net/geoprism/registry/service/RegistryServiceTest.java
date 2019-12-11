@@ -63,7 +63,7 @@ public class RegistryServiceTest
   public static void setUpClass()
   {
     testData = USATestData.newTestDataForClass();
-    testData.setUpClass();
+    testData.setUpMetadata();
   }
   
   @AfterClass
@@ -71,7 +71,7 @@ public class RegistryServiceTest
   {
     if (testData != null)
     {
-      testData.cleanUpClass();
+      testData.tearDownMetadata();
     }
   }
   
@@ -80,7 +80,7 @@ public class RegistryServiceTest
   {
     if (testData != null)
     {
-      testData.setUpTest();
+      testData.setUpInstanceData();
     }
   }
 
@@ -89,7 +89,7 @@ public class RegistryServiceTest
   {
     if (testData != null)
     {
-      testData.cleanUpTest();
+      testData.tearDownInstanceData();
     }
   }
   
@@ -110,8 +110,8 @@ public class RegistryServiceTest
     // 1. Test creating a new one
     GeoObject geoObj = testData.adapter.newGeoObjectInstance(testData.STATE.getCode());
     geoObj.setGeometry(point);
-    geoObj.setCode(testData.WASHINGTON.getCode());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.WASHINGTON.getDisplayLabel());
+    geoObj.setCode(testData.COLORADO.getCode());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
 
     try
     {
@@ -228,9 +228,9 @@ public class RegistryServiceTest
   {
     // Create
     GeoObject geoObj = testData.adapter.newGeoObjectInstance(testData.STATE.getCode());
-    geoObj.setWKTGeometry(testData.WASHINGTON.getWkt());
-    geoObj.setCode(testData.WASHINGTON.getCode());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.WASHINGTON.getDisplayLabel());
+    geoObj.setWKTGeometry(testData.COLORADO.getWkt());
+    geoObj.setCode(testData.COLORADO.getCode());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
     geoObj.setUid(UUID.randomUUID().toString());
     testData.adapter.createGeoObject(geoObj.toJSON().toString());
   }
@@ -242,7 +242,7 @@ public class RegistryServiceTest
   public void testUnissuedIdUpdate()
   {
     // Update
-    GeoObject waGeoObj = testData.adapter.getGeoObject(testData.WASHINGTON.getRegistryId(), testData.WASHINGTON.getGeoObjectType().getCode());
+    GeoObject waGeoObj = testData.adapter.getGeoObject(testData.COLORADO.getRegistryId(), testData.COLORADO.getGeoObjectType().getCode());
     waGeoObj.setWKTGeometry(testData.COLORADO.getWkt());
     waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
     waGeoObj.setUid(UUID.randomUUID().toString());

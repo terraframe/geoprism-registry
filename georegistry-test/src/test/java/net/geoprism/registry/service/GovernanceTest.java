@@ -48,7 +48,7 @@ public class GovernanceTest
   public static void setUpClass()
   {
     testData = USATestData.newTestDataForClass();
-    testData.setUpClass();
+    testData.setUpMetadata();
   }
   
   @AfterClass
@@ -56,7 +56,7 @@ public class GovernanceTest
   {
     if (testData != null)
     {
-      testData.cleanUpClass();
+      testData.tearDownMetadata();
     }
   }
   
@@ -65,7 +65,7 @@ public class GovernanceTest
   {
     if (testData != null)
     {
-      testData.setUpTest();
+      testData.setUpInstanceData();
     }
   }
 
@@ -74,7 +74,7 @@ public class GovernanceTest
   {
     if (testData != null)
     {
-      testData.cleanUpTest();
+      testData.tearDownInstanceData();
     }
   }
 

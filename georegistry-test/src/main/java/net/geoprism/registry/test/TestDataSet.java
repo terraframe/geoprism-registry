@@ -91,10 +91,12 @@ abstract public class TestDataSet
 
   public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
   
-  public static final String                 WKT_DEFAULT_POLYGON             = "POLYGON ((100 100, 123 400, 168 500, 123 600, 133 600, 178 500, 133 400, 110 100, 100 100))";
+  public static final String                 WKT_DEFAULT_POLYGON             = "POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))";
   
   public static final String                 WKT_DEFAULT_POINT               = "POINT (110 80)";
-
+  
+  public static final String                 WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
+  
   abstract public String getTestDataKey();
 
   {
@@ -110,7 +112,7 @@ abstract public class TestDataSet
 
     return all;
   }
-
+  
   public ArrayList<TestGeoObjectTypeInfo> getManagedGeoObjectTypes()
   {
     ArrayList<TestGeoObjectTypeInfo> all = new ArrayList<TestGeoObjectTypeInfo>();
@@ -119,6 +121,11 @@ abstract public class TestDataSet
     all.addAll(managedGeoObjectTypeInfosExtras);
 
     return all;
+  }
+  
+  public ArrayList<TestGeoObjectTypeInfo> getManagedGeoObjectTypeExtras()
+  {
+    return managedGeoObjectTypeInfosExtras;
   }
   
   public ArrayList<TestHierarchyTypeInfo> getManagedHierarchyTypes()
@@ -130,31 +137,36 @@ abstract public class TestDataSet
 
     return all;
   }
+  
+  public ArrayList<TestHierarchyTypeInfo> getManagedHierarchyTypeExtras()
+  {
+    return managedHierarchyTypeInfosExtras;
+  }
 
   @Request
   public void setUp()
   {
-    setUpClass();
+    setUpMetadata();
 
-    setUpTest();
+    setUpInstanceData();
   }
 
   @Request
   public void cleanUp()
   {
-    cleanUpClass();
+    tearDownMetadata();
 
-    cleanUpTest();
+    tearDownInstanceData();
   }
 
   @Request
-  public void setUpClass()
+  public void setUpMetadata()
   {
     // TODO : If you move this call into the 'setupInTrans' method it exposes a
     // bug in Runway which relates to transactions and MdAttributeLocalStructs
-    cleanUpClass();
+    tearDownMetadata();
 
-    setUpClassInTrans();
+    setUpMetadataInTrans();
     
     adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
@@ -175,7 +187,7 @@ abstract public class TestDataSet
   }
 
   @Transaction
-  protected void setUpClassInTrans()
+  protected void setUpMetadataInTrans()
   {
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
@@ -184,9 +196,9 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void setUpTest()
+  public void setUpInstanceData()
   {
-    cleanUpTest();
+    tearDownInstanceData();
     
     try
     {
@@ -233,7 +245,7 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void cleanUpClass()
+  public void tearDownMetadata()
   {
     cleanUpClassInTrans();
   }
@@ -245,8 +257,13 @@ abstract public class TestDataSet
     {
       if (got.isPersisted())
       {
-        new WMSService().deleteDatabaseView(got.getGeoObjectType());
+        new WMSService().deleteDatabaseView(got.getServerObject());
       }
+    }
+    
+    for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfosExtras)
+    {
+      got.delete();
     }
 
     LinkedList<TestGeoObjectTypeInfo> list = new LinkedList<>(managedGeoObjectTypeInfos);
@@ -264,7 +281,7 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void cleanUpTest()
+  public void tearDownInstanceData()
   {
     cleanUpTestInTrans();
   }
@@ -272,12 +289,14 @@ abstract public class TestDataSet
   @Transaction
   protected void cleanUpTestInTrans()
   {
-    for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfosExtras)
+    if (this.includeData)
     {
-      got.delete();
+      for (TestGeoObjectInfo go : managedGeoObjectInfos)
+      {
+        go.delete();
+      }
     }
-
-    for (TestGeoObjectInfo go : this.getManagedGeoObjects())
+    for (TestGeoObjectInfo go : managedGeoObjectInfosExtras)
     {
       go.delete();
     }

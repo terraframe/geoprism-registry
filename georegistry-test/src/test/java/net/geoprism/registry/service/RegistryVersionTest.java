@@ -35,7 +35,7 @@ public class RegistryVersionTest
   public static void setUpClass()
   {
     testData = USATestData.newTestDataForClass();
-    testData.setUpClass();
+    testData.setUpMetadata();
   }
   
   @AfterClass
@@ -43,7 +43,7 @@ public class RegistryVersionTest
   {
     if (testData != null)
     {
-      testData.cleanUpClass();
+      testData.tearDownMetadata();
     }
   }
   
@@ -52,7 +52,7 @@ public class RegistryVersionTest
   {
     if (testData != null)
     {
-      testData.setUpTest();
+      testData.setUpInstanceData();
     }
   }
 
@@ -61,7 +61,7 @@ public class RegistryVersionTest
   {
     if (testData != null)
     {
-      testData.cleanUpTest();
+      testData.tearDownInstanceData();
     }
   }
   

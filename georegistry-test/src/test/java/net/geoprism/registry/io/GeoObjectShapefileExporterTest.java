@@ -36,8 +36,10 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.feature.FeatureCollection;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
@@ -66,32 +68,39 @@ public class GeoObjectShapefileExporterTest
 {
   private static USATestData     testData;
 
-  private static ClientRequestIF adminCR;
-
   @BeforeClass
-  public static void setUp()
+  public static void setUpClass()
   {
-    testData = USATestData.newTestData(true);
-
-    adminCR = testData.adminClientRequest;
-
-    reload();
+    testData = USATestData.newTestDataForClass();
+    testData.setUpMetadata();
   }
-
-  @Request
-  public static void reload()
-  {
-    /*
-     * Reload permissions for the new attributes
-     */
-    SessionFacade.getSessionForRequest(adminCR.getSessionId()).reloadPermissions();
-  }
-
+  
   @AfterClass
-  public static void tearDown() throws IOException
+  public static void cleanUpClass()
   {
-    testData.cleanUp();
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
+  }
+  
+  @Before
+  public void setUp()
+  {
+    if (testData != null)
+    {
+      testData.setUpInstanceData();
+    }
+  }
 
+  @After
+  public void tearDown() throws IOException
+  {
+    if (testData != null)
+    {
+      testData.tearDownInstanceData();
+    }
+    
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
 
@@ -140,7 +149,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
+    ServerGeoObjectType type = testData.STATE.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     List<GeoObject> objects = new GeoObjectQuery(type).getIterator().getAll();
@@ -200,7 +209,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testWriteToFile() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
+    ServerGeoObjectType type = testData.STATE.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
@@ -226,7 +235,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
+    ServerGeoObjectType type = testData.STATE.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();

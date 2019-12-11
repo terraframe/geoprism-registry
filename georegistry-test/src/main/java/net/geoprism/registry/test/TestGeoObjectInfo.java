@@ -89,11 +89,15 @@ public class TestGeoObjectInfo
       GeometryType geom = this.getGeoObjectType().getGeometryType();
       if (geom == GeometryType.POLYGON)
       {
-        this.wkt = "POLYGON ((100 100, 123 400, 168 500, 123 600, 133 600, 178 500, 133 400, 110 100, 100 100))";
+        this.wkt = TestDataSet.WKT_DEFAULT_POLYGON;
       }
       else if (geom == GeometryType.POINT)
       {
-        this.wkt = "POINT (110 80)";
+        this.wkt = TestDataSet.WKT_DEFAULT_POINT;
+      }
+      else if (geom == GeometryType.MULTIPOLYGON)
+      {
+        this.wkt = TestDataSet.WKT_DEFAULT_MULTIPOLYGON;
       }
       else
       {

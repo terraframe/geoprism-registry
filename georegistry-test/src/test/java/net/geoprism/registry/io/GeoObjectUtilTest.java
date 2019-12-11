@@ -18,21 +18,17 @@
  */
 package net.geoprism.registry.io;
 
-import java.io.IOException;
 import java.util.Map;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.session.SessionFacade;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import junit.framework.Assert;
@@ -46,43 +42,51 @@ public class GeoObjectUtilTest
 {
   private static USATestData     testData;
 
-  private static ClientRequestIF adminCR;
-
   @BeforeClass
-  public static void setUp()
+  public static void setUpClass()
   {
-    testData = USATestData.newTestData(true);
-
-    adminCR = testData.adminClientRequest;
-
-    reload();
+    testData = USATestData.newTestDataForClass();
+    testData.setUpMetadata();
   }
-
-  @Request
-  public static void reload()
-  {
-    /*
-     * Reload permissions for the new attributes
-     */
-    SessionFacade.getSessionForRequest(adminCR.getSessionId()).reloadPermissions();
-  }
-
+  
   @AfterClass
-  public static void tearDown() throws IOException
+  public static void cleanUpClass()
   {
-    testData.cleanUp();
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
+  }
+  
+  @Before
+  public void setUp()
+  {
+    if (testData != null)
+    {
+      testData.setUpInstanceData();
+    }
+  }
+
+  @After
+  public void tearDown()
+  {
+    if (testData != null)
+    {
+      testData.tearDownInstanceData();
+    }
   }
 
   @Test
   @Request
   public void testGetAncestorMapForTreeType()
   {
-    ServerGeoObjectType type = testData.AREA.getGeoObjectType();
+    ServerGeoObjectType type = testData.AREA.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
 //    GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_A_ONE.getCode(), type.getCode());
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(Session.getCurrentSession().getOid(), testData.CO_A_ONE.getCode(), type.getCode());
-
+//    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(Session.getCurrentSession().getOid(), testData.CO_A_ONE.getCode(), type.getCode());
+    GeoObject object = testData.adapter.getGeoObjectByCode(testData.CO_A_ONE.getCode(), type.getCode());
+    
     Map<String, LocationInfo> map = GeoObjectUtil.getAncestorMap(object, hierarchyType);
 
     Assert.assertEquals(5, map.size());
@@ -110,35 +114,5 @@ public class GeoObjectUtilTest
 
     Assert.assertEquals(testData.USA.getCode(), vObject.getCode());
     Assert.assertEquals(testData.USA.getDisplayLabel(), vObject.getLabel());
-  }
-
-  @Request
-  @Test
-  public void testGetAncestorMapForTreeLeaf()
-  {
-    ServerGeoObjectType type = testData.DISTRICT.getGeoObjectType();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
-
-//    GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_D_ONE.getCode(), type.getCode());
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(Session.getCurrentSession().getOid(), testData.CO_A_ONE.getCode(), type.getCode());
-
-    Map<String, LocationInfo> map = GeoObjectUtil.getAncestorMap(object, hierarchyType);
-
-    // Validate the state values
-    Assert.assertTrue(map.containsKey(testData.STATE.getCode()));
-
-    LocationInfo vObject = map.get(testData.STATE.getCode());
-
-    Assert.assertEquals(testData.COLORADO.getCode(), vObject.getCode());
-    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), vObject.getLabel());
-
-    // Validate the country values
-    Assert.assertTrue(map.containsKey(testData.COUNTRY.getCode()));
-
-    vObject = map.get(testData.COUNTRY.getCode());
-
-    Assert.assertEquals(testData.USA.getCode(), vObject.getCode());
-    Assert.assertEquals(testData.USA.getDisplayLabel(), vObject.getLabel());
-
   }
 }

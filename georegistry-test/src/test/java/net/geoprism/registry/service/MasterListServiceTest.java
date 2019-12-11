@@ -18,26 +18,22 @@
  */
 package net.geoprism.registry.service;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Date;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.ComponentInfo;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.LocatedIn;
@@ -51,20 +47,44 @@ public class MasterListServiceTest
   private static USATestData       testData;
 
   private static AttributeTermType testTerm;
-
-  private static ClientRequestIF   adminCR;
-
+  
   @BeforeClass
-  public static void setUp()
+  public static void setUpClass()
   {
-    testData = USATestData.newTestData(true);
-
-    adminCR = testData.adminClientRequest;
-
+    testData = USATestData.newTestDataForClass();
+    testData.setUpMetadata();
+    
     testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(adminCR.getSessionId(), testData.STATE.getCode(), testTerm.toJSON().toString());
+    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), testTerm.toJSON().toString());
 
     reload();
+  }
+  
+  @AfterClass
+  public static void cleanUpClass()
+  {
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
+  }
+  
+  @Before
+  public void setUp()
+  {
+    if (testData != null)
+    {
+      testData.setUpInstanceData();
+    }
+  }
+
+  @After
+  public void tearDown()
+  {
+    if (testData != null)
+    {
+      testData.tearDownInstanceData();
+    }
   }
 
   @Request
@@ -73,13 +93,7 @@ public class MasterListServiceTest
     /*
      * Reload permissions for the new attributes
      */
-    SessionFacade.getSessionForRequest(adminCR.getSessionId()).reloadPermissions();
-  }
-
-  @AfterClass
-  public static void tearDown() throws IOException
-  {
-    testData.cleanUp();
+    SessionFacade.getSessionForRequest(testData.adminClientRequest.getSessionId()).reloadPermissions();
   }
 
   @Test
@@ -231,11 +245,11 @@ public class MasterListServiceTest
     JsonObject listJson = getJson(testData.STATE);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(adminCR.getSessionId(), listJson);
+    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
 
-    service.remove(adminCR.getSessionId(), oid);
+    service.remove(testData.adminClientRequest.getSessionId(), oid);
   }
 
   @Test
@@ -244,18 +258,18 @@ public class MasterListServiceTest
     JsonObject listJson = getJson(testData.STATE);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(adminCR.getSessionId(), listJson);
+    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
 
     try
     {
-      JsonArray results = service.listAll(adminCR.getSessionId());
+      JsonArray results = service.listAll(testData.adminClientRequest.getSessionId());
 
       Assert.assertEquals(1, results.size());
     }
     finally
     {
       String oid = result.get(ComponentInfo.OID).getAsString();
-      service.remove(adminCR.getSessionId(), oid);
+      service.remove(testData.adminClientRequest.getSessionId(), oid);
     }
   }
 

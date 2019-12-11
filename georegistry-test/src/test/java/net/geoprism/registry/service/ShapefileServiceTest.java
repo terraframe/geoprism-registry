@@ -43,7 +43,6 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
@@ -67,37 +66,24 @@ public class ShapefileServiceTest
 {
   protected USATestData        testData;
 
-  protected ClientRequestIF    adminCR;
-
   private AttributeTermType    testTerm;
 
   private AttributeIntegerType testInteger;
-
+  
   @Before
   public void setUp()
   {
     this.testData = USATestData.newTestData(false);
 
-    this.adminCR = testData.adminClientRequest;
-
     AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
+    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
 
     AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
-    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
+    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
 
     reload();
   }
-
-  @Request
-  public void reload()
-  {
-    /*
-     * Reload permissions for the new attributes
-     */
-    SessionFacade.getSessionForRequest(this.adminCR.getSessionId()).reloadPermissions();
-  }
-
+  
   @After
   public void tearDown() throws IOException
   {
@@ -105,19 +91,52 @@ public class ShapefileServiceTest
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
+  
+//  @Before
+//  public void setUp()
+//  {
+//    this.testData = USATestData.newTestData(false);
+//
+//    this.adminCR = testData.adminClientRequest;
+//
+//    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+//    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
+//
+//    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
+//    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
+//
+//    reload();
+//  }
+//  
+//  @After
+//  public void tearDown() throws IOException
+//  {
+//    testData.cleanUp();
+//
+//    FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
+//  }
+
+  @Request
+  public void reload()
+  {
+    /*
+     * Reload permissions for the new attributes
+     */
+    SessionFacade.getSessionForRequest(testData.adminClientRequest.getSessionId()).reloadPermissions();
+  }
 
   @Test
   @Request
   public void testGetAttributeInformation()
   {
-    PostalCodeFactory.remove(testData.STATE.getGeoObjectType());
+    PostalCodeFactory.remove(testData.STATE.getServerObject());
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
+    JsonObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
 
     Assert.assertFalse(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
 
@@ -179,7 +198,7 @@ public class ShapefileServiceTest
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
-    ServerGeoObjectType type = testData.STATE.getGeoObjectType();
+    ServerGeoObjectType type = testData.STATE.getServerObject();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
@@ -193,7 +212,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
+    JsonObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
 
     Assert.assertTrue(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
   }
@@ -214,7 +233,7 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
 
-    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "01", testData.STATE.getCode());
 
@@ -240,12 +259,12 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
 
-    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     /*
      * IMport the shapefile twice
      */
-    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "01", testData.STATE.getCode());
 
@@ -272,7 +291,7 @@ public class ShapefileServiceTest
     configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("ALAND"));
     configuration.setHierarchy(hierarchyType);
 
-    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "01", testData.STATE.getCode());
 
@@ -306,11 +325,13 @@ public class ShapefileServiceTest
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
+    configuration.setStartDate(new Date());
+    configuration.setEndDate(new Date());
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(), new BasicColumnFunction("LSAD")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD")));
 
-    service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     String sessionId = this.testData.adminClientRequest.getSessionId();
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
@@ -341,15 +362,15 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(), new BasicColumnFunction("LSAD")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD")));
     configuration.addExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, "00");
 
-    JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    JsonObject result = service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     Assert.assertFalse(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType());
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -372,9 +393,9 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(), new BasicColumnFunction("LSAD")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD")));
 
-    JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    JsonObject result = service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     Assert.assertTrue(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
 
@@ -383,7 +404,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, problems.size());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType());
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -393,7 +414,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithTerm()
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(this.testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -412,7 +433,7 @@ public class ShapefileServiceTest
       GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
       configuration.setHierarchy(hierarchyType);
 
-      service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+      service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
       String sessionId = this.testData.adminClientRequest.getSessionId();
       GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
@@ -421,7 +442,7 @@ public class ShapefileServiceTest
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(this.testData.adminClientRequest.getSessionId(), term.getCode());
 
       this.testData.refreshTerms(this.testTerm);
     }
@@ -444,7 +465,7 @@ public class ShapefileServiceTest
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), false);
     configuration.setHierarchy(hierarchyType);
 
-    JsonObject result = service.importShapefile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    JsonObject result = service.importShapefile(this.testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     Assert.assertTrue(result.has(GeoObjectConfiguration.TERM_PROBLEMS));
 
@@ -461,7 +482,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.get("attributeLabel").getAsString());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType());
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -469,7 +490,7 @@ public class ShapefileServiceTest
 
   private JsonObject getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm)
   {
-    JsonObject result = service.getShapefileConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
+    JsonObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
     JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 

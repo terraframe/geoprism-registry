@@ -18,18 +18,16 @@
  */
 package net.geoprism.registry.service;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
@@ -38,29 +36,47 @@ import net.geoprism.registry.test.USATestData;
 
 public class WMSServiceTest
 {
-  protected USATestData     testData;
+  protected static USATestData     testData;
 
-  protected ClientRequestIF adminCR;
-
+  @BeforeClass
+  public static void setUpClass()
+  {
+    testData = USATestData.newTestDataForClass();
+    testData.setUpMetadata();
+  }
+  
+  @AfterClass
+  public static void cleanUpClass()
+  {
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
+  }
+  
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(true);
-
-    this.adminCR = testData.adminClientRequest;
+    if (testData != null)
+    {
+      testData.setUpInstanceData();
+    }
   }
 
   @After
-  public void tearDown() throws IOException
+  public void tearDown()
   {
-    testData.cleanUp();
+    if (testData != null)
+    {
+      testData.tearDownInstanceData();
+    }
   }
 
   @Test
   @Request
   public void testCreateDeleteDatabaseViewOnTreeType() throws SQLException
   {
-    ServerGeoObjectType type = this.testData.STATE.getGeoObjectType();
+    ServerGeoObjectType type = this.testData.STATE.getServerObject();
 
     WMSService service = new WMSService();
 
@@ -89,7 +105,7 @@ public class WMSServiceTest
   @Request
   public void testCreateDeleteDatabaseViewOnLeafType() throws SQLException
   {
-    ServerGeoObjectType type = this.testData.DISTRICT.getGeoObjectType();
+    ServerGeoObjectType type = this.testData.DISTRICT.getServerObject();
 
     WMSService service = new WMSService();
 
