@@ -72,10 +72,10 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo, VertexComponent
 {
@@ -162,7 +162,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     // Populate the correct geom field
     String geometryAttribute = this.getGeometryAttributeName();
 
-    this.getVertex().setValue(geometryAttribute, geometry, null, null);
+    this.getVertex().setValue(geometryAttribute, geometry, this.date, null);
   }
 
   @Override
@@ -186,7 +186,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setStatus(GeoObjectStatus status)
   {
-    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), null, null);
+    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), this.date, null);
   }
 
   @Override
@@ -223,13 +223,13 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setUid(String uid)
   {
-    this.vertex.setValue(RegistryConstants.UUID, uid);
+    this.vertex.setValue(RegistryConstants.UUID, uid, this.date, null);
   }
 
   @Override
   public void setDisplayLabel(LocalizedValue value)
   {
-    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, null, null);
+    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, this.date, null);
   }
 
   @Override
@@ -315,11 +315,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
             String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
             Classifier classifier = Classifier.getByKey(classifierKey);
 
-            this.vertex.setValue(attributeName, classifier.getOid());
+            this.vertex.setValue(attributeName, classifier.getOid(), this.date, null);
           }
           else
           {
-            this.vertex.setValue(attributeName, (String) null);
+            this.vertex.setValue(attributeName, (String) null, this.date, null);
           }
         }
         else
@@ -328,11 +328,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
           if (value != null)
           {
-            this.vertex.setValue(attributeName, value);
+            this.vertex.setValue(attributeName, value, this.date, null);
           }
           else
           {
-            this.vertex.setValue(attributeName, (String) null);
+            this.vertex.setValue(attributeName, (String) null, this.date, null);
           }
         }
       }
@@ -360,9 +360,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         this.getValuesOverTime(attributeName).clear();
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
-          //GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+          // GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING
+          // :
+          // ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
           GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
-          
+
           this.setStatus(gos, votDTO.getStartDate(), votDTO.getEndDate());
         }
       }
@@ -1004,7 +1006,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           }
         }
       });
-      
+
       ValueOverTimeCollection votc = this.getValuesOverTime(this.getGeometryAttributeName());
       for (ValueOverTime vot : votc)
       {
@@ -1024,7 +1026,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public LocalizedValue getDisplayLabel()
   {
     GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), this.date);
-    
+
     if (graphObject == null)
     {
       return null;
@@ -1036,7 +1038,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public LocalizedValue getDisplayLabel(Date date)
   {
     GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), date);
-    
+
     if (graphObject == null)
     {
       return null;

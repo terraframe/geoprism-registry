@@ -14,6 +14,7 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public interface ServerGeoObjectIF
 {

@@ -50,9 +50,9 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public abstract class RelationalServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
@@ -323,7 +323,8 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     if (votcStatus.size() > 0)
     {
       ValueOverTimeDTO votDTO = votcStatus.get(votcStatus.size() - 1);
-//      GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING : ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+      // GeoObjectStatus gos = this.business.isNew() ? GeoObjectStatus.PENDING :
+      // ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
       GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
       this.setStatus(gos);
     }

@@ -8,8 +8,8 @@ import com.runwaysdk.session.Session;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class SetParentAction extends SetParentActionBase
 {

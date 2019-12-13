@@ -16,6 +16,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 /**
  * A wrapper class around a relational server geo object and a vertex server geo
