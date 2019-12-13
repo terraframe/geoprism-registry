@@ -49,9 +49,9 @@ import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 @Controller(url = "geoobject-editor")
 public class GeoObjectEditorController

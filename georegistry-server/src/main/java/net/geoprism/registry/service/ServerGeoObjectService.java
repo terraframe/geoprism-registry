@@ -1,6 +1,7 @@
 package net.geoprism.registry.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -17,8 +18,11 @@ import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.view.GeoObjectSplitView;
 
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
@@ -41,7 +45,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     // Return the refreshed copy of the geoObject
     return this.build(type, geoObject.getRunwayId());
   }
-  
+
   @Transaction
   public ServerGeoObjectIF apply(GeoObjectOverTime goTime, boolean isNew, boolean isImport)
   {
@@ -62,6 +66,37 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     return this.build(type, goServer.getRunwayId());
   }
 
+  @Transaction
+  public ServerGeoObjectIF split(GeoObjectSplitView view)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(view.getTypeCode());
+    ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
+
+    final ServerGeoObjectIF source = strategy.getGeoObjectByCode(view.getSourceCode());
+    source.setDate(view.getDate());
+
+    ServerGeoObjectIF target = strategy.newInstance();
+    target.setDate(view.getDate());
+    target.populate(source.toGeoObject());
+    target.setCode(view.getTargetCode());
+    target.setDisplayLabel(view.getLabel());
+    target.apply(false);
+
+    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false);
+
+    final List<ServerParentTreeNode> sParents = sNode.getParents();
+
+    for (ServerParentTreeNode sParent : sParents)
+    {
+      final ServerGeoObjectIF parent = sParent.getGeoObject();
+      final ServerHierarchyType hierarchyType = sParent.getHierarchyType();
+
+      target.addParent(parent, hierarchyType, view.getDate(), null);
+    }
+
+    return target;
+  }
+
   public ServerGeoObjectIF newInstance(ServerGeoObjectType type)
   {
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
@@ -77,7 +112,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     return strategy.constructFromGeoObject(go, false);
   }
-  
+
   public ServerGeoObjectIF getGeoObject(GeoObjectOverTime timeGO)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(timeGO.getType());
@@ -163,9 +198,9 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectQuery createQuery(ServerGeoObjectType type, Date date)
   {
-     return new VertexGeoObjectQuery(type, date);
-//    ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-//    return strategy.createQuery(date);
+    return new VertexGeoObjectQuery(type, date);
+    // ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
+    // return strategy.createQuery(date);
   }
 
 }

@@ -1,4 +1,4 @@
-package net.geoprism.registry.model;
+package net.geoprism.registry.view;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,6 +21,10 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 

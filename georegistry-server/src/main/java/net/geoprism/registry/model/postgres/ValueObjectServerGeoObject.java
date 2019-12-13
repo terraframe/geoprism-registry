@@ -49,9 +49,9 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class ValueObjectServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
 {
