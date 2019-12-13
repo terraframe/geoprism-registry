@@ -237,9 +237,9 @@ public class USATestData extends TestDataSet
       COLORADO.addChild(CO_C_ONE, LocatedIn);
       CO_C_ONE.addChild(CO_A_ONE, LocatedIn);
 
-//      USA.addChild(WASHINGTON, LocatedIn);
-//      WASHINGTON.addChild(WA_D_ONE, LocatedIn);
-//      WASHINGTON.addChild(WA_D_TWO, LocatedIn);
+      USA.addChild(WASHINGTON, LocatedIn);
+      WASHINGTON.addChild(WA_D_ONE, LocatedIn);
+      WASHINGTON.addChild(WA_D_TWO, LocatedIn);
 
       MEXICO.addChild(MEXICO_STATE_ONE, LocatedIn);
       MEXICO.addChild(MEXICO_STATE_TWO, LocatedIn);

@@ -50,7 +50,7 @@ public class TestGeoObjectTypeInfo
 
     protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey)
     {
-      initialize(testDataSet, genKey, GeometryType.POLYGON);
+      initialize(testDataSet, genKey, GeometryType.MULTIPOLYGON);
     }
     
     protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, GeometryType geomType)
@@ -61,9 +61,9 @@ public class TestGeoObjectTypeInfo
     private void initialize(TestDataSet testDataSet, String genKey, GeometryType geomType)
     {
       this.testDataSet = testDataSet;
-      this.code = this.testDataSet.getTestDataKey() + genKey + "Code";
-      this.displayLabel = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey + " Display Label");
-      this.description = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey + " Description");
+      this.code = this.testDataSet.getTestDataKey() + genKey;
+      this.displayLabel = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey);
+      this.description = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey);
       this.children = new LinkedList<TestGeoObjectTypeInfo>();
       this.geomType = geomType;
       this.isLeaf = false; // Leaf types are not supported anymore

@@ -9,6 +9,7 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.conversion.CompositeGeoObjectStrategy;
 import net.geoprism.registry.conversion.LeafGeoObjectStrategy;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -89,6 +90,14 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public ServerGeoObjectIF getGeoObjectByCode(String code, String typeCode)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+    
+    if (type == null)
+    {
+      DataNotFoundException ex = new DataNotFoundException();
+      ex.setDataIdentifier(typeCode);
+      throw ex;
+    }
+    
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
     return strategy.getGeoObjectByCode(code);
