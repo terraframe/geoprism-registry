@@ -112,6 +112,16 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_GET)
+  public ResponseIF getGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
+  {
+    GeoObjectOverTime geoObject = this.registryService.getGeoObjectOverTime(request.getSessionId(), id, typeCode);
+
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(geoObject.toJSON(serializer));
+  }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_GET_CODE)
   public ResponseIF getGeoObjectOverTimeByCode(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_CODE_PARAM_TYPE_CODE) String typeCode) throws JSONException

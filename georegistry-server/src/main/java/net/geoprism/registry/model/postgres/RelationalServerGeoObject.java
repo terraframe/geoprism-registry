@@ -101,7 +101,13 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   @Override
   public void setStatus(GeoObjectStatus status)
   {
-    this.getBusiness().setValue(DefaultAttribute.STATUS.getName(), status.getOid());
+    String oid = null;
+    if (status != null)
+    {
+      oid = status.getOid();
+    }
+    
+    this.getBusiness().setValue(DefaultAttribute.STATUS.getName(), oid);
   }
 
   @Override

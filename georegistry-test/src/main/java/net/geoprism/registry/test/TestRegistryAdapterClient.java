@@ -46,7 +46,6 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.registry.RegistryController;
-import net.geoprism.registry.model.ServerParentTreeNodeOverTime;
 
 public class TestRegistryAdapterClient extends RegistryAdapter
 {

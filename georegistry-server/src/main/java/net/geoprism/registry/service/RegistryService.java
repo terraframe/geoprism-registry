@@ -957,4 +957,19 @@ public class RegistryService
 
     return object.toGeoObjectOverTime();
   }
+
+  @Request(RequestType.SESSION)
+  public GeoObjectOverTime getGeoObjectOverTime(String sessionId, String id, String typeCode)
+  {
+    ServerGeoObjectIF object = this.service.getGeoObject(id, typeCode);
+    
+    if (object == null)
+    {
+      DataNotFoundException ex = new DataNotFoundException();
+      ex.setDataIdentifier(id);
+      throw ex;
+    }
+
+    return object.toGeoObjectOverTime();
+  }
 }

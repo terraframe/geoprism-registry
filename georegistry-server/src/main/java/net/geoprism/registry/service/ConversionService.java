@@ -95,6 +95,11 @@ public class ConversionService
 
   public GeoObjectStatus termToGeoObjectStatus(Term term)
   {
+    if (term == null)
+    {
+      return null;
+    }
+    
     return this.termToGeoObjectStatus(term.getCode());
   }
 
