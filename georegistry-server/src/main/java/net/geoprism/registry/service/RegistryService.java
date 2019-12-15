@@ -46,7 +46,6 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
@@ -61,11 +60,13 @@ import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
@@ -163,6 +164,13 @@ public class RegistryService
   public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(uid, geoObjectTypeCode);
+    
+    if (object == null)
+    {
+	  DataNotFoundException ex = new DataNotFoundException();
+	  ex.setDataIdentifier(uid);
+      throw ex;
+    }
 
     return object.toGeoObject();
   }
@@ -171,6 +179,13 @@ public class RegistryService
   public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode)
   {
     ServerGeoObjectIF object = service.getGeoObjectByCode(code, typeCode);
+    
+    if (object == null)
+    {
+	  DataNotFoundException ex = new DataNotFoundException();
+	  ex.setDataIdentifier(code);
+      throw ex;
+    }
 
     return object.toGeoObject();
   }
@@ -299,7 +314,9 @@ public class RegistryService
       }
       else
       {
-        throw new DataNotFoundException("Unable to find Geo Object Type with code [" + codes[i] + "]", MdBusinessDAO.getMdBusinessDAO(Universal.CLASS));
+    	DataNotFoundException ex = new DataNotFoundException();
+    	ex.setDataIdentifier(codes[i]);
+        throw ex;
       }
     }
 
@@ -937,6 +954,21 @@ public class RegistryService
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
 
     ServerGeoObjectIF object = service.apply(goTime, true, false);
+
+    return object.toGeoObjectOverTime();
+  }
+
+  @Request(RequestType.SESSION)
+  public GeoObjectOverTime getGeoObjectOverTime(String sessionId, String id, String typeCode)
+  {
+    ServerGeoObjectIF object = this.service.getGeoObject(id, typeCode);
+    
+    if (object == null)
+    {
+      DataNotFoundException ex = new DataNotFoundException();
+      ex.setDataIdentifier(id);
+      throw ex;
+    }
 
     return object.toGeoObjectOverTime();
   }

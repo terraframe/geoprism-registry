@@ -1,0 +1,15 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.DataNotFoundException" label="Data Not Found Exception" description="Thrown when a user requests data which does not exist." message="You requested data which does not exist. [{dataIdentifier}]">
+        <attributes>
+          <text name="dataIdentifier" label="Data Identifier" required="true" />
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

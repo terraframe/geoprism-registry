@@ -646,9 +646,16 @@ public class ServerGeoObjectType
 
   public static ServerGeoObjectType get(String code)
   {
-    GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
+    Optional<GeoObjectType> geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code);
 
-    return get(geoObjectType);
+    if (geoObjectType.isPresent())
+    {
+      return get(geoObjectType.get());
+    }
+    else
+    {
+      return null;
+    }
   }
 
   public static ServerGeoObjectType get(GeoObjectType geoObjectType)

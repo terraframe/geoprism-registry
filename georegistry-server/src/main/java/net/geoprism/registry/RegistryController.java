@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import net.geoprism.registry.service.RegistryService;
+
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -43,6 +45,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -51,8 +54,6 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
-
-import net.geoprism.registry.service.RegistryService;
 
 @Controller(url = RegistryUrls.REGISTRY_CONTROLLER_URL)
 public class RegistryController
@@ -106,6 +107,16 @@ public class RegistryController
   public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
   {
     GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), id, typeCode);
+
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(geoObject.toJSON(serializer));
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_GET)
+  public ResponseIF getGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
+  {
+    GeoObjectOverTime geoObject = this.registryService.getGeoObjectOverTime(request.getSessionId(), id, typeCode);
 
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 

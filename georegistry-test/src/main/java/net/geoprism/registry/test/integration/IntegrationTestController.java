@@ -45,7 +45,12 @@ public class IntegrationTestController
     lock.lock();
     try
     {
-      IntegrationTestController.testData = USATestData.newTestData();
+      //IntegrationTestController.testData = USATestData.newTestData();
+      //AndroidIntegrationTestDatabaseBuilder.build(testData);
+    	
+      IntegrationTestController.testData = USATestData.newTestDataForClass();
+      testData.setUpMetadata();
+      testData.setUpInstanceData();
       AndroidIntegrationTestDatabaseBuilder.build(testData);
     }
     finally
@@ -64,7 +69,7 @@ public class IntegrationTestController
       lock.lock();
       try
       {
-        IntegrationTestController.testData.cleanUp();
+    	  testData.tearDownInstanceData();
       }
       finally
       {
