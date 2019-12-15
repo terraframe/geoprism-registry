@@ -18,17 +18,10 @@
  */
 package net.geoprism.registry.service;
 
-import java.util.List;
-import java.util.Locale;
-
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
-import com.runwaysdk.business.LocalStruct;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 
 import net.geoprism.registry.GeoObjectStatus;
 

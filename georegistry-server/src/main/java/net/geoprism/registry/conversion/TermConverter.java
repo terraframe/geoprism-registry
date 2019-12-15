@@ -33,7 +33,6 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.ServiceFactory;
 
 /**
  * Responsible for building {@link Term} objects from Runway {@link Classifier}

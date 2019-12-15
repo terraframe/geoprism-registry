@@ -80,37 +80,36 @@ export class HierarchyComponent implements OnInit {
     }
 
     ngOnInit(): void {
-      this.refreshAll(null);
+        this.refreshAll( null );
     }
 
     ngAfterViewInit() {
 
     }
-    
-    public refreshAll(desiredHierarchy)
-    {
-      this.registryService.init().then( response => {
-          this.localizeService.setLocales( response.locales );
 
-          this.geoObjectTypes = response.types;
+    public refreshAll( desiredHierarchy ) {
+        this.registryService.init().then( response => {
+            this.localizeService.setLocales( response.locales );
 
-          this.geoObjectTypes.sort(( a, b ) => {
-              if ( a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase() ) return -1;
-              else if ( a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase() ) return 1;
-              else return 0;
-          } );
+            this.geoObjectTypes = response.types;
 
-          let pos = this.getGeoObjectTypePosition( "ROOT" );
-          if ( pos ) {
-              this.geoObjectTypes.splice( pos, 1 );
-          }
+            this.geoObjectTypes.sort(( a, b ) => {
+                if ( a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase() ) return -1;
+                else if ( a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase() ) return 1;
+                else return 0;
+            } );
 
-          this.setHierarchies( response.hierarchies );
+            let pos = this.getGeoObjectTypePosition( "ROOT" );
+            if ( pos ) {
+                this.geoObjectTypes.splice( pos, 1 );
+            }
 
-          this.setNodesOnInit(desiredHierarchy);
-      } ).catch(( err: HttpErrorResponse ) => {
-          this.error( err );
-      } );
+            this.setHierarchies( response.hierarchies );
+
+            this.setNodesOnInit( desiredHierarchy );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
     }
 
     public excludeHierarchyTypeDeletes( hierarchy: HierarchyType ) {
@@ -121,22 +120,30 @@ export class HierarchyComponent implements OnInit {
         return ( this.geoObjectTypeDeleteExclusions.indexOf( geoObjectType.code ) !== -1 );
     }
 
-    private setNodesOnInit(desiredHierarchy): void {
-        for ( let i = 0; i < this.hierarchies.length; i++ ) {
-            let hierarchy = this.hierarchies[i];
-            if ( hierarchy.rootGeoObjectTypes.length > 0 ) {
-                this.nodes = hierarchy.rootGeoObjectTypes;
-                
-                this.currentHierarchy = hierarchy;
-                break;
-            }
+    private setNodesOnInit( desiredHierarchy ): void {
+
+        let index = -1;
+
+        if ( desiredHierarchy != null ) {
+            index = this.hierarchies.findIndex( h => h.code === desiredHierarchy.code );
+        }
+        else if ( this.hierarchies.length > 0 ) {
+            index = 0;
         }
 
-        setTimeout(() => {
-            if ( this.tree ) {
-                this.tree.treeModel.expandAll();
-            }
-        }, 1 )
+        if ( index > -1 ) {
+            let hierarchy = this.hierarchies[index];
+
+            this.nodes = hierarchy.rootGeoObjectTypes;
+
+            this.currentHierarchy = hierarchy;
+
+            setTimeout(() => {
+                if ( this.tree ) {
+                    this.tree.treeModel.expandAll();
+                }
+            }, 1 )
+        }
     }
 
     private setNodesForHierarchy( hierarchyType: HierarchyType ): void {
@@ -313,7 +320,7 @@ export class HierarchyComponent implements OnInit {
         this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + obj.label.localizedValue + ']';
         this.bsModalRef.content.data = obj.code;
         this.bsModalRef.content.type = "DANGER";
-        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
 
         ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
             this.removeHierarchyType( data );
@@ -331,7 +338,7 @@ export class HierarchyComponent implements OnInit {
         this.bsModalRef.content.hierarchyType = obj;
         this.bsModalRef.content.onHierarchytTypeCreate.subscribe( data => {
             let pos = this.getHierarchyTypePosition( data.code );
-            
+
             this.hierarchies[pos].label = data.label;
             this.hierarchies[pos].description = data.description;
         } );
@@ -349,21 +356,6 @@ export class HierarchyComponent implements OnInit {
     }
 
     public createGeoObjectType(): void {
-        this.bsModalRef = this.modalService.show( CreateGeoObjTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-            'class': 'upload-modal'
-        } );
-        this.bsModalRef.content.hierarchyType = this.currentHierarchy;
-
-        ( <CreateGeoObjTypeModalComponent>this.bsModalRef.content ).onGeoObjTypeCreate.subscribe( data => {
-            this.geoObjectTypes.push( data );
-        } );
-    }
-
-    public createRootGeoObjectType(): void {
-
         this.bsModalRef = this.modalService.show( CreateGeoObjTypeModalComponent, {
             animated: true,
             backdrop: true,
@@ -395,7 +387,7 @@ export class HierarchyComponent implements OnInit {
 
     public removeGeoObjectType( code: string ): void {
         this.registryService.deleteGeoObjectType( code ).then( response => {
-            
+
             let pos = this.getGeoObjectTypePosition( code );
             this.geoObjectTypes.splice( pos, 1 );
 
@@ -410,9 +402,9 @@ export class HierarchyComponent implements OnInit {
             //
             //        this.tree.treeModel.update();
             //this.setNodesOnInit();
-            
-            this.refreshAll(null);
-            
+
+            this.refreshAll( this.currentHierarchy );
+
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
@@ -538,14 +530,13 @@ export class HierarchyComponent implements OnInit {
 
     public removeTreeNode( node: TreeNode ): void {
         this.hierarchyService.removeFromHierarchy( this.currentHierarchy.code, node.parent.data.geoObjectType, node.data.geoObjectType ).then( data => {
-        
-            if (node.parent.data.geoObjectType == null)
-            {
-              this.nodes = [];
-              // this.refreshAll(null);
-              //return;
+
+            if ( node.parent.data.geoObjectType == null ) {
+                this.nodes = [];
+                // this.refreshAll(null);
+                //return;
             }
-        
+
             const parent = node.parent;
             let children = parent.data.children;
 
@@ -555,7 +546,7 @@ export class HierarchyComponent implements OnInit {
                 parent.data.hasChildren = false;
             }
             this.tree.treeModel.update();
-            
+
             // Update the available GeoObjectTypes
             this.changeDetectorRef.detectChanges()
 

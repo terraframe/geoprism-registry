@@ -20,7 +20,6 @@ package net.geoprism.registry.action.geoobject;
 
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONObject;

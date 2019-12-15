@@ -57,6 +57,16 @@
         <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable"  (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
         -->
 
+<!-- 
+        <div class="row-holder">
+            <div class="label-holder">Notes</div>
+            <div class="holder">
+                <div class="button-holder text-left">
+                  <textarea rows="5" cols="20"></textarea>
+                </div>
+            </div>
+        </div>
+ -->
         <div class="row-holder">
             <div class="label-holder"></div>
             <div class="holder">

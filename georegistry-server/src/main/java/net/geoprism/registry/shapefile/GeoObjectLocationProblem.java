@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.shapefile;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 

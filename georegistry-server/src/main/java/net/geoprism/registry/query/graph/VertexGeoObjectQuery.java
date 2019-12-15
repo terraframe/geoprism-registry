@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;

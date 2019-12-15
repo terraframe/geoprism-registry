@@ -30,8 +30,6 @@ import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.RelationshipDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdAttributeEmbeddedDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.service.ServiceFactory;

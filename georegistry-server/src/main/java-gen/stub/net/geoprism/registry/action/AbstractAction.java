@@ -25,8 +25,6 @@ import org.json.JSONObject;
 
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.action.AbstractActionBase;
-import net.geoprism.registry.action.ActionFactory;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 

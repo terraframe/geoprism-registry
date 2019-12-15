@@ -47,9 +47,9 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdTerm;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
+import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.postgres.ValueObjectContainer;
 
 public class GeoObjectUtil

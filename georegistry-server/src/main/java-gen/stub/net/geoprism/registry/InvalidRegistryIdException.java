@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry;
 
-import net.geoprism.registry.InvalidRegistryIdExceptionBase;
-
 public class InvalidRegistryIdException extends InvalidRegistryIdExceptionBase
 {
   private static final long serialVersionUID = 1366592182;

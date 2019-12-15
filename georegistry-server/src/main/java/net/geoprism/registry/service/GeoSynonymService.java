@@ -5,7 +5,6 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.DataUploader;
 import net.geoprism.registry.graph.GeoVertexSynonym;
 
 public class GeoSynonymService

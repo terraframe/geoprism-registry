@@ -16,11 +16,9 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.AttributeLocalIF;
-import com.runwaysdk.query.LeftJoinEq;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.ValueQuery;
 
-import net.geoprism.ontology.ClassifierQuery;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.postgres.ValueObjectServerGeoObject;

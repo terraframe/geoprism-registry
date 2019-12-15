@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.business.ontology.OntologyStrategyBuilderIF;
 import com.runwaysdk.business.ontology.OntologyStrategyFactory;
 import com.runwaysdk.business.ontology.OntologyStrategyIF;
-import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
@@ -33,7 +32,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
-import com.runwaysdk.system.graph.ChangeFrequency;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
@@ -45,7 +43,6 @@ import net.geoprism.GeoprismPatcherIF;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatcherIF
 {

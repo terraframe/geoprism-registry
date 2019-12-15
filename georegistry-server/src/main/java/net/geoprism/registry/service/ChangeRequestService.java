@@ -20,12 +20,6 @@ package net.geoprism.registry.service;
 
 import java.util.Iterator;
 
-import net.geoprism.registry.action.AbstractAction;
-import net.geoprism.registry.action.AbstractActionQuery;
-import net.geoprism.registry.action.AllGovernanceStatus;
-import net.geoprism.registry.action.ChangeRequest;
-import net.geoprism.registry.action.ChangeRequestQuery;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,6 +29,12 @@ import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+
+import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AbstractActionQuery;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestQuery;
 
 public class ChangeRequestService
 {
