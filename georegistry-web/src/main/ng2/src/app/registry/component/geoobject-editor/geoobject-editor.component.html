@@ -17,11 +17,9 @@
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
                         <localize key="geoobject.editor.tabOne"></localize>
                     </label>
-                    <!--
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2}" (click)="this.changePage(2);">
                         <localize key="geoobject.editor.tabTwo"></localize>
                     </label>
-                    -->
                 </div>
             </div>
         </div>
@@ -50,12 +48,7 @@
         </div>
 
          <!-- Geometry tab -->
-         <!--
-         <manage-versions-modal *ngIf="this.tabIndex === 2" [geoObjectOverTime]="this.goGeometries" [geoObjectType]="this.geoObjectType" [attribute]="this.goGeometries.attributes.geometry"></manage-versions-modal>
-         -->
-        <!--
         <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable"  (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
-        -->
 
 <!-- 
         <div class="row-holder">

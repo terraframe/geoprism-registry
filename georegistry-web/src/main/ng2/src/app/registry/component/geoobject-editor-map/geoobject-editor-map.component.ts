@@ -25,7 +25,7 @@ declare var acp: string;
 
 
 @Component( {
-    selector: 'geoobject-editor-map',
+    selector: 'geoobject-editor-map[geometryType][geometryChange]',
     templateUrl: './geoobject-editor-map.component.html',
     styleUrls: ['./geoobject-editor-map.component.css']
 } )
@@ -36,59 +36,57 @@ declare var acp: string;
  */
 export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
-    /* 
-     * mapbox-gl map
+    /*
+     * Required. The GeometryType of the GeoJSON. Typically this can be found on the GeoObjectType.
      */
+    @Input() geometryType: string;
+    
+    /*
+     * Required. We will invoke this event with GeoJSON when the user makes an edit to the geometry.
+     */
+    @Output() geometryChange = new EventEmitter<string>();
+    
+    /*
+     * Optional. If specified, we will diff based on this GeoJSON geometry.
+     */
+    @Input() preGeometry: string;
+    
+    /*
+     * Optional. This is the actual editable GeoJSON geometry which will be mapped.
+     */
+    @Input() postGeometry: string;
+    
+    /*
+     * Optional. If specified, we will fetch the bounding box from this GeoObject code.
+     */
+    @Input() boundCode: string;
+    
+    /*
+     * Optional. If specified, we will fetch the bounding box from this GeoObjectType code.
+     */
+    @Input() boundType: string;
+    
+    /*
+     * Optional. If set to true the edit controls will not be displayed. Defaults to false.
+     */
+    @Input() readOnly: boolean = false;
+    
     map: Map;
 
-    /* 
-     * Draw control
-     */
-    draw: MapboxDraw;
-
     editingControl: any;
-
-    geoprismEditingControl: any;
-
-    isEditing: boolean;
-
-    postGeoObjectProperties: any;
-
-    /*
-     * The state of the GeoObject after our edit has been applied 
-     */
-    @Input() postGeoObject: GeoObjectOverTime;
-
-    @Input() preGeoObject: GeoObjectOverTime;
-
-    @Input() geoObjectType: GeoObjectType;
-
-    @Input() isNew: boolean;
-
-    @Output() valid = new EventEmitter<any>();
-
-    @Input() readOnly: boolean = false;
-
-    @Input() vAttribute: any;
-
-    geometryValue: any;
 
     constructor( private registryService: RegistryService ) {
 
     }
 
-    ngOnInit(): void {
-        this.geometryValue = this.vAttribute.value;
+    ngOnInit(): void
+    {
     }
 
     ngAfterViewInit() {
         setTimeout(() => {
             //this.registryService.getGeoObjectOverTime( "22", "Province" )
             //.then( geoObject => {
-            //this.postGeoObject = geoObject;
-            //this.preGeoObject = geoObject
-
-            this.preGeoObject = this.postGeoObject;
 
             ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
 
@@ -142,100 +140,85 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     private onValidChange(): void {
-        //this.valid.emit(this.saveDraw());
-        this.vAttribute.value = this.saveDraw();
+      this.geometryChange.emit(this.saveDraw());
     }
 
     initMap(): void {
 
         this.map.on( 'style.load', () => {
             this.addLayers();
-            this.refresh( false );
+            this.onValidChange();
         } );
 
         this.addLayers();
 
-        this.refresh( true );
+        this.zoomToBbox();
 
         // Add zoom and rotation controls to the map.
         this.map.addControl( new NavigationControl() );
 
         if ( !this.readOnly ) {
-            this.enableEditing( true );
+          this.enableEditing();
         }
+        
+        this.onValidChange();
     }
 
-    enableEditing( enabled: boolean ): void {
-        if ( enabled ) {
-            var gt = this.geoObjectType.geometryType.toUpperCase();
-            if ( gt === "MULTIPOLYGON" || gt === "POLYGON" ) {
-                this.editingControl = new MapboxDraw( {
-                    controls: {
-                        point: false,
-                        line_string: false,
-                        polygon: true,
-                        trash: true,
-                        combine_features: false,
-                        uncombine_features: false
-                    }
-                } );
-            }
-            else if ( gt === "POINT" || gt === "MULTIPOINT" ) {
-                this.editingControl = new MapboxDraw( {
-                    controls: {
-                        point: true,
-                        line_string: false,
-                        polygon: false,
-                        trash: true,
-                        combine_features: false,
-                        uncombine_features: false
-                    }
-                } );
-            }
-            else if ( gt === "LINE" || gt === "MULTILINE" ) {
-                this.editingControl = new MapboxDraw( {
-                    controls: {
-                        point: false,
-                        line_string: true,
-                        polygon: false,
-                        trash: true,
-                        combine_features: false,
-                        uncombine_features: false
-                    }
-                } );
-            }
-            this.map.addControl( this.editingControl );
-
-            if ( this.postGeoObject.attributes.type != null && this.postGeoObject.attributes.geometry != null ) {
-                this.editingControl.add( this.geometryValue );
-            }
-        }
-        else {
-            if ( this.editingControl != null ) {
-                this.geometryValue = this.saveDraw();
-                this.map.removeControl( this.editingControl );
-
-                this.editingControl = null;
-            }
-            this.readOnly = true;
-
-            this.removeSource( "pre" );
-            this.removeSource( "post" );
-            this.addLayers();
-        }
+    enableEditing(): void {
+	    if ( this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON" ) {
+	        this.editingControl = new MapboxDraw( {
+	            controls: {
+	                point: false,
+	                line_string: false,
+	                polygon: true,
+	                trash: true,
+	                combine_features: false,
+	                uncombine_features: false
+	            }
+	        } );
+	    }
+	    else if ( this.geometryType === "POINT" || this.geometryType === "MULTIPOINT" ) {
+	        this.editingControl = new MapboxDraw( {
+	            controls: {
+	                point: true,
+	                line_string: false,
+	                polygon: false,
+	                trash: true,
+	                combine_features: false,
+	                uncombine_features: false
+	            }
+	        } );
+	    }
+	    else if ( this.geometryType === "LINE" || this.geometryType === "MULTILINE" ) {
+	        this.editingControl = new MapboxDraw( {
+	            controls: {
+	                point: false,
+	                line_string: true,
+	                polygon: false,
+	                trash: true,
+	                combine_features: false,
+	                uncombine_features: false
+	            }
+	        } );
+	    }
+	    this.map.addControl( this.editingControl );
+	
+	    if (this.postGeometry != null)
+	    {
+	      this.editingControl.add( this.postGeometry );
+	    }
     }
 
     removeSource( prefix: string ): void {
         let sourceName: string = prefix + "-geoobject";
-        var gt = this.geoObjectType.geometryType.toUpperCase();
 
-        if ( gt === "MULTIPOLYGON" || gt === "POLYGON" ) {
+        if ( this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON" ) {
             this.map.removeLayer( sourceName + "-polygon" );
         }
-        else if ( gt === "POINT" || gt === "MULTIPOINT" ) {
+        else if ( this.geometryType === "POINT" || this.geometryType === "MULTIPOINT" ) {
             this.map.removeLayer( sourceName + "-point" );
         }
-        else if ( gt === "LINE" || gt === "MULTILINE" ) {
+        else if ( this.geometryType === "LINE" || this.geometryType === "MULTILINE" ) {
             this.map.removeLayer( sourceName + "-line" );
         }
 
@@ -243,15 +226,15 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     addLayers(): void {
-        if ( this.preGeoObject != null ) {
-            this.renderGeoObjectAsLayer( this.preGeoObject, "pre", "#EFA22E" )
+        if ( this.preGeometry != null ) {
+            this.renderGeometryAsLayer( this.preGeometry, "pre", "#EFA22E" )
         }
-        if ( this.readOnly && this.geometryValue != null ) {
-            this.renderGeoObjectAsLayer( this.geometryValue, "post", "#3368EF" );
+        if ( this.readOnly && this.postGeometry != null ) {
+            this.renderGeometryAsLayer( this.postGeometry, "post", "#3368EF" );
         }
     }
 
-    renderGeoObjectAsLayer( geoObject: GeoObjectOverTime, prefix: string, color: string ) {
+    renderGeometryAsLayer( geometry: string, prefix: string, color: string ) {
         let sourceName: string = prefix + "-geoobject";
 
         this.map.addSource( sourceName, {
@@ -261,9 +244,8 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                 "features": []
             }
         } );
-
-        var gt = this.geoObjectType.geometryType.toUpperCase();
-        if ( gt === "MULTIPOLYGON" || gt === "POLYGON" ) {
+        
+        if ( this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON" ) {
             // Polygon Layer
             this.map.addLayer( {
                 "id": sourceName + "-polygon",
@@ -276,7 +258,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                 },
             } );
         }
-        else if ( gt === "POINT" || gt === "MULTIPOINT" ) {
+        else if ( this.geometryType === "POINT" || this.geometryType === "MULTIPOINT" ) {
             // Point layer
             this.map.addLayer( {
                 "id": sourceName + "-point",
@@ -290,7 +272,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                 }
             } );
         }
-        else if ( gt === "LINE" || gt === "MULTILINE" ) {
+        else if ( this.geometryType === "LINE" || this.geometryType === "MULTILINE" ) {
             this.map.addLayer( {
                 "id": sourceName + "-line",
                 "source": sourceName,
@@ -306,27 +288,19 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
             } );
         }
 
-        ( <any>this.map.getSource( sourceName ) ).setData( this.geometryValue );
+        ( <any>this.map.getSource( sourceName ) ).setData( geometry );
     }
 
-    refresh( zoom: boolean ): void {
-        if ( zoom && this.geometryValue != null && !this.isNew ) {
+    zoomToBbox(): void {
+      if ( this.boundCode != null && this.boundType != null ) {
+        this.registryService.getGeoObjectBounds( this.boundCode, this.boundType ).then( boundArr => {
+            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
 
-            let code: string = this.preGeoObject.attributes.code;
-            let type: string = this.preGeoObject.attributes.type;
-
-            if ( code != null && type != null ) {
-                this.registryService.getGeoObjectBounds( code, type ).then( boundArr => {
-                    let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
-
-                    this.map.fitBounds( bounds, { padding: 50 } );
-                } ).catch(( err: HttpErrorResponse ) => {
-                    this.error( err );
-                } );
-            }
-        }
-
-        this.onValidChange();
+            this.map.fitBounds( bounds, { padding: 50 } );
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+      }
     }
 
     saveDraw(): GeoObjectOverTime {
@@ -338,7 +312,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                 // The first Feature is our GeoObject.
 
                 // Any additional features were created using the draw editor. Combine them into the GeoObject if its a multi-polygon.
-                if ( this.geoObjectType.geometryType.toUpperCase() === "MULTIPOLYGON" ) {
+                if ( this.geometryType === "MULTIPOLYGON" ) {
                     let polygons = [];
 
                     for ( let i = 0; i < featureCollection.features.length; i++ ) {
@@ -354,12 +328,12 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                         }
                     }
 
-                    this.geometryValue = {
+                    return {
                         coordinates: polygons,
                         type: 'MultiPolygon'
                     };
                 }
-                else if ( this.geoObjectType.geometryType.toUpperCase() === "MULTIPOINT" ) {
+                else if ( this.geometryType === "MULTIPOINT" ) {
                     let points = [];
 
                     for ( let i = 0; i < featureCollection.features.length; i++ ) {
@@ -375,12 +349,12 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                         }
                     }
 
-                    this.geometryValue = {
+                    return {
                         coordinates: points,
                         type: 'MultiPoint'
                     };
                 }
-                else if ( this.geoObjectType.geometryType.toUpperCase() === "MULTILINE" ) {
+                else if ( this.geometryType === "MULTILINE" ) {
                     let lines = [];
 
                     for ( let i = 0; i < featureCollection.features.length; i++ ) {
@@ -396,20 +370,20 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                         }
                     }
 
-                    this.geometryValue = {
+                    return {
                         coordinates: lines,
                         type: 'MultiLineString'
                     };
                 }
                 else {
-                    this.geometryValue = featureCollection.features[0].geometry;
+                  return featureCollection.features[0].geometry;
                 }
             }
 
-            return this.geometryValue;
+            return this.postGeometry;
         }
 
-        return this.geometryValue;
+        return this.postGeometry;
     }
 
     public error( err: HttpErrorResponse ): void {
