@@ -57,21 +57,21 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 public class GeoObjectEditorController
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
   {
-    applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId);
+    applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId, notes);
 
     return new RestResponse();
   }
 
   @Request(RequestType.SESSION)
-  public GeoObjectOverTime applyInReq(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId)
+  public GeoObjectOverTime applyInReq(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId, String notes)
   {
-    return applyInTransaction(sessionId, ptn, sGO, isNew, masterListId);
+    return applyInTransaction(sessionId, ptn, sGO, isNew, masterListId, notes);
   }
 
   @Transaction
-  private GeoObjectOverTime applyInTransaction(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId)
+  private GeoObjectOverTime applyInTransaction(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId, String notes)
   {
     Map<String, String> roles = Session.getCurrentSession().getUserRoles();
 
@@ -84,6 +84,7 @@ public class GeoObjectEditorController
 
       ChangeRequest request = new ChangeRequest();
       request.addApprovalStatus(AllGovernanceStatus.PENDING);
+      request.setContributorNotes(notes);
       request.apply();
 
       if (!isNew)
@@ -93,6 +94,7 @@ public class GeoObjectEditorController
         action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
         action.setGeoObjectJson(sGO);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
         action.apply();
         request.addAction(action).apply();
       }
@@ -103,6 +105,7 @@ public class GeoObjectEditorController
         action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
         action.setGeoObjectJson(sGO);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
         action.apply();
 
         request.addAction(action).apply();
@@ -115,6 +118,7 @@ public class GeoObjectEditorController
       action.setChildTypeCode(timeGO.getType().getCode());
       action.setJson(sPtn);
       action.setApiVersion(CGRAdapterProperties.getApiVersion());
+      action.setContributorNotes(notes);
       action.apply();
 
       request.addAction(action).apply();

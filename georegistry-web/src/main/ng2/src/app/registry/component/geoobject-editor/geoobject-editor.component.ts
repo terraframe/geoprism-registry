@@ -50,6 +50,7 @@ export class GeoObjectEditorComponent implements OnInit {
     dataSource: Observable<any>;
 
     masterListId: string;
+    notes: string;
 
     isNewGeoObject: boolean = false;
 
@@ -109,6 +110,7 @@ export class GeoObjectEditorComponent implements OnInit {
     constructor( private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
         private localizeService: LocalizationService, private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, authService: AuthService ) {
+        
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
@@ -313,7 +315,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
             this.persistModelChanges();
 
-            this.registryService.applyGeoObjectEdit( this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId )
+            this.registryService.applyGeoObjectEdit( this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId, this.notes )
                 .then(() => {
 
                     if ( this.onSuccessCallback != null ) {

@@ -1,6 +1,6 @@
 <div class="modal-body text-center">
     
-    <form class="modal-form" style="overflow: visible;">
+    <form class="modal-form" style="overflow: visible;" #goForm="ngForm">
         <div class="row-holder" *ngIf="this.tabIndex != 2">
             <div class="label-holder"><label><localize key="masterlist.forDate"></localize></label></div>
             <div class="holder">
@@ -57,16 +57,13 @@
         <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable"  (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
         -->
 
-<!-- 
-        <div class="row-holder">
-            <div class="label-holder">Notes</div>
+        <div *ngIf="!isMaintainer" class="row-holder">
+            <div class="label-holder"><label><localize key="change.request.action.detail.contributorNotes"></localize></label></div>
             <div class="holder">
-                <div class="button-holder text-left">
-                  <textarea rows="5" cols="20"></textarea>
-                </div>
+              <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="notes" name="notes" required></textarea>
             </div>
         </div>
- -->
+        
         <div class="row-holder">
             <div class="label-holder"></div>
             <div class="holder">
@@ -74,8 +71,8 @@
                     <button type="button" class="btn btn-default" (click)="cancel()">
                         <localize key="modal.button.cancel"></localize>
                     </button>
-                    <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="!this.isValid">
-                        <localize key="modal.button.submit"></localize>
+                    <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="goForm.invalid || !this.isValid">
+                        <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
                     </button>
                 </div>
             </div>

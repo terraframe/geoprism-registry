@@ -359,7 +359,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    getLocales( ): Promise<string[]> {
+    getLocales(): Promise<string[]> {
         let params: HttpParams = new HttpParams();
 
         return this.http
@@ -391,7 +391,7 @@ export class RegistryService {
             .toPromise();
 
     }
-    
+
     newGeoObjectOverTime( typeCode: string ): Promise<any> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -407,7 +407,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    
+
 
 
     // getAttributeVersions( geoObjectCode: string, geoObjectTypeCode: string, attributeName: string ): any[] {
@@ -525,15 +525,21 @@ export class RegistryService {
     /*
      * Not really part of the RegistryService
      */
-    applyGeoObjectEdit( parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string ): Promise<void> {
+    applyGeoObjectEdit( parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string, notes: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
+        let params = { parentTreeNode: parentTreeNode, geoObject: geoObject, isNew: isNew, masterListId: masterListId };
+
+        if ( notes != null ) {
+            params['notes'] = notes;
+        }
+
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/geoobject-editor/apply', JSON.stringify( { parentTreeNode: parentTreeNode, geoObject: geoObject, isNew: isNew, masterListId: masterListId } ), { headers: headers } )
+            .post<void>( acp + '/geoobject-editor/apply', JSON.stringify( params ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
