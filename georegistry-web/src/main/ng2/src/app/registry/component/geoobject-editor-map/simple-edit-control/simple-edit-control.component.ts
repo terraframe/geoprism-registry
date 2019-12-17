@@ -22,7 +22,7 @@ export class SimpleEditControl {
   }
   
   onRemove(map): void {
-    
+    this.elRef.nativeElement.remove();
   }
   
   onClick(): void {

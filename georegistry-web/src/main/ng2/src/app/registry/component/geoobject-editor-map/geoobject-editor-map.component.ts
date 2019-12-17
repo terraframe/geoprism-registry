@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, SimpleChanges, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -54,7 +54,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     @Input() preGeometry: any;
     
     /*
-     * Optional. This is the actual editable GeoJSON geometry which will be mapped.
+     * Optional. If we are read-only, this will be displayed as a layer. If we are not, it will be editable.
      */
     @Input() postGeometry: any;
     
@@ -99,9 +99,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-      
-    
-        setTimeout(() => {
+      setTimeout(() => {
             //this.registryService.getGeoObjectOverTime( "22", "Province" )
             //.then( geoObject => {
 
@@ -134,6 +132,22 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
             //    this.error( err );
             //} );
         }, 10 );
+    }
+    
+    ngOnChanges(changes: SimpleChanges)
+    {
+      if ( changes['preGeometry'] || changes['postGeometry'] )
+      {
+        this.reload();
+      }
+    }
+    
+    public reload(): void {
+      if (this.map != null)
+      {
+        this.removeLayers();
+        this.addLayers();
+      }
     }
 
     ngOnDestroy(): void {
@@ -254,6 +268,15 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
         }
 
         this.map.removeSource( sourceName );
+    }
+    
+    removeLayers(): void {
+        if ( this.map.getSource("pre-geoobject") ) {
+            this.removeSource( "pre" );
+        }
+        if ( this.map.getSource("post-geoobject") ) {
+            this.removeSource( "post" );
+        }
     }
 
     addLayers(): void {
