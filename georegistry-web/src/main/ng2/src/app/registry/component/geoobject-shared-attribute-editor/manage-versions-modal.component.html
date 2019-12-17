@@ -214,7 +214,7 @@
                                                <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
                                                  <td style="vertical-align: middle;">
                                                    <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button"><localize key="changeovertime.manageVersions.geometry.edit"></localize></button>
-                                                   <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType.toUpperCase()" (geometryChange)="this.onValidChange($event)" [readOnly]="!geoObjectType.isGeometryEditable" [vAttribute]="this.vAttribute" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
+                                                   <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" (geometryChange)="this.geometryChange(vAttribute, $event);" [readOnly]="!geoObjectType.isGeometryEditable" [postGeometry]="vAttribute.value" [bboxCode]="this.geoObjectOverTime.attributes.code" [bboxType]="this.geoObjectType.code"></geoobject-editor-map>
                                                  </td>
                                                  <td style="vertical-align: middle;">
                                                    <input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>

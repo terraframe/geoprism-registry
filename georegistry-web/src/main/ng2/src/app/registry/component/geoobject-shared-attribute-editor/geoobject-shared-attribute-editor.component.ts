@@ -66,14 +66,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
+    
+    @Input() isEditingGeometries = false;
 
     @Output() valid = new EventEmitter<boolean>();
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
     isValid: boolean = true;
-
-    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
+    
+    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "geometry"];
 
     @ViewChild( "attributeForm" ) attributeForm;
 
@@ -84,13 +86,13 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.preGeoObject = JSON.parse( JSON.stringify( this.preGeoObject ) ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
+        this.preGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.preGeoObject ) ).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
 
         if ( this.postGeoObject == null ) {
-            this.postGeoObject = JSON.parse( JSON.stringify( this.preGeoObject ) ); // Object.assign is a shallow copy. We want a deep copy.
+            this.postGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.preGeoObject ) ).attributes); // Object.assign is a shallow copy. We want a deep copy.
         }
         else {
-            this.postGeoObject = JSON.parse( JSON.stringify( this.postGeoObject ) ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
+            this.postGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.postGeoObject ) ).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
         }
 
         this.attributeForm.statusChanges.subscribe( result => {
@@ -113,8 +115,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
         if ( geomAttr == null ) {
-            let geometry: Attribute = new Attribute( "geometry", "geometry", new LocalizedValue( "Geometry", null ), new LocalizedValue( "Geometry", null ), true, false, false );
-            this.geoObjectType.attributes.push( geometry );
+          let geometry: Attribute = new Attribute( "geometry", "geometry", new LocalizedValue( "Geometry", null ), new LocalizedValue( "Geometry", null ), true, false, false, true );
+          this.geoObjectType.attributes.push( geometry );
         }
     }
 
@@ -128,7 +130,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.calculatedPreObject = this.calculateCurrent( this.preGeoObject );
         this.calculatedPostObject = this.calculateCurrent( this.postGeoObject );
     }
-
+    
     calculateCurrent( goot: GeoObjectOverTime ): any {
         const object = {};
 
@@ -192,19 +194,23 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.bsModalRef.content.geoObjectOverTime = this.postGeoObject;
         this.bsModalRef.content.geoObjectType = this.geoObjectType;
         this.bsModalRef.content.isNewGeoObject = this.isNew;
-        // this.bsModalRef.content.attributeCode = attribute.code;
         this.bsModalRef.content.attribute = attribute;
-        // this.bsModalRef.content.attribute = this.preGeoObject.properties[attribute.code];
         this.bsModalRef.content.onAttributeVersionChange.subscribe( versionObj => {
             this.calculate();
         } );
         this.bsModalRef.content.tfInit();
     }
 
-    //onManageGeometryVersions(): void {
-    //  let geometry: Attribute = new Attribute("geometry", "geometry", null, null, true, false, false);
-    //  this.onManageAttributeVersions(geometry);
-    //}
+    onManageGeometryVersions(): void {
+      let geometry = null;
+      for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+          if ( this.geoObjectType.attributes[i].code === 'geometry' ) {
+              geometry = this.geoObjectType.attributes[i];
+          }
+      }
+      
+      this.onManageAttributeVersions(geometry);
+    }
 
     isDifferentText( attribute: Attribute ): boolean {
         if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {

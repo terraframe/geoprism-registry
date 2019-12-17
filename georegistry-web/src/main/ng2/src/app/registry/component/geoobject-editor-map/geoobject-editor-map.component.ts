@@ -12,6 +12,8 @@ import { ChangeRequestService } from '../../service/change-request.service';
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObject, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
 
+import { SimpleEditControl } from './simple-edit-control/simple-edit-control.component';
+
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { mergeMap } from 'rxjs/operators';
@@ -25,7 +27,7 @@ declare var acp: string;
 
 
 @Component( {
-    selector: 'geoobject-editor-map[geometryType][geometryChange]',
+    selector: 'geoobject-editor-map[geometryType]',
     templateUrl: './geoobject-editor-map.component.html',
     styleUrls: ['./geoobject-editor-map.component.css']
 } )
@@ -37,61 +39,78 @@ declare var acp: string;
 export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
     /*
-     * Required. The GeometryType of the GeoJSON. Typically this can be found on the GeoObjectType.
+     * Required. The GeometryType of the GeoJSON. Expected to be in uppercase (because that's how it is in the GeoObjectType for some reason)
      */
     @Input() geometryType: string;
     
     /*
-     * Required. We will invoke this event with GeoJSON when the user makes an edit to the geometry.
+     * Optional. We will invoke this event with GeoJSON when the user makes an edit to the geometry.
      */
-    @Output() geometryChange = new EventEmitter<string>();
+    @Output() geometryChange = new EventEmitter<any>();
     
     /*
      * Optional. If specified, we will diff based on this GeoJSON geometry.
      */
-    @Input() preGeometry: string;
+    @Input() preGeometry: any;
     
     /*
      * Optional. This is the actual editable GeoJSON geometry which will be mapped.
      */
-    @Input() postGeometry: string;
+    @Input() postGeometry: any;
     
     /*
      * Optional. If specified, we will fetch the bounding box from this GeoObject code.
      */
-    @Input() boundCode: string;
+    @Input() bboxCode: string;
     
     /*
      * Optional. If specified, we will fetch the bounding box from this GeoObjectType code.
      */
-    @Input() boundType: string;
+    @Input() bboxType: string;
     
     /*
      * Optional. If set to true the edit controls will not be displayed. Defaults to false.
      */
     @Input() readOnly: boolean = false;
     
+    /*
+     * Optional. If specified, we will display an edit button on the map, and when it is clicked we will emit this event.
+     */
+    @Output() onClickEdit = new EventEmitter<void>();
+    
+    @ViewChild("simpleEditControl") simpleEditControl;
+    
+    @ViewChild("mapDiv") mapDiv;
+    
     map: Map;
 
     editingControl: any;
 
     constructor( private registryService: RegistryService ) {
-
+      
     }
 
     ngOnInit(): void
     {
+      console.log("preGeometry = ", this.preGeometry);
+      console.log("bboxCode = ", this.bboxCode);
+      console.log("bboxType = ", this.bboxType);
+      console.log("postGeometry = ", this.postGeometry);
     }
 
     ngAfterViewInit() {
+      
+    
         setTimeout(() => {
             //this.registryService.getGeoObjectOverTime( "22", "Province" )
             //.then( geoObject => {
 
             ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
 
+            this.mapDiv.nativeElement.id = Math.floor(Math.random() * (899999)) + 100000;
+
             this.map = new Map( {
-                container: 'map',
+                container: this.mapDiv.nativeElement.id,
                 style: 'mapbox://styles/mapbox/satellite-v9',
                 zoom: 2,
                 center: [110.880453, 10.897852]
@@ -160,8 +179,20 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
         if ( !this.readOnly ) {
           this.enableEditing();
         }
+        else
+        {
+          this.addEditButton();
+        }
         
         this.onValidChange();
+    }
+    
+    addEditButton(): void {
+      this.simpleEditControl.editEmitter.subscribe( versionObj => {
+        this.onClickEdit.emit();
+      } );
+      
+      this.map.addControl( this.simpleEditControl );
     }
 
     enableEditing(): void {
@@ -218,7 +249,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
         else if ( this.geometryType === "POINT" || this.geometryType === "MULTIPOINT" ) {
             this.map.removeLayer( sourceName + "-point" );
         }
-        else if ( this.geometryType === "LINE" || this.geometryType === "MULTILINE" ) {
+        else if ( this.geometryType === "LINE" || this.geometryType === "MultiLine" ) {
             this.map.removeLayer( sourceName + "-line" );
         }
 
@@ -234,7 +265,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
         }
     }
 
-    renderGeometryAsLayer( geometry: string, prefix: string, color: string ) {
+    renderGeometryAsLayer( geometry: any, prefix: string, color: string ) {
         let sourceName: string = prefix + "-geoobject";
 
         this.map.addSource( sourceName, {
@@ -292,8 +323,8 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     zoomToBbox(): void {
-      if ( this.boundCode != null && this.boundType != null ) {
-        this.registryService.getGeoObjectBounds( this.boundCode, this.boundType ).then( boundArr => {
+      if ( this.bboxCode != null && this.bboxType != null ) {
+        this.registryService.getGeoObjectBounds( this.bboxCode, this.bboxType ).then( boundArr => {
             let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
 
             this.map.fitBounds( bounds, { padding: 50 } );
@@ -303,7 +334,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
       }
     }
 
-    saveDraw(): GeoObjectOverTime {
+    saveDraw(): any {
         if ( this.editingControl != null ) {
             let featureCollection: any = this.editingControl.getAll();
 

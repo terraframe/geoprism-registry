@@ -1,4 +1,5 @@
 import { LocalizedValue } from '../../shared/model/core';
+import { LocalizationService } from '../../shared/service/localization.service';
 
 export class TreeEntity {
     id: string;
@@ -64,7 +65,67 @@ export class GeoObjectType {
 // }
 
 export class GeoObjectOverTime {
-    attributes: any;
+
+  geoObjectType: GeoObjectType;
+
+  attributes: any;
+
+  public constructor(geoObjectType: GeoObjectType, attributes: any)
+  {
+    this.geoObjectType = geoObjectType;
+    this.attributes = attributes;
+  }
+    
+  public getVotAtDate( date: Date, attrCode: string, lService: LocalizationService )
+  {
+    let retVot = {startDate: date, endDate: null, value: null};
+
+  	const time = date.getTime();
+  	
+  	for ( let i = 0; i < this.geoObjectType.attributes.length; ++i )
+  	{
+      let attr = this.geoObjectType.attributes[i];
+  
+      if (attr.code === attrCode)
+      {
+        if ( attr.type === 'local' )
+        {
+          retVot.value = lService.create();
+        }
+      	
+  	    if ( attr.isChangeOverTime )
+  	    {
+          let values = this.attributes[attr.code].values;
+      	
+          values.forEach( vot => {
+  
+            const startDate = Date.parse( vot.startDate );
+            const endDate = Date.parse( vot.endDate );
+      
+            if ( time >= startDate && time <= endDate ) {
+      
+              if ( attr.type === 'local' ) {
+                retVot.value = JSON.parse( JSON.stringify( vot.value ) );
+              }
+              else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
+                retVot.value = vot.value[0];
+              }
+              else {
+                retVot.value = vot.value;
+              }
+            }
+          } );
+        }
+        else {
+          retVot.value = this.attributes[attr.code];
+        }
+        
+        break;
+      }
+    }
+	
+	  return retVot;
+  }
 }
 
 export class ValueOverTime {
@@ -84,7 +145,7 @@ export class Attribute {
     unique: boolean;
     isChangeOverTime?: boolean;
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean ) {
 
         this.code = code;
         this.type = type;
@@ -93,6 +154,7 @@ export class Attribute {
         this.isDefault = isDefault;
         this.required = required;
         this.unique = unique;
+        this.isChangeOverTime = isChangeOverTime;
     }
 
 }
@@ -100,8 +162,8 @@ export class Attribute {
 export class AttributeTerm extends Attribute {
     //descendants: Attribute[];
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
-        super( code, type, label, description, isDefault, required, unique );
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean ) {
+        super( code, type, label, description, isDefault, required, unique, isChange );
     }
 
     rootTerm: Term = new Term( null, null, null );
@@ -117,8 +179,8 @@ export class AttributeDecimal extends Attribute {
     precision: number = 32;
     scale: number = 8;
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean ) {
-        super( code, type, label, description, isDefault, required, unique );
+    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean ) {
+        super( code, type, label, description, isDefault, required, unique, isChange );
     }
 }
 

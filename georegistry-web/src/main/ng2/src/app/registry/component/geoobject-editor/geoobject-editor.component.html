@@ -1,7 +1,7 @@
 <div class="modal-body text-center">
     
     <form class="modal-form" style="overflow: visible;">
-        <div class="row-holder" *ngIf="this.tabIndex != 2">
+        <div class="row-holder">
             <div class="label-holder"><label><localize key="masterlist.forDate"></localize></label></div>
             <div class="holder">
                 <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
@@ -26,7 +26,7 @@
 
         <!-- Attributes tab -->
         <geoobject-shared-attribute-editor 
-            *ngIf="this.tabIndex === 0 && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
+            *ngIf="(this.tabIndex === 0 || this.tabIndex === 2) && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
             #attributeEditor 
             (valid)="this.onValidChange()" 
             [allowCodeEdit]="this.isNewGeoObject" 
@@ -34,7 +34,8 @@
             [preGeoObject]="this.goPropertiesPre" 
             [postGeoObject]="this.goPropertiesPost" 
             [forDate]="this.forDate" 
-            [isNew]="this.isNewGeoObject">
+            [isNew]="this.isNewGeoObject"
+            [isEditingGeometries]="this.isEditingGeometries">
         </geoobject-shared-attribute-editor>
 
 
@@ -48,7 +49,14 @@
         </div>
 
          <!-- Geometry tab -->
-        <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [postGeoObject]="this.goGeometries" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable"  (valid)="this.onValidChange()" [isNew]="this.isNewGeoObject"></geoobject-editor-map>
+         <!--
+         <div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder">
+              <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="this.goGeometries.getVotAtDate(this.forDate, 'geometry', this.geoObjectType, this.localizeService).value" [bboxCode]="this.goGeometries.attributes.code" [bboxType]="this.geoObjectType.code"></geoobject-editor-map>
+            </div>
+        </div>
+        -->
 
 <!-- 
         <div class="row-holder">

@@ -55,6 +55,7 @@ import { SubmitChangeRequestComponent } from './component/submit-change-request/
 import { ChangeRequestPageComponent } from './component/change-request-page/change-request-page.component';
 import { GeoObjectEditorComponent } from './component/geoobject-editor/geoobject-editor.component';
 import { GeoObjectEditorMapComponent } from './component/geoobject-editor-map/geoobject-editor-map.component';
+import { SimpleEditControl } from './component/geoobject-editor-map/simple-edit-control/simple-edit-control.component';
 import { CascadingGeoSelector } from './component/cascading-geo-selector/cascading-geo-selector';
 import { ManageParentVersionsModalComponent } from './component/cascading-geo-selector/manage-parent-versions-modal.component';
 import { ActionDetailModalComponent } from './component/crtable/action-detail/action-detail-modal.component';
@@ -142,6 +143,7 @@ import '../rxjs-extensions';
         GeoObjectAttributeExcludesPipe,
         ToEpochDateTimePipe,
         GeoObjectEditorMapComponent,
+        SimpleEditControl,
         DataPageComponent,
         ChangeRequestPageComponent,
         CascadingGeoSelector,

@@ -2,7 +2,7 @@
     <fieldset>
         <!-- <div class="col-md-12"> -->
             <div *ngIf="preGeoObject">
-                <div class="row-holder"> 
+                <div *ngIf="!this.isEditingGeometries" class="row-holder"> 
                     <div class="label-holder">
                         <label>
                             <localize key="change.request.geoobject.update.form.label"></localize>
@@ -14,8 +14,7 @@
                                 <div class="panel-body">
                                     <ul class="list-group">
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
-                                            <h5 *ngIf="attr.code !== 'geometry'">{{attr.label.localizedValue}}</h5>
-                                            <h5 *ngIf="attr.code === 'geometry'"><localize key="shared.attributes.attribute.geometry.label"></localize></h5>
+                                            <h5>{{attr.label.localizedValue}}</h5>
 
                                             <div *ngIf="attr.code === 'code'">
                                               <input *ngIf="postGeoObject" type="text" [(ngModel)]="calculatedPostObject[attr.code]" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" name="mod-{{attr.code}}" [disabled]="!isNew" required> 
@@ -137,27 +136,21 @@
                                                     </button>
                                                   </div>
                                             </div>
-                                            
-                                            <div class="button-holder" *ngIf="attr.type === 'geometry'">
-                                              <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
-                                                <localize key="changeovertime.manageVersions.button.label"></localize>
-                                              </button>
-                                            </div>
                                         </li>
-                                        <!-- 
-                                        <div>
-                                            <h5><localize key="geoobject.editor.tabTwo"></localize></h5>
-	                                        <div>
-	                                          <button type="submit" style="" (click)="onManageGeometryVersions()" class="btn btn-primary" role="button">
-	                                          	<localize key="changeovertime.manageVersions.button.label"></localize>
-	                                          </button>
-	                                        </div>
-                                        </div>
-                                        -->
                                     </ul>
                                 </div>
                             </div>
                     </div>
+                 </div>
+                 <div *ngIf="this.isEditingGeometries">
+                   <div class="label-holder">
+                     <label>
+                      <localize key="shared.attributes.attribute.geometry.label"></localize>
+                     </label>
+                   </div>
+                   <div class="holder">
+                     <geoobject-editor-map #geometryEditor [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="this.preGeoObject.getVotAtDate(this.forDate, 'geometry', this.geoObjectType, this.localizeService).value" [bboxCode]="this.preGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" (onClickEdit)="this.onManageGeometryVersions()"></geoobject-editor-map>
+                   </div>
                  </div>
            </div>
         <!-- </div> -->

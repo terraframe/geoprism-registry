@@ -77,9 +77,15 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     tfInit(): void {
-        if ( this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length === 1 ) {
-            this.editingGeometry = 0;
-        }
+      if ( this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length === 1 ) {
+        this.editingGeometry = 0;
+      }
+    }
+    
+    geometryChange(vAttribute, event): void {
+      console.log("geometryChange", vAttribute, event);
+    
+      vAttribute.value = event;
     }
 
     onDateChange( event: any, vAttribute: ValueOverTime ): any {
@@ -137,10 +143,6 @@ export class ManageVersionsModalComponent implements OnInit {
         if ( votArr.length > 0 ) {
             votArr[votArr.length - 1].endDate = '5000-12-31';
         }
-    }
-
-    onValidChange( geometryValue ): void {
-        console.log( "Valid Change : " + geometryValue );
     }
 
     onAddNewVersion(): void {
