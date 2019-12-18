@@ -243,7 +243,7 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   }
 
   @Override
-  public String bbox()
+  public String bbox(Date date)
   {
     Geometry geometry = this.getGeometry();
 

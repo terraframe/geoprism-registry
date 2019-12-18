@@ -68,6 +68,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @Input() isNew: boolean = false;
     
     @Input() isEditingGeometries = false;
+    
+    @Input() isGeometryInlined = false;
+    
+    @ViewChild("geometryEditor") geometryEditor;
 
     @Output() valid = new EventEmitter<boolean>();
 
@@ -75,7 +79,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     currentTermOption: Term = null;
     isValid: boolean = true;
     
-    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "geometry"];
+    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
 
     @ViewChild( "attributeForm" ) attributeForm;
 
@@ -103,10 +107,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
+            
+            if (!this.isGeometryInlined)
+            {
+              this.geoObjectAttributeExcludes.push("geometry");
+            }
         }
-
-        this.calculate();
-
 
         let geomAttr = null;
         for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
@@ -118,6 +124,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
           let geometry: Attribute = new Attribute( "geometry", "geometry", new LocalizedValue( "Geometry", null ), new LocalizedValue( "Geometry", null ), true, false, false, true );
           this.geoObjectType.attributes.push( geometry );
         }
+        
+        this.calculate();
     }
 
     ngOnChanges( changes: SimpleChanges ) {
@@ -129,6 +137,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     calculate(): void {
         this.calculatedPreObject = this.calculateCurrent( this.preGeoObject );
         this.calculatedPostObject = this.calculateCurrent( this.postGeoObject );
+        
+        if (this.geometryEditor != null)
+        {
+          this.geometryEditor.reload();
+        }
     }
     
     calculateCurrent( goot: GeoObjectOverTime ): any {

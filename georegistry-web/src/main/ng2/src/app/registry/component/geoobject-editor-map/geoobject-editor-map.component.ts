@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, SimpleChanges, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -54,7 +54,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     @Input() preGeometry: any;
     
     /*
-     * Optional. This is the actual editable GeoJSON geometry which will be mapped.
+     * Optional. If we are read-only, this will be displayed as a layer. If we are not, it will be editable.
      */
     @Input() postGeometry: any;
     
@@ -64,9 +64,11 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     @Input() bboxCode: string;
     
     /*
-     * Optional. If specified, we will fetch the bounding box from this GeoObjectType code.
+     * Optional. If specified, we will fetch the bounding box from this GeoObjectType at the date.
      */
     @Input() bboxType: string;
+    
+    @Input() bboxDate: string;
     
     /*
      * Optional. If set to true the edit controls will not be displayed. Defaults to false.
@@ -99,9 +101,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-      
-    
-        setTimeout(() => {
+      setTimeout(() => {
             //this.registryService.getGeoObjectOverTime( "22", "Province" )
             //.then( geoObject => {
 
@@ -134,6 +134,22 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
             //    this.error( err );
             //} );
         }, 10 );
+    }
+    
+    ngOnChanges(changes: SimpleChanges)
+    {
+      if ( changes['preGeometry'] || changes['postGeometry'] )
+      {
+        this.reload();
+      }
+    }
+    
+    public reload(): void {
+      if (this.map != null)
+      {
+        this.removeLayers();
+        this.addLayers();
+      }
     }
 
     ngOnDestroy(): void {
@@ -255,6 +271,15 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
         this.map.removeSource( sourceName );
     }
+    
+    removeLayers(): void {
+        if ( this.map.getSource("pre-geoobject") ) {
+            this.removeSource( "pre" );
+        }
+        if ( this.map.getSource("post-geoobject") ) {
+            this.removeSource( "post" );
+        }
+    }
 
     addLayers(): void {
         if ( this.preGeometry != null ) {
@@ -324,13 +349,26 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
     zoomToBbox(): void {
       if ( this.bboxCode != null && this.bboxType != null ) {
-        this.registryService.getGeoObjectBounds( this.bboxCode, this.bboxType ).then( boundArr => {
-            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
-
-            this.map.fitBounds( bounds, { padding: 50 } );
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        if (this.bboxDate == null)
+        {
+	        this.registryService.getGeoObjectBounds( this.bboxCode, this.bboxType ).then( boundArr => {
+	            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+	
+	            this.map.fitBounds( bounds, { padding: 50 } );
+	        } ).catch(( err: HttpErrorResponse ) => {
+	            this.error( err );
+	        } );
+        }
+        else
+        {
+          this.registryService.getGeoObjectBoundsAtDate( this.bboxCode, this.bboxType, this.bboxDate ).then( boundArr => {
+	            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+	
+	            this.map.fitBounds( bounds, { padding: 50 } );
+	        } ).catch(( err: HttpErrorResponse ) => {
+	            this.error( err );
+	        } );
+        }
       }
     }
 

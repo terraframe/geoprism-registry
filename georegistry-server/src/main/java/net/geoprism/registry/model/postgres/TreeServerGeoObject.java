@@ -175,7 +175,7 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
   }
 
   @Override
-  public String bbox()
+  public String bbox(Date date)
   {
     return GeoEntityUtil.getEntitiesBBOX(new String[] { this.geoEntity.getOid() });
   }

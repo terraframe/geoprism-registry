@@ -14,7 +14,8 @@
                                 <div class="panel-body">
                                     <ul class="list-group">
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
-                                            <h5>{{attr.label.localizedValue}}</h5>
+                                            <h5 *ngIf="attr.code !== 'geometry'">{{attr.label.localizedValue}}</h5>
+                                            <h5 *ngIf="attr.code === 'geometry'"><localize key="shared.attributes.attribute.geometry.label"></localize></h5>
 
                                             <div *ngIf="attr.code === 'code'">
                                               <input *ngIf="postGeoObject" type="text" [(ngModel)]="calculatedPostObject[attr.code]" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" name="mod-{{attr.code}}" [disabled]="!isNew" required> 
@@ -136,20 +137,24 @@
                                                     </button>
                                                   </div>
                                             </div>
+                                            
+                                            <div *ngIf="attr.type === 'geometry' && this.isGeometryInlined">
+                                              <geoobject-editor-map #geometryEditor [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="calculatedPreObject[attr.code]" [postGeometry]="calculatedPostObject[attr.code]" [bboxCode]="this.preGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" (onClickEdit)="this.onManageGeometryVersions()" [bboxDate]="this.forDate.toISOString().split('T')[0]"></geoobject-editor-map>
+                                            </div>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                     </div>
                  </div>
-                 <div *ngIf="this.isEditingGeometries">
+                 <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined">
                    <div class="label-holder">
                      <label>
                       <localize key="shared.attributes.attribute.geometry.label"></localize>
                      </label>
                    </div>
                    <div class="holder">
-                     <geoobject-editor-map #geometryEditor [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="this.preGeoObject.getVotAtDate(this.forDate, 'geometry', this.geoObjectType, this.localizeService).value" [bboxCode]="this.preGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" (onClickEdit)="this.onManageGeometryVersions()"></geoobject-editor-map>
+                     <geoobject-editor-map #geometryEditor [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="calculatedPreObject['geometry']" [postGeometry]="calculatedPostObject['geometry']" [bboxCode]="this.preGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" (onClickEdit)="this.onManageGeometryVersions()" [bboxDate]="this.forDate.toISOString().split('T')[0]"></geoobject-editor-map>
                    </div>
                  </div>
            </div>

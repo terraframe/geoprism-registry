@@ -204,9 +204,9 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   }
 
   @Override
-  public String bbox()
+  public String bbox(Date date)
   {
-    return this.rSGO.bbox();
+    return this.vSGO.bbox(date);
   }
 
   @Override

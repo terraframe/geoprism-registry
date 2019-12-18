@@ -160,6 +160,26 @@ public class RegistryController
 
     return new RestBodyResponse(bounds);
   }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject-time/get-bounds")
+  public ResponseIF getGeoObjectBoundsAtDate(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException, ParseException
+  {
+    GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode);
+    
+    Date forDate = null;
+
+    if (date != null && date.length() > 0)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+      forDate = format.parse(date);
+    }
+
+    String bounds = this.registryService.getGeoObjectBoundsAtDate(request.getSessionId(), geoObject, forDate);
+
+    return new RestBodyResponse(bounds);
+  }
 
   /**
    * Returns a GeoObject with the given code.
