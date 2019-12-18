@@ -29,7 +29,6 @@
             *ngIf="(this.tabIndex === 0 || this.tabIndex === 2) && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
             #attributeEditor 
             (valid)="this.onValidChange()" 
-            [allowCodeEdit]="this.isNewGeoObject" 
             [geoObjectType]="this.geoObjectType"
             [preGeoObject]="this.goPropertiesPre" 
             [postGeoObject]="this.goPropertiesPost" 

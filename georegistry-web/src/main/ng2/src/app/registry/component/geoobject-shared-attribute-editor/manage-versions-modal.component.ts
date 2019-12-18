@@ -9,7 +9,7 @@ import {
     transition,
 } from '@angular/animations';
 
-import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm } from '../../model/registry';
+import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from '../../model/registry';
 
 import { RegistryService } from '../../service/registry.service';
 
@@ -132,7 +132,7 @@ export class ManageVersionsModalComponent implements OnInit {
                 prev.endDate = Utils.formatDateString( new Date( new Date( current.startDate ).getTime() - dateOffset ) );
             }
             else {
-                prev.endDate = '5000-12-31';
+                prev.endDate = PRESENT;
             }
 
             if ( prev.startDate === current.startDate ) {
@@ -141,7 +141,7 @@ export class ManageVersionsModalComponent implements OnInit {
         }
 
         if ( votArr.length > 0 ) {
-            votArr[votArr.length - 1].endDate = '5000-12-31';
+            votArr[votArr.length - 1].endDate = PRESENT;
         }
     }
 

@@ -13,7 +13,7 @@ import { ChangeRequestService } from '../../service/change-request.service';
 
 
 import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, PRESENT } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
@@ -57,8 +57,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
 
-    @Input() allowCodeEdit: boolean = false;
-
     @Input() attributeExcludes: string[] = [];
 
     @Input() forDate: Date = new Date();
@@ -66,19 +64,19 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
-    
+
     @Input() isEditingGeometries = false;
-    
+
     @Input() isGeometryInlined = false;
-    
-    @ViewChild("geometryEditor") geometryEditor;
+
+    @ViewChild( "geometryEditor" ) geometryEditor;
 
     @Output() valid = new EventEmitter<boolean>();
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
     isValid: boolean = true;
-    
+
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
 
     @ViewChild( "attributeForm" ) attributeForm;
@@ -90,13 +88,13 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.preGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.preGeoObject ) ).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
+        this.preGeoObject = new GeoObjectOverTime( this.geoObjectType, JSON.parse( JSON.stringify( this.preGeoObject ) ).attributes ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
 
         if ( this.postGeoObject == null ) {
-            this.postGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.preGeoObject ) ).attributes); // Object.assign is a shallow copy. We want a deep copy.
+            this.postGeoObject = new GeoObjectOverTime( this.geoObjectType, JSON.parse( JSON.stringify( this.preGeoObject ) ).attributes ); // Object.assign is a shallow copy. We want a deep copy.
         }
         else {
-            this.postGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.postGeoObject ) ).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
+            this.postGeoObject = new GeoObjectOverTime( this.geoObjectType, JSON.parse( JSON.stringify( this.postGeoObject ) ).attributes ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
         }
 
         this.attributeForm.statusChanges.subscribe( result => {
@@ -107,10 +105,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
-            
-            if (!this.isGeometryInlined)
-            {
-              this.geoObjectAttributeExcludes.push("geometry");
+
+            if ( !this.isGeometryInlined ) {
+                this.geoObjectAttributeExcludes.push( "geometry" );
             }
         }
 
@@ -121,10 +118,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
         if ( geomAttr == null ) {
-          let geometry: Attribute = new Attribute( "geometry", "geometry", new LocalizedValue( "Geometry", null ), new LocalizedValue( "Geometry", null ), true, false, false, true );
-          this.geoObjectType.attributes.push( geometry );
+            let geometry: Attribute = new Attribute( "geometry", "geometry", new LocalizedValue( "Geometry", null ), new LocalizedValue( "Geometry", null ), true, false, false, true );
+            this.geoObjectType.attributes.push( geometry );
         }
-        
+
         this.calculate();
     }
 
@@ -137,13 +134,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     calculate(): void {
         this.calculatedPreObject = this.calculateCurrent( this.preGeoObject );
         this.calculatedPostObject = this.calculateCurrent( this.postGeoObject );
-        
-        if (this.geometryEditor != null)
-        {
-          this.geometryEditor.reload();
+
+        if ( this.geometryEditor != null ) {
+            this.geometryEditor.reload();
         }
     }
-    
+
     calculateCurrent( goot: GeoObjectOverTime ): any {
         const object = {};
 
@@ -168,16 +164,26 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                     if ( time >= startDate && time <= endDate ) {
 
                         if ( attr.type === 'local' ) {
-                            object[attr.code] = JSON.parse( JSON.stringify( vot.value ) );
+                            object[attr.code] = {
+                                startDate: this.formatDate( vot.startDate ),
+                                endDate: this.formatDate( vot.endDate ),
+                                value: JSON.parse( JSON.stringify( vot.value ) )
+                            };
                         }
                         else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
-                            object[attr.code] = vot.value[0];
+                            object[attr.code] = {
+                                startDate: this.formatDate( vot.startDate ),
+                                endDate: this.formatDate( vot.endDate ),
+                                value: vot.value[0]
+                            };
                         }
                         else {
-                            object[attr.code] = vot.value;
+                            object[attr.code] = {
+                                startDate: this.formatDate( vot.startDate ),
+                                endDate: this.formatDate( vot.endDate ),
+                                value: vot.value
+                            };
                         }
-
-
                     }
                 } );
             }
@@ -187,6 +193,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         return object;
+    }
+
+    formatDate( date: string ): string {
+        if ( date === PRESENT ) {
+            return this.lService.localize("changeovertime", "present");
+        }
+
+        return date;
     }
 
     handleChangeCode( e: any ): void {
@@ -215,14 +229,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     onManageGeometryVersions(): void {
-      let geometry = null;
-      for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
-          if ( this.geoObjectType.attributes[i].code === 'geometry' ) {
-              geometry = this.geoObjectType.attributes[i];
-          }
-      }
-      
-      this.onManageAttributeVersions(geometry);
+        let geometry = null;
+        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+            if ( this.geoObjectType.attributes[i].code === 'geometry' ) {
+                geometry = this.geoObjectType.attributes[i];
+            }
+        }
+
+        this.onManageAttributeVersions( geometry );
     }
 
     isDifferentText( attribute: Attribute ): boolean {
@@ -230,7 +244,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             return true;
         }
 
-        return ( this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code].trim() !== this.calculatedPreObject[attribute.code] );
+        return ( this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value.trim() !== this.calculatedPreObject[attribute.code].value );
     }
 
     isDifferentValue( attribute: Attribute ): boolean {
@@ -238,7 +252,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             return true;
         }
 
-        return ( this.calculatedPostObject[attribute.code] && this.calculatedPostObject[attribute.code] !== this.calculatedPreObject[attribute.code] );
+        return ( this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value !== this.calculatedPreObject[attribute.code].value );
     }
 
     onSelectPropertyOption( event: any, option: any ): void {

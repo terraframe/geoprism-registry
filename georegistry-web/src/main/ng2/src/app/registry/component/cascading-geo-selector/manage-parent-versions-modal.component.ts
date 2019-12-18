@@ -5,7 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
-import { HierarchyOverTime } from '../../model/registry';
+import { HierarchyOverTime, PRESENT } from '../../model/registry';
 
 import { RegistryService } from '../../service/registry.service';
 
@@ -187,7 +187,7 @@ export class ManageParentVersionsModalComponent implements OnInit {
         }
 
         if ( this.hierarchy.entries.length > 0 ) {
-            this.hierarchy.entries[this.hierarchy.entries.length - 1].endDate = '5000-12-31';
+            this.hierarchy.entries[this.hierarchy.entries.length - 1].endDate = PRESENT;
         }
     }
 

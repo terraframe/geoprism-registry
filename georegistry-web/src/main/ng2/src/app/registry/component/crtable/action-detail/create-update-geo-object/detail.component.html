@@ -3,10 +3,14 @@
     
     <div class="detail-content">
       <div>
+        <label class="detail-label">GeoObjectType : </label>
+        <label class="detail-value">{{action.geoObjectType.code}}</label>
+      </div>
+    
+      <div>
         <localize key="masterlist.forDate"></localize>
         <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
       </div>    
-    
     
         <!-- 
 	  <label class="detail-label">Label : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.displayLabel">
@@ -18,7 +22,6 @@
           #attributeEditor
           *ngIf="preGeoObject"
           [readOnly]="readOnly"
-          [allowCodeEdit]="true"
           [geoObjectType]="geoObjectType"
           [postGeoObject]="postGeoObject"
           [preGeoObject]="preGeoObject"
@@ -29,28 +32,6 @@
 <!-- 
 	      <geoobject-editor-map #geometryEditor *ngIf="this.preGeoObject != null && this.postGeoObject != null && this.geoObjectType.isGeometryEditable" [readOnly]="readOnly || !geoObjectType.isGeometryEditable" [postGeoObject]="this.postGeoObject" [preGeoObject]="this.preGeoObject" [geoObjectType]="this.geoObjectType" [isNew]="isNew()"></geoobject-editor-map>
  -->
-
-        <div>
-            <label class="detail-label">GeoObjectType : </label>
-            <label class="detail-value">{{action.geoObjectType.code}}</label>
-        </div>
-
-        <div>
-            <label class="detail-label">
-                <localize key="change.request.status"></localize> :
-            </label>
-            <select [disabled]="readOnly" style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]="action.approvalStatus">
-                <option value="REJECTED">
-                    <localize key="change.request.status.rejected"></localize>
-                </option>
-                <option value="ACCEPTED">
-                    <localize key="change.request.status.accepted"></localize>
-                </option>
-                <option value="PENDING">
-                    <localize key="change.request.status.pending"></localize>
-                </option>
-            </select>
-        </div>
 
         <div>
             <label class="detail-label">

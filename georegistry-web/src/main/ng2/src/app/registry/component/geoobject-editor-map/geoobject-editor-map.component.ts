@@ -95,9 +95,9 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     ngOnInit(): void
     {
       console.log("preGeometry = ", this.preGeometry);
+      console.log("postGeometry = ", this.postGeometry);
       console.log("bboxCode = ", this.bboxCode);
       console.log("bboxType = ", this.bboxType);
-      console.log("postGeometry = ", this.postGeometry);
     }
 
     ngAfterViewInit() {

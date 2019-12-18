@@ -1,6 +1,8 @@
 import { LocalizedValue } from '../../shared/model/core';
 import { LocalizationService } from '../../shared/service/localization.service';
 
+export const PRESENT: string = '5000-12-31'
+
 export class TreeEntity {
     id: string;
     name: string;
@@ -66,66 +68,60 @@ export class GeoObjectType {
 
 export class GeoObjectOverTime {
 
-  geoObjectType: GeoObjectType;
+    geoObjectType: GeoObjectType;
 
-  attributes: any;
+    attributes: any;
 
-  public constructor(geoObjectType: GeoObjectType, attributes: any)
-  {
-    this.geoObjectType = geoObjectType;
-    this.attributes = attributes;
-  }
-    
-  public getVotAtDate( date: Date, attrCode: string, lService: LocalizationService )
-  {
-    let retVot = {startDate: date, endDate: null, value: null};
-
-  	const time = date.getTime();
-  	
-  	for ( let i = 0; i < this.geoObjectType.attributes.length; ++i )
-  	{
-      let attr = this.geoObjectType.attributes[i];
-  
-      if (attr.code === attrCode)
-      {
-        if ( attr.type === 'local' )
-        {
-          retVot.value = lService.create();
-        }
-      	
-  	    if ( attr.isChangeOverTime )
-  	    {
-          let values = this.attributes[attr.code].values;
-      	
-          values.forEach( vot => {
-  
-            const startDate = Date.parse( vot.startDate );
-            const endDate = Date.parse( vot.endDate );
-      
-            if ( time >= startDate && time <= endDate ) {
-      
-              if ( attr.type === 'local' ) {
-                retVot.value = JSON.parse( JSON.stringify( vot.value ) );
-              }
-              else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
-                retVot.value = vot.value[0];
-              }
-              else {
-                retVot.value = vot.value;
-              }
-            }
-          } );
-        }
-        else {
-          retVot.value = this.attributes[attr.code];
-        }
-        
-        break;
-      }
+    public constructor( geoObjectType: GeoObjectType, attributes: any ) {
+        this.geoObjectType = geoObjectType;
+        this.attributes = attributes;
     }
-	
-	  return retVot;
-  }
+
+    public getVotAtDate( date: Date, attrCode: string, lService: LocalizationService ) {
+        let retVot = { startDate: date, endDate: null, value: null };
+
+        const time = date.getTime();
+
+        for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+            let attr = this.geoObjectType.attributes[i];
+
+            if ( attr.code === attrCode ) {
+                if ( attr.type === 'local' ) {
+                    retVot.value = lService.create();
+                }
+
+                if ( attr.isChangeOverTime ) {
+                    let values = this.attributes[attr.code].values;
+
+                    values.forEach( vot => {
+
+                        const startDate = Date.parse( vot.startDate );
+                        const endDate = Date.parse( vot.endDate );
+
+                        if ( time >= startDate && time <= endDate ) {
+
+                            if ( attr.type === 'local' ) {
+                                retVot.value = JSON.parse( JSON.stringify( vot.value ) );
+                            }
+                            else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
+                                retVot.value = vot.value[0];
+                            }
+                            else {
+                                retVot.value = vot.value;
+                            }
+                        }
+                    } );
+                }
+                else {
+                    retVot.value = this.attributes[attr.code];
+                }
+
+                break;
+            }
+        }
+
+        return retVot;
+    }
 }
 
 export class ValueOverTime {
@@ -245,7 +241,7 @@ export class MasterListVersion {
     createDate: string;
     publishDate: string;
     attributes: any[];
-    locales?:string[];
+    locales?: string[];
 }
 
 export class HierarchyOverTime {
@@ -258,6 +254,6 @@ export class HierarchyOverTime {
     entries: {
         startDate: string;
         endDate: string;
-        parents: {[k: string]: {text: string; geoObject: GeoObject}};
+        parents: { [k: string]: { text: string; geoObject: GeoObject } };
     }[];
 }
