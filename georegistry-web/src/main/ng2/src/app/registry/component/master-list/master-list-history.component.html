@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <div *ngIf="list" style="margin-top: 30px;margin-bottom: 30px;" class="row">
+        <div *ngIf="list && (isMaintainer || isAdmin)" style="margin-top: 30px;margin-bottom: 30px;" class="row">
 
             <div class="col-md-12">
                 <form #myForm="ngForm">
@@ -76,11 +76,13 @@
                         <!-- <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item"> -->
                         <tr *ngFor="let version of list.versions">
                             <td style="width: 70%">
-                                <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
+                                <div class="button-holder">
+                                    <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
 <!-- 
-                                <button type="submit" (click)="onEdit(version)" class="btn btn-primary" role="button">Edit</button>
+                                    <button type="submit" (click)="onEdit(version)" class="btn btn-primary" role="button">Edit</button>
  -->                                
-                                <button type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
+                                    <button *ngIf="isMaintainer || isAdmin" type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
+                                </div>
                             </td>
                             <td style="width: 15%" class="label-column">
                                 {{ version.forDate }}

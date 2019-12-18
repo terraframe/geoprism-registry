@@ -2720,6 +2720,14 @@ button.btn.btn-default:hover {
     background: #f8f8f8;
 }
 
+.btn-danger{
+	background-color: #f18d8a;
+	border-color: #6d0400;
+}
+.btn-danger:hover{
+	background-color: #f3aca9;
+}
+
 i.fa.fa-sitemap{
   font-size: 20px;
   margin-right: 10px;
