@@ -561,8 +561,6 @@ export class HierarchyComponent implements OnInit {
 
     public onDrop( $event: any ) {
         // Dropped $event.element
-        console.log( "on drop" )
-
         this.removeTreeNode( $event.element )
     }
 

@@ -31,7 +31,6 @@ export class GeoObjectTypeInputComponent implements OnInit {
         if(geoObjectType){
           this.editGeoObjectType = JSON.parse(JSON.stringify(geoObjectType));
         //   this.geoObjectType = geoObjectType;
-          console.log(this.editGeoObjectType);
         }
     }
     message: string = null;

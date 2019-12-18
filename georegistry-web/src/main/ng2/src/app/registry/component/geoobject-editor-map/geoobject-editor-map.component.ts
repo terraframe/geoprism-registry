@@ -42,72 +42,67 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
      * Required. The GeometryType of the GeoJSON. Expected to be in uppercase (because that's how it is in the GeoObjectType for some reason)
      */
     @Input() geometryType: string;
-    
+
     /*
      * Optional. We will invoke this event with GeoJSON when the user makes an edit to the geometry.
      */
     @Output() geometryChange = new EventEmitter<any>();
-    
+
     /*
      * Optional. If specified, we will diff based on this GeoJSON geometry.
      */
     @Input() preGeometry: any;
-    
+
     /*
      * Optional. If we are read-only, this will be displayed as a layer. If we are not, it will be editable.
      */
     @Input() postGeometry: any;
-    
+
     /*
      * Optional. If specified, we will fetch the bounding box from this GeoObject code.
      */
     @Input() bboxCode: string;
-    
+
     /*
      * Optional. If specified, we will fetch the bounding box from this GeoObjectType at the date.
      */
     @Input() bboxType: string;
-    
+
     @Input() bboxDate: string;
-    
+
     /*
      * Optional. If set to true the edit controls will not be displayed. Defaults to false.
      */
     @Input() readOnly: boolean = false;
-    
+
     /*
      * Optional. If specified, we will display an edit button on the map, and when it is clicked we will emit this event.
      */
     @Output() onClickEdit = new EventEmitter<void>();
-    
-    @ViewChild("simpleEditControl") simpleEditControl;
-    
-    @ViewChild("mapDiv") mapDiv;
-    
+
+    @ViewChild( "simpleEditControl" ) simpleEditControl;
+
+    @ViewChild( "mapDiv" ) mapDiv;
+
     map: Map;
 
     editingControl: any;
 
     constructor( private registryService: RegistryService ) {
-      
+
     }
 
-    ngOnInit(): void
-    {
-      console.log("preGeometry = ", this.preGeometry);
-      console.log("postGeometry = ", this.postGeometry);
-      console.log("bboxCode = ", this.bboxCode);
-      console.log("bboxType = ", this.bboxType);
+    ngOnInit(): void {
     }
 
     ngAfterViewInit() {
-      setTimeout(() => {
+        setTimeout(() => {
             //this.registryService.getGeoObjectOverTime( "22", "Province" )
             //.then( geoObject => {
 
             ( mapboxgl as any ).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
 
-            this.mapDiv.nativeElement.id = Math.floor(Math.random() * (899999)) + 100000;
+            this.mapDiv.nativeElement.id = Math.floor( Math.random() * ( 899999 ) ) + 100000;
 
             this.map = new Map( {
                 container: this.mapDiv.nativeElement.id,
@@ -135,21 +130,18 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
             //} );
         }, 10 );
     }
-    
-    ngOnChanges(changes: SimpleChanges)
-    {
-      if ( changes['preGeometry'] || changes['postGeometry'] )
-      {
-        this.reload();
-      }
+
+    ngOnChanges( changes: SimpleChanges ) {
+        if ( changes['preGeometry'] || changes['postGeometry'] ) {
+            this.reload();
+        }
     }
-    
+
     public reload(): void {
-      if (this.map != null)
-      {
-        this.removeLayers();
-        this.addLayers();
-      }
+        if ( this.map != null ) {
+            this.removeLayers();
+            this.addLayers();
+        }
     }
 
     ngOnDestroy(): void {
@@ -175,7 +167,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     private onValidChange(): void {
-      this.geometryChange.emit(this.saveDraw());
+        this.geometryChange.emit( this.saveDraw() );
     }
 
     initMap(): void {
@@ -193,67 +185,65 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
         this.map.addControl( new NavigationControl() );
 
         if ( !this.readOnly ) {
-          this.enableEditing();
+            this.enableEditing();
         }
-        else
-        {
-          this.addEditButton();
+        else {
+            this.addEditButton();
         }
-        
+
         this.onValidChange();
     }
-    
+
     addEditButton(): void {
-      this.simpleEditControl.editEmitter.subscribe( versionObj => {
-        this.onClickEdit.emit();
-      } );
-      
-      this.map.addControl( this.simpleEditControl );
+        this.simpleEditControl.editEmitter.subscribe( versionObj => {
+            this.onClickEdit.emit();
+        } );
+
+        this.map.addControl( this.simpleEditControl );
     }
 
     enableEditing(): void {
-	    if ( this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON" ) {
-	        this.editingControl = new MapboxDraw( {
-	            controls: {
-	                point: false,
-	                line_string: false,
-	                polygon: true,
-	                trash: true,
-	                combine_features: false,
-	                uncombine_features: false
-	            }
-	        } );
-	    }
-	    else if ( this.geometryType === "POINT" || this.geometryType === "MULTIPOINT" ) {
-	        this.editingControl = new MapboxDraw( {
-	            controls: {
-	                point: true,
-	                line_string: false,
-	                polygon: false,
-	                trash: true,
-	                combine_features: false,
-	                uncombine_features: false
-	            }
-	        } );
-	    }
-	    else if ( this.geometryType === "LINE" || this.geometryType === "MULTILINE" ) {
-	        this.editingControl = new MapboxDraw( {
-	            controls: {
-	                point: false,
-	                line_string: true,
-	                polygon: false,
-	                trash: true,
-	                combine_features: false,
-	                uncombine_features: false
-	            }
-	        } );
-	    }
-	    this.map.addControl( this.editingControl );
-	
-	    if (this.postGeometry != null)
-	    {
-	      this.editingControl.add( this.postGeometry );
-	    }
+        if ( this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON" ) {
+            this.editingControl = new MapboxDraw( {
+                controls: {
+                    point: false,
+                    line_string: false,
+                    polygon: true,
+                    trash: true,
+                    combine_features: false,
+                    uncombine_features: false
+                }
+            } );
+        }
+        else if ( this.geometryType === "POINT" || this.geometryType === "MULTIPOINT" ) {
+            this.editingControl = new MapboxDraw( {
+                controls: {
+                    point: true,
+                    line_string: false,
+                    polygon: false,
+                    trash: true,
+                    combine_features: false,
+                    uncombine_features: false
+                }
+            } );
+        }
+        else if ( this.geometryType === "LINE" || this.geometryType === "MULTILINE" ) {
+            this.editingControl = new MapboxDraw( {
+                controls: {
+                    point: false,
+                    line_string: true,
+                    polygon: false,
+                    trash: true,
+                    combine_features: false,
+                    uncombine_features: false
+                }
+            } );
+        }
+        this.map.addControl( this.editingControl );
+
+        if ( this.postGeometry != null ) {
+            this.editingControl.add( this.postGeometry );
+        }
     }
 
     removeSource( prefix: string ): void {
@@ -271,12 +261,12 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
         this.map.removeSource( sourceName );
     }
-    
+
     removeLayers(): void {
-        if ( this.map.getSource("pre-geoobject") ) {
+        if ( this.map.getSource( "pre-geoobject" ) ) {
             this.removeSource( "pre" );
         }
-        if ( this.map.getSource("post-geoobject") ) {
+        if ( this.map.getSource( "post-geoobject" ) ) {
             this.removeSource( "post" );
         }
     }
@@ -300,7 +290,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                 "features": []
             }
         } );
-        
+
         if ( this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON" ) {
             // Polygon Layer
             this.map.addLayer( {
@@ -348,28 +338,26 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     zoomToBbox(): void {
-      if ( this.bboxCode != null && this.bboxType != null ) {
-        if (this.bboxDate == null)
-        {
-	        this.registryService.getGeoObjectBounds( this.bboxCode, this.bboxType ).then( boundArr => {
-	            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
-	
-	            this.map.fitBounds( bounds, { padding: 50 } );
-	        } ).catch(( err: HttpErrorResponse ) => {
-	            this.error( err );
-	        } );
+        if ( this.bboxCode != null && this.bboxType != null ) {
+            if ( this.bboxDate == null ) {
+                this.registryService.getGeoObjectBounds( this.bboxCode, this.bboxType ).then( boundArr => {
+                    let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+
+                    this.map.fitBounds( bounds, { padding: 50 } );
+                } ).catch(( err: HttpErrorResponse ) => {
+                    this.error( err );
+                } );
+            }
+            else {
+                this.registryService.getGeoObjectBoundsAtDate( this.bboxCode, this.bboxType, this.bboxDate ).then( boundArr => {
+                    let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+
+                    this.map.fitBounds( bounds, { padding: 50 } );
+                } ).catch(( err: HttpErrorResponse ) => {
+                    this.error( err );
+                } );
+            }
         }
-        else
-        {
-          this.registryService.getGeoObjectBoundsAtDate( this.bboxCode, this.bboxType, this.bboxDate ).then( boundArr => {
-	            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
-	
-	            this.map.fitBounds( bounds, { padding: 50 } );
-	        } ).catch(( err: HttpErrorResponse ) => {
-	            this.error( err );
-	        } );
-        }
-      }
     }
 
     saveDraw(): any {
@@ -445,7 +433,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                     };
                 }
                 else {
-                  return featureCollection.features[0].geometry;
+                    return featureCollection.features[0].geometry;
                 }
             }
 

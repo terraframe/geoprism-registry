@@ -186,9 +186,6 @@ export class GeoObjectEditorComponent implements OnInit {
             this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.goPropertiesPre ) ).attributes);
             //this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
             
-            console.log("goPropertiesPre = ", this.goPropertiesPre);
-
-
             this.goSubmit = this.goPropertiesPost;
 
 //            this.areGeometriesValid = true;

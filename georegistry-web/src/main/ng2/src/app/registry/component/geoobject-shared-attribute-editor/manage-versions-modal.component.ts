@@ -83,8 +83,6 @@ export class ManageVersionsModalComponent implements OnInit {
     }
     
     geometryChange(vAttribute, event): void {
-      console.log("geometryChange", vAttribute, event);
-    
       vAttribute.value = event;
     }
 

@@ -84,8 +84,6 @@ export class LocalizationManagerComponent implements OnInit {
     }
 
     exportLocalization() {
-        console.log( "exporting localization" );
-
         //this.localizationManagerService.exportLocalization();
         window.location.href = acp + "/localization/exportSpreadsheet";
     }

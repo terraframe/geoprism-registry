@@ -32,7 +32,6 @@ export class MessageComponent implements OnInit, IEventListener {
   }
   
   complete(): void {
-    console.log('complete');
   }  
   
   onError(error: any): void {
