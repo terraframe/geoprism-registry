@@ -38,9 +38,9 @@ export class MasterListHistoryComponent implements OnInit {
     */
     private bsModalRef: BsModalRef;
 
-    private isAdmin: boolean;
-    private isMaintainer: boolean;
-    private isContributor: boolean;
+    isAdmin: boolean;
+    isMaintainer: boolean;
+    isContributor: boolean;
 
 
     constructor( public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router,
