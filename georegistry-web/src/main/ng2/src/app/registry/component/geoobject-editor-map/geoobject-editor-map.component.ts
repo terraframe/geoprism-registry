@@ -64,9 +64,11 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     @Input() bboxCode: string;
     
     /*
-     * Optional. If specified, we will fetch the bounding box from this GeoObjectType code.
+     * Optional. If specified, we will fetch the bounding box from this GeoObjectType at the date.
      */
     @Input() bboxType: string;
+    
+    @Input() bboxDate: string;
     
     /*
      * Optional. If set to true the edit controls will not be displayed. Defaults to false.
@@ -347,13 +349,26 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
     zoomToBbox(): void {
       if ( this.bboxCode != null && this.bboxType != null ) {
-        this.registryService.getGeoObjectBounds( this.bboxCode, this.bboxType ).then( boundArr => {
-            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
-
-            this.map.fitBounds( bounds, { padding: 50 } );
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        if (this.bboxDate == null)
+        {
+	        this.registryService.getGeoObjectBounds( this.bboxCode, this.bboxType ).then( boundArr => {
+	            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+	
+	            this.map.fitBounds( bounds, { padding: 50 } );
+	        } ).catch(( err: HttpErrorResponse ) => {
+	            this.error( err );
+	        } );
+        }
+        else
+        {
+          this.registryService.getGeoObjectBoundsAtDate( this.bboxCode, this.bboxType, this.bboxDate ).then( boundArr => {
+	            let bounds = new LngLatBounds( [boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]] );
+	
+	            this.map.fitBounds( bounds, { padding: 50 } );
+	        } ).catch(( err: HttpErrorResponse ) => {
+	            this.error( err );
+	        } );
+        }
       }
     }
 

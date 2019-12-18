@@ -927,7 +927,13 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public String getGeoObjectBounds(String sessionId, GeoObject geoObject)
   {
-    return this.service.getGeoObject(geoObject).bbox();
+    return this.service.getGeoObject(geoObject).bbox(null);
+  }
+  
+  @Request(RequestType.SESSION)
+  public String getGeoObjectBoundsAtDate(String sessionId, GeoObject geoObject, Date date)
+  {
+    return this.service.getGeoObject(geoObject).bbox(date);
   }
 
   @Request(RequestType.SESSION)

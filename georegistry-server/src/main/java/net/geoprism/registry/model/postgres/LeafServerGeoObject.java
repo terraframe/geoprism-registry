@@ -216,7 +216,7 @@ public class LeafServerGeoObject extends RelationalServerGeoObject implements Se
   }
 
   @Override
-  public String bbox()
+  public String bbox(Date date)
   {
     String definesType = this.getType().definesType();
 

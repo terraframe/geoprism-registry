@@ -66,7 +66,7 @@ public interface ServerGeoObjectIF
 
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs();
 
-  public String bbox();
+  public String bbox(Date date);
 
   public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive);
 

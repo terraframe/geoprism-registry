@@ -666,9 +666,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
-  public String bbox()
+  public String bbox(Date date)
   {
-    Geometry geometry = this.getGeometry();
+    Geometry geometry = (Geometry) this.getValue(getGeometryAttributeName(), date);
 
     if (geometry != null)
     {
