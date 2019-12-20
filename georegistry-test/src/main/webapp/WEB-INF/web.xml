@@ -3,20 +3,20 @@
 
     Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Runway SDK(tm).
+    This file is part of Geoprism Registry(tm).
 
-    Runway SDK(tm) is free software: you can redistribute it and/or modify
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as
     published by the Free Software Foundation, either version 3 of the
     License, or (at your option) any later version.
 
-    Runway SDK(tm) is distributed in the hope that it will be useful, but
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" metadata-complete="true" version="3.0">
@@ -24,53 +24,6 @@
   <description>
 	Geoprism
   </description>
-  <listener>
-    <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
-  </listener>
-  <servlet>
-    <servlet-name>AxisServlet</servlet-name>
-    <servlet-class>
-        org.apache.axis.transport.http.AxisServlet
-    </servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>AdminServlet</servlet-name>
-    <servlet-class>
-        org.apache.axis.transport.http.AdminServlet
-    </servlet-class>
-    <load-on-startup>100</load-on-startup>
-  </servlet>
-  <servlet>
-    <servlet-name>SOAPMonitorService</servlet-name>
-    <servlet-class>
-        org.apache.axis.monitor.SOAPMonitorService
-    </servlet-class>
-    <init-param>
-      <param-name>SOAPMonitorPort</param-name>
-      <param-value>5001</param-value>
-    </init-param>
-    <load-on-startup>100</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/servlet/AxisServlet</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>*.jws</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/services/*</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>SOAPMonitorService</servlet-name>
-    <url-pattern>/SOAPMonitor</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>AdminServlet</servlet-name>
-    <url-pattern>/servlet/AdminServlet</url-pattern>
-  </servlet-mapping>
   <mime-mapping>
     <extension>wsdl</extension>
     <mime-type>text/xml</mime-type>

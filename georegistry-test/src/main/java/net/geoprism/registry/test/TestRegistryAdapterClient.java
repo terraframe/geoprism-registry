@@ -1,34 +1,41 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
@@ -102,6 +109,18 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return set;
   }
   
+  public JSONArray getGeoObjectSuggestions(String text, String type, String parent, String hierarchy, String date)
+  {
+    try
+    {
+      return new JSONArray(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, hierarchy, date)));
+    }
+    catch (JSONException | ParseException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+  
   public GeoObject getGeoObject(String registryId, String code)
   {
     return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code));
@@ -110,6 +129,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   public GeoObject getGeoObjectByCode(String code, String typeCode)
   {
     return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode));
+  }
+  
+  public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)
+  {
+    return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTimeByCode(this.clientRequest, code, typeCode));
   }
   
   public GeoObject createGeoObject(String jGeoObj)
@@ -136,6 +160,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToHierarchyTypes(this.controller.getHierarchyTypes(this.clientRequest, saCodes));
   }
   
+  public JSONArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
+  {
+    return new JSONArray(responseToString(this.controller.getHierarchiesForGeoObjectOverTime(this.clientRequest, code, typeCode)));
+  }
+  
   public JsonArray listGeoObjectTypes()
   {
     RestBodyResponse response = (RestBodyResponse) this.controller.listGeoObjectTypes(this.clientRequest, true);
@@ -149,11 +178,18 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToChildTreeNode(this.controller.getChildGeoObjects(this.clientRequest, parentId, parentTypeCode, saChildrenTypes, recursive));
   }
   
-  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, String[] parentTypes, boolean recursive)
+  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, String[] parentTypes, boolean recursive, String date)
   {
     String saParentTypes = this.serialize(parentTypes);
     
-    return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, saParentTypes, recursive));
+    try
+    {
+      return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, saParentTypes, recursive, date));
+    }
+    catch (ParseException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
   
   public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef)
@@ -178,6 +214,20 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     Object obj = AbstractResponseSerializer.serialize((AbstractRestResponse) resp);
     
     return obj.toString();
+  }
+  
+  protected String dateToString(Date date)
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    String sDate = format.format(date);
+    
+    return sDate;
+  }
+  
+  protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseIF resp)
+  {
+    return GeoObjectOverTime.fromJSON(this, responseToString(resp));
   }
   
   protected GeoObject responseToGeoObject(ResponseIF resp)

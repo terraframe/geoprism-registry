@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -35,10 +35,11 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.feature.FeatureCollection;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
@@ -54,8 +55,10 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
-import net.geoprism.registry.query.GeoObjectIterator;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.postgres.GeoObjectIterator;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.test.ListIterator;
@@ -65,32 +68,39 @@ public class GeoObjectShapefileExporterTest
 {
   private static USATestData     testData;
 
-  private static ClientRequestIF adminCR;
-
   @BeforeClass
-  public static void setUp()
+  public static void setUpClass()
   {
-    testData = USATestData.newTestData(GeometryType.POLYGON, true);
-
-    adminCR = testData.adminClientRequest;
-
-    reload();
+    testData = USATestData.newTestDataForClass();
+    testData.setUpMetadata();
   }
-
-  @Request
-  public static void reload()
-  {
-    /*
-     * Reload permissions for the new attributes
-     */
-    SessionFacade.getSessionForRequest(adminCR.getSessionId()).reloadPermissions();
-  }
-
+  
   @AfterClass
-  public static void tearDown() throws IOException
+  public static void cleanUpClass()
   {
-    testData.cleanUp();
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
+  }
+  
+  @Before
+  public void setUp()
+  {
+    if (testData != null)
+    {
+      testData.setUpInstanceData();
+    }
+  }
 
+  @After
+  public void tearDown() throws IOException
+  {
+    if (testData != null)
+    {
+      testData.tearDownInstanceData();
+    }
+    
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
 
@@ -98,8 +108,8 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(testData.STATE.getCode()).get();
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
 
@@ -120,8 +130,8 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    GeoObjectType type = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(testData.STATE.getCode()).get();
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
     SimpleFeatureType featureType = exporter.createFeatureType();
@@ -139,12 +149,12 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    List<GeoObject> objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator().getAll();
+    List<GeoObject> objects = new GeoObjectQuery(type).getIterator().getAll();
 
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator());
+    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new GeoObjectQuery(type).getIterator());
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
@@ -159,7 +169,7 @@ public class GeoObjectShapefileExporterTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, SupportedLocaleDAO.getSupportedLocales()).attributes(type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, SupportedLocaleDAO.getSupportedLocales()).attributes(type.getType());
 
     for (AttributeType attribute : attributes)
     {
@@ -199,10 +209,10 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testWriteToFile() throws IOException
   {
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
+    GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
     try
     {
@@ -225,10 +235,10 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POLYGON);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
+    GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
     try
     {

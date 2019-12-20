@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -22,15 +22,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.io.PostalCodeFormatException;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class PostalCodeFactory
 {
@@ -49,18 +45,16 @@ public class PostalCodeFactory
       return typeCode;
     }
 
-    public GeoObjectType getType()
+    public ServerGeoObjectType getType()
     {
-      return ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(this.typeCode).get();
+      return ServerGeoObjectType.get(this.typeCode);
     }
 
     protected Location location(ShapefileFunction function)
     {
-      GeoObjectType type = getType();
-      Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
+      ServerGeoObjectType type = getType();
 
-      return new Location(type, universal, function);
-
+      return new Location(type, function);
     }
 
     protected void formatException(String value)
@@ -160,22 +154,22 @@ public class PostalCodeFactory
     locations.put("Cambodia_Village", new CambodiaBuilder("Cambodia_Commune"));
   }
 
-  public static boolean isAvailable(GeoObjectType type)
+  public static boolean isAvailable(ServerGeoObjectType type)
   {
     return locations.containsKey(type.getCode());
   }
 
-  public static LocationBuilder get(GeoObjectType type)
+  public static LocationBuilder get(ServerGeoObjectType type)
   {
     return locations.get(type.getCode());
   }
 
-  public static void remove(GeoObjectType type)
+  public static void remove(ServerGeoObjectType type)
   {
     locations.remove(type.getCode());
   }
 
-  public static void addPostalCode(GeoObjectType type, LocationBuilder builder)
+  public static void addPostalCode(ServerGeoObjectType type, LocationBuilder builder)
   {
     locations.put(type.getCode(), builder);
   }

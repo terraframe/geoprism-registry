@@ -13,9 +13,6 @@ module.exports = webpackMerge(commonConfig, {
 		chunkIds : 'named',
 	    splitChunks: {
 	        cacheGroups: {
-	            default: false,
-	            vendors: false,
-
 	            // vendor chunk
 	            vendor: {
 	            	name:'vendor',
@@ -23,7 +20,13 @@ module.exports = webpackMerge(commonConfig, {
 	                chunks: 'all',
 
 	                // import file path containing node_modules
-	                test: /node_modules/
+	                test: /[\\/]node_modules[\\/]/,
+	                priority: -10
+	            },
+	            default: {
+	                minChunks: 2,
+	                priority: -20,
+	                reuseExistingChunk: true
 	            }
 	        }
 	    }
@@ -31,7 +34,7 @@ module.exports = webpackMerge(commonConfig, {
 
   output: {
     path: helpers.root('dist'),
-    publicPath: 'http://localhost:8080/dist/',
+    publicPath: 'https://localhost:8080/dist/',
     filename: '[name].js',
     chunkFilename: '[id].chunk.js'
   },

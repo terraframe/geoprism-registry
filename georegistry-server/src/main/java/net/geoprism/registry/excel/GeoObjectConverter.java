@@ -1,24 +1,25 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -37,6 +38,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.LatLonException;
 import net.geoprism.registry.io.Location;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 
 public class GeoObjectConverter extends FeatureRowImporter
 {
@@ -50,31 +52,35 @@ public class GeoObjectConverter extends FeatureRowImporter
   }
 
   @Override
-  protected void setValue(GeoObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
   {
-    if (attributeType instanceof AttributeTermType)
+    if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
-      this.setTermValue(entity, attributeType, attributeName, value);
+      entity.setDisplayLabel((LocalizedValue) value, this.configuration.getStartDate(), this.configuration.getEndDate());
+    }
+    else if (attributeType instanceof AttributeTermType)
+    {
+      this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeIntegerType)
     {
-      entity.setValue(attributeName, new Long((String) value));
+      entity.setValue(attributeName, new Long((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeFloatType)
     {
-      entity.setValue(attributeName, new Double((String) value));
+      entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeCharacterType)
     {
-      entity.setValue(attributeName, value.toString());
+      entity.setValue(attributeName, value.toString(), this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else if (attributeType instanceof AttributeBooleanType)
     {
-      entity.setValue(attributeName, value);
+      entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else
     {
-      entity.setValue(attributeName, value);
+      entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
   }
 

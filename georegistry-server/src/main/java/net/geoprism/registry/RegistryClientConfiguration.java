@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -46,7 +46,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.setId("hierarchies");
     hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
     hierarchies.setSrc("net/geoprism/images/hierarchy-icon-modified.svg");
-    hierarchies.setUrl("cgr/manage#/hierarchies");
+    hierarchies.setUrl("cgr/manage#/registry/hierarchies");
     hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -57,37 +57,37 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     masterLists.setId("lists");
     masterLists.setLabel(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing"));
     masterLists.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
-    masterLists.setUrl("cgr/manage#/master-lists");
+    masterLists.setUrl("cgr/manage#/registry/master-lists");
     masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADIM_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     masterLists.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    
+
     GeoprismApplication requests = new GeoprismApplication();
     requests.setId("requests");
     requests.setLabel(LocalizationFacadeDTO.getFromBundles(request, "requests.landing"));
     requests.setSrc("net/geoprism/images/update-icon-modified.svg");
-    requests.setUrl("cgr/manage#/change-requests");
+    requests.setUrl("cgr/manage#/registry/change-requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     requests.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    
+
     GeoprismApplication uploads = new GeoprismApplication();
     uploads.setId("uploads");
     uploads.setLabel(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing"));
     uploads.setSrc("net/geoprism/images/dm_icon.svg");
-    uploads.setUrl("cgr/manage#/data");
+    uploads.setUrl("cgr/manage#/registry/data");
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
     uploads.addRole(RoleConstants.ADIM_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     uploads.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    
+
     // GeoprismApplication management = new GeoprismApplication();
     // management.setId("management");
     // management.setLabel(LocalizationFacadeDTO.getFromBundles(request,
@@ -125,7 +125,21 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
   @Override
   public Set<String> getPublicEndpoints()
   {
-    return super.getPublicEndpoints();
+    Set<String> endpoints = super.getPublicEndpoints();
+    endpoints.add("cgr/manage");
+    return endpoints;
+  }
+
+  @Override
+  public String getHomeUrl()
+  {
+    return "/cgr/manage";
+  }
+
+  @Override
+  public String getLoginUrl()
+  {
+    return "/cgr/manage#login";
   }
 
 }

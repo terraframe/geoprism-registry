@@ -1,30 +1,30 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.json.JSONException;
 
 import com.runwaysdk.constants.ClientRequestIF;
@@ -39,52 +39,62 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.model.CompositeServerGeoObject;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 @Controller(url = "geoobject-editor")
 public class GeoObjectEditorController
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
   {
-    applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId);
+    applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId, notes);
 
     return new RestResponse();
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject applyInReq(String sessionId, String ptn, String go, Boolean isNew, String masterListId)
+  public GeoObjectOverTime applyInReq(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId, String notes)
   {
-    return applyInTransaction(sessionId, ptn, go, isNew, masterListId);
+    return applyInTransaction(sessionId, ptn, sGO, isNew, masterListId, notes);
   }
 
   @Transaction
-  private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, Boolean isNew, String masterListId)
+  private GeoObjectOverTime applyInTransaction(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId, String notes)
   {
-    GeoObject go;
-
     Map<String, String> roles = Session.getCurrentSession().getUserRoles();
 
     if (roles.keySet().contains(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE))
     {
+      Instant base = Instant.now();
+      int sequence = 0;
+
+      GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
+
       ChangeRequest request = new ChangeRequest();
       request.addApprovalStatus(AllGovernanceStatus.PENDING);
+      request.setContributorNotes(notes);
       request.apply();
 
       if (!isNew)
       {
         UpdateGeoObjectAction action = new UpdateGeoObjectAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
-        action.setCreateActionDate(new Date());
-        action.setGeoObjectJson(sGo);
+        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+        action.setGeoObjectJson(sGO);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
         action.apply();
         request.addAction(action).apply();
       }
@@ -92,92 +102,61 @@ public class GeoObjectEditorController
       {
         CreateGeoObjectAction action = new CreateGeoObjectAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
-        action.setCreateActionDate(new Date());
-        action.setGeoObjectJson(sGo);
+        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+        action.setGeoObjectJson(sGO);
         action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
         action.apply();
 
         request.addAction(action).apply();
       }
+
+      SetParentAction action = new SetParentAction();
+      action.addApprovalStatus(AllGovernanceStatus.PENDING);
+      action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+      action.setChildCode(timeGO.getCode());
+      action.setChildTypeCode(timeGO.getType().getCode());
+      action.setJson(sPtn);
+      action.setApiVersion(CGRAdapterProperties.getApiVersion());
+      action.setContributorNotes(notes);
+      action.apply();
+
+      request.addAction(action).apply();
     }
     else
     {
+      ServerGeoObjectService service = new ServerGeoObjectService();
 
-      if (!isNew)
-      {
-        go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
-      }
-      else
-      {
-        go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
-      }
+      GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
 
-      ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
+      ServerGeoObjectIF serverGO = service.apply(timeGO, isNew, false);
+      final ServerGeoObjectType type = serverGO.getType();
 
-      applyPtn(sessionId, ptn);
+      ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
+
+      serverGO.setParents(ptnOt);
 
       // Update the master list record
       if (masterListId != null)
       {
+        if (serverGO instanceof CompositeServerGeoObject)
+        {
+          serverGO = ( (CompositeServerGeoObject) serverGO ).getVertexServerGeoObject();
+        }
+
         if (!isNew)
         {
-          MasterList.get(masterListId).updateRecord(go);
+          MasterListVersion.get(masterListId).updateRecord(serverGO);
         }
         else
         {
-          MasterList.get(masterListId).publishRecord(go);
+          MasterListVersion.get(masterListId).publishRecord(serverGO);
         }
       }
 
-      return go;
+      return serverGO.toGeoObjectOverTime();
     }
 
     return null;
-  }
-
-  public void applyPtn(String sessionId, ParentTreeNode ptn)
-  {
-    GeoObject child = ptn.getGeoObject();
-    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false).getParents();
-
-    // Remove all existing relationships which aren't what we're trying to
-    // create
-    for (ParentTreeNode ptnDbParent : childDbParents)
-    {
-      boolean shouldRemove = true;
-
-      for (ParentTreeNode ptnParent : ptn.getParents())
-      {
-        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-        {
-          shouldRemove = false;
-        }
-      }
-
-      if (shouldRemove)
-      {
-        RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
-      }
-    }
-
-    // Create new relationships that don't already exist
-    for (ParentTreeNode ptnParent : ptn.getParents())
-    {
-      boolean alreadyExists = false;
-
-      for (ParentTreeNode ptnDbParent : childDbParents)
-      {
-        if (ptnParent.getGeoObject().equals(ptnDbParent.getGeoObject()) && ptnParent.getHierachyType().getCode().equals(ptnDbParent.getHierachyType().getCode()))
-        {
-          alreadyExists = true;
-        }
-      }
-
-      if (!alreadyExists)
-      {
-        GeoObject parent = ptnParent.getGeoObject();
-        RegistryService.getInstance().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
-      }
-    }
   }
 }

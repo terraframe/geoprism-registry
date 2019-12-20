@@ -1,65 +1,82 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.USATestData;
 
 public class WMSServiceTest
 {
-  protected USATestData     testData;
+  protected static USATestData     testData;
 
-  protected ClientRequestIF adminCR;
-
+  @BeforeClass
+  public static void setUpClass()
+  {
+    testData = USATestData.newTestDataForClass();
+    testData.setUpMetadata();
+  }
+  
+  @AfterClass
+  public static void cleanUpClass()
+  {
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
+  }
+  
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(GeometryType.POLYGON, true);
-
-    this.adminCR = testData.adminClientRequest;
+    if (testData != null)
+    {
+      testData.setUpInstanceData();
+    }
   }
 
   @After
-  public void tearDown() throws IOException
+  public void tearDown()
   {
-    testData.cleanUp();
+    if (testData != null)
+    {
+      testData.tearDownInstanceData();
+    }
   }
 
   @Test
   @Request
   public void testCreateDeleteDatabaseViewOnTreeType() throws SQLException
   {
-    GeoObjectType type = this.testData.STATE.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = this.testData.STATE.getServerObject();
 
     WMSService service = new WMSService();
 
@@ -88,7 +105,7 @@ public class WMSServiceTest
   @Request
   public void testCreateDeleteDatabaseViewOnLeafType() throws SQLException
   {
-    GeoObjectType type = this.testData.DISTRICT.getGeoObjectType(GeometryType.POLYGON);
+    ServerGeoObjectType type = this.testData.DISTRICT.getServerObject();
 
     WMSService service = new WMSService();
 

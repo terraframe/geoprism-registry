@@ -1,28 +1,28 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1044168482)
+@com.runwaysdk.business.ClassSignature(hash = -2119232911)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = -1044168482;
+  private static final long serialVersionUID = -2119232911;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -61,7 +61,6 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LISTABSTRACT = "listAbstract";
   public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String MDBUSINESS = "mdBusiness";
   public static java.lang.String OID = "oid";
   public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String OWNER = "owner";
@@ -641,55 +640,6 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getLockedByMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LOCKEDBY).getAttributeMdDTO();
-  }
-  
-  public com.runwaysdk.system.metadata.MdBusinessDTO getMdBusiness()
-  {
-    if(getValue(MDBUSINESS) == null || getValue(MDBUSINESS).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdBusinessDTO.get(getRequest(), getValue(MDBUSINESS));
-    }
-  }
-  
-  public String getMdBusinessOid()
-  {
-    return getValue(MDBUSINESS);
-  }
-  
-  public void setMdBusiness(com.runwaysdk.system.metadata.MdBusinessDTO value)
-  {
-    if(value == null)
-    {
-      setValue(MDBUSINESS, "");
-    }
-    else
-    {
-      setValue(MDBUSINESS, value.getOid());
-    }
-  }
-  
-  public boolean isMdBusinessWritable()
-  {
-    return isWritable(MDBUSINESS);
-  }
-  
-  public boolean isMdBusinessReadable()
-  {
-    return isReadable(MDBUSINESS);
-  }
-  
-  public boolean isMdBusinessModified()
-  {
-    return isModified(MDBUSINESS);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getMdBusinessMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(MDBUSINESS).getAttributeMdDTO();
   }
   
   public String getOrganization()

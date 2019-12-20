@@ -1,26 +1,27 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -30,7 +31,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -40,22 +40,22 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.jaitools.jts.CoordinateSequence2D;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.LocatedIn;
-import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -71,14 +71,17 @@ import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
 import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.query.CodeRestriction;
-import net.geoprism.registry.query.GeoObjectIterator;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectIterator;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.test.USATestData;
 
 public class ExcelServiceTest
 {
-  protected USATestData        testData;
+  protected static USATestData        testData;
 
   protected ClientRequestIF    adminCR;
 
@@ -89,55 +92,62 @@ public class ExcelServiceTest
   private AttributeDateType    testDate;
 
   private AttributeBooleanType testBoolean;
-
+  
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(GeometryType.POINT, false);
+//    testData.setUpTest();
+    
+    testData = USATestData.newTestDataForClass();
+    testData.setUpMetadata();
+    
+    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testTerm.toJSON().toString());
 
-    this.adminCR = testData.adminClientRequest;
+    AttributeBooleanType testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
+    this.testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testBoolean.toJSON().toString());
 
-    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false);
-    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
+    AttributeDateType testDate = (AttributeDateType) AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
+    this.testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testDate.toJSON().toString());
 
-    AttributeBooleanType testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false);
-    this.testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testBoolean.toJSON().toString());
-
-    AttributeDateType testDate = (AttributeDateType) AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false);
-    this.testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testDate.toJSON().toString());
-
-    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false);
-    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
+    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
+    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testInteger.toJSON().toString());
 
     reload();
   }
+  
+  @After
+  public void tearDown()
+  {
+//    testData.cleanUpTest();
+    
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
+  }
 
   @Request
-  public void reload()
+  public static void reload()
   {
     /*
      * Reload permissions for the new attributes
      */
-    SessionFacade.getSessionForRequest(this.adminCR.getSessionId()).reloadPermissions();
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.cleanUp();
+    SessionFacade.getSessionForRequest(testData.adminClientRequest.getSessionId()).reloadPermissions();
   }
 
   @Test
+  @Request
   public void testGetAttributeInformation()
   {
-    PostalCodeFactory.remove(testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON));
+    PostalCodeFactory.remove(testData.DISTRICT.getServerObject());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
+    JsonObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream);
 
     Assert.assertFalse(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
 
@@ -171,11 +181,12 @@ public class ExcelServiceTest
   }
 
   @Test
+  @Request
   public void testGetAttributeInformationPostalCode()
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.MULTIPOLYGON);
+    ServerGeoObjectType type = testData.DISTRICT.getServerObject();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
@@ -189,7 +200,7 @@ public class ExcelServiceTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
+    JsonObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream);
 
     Assert.assertTrue(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
   }
@@ -205,16 +216,14 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -243,17 +252,15 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals(new Long(123), object.getValue(this.testInteger.getName()));
@@ -270,17 +277,15 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testDate.getName(), new BasicColumnFunction("Test Date"));
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -302,17 +307,15 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testBoolean.getName(), new BasicColumnFunction("Test Boolean"));
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals(new Boolean(true), object.getValue(this.testBoolean.getName()));
@@ -329,18 +332,16 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+    ServerGeoObjectType type = testData.DISTRICT.getServerObject();
 
-    GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
+    GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
     try
     {
@@ -363,7 +364,7 @@ public class ExcelServiceTest
   @Request
   public void testExport() throws IOException
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -376,7 +377,7 @@ public class ExcelServiceTest
       GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
       Point point = geometryFactory.createPoint(new Coordinate(-104.991531, 39.742043));
 
-      GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode());
+      GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.DISTRICT.getCode());
       geoObj.setCode("00");
       geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
       geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -386,16 +387,17 @@ public class ExcelServiceTest
       geoObj.setValue(this.testDate.getName(), calendar.getTime());
       geoObj.setValue(this.testBoolean.getName(), true);
 
-      geoObj = ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
+      ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+      geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
       Assert.assertNotNull(istream);
 
-      GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
-      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
+      ServerGeoObjectType type = testData.DISTRICT.getServerObject();
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-      GeoObjectIterator objects = new GeoObjectQuery(type, testData.STATE.getUniversal()).getIterator();
+      GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
       try
       {
@@ -413,7 +415,7 @@ public class ExcelServiceTest
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(testData.adminClientRequest.getSessionId(), term.getCode());
     }
   }
 
@@ -421,12 +423,13 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithParent()
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.adminClientRequest.getSessionId(), testData.STATE.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -436,22 +439,23 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
 
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    configuration.setStartDate(new Date());
+    configuration.setEndDate(new Date());
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.testData.COUNTRY.getUniversal(), new BasicColumnFunction("Parent")));
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    configuration.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent")));
 
-    String sessionId = this.testData.adminClientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.STATE.getCode());
+    service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
+
+    String sessionId = testData.adminClientRequest.getSessionId();
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { this.testData.COUNTRY.getCode() }, false);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { testData.STATE.getCode() }, false, new Date());
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -462,15 +466,14 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithPostalCode()
   {
-    GeoObjectType type = testData.STATE.getGeoObjectType(GeometryType.POINT);
+    ServerGeoObjectType type = testData.DISTRICT.getServerObject();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
       @Override
       public Location build(ShapefileFunction function)
       {
-        GeoObjectType type = testData.COUNTRY.getGeoObjectType(GeometryType.POINT);
-        Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(type);
+        ServerGeoObjectType type = testData.STATE.getServerObject();
 
         DelegateShapefileFunction delegate = new DelegateShapefileFunction(function)
         {
@@ -483,16 +486,17 @@ public class ExcelServiceTest
           }
         };
 
-        return new Location(type, universal, delegate);
+        return new Location(type, delegate);
       }
     });
 
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServiceFactory.getUtilities().applyGeoObject(geoObj, true, null);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -502,22 +506,23 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
 
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    configuration.setStartDate(new Date());
+    configuration.setEndDate(new Date());
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.testData.COUNTRY.getUniversal(), new BasicColumnFunction("Parent")));
 
-    service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    configuration.addParent(new Location(this.testData.STATE.getServerObject(), new BasicColumnFunction("Parent")));
+
+    service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     String sessionId = this.testData.adminClientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { this.testData.COUNTRY.getCode() }, false);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { this.testData.STATE.getCode() }, false, new Date());
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -536,21 +541,20 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
 
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.testData.COUNTRY.getUniversal(), new BasicColumnFunction("Parent")));
+
+    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent")));
     configuration.addExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, "00");
 
-    JsonObject result = service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    JsonObject result = service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     Assert.assertFalse(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
+    GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
     query.setRestriction(new CodeRestriction("0001"));
 
     Assert.assertNull(query.getSingleResult());
@@ -568,15 +572,14 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service, null);
 
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
-    configuration.addParent(new Location(this.testData.COUNTRY.getGeoObjectType(GeometryType.POLYGON), this.testData.COUNTRY.getUniversal(), new BasicColumnFunction("Parent")));
 
-    JsonObject result = service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent")));
+
+    JsonObject result = service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     Assert.assertTrue(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
 
@@ -585,7 +588,7 @@ public class ExcelServiceTest
     Assert.assertEquals(1, problems.size());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POLYGON), testData.STATE.getUniversal());
+    GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
     query.setRestriction(new CodeRestriction("0001"));
 
     Assert.assertNull(query.getSingleResult());
@@ -595,7 +598,7 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithTerm()
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(this.adminCR.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -609,23 +612,21 @@ public class ExcelServiceTest
 
       JsonObject json = this.getTestConfiguration(istream, service, testTerm);
 
-      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-      MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
       GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
       configuration.setHierarchy(hierarchyType);
-      configuration.setHierarchyRelationship(mdRelationship);
 
-      service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+      service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
       String sessionId = this.testData.adminClientRequest.getSessionId();
-      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.STATE.getCode());
+      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
 
       Assert.assertEquals("0001", object.getCode());
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(this.adminCR.getSessionId(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(testData.adminClientRequest.getSessionId(), term.getCode());
 
       this.testData.refreshTerms(testTerm);
     }
@@ -643,14 +644,12 @@ public class ExcelServiceTest
 
     JsonObject json = this.getTestConfiguration(istream, service, testTerm);
 
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(LocatedIn.class.getSimpleName()).get();
-    MdTermRelationship mdRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
     GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
-    configuration.setHierarchyRelationship(mdRelationship);
 
-    JsonObject result = service.importExcelFile(this.adminCR.getSessionId(), configuration.toJson().toString());
+    JsonObject result = service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
     Assert.assertTrue(result.has(GeoObjectConfiguration.TERM_PROBLEMS));
 
@@ -667,7 +666,7 @@ public class ExcelServiceTest
     Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.get("attributeLabel").getAsString());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getGeoObjectType(GeometryType.POINT), testData.STATE.getUniversal());
+    GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
     query.setRestriction(new CodeRestriction("0001"));
 
     Assert.assertNull(query.getSingleResult());
@@ -675,7 +674,7 @@ public class ExcelServiceTest
 
   private JsonObject getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm)
   {
-    JsonObject result = service.getExcelConfiguration(this.adminCR.getSessionId(), testData.STATE.getCode(), "test-spreadsheet.xlsx", istream);
+    JsonObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream);
     JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 

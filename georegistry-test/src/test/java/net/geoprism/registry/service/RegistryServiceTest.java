@@ -1,29 +1,29 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.DefaultTerms;
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -31,6 +31,8 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.geometry.jts.GeometryBuilder;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -42,17 +44,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
-import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryController;
-import net.geoprism.registry.test.TestDataSet.TestGeoObjectInfo;
-import net.geoprism.registry.test.TestDataSet.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class RegistryServiceTest
@@ -63,7 +63,7 @@ public class RegistryServiceTest
   public static void setUpClass()
   {
     testData = USATestData.newTestDataForClass();
-    testData.setUpClass();
+    testData.setUpMetadata();
   }
   
   @AfterClass
@@ -71,7 +71,7 @@ public class RegistryServiceTest
   {
     if (testData != null)
     {
-      testData.cleanUpClass();
+      testData.tearDownMetadata();
     }
   }
   
@@ -80,7 +80,7 @@ public class RegistryServiceTest
   {
     if (testData != null)
     {
-      testData.setUpTest();
+      testData.setUpInstanceData();
     }
   }
 
@@ -89,7 +89,7 @@ public class RegistryServiceTest
   {
     if (testData != null)
     {
-      testData.cleanUpTest();
+      testData.tearDownInstanceData();
     }
   }
   
@@ -110,8 +110,8 @@ public class RegistryServiceTest
     // 1. Test creating a new one
     GeoObject geoObj = testData.adapter.newGeoObjectInstance(testData.STATE.getCode());
     geoObj.setGeometry(point);
-    geoObj.setCode(testData.WASHINGTON.getCode());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.WASHINGTON.getDisplayLabel());
+    geoObj.setCode(testData.COLORADO.getCode());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
 
     try
     {
@@ -195,35 +195,29 @@ public class RegistryServiceTest
   @Test
   public void testGetGeoObjectSuggestions()
   {
-    RegistryController controller = new RegistryController();
+    JSONArray results = testData.adapter.getGeoObjectSuggestions("Co", testData.STATE.getCode(), testData.USA.getCode(), LocatedIn.class.getSimpleName(), null);
 
-    RestBodyResponse response = (RestBodyResponse) controller.getGeoObjectSuggestions(testData.adminClientRequest, "Co", testData.STATE.getCode(), testData.USA.getCode(), LocatedIn.class.getSimpleName());
-    JsonArray results = (JsonArray) response.serialize();
+    Assert.assertEquals(1, results.length());
 
-    Assert.assertEquals(1, results.size());
+    JSONObject result = results.getJSONObject(0);
 
-    JsonObject result = results.get(0).getAsJsonObject();
-
-    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.get("name").getAsString());
-    Assert.assertEquals(testData.COLORADO.getOid(), result.get("id").getAsString());
-    Assert.assertEquals(testData.COLORADO.getCode(), result.get(GeoObject.CODE).getAsString());    
+    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.getString("name"));
+    Assert.assertEquals(testData.COLORADO.getOid(), result.getString("id"));
+    Assert.assertEquals(testData.COLORADO.getCode(), result.getString(GeoObject.CODE));    
   }
 
   @Test
   public void testGetGeoObjectSuggestionsNoParent()
   {
-    RegistryController controller = new RegistryController();
+    JSONArray results= testData.adapter.getGeoObjectSuggestions("Co", testData.STATE.getCode(), null, null, null);
     
-    RestBodyResponse response = (RestBodyResponse) controller.getGeoObjectSuggestions(testData.adminClientRequest, "Co", testData.STATE.getCode(), null, null);
-    JsonArray results = (JsonArray) response.serialize();
+    Assert.assertEquals(1, results.length());
     
-    Assert.assertEquals(1, results.size());
+    JSONObject result = results.getJSONObject(0);
     
-    JsonObject result = results.get(0).getAsJsonObject();
-    
-    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.get("name").getAsString());
-    Assert.assertEquals(testData.COLORADO.getOid(), result.get("id").getAsString());
-    Assert.assertEquals(testData.COLORADO.getCode(), result.get(GeoObject.CODE).getAsString());
+    Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.getString("name"));
+    Assert.assertEquals(testData.COLORADO.getOid(), result.getString("id"));
+    Assert.assertEquals(testData.COLORADO.getCode(), result.getString(GeoObject.CODE));
   }
   
   /**
@@ -234,9 +228,9 @@ public class RegistryServiceTest
   {
     // Create
     GeoObject geoObj = testData.adapter.newGeoObjectInstance(testData.STATE.getCode());
-    geoObj.setWKTGeometry(testData.WASHINGTON.getWkt());
-    geoObj.setCode(testData.WASHINGTON.getCode());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.WASHINGTON.getDisplayLabel());
+    geoObj.setWKTGeometry(testData.COLORADO.getWkt());
+    geoObj.setCode(testData.COLORADO.getCode());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
     geoObj.setUid(UUID.randomUUID().toString());
     testData.adapter.createGeoObject(geoObj.toJSON().toString());
   }
@@ -248,7 +242,7 @@ public class RegistryServiceTest
   public void testUnissuedIdUpdate()
   {
     // Update
-    GeoObject waGeoObj = testData.adapter.getGeoObject(testData.WASHINGTON.getRegistryId(), testData.WASHINGTON.getGeoObjectType().getCode());
+    GeoObject waGeoObj = testData.adapter.getGeoObject(testData.COLORADO.getRegistryId(), testData.COLORADO.getGeoObjectType().getCode());
     waGeoObj.setWKTGeometry(testData.COLORADO.getWkt());
     waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.COLORADO.getDisplayLabel());
     waGeoObj.setUid(UUID.randomUUID().toString());
@@ -346,28 +340,28 @@ public class RegistryServiceTest
     String[] parentTypes = new String[] { testData.COUNTRY.getCode(), testData.STATE.getCode() };
 
     // Recursive
-    ParentTreeNode tn = testData.adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, true);
+    ParentTreeNode tn = testData.adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, true, null);
     testData.CO_D_TWO.assertEquals(tn, parentTypes, true);
     Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Not recursive
-    ParentTreeNode tn2 = testData.adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, false);
+    ParentTreeNode tn2 = testData.adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, false, null);
     testData.CO_D_TWO.assertEquals(tn2, parentTypes, false);
     Assert.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test only getting countries
     String[] countryArr = new String[] { testData.COUNTRY.getCode() };
-    ParentTreeNode tn3 = testData.adapter.getParentGeoObjects(childId, childTypeCode, countryArr, true);
+    ParentTreeNode tn3 = testData.adapter.getParentGeoObjects(childId, childTypeCode, countryArr, true, null);
     testData.CO_D_TWO.assertEquals(tn3, countryArr, true);
     Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), testData.adapter).toJSON().toString());
     
     // Test null parent types
-    ParentTreeNode tn4 = testData.adapter.getParentGeoObjects(childId, childTypeCode, null, true);
+    ParentTreeNode tn4 = testData.adapter.getParentGeoObjects(childId, childTypeCode, null, true, null);
     testData.CO_D_TWO.assertEquals(tn4, null, true);
     Assert.assertEquals(tn4.toJSON().toString(), ParentTreeNode.fromJSON(tn4.toJSON().toString(), testData.adapter).toJSON().toString());
     
     // Test empty parent types
-    ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childId, childTypeCode, new String[]{}, true);
+    ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childId, childTypeCode, new String[]{}, true, null);
     testData.CO_D_TWO.assertEquals(tn5, null, true);
     Assert.assertEquals(tn5.toJSON().toString(), ParentTreeNode.fromJSON(tn5.toJSON().toString(), testData.adapter).toJSON().toString());
   }            

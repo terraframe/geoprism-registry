@@ -1,0 +1,195 @@
+/**
+ * Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Runway SDK(tm).
+ *
+ * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+.body {
+  background-color: white;
+  margin: 0;
+  min-width: 100%;
+}
+
+.new-admin-design-main {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.body, #container {
+  height: 100vh; 
+  overflow: hidden;
+}
+ 
+#container{
+  height: 100%; 
+  background-color: white;
+  margin: 0;
+  min-width: 100%;  
+}
+
+#app-container {
+    background-image: url(../net/geoprism/images/homebackground.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
+
+h1 {
+  color: maroon;
+  margin-left: 40px;
+} 
+
+#header-link-container{
+  height: 30px;
+}
+
+#logo-icon{
+  height: 100%;
+    display: inline-block;
+}
+
+#logo{
+  max-height: 100px;
+}
+
+#user-link-container{
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+
+#geodash-landing-top-div{
+  border-bottom: grey solid 3px;
+  height: 30vh; 
+  position: relative;
+  background-color: #333;
+}
+
+#geodash-landing-bottom-div{
+  overflow: hidden;
+  height: 100vh;
+  overflow-y: auto;
+  /* background-image: url(../net/geoprism/images/theme_background.png); */
+  /* background-size: 100%; */
+  /* background-repeat: no-repeat; */
+/*    background-position-y: -10%; */
+}
+  
+#geodash-landing-footer{
+  height: 100px;
+  background-color: #019edc;
+  bottom: 0px;
+  position: absolute;
+  width: 100%;
+  opacity: 0.6;
+  filter: alpha(opacity=60); /* For IE8 and earlier */
+}
+  
+#geodash-landing-footer h4{
+  color: white;
+  text-align: center;
+  margin-top: 42px;
+}
+
+#background-img{
+  width: 100%; 
+  margin-top: 100px;
+}
+
+#mask{
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  opacity: 0.70;
+  filter: alpha(opacity=70); /* For IE8 and earlier */
+}
+
+#option-container{
+    top: 50%;
+    margin: 0 auto;
+    margin-left: -401px;
+    left: 50%;
+    position: absolute;
+    width: 650px;
+}
+
+.nav-option-wrapper {
+    background-color: #DBD7A5;
+    /* padding: 10px; */
+}
+
+.nav-icon-img{
+    /* border: solid white 5px; */
+    /* border-radius: 15px; */
+    cursor: pointer;
+    background-color: white;
+}
+.nav-icon-img:hover{
+    border: solid grey 3px;
+}
+
+.nav-icon-img-description {
+    text-align: left;
+    padding: 10px;
+}
+
+.nav-icon-img-label{
+  text-align: center;
+  margin-top: 10px;
+  color: #3E2A5A;
+	  font-size: 21px;
+	  display: inline-block;
+}
+
+#dashboard-link{
+  cursor: pointer;
+}
+
+#header{
+  padding: 10px;
+  height: 100%
+}
+
+.user-command-link{
+  color: white;
+  padding: 5px;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.error-message{
+  color: red;
+  text-align: center;
+}
+
+.vertical-center-row{
+  margin-top: 5%;
+}
+
+.nav-icon-container{
+  vertical-align: middle;
+  width: 100%;
+  height: 75%;
+}
+
+.header-logo-row{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}

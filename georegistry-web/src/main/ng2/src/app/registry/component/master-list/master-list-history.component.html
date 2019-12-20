@@ -1,0 +1,106 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+    <progress-bar></progress-bar>
+
+    <div id="app-container" class="container-fluid">
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+
+        <div class="row" style="padding: 30px 0 0 0;">
+            <div class="col-md-12">
+                <a [routerLink]="'/registry/master-lists'">
+                  <i class="fa fa-arrow-left"></i> <localize key="masterlist.back"></localize>
+                </a>
+            </div>
+        </div>
+
+        <div class="py-5">
+            <h2>
+                <localize key="masterlist.manager.title"></localize>
+            </h2>
+        </div>
+
+        <div *ngIf="list" class="row">
+            <div class="col-md-12">
+                <h3>
+                    {{list.displayLabel.localizedValue}}
+                </h3>
+            </div>
+        </div>
+        <div *ngIf="list" class="row">
+            <div class="col-md-12">
+                <h5>
+                    <b> <a href="#" (click)="onViewMetadata($event)"><localize key="masterlist.view"></localize> </a></b>
+                </h5>
+            </div>
+        </div>
+
+        <div *ngIf="list && (isMaintainer || isAdmin)" style="margin-top: 30px;margin-bottom: 30px;" class="row">
+
+            <div class="col-md-12">
+                <form #myForm="ngForm">
+                    <div class="form-group">
+                        <label for="forDate" style="display: block;margin-bottom:0;"><localize key="masterlist.publishingFor"></localize></label>
+                        <input id="forDate" type="date" name="forDate" [(ngModel)]="forDate" required>
+
+                        <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
+                            <localize key="masterlist.publishNewVersion"></localize>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- <div class="row form-group">
+            <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+        </div> -->
+        <div class="row form-group">
+            <div *ngIf="list" class="col-md-12 table-responsive" style="">
+                <table class="list-table table">
+                    <thead>
+                        <tr>
+                            <!-- <th *ngFor="let attribute of history.history" class="label-column">
+
+								<a (click)="" style="display: table-cell; word-break: keep-all; word-wrap: normal;">{{history.displayLabel}} </a> 
+
+                            </th> -->
+
+                            <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
+                            <th style="width: 15%" class="label-column"><localize key="masterlist.forDate"></localize></th>
+                            <th style="width: 15%" class="label-column"><localize key="masterlist.createDate"></localize></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item"> -->
+                        <tr *ngFor="let version of list.versions">
+                            <td style="width: 70%">
+                                <div class="button-holder">
+                                    <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
+<!-- 
+                                    <button type="submit" (click)="onEdit(version)" class="btn btn-primary" role="button">Edit</button>
+ -->                                
+                                    <button *ngIf="isMaintainer || isAdmin" type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
+                                </div>
+                            </td>
+                            <td style="width: 15%" class="label-column">
+                                {{ version.forDate }}
+                            </td>
+                            <td style="width: 15%" class="label-column">
+                                {{ version.createDate }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- <div class="row form-group">
+            <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+        </div> -->
+
+
+
+    </div>
+    <!-- </div> -->
+</div>

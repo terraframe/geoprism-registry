@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -45,6 +45,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.GeoserverService;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class WMSService
 {
@@ -62,7 +63,7 @@ public class WMSService
     {
       if (!type.getCode().equals(Universal.ROOT_KEY))
       {
-        this.createWMSLayer(type, forceGeneration);
+        this.createWMSLayer(ServerGeoObjectType.get(type), forceGeneration);
       }
     }
   }
@@ -75,20 +76,20 @@ public class WMSService
     {
       if (!type.getCode().equals(Universal.ROOT_KEY))
       {
-        this.deleteWMSLayer(type);
+        this.deleteWMSLayer(ServerGeoObjectType.get(type));
       }
     }
   }
-  
+
   @Request(RequestType.SESSION)
-  public void createWMSLayer(GeoObjectType type, boolean forceGeneration)
+  public void createWMSLayer(ServerGeoObjectType type, boolean forceGeneration)
   {
     this.createDatabaseView(type, forceGeneration);
 
     this.createGeoServerLayer(type, forceGeneration);
   }
 
-  public void createGeoServerLayer(GeoObjectType type, boolean forceGeneration)
+  public void createGeoServerLayer(ServerGeoObjectType type, boolean forceGeneration)
   {
     String viewName = this.getViewName(type.getCode());
 
@@ -104,7 +105,7 @@ public class WMSService
       service.publishLayer(viewName, null);
     }
   }
-  
+
   public void deleteWMSLayer(String geoObjectTypeCode)
   {
     String viewName = this.getViewName(geoObjectTypeCode);
@@ -113,8 +114,8 @@ public class WMSService
 
     this.deleteDatabaseView(geoObjectTypeCode);
   }
-  
-  public void deleteWMSLayer(GeoObjectType type)
+
+  public void deleteWMSLayer(ServerGeoObjectType type)
   {
     this.deleteWMSLayer(type.getCode());
   }
@@ -130,13 +131,13 @@ public class WMSService
 
     return PREFIX + "_" + viewName;
   }
-  
+
   @Transaction
-  public void deleteDatabaseView(GeoObjectType type)
+  public void deleteDatabaseView(ServerGeoObjectType type)
   {
     this.deleteDatabaseView(type.getCode());
   }
-  
+
   @Transaction
   public void deleteDatabaseView(String typeCode)
   {
@@ -144,9 +145,20 @@ public class WMSService
 
     Database.dropView(viewName, null, false);
   }
+  
+  @Transaction
+  public void deleteDatabaseViewIfExists(String typeCode)
+  {
+    String viewName = this.getViewName(typeCode);
+
+//    if (Database.view)
+//    {
+      Database.dropView(viewName, null, false);
+//    }
+  }
 
   @Transaction
-  public String createDatabaseView(GeoObjectType type, boolean forceGeneration)
+  public String createDatabaseView(ServerGeoObjectType type, boolean forceGeneration)
   {
     String viewName = this.getViewName(type.getCode());
 
@@ -165,11 +177,11 @@ public class WMSService
     return viewName;
   }
 
-  public ValueQuery generateQuery(GeoObjectType type)
+  public ValueQuery generateQuery(ServerGeoObjectType type)
   {
     QueryFactory factory = new QueryFactory();
     ValueQuery vQuery = new ValueQuery(factory);
-    Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(type);
+    Universal universal = type.getUniversal();
 
     if (type.isLeaf())
     {

@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 
 public class MasterListShapefileExporter
@@ -96,19 +97,23 @@ public class MasterListShapefileExporter
 
   private MasterList                               list;
 
+  private MasterListVersion                        version;
+
   private MdBusinessDAOIF                          mdBusiness;
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
   private String                                   filterJson;
 
-  public MasterListShapefileExporter(MasterList list, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson)
+  public MasterListShapefileExporter(MasterListVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson)
   {
-    this.list = list;
+    this.version = version;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
     this.filterJson = filterJson;
     this.columnNames = new HashMap<String, String>();
+
+    this.list = version.getMasterlist();
   }
 
   public Map<String, String> getColumnNames()
@@ -245,7 +250,7 @@ public class MasterListShapefileExporter
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
-    BusinessQuery query = this.list.buildQuery(this.filterJson);
+    BusinessQuery query = this.version.buildQuery(this.filterJson);
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();

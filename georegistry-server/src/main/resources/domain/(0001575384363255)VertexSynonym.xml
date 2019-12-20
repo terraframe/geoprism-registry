@@ -1,0 +1,87 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdVertex name="net.geoprism.registry.graph.GeoVertexSynonym" label="Synonym" generateController="false"  generateSource="true">
+        <attributes>
+          <char name="label" label="Label" required="true" size="4000" />
+        </attributes>
+      </mdVertex>
+    
+      <mdEdge name="net.geoprism.registry.graph.GeoVertexHasSynonym" label="GeoVertex Has Synonym" parent="net.geoprism.registry.graph.GeoVertex" child="net.geoprism.registry.graph.GeoVertexSynonym" generateSource="true">
+      </mdEdge>
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryContributor">
+        <grant>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.APIConsumer">
+        <grant>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                    
+          <mdRelationshipPermission type="net.geoprism.registry.graph.GeoVertexHasSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>          
+        </grant>
+      </role>
+    </permissions>        
+    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdEdge" key="net.geoprism.registry.graph.GeoVertexHasSynonym"/>    
+      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.GeoVertexSynonym"/>    
+    </delete>
+  </undoIt>
+</version>

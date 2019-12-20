@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -28,15 +28,12 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.MdTermDAO;
-import com.runwaysdk.dataaccess.metadata.MdTermRelationshipDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable;
 import com.runwaysdk.query.OIterator;
@@ -47,13 +44,13 @@ import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayL
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
-import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTerm;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
-import net.geoprism.registry.service.ConversionService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.postgres.ValueObjectContainer;
 
 public class GeoObjectUtil
 {
@@ -82,31 +79,26 @@ public class GeoObjectUtil
     return builder.toString();
   }
 
-  public static Map<String, ValueObject> getAncestorMap(GeoObject object, HierarchyType hierarchy)
+  public static Map<String, LocationInfo> getAncestorMap(GeoObject object, ServerHierarchyType hierarchy)
   {
-    Map<String, ValueObject> map = new HashMap<String, ValueObject>();
+    Map<String, LocationInfo> map = new HashMap<String, LocationInfo>();
 
     if (object.getType().isLeaf())
     {
-      MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchy);
-      MdTermRelationship universalRelationship = ServiceFactory.getConversionService().existingHierarchyToUniversalMdTermRelationiship(hierarchy);
+      ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
 
-      GeoObjectType type = object.getType();
-      Universal universal = ServiceFactory.getConversionService().getUniversalFromGeoObjectType(type);
-      MdBusiness mdBusiness = universal.getMdBusiness();
-
-      Universal parentUniversal = (Universal) universal.getParents(universalRelationship.definesType()).getAll().get(0);
-      String refAttributeName = ConversionService.getParentReferenceAttributeName(hierarchy.getCode(), parentUniversal);
+      Universal parentUniversal = (Universal) type.getUniversal().getParents(hierarchy.getUniversalType()).getAll().get(0);
+      String refAttributeName = hierarchy.getParentReferenceAttributeName(parentUniversal);
 
       String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
-      String typeName = DatabaseAllPathsStrategy.getTypeName(MdTermRelationshipDAO.get(mdTermRelationship.getOid()));
+      String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
 
       ValueQuery vQuery = new ValueQuery(new QueryFactory());
       BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
       GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
       GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
       UniversalQuery universalQuery = new UniversalQuery(vQuery);
-      BusinessQuery leafQuery = new BusinessQuery(vQuery, mdBusiness.definesType());
+      BusinessQuery leafQuery = new BusinessQuery(vQuery, type.definesType());
 
       GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
 
@@ -137,7 +129,7 @@ public class GeoObjectUtil
           ValueObject vObject = it.next();
           String key = vObject.getValue(Universal.KEYNAME);
 
-          map.put(key, vObject);
+          map.put(key, new ValueObjectContainer(vObject));
         }
       }
       finally
@@ -147,10 +139,8 @@ public class GeoObjectUtil
     }
     else
     {
-      MdTermRelationship mdTermRelationship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchy);
-
       String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
-      String typeName = DatabaseAllPathsStrategy.getTypeName(MdTermRelationshipDAO.get(mdTermRelationship.getOid()));
+      String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
 
       ValueQuery vQuery = new ValueQuery(new QueryFactory());
       BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
@@ -186,7 +176,7 @@ public class GeoObjectUtil
           ValueObject vObject = it.next();
           String key = vObject.getValue(Universal.KEYNAME);
 
-          map.put(key, vObject);
+          map.put(key, new ValueObjectContainer(vObject));
         }
       }
       finally

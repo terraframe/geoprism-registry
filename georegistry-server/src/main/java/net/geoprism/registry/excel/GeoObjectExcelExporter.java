@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -46,46 +46,46 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectExcelExporter
 {
   private static Logger        logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
 
-  private GeoObjectType        type;
+  private ServerGeoObjectType  type;
 
-  private HierarchyType        hierarchy;
+  private ServerHierarchyType  hierarchy;
 
   private OIterator<GeoObject> objects;
 
-  public GeoObjectExcelExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
+  public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, OIterator<GeoObject> objects)
   {
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
   }
@@ -120,7 +120,7 @@ public class GeoObjectExcelExporter
     Row header = sheet.createRow(0);
 
     boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type);
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
     List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
@@ -219,11 +219,11 @@ public class GeoObjectExcelExporter
     }
 
     // Write the parent values
-    Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
+    Map<String, LocationInfo> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
 
     for (GeoObjectType ancestor : ancestors)
     {
-      ValueObject vObject = map.get(ancestor.getCode());
+      LocationInfo vObject = map.get(ancestor.getCode());
 
       Cell codeCell = row.createCell(col++);
       Cell labelCell = row.createCell(col++);
@@ -235,15 +235,15 @@ public class GeoObjectExcelExporter
 
       if (vObject != null)
       {
-        codeCell.setCellValue(vObject.getValue(GeoEntity.GEOID));
-        labelCell.setCellValue(vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+        codeCell.setCellValue(vObject.getCode());
+        labelCell.setCellValue(vObject.getLabel());
 
         for (int i = 0; i < locales.size(); i++)
         {
           Locale locale = locales.get(i);
 
           Cell cell = row.getCell(labelCell.getColumnIndex() + i + 1);
-          cell.setCellValue(vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+          cell.setCellValue(vObject.getLabel(locale));
         }
       }
     }

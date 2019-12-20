@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -59,18 +62,19 @@ import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.ImportProblemException;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.shapefile.GeoObjectShapefileImporter;
 import net.geoprism.registry.shapefile.NullLogger;
 
 public class ShapefileService
 {
   @Request(RequestType.SESSION)
-  public JsonObject getShapefileConfiguration(String sessionId, String type, String fileName, InputStream fileStream)
+  public JsonObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
   {
     // Save the file to the file system
     try
     {
-      GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(type).get();
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
 
       String name = SessionPredicate.generateId();
 
@@ -93,6 +97,9 @@ public class ShapefileService
 
       if (dbfs.length > 0)
       {
+        SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
         JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
 
         JsonObject object = new JsonObject();
@@ -102,6 +109,16 @@ public class ShapefileService
         object.addProperty(GeoObjectConfiguration.DIRECTORY, root.getName());
         object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
         object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+
+        if (startDate != null)
+        {
+          object.addProperty(GeoObjectConfiguration.START_DATE, format.format(startDate));
+        }
+
+        if (endDate != null)
+        {
+          object.addProperty(GeoObjectConfiguration.END_DATE, format.format(endDate));
+        }
 
         return object;
       }
@@ -122,7 +139,7 @@ public class ShapefileService
     }
   }
 
-  private JsonObject getType(GeoObjectType geoObjectType)
+  private JsonObject getType(ServerGeoObjectType geoObjectType)
   {
     JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();

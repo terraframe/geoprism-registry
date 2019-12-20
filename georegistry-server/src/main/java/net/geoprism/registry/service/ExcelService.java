@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -22,6 +22,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -52,17 +55,21 @@ import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.ImportProblemException;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ExcelService
 {
 
   @Request(RequestType.SESSION)
-  public JsonObject getExcelConfiguration(String sessionId, String type, String fileName, InputStream fileStream)
+  public JsonObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
   {
     // Save the file to the file system
     try
     {
-      GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(type).get();
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
 
       String name = SessionPredicate.generateId();
 
@@ -89,6 +96,16 @@ public class ExcelService
       object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
       object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
 
+      if (startDate != null)
+      {
+        object.addProperty(GeoObjectConfiguration.START_DATE, format.format(startDate));
+      }
+
+      if (endDate != null)
+      {
+        object.addProperty(GeoObjectConfiguration.END_DATE, format.format(endDate));
+      }
+
       return object;
     }
     catch (InvalidFormatException e)
@@ -108,9 +125,9 @@ public class ExcelService
     }
   }
 
-  private JsonObject getType(GeoObjectType geoObjectType)
+  private JsonObject getType(ServerGeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(),  true, SupportedLocaleDAO.getSupportedLocales()));
+    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), true, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)

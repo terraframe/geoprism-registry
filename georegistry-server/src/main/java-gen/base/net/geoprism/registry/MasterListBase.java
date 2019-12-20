@@ -1,24 +1,24 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -4550050)
+@com.runwaysdk.business.ClassSignature(hash = 86459377)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -47,7 +47,6 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LISTABSTRACT = "listAbstract";
   public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String MDBUSINESS = "mdBusiness";
   public static java.lang.String OID = "oid";
   public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String OWNER = "owner";
@@ -61,7 +60,7 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
-  private static final long serialVersionUID = -4550050;
+  private static final long serialVersionUID = 86459377;
   
   public MasterListBase()
   {
@@ -503,58 +502,6 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(LOCKEDBY);
-  }
-  
-  public com.runwaysdk.system.metadata.MdBusiness getMdBusiness()
-  {
-    if (getValue(MDBUSINESS).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdBusiness.get(getValue(MDBUSINESS));
-    }
-  }
-  
-  public String getMdBusinessOid()
-  {
-    return getValue(MDBUSINESS);
-  }
-  
-  public void validateMdBusiness()
-  {
-    this.validateAttribute(MDBUSINESS);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getMdBusinessMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(MDBUSINESS);
-  }
-  
-  public void setMdBusiness(com.runwaysdk.system.metadata.MdBusiness value)
-  {
-    if(value == null)
-    {
-      setValue(MDBUSINESS, "");
-    }
-    else
-    {
-      setValue(MDBUSINESS, value.getOid());
-    }
-  }
-  
-  public void setMdBusinessId(java.lang.String oid)
-  {
-    if(oid == null)
-    {
-      setValue(MDBUSINESS, "");
-    }
-    else
-    {
-      setValue(MDBUSINESS, oid);
-    }
   }
   
   public String getOid()

@@ -2,20 +2,20 @@
 
     Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Runway SDK(tm).
+    This file is part of Geoprism Registry(tm).
 
-    Runway SDK(tm) is free software: you can redistribute it and/or modify
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as
     published by the Free Software Foundation, either version 3 of the
     License, or (at your option) any later version.
 
-    Runway SDK(tm) is distributed in the hope that it will be useful, but
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
 <%@ taglib uri="/WEB-INF/tlds/geoprism.tld" prefix="gdb"%>
@@ -76,7 +76,7 @@
       <nav class="navbar navbar-default">
         <div class="container-fluid">
           <div class="navbar-header">
-            <a class="navbar-brand" href="${pageContext.request.contextPath}/prism/management#/menu" title="<gdb:localize key="userMenu.menuTooltip"/>"><img src="${pageContext.request.contextPath}/logo/view?id=logo" /></a>
+            <a class="navbar-brand" href="${pageContext.request.contextPath}/cgr/manage#/menu" title="<gdb:localize key="userMenu.menuTooltip"/>"><img src="${pageContext.request.contextPath}/logo/view?id=logo" /></a>
 <%--             <a class="navbar-brand" href="${pageContext.request.contextPath}/prism/home#/menu"><gdb:localize key="cgr.title"/></a> --%>
 <%-- 			<h3 class="navbar-brand"><gdb:localize key="data.management.title"/></h3> --%>
           </div>

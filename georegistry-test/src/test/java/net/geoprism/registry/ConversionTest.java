@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -53,7 +53,7 @@ public class ConversionTest
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(GeometryType.MULTIPOLYGON, false);
+    this.testData = USATestData.newTestData(false);
 
     this.adminCR = testData.adminClientRequest;
   }
@@ -74,7 +74,7 @@ public class ConversionTest
     calendar.set(2019, Calendar.JANUARY, 12, 20, 21, 32);
 
     // Add a new custom attribute
-    AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false);
+    AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
     testDate = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.STATE.getCode(), testDate.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -103,7 +103,7 @@ public class ConversionTest
     calendar.set(2019, Calendar.JANUARY, 12, 20, 21, 32);
 
     // Add a new custom attribute
-    AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false);
+    AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
     testDate = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.DISTRICT.getCode(), testDate.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -128,7 +128,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false);
+    AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
     testBoolean = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.STATE.getCode(), testBoolean.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -153,7 +153,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false);
+    AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
     testBoolean = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.DISTRICT.getCode(), testBoolean.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -178,7 +178,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testFloat = AttributeType.factory("testFloat", new LocalizedValue("testFloatLocalName"), new LocalizedValue("testFloatLocalDescrip"), AttributeFloatType.TYPE, false, false);
+    AttributeType testFloat = AttributeType.factory("testFloat", new LocalizedValue("testFloatLocalName"), new LocalizedValue("testFloatLocalDescrip"), AttributeFloatType.TYPE, false, false, false);
     testFloat = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.STATE.getCode(), testFloat.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -203,7 +203,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testFloat = AttributeType.factory("testFloat", new LocalizedValue("testFloatLocalName"), new LocalizedValue("testFloatLocalDescrip"), AttributeFloatType.TYPE, false, false);
+    AttributeType testFloat = AttributeType.factory("testFloat", new LocalizedValue("testFloatLocalName"), new LocalizedValue("testFloatLocalDescrip"), AttributeFloatType.TYPE, false, false, false);
     testFloat = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.DISTRICT.getCode(), testFloat.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -228,7 +228,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false);
+    AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
     testInteger = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.STATE.getCode(), testInteger.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -253,7 +253,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false);
+    AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
     testInteger = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.DISTRICT.getCode(), testInteger.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -278,7 +278,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testCharacter = AttributeType.factory("testCharacter", new LocalizedValue("testCharacterLocalName"), new LocalizedValue("testCharacterLocalDescrip"), AttributeCharacterType.TYPE, false, false);
+    AttributeType testCharacter = AttributeType.factory("testCharacter", new LocalizedValue("testCharacterLocalName"), new LocalizedValue("testCharacterLocalDescrip"), AttributeCharacterType.TYPE, false, false, false);
     testCharacter = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.STATE.getCode(), testCharacter.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -303,7 +303,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeType testCharacter = AttributeType.factory("testCharacter", new LocalizedValue("testCharacterLocalName"), new LocalizedValue("testCharacterLocalDescrip"), AttributeCharacterType.TYPE, false, false);
+    AttributeType testCharacter = AttributeType.factory("testCharacter", new LocalizedValue("testCharacterLocalName"), new LocalizedValue("testCharacterLocalDescrip"), AttributeCharacterType.TYPE, false, false, false);
     testCharacter = ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.DISTRICT.getCode(), testCharacter.toJSON().toString());
 
     // Create a new GeoObject with the custom attribute
@@ -329,7 +329,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false);
+    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
     testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.STATE.getCode(), testTerm.toJSON().toString());
     Term rootTerm = testTerm.getRootTerm();
 
@@ -371,12 +371,13 @@ public class ConversionTest
   public void testUpdateLeaf()
   {
     String sessionId = this.adminCR.getSessionId();
+    String uid = ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0];
 
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.DISTRICT.getCode());
     geoObj.setCode("000");
     geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Label");
-    geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
+    geoObj.setUid(uid);
 
     geoObj = ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
     geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "New Label");
@@ -420,7 +421,7 @@ public class ConversionTest
     String sessionId = this.adminCR.getSessionId();
 
     // Add a new custom attribute
-    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false);
+    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
     testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(sessionId, this.testData.DISTRICT.getCode(), testTerm.toJSON().toString());
     Term rootTerm = testTerm.getRootTerm();
 

@@ -1,0 +1,38 @@
+
+<form style="overflow:visible;" class="modal-form" name="cascading-geo-selector" #mainForm="ngForm">
+  <fieldset>
+    <div>
+      <div class="row-holder" style="overflow:visible;" *ngFor="let hierarchy of this.cHierarchies">
+        <div class="label-holder">
+          <label>
+            {{hierarchy.label}}
+          </label>
+        </div>
+        <div class="holder">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-12" style="float:left;width:150px;" *ngFor="let parent of hierarchy.parents; let i = index">
+                {{parent.label}}
+
+                <input style="width:150px;" type="text" class="form-control" disabled
+                  [(ngModel)]="parent.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input">
+                  
+              </div>
+              
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                  <div class="button-holder" style="padding: 20px 0 20px 0;">
+                      <button type="submit" style="" (click)="onManageVersions(hierarchy.code)" class="btn btn-primary" role="button">
+                          <localize key="changeovertime.manageVersions.button.label"></localize>
+                      </button>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>

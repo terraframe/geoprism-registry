@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -51,7 +51,6 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -72,11 +71,9 @@ import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -87,6 +84,9 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectShapefileExporter
@@ -95,9 +95,9 @@ public class GeoObjectShapefileExporter
 
   public static final String        GEOM   = "the_geom";
 
-  private GeoObjectType             type;
+  private ServerGeoObjectType       type;
 
-  private HierarchyType             hierarchy;
+  private ServerHierarchyType       hierarchy;
 
   private Collection<AttributeType> attributes;
 
@@ -105,17 +105,17 @@ public class GeoObjectShapefileExporter
 
   private OIterator<GeoObject>      objects;
 
-  public GeoObjectShapefileExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects)
+  public GeoObjectShapefileExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, OIterator<GeoObject> objects)
   {
     this(type, hierarchy, objects, new LinkedList<Locale>());
   }
 
-  public GeoObjectShapefileExporter(GeoObjectType type, HierarchyType hierarchy, OIterator<GeoObject> objects, List<Locale> locales)
+  public GeoObjectShapefileExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, OIterator<GeoObject> objects, List<Locale> locales)
   {
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, locales).attributes(this.type);
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, locales).attributes(this.type.getType());
     this.columnNames = new HashMap<String, String>();
   }
 
@@ -124,12 +124,12 @@ public class GeoObjectShapefileExporter
     return columnNames;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
   }
@@ -309,21 +309,21 @@ public class GeoObjectShapefileExporter
         builder.set(this.getColumnName(attribute.getName() + " " + locale.toString()), value.getValue(locale));
       }
 
-      Map<String, ValueObject> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
+      Map<String, LocationInfo> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
 
       ancestors.forEach(ancestor -> {
         String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
 
-        ValueObject vObject = map.get(ancestor.getCode());
+        LocationInfo vObject = map.get(ancestor.getCode());
 
         if (vObject != null)
         {
-          builder.set(this.getColumnName(code), vObject.getValue(GeoEntity.GEOID));
-          builder.set(this.getColumnName(ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+          builder.set(this.getColumnName(code), vObject.getCode());
+          builder.set(this.getColumnName(ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), vObject.getLabel());
 
           for (Locale locale : locales)
           {
-            builder.set(this.getColumnName(ancestor.getCode() + " " + locale.toString()), vObject.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+            builder.set(this.getColumnName(ancestor.getCode() + " " + locale.toString()), vObject.getLabel(locale));
           }
         }
       });

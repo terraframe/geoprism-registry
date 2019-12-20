@@ -1,28 +1,28 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 478724183)
+@com.runwaysdk.business.ClassSignature(hash = -1186398595)
 public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterListAttributeGroup";
-  private static final long serialVersionUID = 478724183;
+  private static final long serialVersionUID = -1186398595;
   
   protected MasterListAttributeGroupDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -52,7 +52,6 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String MASTERLIST = "masterList";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
   public static java.lang.String SEQ = "seq";
@@ -60,6 +59,7 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
   public static java.lang.String SOURCEATTRIBUTE = "sourceAttribute";
   public static java.lang.String TARGETATTRIBUTE = "targetAttribute";
   public static java.lang.String TYPE = "type";
+  public static java.lang.String VERSION = "version";
   public java.util.Date getCreateDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(CREATEDATE));
@@ -307,55 +307,6 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LOCKEDBY).getAttributeMdDTO();
   }
   
-  public net.geoprism.registry.MasterListDTO getMasterList()
-  {
-    if(getValue(MASTERLIST) == null || getValue(MASTERLIST).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.MasterListDTO.get(getRequest(), getValue(MASTERLIST));
-    }
-  }
-  
-  public String getMasterListOid()
-  {
-    return getValue(MASTERLIST);
-  }
-  
-  public void setMasterList(net.geoprism.registry.MasterListDTO value)
-  {
-    if(value == null)
-    {
-      setValue(MASTERLIST, "");
-    }
-    else
-    {
-      setValue(MASTERLIST, value.getOid());
-    }
-  }
-  
-  public boolean isMasterListWritable()
-  {
-    return isWritable(MASTERLIST);
-  }
-  
-  public boolean isMasterListReadable()
-  {
-    return isReadable(MASTERLIST);
-  }
-  
-  public boolean isMasterListModified()
-  {
-    return isModified(MASTERLIST);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getMasterListMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(MASTERLIST).getAttributeMdDTO();
-  }
-  
   public com.runwaysdk.system.ActorDTO getOwner()
   {
     if(getValue(OWNER) == null || getValue(OWNER).trim().equals(""))
@@ -551,6 +502,55 @@ public abstract class MasterListAttributeGroupDTOBase extends com.runwaysdk.busi
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getTargetAttributeMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(TARGETATTRIBUTE).getAttributeMdDTO();
+  }
+  
+  public net.geoprism.registry.MasterListVersionDTO getVersion()
+  {
+    if(getValue(VERSION) == null || getValue(VERSION).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.MasterListVersionDTO.get(getRequest(), getValue(VERSION));
+    }
+  }
+  
+  public String getVersionOid()
+  {
+    return getValue(VERSION);
+  }
+  
+  public void setVersion(net.geoprism.registry.MasterListVersionDTO value)
+  {
+    if(value == null)
+    {
+      setValue(VERSION, "");
+    }
+    else
+    {
+      setValue(VERSION, value.getOid());
+    }
+  }
+  
+  public boolean isVersionWritable()
+  {
+    return isWritable(VERSION);
+  }
+  
+  public boolean isVersionReadable()
+  {
+    return isReadable(VERSION);
+  }
+  
+  public boolean isVersionModified()
+  {
+    return isModified(VERSION);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getVersionMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(VERSION).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.MasterListAttributeGroupDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

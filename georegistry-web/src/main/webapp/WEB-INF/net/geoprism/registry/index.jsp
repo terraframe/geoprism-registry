@@ -2,20 +2,20 @@
 
     Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Runway SDK(tm).
+    This file is part of Geoprism Registry(tm).
 
-    Runway SDK(tm) is free software: you can redistribute it and/or modify
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as
     published by the Free Software Foundation, either version 3 of the
     License, or (at your option) any later version.
 
-    Runway SDK(tm) is distributed in the hope that it will be useful, but
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -51,6 +51,7 @@
   <!-- CSS imports -->
   <jwr:style src="/bundles/datatable.css" useRandomParam="false"/>
   <jwr:style src="/bundles/main.css" useRandomParam="false" />
+  <jwr:style src="/bundles/administration.css" useRandomParam="false" />
   
   <!-- Default imports -->  
   <jwr:script src="/bundles/runway.js" useRandomParam="false"/> 
@@ -64,7 +65,7 @@
 <body>
     <cgr-app>
     <style type="text/css">
-      uasdm-app {
+      cgr-app {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -80,7 +81,7 @@
           Cantarell,
           Helvetica,
           sans-serif;
-        font-size: 1.5em;
+        font-size: 5em;
         text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
       }
       

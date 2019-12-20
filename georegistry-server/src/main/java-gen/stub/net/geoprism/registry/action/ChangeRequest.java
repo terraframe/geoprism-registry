@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action;
 
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.tools.ant.taskdefs.SendEmail;
 import org.json.JSONObject;
 
 import com.runwaysdk.business.Business;
@@ -42,7 +41,6 @@ import com.runwaysdk.system.Users;
 import net.geoprism.EmailSetting;
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.action.ChangeRequestBase;
 
 public class ChangeRequest extends ChangeRequestBase
 {
@@ -158,13 +156,17 @@ public class ChangeRequest extends ChangeRequestBase
   }
 
   @Transaction
-  public void execute()
+  public void execute(boolean sendEmail)
   {
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-      List<String> messages = new LinkedList<String>();
+      List<String> accepted = new LinkedList<String>();
+
+      List<String> rejected = new LinkedList<String>();
 
       List<AbstractAction> actions = this.getOrderedActions();
+
+      AllGovernanceStatus status = AllGovernanceStatus.REJECTED;
 
       for (AbstractAction action : actions)
       {
@@ -176,39 +178,69 @@ public class ChangeRequest extends ChangeRequestBase
         {
           action.execute();
 
-          messages.add(action.getMessage());
+          accepted.add(action.getMessage());
+
+          status = AllGovernanceStatus.ACCEPTED;
+        }
+        else if (action.getApprovalStatus().contains(AllGovernanceStatus.REJECTED))
+        {
+          rejected.add(action.getMessage());
         }
       }
-      
 
       this.appLock();
       this.clearApprovalStatus();
-      this.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+      this.addApprovalStatus(status);
       this.apply();
 
       // Email the contributor
       SingleActor actor = this.getCreatedBy();
 
-      if (actor instanceof GeoprismUser)
+      if (sendEmail && actor instanceof GeoprismUser)
       {
         String email = ( (GeoprismUser) actor ).getEmail();
 
         if (email != null && email.length() > 0)
         {
           String subject = LocalizationFacade.getFromBundles("change.request.email.subject");
-          String body = LocalizationFacade.getFromBundles("change.request.email.body");
+          subject = subject.replaceAll("\\{0\\}", status.getDisplayLabel());
 
-          body += "\n";
+          String body = new String();
 
-          for (String message : messages)
+          if (accepted.size() > 0)
           {
-            body += message + "\n";
+            body += append(accepted, "change.request.email.body.approved");
+          }
+
+          if (rejected.size() > 0)
+          {
+            if (accepted.size() > 0)
+            {
+              body += "\n";
+              body += "\n";
+            }
+
+            body += append(rejected, "change.request.email.body.rejected");
           }
 
           EmailSetting.sendEmail(subject, body, new String[] { email });
         }
       }
     }
+  }
+
+  private String append(List<String> list, String key)
+  {
+    String body = LocalizationFacade.getFromBundles(key);
+
+    String messages = "\n";
+
+    for (String message : list)
+    {
+      messages += message + "\n";
+    }
+
+    return body.replaceAll("\\{0\\}", messages);
   }
 
   @Transaction
@@ -222,13 +254,14 @@ public class ChangeRequest extends ChangeRequestBase
       {
         AbstractAction action = it.next();
 
-//        if (!status.equals(AllGovernanceStatus.ACCEPTED) || action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
-//        {
-          action.appLock();
-          action.clearApprovalStatus();
-          action.addApprovalStatus(status);
-          action.apply();
-//        }
+        // if (!status.equals(AllGovernanceStatus.ACCEPTED) ||
+        // action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        // {
+        action.appLock();
+        action.clearApprovalStatus();
+        action.addApprovalStatus(status);
+        action.apply();
+        // }
       }
     }
     finally
@@ -236,13 +269,13 @@ public class ChangeRequest extends ChangeRequestBase
       it.close();
     }
 
-//    if (status.equals(AllGovernanceStatus.REJECTED))
-//    {
-//      this.appLock();
-//      this.clearApprovalStatus();
-//      this.addApprovalStatus(AllGovernanceStatus.REJECTED);
-//      this.apply();
-//    }
+    // if (status.equals(AllGovernanceStatus.REJECTED))
+    // {
+    // this.appLock();
+    // this.clearApprovalStatus();
+    // this.addApprovalStatus(AllGovernanceStatus.REJECTED);
+    // this.apply();
+    // }
   }
 
 }

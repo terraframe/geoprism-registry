@@ -1,0 +1,117 @@
+<div>
+  <message ></message>  
+
+  <form #form="ngForm" class="modal-form" style="background: none;border: none;" (ngSubmit)="form.valid && onSubmit()">    
+    <!-- <div class="modal-dialog" style="background: none;border: none;"> -->
+      <!-- <div class="modal-content" style="background: none;border: none;"> -->
+        <fieldset>            
+          <div class="heading">
+            <h3><localize key="profile.heading"></localize></h3>
+          </div>      
+          <hr>        
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="account.firstname"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="profile.firstName" name="firstname" required>
+              </span>
+            </div>
+          </div>          
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="account.lastname"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="profile.lastName" name="lastname" required>
+              </span>
+            </div>
+          </div>          
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="account.email"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="profile.email" name="email" required #aemail="ngModel" email>
+              </span>
+              <div *ngIf="aemail.errors?.email" class="inline-error-message">
+                <localize key="account.email.validation"></localize>
+              </div>                                          
+            </div>
+          </div>          
+          <div class="heading">
+            <h3><localize key="account.info.heading"></localize></h3>
+          </div>      
+          <hr>          
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="profilename"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="profile.username" name="username" required>
+              </span>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="account.changePassword"></localize></label>
+            </div>          
+            <div class="holder" >
+              <boolean-field [(value)]="profile.changePassword"></boolean-field>
+            </div>
+          </div>                        
+          <div *ngIf="profile.changePassword">
+            <div class="row-holder">
+              <div class="label-holder">
+                <label><localize key="account.password"></localize></label>
+              </div>          
+              <div class="holder" >
+                <span class="text">
+                  <input type="password" [(ngModel)]="profile.password" name="password" #password="ngModel" required minlength="5" maxlength="50" >
+                  <ng2-password-strength-bar
+                    [passwordToCheck]="profile.password">
+                  </ng2-password-strength-bar>                              
+                </span>
+              </div>
+            </div>  
+            <div class="row-holder">
+              <div class="label-holder">
+                <label><localize key="account.certainPassword"></localize></label>
+              </div>          
+              <div class="holder" >
+                <span class="text">
+                  <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" [equalTo]="password"/>
+                </span>
+                <div *ngIf="certainPassword.errors?.equalTo" class="inline-error-message">
+                  <localize key="account.certainPassword.validation"></localize>
+                </div>                                                       
+              </div>
+            </div>  
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="com.runwaysdk.ui.userstable.UsersTable.adminRoles"></localize></label>
+            </div>                    
+            <div class="holder">
+              <label style="margin-top:10px;">{{getRoles()}}</label>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>                    
+            <div class="holder">
+              <div class="button-holder">
+                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
+                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      <!-- </div> -->
+    <!-- </div> -->
+  </form>
+</div>

@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -36,6 +36,7 @@ import net.geoprism.registry.IdRecord;
 import net.geoprism.registry.IdRecordQuery;
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class RegistryIdService implements AdapterIdServiceIF
 {
@@ -103,6 +104,11 @@ public class RegistryIdService implements AdapterIdServiceIF
 
   public String registryIdToRunwayId(String registryId, GeoObjectType got)
   {
+    return this.registryIdToRunwayId(registryId, ServerGeoObjectType.get(got));
+  }
+
+  public String registryIdToRunwayId(String registryId, ServerGeoObjectType got)
+  {
     if (registryId == null || registryId.length() != 36)
     {
       InvalidRegistryIdException ex = new InvalidRegistryIdException();
@@ -112,11 +118,9 @@ public class RegistryIdService implements AdapterIdServiceIF
 
     if (!got.isLeaf())
     {
-      Universal uni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-
       QueryFactory qf = new QueryFactory();
       ValueQuery vq = new ValueQuery(qf);
-      BusinessQuery bq = qf.businessQuery(uni.getMdBusiness().definesType());
+      BusinessQuery bq = qf.businessQuery(got.definesType());
 
       vq.SELECT(bq.get(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME));
       vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));
@@ -145,11 +149,9 @@ public class RegistryIdService implements AdapterIdServiceIF
     }
     else
     {
-      Universal uni = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-
       QueryFactory qf = new QueryFactory();
       ValueQuery vq = new ValueQuery(qf);
-      BusinessQuery bq = qf.businessQuery(uni.getMdBusiness().definesType());
+      BusinessQuery bq = qf.businessQuery(got.definesType());
 
       vq.SELECT(bq.get(ComponentInfo.OID));
       vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));

@@ -1,29 +1,32 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -37,29 +40,31 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.query.GeoObjectQuery;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
 
 public class GeoObjectConfiguration
 {
   public static final String             PARENT_EXCLUSION  = "##PARENT##";
+
+  public static final String             START_DATE        = "startDate";
+
+  public static final String             END_DATE          = "endDate";
 
   public static final String             TARGET            = "target";
 
@@ -103,13 +108,13 @@ public class GeoObjectConfiguration
 
   public static final String             LATITUDE_KEY      = "georegistry.latitude.label";
 
+  public static final String             DATE_FORMAT       = "yyyy-MM-dd";
+
   private Map<String, ShapefileFunction> functions;
 
-  private GeoObjectType                  type;
+  private ServerGeoObjectType            type;
 
   private GeoObject                      root;
-
-  private MdBusinessDAOIF                mdBusiness;
 
   private String                         filename;
 
@@ -125,11 +130,13 @@ public class GeoObjectConfiguration
 
   private List<Location>                 locations;
 
-  private HierarchyType                  hierarchy;
-
-  private MdTermRelationship             hierarchyRelationship;
+  private ServerHierarchyType            hierarchy;
 
   private Boolean                        postalCode;
+
+  private Date                           startDate;
+
+  private Date                           endDate;
 
   public GeoObjectConfiguration()
   {
@@ -152,24 +159,14 @@ public class GeoObjectConfiguration
     this.includeCoordinates = includeCoordinates;
   }
 
-  public GeoObjectType getType()
+  public ServerGeoObjectType getType()
   {
     return type;
   }
 
-  public void setType(GeoObjectType type)
+  public void setType(ServerGeoObjectType type)
   {
     this.type = type;
-  }
-
-  public MdBusinessDAOIF getMdBusiness()
-  {
-    return mdBusiness;
-  }
-
-  public void setMdBusiness(MdBusinessDAOIF mdBusiness)
-  {
-    this.mdBusiness = mdBusiness;
   }
 
   public String getDirectory()
@@ -190,6 +187,26 @@ public class GeoObjectConfiguration
   public void setFilename(String filename)
   {
     this.filename = filename;
+  }
+
+  public Date getStartDate()
+  {
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate)
+  {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
   }
 
   public Map<String, ShapefileFunction> getFunctions()
@@ -277,24 +294,14 @@ public class GeoObjectConfiguration
     return this.locations;
   }
 
-  public HierarchyType getHierarchy()
+  public ServerHierarchyType getHierarchy()
   {
     return hierarchy;
   }
 
-  public void setHierarchy(HierarchyType hierarchy)
+  public void setHierarchy(ServerHierarchyType hierarchy)
   {
     this.hierarchy = hierarchy;
-  }
-
-  public MdTermRelationship getHierarchyRelationship()
-  {
-    return hierarchyRelationship;
-  }
-
-  public void setHierarchyRelationship(MdTermRelationship hierarchyRelationship)
-  {
-    this.hierarchyRelationship = hierarchyRelationship;
   }
 
   public boolean hasProblems()
@@ -315,6 +322,9 @@ public class GeoObjectConfiguration
   @Request
   public JsonObject toJson()
   {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     JsonObject type = this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, SupportedLocaleDAO.getSupportedLocales()));
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
@@ -358,6 +368,16 @@ public class GeoObjectConfiguration
     config.addProperty(GeoObjectConfiguration.DIRECTORY, this.getDirectory());
     config.addProperty(GeoObjectConfiguration.FILENAME, this.getFilename());
     config.addProperty(GeoObjectConfiguration.POSTAL_CODE, this.isPostalCode());
+
+    if (this.getStartDate() != null)
+    {
+      config.addProperty(GeoObjectConfiguration.START_DATE, format.format(this.getStartDate()));
+    }
+
+    if (this.getEndDate() != null)
+    {
+      config.addProperty(GeoObjectConfiguration.END_DATE, format.format(this.getEndDate()));
+    }
 
     if (this.hierarchy != null)
     {
@@ -411,39 +431,53 @@ public class GeoObjectConfiguration
   @Request
   public static GeoObjectConfiguration parse(String json, boolean includeCoordinates)
   {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     JsonObject config = new JsonParser().parse(json).getAsJsonObject();
     JsonObject type = config.get(TYPE).getAsJsonObject();
     JsonArray locations = config.has(LOCATIONS) ? config.get(LOCATIONS).getAsJsonArray() : new JsonArray();
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
     String code = type.get(GeoObjectType.JSON_CODE).getAsString();
-    GeoObjectType got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).get();
-    Universal universal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(got);
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(universal.getMdBusinessOid());
+    ServerGeoObjectType got = ServerGeoObjectType.get(code);
 
     GeoObjectConfiguration configuration = new GeoObjectConfiguration();
     configuration.setDirectory(config.get(DIRECTORY).getAsString());
     configuration.setFilename(config.get(FILENAME).getAsString());
     configuration.setType(got);
-    configuration.setMdBusiness(mdBusiness);
     configuration.setIncludeCoordinates(includeCoordinates);
     configuration.setPostalCode(config.has(POSTAL_CODE) && config.get(POSTAL_CODE).getAsBoolean());
+
+    try
+    {
+      if (config.has(GeoObjectConfiguration.START_DATE))
+      {
+        configuration.setStartDate(format.parse(config.get(GeoObjectConfiguration.START_DATE).getAsString()));
+      }
+
+      if (config.has(GeoObjectConfiguration.END_DATE))
+      {
+        configuration.setEndDate(format.parse(config.get(GeoObjectConfiguration.END_DATE).getAsString()));
+      }
+    }
+    catch (ParseException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
 
     if (config.has(HIERARCHY))
     {
       String hCode = config.get(HIERARCHY).getAsString();
 
-      HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
-      MdTermRelationship hierarchyRelationiship = ServiceFactory.getConversionService().existingHierarchyToGeoEntityMdTermRelationiship(hierarchyType);
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
       List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got, hCode);
 
       configuration.setHierarchy(hierarchyType);
-      configuration.setHierarchyRelationship(hierarchyRelationiship);
 
       if (ancestors.size() > 0)
       {
         GeoObjectType rootType = ancestors.get(0);
-        Universal rootUniversal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(rootType);
-        GeoObjectQuery query = new GeoObjectQuery(rootType, rootUniversal);
+        GeoObjectQuery query = new GeoObjectQuery(ServerGeoObjectType.get(rootType));
         GeoObject root = query.getSingleResult();
 
         configuration.setRoot(root);
@@ -499,12 +533,11 @@ public class GeoObjectConfiguration
       if (location.has(TARGET))
       {
         String pCode = location.get(AttributeType.JSON_CODE).getAsString();
-        GeoObjectType pType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(pCode).get();
-        Universal pUniversal = ServiceFactory.getConversionService().geoObjectTypeToUniversal(pType);
+        ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
 
         String target = location.get(TARGET).getAsString();
 
-        configuration.addParent(new Location(pType, pUniversal, new BasicColumnFunction(target)));
+        configuration.addParent(new Location(pType, new BasicColumnFunction(target)));
       }
     }
 

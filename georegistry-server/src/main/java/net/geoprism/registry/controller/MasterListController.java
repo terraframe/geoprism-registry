@@ -1,22 +1,26 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 
@@ -80,9 +84,23 @@ public class MasterListController
     return new RestResponse();
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
-  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-version")
+  public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "forDate") String forDate) throws ParseException
   {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+    JsonObject response = this.service.createVersion(request.getSessionId(), oid, format.parse(forDate));
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
+  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     JsonObject response = this.service.publish(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
@@ -94,6 +112,30 @@ public class MasterListController
     JsonObject response = this.service.get(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonObject response = this.service.getVersions(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "version")
+  public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonObject response = this.service.getVersion(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove-version")
+  public ResponseIF removeVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    this.service.removeVersion(request.getSessionId(), oid);
+
+    return new RestResponse();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "data")
@@ -115,8 +157,8 @@ public class MasterListController
   @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    JsonObject masterList = this.service.get(request.getSessionId(), oid);
-    String code = masterList.get(MasterList.CODE).getAsString();
+    JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
+    String code = masterList.get(MasterList.TYPE_CODE).getAsString();
 
     return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", code + ".zip");
   }
@@ -124,8 +166,8 @@ public class MasterListController
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
-    JsonObject masterList = this.service.get(request.getSessionId(), oid);
-    String code = masterList.get(MasterList.CODE).getAsString();
+    JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
+    String code = masterList.get(MasterList.TYPE_CODE).getAsString();
 
     return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid, filter), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", code + ".xlsx");
   }

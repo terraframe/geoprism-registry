@@ -1,0 +1,47 @@
+<div>
+  <cgr-header></cgr-header>
+
+<div id="app-container" class="container" >
+
+  <message ></message>
+  <loading-bar></loading-bar>
+  
+  <div>
+    <span>
+      <h2> <localize key="system.image.title"></localize> </h2>
+    </span>
+  </div>
+  
+  <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  
+  <div class="list-table-wrapper">
+    <table id="manage-icons-table" class="list-table table table-bordered table-striped">        
+      <thead>
+        <tr>
+          <th></th>
+          <th class="label-column"><localize key='system.image.label'></localize></th>
+          <th class="label-column"><localize key='system.image.preview'></localize></th>
+        </tr>
+      </thead>    
+      <tbody>
+        <tr *ngFor="let icon of icons" class="fade-ngRepeat-item">
+          <td class="button-column">
+            <span>
+              <a class="fa fa-pencil ico-edit" (click)="edit(icon)" [title]="'system.image.editTooltip' | localize"></a>
+              <a *ngIf="icon.custom" class="fa fa-trash-o ico-remove" [title]="'system.image.removeTooltip' | localize"
+                 (click)="onClickRemove(icon, $event)"></a>
+            </span>
+          </td>
+          <td class="label-column">{{ icon.label }}</td>
+          <td class="icon-thumbnail-column">
+            <img style="width:42px;height:42px;" class="thumb" [src]="context + '/logo/view?id=' + icon.id" alt="Icon">
+          </td>
+        </tr>      
+      </tbody>    
+    </table>
+  </div>
+  
+  <div *ngIf="icons === null" ><localize key='dataset.loadingData'></localize></div>
+</div>
+
+</div>

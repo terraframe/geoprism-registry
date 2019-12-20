@@ -1,0 +1,108 @@
+<!-- <div class="new-admin-design-main" style="height: 100vh;">
+    <cgr-header></cgr-header> -->
+    <loading-bar></loading-bar>
+
+    <!-- <div id="app-container" class="container" style="max-height: 100%;">
+
+        <div class="py-5 text-center">
+            <h2>
+                <localize key="change.request.page.title"></localize>
+            </h2>
+            <p class="lead">
+                <localize key="change.request.page.description"></localize>
+            </p>
+        </div>
+        <div class="row" style="padding: 15px;">
+            <div class="modal-body"> -->
+
+                <form  class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
+                    <fieldset>
+                        <!-- <div class="col-md-12"> -->
+                        <!-- <div *ngIf="preGeoObject"> -->
+                        <div class="row-holder" style="min-height:50vh; padding-left: calc(50% - 500Px);">
+
+                            <div class="row-holder">
+                                <div class="label-holder">
+                                    <label>
+                                        <localize key="dropdown.select.geoobjecttype.label"></localize>
+                                    </label>
+                                </div>
+                                <div class="holder">
+                                    <span class="text">
+                                        <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="select-area"
+                                            [(ngModel)]="geoObjectType" required>
+                                            <!-- <option> <localize key="dropdown.select.geoobjecttype.option.label"></localize> </option> -->
+                                            <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.label.localizedValue}}</option>
+                                        </select>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="row-holder" style="overflow: visible;">
+                                <div class="label-holder">
+                                    <label>
+                                        <localize key="dropdown.select.geoobject.label"></localize>
+                                    </label>
+                                </div>
+                                <div class="holder">
+                                    <span class="text">
+                                        <input type="text" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId"
+                                            [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                                            [typeaheadOptionsLimit]="7" typeaheadOptionField="name" class="form-control"
+                                            autocomplete="off" required>
+
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div *ngIf="preGeoObject">
+	                            <geoobject-shared-attribute-editor #attributeEditor (valid)="this.onValidChange($event)"
+	                                [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject"
+	                                [(postGeoObject)]="this.postGeoObject" [isGeometryInlined]="true"></geoobject-shared-attribute-editor>
+<!-- 
+	                            <geoobject-editor-map #geometryEditor *ngIf="this.geoObjectType.isGeometryEditable" [postGeoObject]="this.postGeoObject" [preGeoObject]="this.preGeoObject" [geoObjectType]="this.geoObjectType" [readOnly]="!geoObjectType.isGeometryEditable" (valid)="this.onValidChange()" [isNew]="false"></geoobject-editor-map>
+ -->                                    
+                            </div>
+
+                            <div class="row-holder" style="z-index: 0;">
+                                <div class="label-holder">
+                                    <label>
+                                        <localize key="change.request.reason.label"></localize>
+                                    </label>
+                                </div>
+                                <div class="holder">
+                                    <span class="text">
+                                        <textarea rows="4" cols="50" [(ngModel)]="reason" name="reason-input" required></textarea>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="row-holder">
+                                <div class="label-holder">
+                                </div>
+                                <div class="holder">
+                                    <div class="button-holder">
+                                        <button type="button" class="btn btn-default" (click)="cancel()">
+                                            <localize key="modal.button.cancel"></localize>
+                                        </button>
+<!-- 
+                                        <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="!this.isValid">
+                                            <localize key="modal.button.submit"></localize>
+                                        </button>
+ -->                                        
+                                        <button type="submit" class="btn btn-primary" (click)="submit()">
+                                            <localize key="modal.button.submit"></localize>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- </div> -->
+                        <!-- </div> -->
+                    </fieldset>
+                </form>
+            <!-- </div>
+        </div>
+    </div> -->
+<!-- </div> -->

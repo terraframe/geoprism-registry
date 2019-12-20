@@ -1,0 +1,81 @@
+<div class="modal-body text-center">
+    
+    <form class="modal-form" style="overflow: visible;" #goForm="ngForm">
+        <div class="row-holder">
+            <div class="label-holder"><label><localize key="masterlist.forDate"></localize></label></div>
+            <div class="holder">
+                <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder">
+                <div class="btn-group geobject-editor-tab-holder">
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.changePage(0);">
+                        <localize key="geoobject.editor.tabZero"></localize>
+                    </label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
+                        <localize key="geoobject.editor.tabOne"></localize>
+                    </label>
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2}" (click)="this.changePage(2);">
+                        <localize key="geoobject.editor.tabTwo"></localize>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attributes tab -->
+        <geoobject-shared-attribute-editor 
+            *ngIf="(this.tabIndex === 0 || this.tabIndex === 2) && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
+            #attributeEditor 
+            (valid)="this.onValidChange()" 
+            [geoObjectType]="this.geoObjectType"
+            [preGeoObject]="this.goPropertiesPre" 
+            [postGeoObject]="this.goPropertiesPost" 
+            [forDate]="this.forDate" 
+            [isNew]="this.isNewGeoObject"
+            [isEditingGeometries]="this.isEditingGeometries">
+        </geoobject-shared-attribute-editor>
+
+
+        <!-- Parents tab -->
+        <div *ngIf="this.tabIndex === 1 && this.hierarchies != null">
+          <cascading-geo-selector #parentSelector 
+            [isValid]="this.isValid" (valid)="this.onValidChange()"
+            [forDate]="this.forDate"             
+            [hierarchies]="this.hierarchies">
+          </cascading-geo-selector>
+        </div>
+
+         <!-- Geometry tab -->
+         <!--
+         <div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder">
+              <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="this.goGeometries.getVotAtDate(this.forDate, 'geometry', this.geoObjectType, this.localizeService).value" [bboxCode]="this.goGeometries.attributes.code" [bboxType]="this.geoObjectType.code"></geoobject-editor-map>
+            </div>
+        </div>
+        -->
+
+        <div *ngIf="!isMaintainer" class="row-holder">
+            <div class="label-holder"><label><localize key="change.request.action.detail.contributorNotes"></localize></label></div>
+            <div class="holder">
+              <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="notes" name="notes" required></textarea>
+            </div>
+        </div>
+        
+        <div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder">
+                <div class="button-holder text-left">
+                    <button type="button" class="btn btn-default" (click)="cancel()">
+                        <localize key="modal.button.cancel"></localize>
+                    </button>
+                    <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="goForm.invalid || !this.isValid">
+                        <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

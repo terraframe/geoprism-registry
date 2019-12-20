@@ -1,30 +1,30 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
@@ -38,7 +38,6 @@ import com.runwaysdk.ProblemIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
@@ -46,7 +45,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -56,13 +55,15 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.SridException;
-import net.geoprism.registry.io.SynonymRestriction;
 import net.geoprism.registry.io.TermProblem;
 import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.query.CodeRestriction;
-import net.geoprism.registry.query.GeoObjectQuery;
-import net.geoprism.registry.query.NonUniqueResultException;
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.NonUniqueResultException;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
 
@@ -70,14 +71,18 @@ public abstract class FeatureRowImporter
 {
   protected GeoObjectConfiguration configuration;
 
+  protected ServerGeoObjectService service;
+
   public FeatureRowImporter(GeoObjectConfiguration configuration)
   {
     this.configuration = configuration;
+    this.service = new ServerGeoObjectService();
+
   }
 
   protected abstract Geometry getGeometry(FeatureRow row);
 
-  protected abstract void setValue(GeoObject entity, AttributeType attributeType, String attributeName, Object value);
+  protected abstract void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value);
 
   public GeoObjectConfiguration getConfiguration()
   {
@@ -95,7 +100,7 @@ public abstract class FeatureRowImporter
   {
     try
     {
-      GeoObject parent = null;
+      ServerGeoObjectIF parent = null;
 
       /*
        * First, try to get the parent and ensure that this row is not ignored.
@@ -113,36 +118,41 @@ public abstract class FeatureRowImporter
 
       String geoId = this.getCode(row);
 
-      GeoObject entity;
+      ServerGeoObjectIF entity;
+
       boolean isNew = false;
 
       if (geoId != null && geoId.length() > 0)
       {
-        try
+        entity = service.getGeoObjectByCode(geoId, this.configuration.getType());
+
+        if (entity == null)
         {
-          // try an update
-          isNew = false;
-          entity = ServiceFactory.getUtilities().getGeoObjectByCode(geoId, this.configuration.getType().getCode());
-        }
-        catch (DataNotFoundException e)
-        {
-          // create a new entity
           isNew = true;
-          entity = ServiceFactory.getAdapter().newGeoObjectInstance(this.configuration.getType().getCode());
+
+          entity = service.newInstance(this.configuration.getType());
           entity.setCode(geoId);
         }
+        else
+        {
+          entity.lock();
+        }
+
+        entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
 
         Geometry geometry = (Geometry) this.getGeometry(row);
         LocalizedValue entityName = this.getName(row);
 
         if (entityName != null && this.hasValue(entityName))
         {
+          entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+
           if (geometry != null)
           {
             // if (geometry.isValid() && geometry.getSRID() == 4326)
             if (geometry.isValid())
             {
-              entity.setGeometry(geometry);
+              entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
             }
             else
             {
@@ -180,26 +190,18 @@ public abstract class FeatureRowImporter
             }
           }
 
-          ServiceFactory.getUtilities().applyGeoObject(entity, isNew, GeoObjectStatusTerm.ACTIVE.code, true);
+          entity.apply(true);
 
           if (parent != null)
           {
-            String parentTypeCode = parent.getType().getCode();
-            String typeCode = entity.getType().getCode();
-            String hierarchyCode = this.configuration.getHierarchy().getCode();
-            RegistryService service = ServiceFactory.getRegistryService();
-
-            if (isNew || !service.exists(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode))
-            {
-              service.addChildInTransaction(parent.getUid(), parentTypeCode, entity.getUid(), typeCode, hierarchyCode);
-            }
+            parent.addChild(entity, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
           }
           else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
           {
             GeoEntity child = GeoEntity.getByKey(entity.getCode());
             GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
 
-            child.addLink(root, this.configuration.getHierarchyRelationship().definesType());
+            child.addLink(root, this.configuration.getHierarchy().getEntityType());
           }
 
           // We must ensure that any problems created during the transaction are
@@ -267,11 +269,11 @@ public abstract class FeatureRowImporter
    *          Shapefile feature used to determine the parent
    * @return Parent entity
    */
-  private GeoObject getParent(FeatureRow feature)
+  private ServerGeoObjectIF getParent(FeatureRow feature)
   {
     List<Location> locations = this.configuration.getLocations();
 
-    GeoObject parent = null;
+    ServerGeoObjectIF parent = null;
 
     JsonArray context = new JsonArray();
 
@@ -289,13 +291,13 @@ public abstract class FeatureRowImporter
         }
 
         // Search
-        GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
-        query.setRestriction(new SynonymRestriction(label.toString(), parent, this.configuration.getHierarchyRelationship()));
+        ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
+        query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), parent, this.configuration.getHierarchy()));
 
         try
         {
 
-          GeoObject result = query.getSingleResult();
+          ServerGeoObjectIF result = query.getSingleResult();
 
           if (result != null)
           {
@@ -339,7 +341,12 @@ public abstract class FeatureRowImporter
       }
     }
 
-    return parent;
+    if (parent != null)
+    {
+      return this.service.getGeoObjectByCode(parent.getCode(), parent.getType());
+    }
+
+    return null;
   }
 
   protected Object getParentCode(FeatureRow feature, Location location)
@@ -348,7 +355,7 @@ public abstract class FeatureRowImporter
     return function.getValue(feature);
   }
 
-  private GeoObject parsePostalCode(FeatureRow feature)
+  private ServerGeoObjectIF parsePostalCode(FeatureRow feature)
   {
     LocationBuilder builder = PostalCodeFactory.get(this.configuration.getType());
     Location location = builder.build(this.configuration.getFunction(GeoObject.CODE));
@@ -359,14 +366,14 @@ public abstract class FeatureRowImporter
     if (code != null)
     {
       // Search
-      GeoObjectQuery query = new GeoObjectQuery(location.getType(), location.getUniversal());
+      GeoObjectQuery query = new GeoObjectQuery(location.getType());
       query.setRestriction(new CodeRestriction(code));
 
       GeoObject result = query.getSingleResult();
 
       if (result != null)
       {
-        return result;
+        return service.getGeoObject(result);
       }
       else
       {
@@ -406,13 +413,13 @@ public abstract class FeatureRowImporter
     return null;
   }
 
-  protected void setTermValue(GeoObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
       try
       {
-        MdBusinessDAOIF mdBusiness = this.configuration.getMdBusiness();
+        MdBusinessDAOIF mdBusiness = this.configuration.getType().getMdBusinessDAO();
         MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
 
         Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
@@ -425,7 +432,7 @@ public abstract class FeatureRowImporter
         }
         else
         {
-          entity.setValue(attributeName, classifier.getClassifierId());
+          entity.setValue(attributeName, classifier.getOid(), startDate, endDate);
         }
       }
       catch (UnknownTermException e)

@@ -1,20 +1,20 @@
 /**
  * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Runway SDK(tm).
+ * This file is part of Geoprism Registry(tm).
  *
- * Runway SDK(tm) is free software: you can redistribute it and/or modify
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * Runway SDK(tm) is distributed in the hope that it will be useful, but
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 /* ---------------------------------------------------------
 	Common site styles
@@ -2500,14 +2500,21 @@ i.fa.fa-cloud-upload{
     padding: 0;
     margin-left: 20px;
 }
-.navbar.navbar-default .navbar-header:hover {
-    color: #e5e4d2; /* IE fallback */
-    color: var(--theme-accent-color-hover) !important;
-}
 
-.navbar-default:hover .navbar-brand {
-    color: #DBD7A5; /* IE fallback */
-    color: var(--theme-accent-color) !important;
+.navbar-default .navbar-header .navbar-brand:hover {
+	color: var(--theme-accent-color) !important;
+}
+.navbar-default .navbar-nav .navbar-username {
+	color: #777;
+	/* float:left; */
+	/* margin:54px 15px 80px 0; */
+	background-color:transparent;
+	/* text-align:center; */
+	line-height: 144px;
+    padding: 0 10px;
+}
+.navbar-default .navbar-nav .navbar-username:hover {
+  color: var(--theme-accent-color) !important;
 }
 
 .navbar-brand {
@@ -2545,85 +2552,6 @@ i.fa.fa-cloud-upload{
     background: var(--theme-primary-color-hover);
     color:white;
 }
-
-
-
-/* .navbar-default {
-  background-color: #333;
-}	
-	
-.navbar-default .navbar-nav > li > a {
-  color: white;
-  font-size: 15px;
-}
-
-.navbar-default .navbar-nav > li:hover > a {
-  color:#00bfff;
-}
-.navbar-default .navbar-nav>li>a:hover, 
-.navbar-default .navbar-nav>li>a:focus{
-	color:#00bfff;
-}
-
-.navbar-default .navbar-nav > li > a {
-  color: white;
-}
-.navbar-default .navbar-nav > li img {
-  height: 30px;
-}
-
-.navbar-default .navbar-brand {
-  color: white;
-  font-size: 20px;
-}
-
-.navbar-default:hover .navbar-brand {
-  color:#f8f8f8;
-}
-
-.navbar-default .navbar-header > a:hover {
-	color:#00bfff;
-}
-
-.navbar-default .navbar-header > a > img {
-  height: 30px;
-}
-
-.navbar-default .navbar-header > a:first-child {
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-	
-.navbar-nav>li>.dropdown-menu {
-    min-width: 100%;
-} */
-
-	
-/*
-* Scroll bar styling
-*
-*/
-/* ::-webkit-scrollbar { */
-/*     width: 12px; */
-/* } */
- 
-/* ::-webkit-scrollbar-track { */
-/*     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);  */
-/*     border-radius: 10px; */
-/* } */
- 
-/* ::-webkit-scrollbar-thumb { */
-/*     border-radius: 10px; */
-/*     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);  */
-/* } */
-
-
-
-
-
-
-/* NEW */
-
 
 #innerFrameHtml {
    height: 100% !important;
@@ -2792,6 +2720,14 @@ button.btn.btn-default:hover {
     background: #f8f8f8;
 }
 
+.btn-danger{
+	background-color: #f18d8a;
+	border-color: #6d0400;
+}
+.btn-danger:hover{
+	background-color: #f3aca9;
+}
+
 i.fa.fa-sitemap{
   font-size: 20px;
   margin-right: 10px;
@@ -2863,8 +2799,8 @@ input[type="text"]:-moz-placeholder{color:#333;}
 input[type="text"]:disabled {
     color: #999;
     box-shadow: none;
-    border-color: #767676;
-    border-color: var(--theme-input-text-border);
+    border-color: #ccc;
+    border-color: var(--theme-input-text-border-disabled);
 }
 
 input[type="textarea"]{
