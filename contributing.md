@@ -11,8 +11,8 @@ The following is a set of guidelines for contributing to Geoprism Registry. Thes
 [I don't want to read this whole thing, I just have a question!!!](#i-dont-want-to-read-this-whole-thing-i-just-have-a-question)
 
 [What should I know before I get started?](#what-should-i-know-before-i-get-started)
-  * [Common Geospatial Registry Specification](#Common Geospatial Registry (CGR) Specification)
-  * [How to contribute](#How Can I Contribute?)
+  * [Common Geospatial Registry Specification](Common Geospatial Registry (CGR) Specification)
+  * [How to contribute](How Can I Contribute?)
 
 [How Can I Contribute?](#how-can-i-contribute)
   * [Reporting Bugs](#reporting-bugs)
