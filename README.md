@@ -9,8 +9,6 @@ There are numerous organizations involved with designing, building, and testing 
 * <a href="https://clintonhealthaccess.org/" target="_blank">Clinton Health Access Initiative (CHAI)</a>
 * <a href="http://dsme.community/" target="_blank">Digital Solutions For Malaria Elimination (DSME)</a>
 
-http://dsme.community/
-https://clintonhealthaccess.org/
 
 ## A more comprehensive ticket system and live roadmap can be found here (requires GitHub login):
 *  https://app.zenhub.com/workspaces/geoprism-registry-5df81d4b734ff217d40b12a4/roadmap
