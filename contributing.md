@@ -12,7 +12,6 @@ The following is a set of guidelines for contributing to Geoprism Registry. Thes
 
 [What should I know before I get started?](#what-should-i-know-before-i-get-started)
   * [Common Geospatial Registry Specification](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md#common-geospatial-registry-cgr-specification)
-  * [How to contribute](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md#how-can-i-contribute)
 
 [How Can I Contribute?](#how-can-i-contribute)
   * [Reporting Bugs](#reporting-bugs)
