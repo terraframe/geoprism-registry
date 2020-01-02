@@ -22,7 +22,11 @@ The primary docuementation for the CGR can be found here:
 The CGR implements the CGR REST API specification which is a supporting opensrouce project.
 * <a href="https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/" target="_blank">CGR REST Specification Docs</a>
 
-## Contributing Guide
+## Contributing 
+
+### Tickets
+
+### Code
 
 
 ## Latest Unit Test Results
