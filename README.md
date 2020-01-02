@@ -23,10 +23,7 @@ The CGR implements the CGR REST API specification which is a supporting opensrou
 * <a href="https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/" target="_blank">CGR REST Specification Docs</a>
 
 ## Contributing 
-
-### Tickets
-
-### Code
+For information about contributing (tickets or code) to this project see the [contributing section](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md)
 
 
 ## Latest Unit Test Results
