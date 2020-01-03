@@ -40,6 +40,13 @@ We have an official message board with a detailed FAQ and where the community ch
 ### Common Geospatial Registry (CGR) Specification
 
 ### Community Designed
+There are numerous organizations involved with designing, building, and testing the Geoprism Registry. The primary contributors are:
+* <a href="https://healthgeolab.net/" target="_blank">Health GeoLab Collaborative</a>
+* <a href="http://vitalwave.com/" target="_blank">Vital Wave</a>
+* <a href="http://terraframe.com/" target="_blank">TerraFrame</a>
+* <a href="https://clintonhealthaccess.org/" target="_blank">Clinton Health Access Initiative (CHAI)</a>
+* <a href="http://dsme.community/" target="_blank">Digital Solutions For Malaria Elimination (DSME)</a>
+
 
 ### Dependency Projects
 * [CGR Specification](https://github.com/terraframe/common-geo-registry-specification)
