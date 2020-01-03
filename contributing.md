@@ -22,7 +22,7 @@ The following is a set of guidelines for contributing to Geoprism Registry. Thes
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [Code of Conduct](code_of_conduct.md). By participating, you are expected to uphold this code. 
+This project and everyone participating in it is governed by the [Code of Conduct](https://github.com/terraframe/geoprism-registry/blob/master/code-of-conduct.md). By participating, you are expected to uphold this code. 
 
 ## I don't want to read this whole thing I just have a question!!!
 
