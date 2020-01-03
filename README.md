@@ -14,11 +14,15 @@ There are numerous organizations involved with designing, building, and testing 
 
 NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
 
-## General Documentation
-The primary docuementation for the CGR can be found here:
-* https://terraframe.atlassian.net/wiki/spaces/GGR
+## Documentation
 
-## REST API Documentation
+### Implementor (user) Documentation
+* https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901873771/Implementor+Documentation
+
+### Developer API
+* https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901513246/Developer+APIs
+
+### REST API Documentation
 The CGR implements the CGR REST API specification which is a supporting opensrouce project.
 * <a href="https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/" target="_blank">CGR REST Specification Docs</a>
 
