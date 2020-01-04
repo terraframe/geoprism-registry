@@ -35,6 +35,8 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
@@ -59,6 +61,8 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
    * URL of the file being imported
    */
   private URL url;
+  
+  private static final Logger logger = LoggerFactory.getLogger(GeoObjectShapefileImporter.class);
 
   /**
    * @param url
@@ -112,6 +116,8 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
   {
     try
     {
+      GeoObjectShapefileImporter.logger.info("Importing shapefile from url [" + url.toString() + "].");
+      
       ShapefileDataStore store = new ShapefileDataStore(url);
 
       try
@@ -128,14 +134,20 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
           FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source.getFeatures();
 
           FeatureIterator<SimpleFeature> iterator = collection.features();
+          
+          int i = 0;
 
           try
           {
             while (iterator.hasNext())
             {
               SimpleFeature feature = iterator.next();
+              
+              GeoObjectShapefileImporter.logger.debug("Importing Feature num " + i);
 
               create(new SimpleFeatureRow(feature));
+              
+              i++;
             }
           }
           finally

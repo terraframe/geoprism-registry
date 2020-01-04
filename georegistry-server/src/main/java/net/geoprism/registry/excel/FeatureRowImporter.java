@@ -18,12 +18,16 @@
  */
 package net.geoprism.registry.excel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -72,12 +76,24 @@ public abstract class FeatureRowImporter
   protected GeoObjectConfiguration configuration;
 
   protected ServerGeoObjectService service;
+  
+  protected Map<String, ServerGeoObjectIF> parentCache;
+  
+  protected static final String parentConcatToken = "&";
 
   public FeatureRowImporter(GeoObjectConfiguration configuration)
   {
     this.configuration = configuration;
     this.service = new ServerGeoObjectService();
-
+    this.parentCache = new HashMap<String, ServerGeoObjectIF>();
+    
+    final int MAX_ENTRIES = 10000; // The size of our parentCache
+    this.parentCache = new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES+1, .75F, true) {
+      private static final long serialVersionUID = 1L;
+        public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest) {
+            return size() > MAX_ENTRIES;
+        }
+    };
   }
 
   protected abstract Geometry getGeometry(FeatureRow row);
@@ -276,6 +292,8 @@ public abstract class FeatureRowImporter
     ServerGeoObjectIF parent = null;
 
     JsonArray context = new JsonArray();
+    
+    ArrayList<String> parentKeyBuilder = new ArrayList<String>();
 
     for (Location location : locations)
     {
@@ -284,10 +302,27 @@ public abstract class FeatureRowImporter
       if (label != null)
       {
         String key = parent != null ? parent.getCode() + "-" + label : label.toString();
+        
+        parentKeyBuilder.add(label.toString());
 
         if (this.configuration.isExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, key))
         {
           throw new IgnoreRowException();
+        }
+        
+        // Check the parent cache
+        String parentChainKey = StringUtils.join(parentKeyBuilder, parentConcatToken);
+        if (this.parentCache.containsKey(parentChainKey))
+        {
+          parent = this.parentCache.get(parentChainKey);
+          
+          JsonObject element = new JsonObject();
+          element.addProperty("label", label.toString());
+          element.addProperty("type", location.getType().getLabel().getValue());
+
+          context.add(element);
+          
+          continue;
         }
 
         // Search
@@ -308,6 +343,8 @@ public abstract class FeatureRowImporter
             element.addProperty("type", location.getType().getLabel().getValue());
 
             context.add(element);
+            
+            this.parentCache.put(parentChainKey, parent);
           }
           else
           {
