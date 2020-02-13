@@ -154,15 +154,17 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
 
             if ( attr.isChangeOverTime ) {
-                let values = goot.attributes[attr.code].values;
-
+              let values = goot.attributes[attr.code].values;
+  
+              if (values.length > 0)
+              {
                 values.forEach( vot => {
-
+  
                     const startDate = Date.parse( vot.startDate );
                     const endDate = Date.parse( vot.endDate );
-
+  
                     if ( time >= startDate && time <= endDate ) {
-
+  
                         if ( attr.type === 'local' ) {
                             object[attr.code] = {
                                 startDate: this.formatDate( vot.startDate ),
@@ -186,6 +188,15 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                         }
                     }
                 } );
+              }
+              else
+              {
+                object[attr.code] = {
+                  startDate: null,
+                  endDate: null,
+                  value: ""
+                }
+              }
             }
             else {
                 object[attr.code] = goot.attributes[attr.code];
@@ -241,15 +252,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     isDifferentText( attribute: Attribute ): boolean {
         if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {
-            return true;
+          return true;
         }
 
         return ( this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value.trim() !== this.calculatedPreObject[attribute.code].value );
     }
 
     isDifferentValue( attribute: Attribute ): boolean {
-        if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null ) {
-            return true;
+        if ( this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null )
+        {
+          return true;
         }
 
         return ( this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value !== this.calculatedPreObject[attribute.code].value );
