@@ -80,12 +80,16 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       {
         RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
 
+        adminRole.grantPermission(Operation.READ, mdBusiness.getOid());
         adminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+        adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
         adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
         adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
         adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
 
+        maintainer.grantPermission(Operation.READ, mdBusiness.getOid());
         maintainer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
+        maintainer.grantPermission(Operation.WRITE, mdBusiness.getOid());
         maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
         maintainer.grantPermission(Operation.CREATE, mdBusiness.getOid());
         maintainer.grantPermission(Operation.DELETE, mdBusiness.getOid());
@@ -259,7 +263,9 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     role.grantPermission(Operation.READ_PARENT, mdTermRelationship.getOid());
     role.grantPermission(Operation.READ_CHILD, mdTermRelationship.getOid());
     role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
+    role.grantPermission(Operation.READ, mdTermRelationship.getOid());
     role.grantPermission(Operation.WRITE_ALL, mdTermRelationship.getOid());
+    role.grantPermission(Operation.WRITE, mdTermRelationship.getOid());
     role.grantPermission(Operation.CREATE, mdTermRelationship.getOid());
     role.grantPermission(Operation.DELETE, mdTermRelationship.getOid());
   }
