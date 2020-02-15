@@ -5,14 +5,11 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
 
-import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
 import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
-import { CascadingGeoSelector } from '../cascading-geo-selector/cascading-geo-selector'
 
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
@@ -21,11 +18,9 @@ import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { mergeMap } from 'rxjs/operators';
 
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { ManageVersionsModalComponent } from '../geoobject-shared-attribute-editor/manage-versions-modal.component';
 
 declare var acp: string;
 
@@ -46,6 +41,8 @@ export class GeoObjectEditorComponent implements OnInit {
     @Input() geoObjectType: GeoObjectType;
 
     isValid: boolean = false;
+
+    isGeometryEditable: boolean;
 
     tabIndex: number = 0;
 
@@ -152,10 +149,11 @@ export class GeoObjectEditorComponent implements OnInit {
 
     // Configures the widget to be used in a "New" context, that is to say
     // that it will be used to create a new GeoObject.
-    public configureAsNew( typeCode: string, dateStr: string ) {
+    public configureAsNew( typeCode: string, dateStr: string, isGeometryEditable: boolean ) {
         this.isNewGeoObject = true;
         this.dateStr = dateStr;
         this.forDate = new Date( Date.parse( this.dateStr ) );
+        this.isGeometryEditable = isGeometryEditable;
 
         this.fetchGeoObjectType( typeCode );
         this.fetchLocales();
@@ -169,10 +167,11 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     // Configures the widget to be used in an "Edit Existing" context
-    public configureAsExisting( code: string, typeCode: string, dateStr: string ) {
+    public configureAsExisting( code: string, typeCode: string, dateStr: string, isGeometryEditable: boolean ) {
         this.isNewGeoObject = false;
         this.dateStr = dateStr;
         this.forDate = new Date( Date.parse( this.dateStr ) );
+        this.isGeometryEditable = isGeometryEditable;
 
         this.fetchGeoObject( code, typeCode );
         this.fetchGeoObjectType( typeCode );

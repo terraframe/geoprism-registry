@@ -4,8 +4,6 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterList, GeoObjectType } from '../../model/registry';
-
 import { PublishModalComponent } from './publish-modal.component';
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 

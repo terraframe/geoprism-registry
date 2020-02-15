@@ -17,8 +17,6 @@ import { RegistryService } from '../../service/registry.service';
 import { ProgressService } from '../../../shared/service/progress.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
-import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
-
 import { AuthService } from '../../../shared/service/auth.service';
 
 declare var acp: string;
@@ -62,7 +60,7 @@ export class MasterListHistoryComponent implements OnInit {
 
     onEdit( data ): void {
         // let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
-        // editModal.content.configureAsExisting( data.code, this.list.typeCode );
+        // editModal.content.configureAsExisting( data.code, this.list.typeCode, this.list.isGeometryEditable );
         // editModal.content.setMasterListId( this.list.oid );
         // editModal.content.setOnSuccessCallback(() => {
         //     // Refresh the page
