@@ -141,69 +141,70 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     calculateCurrent( goot: GeoObjectOverTime ): any {
-        const object = {};
+      const object = {};
 
-        const time = this.forDate.getTime();
+      const time = this.forDate.getTime();
 
-        for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
-            let attr = this.geoObjectType.attributes[i];
-            object[attr.code] = null;
+      for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+          let attr = this.geoObjectType.attributes[i];
+          object[attr.code] = null;
 
-            if ( attr.type === 'local' ) {
-                object[attr.code] = this.lService.create();
-            }
+          if ( attr.type === 'local' ) {
+              object[attr.code] = this.lService.create();
+          }
 
-            if ( attr.isChangeOverTime ) {
-              let values = goot.attributes[attr.code].values;
-  
-              if (values.length > 0)
-              {
-                values.forEach( vot => {
-  
-                    const startDate = Date.parse( vot.startDate );
-                    const endDate = Date.parse( vot.endDate );
-  
-                    if ( time >= startDate && time <= endDate ) {
-  
-                        if ( attr.type === 'local' ) {
-                            object[attr.code] = {
-                                startDate: this.formatDate( vot.startDate ),
-                                endDate: this.formatDate( vot.endDate ),
-                                value: JSON.parse( JSON.stringify( vot.value ) )
-                            };
-                        }
-                        else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
-                            object[attr.code] = {
-                                startDate: this.formatDate( vot.startDate ),
-                                endDate: this.formatDate( vot.endDate ),
-                                value: vot.value[0]
-                            };
-                        }
-                        else {
-                            object[attr.code] = {
-                                startDate: this.formatDate( vot.startDate ),
-                                endDate: this.formatDate( vot.endDate ),
-                                value: vot.value
-                            };
-                        }
+          if ( attr.isChangeOverTime ) {
+            let values = goot.attributes[attr.code].values;
+
+            values.forEach( vot => {
+
+                const startDate = Date.parse( vot.startDate );
+                const endDate = Date.parse( vot.endDate );
+
+                if ( time >= startDate && time <= endDate ) {
+
+                    if ( attr.type === 'local' ) {
+                        object[attr.code] = {
+                            startDate: this.formatDate( vot.startDate ),
+                            endDate: this.formatDate( vot.endDate ),
+                            value: JSON.parse( JSON.stringify( vot.value ) )
+                        };
                     }
-                } );
-              }
-              else
-              {
-                object[attr.code] = {
-                  startDate: null,
-                  endDate: null,
-                  value: ""
+                    else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
+                        object[attr.code] = {
+                            startDate: this.formatDate( vot.startDate ),
+                            endDate: this.formatDate( vot.endDate ),
+                            value: vot.value[0]
+                        };
+                    }
+                    else {
+                        object[attr.code] = {
+                            startDate: this.formatDate( vot.startDate ),
+                            endDate: this.formatDate( vot.endDate ),
+                            value: vot.value
+                        };
+                    }
                 }
-              }
-            }
-            else {
-                object[attr.code] = goot.attributes[attr.code];
-            }
+            } );
+          }
+          else {
+              object[attr.code] = goot.attributes[attr.code];
+          }
+      }
+      
+      for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
+        let attr = this.geoObjectType.attributes[i];
+        
+        if ( attr.isChangeOverTime && object[attr.code] == null ) {
+          object[attr.code] = {
+            startDate: null,
+            endDate: null,
+            value: ""
+          }
         }
+      }
 
-        return object;
+      return object;
     }
 
     formatDate( date: string ): string {
