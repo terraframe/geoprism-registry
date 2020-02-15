@@ -242,6 +242,7 @@ export class MasterListVersion {
     publishDate: string;
     attributes: any[];
     locales?: string[];
+    isGeometryEditable: boolean;
 }
 
 export class HierarchyOverTime {
