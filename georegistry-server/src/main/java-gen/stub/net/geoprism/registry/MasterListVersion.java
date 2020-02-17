@@ -816,6 +816,7 @@ public class MasterListVersion extends MasterListVersionBase
     object.addProperty(MasterListVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));
     object.addProperty(MasterListVersion.PERIOD, this.getPeriod(masterlist, format));
+    object.addProperty("isGeometryEditable", type.isGeometryEditable());
 
     if (this.getPublishDate() != null)
     {

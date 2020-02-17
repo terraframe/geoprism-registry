@@ -109,7 +109,7 @@ public class RegistryVersionTest
       Assert.assertEquals(dateFormat.format(ValueOverTime.INFINITY_END_DATE), dateFormat.format(allStatus.get(2).getEndDate()));
       
       Geometry expectedGeom = testData.COLORADO.asGeoObject().getGeometry();
-      Geometry actualGeom = ( (AttributeGeometry) goTime.getAttribute(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
+      Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
       Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
     }
     catch (ParseException e)

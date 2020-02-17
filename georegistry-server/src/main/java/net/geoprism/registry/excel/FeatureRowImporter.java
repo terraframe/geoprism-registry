@@ -18,12 +18,41 @@
  */
 package net.geoprism.registry.excel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import net.geoprism.data.importer.FeatureRow;
+import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.io.AmbiguousParentException;
+import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.IgnoreRowException;
+import net.geoprism.registry.io.InvalidGeometryException;
+import net.geoprism.registry.io.Location;
+import net.geoprism.registry.io.LocationBuilder;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.io.PostalCodeLocationException;
+import net.geoprism.registry.io.RequiredMappingException;
+import net.geoprism.registry.io.TermProblem;
+import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.NonUniqueResultException;
+import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
+
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -42,42 +71,29 @@ import com.runwaysdk.session.RequestState;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
 
-import net.geoprism.data.importer.FeatureRow;
-import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.io.AmbiguousParentException;
-import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.io.IgnoreRowException;
-import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.LocationBuilder;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.io.PostalCodeLocationException;
-import net.geoprism.registry.io.RequiredMappingException;
-import net.geoprism.registry.io.SridException;
-import net.geoprism.registry.io.TermProblem;
-import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.query.postgres.CodeRestriction;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.NonUniqueResultException;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
-
 public abstract class FeatureRowImporter
 {
   protected GeoObjectConfiguration configuration;
 
   protected ServerGeoObjectService service;
+  
+  protected Map<String, ServerGeoObjectIF> parentCache;
+  
+  protected static final String parentConcatToken = "&";
 
   public FeatureRowImporter(GeoObjectConfiguration configuration)
   {
     this.configuration = configuration;
     this.service = new ServerGeoObjectService();
-
+    this.parentCache = new HashMap<String, ServerGeoObjectIF>();
+    
+    final int MAX_ENTRIES = 10000; // The size of our parentCache
+    this.parentCache = new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES+1, .75F, true) {
+      private static final long serialVersionUID = 1L;
+        public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest) {
+            return size() > MAX_ENTRIES;
+        }
+    };
   }
 
   protected abstract Geometry getGeometry(FeatureRow row);
@@ -149,14 +165,16 @@ public abstract class FeatureRowImporter
 
           if (geometry != null)
           {
-            // if (geometry.isValid() && geometry.getSRID() == 4326)
+            // TODO : We should be able to check the CRS here and throw a specific invalid CRS error if it's not what we expect.
+            // For some reason JTS always returns 0 when we call geometry.getSRID().
             if (geometry.isValid())
             {
               entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
             }
             else
             {
-              throw new SridException();
+//              throw new SridException();
+              throw new InvalidGeometryException();
             }
           }
 
@@ -276,6 +294,8 @@ public abstract class FeatureRowImporter
     ServerGeoObjectIF parent = null;
 
     JsonArray context = new JsonArray();
+    
+    ArrayList<String> parentKeyBuilder = new ArrayList<String>();
 
     for (Location location : locations)
     {
@@ -284,10 +304,27 @@ public abstract class FeatureRowImporter
       if (label != null)
       {
         String key = parent != null ? parent.getCode() + "-" + label : label.toString();
+        
+        parentKeyBuilder.add(label.toString());
 
         if (this.configuration.isExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, key))
         {
           throw new IgnoreRowException();
+        }
+        
+        // Check the parent cache
+        String parentChainKey = StringUtils.join(parentKeyBuilder, parentConcatToken);
+        if (this.parentCache.containsKey(parentChainKey))
+        {
+          parent = this.parentCache.get(parentChainKey);
+          
+          JsonObject element = new JsonObject();
+          element.addProperty("label", label.toString());
+          element.addProperty("type", location.getType().getLabel().getValue());
+
+          context.add(element);
+          
+          continue;
         }
 
         // Search
@@ -308,6 +345,8 @@ public abstract class FeatureRowImporter
             element.addProperty("type", location.getType().getLabel().getValue());
 
             context.add(element);
+            
+            this.parentCache.put(parentChainKey, parent);
           }
           else
           {

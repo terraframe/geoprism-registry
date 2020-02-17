@@ -15,14 +15,14 @@
                                     <ul class="list-group">
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
                                             <h5 *ngIf="attr.code !== 'geometry'">{{attr.label.localizedValue}}
-                                              <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null">
+                                              <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null">
                                                 ({{calculatedPostObject[attr.code].startDate}} - {{calculatedPostObject[attr.code].endDate}})
                                               </span>
                                             </h5>
                                             
                                             <h5 *ngIf="attr.code === 'geometry'">
                                               <localize key="shared.attributes.attribute.geometry.label"></localize>
-                                              <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null">
+                                              <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null">
                                                 ({{calculatedPostObject[attr.code].startDate}} - {{calculatedPostObject[attr.code].endDate}})
                                               </span>                                              
                                             </h5>

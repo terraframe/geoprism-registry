@@ -802,7 +802,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return node;
   }
-
+  
   @Override
   public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
   {
@@ -811,7 +811,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
     }
 
-    SortedSet<EdgeObject> edges = this.getEdges(hierarchyType);
+    SortedSet<EdgeObject> edges; 
+    
+    if (this.getVertex().isNew())
+    {
+      edges = new TreeSet<EdgeObject>(new EdgeComparator());
+    }
+    else
+    {
+      edges = this.getEdges(hierarchyType);
+    }
 
     EdgeObject newEdge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
     newEdge.setValue(GeoVertex.START_DATE, startDate);

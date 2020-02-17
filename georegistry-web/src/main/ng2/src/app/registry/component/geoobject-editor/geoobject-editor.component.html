@@ -17,7 +17,7 @@
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
                         <localize key="geoobject.editor.tabOne"></localize>
                     </label>
-                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2}" (click)="this.changePage(2);">
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2, disabled: !isGeometryEditable}" (click)="isGeometryEditable && this.changePage(2);">
                         <localize key="geoobject.editor.tabTwo"></localize>
                     </label>
                 </div>
