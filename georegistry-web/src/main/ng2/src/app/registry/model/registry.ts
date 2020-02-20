@@ -216,7 +216,7 @@ export class ScheduledJob {
     author: string;
     createDate: string;
     lastUpdateDate: string;
-    steps: any;
+    stepConfig: StepConfig;
 }
 
 export class ScheduledJobDetail {

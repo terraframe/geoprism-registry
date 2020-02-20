@@ -14,16 +14,16 @@ export class StepIndicatorComponent {
     @Input('steps')
     set steps(value: StepConfig) {
         console.log(value)
-        this.stepConfig = value;
+        this._stepConfig = value;
     }
 
-    stepConfig: StepConfig;
+    _stepConfig: StepConfig;
     step: Step;
 
 
     constructor( private localizeService: LocalizationService ) {
 
-        this.stepConfig = {"steps": []};
+        this._stepConfig = {"steps": []};
     }
 
 

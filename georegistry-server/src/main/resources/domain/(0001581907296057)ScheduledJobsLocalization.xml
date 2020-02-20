@@ -1,0 +1,86 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+       <createOrUpdate>
+       
+       	  <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Scheduled Jobs" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.details.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.details.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Job Details" />
+	        </attributeStruct>
+	      </object>
+
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.jobs.table.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.jobs.table.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="In progress" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.completedjobs.table.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.completedjobs.table.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Completed Jobs" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.detail.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.detail.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Details" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.view.completed.jobs.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.view.completed.jobs.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="View completed jobs" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.view.more.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.view.more.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="View all" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.problemdetail.modal.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.problemdetail.modal.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Problem Resolution" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.menu">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.menu" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Scheduled Jobs" />
+	        </attributeStruct>
+	      </object>
+	      
+      </createOrUpdate>
+      
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
