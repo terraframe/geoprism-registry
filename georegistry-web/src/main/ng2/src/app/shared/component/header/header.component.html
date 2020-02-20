@@ -26,6 +26,7 @@
                 <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
                 <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/scheduled-jobs" routerLinkActive="active"><localize key="scheduledjobs.menu"></localize> </a></li>
                 <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
                 

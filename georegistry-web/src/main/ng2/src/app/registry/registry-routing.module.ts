@@ -5,15 +5,14 @@ import { Observable } from 'rxjs/Observable';
 
 import { HierarchyComponent } from './component/hierarchy/hierarchy.component';
 import { LocalizationManagerComponent } from './component/localization-manager/localization-manager.component';
-import { ShapefileComponent } from './component/importer/shapefile.component';
-import { SpreadsheetComponent } from './component/importer/spreadsheet.component';
-import { DataExportComponent } from './component/data-export/data-export.component';
 import { SubmitChangeRequestComponent } from './component/submit-change-request/submit-change-request.component';
 import { MasterListManagerComponent } from './component/master-list/master-list-manager.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
 import { MasterListHistoryComponent } from './component/master-list/master-list-history.component';
 import { DataPageComponent } from './component/data-page/data-page.component';
 import { ChangeRequestPageComponent } from './component/change-request-page/change-request-page.component';
+import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
+import { JobComponent } from './component/scheduled-jobs/job.component';
 
 import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from '../shared/service/guard.service';
 import { PendingChangesGuard } from "../shared/service/pending-changes-guard";
@@ -47,6 +46,16 @@ const routes: Routes = [
     {
         path: 'master-lists',
         component: MasterListManagerComponent,
+        canActivate: [ContributerGuard]
+    },
+    {
+        path: 'scheduled-jobs',
+        component: ScheduledJobsComponent,
+        canActivate: [ContributerGuard]
+    },
+    {
+        path: 'job/:oid',
+        component: JobComponent,
         canActivate: [ContributerGuard]
     },
     {
