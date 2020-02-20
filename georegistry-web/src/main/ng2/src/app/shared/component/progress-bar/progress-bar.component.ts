@@ -13,12 +13,12 @@ import { ProgressService, IProgressListener } from '../../service/progress.servi
   ]
 })
 export class ProgressBarComponent implements OnInit, IProgressListener {
-  public showIndicator: boolean = false;
+  public showIndicator: boolean = true;
 
   public prog:Progress = {
     current:0,
     total:1,
-    description:"Initializing"      
+    description:"Initializing"
   };
 
   constructor(private service: ProgressService) { }
@@ -35,10 +35,10 @@ export class ProgressBarComponent implements OnInit, IProgressListener {
     this.prog = {
       current:0,
       total:1,
-      description:"Initializing"      
-    };	  
+      description:"Initializing"
+    };
     
-    this.showIndicator = true;    
+    this.showIndicator = true;
   }
   
   progress(progress:Progress):void {

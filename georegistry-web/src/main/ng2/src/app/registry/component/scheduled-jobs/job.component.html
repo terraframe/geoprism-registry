@@ -1,0 +1,108 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+    <div id="app-container" class="container-fluid">
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="py-5">
+            <h2>
+                <localize key="scheduledjobs.details.title"></localize>
+            </h2>
+            <h4>{{job.fileName}}</h4>
+        </div>
+        <div class="row" style="background: #F4F4F4;
+                            border-radius: 15px;
+                            margin-bottom: 20px;
+                            margin-top: 20px;
+                            padding: 10px;">
+            <div class="col-md-4 order-md-1">
+                <div class="wrapper">
+
+                    <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
+                    <p style="padding-left: 60px;">
+                        <span style="display: block;">
+                            {{job.fileName}}
+                        </span>
+                        <span style="display: block;">
+                            Uploaded by: Justin Lewis
+                        </span>
+                        <span style="display: block;">
+                            Started: 5/5/2020 at 3:30 PM
+                        </span>
+                    </p>
+
+                </div>
+            </div>
+            <div class="col-md-3 order-md-1">
+                <div>
+
+                    <h5><b>{{job.importedRowCount}} imported</b></h5>
+                    <h5>{{job.failedRowCount}} errors</h5>
+
+                </div>
+            </div>
+            <div class="col-md-5 order-md-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 order-md-1">
+                <ul class="list-group">
+        
+                    <table class="list-table table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th class="label-column">
+                                   <div class="check-block">
+                                        <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th class="label-column">
+                                    Source Id
+                                </th>
+                                <th class="label-column">
+                                    Conflict Status
+                                </th>
+                                <th class="label-column">
+                                    Problem Type
+                                </th>
+                                <th class="label-column">
+                                    
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of job.rows; let i = index;">
+                                <td class="label-column">
+                                    <boolean-field [(value)]="row.selected"></boolean-field>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <p>{{row.sourceId}}</p>
+                                </td>
+                                <td class="label-column" style="vertical-align: middle;">
+                                    <p>{{row.conflictStatus}}</p>
+                                </td>
+                                <td class="label-column" style="vertical-align: middle;">
+                                    <p>{{row.problemType}}</p>
+                                </td>
+                                <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
+                                    <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
+                                        <localize key="scheduledjobs.detail.button"></localize>
+                                    </button>
+                                    <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
+                                </td>
+                            </tr>
+        
+                        </tbody>
+                    </table>
+                    <div class="solid-table-footer">
+                        <a (click)="onViewAllActiveJobs()">
+                            <localize key="scheduledjobs.view.more.button"></localize>
+                        </a>
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -64,6 +64,14 @@ import { SpreadsheetComponent } from './component/importer/spreadsheet.component
 import { DataExportComponent } from './component/data-export/data-export.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
 import { MasterListHistoryComponent } from './component/master-list/master-list-history.component';
+import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
+import { JobComponent } from './component/scheduled-jobs/job.component';
+import { JobConflictModalComponent } from './component/scheduled-jobs/conflict-widgets/job-conflict-modal.component';
+import { RelationshipProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/relationship-problem-widget.component';
+import { RequiredValueProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/requiredvalue-problem-widget.component';
+import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/spatialreference-problem-widget.component';
+import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
+import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicator.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -102,7 +110,7 @@ import '../rxjs-extensions';
         NgxPaginationModule,
         CustomFormsModule,
         SharedModule,
-        RegistryRoutingModule        
+        RegistryRoutingModule
     ],
     declarations: [
         HierarchyComponent,
@@ -159,6 +167,14 @@ import '../rxjs-extensions';
         MasterListManagerComponent,
         PublishModalComponent,
         ExportFormatModalComponent,
+        ScheduledJobsComponent,
+        JobComponent,
+        JobConflictModalComponent,
+        RelationshipProblemWidgetComponent,
+        RequiredValueProblemWidgetComponent,
+        SpatialReferenceProblemWidgetComponent,
+        DuplicateProblemWidgetComponent,
+        StepIndicatorComponent
     ],
     providers: [
         MapService,
@@ -170,6 +186,7 @@ import '../rxjs-extensions';
         RegistryService,
         DatePipe,
         ToEpochDateTimePipe,
+        StepIndicatorComponent
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -197,6 +214,8 @@ import '../rxjs-extensions';
         DataPageComponent,
         ChangeRequestPageComponent,
         ActionDetailModalComponent,
+        JobConflictModalComponent,
+        StepIndicatorComponent
     ]
 } )
 export class RegistryModule { }

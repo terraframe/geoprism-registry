@@ -23,7 +23,8 @@ import { Observable, TestScheduler } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime } from '../model/registry';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, 
+    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, ScheduledJobDetail, Conflict } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -344,6 +345,109 @@ export class RegistryService {
             .post<GeoObject>( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
             .toPromise();
     }
+
+    // getScheduledJobs(): Promise<ScheduledJob[]> {
+    getScheduledJobs(): ScheduledJob[] {
+        let params: HttpParams = new HttpParams();
+
+        return [
+            { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+                "steps": [
+                    {"label":"File Import", "complete":true, "enabled":false},
+                    {"label":"Field Mapping", "complete":true, "enabled":false},
+                    {"label":"Staging", "complete":false, "enabled":true},
+                    {"label":"Validation", "complete":false, "enabled":false}] 
+                },
+                { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+                "steps": [
+                        {"label":"File Import", "complete":true, "enabled":false},
+                        {"label":"Field Mapping", "complete":false, "enabled":true},
+                        {"label":"Staging", "complete":false, "enabled":false},
+                        {"label":"Validation", "complete":false, "enabled":false}] 
+                },
+                { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+                "steps": [
+                        {"label":"File Import", "complete":true, "enabled":false},
+                        {"label":"Field Mapping", "complete":true, "enabled":false},
+                        {"label":"Staging", "complete":true, "enabled":false},
+                        {"label":"Validation", "complete":false, "enabled":true}] 
+                }
+            ]
+
+        // return this.http
+        //     .get<ScheduledJob[]>( acp + '/registry/jobs', { params: params } )
+        //     .toPromise();
+    }
+
+     // getScheduledJobs(): Promise<ScheduledJob[]> {
+    getCompletedScheduledJobs(): ScheduledJob[] {
+        let params: HttpParams = new HttpParams();
+
+        return [
+              { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+                "steps": [
+                    {"label":"File Import", "complete":true, "enabled":false},
+                    {"label":"Field Mapping", "complete":true, "enabled":false},
+                    {"label":"Staging", "complete":false, "enabled":true},
+                    {"label":"Validation", "complete":false, "enabled":false}] 
+                },
+                { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+                "steps": [
+                        {"label":"File Import", "complete":true, "enabled":false},
+                        {"label":"Field Mapping", "complete":true, "enabled":true},
+                        {"label":"Staging", "complete":false, "enabled":true},
+                        {"label":"Validation", "complete":false, "enabled":false}] 
+                },
+                { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+                "steps": [
+                        {"label":"File Import", "complete":true, "enabled":false},
+                        {"label":"Field Mapping", "complete":true, "enabled":false},
+                        {"label":"Staging", "complete":true, "enabled":false},
+                        {"label":"Validation", "complete":false, "enabled":true}] 
+                }
+            
+            ]
+
+        // return this.http
+        //     .get<ScheduledJob[]>( acp + '/registry/jobs', { params: params } )
+        //     .toPromise();
+    }
+
+    // getScheduledJob(): Promise<ScheduledJob[]> {
+    getScheduledJob(): ScheduledJobDetail {
+        let params: HttpParams = new HttpParams();
+
+        return { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", 
+                author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+                importedRowCount: 900, failedRowCount: 300,
+                rows: [
+                    {oid: "1", sourceId: "1", problemType: "RELATIONSHIP", conflictStatus: "Fail"},
+                    {oid: "2", sourceId: "2", problemType: "REQUIREDVALUE", conflictStatus: "Fail"},
+                    {oid: "3", sourceId: "3", problemType: "SPATIALREFERENCE", conflictStatus: "Fail"},
+                    {oid: "4", sourceId: "4", problemType: "DUPLICATE", conflictStatus: "Fail"},
+                    {oid: "5", sourceId: "5", problemType: "UNSPECIFIED", conflictStatus: "Fail"}
+                ]
+            }
+
+        // return this.http
+        //     .get<ScheduledJob[]>( acp + '/registry/jobs', { params: params } )
+        //     .toPromise();
+    }
+
+    submitConflict( conflict: Conflict): Promise<any> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<MasterList>( acp + '/master-list/create', JSON.stringify( { list: conflict } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+     }
 
     getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
         let params: HttpParams = new HttpParams();
