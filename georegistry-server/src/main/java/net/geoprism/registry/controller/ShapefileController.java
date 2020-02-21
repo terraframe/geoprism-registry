@@ -25,6 +25,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import net.geoprism.DataUploaderDTO;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.ShapefileService;
+
 import org.json.JSONException;
 
 import com.google.gson.JsonObject;
@@ -38,10 +42,7 @@ import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-
-import net.geoprism.DataUploaderDTO;
-import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.service.ShapefileService;
+import com.runwaysdk.mvc.RestResponse;
 
 @Controller(url = "shapefile")
 public class ShapefileController
@@ -60,7 +61,7 @@ public class ShapefileController
     {
       String fileName = file.getFilename();
 
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
       Date sDate = startDate != null ? format.parse(startDate) : null;
@@ -79,9 +80,9 @@ public class ShapefileController
   @Endpoint(url = "import-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF importShapefile(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration) throws JSONException
   {
-    JsonObject response = service.importShapefile(request.getSessionId(), configuration);
+    service.importShapefile(request.getSessionId(), configuration);
 
-    return new RestBodyResponse(response);
+    return new RestResponse();
   }
 
   @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)

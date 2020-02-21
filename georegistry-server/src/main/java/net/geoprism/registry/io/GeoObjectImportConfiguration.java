@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.io;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,6 +31,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -44,6 +47,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
@@ -58,7 +62,7 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
 
-public class GeoObjectConfiguration
+public class GeoObjectImportConfiguration
 {
   public static final String             PARENT_EXCLUSION  = "##PARENT##";
 
@@ -101,7 +105,9 @@ public class GeoObjectConfiguration
   public static final String             EXCLUSIONS        = "exclusions";
 
   public static final String             VALUE             = "value";
-
+  
+  public static final String             HISTORY_ID        = "historyId";
+  
   public static final String             LOCATION_PROBLEMS = "locationProblems";
 
   public static final String             LONGITUDE_KEY     = "georegistry.longitude.label";
@@ -137,8 +143,10 @@ public class GeoObjectConfiguration
   private Date                           startDate;
 
   private Date                           endDate;
+  
+  private String                         historyId;
 
-  public GeoObjectConfiguration()
+  public GeoObjectImportConfiguration()
   {
     this.includeCoordinates = false;
     this.functions = new HashMap<String, ShapefileFunction>();
@@ -147,6 +155,16 @@ public class GeoObjectConfiguration
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
     this.postalCode = false;
+  }
+  
+  public String getHistoryId()
+  {
+    return historyId;
+  }
+
+  public void setHistoryId(String historyId)
+  {
+    this.historyId = historyId;
   }
 
   public boolean isIncludeCoordinates()
@@ -177,6 +195,36 @@ public class GeoObjectConfiguration
   public void setDirectory(String directory)
   {
     this.directory = directory;
+  }
+  
+  public File getShpVaultFile()
+  {
+    String dir = this.getDirectory();
+    String fname = this.getFilename();
+
+    File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), dir);
+    root.mkdirs();
+
+    File directory = new File(root, FilenameUtils.getBaseName(fname));
+    directory.mkdirs();
+
+    File[] shps = directory.listFiles(new FilenameFilter()
+    {
+      @Override
+      public boolean accept(File dir, String name)
+      {
+        return name.endsWith(".shp");
+      }
+    });
+
+    if (shps.length > 0)
+    {
+      return shps[0];
+    }
+    else
+    {
+      return null;
+    }
   }
 
   public String getFilename()
@@ -278,6 +326,11 @@ public class GeoObjectConfiguration
   {
     return locationProblems;
   }
+  
+  public int getProblemCount()
+  {
+    return locationProblems.size() + termProblems.size();
+  }
 
   public void addProblem(GeoObjectLocationProblem problem)
   {
@@ -322,7 +375,7 @@ public class GeoObjectConfiguration
   @Request
   public JsonObject toJson()
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     JsonObject type = this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, SupportedLocaleDAO.getSupportedLocales()));
@@ -363,25 +416,25 @@ public class GeoObjectConfiguration
     }
 
     JsonObject config = new JsonObject();
-    config.add(GeoObjectConfiguration.TYPE, type);
-    config.add(GeoObjectConfiguration.LOCATIONS, locations);
-    config.addProperty(GeoObjectConfiguration.DIRECTORY, this.getDirectory());
-    config.addProperty(GeoObjectConfiguration.FILENAME, this.getFilename());
-    config.addProperty(GeoObjectConfiguration.POSTAL_CODE, this.isPostalCode());
+    config.add(GeoObjectImportConfiguration.TYPE, type);
+    config.add(GeoObjectImportConfiguration.LOCATIONS, locations);
+    config.addProperty(GeoObjectImportConfiguration.DIRECTORY, this.getDirectory());
+    config.addProperty(GeoObjectImportConfiguration.FILENAME, this.getFilename());
+    config.addProperty(GeoObjectImportConfiguration.POSTAL_CODE, this.isPostalCode());
 
     if (this.getStartDate() != null)
     {
-      config.addProperty(GeoObjectConfiguration.START_DATE, format.format(this.getStartDate()));
+      config.addProperty(GeoObjectImportConfiguration.START_DATE, format.format(this.getStartDate()));
     }
 
     if (this.getEndDate() != null)
     {
-      config.addProperty(GeoObjectConfiguration.END_DATE, format.format(this.getEndDate()));
+      config.addProperty(GeoObjectImportConfiguration.END_DATE, format.format(this.getEndDate()));
     }
 
     if (this.hierarchy != null)
     {
-      config.addProperty(GeoObjectConfiguration.HIERARCHY, this.getHierarchy().getCode());
+      config.addProperty(GeoObjectImportConfiguration.HIERARCHY, this.getHierarchy().getCode());
     }
 
     if (this.exclusions.size() > 0)
@@ -410,7 +463,7 @@ public class GeoObjectConfiguration
         problems.add(problem.toJSON());
       }
 
-      config.add(GeoObjectConfiguration.TERM_PROBLEMS, problems);
+      config.add(GeoObjectImportConfiguration.TERM_PROBLEMS, problems);
     }
 
     if (this.locationProblems.size() > 0)
@@ -422,16 +475,16 @@ public class GeoObjectConfiguration
         problems.add(problem.toJSON());
       }
 
-      config.add(GeoObjectConfiguration.LOCATION_PROBLEMS, problems);
+      config.add(GeoObjectImportConfiguration.LOCATION_PROBLEMS, problems);
     }
 
     return config;
   }
 
   @Request
-  public static GeoObjectConfiguration parse(String json, boolean includeCoordinates)
+  public static GeoObjectImportConfiguration parse(String json, boolean includeCoordinates)
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     JsonObject config = new JsonParser().parse(json).getAsJsonObject();
@@ -441,7 +494,7 @@ public class GeoObjectConfiguration
     String code = type.get(GeoObjectType.JSON_CODE).getAsString();
     ServerGeoObjectType got = ServerGeoObjectType.get(code);
 
-    GeoObjectConfiguration configuration = new GeoObjectConfiguration();
+    GeoObjectImportConfiguration configuration = new GeoObjectImportConfiguration();
     configuration.setDirectory(config.get(DIRECTORY).getAsString());
     configuration.setFilename(config.get(FILENAME).getAsString());
     configuration.setType(got);
@@ -450,14 +503,14 @@ public class GeoObjectConfiguration
 
     try
     {
-      if (config.has(GeoObjectConfiguration.START_DATE))
+      if (config.has(GeoObjectImportConfiguration.START_DATE))
       {
-        configuration.setStartDate(format.parse(config.get(GeoObjectConfiguration.START_DATE).getAsString()));
+        configuration.setStartDate(format.parse(config.get(GeoObjectImportConfiguration.START_DATE).getAsString()));
       }
 
-      if (config.has(GeoObjectConfiguration.END_DATE))
+      if (config.has(GeoObjectImportConfiguration.END_DATE))
       {
-        configuration.setEndDate(format.parse(config.get(GeoObjectConfiguration.END_DATE).getAsString()));
+        configuration.setEndDate(format.parse(config.get(GeoObjectImportConfiguration.END_DATE).getAsString()));
       }
     }
     catch (ParseException e)
@@ -552,11 +605,11 @@ public class GeoObjectConfiguration
     }
     else if (attributeType.equals(AttributeTermType.TYPE) || attributeType.equals(AttributeCharacterType.TYPE) || attributeType.equals(AttributeLocalType.TYPE))
     {
-      return GeoObjectConfiguration.TEXT;
+      return GeoObjectImportConfiguration.TEXT;
     }
     else if (attributeType.equals(AttributeFloatType.TYPE) || attributeType.equals(AttributeIntegerType.TYPE))
     {
-      return GeoObjectConfiguration.NUMERIC;
+      return GeoObjectImportConfiguration.NUMERIC;
     }
 
     return AttributeDateType.TYPE;
@@ -572,11 +625,11 @@ public class GeoObjectConfiguration
     }
     else if (String.class.isAssignableFrom(clazz))
     {
-      return GeoObjectConfiguration.TEXT;
+      return GeoObjectImportConfiguration.TEXT;
     }
     else if (Number.class.isAssignableFrom(clazz))
     {
-      return GeoObjectConfiguration.NUMERIC;
+      return GeoObjectImportConfiguration.NUMERIC;
     }
     else if (Date.class.isAssignableFrom(clazz))
     {
@@ -591,7 +644,7 @@ public class GeoObjectConfiguration
     LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LATITUDE_KEY));
     LocalizedValue description = new LocalizedValue("");
 
-    return new AttributeFloatType(GeoObjectConfiguration.LATITUDE, label, description, false, false, false);
+    return new AttributeFloatType(GeoObjectImportConfiguration.LATITUDE, label, description, false, false, false);
   }
 
   public static AttributeFloatType longitude()
@@ -599,6 +652,6 @@ public class GeoObjectConfiguration
     LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LONGITUDE_KEY));
     LocalizedValue description = new LocalizedValue("");
 
-    return new AttributeFloatType(GeoObjectConfiguration.LONGITUDE, label, description, false, false, false);
+    return new AttributeFloatType(GeoObjectImportConfiguration.LONGITUDE, label, description, false, false, false);
   }
 }

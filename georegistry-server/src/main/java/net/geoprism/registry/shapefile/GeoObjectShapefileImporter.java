@@ -19,9 +19,18 @@
 package net.geoprism.registry.shapefile;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import net.geoprism.data.importer.FeatureRow;
+import net.geoprism.data.importer.GISImportLoggerIF;
+import net.geoprism.data.importer.SimpleFeatureRow;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.excel.FeatureRowImporter;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -29,26 +38,18 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
-
-import net.geoprism.data.importer.FeatureRow;
-import net.geoprism.data.importer.GISImportLoggerIF;
-import net.geoprism.data.importer.SimpleFeatureRow;
-import net.geoprism.registry.excel.FeatureRowImporter;
-import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.io.ImportProblemException;
-import net.geoprism.registry.model.ServerGeoObjectIF;
 
 /**
  * Class responsible for importing GeoObject definitions from a shapefile.
@@ -60,34 +61,34 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
   /**
    * URL of the file being imported
    */
-  private URL url;
+  protected URL url;
   
-  private static final Logger logger = LoggerFactory.getLogger(GeoObjectShapefileImporter.class);
+  protected static final Logger logger = LoggerFactory.getLogger(GeoObjectShapefileImporter.class);
 
   /**
    * @param url
    *          URL of the shapefile
    */
-  public GeoObjectShapefileImporter(URL url, GeoObjectConfiguration config)
+  public GeoObjectShapefileImporter(URL url, GeoObjectImportConfiguration config)
   {
     super(config);
 
     this.url = url;
   }
 
-  public GeoObjectShapefileImporter(File file, GeoObjectConfiguration config) throws MalformedURLException
+  public GeoObjectShapefileImporter(File file, GeoObjectImportConfiguration config) throws MalformedURLException
   {
     this(file.toURI().toURL(), config);
   }
-
+  
   @Request
-  public void run(GISImportLoggerIF logger) throws InvocationTargetException
+  public void run(ImportStage stage, GISImportLoggerIF logger) throws InvocationTargetException
   {
     try
     {
       try
       {
-        this.createEntities(logger);
+        this.process(stage, logger);
       }
       finally
       {
@@ -110,69 +111,66 @@ public class GeoObjectShapefileImporter extends FeatureRowImporter
    * @param writer
    *          Log file writer
    * @throws InvocationTargetException
+   * @throws IOException 
    */
-  @Transaction
-  private void createEntities(GISImportLoggerIF logger) throws InvocationTargetException
+  private void process(ImportStage stage, GISImportLoggerIF logger) throws InvocationTargetException, IOException
   {
+    FileDataStore myData = FileDataStoreFinder.getDataStore(this.url);
+    
     try
     {
-      GeoObjectShapefileImporter.logger.info("Importing shapefile from url [" + url.toString() + "].");
+      SimpleFeatureSource source = myData.getFeatureSource();
+  
+      Query query = new Query();
       
-      ShapefileDataStore store = new ShapefileDataStore(url);
-
+      if (this.history.getWorkProgress() > 0)
+      {
+        query.setStartIndex(this.history.getWorkProgress());
+      }
+      
+      query.setSortBy(new SortBy[] {SortBy.NATURAL_ORDER}); // Enforce predictable ordering based on alphabetical Feature Ids
+      
+      this.history.appLock();
+      this.history.setWorkTotal(source.getFeatures(query).size());
+      this.history.apply();
+      GeoObjectShapefileImporter.logger.info("Shapefile import total work [" + this.history.getWorkTotal() + "]");
+      
+      SimpleFeatureIterator iterator = source.getFeatures(query).features();
+      
       try
       {
-        String[] typeNames = store.getTypeNames();
-
-        if (typeNames.length > 0)
+        int i = 1;
+        
+        while (iterator.hasNext())
         {
-          String typeName = typeNames[0];
-
-          FeatureSource<SimpleFeatureType, SimpleFeature> source = store.getFeatureSource(typeName);
-
-          // Display the geo entity information about each row
-          FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source.getFeatures();
-
-          FeatureIterator<SimpleFeature> iterator = collection.features();
+          SimpleFeature feature = iterator.next();
           
-          int i = 0;
+          GeoObjectShapefileImporter.logger.info("Feature num " + i + "[" + feature.getIdentifier() + "]");
 
-          try
+          if (stage.equals(ImportStage.SYNONYM_CHECK))
           {
-            while (iterator.hasNext())
-            {
-              SimpleFeature feature = iterator.next();
-              
-              GeoObjectShapefileImporter.logger.debug("Importing Feature num " + i);
-
-              create(new SimpleFeatureRow(feature));
-              
-              i++;
-            }
+            this.validateRow(new SimpleFeatureRow(feature));
           }
-          finally
+          else
           {
-            iterator.close();
+            this.create(new SimpleFeatureRow(feature));
           }
+          
+          i++;
         }
       }
       finally
       {
-        store.dispose();
+        iterator.close();
       }
-
-      if (this.getConfiguration().hasProblems())
-      {
-        throw new ImportProblemException("Import contains problems");
-      }
+      
+      this.history.appLock();
+      this.history.setConfigJson(this.configuration.toJson().toString());
+      this.history.apply();
     }
-    catch (RuntimeException e)
+    finally
     {
-      throw e;
-    }
-    catch (Exception e)
-    {
-      throw new InvocationTargetException(e);
+      myData.dispose();
     }
   }
 

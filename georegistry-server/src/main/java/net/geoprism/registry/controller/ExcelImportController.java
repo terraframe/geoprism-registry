@@ -39,7 +39,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ExcelService;
 
 @Controller(url = "excel")
@@ -59,7 +59,7 @@ public class ExcelImportController
     {
       String fileName = file.getFilename();
 
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
       Date sDate = startDate != null ? format.parse(startDate) : null;

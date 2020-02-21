@@ -23,14 +23,22 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import net.geoprism.gis.geoserver.SessionPredicate;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.GeoObjectShapefileImportJob;
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 import org.apache.commons.io.FilenameUtils;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -51,20 +59,12 @@ import com.runwaysdk.business.SmartException;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-
-import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.ImportProblemException;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.shapefile.GeoObjectShapefileImporter;
-import net.geoprism.registry.shapefile.NullLogger;
+import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 public class ShapefileService
 {
@@ -97,27 +97,27 @@ public class ShapefileService
 
       if (dbfs.length > 0)
       {
-        SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
 
         JsonObject object = new JsonObject();
-        object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
-        object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);
-        object.add(GeoObjectConfiguration.SHEET, this.getSheetInformation(dbfs[0]));
-        object.addProperty(GeoObjectConfiguration.DIRECTORY, root.getName());
-        object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
-        object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+        object.add(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
+        object.add(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
+        object.add(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbfs[0]));
+        object.addProperty(GeoObjectImportConfiguration.DIRECTORY, root.getName());
+        object.addProperty(GeoObjectImportConfiguration.FILENAME, fileName);
+        object.addProperty(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
 
         if (startDate != null)
         {
-          object.addProperty(GeoObjectConfiguration.START_DATE, format.format(startDate));
+          object.addProperty(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
         }
 
         if (endDate != null)
         {
-          object.addProperty(GeoObjectConfiguration.END_DATE, format.format(endDate));
+          object.addProperty(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
         }
 
         return object;
@@ -149,7 +149,7 @@ public class ShapefileService
       JsonObject attribute = attributes.get(i).getAsJsonObject();
       String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
 
-      attribute.addProperty(GeoObjectConfiguration.BASE_TYPE, GeoObjectConfiguration.getBaseType(attributeType));
+      attribute.addProperty(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
     }
 
     return type;
@@ -177,8 +177,8 @@ public class ShapefileService
 
           JsonObject attributes = new JsonObject();
           attributes.add(AttributeBooleanType.TYPE, new JsonArray());
-          attributes.add(GeoObjectConfiguration.TEXT, new JsonArray());
-          attributes.add(GeoObjectConfiguration.NUMERIC, new JsonArray());
+          attributes.add(GeoObjectImportConfiguration.TEXT, new JsonArray());
+          attributes.add(GeoObjectImportConfiguration.NUMERIC, new JsonArray());
           attributes.add(AttributeDateType.TYPE, new JsonArray());
 
           for (AttributeDescriptor descriptor : descriptors)
@@ -186,13 +186,13 @@ public class ShapefileService
             if (! ( descriptor instanceof GeometryDescriptor ))
             {
               String name = descriptor.getName().getLocalPart();
-              String baseType = GeoObjectConfiguration.getBaseType(descriptor.getType());
+              String baseType = GeoObjectImportConfiguration.getBaseType(descriptor.getType());
 
               attributes.get(baseType).getAsJsonArray().add(name);
 
-              if (baseType.equals(GeoObjectConfiguration.NUMERIC))
+              if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
               {
-                attributes.get(GeoObjectConfiguration.TEXT).getAsJsonArray().add(name);
+                attributes.get(GeoObjectImportConfiguration.TEXT).getAsJsonArray().add(name);
               }
             }
           }
@@ -255,64 +255,41 @@ public class ShapefileService
       throw new ProgrammingErrorException(e1);
     }
   }
-
+  
   @Request(RequestType.SESSION)
-  public JsonObject importShapefile(String sessionId, String config)
+  public ImportHistory importShapefile(String sessionId, String config)
   {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, false);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(config, false);
 
-    String dir = configuration.getDirectory();
-    String fname = configuration.getFilename();
-
-    File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), dir);
-    root.mkdirs();
-
-    File directory = new File(root, FilenameUtils.getBaseName(fname));
-    directory.mkdirs();
-
-    File[] dbfs = directory.listFiles(new FilenameFilter()
+    ImportHistory hist;
+    
+    if (configuration.getHistoryId() != null && configuration.getHistoryId().length() > 0)
     {
-      @Override
-      public boolean accept(File dir, String name)
-      {
-        return name.endsWith(".dbf");
-      }
-    });
-
-    if (dbfs.length > 0)
-    {
-      try
-      {
-        this.importShapefile(configuration, dbfs[0]);
-      }
-      catch (ProgrammingErrorException e)
-      {
-        if (e.getCause() instanceof ImportProblemException)
-        {
-          // Do nothing: configuration should contain the details of the problem
-        }
-        else
-        {
-          throw e;
-        }
-      }
+      String historyId = configuration.getHistoryId();
+      hist = ImportHistory.get(historyId);
+      
+      JobHistoryRecord record = hist.getAllJobRel().getAll().get(0);
+      ExecutableJob execJob = record.getParent();
+      
+      hist.appLock();
+      hist.clearStage();
+      hist.addStage(ImportStage.IMPORT);
+      hist.apply();
+      
+      System.out.println("Resuming Job");
+      execJob.resume(record);
     }
-
-    return configuration.toJson();
-  }
-
-  @Transaction
-  private void importShapefile(GeoObjectConfiguration configuration, File shapefile)
-  {
-    try
+    else
     {
-      GeoObjectShapefileImporter importer = new GeoObjectShapefileImporter(shapefile, configuration);
-      importer.run(new NullLogger());
+      GeoObjectShapefileImportJob job = new GeoObjectShapefileImportJob();
+      job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+      job.apply();
+     
+      System.out.println("Starting new job");
+      hist = job.start(configuration);
     }
-    catch (MalformedURLException | InvocationTargetException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
+    
+    return hist;
   }
 
   @Request(RequestType.SESSION)

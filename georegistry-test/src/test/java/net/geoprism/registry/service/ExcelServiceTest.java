@@ -67,7 +67,7 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.io.DelegateShapefileFunction;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
 import net.geoprism.registry.io.PostalCodeFactory;
@@ -149,11 +149,11 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
     JsonObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream);
 
-    Assert.assertFalse(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
+    Assert.assertFalse(result.get(GeoObjectImportConfiguration.HAS_POSTAL_CODE).getAsBoolean());
 
-    Assert.assertNotNull(result.getAsJsonObject(GeoObjectConfiguration.TYPE));
+    Assert.assertNotNull(result.getAsJsonObject(GeoObjectImportConfiguration.TYPE));
 
-    JsonArray hierarchies = result.get(GeoObjectConfiguration.HIERARCHIES).getAsJsonArray();
+    JsonArray hierarchies = result.get(GeoObjectImportConfiguration.HIERARCHIES).getAsJsonArray();
 
     Assert.assertEquals(1, hierarchies.size());
 
@@ -161,7 +161,7 @@ public class ExcelServiceTest
 
     Assert.assertNotNull(hierarchy.get("label").getAsString());
 
-    JsonObject sheet = result.getAsJsonObject(GeoObjectConfiguration.SHEET);
+    JsonObject sheet = result.getAsJsonObject(GeoObjectImportConfiguration.SHEET);
 
     Assert.assertNotNull(sheet);
     Assert.assertEquals("Objects", sheet.get("name").getAsString());
@@ -170,12 +170,12 @@ public class ExcelServiceTest
 
     Assert.assertNotNull(attributes);
 
-    JsonArray fields = attributes.get(GeoObjectConfiguration.TEXT).getAsJsonArray();
+    JsonArray fields = attributes.get(GeoObjectImportConfiguration.TEXT).getAsJsonArray();
 
     Assert.assertEquals(8, fields.size());
     Assert.assertEquals("Longitude", fields.get(0).getAsString());
 
-    Assert.assertEquals(4, attributes.get(GeoObjectConfiguration.NUMERIC).getAsJsonArray().size());
+    Assert.assertEquals(4, attributes.get(GeoObjectImportConfiguration.NUMERIC).getAsJsonArray().size());
     Assert.assertEquals(1, attributes.get(AttributeBooleanType.TYPE).getAsJsonArray().size());
     Assert.assertEquals(1, attributes.get(AttributeDateType.TYPE).getAsJsonArray().size());
   }
@@ -202,7 +202,7 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
     JsonObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream);
 
-    Assert.assertTrue(result.get(GeoObjectConfiguration.HAS_POSTAL_CODE).getAsBoolean());
+    Assert.assertTrue(result.get(GeoObjectImportConfiguration.HAS_POSTAL_CODE).getAsBoolean());
   }
 
   @Test
@@ -218,7 +218,7 @@ public class ExcelServiceTest
     JsonObject json = this.getTestConfiguration(istream, service, null);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
     service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
@@ -254,7 +254,7 @@ public class ExcelServiceTest
     JsonObject json = this.getTestConfiguration(istream, service, null);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
 
@@ -279,7 +279,7 @@ public class ExcelServiceTest
     JsonObject json = this.getTestConfiguration(istream, service, null);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testDate.getName(), new BasicColumnFunction("Test Date"));
     configuration.setHierarchy(hierarchyType);
 
@@ -309,7 +309,7 @@ public class ExcelServiceTest
     JsonObject json = this.getTestConfiguration(istream, service, null);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setFunction(this.testBoolean.getName(), new BasicColumnFunction("Test Boolean"));
     configuration.setHierarchy(hierarchyType);
 
@@ -334,7 +334,7 @@ public class ExcelServiceTest
     JsonObject json = this.getTestConfiguration(istream, service, null);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
     service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
@@ -441,7 +441,7 @@ public class ExcelServiceTest
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setStartDate(new Date());
     configuration.setEndDate(new Date());
     configuration.setHierarchy(hierarchyType);
@@ -508,7 +508,7 @@ public class ExcelServiceTest
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setStartDate(new Date());
     configuration.setEndDate(new Date());
     configuration.setHierarchy(hierarchyType);
@@ -543,15 +543,15 @@ public class ExcelServiceTest
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
     configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent")));
-    configuration.addExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, "00");
+    configuration.addExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, "00");
 
     JsonObject result = service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    Assert.assertFalse(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
+    Assert.assertFalse(result.has(GeoObjectImportConfiguration.LOCATION_PROBLEMS));
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
@@ -574,16 +574,16 @@ public class ExcelServiceTest
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
     configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent")));
 
     JsonObject result = service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    Assert.assertTrue(result.has(GeoObjectConfiguration.LOCATION_PROBLEMS));
+    Assert.assertTrue(result.has(GeoObjectImportConfiguration.LOCATION_PROBLEMS));
 
-    JsonArray problems = result.get(GeoObjectConfiguration.LOCATION_PROBLEMS).getAsJsonArray();
+    JsonArray problems = result.get(GeoObjectImportConfiguration.LOCATION_PROBLEMS).getAsJsonArray();
 
     Assert.assertEquals(1, problems.size());
 
@@ -614,7 +614,7 @@ public class ExcelServiceTest
 
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-      GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+      GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
       configuration.setHierarchy(hierarchyType);
 
       service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
@@ -646,14 +646,14 @@ public class ExcelServiceTest
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
 
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(json.toString(), true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
     JsonObject result = service.importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJson().toString());
 
-    Assert.assertTrue(result.has(GeoObjectConfiguration.TERM_PROBLEMS));
+    Assert.assertTrue(result.has(GeoObjectImportConfiguration.TERM_PROBLEMS));
 
-    JsonArray problems = result.get(GeoObjectConfiguration.TERM_PROBLEMS).getAsJsonArray();
+    JsonArray problems = result.get(GeoObjectImportConfiguration.TERM_PROBLEMS).getAsJsonArray();
 
     Assert.assertEquals(1, problems.size());
 
@@ -675,7 +675,7 @@ public class ExcelServiceTest
   private JsonObject getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm)
   {
     JsonObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream);
-    JsonObject type = result.getAsJsonObject(GeoObjectConfiguration.TYPE);
+    JsonObject type = result.getAsJsonObject(GeoObjectImportConfiguration.TYPE);
     JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
 
     for (int i = 0; i < attributes.size(); i++)
@@ -686,23 +686,23 @@ public class ExcelServiceTest
 
       if (attributeName.equals(GeoObject.DISPLAY_LABEL))
       {
-        attribute.addProperty(GeoObjectConfiguration.TARGET, "Name");
+        attribute.addProperty(GeoObjectImportConfiguration.TARGET, "Name");
       }
       else if (attributeName.equals(GeoObject.CODE))
       {
-        attribute.addProperty(GeoObjectConfiguration.TARGET, "Code");
+        attribute.addProperty(GeoObjectImportConfiguration.TARGET, "Code");
       }
-      else if (attributeName.equals(GeoObjectConfiguration.LATITUDE))
+      else if (attributeName.equals(GeoObjectImportConfiguration.LATITUDE))
       {
-        attribute.addProperty(GeoObjectConfiguration.TARGET, "Latitude");
+        attribute.addProperty(GeoObjectImportConfiguration.TARGET, "Latitude");
       }
-      else if (attributeName.equals(GeoObjectConfiguration.LONGITUDE))
+      else if (attributeName.equals(GeoObjectImportConfiguration.LONGITUDE))
       {
-        attribute.addProperty(GeoObjectConfiguration.TARGET, "Longitude");
+        attribute.addProperty(GeoObjectImportConfiguration.TARGET, "Longitude");
       }
       else if (attributeTerm != null && attributeName.equals(attributeTerm.getName()))
       {
-        attribute.addProperty(GeoObjectConfiguration.TARGET, "Term");
+        attribute.addProperty(GeoObjectImportConfiguration.TARGET, "Term");
       }
     }
 

@@ -36,7 +36,7 @@ import net.geoprism.data.etl.excel.ExcelObjectException;
 import net.geoprism.data.etl.excel.ExcelValueException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class GeoObjectContentHandler implements SheetHandler
 {
@@ -74,7 +74,7 @@ public class GeoObjectContentHandler implements SheetHandler
 
   boolean                      isFirstSheet;
 
-  public GeoObjectContentHandler(GeoObjectConfiguration configuration)
+  public GeoObjectContentHandler(GeoObjectImportConfiguration configuration)
   {
     this.isFirstSheet = true;
 

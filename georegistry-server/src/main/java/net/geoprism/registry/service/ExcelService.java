@@ -51,7 +51,7 @@ import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
 import net.geoprism.registry.excel.GeoObjectContentHandler;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.ImportProblemException;
 import net.geoprism.registry.io.PostalCodeFactory;
@@ -66,7 +66,7 @@ public class ExcelService
     // Save the file to the file system
     try
     {
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
@@ -89,21 +89,21 @@ public class ExcelService
       JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
 
       JsonObject object = new JsonObject();
-      object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
-      object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);
-      object.add(GeoObjectConfiguration.SHEET, handler.getSheets().get(0).getAsJsonObject());
-      object.addProperty(GeoObjectConfiguration.DIRECTORY, directory.getName());
-      object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
-      object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+      object.add(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
+      object.add(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
+      object.add(GeoObjectImportConfiguration.SHEET, handler.getSheets().get(0).getAsJsonObject());
+      object.addProperty(GeoObjectImportConfiguration.DIRECTORY, directory.getName());
+      object.addProperty(GeoObjectImportConfiguration.FILENAME, fileName);
+      object.addProperty(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
 
       if (startDate != null)
       {
-        object.addProperty(GeoObjectConfiguration.START_DATE, format.format(startDate));
+        object.addProperty(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
       }
 
       if (endDate != null)
       {
-        object.addProperty(GeoObjectConfiguration.END_DATE, format.format(endDate));
+        object.addProperty(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
       }
 
       return object;
@@ -135,7 +135,7 @@ public class ExcelService
       JsonObject attribute = attributes.get(i).getAsJsonObject();
       String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
 
-      attribute.addProperty(GeoObjectConfiguration.BASE_TYPE, GeoObjectConfiguration.getBaseType(attributeType));
+      attribute.addProperty(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
     }
 
     return type;
@@ -144,7 +144,7 @@ public class ExcelService
   @Request(RequestType.SESSION)
   public JsonObject importExcelFile(String sessionId, String config)
   {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, true);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(config, true);
 
     try
     {
@@ -166,7 +166,7 @@ public class ExcelService
   }
 
   @Transaction
-  private JsonObject importExcelFile(GeoObjectConfiguration configuration)
+  private JsonObject importExcelFile(GeoObjectImportConfiguration configuration)
   {
     String dir = configuration.getDirectory();
     String fname = configuration.getFilename();
@@ -205,7 +205,7 @@ public class ExcelService
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String config)
   {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, false);
+    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(config, false);
 
     try
     {

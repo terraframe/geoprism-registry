@@ -35,7 +35,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.LatLonException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -44,7 +44,7 @@ public class GeoObjectConverter extends FeatureRowImporter
 {
   private GeometryFactory factory;
 
-  public GeoObjectConverter(GeoObjectConfiguration configuration)
+  public GeoObjectConverter(GeoObjectImportConfiguration configuration)
   {
     super(configuration);
 
@@ -87,8 +87,8 @@ public class GeoObjectConverter extends FeatureRowImporter
   @Override
   protected Geometry getGeometry(FeatureRow row)
   {
-    ShapefileFunction latitudeFunction = this.getConfiguration().getFunction(GeoObjectConfiguration.LATITUDE);
-    ShapefileFunction longitudeFunction = this.getConfiguration().getFunction(GeoObjectConfiguration.LONGITUDE);
+    ShapefileFunction latitudeFunction = this.getConfiguration().getFunction(GeoObjectImportConfiguration.LATITUDE);
+    ShapefileFunction longitudeFunction = this.getConfiguration().getFunction(GeoObjectImportConfiguration.LONGITUDE);
 
     if (latitudeFunction != null && longitudeFunction != null)
     {

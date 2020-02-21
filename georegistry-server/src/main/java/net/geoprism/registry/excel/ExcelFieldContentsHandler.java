@@ -39,7 +39,7 @@ import net.geoprism.data.etl.excel.ExcelFormulaException;
 import net.geoprism.data.etl.excel.ExcelHeaderException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ExcelFieldContentsHandler implements SheetHandler
 {
@@ -135,7 +135,7 @@ public class ExcelFieldContentsHandler implements SheetHandler
 
         if (type.equals(ColumnType.NUMBER))
         {
-          return GeoObjectConfiguration.NUMERIC;
+          return GeoObjectImportConfiguration.NUMERIC;
         }
         else if (type.equals(ColumnType.DATE))
         {
@@ -147,11 +147,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
         }
         else if ( ( type.equals(ColumnType.TEXT) && this.values.size() < LIMIT ))
         {
-          return GeoObjectConfiguration.TEXT;
+          return GeoObjectImportConfiguration.TEXT;
         }
       }
 
-      return GeoObjectConfiguration.TEXT;
+      return GeoObjectImportConfiguration.TEXT;
     }
 
     public JsonObject toJSON()
@@ -185,12 +185,12 @@ public class ExcelFieldContentsHandler implements SheetHandler
           {
             object.addProperty("precision", ( this.precision + this.scale ));
             object.addProperty("scale", this.scale);
-            object.addProperty("type", GeoObjectConfiguration.NUMERIC);
+            object.addProperty("type", GeoObjectImportConfiguration.NUMERIC);
             object.addProperty("ratio", false);
           }
           else
           {
-            object.addProperty("type", GeoObjectConfiguration.NUMERIC);
+            object.addProperty("type", GeoObjectImportConfiguration.NUMERIC);
           }
         }
         else if (type.equals(ColumnType.DATE))
@@ -203,18 +203,18 @@ public class ExcelFieldContentsHandler implements SheetHandler
         }
         else if ( ( type.equals(ColumnType.TEXT) && this.values.size() < LIMIT ))
         {
-          object.addProperty("type", GeoObjectConfiguration.TEXT);
+          object.addProperty("type", GeoObjectImportConfiguration.TEXT);
         }
       }
       else
       {
         object.addProperty("columnType", ColumnType.TEXT.name());
-        object.addProperty("type", GeoObjectConfiguration.TEXT);
+        object.addProperty("type", GeoObjectImportConfiguration.TEXT);
         object.addProperty("accepted", false);
 
         if (this.categoryId != null || this.values.size() < LIMIT)
         {
-          object.addProperty("type", GeoObjectConfiguration.TEXT);
+          object.addProperty("type", GeoObjectImportConfiguration.TEXT);
 
           if (this.categoryId != null)
           {
@@ -312,8 +312,8 @@ public class ExcelFieldContentsHandler implements SheetHandler
     {
       JsonObject attributes = new JsonObject();
       attributes.add(AttributeBooleanType.TYPE, new JsonArray());
-      attributes.add(GeoObjectConfiguration.TEXT, new JsonArray());
-      attributes.add(GeoObjectConfiguration.NUMERIC, new JsonArray());
+      attributes.add(GeoObjectImportConfiguration.TEXT, new JsonArray());
+      attributes.add(GeoObjectImportConfiguration.NUMERIC, new JsonArray());
       attributes.add(AttributeDateType.TYPE, new JsonArray());
 
       Set<Integer> keys = this.map.keySet();
@@ -328,9 +328,9 @@ public class ExcelFieldContentsHandler implements SheetHandler
 
         attributes.get(baseType).getAsJsonArray().add(name);
 
-        if (baseType.equals(GeoObjectConfiguration.NUMERIC))
+        if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
         {
-          attributes.get(GeoObjectConfiguration.TEXT).getAsJsonArray().add(name);
+          attributes.get(GeoObjectImportConfiguration.TEXT).getAsJsonArray().add(name);
         }
       }
 

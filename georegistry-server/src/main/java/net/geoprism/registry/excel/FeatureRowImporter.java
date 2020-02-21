@@ -31,8 +31,9 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.io.AmbiguousParentException;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.io.Location;
@@ -67,21 +68,24 @@ import com.runwaysdk.ProblemIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
 
 public abstract class FeatureRowImporter
 {
-  protected GeoObjectConfiguration configuration;
+  protected GeoObjectImportConfiguration configuration;
 
   protected ServerGeoObjectService service;
   
   protected Map<String, ServerGeoObjectIF> parentCache;
   
   protected static final String parentConcatToken = "&";
+  
+  protected ImportHistory history;
 
-  public FeatureRowImporter(GeoObjectConfiguration configuration)
+  public FeatureRowImporter(GeoObjectImportConfiguration configuration)
   {
     this.configuration = configuration;
     this.service = new ServerGeoObjectService();
@@ -100,9 +104,119 @@ public abstract class FeatureRowImporter
 
   protected abstract void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value);
 
-  public GeoObjectConfiguration getConfiguration()
+  public GeoObjectImportConfiguration getConfiguration()
   {
     return configuration;
+  }
+  
+  public ImportHistory getImportHistory()
+  {
+    return history;
+  }
+
+  public void setImportHistory(ImportHistory history)
+  {
+    this.history = history;
+  }
+  
+  @Transaction
+  public void validateRow(FeatureRow row)
+  {
+    try
+    {
+      int beforeProbCount = this.configuration.getProblemCount();
+      
+      /*
+       * First, try to get the parent and ensure that this row is not ignored.
+       * The getParent method will throw a IgnoreRowException if the parent is
+       * configured to be ignored.
+       */
+      if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+      {
+        this.parsePostalCode(row);
+      }
+      else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+      {
+        this.getParent(row);
+      }
+
+      String geoId = this.getCode(row);
+
+      if (geoId != null && geoId.length() > 0) // TODO : 
+      {
+        LocalizedValue entityName = this.getName(row);
+
+        if (entityName != null && this.hasValue(entityName))
+        {
+          Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+          Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+          for (Entry<String, AttributeType> entry : entries)
+          {
+            String attributeName = entry.getKey();
+
+            if (!attributeName.equals(GeoObject.CODE))
+            {
+              ShapefileFunction function = this.configuration.getFunction(attributeName);
+
+              if (function != null)
+              {
+                Object value = function.getValue(row);
+
+                if (value != null)
+                {
+                  AttributeType attributeType = entry.getValue();
+
+                  if (attributeType instanceof AttributeTermType)
+                  {
+                    if (!this.configuration.isExclusion(attributeName, value.toString()))
+                    {
+                      try
+                      {
+                        MdBusinessDAOIF mdBusiness = this.configuration.getType().getMdBusinessDAO();
+                        MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
+
+                        Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
+
+                        if (classifier == null)
+                        {
+                          Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
+
+                          this.configuration.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
+                        }
+                      }
+                      catch (UnknownTermException e)
+                      {
+                        TermValueException ex = new TermValueException();
+                        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+                        ex.setCode(e.getCode());
+
+                        throw e;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      if (beforeProbCount == this.configuration.getProblemCount())
+      {
+        this.history.appLock();
+        this.history.setImportedRecords(this.history.getImportedRecords()+1);
+        this.history.apply();
+      }
+    }
+    catch (IgnoreRowException e)
+    {
+      // Do nothing
+    }
+    
+    this.history.appLock();
+    this.history.setWorkProgress(this.history.getWorkProgress()+1);
+    this.history.apply();
   }
 
   /**
@@ -112,10 +226,13 @@ public abstract class FeatureRowImporter
    * @param feature
    * @throws Exception
    */
+  @Transaction
   public void create(FeatureRow row)
   {
     try
     {
+      int beforeProbCount = this.configuration.getProblemCount();
+      
       ServerGeoObjectIF parent = null;
 
       /*
@@ -234,11 +351,22 @@ public abstract class FeatureRowImporter
           }
         }
       }
+      
+      if (beforeProbCount == this.configuration.getProblemCount())
+      {
+        this.history.appLock();
+        this.history.setImportedRecords(this.history.getImportedRecords()+1);
+        this.history.apply();
+      }
     }
     catch (IgnoreRowException e)
     {
       // Do nothing
     }
+    
+    this.history.appLock();
+    this.history.setWorkProgress(this.history.getWorkProgress()+1);
+    this.history.apply();
   }
 
   private boolean hasValue(LocalizedValue value)
@@ -307,7 +435,7 @@ public abstract class FeatureRowImporter
         
         parentKeyBuilder.add(label.toString());
 
-        if (this.configuration.isExclusion(GeoObjectConfiguration.PARENT_EXCLUSION, key))
+        if (this.configuration.isExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, key))
         {
           throw new IgnoreRowException();
         }
