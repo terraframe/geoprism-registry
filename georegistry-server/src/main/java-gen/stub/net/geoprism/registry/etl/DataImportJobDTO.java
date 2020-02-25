@@ -1,10 +1,10 @@
 package net.geoprism.registry.etl;
 
-public class GeoObjectShapefileImportJobDTO extends GeoObjectShapefileImportJobDTOBase
+public class DataImportJobDTO extends DataImportJobDTOBase
 {
-  private static final long serialVersionUID = 1027972777;
+  private static final long serialVersionUID = 275395398;
   
-  public GeoObjectShapefileImportJobDTO(com.runwaysdk.constants.ClientRequestIF clientRequest)
+  public DataImportJobDTO(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(clientRequest);
   }
@@ -15,7 +15,7 @@ public class GeoObjectShapefileImportJobDTO extends GeoObjectShapefileImportJobD
   * @param businessDTO The BusinessDTO to duplicate
   * @param clientRequest The clientRequest this DTO should use to communicate with the server.
   */
-  protected GeoObjectShapefileImportJobDTO(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected DataImportJobDTO(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(businessDTO, clientRequest);
   }

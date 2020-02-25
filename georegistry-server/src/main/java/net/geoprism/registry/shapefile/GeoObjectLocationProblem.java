@@ -18,11 +18,12 @@
  */
 package net.geoprism.registry.shapefile;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+
+import org.json.JSONObject;
+
+import com.google.gson.JsonArray;
 
 public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationProblem>
 {
@@ -54,17 +55,17 @@ public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationPro
     }
   }
 
-  public JsonObject toJSON()
+  public JSONObject toJSON()
   {
-    JsonObject object = new JsonObject();
-    object.addProperty("label", label);
-    object.addProperty("type", this.type.getCode());
-    object.addProperty("typeLabel", this.type.getLabel().getValue());
-    object.add("context", context);
+    JSONObject object = new JSONObject();
+    object.put("label", label);
+    object.put("type", this.type.getCode());
+    object.put("typeLabel", this.type.getLabel().getValue());
+    object.put("context", context);
 
     if (this.parent != null)
     {
-      object.addProperty("parent", this.parent.getCode());
+      object.put("parent", this.parent.getCode());
     }
 
     return object;

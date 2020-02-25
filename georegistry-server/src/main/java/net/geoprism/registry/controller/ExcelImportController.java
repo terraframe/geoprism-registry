@@ -25,9 +25,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.json.JSONException;
+import net.geoprism.registry.etl.DataImportJob;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.ExcelService;
 
-import com.google.gson.JsonObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
@@ -38,9 +42,6 @@ import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.ExcelService;
 
 @Controller(url = "excel")
 public class ExcelImportController
@@ -65,7 +66,7 @@ public class ExcelImportController
       Date sDate = startDate != null ? format.parse(startDate) : null;
       Date eDate = endDate != null ? format.parse(endDate) : null;
 
-      JsonObject configuration = service.getExcelConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
+      JSONObject configuration = service.getExcelConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
 
       // object.add("options", service.getOptions(request.getSessionId()));
       // object.put("classifiers", new
@@ -78,9 +79,9 @@ public class ExcelImportController
   @Endpoint(url = "import-spreadsheet", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF importSpreadsheet(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration) throws JSONException
   {
-    JsonObject response = service.importExcelFile(request.getSessionId(), configuration);
+    String config = DataImportJob.importService(request.getSessionId(), configuration);
 
-    return new RestBodyResponse(response);
+    return new RestBodyResponse(config);
   }
 
   @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)

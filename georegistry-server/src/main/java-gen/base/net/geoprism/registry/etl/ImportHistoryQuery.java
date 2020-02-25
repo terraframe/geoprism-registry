@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -309519691)
+@com.runwaysdk.business.ClassSignature(hash = 1304647674)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -55,6 +55,29 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.CONFIGJSON, alias, displayLabel);
 
   }
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()
+  {
+    return getImportFile(null);
+
+  }
+ 
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.ImportHistory.IMPORTFILE);
+
+    return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportHistory.IMPORTFILE, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.ImportHistory.IMPORTFILE);
+
+    return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportHistory.IMPORTFILE, mdAttributeIF, this, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableInteger getImportedRecords()
   {
     return getImportedRecords(null);
@@ -95,6 +118,20 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportHistory.STAGE, mdAttributeIF, this, alias, displayLabel);
 
   }
+  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.etl.ImportHistory.IMPORTFILE)) 
+    {
+       return new com.runwaysdk.system.VaultFileQuery.VaultFileQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+  }
+
   protected com.runwaysdk.query.AttributeEnumeration enumerationFactory( com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  String mdEnumerationTableName, com.runwaysdk.dataaccess.MdBusinessDAOIF masterListMdBusinessIF, String masterListTalbeAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -144,6 +181,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableChar getConfigJson();
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
+    public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
+    public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
+    public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableInteger getImportedRecords();
     public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias);
     public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias, String displayLabel);
@@ -202,6 +242,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.CONFIGJSON, alias, displayLabel);
 
   }
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()
+  {
+    return getImportFile(null);
+
+  }
+ 
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias)
+  {
+    return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTFILE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTFILE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableInteger getImportedRecords()
   {
     return getImportedRecords(null);
@@ -236,6 +293,20 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.get(net.geoprism.registry.etl.ImportHistory.STAGE, alias, displayLabel);
 
   }
+  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.etl.ImportHistory.IMPORTFILE)) 
+    {
+       return new com.runwaysdk.system.VaultFileQuery.VaultFileQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+  }
+
   protected com.runwaysdk.query.AttributeEnumeration enumerationFactory( com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  String mdEnumerationTableName, com.runwaysdk.dataaccess.MdBusinessDAOIF masterListMdBusinessIF, String masterListTalbeAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -262,6 +333,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableChar getConfigJson();
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
+    public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
+    public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
+    public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableInteger getImportedRecords();
     public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias);
     public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias, String displayLabel);
@@ -369,6 +443,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.CONFIGJSON, alias, displayLabel);
 
   }
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()
+  {
+    return getImportFile(null);
+
+  }
+ 
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias)
+  {
+    return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTFILE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTFILE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableInteger getImportedRecords()
   {
     return getImportedRecords(null);
@@ -403,6 +494,20 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.get(net.geoprism.registry.etl.ImportHistory.STAGE, alias, displayLabel);
 
   }
+  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.etl.ImportHistory.IMPORTFILE)) 
+    {
+       return new com.runwaysdk.system.VaultFileQuery.VaultFileQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+  }
+
   protected com.runwaysdk.query.AttributeEnumeration enumerationFactory( com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  String mdEnumerationTableName, com.runwaysdk.dataaccess.MdBusinessDAOIF masterListMdBusinessIF, String masterListTalbeAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();

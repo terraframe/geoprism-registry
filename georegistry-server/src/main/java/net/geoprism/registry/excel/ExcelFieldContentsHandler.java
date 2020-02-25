@@ -25,21 +25,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.poi.ss.util.CellReference;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.json.JSONException;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-
 import net.geoprism.data.etl.ColumnType;
 import net.geoprism.data.etl.excel.ExcelFormulaException;
 import net.geoprism.data.etl.excel.ExcelHeaderException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+
+import org.apache.poi.ss.util.CellReference;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 public class ExcelFieldContentsHandler implements SheetHandler
 {
@@ -250,11 +252,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
   /**
    * JsonArray containing attribute information for all of the sheets.
    */
-  private JsonArray           sheets;
+  private JSONArray           sheets;
 
   public ExcelFieldContentsHandler()
   {
-    this.sheets = new JsonArray();
+    this.sheets = new JSONArray();
   }
 
   public Field getField(String cellReference)
@@ -277,7 +279,7 @@ public class ExcelFieldContentsHandler implements SheetHandler
     return reference.getCol();
   }
 
-  public JsonArray getSheets()
+  public JSONArray getSheets()
   {
     return this.sheets;
   }
@@ -334,11 +336,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
         }
       }
 
-      JsonObject sheet = new JsonObject();
-      sheet.addProperty("name", this.sheetName);
-      sheet.add("attributes", attributes);
+      JSONObject sheet = new JSONObject();
+      sheet.put("name", this.sheetName);
+      sheet.put("attributes", attributes);
 
-      this.sheets.add(sheet);
+      this.sheets.put(sheet);
     }
     catch (JSONException e)
     {

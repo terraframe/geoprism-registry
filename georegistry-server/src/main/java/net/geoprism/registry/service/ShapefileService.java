@@ -19,34 +19,20 @@
 package net.geoprism.registry.service;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
-import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.etl.GeoObjectShapefileImportJob;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.model.ServerGeoObjectType;
-
-import org.apache.commons.io.FilenameUtils;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -56,78 +42,60 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
-import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
+import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
-import com.runwaysdk.system.scheduler.JobHistoryRecord;
+import com.runwaysdk.system.VaultFile;
+
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.ShapefileImporter;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ShapefileService
 {
   @Request(RequestType.SESSION)
-  public JsonObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
+  public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
   {
     // Save the file to the file system
     try
     {
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
-
-      String name = SessionPredicate.generateId();
-
-      File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
-      root.mkdirs();
-
-      File directory = new File(root, FilenameUtils.getBaseName(fileName));
-      directory.mkdirs();
-
-      this.extract(fileStream, directory);
-
-      File[] dbfs = directory.listFiles(new FilenameFilter()
-      {
-        @Override
-        public boolean accept(File dir, String name)
-        {
-          return name.endsWith(".dbf");
-        }
-      });
-
-      if (dbfs.length > 0)
+      
+      VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
+      
+      try (CloseableFile dbf = ShapefileImporter.getShapefileFromResource(vf, "dbf"))
       {
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
-
+  
         JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
-
-        JsonObject object = new JsonObject();
-        object.add(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.add(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
-        object.add(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbfs[0]));
-        object.addProperty(GeoObjectImportConfiguration.DIRECTORY, root.getName());
-        object.addProperty(GeoObjectImportConfiguration.FILENAME, fileName);
-        object.addProperty(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
-
+  
+        JSONObject object = new JSONObject();
+        object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
+        object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
+        object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf));
+        object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
+        object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+  
         if (startDate != null)
         {
-          object.addProperty(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
+          object.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
         }
-
+  
         if (endDate != null)
         {
-          object.addProperty(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
+          object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
         }
-
+  
         return object;
       }
-      else
-      {
-        // TODO Change exception type
-        throw new ProgrammingErrorException("Zip file does not contain a valid shapefile");
-      }
-
     }
     catch (RunwayException | SmartException e)
     {
@@ -139,23 +107,23 @@ public class ShapefileService
     }
   }
 
-  private JsonObject getType(ServerGeoObjectType geoObjectType)
+  private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, SupportedLocaleDAO.getSupportedLocales()));
-    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
+    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, SupportedLocaleDAO.getSupportedLocales())).toString());
+    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    for (int i = 0; i < attributes.size(); i++)
+    for (int i = 0; i < attributes.length(); i++)
     {
-      JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
+      JSONObject attribute = attributes.getJSONObject(i);
+      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
 
-      attribute.addProperty(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
+      attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
     }
 
     return type;
   }
 
-  private JsonObject getSheetInformation(File dbf)
+  private JSONObject getSheetInformation(File dbf)
   {
     try
     {
@@ -175,11 +143,11 @@ public class ShapefileService
 
           List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
 
-          JsonObject attributes = new JsonObject();
-          attributes.add(AttributeBooleanType.TYPE, new JsonArray());
-          attributes.add(GeoObjectImportConfiguration.TEXT, new JsonArray());
-          attributes.add(GeoObjectImportConfiguration.NUMERIC, new JsonArray());
-          attributes.add(AttributeDateType.TYPE, new JsonArray());
+          JSONObject attributes = new JSONObject();
+          attributes.put(AttributeBooleanType.TYPE, new JSONArray());
+          attributes.put(GeoObjectImportConfiguration.TEXT, new JSONArray());
+          attributes.put(GeoObjectImportConfiguration.NUMERIC, new JSONArray());
+          attributes.put(AttributeDateType.TYPE, new JSONArray());
 
           for (AttributeDescriptor descriptor : descriptors)
           {
@@ -188,18 +156,18 @@ public class ShapefileService
               String name = descriptor.getName().getLocalPart();
               String baseType = GeoObjectImportConfiguration.getBaseType(descriptor.getType());
 
-              attributes.get(baseType).getAsJsonArray().add(name);
+              attributes.getJSONArray(baseType).put(name);
 
               if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
               {
-                attributes.get(GeoObjectImportConfiguration.TEXT).getAsJsonArray().add(name);
+                attributes.getJSONArray(GeoObjectImportConfiguration.TEXT).put(name);
               }
             }
           }
 
-          JsonObject sheet = new JsonObject();
-          sheet.addProperty("name", typeName);
-          sheet.add("attributes", attributes);
+          JSONObject sheet = new JSONObject();
+          sheet.put("name", typeName);
+          sheet.put("attributes", attributes);
 
           return sheet;
         }
@@ -223,73 +191,15 @@ public class ShapefileService
       throw new ProgrammingErrorException(e);
     }
   }
-
-  public void extract(InputStream iStream, File directory)
-  {
-    // create a buffer to improve copy performance later.
-    byte[] buffer = new byte[2048];
-
-    try
-    {
-      ZipInputStream zstream = new ZipInputStream(iStream);
-
-      ZipEntry entry;
-
-      while ( ( entry = zstream.getNextEntry() ) != null)
-      {
-        File file = new File(directory, entry.getName());
-
-        try (FileOutputStream output = new FileOutputStream(file))
-        {
-          int len = 0;
-
-          while ( ( len = zstream.read(buffer) ) > 0)
-          {
-            output.write(buffer, 0, len);
-          }
-        }
-      }
-    }
-    catch (IOException e1)
-    {
-      throw new ProgrammingErrorException(e1);
-    }
-  }
   
   @Request(RequestType.SESSION)
-  public ImportHistory importShapefile(String sessionId, String config)
+  public void cancelImport(String sessionId, String json)
   {
-    GeoObjectImportConfiguration configuration = GeoObjectImportConfiguration.parse(config, false);
+    ImportConfiguration config = ImportConfiguration.build(json, false);
 
-    ImportHistory hist;
+    String id = config.getVaultFileId();
     
-    if (configuration.getHistoryId() != null && configuration.getHistoryId().length() > 0)
-    {
-      String historyId = configuration.getHistoryId();
-      hist = ImportHistory.get(historyId);
-      
-      JobHistoryRecord record = hist.getAllJobRel().getAll().get(0);
-      ExecutableJob execJob = record.getParent();
-      
-      hist.appLock();
-      hist.clearStage();
-      hist.addStage(ImportStage.IMPORT);
-      hist.apply();
-      
-      System.out.println("Resuming Job");
-      execJob.resume(record);
-    }
-    else
-    {
-      GeoObjectShapefileImportJob job = new GeoObjectShapefileImportJob();
-      job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
-      job.apply();
-     
-      System.out.println("Starting new job");
-      hist = job.start(configuration);
-    }
-    
-    return hist;
+    VaultFile.get(id).delete();
   }
 
   @Request(RequestType.SESSION)

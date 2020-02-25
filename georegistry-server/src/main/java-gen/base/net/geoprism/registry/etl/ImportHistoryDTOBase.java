@@ -1,10 +1,10 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 87278270)
+@com.runwaysdk.business.ClassSignature(hash = 686217731)
 public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.scheduler.JobHistoryDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
-  private static final long serialVersionUID = 87278270;
+  private static final long serialVersionUID = 686217731;
   
   protected ImportHistoryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -28,6 +28,7 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   }
   
   public static java.lang.String CONFIGJSON = "configJson";
+  public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String STAGE = "stage";
   public String getConfigJson()
@@ -65,6 +66,55 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getConfigJsonMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(CONFIGJSON).getAttributeMdDTO();
+  }
+  
+  public com.runwaysdk.system.VaultFileDTO getImportFile()
+  {
+    if(getValue(IMPORTFILE) == null || getValue(IMPORTFILE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.system.VaultFileDTO.get(getRequest(), getValue(IMPORTFILE));
+    }
+  }
+  
+  public String getImportFileOid()
+  {
+    return getValue(IMPORTFILE);
+  }
+  
+  public void setImportFile(com.runwaysdk.system.VaultFileDTO value)
+  {
+    if(value == null)
+    {
+      setValue(IMPORTFILE, "");
+    }
+    else
+    {
+      setValue(IMPORTFILE, value.getOid());
+    }
+  }
+  
+  public boolean isImportFileWritable()
+  {
+    return isWritable(IMPORTFILE);
+  }
+  
+  public boolean isImportFileReadable()
+  {
+    return isReadable(IMPORTFILE);
+  }
+  
+  public boolean isImportFileModified()
+  {
+    return isModified(IMPORTFILE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getImportFileMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(IMPORTFILE).getAttributeMdDTO();
   }
   
   public Integer getImportedRecords()

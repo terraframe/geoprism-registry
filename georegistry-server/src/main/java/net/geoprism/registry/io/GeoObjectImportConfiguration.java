@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.io;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,7 +29,16 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import org.apache.commons.io.FilenameUtils;
+import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -43,26 +50,15 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.data.importer.BasicColumnFunction;
-import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
-
-public class GeoObjectImportConfiguration
+public class GeoObjectImportConfiguration extends ImportConfiguration
 {
   public static final String             PARENT_EXCLUSION  = "##PARENT##";
 
@@ -82,13 +78,9 @@ public class GeoObjectImportConfiguration
 
   public static final String             NUMERIC           = "numeric";
 
-  public static final String             FILENAME          = "filename";
-
   public static final String             HIERARCHIES       = "hierarchies";
 
   public static final String             HIERARCHY         = "hierarchy";
-
-  public static final String             DIRECTORY         = "directory";
 
   public static final String             LOCATIONS         = "locations";
 
@@ -106,8 +98,6 @@ public class GeoObjectImportConfiguration
 
   public static final String             VALUE             = "value";
   
-  public static final String             HISTORY_ID        = "historyId";
-  
   public static final String             LOCATION_PROBLEMS = "locationProblems";
 
   public static final String             LONGITUDE_KEY     = "georegistry.longitude.label";
@@ -116,15 +106,9 @@ public class GeoObjectImportConfiguration
 
   public static final String             DATE_FORMAT       = "yyyy-MM-dd";
 
-  private Map<String, ShapefileFunction> functions;
-
   private ServerGeoObjectType            type;
 
   private GeoObject                      root;
-
-  private String                         filename;
-
-  private String                         directory;
 
   private Map<String, Set<String>>       exclusions;
 
@@ -144,8 +128,6 @@ public class GeoObjectImportConfiguration
 
   private Date                           endDate;
   
-  private String                         historyId;
-
   public GeoObjectImportConfiguration()
   {
     this.includeCoordinates = false;
@@ -157,16 +139,6 @@ public class GeoObjectImportConfiguration
     this.postalCode = false;
   }
   
-  public String getHistoryId()
-  {
-    return historyId;
-  }
-
-  public void setHistoryId(String historyId)
-  {
-    this.historyId = historyId;
-  }
-
   public boolean isIncludeCoordinates()
   {
     return includeCoordinates;
@@ -187,56 +159,6 @@ public class GeoObjectImportConfiguration
     this.type = type;
   }
 
-  public String getDirectory()
-  {
-    return directory;
-  }
-
-  public void setDirectory(String directory)
-  {
-    this.directory = directory;
-  }
-  
-  public File getShpVaultFile()
-  {
-    String dir = this.getDirectory();
-    String fname = this.getFilename();
-
-    File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), dir);
-    root.mkdirs();
-
-    File directory = new File(root, FilenameUtils.getBaseName(fname));
-    directory.mkdirs();
-
-    File[] shps = directory.listFiles(new FilenameFilter()
-    {
-      @Override
-      public boolean accept(File dir, String name)
-      {
-        return name.endsWith(".shp");
-      }
-    });
-
-    if (shps.length > 0)
-    {
-      return shps[0];
-    }
-    else
-    {
-      return null;
-    }
-  }
-
-  public String getFilename()
-  {
-    return filename;
-  }
-
-  public void setFilename(String filename)
-  {
-    this.filename = filename;
-  }
-
   public Date getStartDate()
   {
     return startDate;
@@ -255,21 +177,6 @@ public class GeoObjectImportConfiguration
   public void setEndDate(Date endDate)
   {
     this.endDate = endDate;
-  }
-
-  public Map<String, ShapefileFunction> getFunctions()
-  {
-    return functions;
-  }
-
-  public ShapefileFunction getFunction(String attributeName)
-  {
-    return this.functions.get(attributeName);
-  }
-
-  public void setFunction(String attributeName, ShapefileFunction function)
-  {
-    this.functions.put(attributeName, function);
   }
 
   public GeoObject getRoot()
@@ -357,7 +264,8 @@ public class GeoObjectImportConfiguration
     this.hierarchy = hierarchy;
   }
 
-  public boolean hasProblems()
+  @Override
+  public boolean hasSynonymProblems()
   {
     return this.termProblems.size() > 0 || this.locationProblems.size() > 0;
   }
@@ -373,18 +281,23 @@ public class GeoObjectImportConfiguration
   }
 
   @Request
-  public JsonObject toJson()
+  @Override
+  public JSONObject toJSON()
   {
+    JSONObject config = new JSONObject();
+    
+    super.toJSON(config);
+    
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    JsonObject type = this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, SupportedLocaleDAO.getSupportedLocales()));
-    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
+    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, SupportedLocaleDAO.getSupportedLocales())).toString());
+    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    for (int i = 0; i < attributes.size(); i++)
+    for (int i = 0; i < attributes.length(); i++)
     {
-      JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
+      JSONObject attribute = attributes.getJSONObject(i);
+      String attributeName = attribute.getString(AttributeType.JSON_CODE);
 
       if (this.functions.containsKey(attributeName))
       {
@@ -392,125 +305,121 @@ public class GeoObjectImportConfiguration
 
         if (function instanceof LocalizedValueFunction)
         {
-          String locale = attribute.get("locale").getAsString();
+          String locale = attribute.getString("locale");
 
           ShapefileFunction localeFunction = ( (LocalizedValueFunction) function ).getFunction(locale);
 
           if (localeFunction != null)
           {
-            attribute.addProperty(TARGET, localeFunction.toJson());
+            attribute.put(TARGET, localeFunction.toJson());
           }
         }
         else
         {
-          attribute.addProperty(TARGET, function.toJson());
+          attribute.put(TARGET, function.toJson());
         }
       }
     }
 
-    JsonArray locations = new JsonArray();
+    JSONArray locations = new JSONArray();
 
     for (Location location : this.locations)
     {
-      locations.add(location.toJson());
+      locations.put(location.toJSON());
     }
 
-    JsonObject config = new JsonObject();
-    config.add(GeoObjectImportConfiguration.TYPE, type);
-    config.add(GeoObjectImportConfiguration.LOCATIONS, locations);
-    config.addProperty(GeoObjectImportConfiguration.DIRECTORY, this.getDirectory());
-    config.addProperty(GeoObjectImportConfiguration.FILENAME, this.getFilename());
-    config.addProperty(GeoObjectImportConfiguration.POSTAL_CODE, this.isPostalCode());
+    config.put(GeoObjectImportConfiguration.TYPE, type);
+    config.put(GeoObjectImportConfiguration.LOCATIONS, locations);
+    config.put(GeoObjectImportConfiguration.POSTAL_CODE, this.isPostalCode());
 
     if (this.getStartDate() != null)
     {
-      config.addProperty(GeoObjectImportConfiguration.START_DATE, format.format(this.getStartDate()));
+      config.put(GeoObjectImportConfiguration.START_DATE, format.format(this.getStartDate()));
     }
 
     if (this.getEndDate() != null)
     {
-      config.addProperty(GeoObjectImportConfiguration.END_DATE, format.format(this.getEndDate()));
+      config.put(GeoObjectImportConfiguration.END_DATE, format.format(this.getEndDate()));
     }
 
     if (this.hierarchy != null)
     {
-      config.addProperty(GeoObjectImportConfiguration.HIERARCHY, this.getHierarchy().getCode());
+      config.put(GeoObjectImportConfiguration.HIERARCHY, this.getHierarchy().getCode());
     }
 
     if (this.exclusions.size() > 0)
     {
-      JsonArray exclusions = new JsonArray();
+      JSONArray exclusions = new JSONArray();
 
       this.exclusions.forEach((key, set) -> {
         set.forEach(value -> {
-          JsonObject object = new JsonObject();
-          object.addProperty(AttributeType.JSON_CODE, key);
-          object.addProperty(VALUE, value);
+          JSONObject object = new JSONObject();
+          object.put(AttributeType.JSON_CODE, key);
+          object.put(VALUE, value);
 
-          exclusions.add(object);
+          exclusions.put(object);
         });
       });
 
-      config.add(EXCLUSIONS, exclusions);
+      config.put(EXCLUSIONS, exclusions);
     }
 
     if (this.termProblems.size() > 0)
     {
-      JsonArray problems = new JsonArray();
+      JSONArray problems = new JSONArray();
 
       for (TermProblem problem : this.termProblems)
       {
-        problems.add(problem.toJSON());
+        problems.put(problem.toJSON());
       }
 
-      config.add(GeoObjectImportConfiguration.TERM_PROBLEMS, problems);
+      config.put(GeoObjectImportConfiguration.TERM_PROBLEMS, problems);
     }
 
     if (this.locationProblems.size() > 0)
     {
-      JsonArray problems = new JsonArray();
+      JSONArray problems = new JSONArray();
 
       for (GeoObjectLocationProblem problem : this.locationProblems)
       {
-        problems.add(problem.toJSON());
+        problems.put(problem.toJSON());
       }
 
-      config.add(GeoObjectImportConfiguration.LOCATION_PROBLEMS, problems);
+      config.put(GeoObjectImportConfiguration.LOCATION_PROBLEMS, problems);
     }
 
     return config;
   }
 
   @Request
-  public static GeoObjectImportConfiguration parse(String json, boolean includeCoordinates)
+  public GeoObjectImportConfiguration fromJSON(String json, boolean includeCoordinates)
   {
+    super.fromJSON(json);
+    
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    JsonObject config = new JsonParser().parse(json).getAsJsonObject();
-    JsonObject type = config.get(TYPE).getAsJsonObject();
-    JsonArray locations = config.has(LOCATIONS) ? config.get(LOCATIONS).getAsJsonArray() : new JsonArray();
-    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
-    String code = type.get(GeoObjectType.JSON_CODE).getAsString();
+    JSONObject config = new JSONObject(json);
+    JSONObject type = config.getJSONObject(TYPE);
+    JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
+    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
+    String code = type.getString(GeoObjectType.JSON_CODE);
     ServerGeoObjectType got = ServerGeoObjectType.get(code);
 
-    GeoObjectImportConfiguration configuration = new GeoObjectImportConfiguration();
-    configuration.setDirectory(config.get(DIRECTORY).getAsString());
-    configuration.setFilename(config.get(FILENAME).getAsString());
-    configuration.setType(got);
-    configuration.setIncludeCoordinates(includeCoordinates);
-    configuration.setPostalCode(config.has(POSTAL_CODE) && config.get(POSTAL_CODE).getAsBoolean());
+    this.setType(got);
+    this.setIncludeCoordinates(includeCoordinates);
+    this.setPostalCode(config.has(POSTAL_CODE) && config.getBoolean(POSTAL_CODE));
 
     try
     {
       if (config.has(GeoObjectImportConfiguration.START_DATE))
       {
-        configuration.setStartDate(format.parse(config.get(GeoObjectImportConfiguration.START_DATE).getAsString()));
+        this.setStartDate(format.parse(config.getString(GeoObjectImportConfiguration.START_DATE)));
       }
 
       if (config.has(GeoObjectImportConfiguration.END_DATE))
       {
-        configuration.setEndDate(format.parse(config.get(GeoObjectImportConfiguration.END_DATE).getAsString()));
+        this.setEndDate(format.parse(config.getString(GeoObjectImportConfiguration.END_DATE)));
       }
     }
     catch (ParseException e)
@@ -520,12 +429,12 @@ public class GeoObjectImportConfiguration
 
     if (config.has(HIERARCHY))
     {
-      String hCode = config.get(HIERARCHY).getAsString();
+      String hCode = config.getString(HIERARCHY);
 
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
       List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got, hCode);
 
-      configuration.setHierarchy(hierarchyType);
+      this.setHierarchy(hierarchyType);
 
       if (ancestors.size() > 0)
       {
@@ -533,68 +442,68 @@ public class GeoObjectImportConfiguration
         GeoObjectQuery query = new GeoObjectQuery(ServerGeoObjectType.get(rootType));
         GeoObject root = query.getSingleResult();
 
-        configuration.setRoot(root);
+        this.setRoot(root);
       }
     }
 
     if (config.has(EXCLUSIONS))
     {
-      JsonArray exclusions = config.get(EXCLUSIONS).getAsJsonArray();
+      JSONArray exclusions = config.getJSONArray(EXCLUSIONS);
 
-      for (int i = 0; i < exclusions.size(); i++)
+      for (int i = 0; i < exclusions.length(); i++)
       {
-        JsonObject exclusion = exclusions.get(i).getAsJsonObject();
-        String attributeName = exclusion.get(AttributeType.JSON_CODE).getAsString();
-        String value = exclusion.get(VALUE).getAsString();
+        JSONObject exclusion = exclusions.getJSONObject(i);
+        String attributeName = exclusion.getString(AttributeType.JSON_CODE);
+        String value = exclusion.getString(VALUE);
 
-        configuration.addExclusion(attributeName, value);
+        this.addExclusion(attributeName, value);
       }
     }
 
-    for (int i = 0; i < attributes.size(); i++)
+    for (int i = 0; i < attributes.length(); i++)
     {
-      JsonObject attribute = attributes.get(i).getAsJsonObject();
+      JSONObject attribute = attributes.getJSONObject(i);
 
       if (attribute.has(TARGET))
       {
-        String attributeName = attribute.get(AttributeType.JSON_CODE).getAsString();
-        String target = attribute.get(TARGET).getAsString();
+        String attributeName = attribute.getString(AttributeType.JSON_CODE);
+        String target = attribute.getString(TARGET);
 
         if (attribute.has("locale"))
         {
-          String locale = attribute.get("locale").getAsString();
+          String locale = attribute.getString("locale");
 
-          if (configuration.getFunction(attributeName) == null)
+          if (this.getFunction(attributeName) == null)
           {
-            configuration.setFunction(attributeName, new LocalizedValueFunction());
+            this.setFunction(attributeName, new LocalizedValueFunction());
           }
 
-          LocalizedValueFunction function = (LocalizedValueFunction) configuration.getFunction(attributeName);
+          LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
           function.add(locale, new BasicColumnFunction(target));
         }
         else
         {
-          configuration.setFunction(attributeName, new BasicColumnFunction(target));
+          this.setFunction(attributeName, new BasicColumnFunction(target));
         }
       }
     }
 
-    for (int i = 0; i < locations.size(); i++)
+    for (int i = 0; i < locations.length(); i++)
     {
-      JsonObject location = locations.get(i).getAsJsonObject();
+      JSONObject location = locations.getJSONObject(i);
 
       if (location.has(TARGET))
       {
-        String pCode = location.get(AttributeType.JSON_CODE).getAsString();
+        String pCode = location.getString(AttributeType.JSON_CODE);
         ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
 
-        String target = location.get(TARGET).getAsString();
+        String target = location.getString(TARGET);
 
-        configuration.addParent(new Location(pType, new BasicColumnFunction(target)));
+        this.addParent(new Location(pType, new BasicColumnFunction(target)));
       }
     }
 
-    return configuration;
+    return this;
   }
 
   public static String getBaseType(String attributeType)

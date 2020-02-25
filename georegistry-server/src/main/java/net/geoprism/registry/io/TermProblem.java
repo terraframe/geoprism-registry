@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.io;
 
-import com.google.gson.JsonObject;
+import org.json.JSONObject;
 
 public class TermProblem implements Comparable<TermProblem>
 {
@@ -51,14 +51,14 @@ public class TermProblem implements Comparable<TermProblem>
     return this.mdAttributeId + "-" + this.label;
   }
 
-  public JsonObject toJSON()
+  public JSONObject toJSON()
   {
-    JsonObject object = new JsonObject();
-    object.addProperty("label", label);
-    object.addProperty("parentCode", parentCode);
-    object.addProperty("mdAttributeId", mdAttributeId);
-    object.addProperty("attributeCode", attributeCode);
-    object.addProperty("attributeLabel", attributeLabel);
+    JSONObject object = new JSONObject();
+    object.put("label", label);
+    object.put("parentCode", parentCode);
+    object.put("mdAttributeId", mdAttributeId);
+    object.put("attributeCode", attributeCode);
+    object.put("attributeLabel", attributeLabel);
 
     return object;
   }

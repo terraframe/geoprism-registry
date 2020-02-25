@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1354524281)
+@com.runwaysdk.business.ClassSignature(hash = 933694156)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -10,7 +10,7 @@ package net.geoprism.registry.etl;
  */
 public class ImportHistoryQueryDTO extends com.runwaysdk.system.scheduler.JobHistoryQueryDTO
 {
-private static final long serialVersionUID = -1354524281;
+private static final long serialVersionUID = 933694156;
 
   protected ImportHistoryQueryDTO(String type)
   {

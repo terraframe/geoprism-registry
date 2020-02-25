@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 1746583870)
+@com.runwaysdk.business.ClassSignature(hash = -1795237757)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,9 +12,10 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
   public static java.lang.String CONFIGJSON = "configJson";
+  public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String STAGE = "stage";
-  private static final long serialVersionUID = 1746583870;
+  private static final long serialVersionUID = -1795237757;
   
   public ImportHistoryBase()
   {
@@ -46,6 +47,58 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     else
     {
       setValue(CONFIGJSON, value);
+    }
+  }
+  
+  public com.runwaysdk.system.VaultFile getImportFile()
+  {
+    if (getValue(IMPORTFILE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.system.VaultFile.get(getValue(IMPORTFILE));
+    }
+  }
+  
+  public String getImportFileOid()
+  {
+    return getValue(IMPORTFILE);
+  }
+  
+  public void validateImportFile()
+  {
+    this.validateAttribute(IMPORTFILE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getImportFileMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(IMPORTFILE);
+  }
+  
+  public void setImportFile(com.runwaysdk.system.VaultFile value)
+  {
+    if(value == null)
+    {
+      setValue(IMPORTFILE, "");
+    }
+    else
+    {
+      setValue(IMPORTFILE, value.getOid());
+    }
+  }
+  
+  public void setImportFileId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(IMPORTFILE, "");
+    }
+    else
+    {
+      setValue(IMPORTFILE, oid);
     }
   }
   
