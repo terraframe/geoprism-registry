@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.shapefile;
+package net.geoprism.registry.etl;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -25,7 +25,7 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 
-public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationProblem>
+public class GeoObjectLocationProblem extends ValidationProblem
 {
   private ServerGeoObjectType type;
 
@@ -43,21 +43,24 @@ public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationPro
     this.parent = parent;
   }
 
+  @Override
   public String getKey()
   {
     if (this.parent != null)
     {
-      return this.parent.getCode() + "-" + this.label;
+      return "LOCATION" + this.parent.getCode() + "-" + this.label;
     }
     else
     {
-      return this.label;
+      return "LOCATION" + this.label;
     }
   }
 
+  @Override
   public JSONObject toJSON()
   {
     JSONObject object = new JSONObject();
+    object.put("type", "LocationProblem");
     object.put("label", label);
     object.put("type", this.type.getCode());
     object.put("typeLabel", this.type.getLabel().getValue());
@@ -69,11 +72,5 @@ public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationPro
     }
 
     return object;
-  }
-
-  @Override
-  public int compareTo(GeoObjectLocationProblem o)
-  {
-    return this.getKey().compareTo(o.getKey());
   }
 }

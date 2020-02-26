@@ -1,18 +1,26 @@
 package net.geoprism.registry.etl;
 
+import java.util.Set;
+
 public interface ImportProgressListenerIF
 {
-  public void setWorkTotal(int workTotal);
+  public void setWorkTotal(Long workTotal);
   
-  public Integer getWorkTotal();
+  public Long getWorkTotal();
   
-  public void setWorkProgress(int newWorkProgress);
+  public void setWorkProgress(Long newWorkProgress);
   
-  public Integer getWorkProgress();
+  public Long getWorkProgress();
   
-  public void setImportedRecords(int newImportedRecords);
+  public void setImportedRecords(Long newImportedRecords);
   
-  public Integer getImportedRecords();
+  public Long getImportedRecords();
   
   public void recordError(Throwable ex, String objectJson, String objectType);
+
+  public boolean hasValidationProblems();
+
+  public void addValidationProblem(ValidationProblem problem);
+  
+  public Set<ValidationProblem> getValidationProblems();
 }

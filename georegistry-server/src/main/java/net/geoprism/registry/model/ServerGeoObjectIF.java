@@ -107,6 +107,8 @@ public interface ServerGeoObjectIF
   public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
   public void lock();
+  
+  public void unlock();
 
   public void populate(GeoObject geoObject);
 

@@ -10,7 +10,7 @@ public interface FormatSpecificImporterIF
 
   public void setObjectImporter(ObjectImporterIF objectImporter);
 
-  public void setStartIndex(Integer workProgress);
+  public void setStartIndex(Long workProgress);
 
   public void run(ImportStage stage);
 }

@@ -18,7 +18,8 @@
         <attributes>
           <enumeration name="stage" label="stage" selectMultiple="false" required="true" type="net.geoprism.registry.etl.ImportStage"/>
           <text name="configJson" label="configJson" description="A JSON object which configures the import." />
-          <integer name="importedRecords" label="Imported Records" rejectNegative="true" />
+          <text name="validationProblems" label="validationProblems" description="A JSON array which contains a set of serialized validation problems." />
+          <long name="importedRecords" label="Imported Records" rejectNegative="true" />
           <reference name="importFile" type="com.runwaysdk.system.VaultFile" label="Import File"/>
         </attributes>
       </mdBusiness>
@@ -40,17 +41,17 @@
         </attributeStruct>
       </object>
       
-      <object key="SYNONYM_CHECK" type="net.geoprism.registry.etl.ImportStageMaster">
-        <attribute name="enumName" value="SYNONYM_CHECK" />
+      <object key="VALIDATE" type="net.geoprism.registry.etl.ImportStageMaster">
+        <attribute name="enumName" value="VALIDATE" />
         <attributeStruct name="displayLabel">
-          <attribute name="defaultLocale" value="Synonym Check" />
+          <attribute name="defaultLocale" value="Validate" />
         </attributeStruct>
       </object>
       
-      <object key="SYNONYM_RESOLVE" type="net.geoprism.registry.etl.ImportStageMaster">
-        <attribute name="enumName" value="SYNONYM_RESOLVE" />
+      <object key="VALIDATION_RESOLVE" type="net.geoprism.registry.etl.ImportStageMaster">
+        <attribute name="enumName" value="VALIDATION_RESOLVE" />
         <attributeStruct name="displayLabel">
-          <attribute name="defaultLocale" value="Synonym Resolve" />
+          <attribute name="defaultLocale" value="Validation Resolve" />
         </attributeStruct>
       </object>
       
@@ -117,10 +118,11 @@
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.etl.DataImportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>
-      <object key="net.geoprism.registry.etl.ImportError" type="com.runwaysdk.system.metadata.MdBusiness"/>
-      <object key="net.geoprism.registry.etl.ImportHistory" type="com.runwaysdk.system.metadata.MdBusiness"/>
-      <object key="net.geoprism.registry.etl.ImportStageMaster" type="com.runwaysdk.system.EnumerationMaster" />
+      <object key="net.geoprism.registry.etl.DataImportJob" type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object key="net.geoprism.registry.etl.ImportError" type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object key="net.geoprism.registry.etl.ImportHistory" type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object key="net.geoprism.registry.etl.ImportStageMaster" type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object key="net.geoprism.registry.etl.ImportFileFormatException" type="com.runwaysdk.system.metadata.MdException" />
       <object key="net.geoprism.registry.etl.ImportStage" type="com.runwaysdk.system.metadata.MdEnumeration" />
     </delete>
   </undoIt>

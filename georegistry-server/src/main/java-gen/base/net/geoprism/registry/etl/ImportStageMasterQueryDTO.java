@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 544299094)
+@com.runwaysdk.business.ClassSignature(hash = 1089435126)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -10,7 +10,7 @@ package net.geoprism.registry.etl;
  */
 public class ImportStageMasterQueryDTO extends com.runwaysdk.system.EnumerationMasterQueryDTO
 {
-private static final long serialVersionUID = 544299094;
+private static final long serialVersionUID = 1089435126;
 
   protected ImportStageMasterQueryDTO(String type)
   {

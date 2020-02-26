@@ -58,15 +58,15 @@ public class ExcelService
     // Save the file to the file system
     try
     {
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
-
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
-
+      
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
       try (InputStream is = vf.openNewStream())
       {
+        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        
         ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
         ExcelDataFormatter formatter = new ExcelDataFormatter();
     

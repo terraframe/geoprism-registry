@@ -118,8 +118,6 @@ abstract public class ImportConfiguration
   
   abstract public JSONObject toJSON();
   
-  abstract public boolean hasSynonymProblems();
-  
   public boolean hasExceptions()
   {
     return this.errors.size() > 0;

@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 1304647674)
+@com.runwaysdk.business.ClassSignature(hash = -541716409)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -78,21 +78,21 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportHistory.IMPORTFILE, mdAttributeIF, this, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableInteger getImportedRecords()
+  public com.runwaysdk.query.SelectableLong getImportedRecords()
   {
     return getImportedRecords(null);
 
   }
  
-  public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias)
+  public com.runwaysdk.query.SelectableLong getImportedRecords(String alias)
   {
-    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, null);
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableLong getImportedRecords(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
 
   }
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage()
@@ -116,6 +116,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.ImportHistory.STAGE);
 
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportHistory.STAGE, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getValidationProblems()
+  {
+    return getValidationProblems(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getValidationProblems(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.VALIDATIONPROBLEMS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getValidationProblems(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.VALIDATIONPROBLEMS, alias, displayLabel);
 
   }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
@@ -184,12 +201,15 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableInteger getImportedRecords();
-    public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias);
-    public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getImportedRecords();
+    public com.runwaysdk.query.SelectableLong getImportedRecords(String alias);
+    public com.runwaysdk.query.SelectableLong getImportedRecords(String alias, String displayLabel);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage();
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getValidationProblems();
+    public com.runwaysdk.query.SelectableChar getValidationProblems(String alias);
+    public com.runwaysdk.query.SelectableChar getValidationProblems(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.etl.ImportHistory importHistory);
 
@@ -259,21 +279,21 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTFILE,  alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableInteger getImportedRecords()
+  public com.runwaysdk.query.SelectableLong getImportedRecords()
   {
     return getImportedRecords(null);
 
   }
  
-  public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias)
+  public com.runwaysdk.query.SelectableLong getImportedRecords(String alias)
   {
-    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, null);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableLong getImportedRecords(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
 
   }
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage()
@@ -291,6 +311,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel)
   {
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.get(net.geoprism.registry.etl.ImportHistory.STAGE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getValidationProblems()
+  {
+    return getValidationProblems(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getValidationProblems(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.VALIDATIONPROBLEMS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getValidationProblems(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.VALIDATIONPROBLEMS, alias, displayLabel);
 
   }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
@@ -336,12 +373,15 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableInteger getImportedRecords();
-    public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias);
-    public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getImportedRecords();
+    public com.runwaysdk.query.SelectableLong getImportedRecords(String alias);
+    public com.runwaysdk.query.SelectableLong getImportedRecords(String alias, String displayLabel);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage();
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getValidationProblems();
+    public com.runwaysdk.query.SelectableChar getValidationProblems(String alias);
+    public com.runwaysdk.query.SelectableChar getValidationProblems(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.etl.ImportHistory ... importHistory);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.etl.ImportHistory ... importHistory);
@@ -460,21 +500,21 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTFILE,  alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableInteger getImportedRecords()
+  public com.runwaysdk.query.SelectableLong getImportedRecords()
   {
     return getImportedRecords(null);
 
   }
  
-  public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias)
+  public com.runwaysdk.query.SelectableLong getImportedRecords(String alias)
   {
-    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, null);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableInteger getImportedRecords(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableLong getImportedRecords(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
 
   }
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage()
@@ -492,6 +532,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel)
   {
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.get(net.geoprism.registry.etl.ImportHistory.STAGE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getValidationProblems()
+  {
+    return getValidationProblems(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getValidationProblems(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.VALIDATIONPROBLEMS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getValidationProblems(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.VALIDATIONPROBLEMS, alias, displayLabel);
 
   }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)

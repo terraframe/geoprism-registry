@@ -10,11 +10,15 @@ public class FormatSpecificImporterFactory
     DHIS2
   }
   
-  public static FormatSpecificImporterIF getImporter(String type, ApplicationResource resource, ImportProgressListenerIF progress)
+  public static FormatSpecificImporterIF getImporter(String type, ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progress)
   {
     if (type.equals(FormatImporterType.SHAPEFILE.name()))
     {
-      return new ShapefileImporter(resource, progress);
+      return new ShapefileImporter(resource, config, progress);
+    }
+    else if (type.equals(FormatImporterType.EXCEL.name()))
+    {
+      return new ExcelImporter(resource, config, progress);
     }
     else
     {

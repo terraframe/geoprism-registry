@@ -1,5 +1,8 @@
 package net.geoprism.registry.etl;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +16,15 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   
   private int recordedErrors = 0;
   
+  private Set<ValidationProblem> validationProblems = new TreeSet<ValidationProblem>();
+  
   public ImportHistoryProgressScribe(ImportHistory history)
   {
     this.history = history;
   }
   
   @Override
-  public void setWorkTotal(int workTotal)
+  public void setWorkTotal(Long workTotal)
   {
     this.history.appLock();
     this.history.setWorkTotal(workTotal);
@@ -29,7 +34,7 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   }
 
   @Override
-  public void setWorkProgress(int newWorkProgress)
+  public void setWorkProgress(Long newWorkProgress)
   {
     this.history.appLock();
     this.history.setWorkProgress(newWorkProgress);
@@ -37,7 +42,7 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   }
   
   @Override
-  public void setImportedRecords(int newImportedRecords)
+  public void setImportedRecords(Long newImportedRecords)
   {
     this.history.appLock();
     this.history.setImportedRecords(newImportedRecords);
@@ -45,19 +50,19 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   }
 
   @Override
-  public Integer getWorkTotal()
+  public Long getWorkTotal()
   {
     return this.history.getWorkTotal();
   }
 
   @Override
-  public Integer getWorkProgress()
+  public Long getWorkProgress()
   {
     return this.history.getWorkProgress();
   }
 
   @Override
-  public Integer getImportedRecords()
+  public Long getImportedRecords()
   {
     return this.history.getImportedRecords();
   }
@@ -78,5 +83,22 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   public int getRecordedErrorCount()
   {
     return this.recordedErrors;
+  }
+
+  @Override
+  public boolean hasValidationProblems()
+  {
+    return this.validationProblems.size() > 0;
+  }
+
+  @Override
+  public void addValidationProblem(ValidationProblem problem)
+  {
+    this.validationProblems.add(problem);
+  }
+  
+  public Set<ValidationProblem> getValidationProblems()
+  {
+    return this.validationProblems;
   }
 }

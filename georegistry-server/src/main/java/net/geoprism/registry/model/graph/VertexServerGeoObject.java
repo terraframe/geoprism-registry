@@ -671,6 +671,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     // Do nothing
   }
+  
+  @Override
+  public void unlock()
+  {
+    // Do nothing?
+  }
 
   @Override
   public void apply(boolean isImport)

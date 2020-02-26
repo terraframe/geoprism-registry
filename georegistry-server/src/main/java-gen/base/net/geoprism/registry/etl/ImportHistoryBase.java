@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1795237757)
+@com.runwaysdk.business.ClassSignature(hash = -1240716962)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -15,7 +15,8 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String STAGE = "stage";
-  private static final long serialVersionUID = -1795237757;
+  public static java.lang.String VALIDATIONPROBLEMS = "validationProblems";
+  private static final long serialVersionUID = -1240716962;
   
   public ImportHistoryBase()
   {
@@ -102,9 +103,9 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     }
   }
   
-  public Integer getImportedRecords()
+  public Long getImportedRecords()
   {
-    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(IMPORTEDRECORDS));
+    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(IMPORTEDRECORDS));
   }
   
   public void validateImportedRecords()
@@ -112,13 +113,13 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     this.validateAttribute(IMPORTEDRECORDS);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getImportedRecordsMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getImportedRecordsMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(IMPORTEDRECORDS);
+    return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(IMPORTEDRECORDS);
   }
   
-  public void setImportedRecords(Integer value)
+  public void setImportedRecords(Long value)
   {
     if(value == null)
     {
@@ -126,7 +127,7 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     }
     else
     {
-      setValue(IMPORTEDRECORDS, java.lang.Integer.toString(value));
+      setValue(IMPORTEDRECORDS, java.lang.Long.toString(value));
     }
   }
   
@@ -166,6 +167,34 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF)mdClassIF.definesAttribute(STAGE);
+  }
+  
+  public String getValidationProblems()
+  {
+    return getValue(VALIDATIONPROBLEMS);
+  }
+  
+  public void validateValidationProblems()
+  {
+    this.validateAttribute(VALIDATIONPROBLEMS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getValidationProblemsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(VALIDATIONPROBLEMS);
+  }
+  
+  public void setValidationProblems(String value)
+  {
+    if(value == null)
+    {
+      setValue(VALIDATIONPROBLEMS, "");
+    }
+    else
+    {
+      setValue(VALIDATIONPROBLEMS, value);
+    }
   }
   
   protected String getDeclaredType()

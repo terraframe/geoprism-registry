@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.Date;
 
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,35 +29,6 @@ public class DataImportJob extends DataImportJobBase
   public DataImportJob()
   {
     super();
-  }
-  
-  @Request(RequestType.SESSION)
-  public static String importService(String sessionId, String json)
-  {
-    ImportConfiguration config = ImportConfiguration.build(json, false);
-
-    ImportHistory hist;
-    
-    if (config.getHistoryId() != null && config.getHistoryId().length() > 0)
-    {
-      String historyId = config.getHistoryId();
-      hist = ImportHistory.get(historyId);
-      
-      JobHistoryRecord record = hist.getAllJobRel().getAll().get(0);
-      ExecutableJob execJob = record.getParent();
-
-      execJob.resume(record);
-    }
-    else
-    {
-      DataImportJob job = new DataImportJob();
-      job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
-      job.apply();
-     
-      hist = job.start(config);
-    }
-    
-    return hist.getConfigJson();
   }
   
   @Override
@@ -94,37 +66,42 @@ public class DataImportJob extends DataImportJobBase
   {
     ImportHistory history = (ImportHistory) executionContext.getJobHistoryRecord().getChild();
     ImportStage stage = history.getStage().get(0);
-//    GeoObjectImportConfiguration config = GeoObjectImportConfiguration.parse(history.getConfigJson(), false);
     ImportConfiguration config = ImportConfiguration.build(history.getConfigJson(), false);
     
     process(executionContext, history, stage, config);
   }
 
-  // TODO : ImportError table
-  // TODO : Generify this logic into a super / abstract type to be reused for excel / other subtypes
   // TODO : It might actually be faster to first convert into a shared temp table, assuming you're resolving the parent references into it.
   private void process(ExecutionContext executionContext, ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
     // TODO : We should have a single transaction where we do all the history configuration upfront, that way the job is either fully configured (and resumable) or it isn't (no in-between)
     config.setHistoryId(history.getOid());
     
-    if (stage.equals(ImportStage.SYNONYM_CHECK))
+    if (stage.equals(ImportStage.VALIDATE))
     {
       history.appLock();
-      history.setWorkProgress(0);
-      history.setImportedRecords(0);
+      history.setWorkProgress(0L);
+      history.setImportedRecords(0L);
+      history.setValidationProblems("[]");
       history.apply();
       
-      runImport(history, stage, config);
+      ImportProgressListenerIF progressListener = runImport(history, stage, config);
       
-      if (config.hasSynonymProblems())
+      if (progressListener.hasValidationProblems())
       {
         executionContext.setStatus(AllJobStatus.FEEDBACK);
         
+        JSONArray validationProblems = new JSONArray();
+        for (ValidationProblem problem : progressListener.getValidationProblems())
+        {
+          validationProblems.put(problem.toJSON());
+        }
+        
         history.appLock();
         history.clearStage();
-        history.addStage(ImportStage.SYNONYM_RESOLVE);
-        history.setConfigJson(config.toJSON().toString()); // TODO : Do we intend to be saving the import problems here?
+        history.addStage(ImportStage.VALIDATION_RESOLVE);
+        history.setConfigJson(config.toJSON().toString());
+        history.setValidationProblems(validationProblems.toString());
         history.apply();
       }
       else
@@ -141,8 +118,8 @@ public class DataImportJob extends DataImportJobBase
     else if (stage.equals(ImportStage.IMPORT))
     {
       history.appLock();
-      history.setWorkProgress(0);
-      history.setImportedRecords(0);
+      history.setWorkProgress(0L);
+      history.setImportedRecords(0L);
       history.apply();
       
       runImport(history, stage, config);
@@ -197,11 +174,11 @@ public class DataImportJob extends DataImportJobBase
     }
   }
 
-  private void runImport(ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
+  private ImportProgressListenerIF runImport(ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
     ImportHistoryProgressScribe progressListener = new ImportHistoryProgressScribe(history);
     
-    FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), progressListener);
+    FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), config, progressListener);
     
     ObjectImporterIF objectImporter = ObjectImporterFactory.getImporter(config.getObjectType(), config, progressListener);
     
@@ -214,6 +191,8 @@ public class DataImportJob extends DataImportJobBase
     }
     
     formatImporter.run(stage);
+    
+    return progressListener;
   }
   
   @Request
@@ -250,13 +229,13 @@ public class DataImportJob extends DataImportJobBase
     
     ImportStage stage = hist.getStage().get(0);
     
-    if (stage.equals(ImportStage.SYNONYM_RESOLVE))
+    if (stage.equals(ImportStage.VALIDATION_RESOLVE))
     {
       hist.appLock();
       hist.clearStage();
-      hist.addStage(ImportStage.SYNONYM_CHECK);
-      hist.setWorkProgress(0);
-      hist.setImportedRecords(0);
+      hist.addStage(ImportStage.VALIDATE);
+      hist.setWorkProgress(0L);
+      hist.setImportedRecords(0L);
       hist.apply();
     }
 //    else if (stage.equals(ImportStage.IMPORT_RESOLVE))
@@ -273,7 +252,7 @@ public class DataImportJob extends DataImportJobBase
       
       hist.appLock();
       hist.clearStage();
-      hist.addStage(ImportStage.SYNONYM_CHECK);
+      hist.addStage(ImportStage.VALIDATE);
       hist.apply();
     }
     
@@ -286,7 +265,7 @@ public class DataImportJob extends DataImportJobBase
     ImportHistory history = new ImportHistory();
     history.setStartTime(new Date());
     history.addStatus(AllJobStatus.NEW);
-    history.addStage(ImportStage.SYNONYM_CHECK); 
+    history.addStage(ImportStage.VALIDATE); 
     history.apply();
     
     return history;

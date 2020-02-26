@@ -55,12 +55,12 @@ public class ExcelContentHandler implements SheetHandler
   /**
    * Current row number
    */
-  private int                  rowNum;
+  private long                  rowNum;
 
   /**
    * Current error row number
    */
-  private int                  errorNum;
+  private long                  errorNum;
 
   /**
    * Current view
@@ -76,9 +76,9 @@ public class ExcelContentHandler implements SheetHandler
   
   ImportStage stage;
   
-  protected int startIndex;
+  protected Long startIndex;
 
-  public ExcelContentHandler(ObjectImporterIF objectImporter, ImportStage stage, int startIndex)
+  public ExcelContentHandler(ObjectImporterIF objectImporter, ImportStage stage, Long startIndex)
   {
     this.objectImporter = objectImporter;
     
@@ -125,9 +125,9 @@ public class ExcelContentHandler implements SheetHandler
       {
         if (this.rowNum != 0 && rowNum >= this.startIndex)
         {
-          if (stage.equals(ImportStage.SYNONYM_CHECK))
+          if (stage.equals(ImportStage.VALIDATE))
           {
-            this.objectImporter.synonymCheck(new MapFeatureRow(this.row));
+            this.objectImporter.validateRow(new MapFeatureRow(this.row));
           }
           else
           {
@@ -223,12 +223,12 @@ public class ExcelContentHandler implements SheetHandler
   {
   }
 
-  public int getTotalRows()
+  public long getTotalRows()
   {
     return rowNum;
   }
 
-  public int getNumberOfErrors()
+  public long getNumberOfErrors()
   {
     return ( this.errorNum - 1 );
   }

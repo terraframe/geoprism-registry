@@ -1,10 +1,10 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1354291393)
+@com.runwaysdk.business.ClassSignature(hash = 2106452767)
 public abstract class ImportStageMasterDTOBase extends com.runwaysdk.system.EnumerationMasterDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportStageMaster";
-  private static final long serialVersionUID = -1354291393;
+  private static final long serialVersionUID = 2106452767;
   
   protected ImportStageMasterDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {

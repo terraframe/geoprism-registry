@@ -69,7 +69,7 @@ public class ExcelImporter implements FormatSpecificImporterIF
   
   protected ImportProgressListenerIF progressListener;
   
-  protected int startIndex = 0;
+  protected Long startIndex = 0L;
   
   protected GeometryFactory factory;
   
@@ -95,12 +95,12 @@ public class ExcelImporter implements FormatSpecificImporterIF
   }
 
   @Override
-  public void setStartIndex(Integer startIndex)
+  public void setStartIndex(Long startIndex)
   {
     this.startIndex = startIndex;
   }
   
-  public int getStartIndex()
+  public Long getStartIndex()
   {
     return this.startIndex;
   }
@@ -219,7 +219,7 @@ public class ExcelImporter implements FormatSpecificImporterIF
     }
   }
   
-  private int getWorkTotal(File file) throws Exception
+  private Long getWorkTotal(File file) throws Exception
   {
     try (FileInputStream istream = new FileInputStream(file))
     {
@@ -229,7 +229,7 @@ public class ExcelImporter implements FormatSpecificImporterIF
       ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
       reader.process(istream);
 
-      return handler.getRowNum();
+      return (long) ( handler.getRowNum() - 1 ); // Header row doesn't count as work
     }
   }
   

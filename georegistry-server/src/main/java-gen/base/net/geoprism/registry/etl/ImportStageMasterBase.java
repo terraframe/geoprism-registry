@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 477812927)
+@com.runwaysdk.business.ClassSignature(hash = 2130705567)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,7 +11,7 @@ package net.geoprism.registry.etl;
 public abstract class ImportStageMasterBase extends com.runwaysdk.system.EnumerationMaster
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportStageMaster";
-  private static final long serialVersionUID = 477812927;
+  private static final long serialVersionUID = 2130705567;
   
   public ImportStageMasterBase()
   {

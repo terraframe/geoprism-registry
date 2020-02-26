@@ -61,14 +61,17 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   
   protected ImportProgressListenerIF progressListener;
   
-  protected int startIndex = 0;
+  protected Long startIndex = 0L;
+  
+  protected ImportConfiguration config;
   
   protected static final Logger logger = LoggerFactory.getLogger(ShapefileImporter.class);
 
-  public ShapefileImporter(ApplicationResource resource, ImportProgressListenerIF progressListener)
+  public ShapefileImporter(ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progressListener)
   {
     this.resource = resource;
     this.progressListener = progressListener;
+    this.config = config;
   }
   
   public ObjectImporterIF getObjectImporter()
@@ -83,12 +86,12 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   }
 
   @Override
-  public void setStartIndex(Integer startIndex)
+  public void setStartIndex(Long startIndex)
   {
     this.startIndex = startIndex;
   }
   
-  public int getStartIndex()
+  public Long getStartIndex()
   {
     return this.startIndex;
   }
@@ -204,10 +207,10 @@ public class ShapefileImporter implements FormatSpecificImporterIF
       
       if (this.getStartIndex() > 0)
       {
-        query.setStartIndex(this.getStartIndex());
+        query.setStartIndex(Math.toIntExact(this.getStartIndex()));
       }
       
-      this.progressListener.setWorkTotal(source.getFeatures(query).size());
+      this.progressListener.setWorkTotal((long) source.getFeatures(query).size());
       
       SimpleFeatureIterator iterator = source.getFeatures(query).features();
       
@@ -217,9 +220,9 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         {
           SimpleFeature feature = iterator.next();
           
-          if (stage.equals(ImportStage.SYNONYM_CHECK))
+          if (stage.equals(ImportStage.VALIDATE))
           {
-            this.objectImporter.synonymCheck(new SimpleFeatureRow(feature));
+            this.objectImporter.validateRow(new SimpleFeatureRow(feature));
           }
           else
           {

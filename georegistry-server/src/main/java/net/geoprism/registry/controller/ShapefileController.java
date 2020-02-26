@@ -78,14 +78,6 @@ public class ShapefileController
     }
   }
 
-  @Endpoint(url = "import-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF importShapefile(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration) throws JSONException
-  {
-    String config = DataImportJob.importService(request.getSessionId(), configuration);
-
-    return new RestBodyResponse(config);
-  }
-
   @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration)
   {

@@ -32,12 +32,13 @@ import java.util.TreeSet;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.etl.GeoObjectLocationProblem;
 import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.TermProblem;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -92,14 +93,10 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   public static final String             SHEET             = "sheet";
 
-  public static final String             TERM_PROBLEMS     = "termProblems";
-
   public static final String             EXCLUSIONS        = "exclusions";
 
   public static final String             VALUE             = "value";
   
-  public static final String             LOCATION_PROBLEMS = "locationProblems";
-
   public static final String             LONGITUDE_KEY     = "georegistry.longitude.label";
 
   public static final String             LATITUDE_KEY      = "georegistry.latitude.label";
@@ -111,10 +108,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   private GeoObject                      root;
 
   private Map<String, Set<String>>       exclusions;
-
-  private Set<TermProblem>               termProblems;
-
-  private Set<GeoObjectLocationProblem>  locationProblems;
 
   private boolean                        includeCoordinates;
 
@@ -132,8 +125,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   {
     this.includeCoordinates = false;
     this.functions = new HashMap<String, ShapefileFunction>();
-    this.termProblems = new TreeSet<TermProblem>();
-    this.locationProblems = new TreeSet<GeoObjectLocationProblem>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
     this.postalCode = false;
@@ -219,31 +210,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     return ( this.exclusions.get(attributeName) != null && this.exclusions.get(attributeName).contains(value) );
   }
 
-  public Set<TermProblem> getTermProblems()
-  {
-    return termProblems;
-  }
-
-  public void addProblem(TermProblem problem)
-  {
-    this.termProblems.add(problem);
-  }
-
-  public Set<GeoObjectLocationProblem> getLocationProblems()
-  {
-    return locationProblems;
-  }
-  
-  public int getProblemCount()
-  {
-    return locationProblems.size() + termProblems.size();
-  }
-
-  public void addProblem(GeoObjectLocationProblem problem)
-  {
-    this.locationProblems.add(problem);
-  }
-
   public void addParent(Location location)
   {
     this.locations.add(location);
@@ -262,12 +228,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public void setHierarchy(ServerHierarchyType hierarchy)
   {
     this.hierarchy = hierarchy;
-  }
-
-  @Override
-  public boolean hasSynonymProblems()
-  {
-    return this.termProblems.size() > 0 || this.locationProblems.size() > 0;
   }
 
   public Boolean isPostalCode()
@@ -362,30 +322,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       });
 
       config.put(EXCLUSIONS, exclusions);
-    }
-
-    if (this.termProblems.size() > 0)
-    {
-      JSONArray problems = new JSONArray();
-
-      for (TermProblem problem : this.termProblems)
-      {
-        problems.put(problem.toJSON());
-      }
-
-      config.put(GeoObjectImportConfiguration.TERM_PROBLEMS, problems);
-    }
-
-    if (this.locationProblems.size() > 0)
-    {
-      JSONArray problems = new JSONArray();
-
-      for (GeoObjectLocationProblem problem : this.locationProblems)
-      {
-        problems.put(problem.toJSON());
-      }
-
-      config.put(GeoObjectImportConfiguration.LOCATION_PROBLEMS, problems);
     }
 
     return config;

@@ -5,7 +5,7 @@ import net.geoprism.data.importer.FeatureRow;
 public interface ObjectImporterIF
 {
 
-  public void synonymCheck(FeatureRow simpleFeatureRow);
+  public void validateRow(FeatureRow simpleFeatureRow);
 
   public void importRow(FeatureRow simpleFeatureRow);
 

@@ -27,31 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.geoprism.data.importer.FeatureRow;
-import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.io.AmbiguousParentException;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.IgnoreRowException;
-import net.geoprism.registry.io.InvalidGeometryException;
-import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.LocationBuilder;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.io.PostalCodeLocationException;
-import net.geoprism.registry.io.RequiredMappingException;
-import net.geoprism.registry.io.TermProblem;
-import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.query.postgres.CodeRestriction;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.NonUniqueResultException;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.shapefile.GeoObjectLocationProblem;
-
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -67,16 +42,35 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.ProblemException;
-import com.runwaysdk.ProblemIF;
-import com.runwaysdk.StopTransactionException;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.RequestState;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
+
+import net.geoprism.data.importer.FeatureRow;
+import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.io.AmbiguousParentException;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.IgnoreRowException;
+import net.geoprism.registry.io.InvalidGeometryException;
+import net.geoprism.registry.io.Location;
+import net.geoprism.registry.io.LocationBuilder;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.io.PostalCodeLocationException;
+import net.geoprism.registry.io.RequiredMappingException;
+import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.NonUniqueResultException;
+import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
@@ -126,11 +120,11 @@ public class GeoObjectImporter implements ObjectImporterIF
   }
   
   @Transaction
-  public void synonymCheck(FeatureRow row)
+  public void validateRow(FeatureRow row)
   {
     try
     {
-      int beforeProbCount = this.configuration.getProblemCount();
+      int beforeProbCount = this.progressListener.getValidationProblems().size();
       
       /*
        * 1. Check for location problems
@@ -145,53 +139,110 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
 
       /*
-       * 2. Check for term problems
+       * 2. Check for serialization and term problems
        */
-      Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-      Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+      String geoId = this.getCode(row);
 
-      for (Entry<String, AttributeType> entry : entries)
+      ServerGeoObjectIF entity;
+
+      boolean isNew = false;
+
+      if (geoId != null && geoId.length() > 0)
       {
-        AttributeType attributeType = entry.getValue();
-        String attributeName = entry.getKey();
+        entity = service.getGeoObjectByCode(geoId, this.configuration.getType());
 
-        if (attributeType instanceof AttributeTermType)
+        if (entity == null)
         {
-          ShapefileFunction function = this.configuration.getFunction(attributeName);
+          isNew = true;
 
-          if (function != null)
+          entity = service.newInstance(this.configuration.getType());
+          entity.setCode(geoId);
+        }
+        else
+        {
+          entity.lock();
+        }
+
+        try
+        {
+          entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
+  
+          Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
+          LocalizedValue entityName = this.getName(row);
+  
+          if (entityName != null && this.hasValue(entityName))
           {
-            Object value = function.getValue(row);
-
-            if (value != null)
+            entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+  
+            if (geometry != null)
             {
-              if (!this.configuration.isExclusion(attributeName, value.toString()))
+              // TODO : We should be able to check the CRS here and throw a specific invalid CRS error if it's not what we expect.
+              // For some reason JTS always returns 0 when we call geometry.getSRID().
+              if (geometry.isValid())
               {
-                MdBusinessDAOIF mdBusiness = this.configuration.getType().getMdBusinessDAO();
-                MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
-
-                Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
-
-                if (classifier == null)
+                entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
+              }
+              else
+              {
+  //              throw new SridException();
+                throw new InvalidGeometryException();
+              }
+            }
+  
+            if (isNew)
+            {
+              entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+            }
+  
+            Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+            Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+  
+            for (Entry<String, AttributeType> entry : entries)
+            {
+              String attributeName = entry.getKey();
+  
+              if (!attributeName.equals(GeoObject.CODE))
+              {
+                ShapefileFunction function = this.configuration.getFunction(attributeName);
+  
+                if (function != null)
                 {
-                  Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
-
-                  this.configuration.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
+                  Object value = function.getValue(row);
+  
+                  if (value != null)
+                  {
+                    AttributeType attributeType = entry.getValue();
+  
+                    this.setValue(entity, attributeType, attributeName, value);
+                  }
                 }
               }
             }
+            
+            GeoObject go = ServiceFactory.getAdapter().newGeoObjectInstance(entity.getType().getCode(), false);
+            entity.populate(go);
+            String json = go.toJSON().toString();
           }
+        }
+        finally
+        {
+          entity.unlock();
         }
       }
       
-      if (beforeProbCount == this.configuration.getProblemCount())
+      if (beforeProbCount == this.progressListener.getValidationProblems().size())
       {
         this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()+1);
       }
     }
+    catch (IgnoreRowException e)
+    {
+      // Do nothing
+    }
     catch (Throwable t)
     {
-      // Error handling isn't done here. We will deal with this when we do the import.
+      RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress());
+      this.progressListener.addValidationProblem(problem);
     }
     
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress()+1);
@@ -229,7 +280,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     try
     {
-      int beforeProbCount = this.configuration.getProblemCount();
+      int beforeProbCount = this.progressListener.getValidationProblems().size();
       
       ServerGeoObjectIF parent = null;
 
@@ -364,7 +415,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
       }
       
-      if (beforeProbCount == this.configuration.getProblemCount())
+      if (beforeProbCount == this.progressListener.getValidationProblems().size())
       {
         this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()+1);
       }
@@ -500,7 +551,7 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
 
-            this.configuration.addProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
+            this.progressListener.addValidationProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
 
             return null;
           }
@@ -603,7 +654,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-          this.configuration.addProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
+          this.progressListener.addValidationProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
         }
         else
         {
