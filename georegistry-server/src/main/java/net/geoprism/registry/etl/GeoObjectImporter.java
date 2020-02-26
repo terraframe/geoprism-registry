@@ -633,11 +633,33 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     else if (attributeType instanceof AttributeIntegerType)
     {
-      entity.setValue(attributeName, new Long((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
+      if (value instanceof String)
+      {
+        entity.setValue(attributeName, new Long((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else if (value instanceof Number)
+      {
+        entity.setValue(attributeName, ( (Number) value ).longValue(), this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else
+      {
+        throw new UnsupportedOperationException();
+      }
     }
     else if (attributeType instanceof AttributeFloatType)
     {
-      entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
+      if (value instanceof String)
+      {
+        entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else if (value instanceof Number)
+      {
+        entity.setValue(attributeName, ( (Number) value ).doubleValue(), this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else
+      {
+        throw new UnsupportedOperationException();
+      }
     }
     else if (attributeType instanceof AttributeCharacterType)
     {

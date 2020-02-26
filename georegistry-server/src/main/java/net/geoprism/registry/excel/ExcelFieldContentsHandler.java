@@ -39,8 +39,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 public class ExcelFieldContentsHandler implements SheetHandler
@@ -156,77 +154,77 @@ public class ExcelFieldContentsHandler implements SheetHandler
       return GeoObjectImportConfiguration.TEXT;
     }
 
-    public JsonObject toJSON()
-    {
-      JsonObject object = new JsonObject();
-      object.addProperty("name", this.name.trim());
-
-      if (label == null)
-      {
-        object.addProperty("label", this.name.trim());
-      }
-      else
-      {
-        object.addProperty("label", this.label.trim());
-      }
-
-      object.addProperty("aggregatable", true);
-      object.addProperty("fieldPosition", this.getInputPosition());
-
-      if (this.dataTypes.size() == 1)
-      {
-        ColumnType type = this.dataTypes.iterator().next();
-
-        object.addProperty("type", type.name());
-        object.addProperty("columnType", type.name());
-        object.addProperty("accepted", false);
-
-        if (type.equals(ColumnType.NUMBER))
-        {
-          if (this.scale > 0)
-          {
-            object.addProperty("precision", ( this.precision + this.scale ));
-            object.addProperty("scale", this.scale);
-            object.addProperty("type", GeoObjectImportConfiguration.NUMERIC);
-            object.addProperty("ratio", false);
-          }
-          else
-          {
-            object.addProperty("type", GeoObjectImportConfiguration.NUMERIC);
-          }
-        }
-        else if (type.equals(ColumnType.DATE))
-        {
-          object.addProperty("type", AttributeDateType.TYPE);
-        }
-        else if (type.equals(ColumnType.BOOLEAN))
-        {
-          object.addProperty("type", AttributeBooleanType.TYPE);
-        }
-        else if ( ( type.equals(ColumnType.TEXT) && this.values.size() < LIMIT ))
-        {
-          object.addProperty("type", GeoObjectImportConfiguration.TEXT);
-        }
-      }
-      else
-      {
-        object.addProperty("columnType", ColumnType.TEXT.name());
-        object.addProperty("type", GeoObjectImportConfiguration.TEXT);
-        object.addProperty("accepted", false);
-
-        if (this.categoryId != null || this.values.size() < LIMIT)
-        {
-          object.addProperty("type", GeoObjectImportConfiguration.TEXT);
-
-          if (this.categoryId != null)
-          {
-            object.addProperty("root", this.categoryId);
-          }
-        }
-      }
-
-      return object;
-    }
+//    public JsonObject toJSON()
+//    {
+//      JsonObject object = new JsonObject();
+//      object.addProperty("name", this.name.trim());
+//
+//      if (label == null)
+//      {
+//        object.addProperty("label", this.name.trim());
+//      }
+//      else
+//      {
+//        object.addProperty("label", this.label.trim());
+//      }
+//
+//      object.addProperty("aggregatable", true);
+//      object.addProperty("fieldPosition", this.getInputPosition());
+//
+//      if (this.dataTypes.size() == 1)
+//      {
+//        ColumnType type = this.dataTypes.iterator().next();
+//
+//        object.addProperty("type", type.name());
+//        object.addProperty("columnType", type.name());
+//        object.addProperty("accepted", false);
+//
+//        if (type.equals(ColumnType.NUMBER))
+//        {
+//          if (this.scale > 0)
+//          {
+//            object.addProperty("precision", ( this.precision + this.scale ));
+//            object.addProperty("scale", this.scale);
+//            object.addProperty("type", GeoObjectImportConfiguration.NUMERIC);
+//            object.addProperty("ratio", false);
+//          }
+//          else
+//          {
+//            object.addProperty("type", GeoObjectImportConfiguration.NUMERIC);
+//          }
+//        }
+//        else if (type.equals(ColumnType.DATE))
+//        {
+//          object.addProperty("type", AttributeDateType.TYPE);
+//        }
+//        else if (type.equals(ColumnType.BOOLEAN))
+//        {
+//          object.addProperty("type", AttributeBooleanType.TYPE);
+//        }
+//        else if ( ( type.equals(ColumnType.TEXT) && this.values.size() < LIMIT ))
+//        {
+//          object.addProperty("type", GeoObjectImportConfiguration.TEXT);
+//        }
+//      }
+//      else
+//      {
+//        object.addProperty("columnType", ColumnType.TEXT.name());
+//        object.addProperty("type", GeoObjectImportConfiguration.TEXT);
+//        object.addProperty("accepted", false);
+//
+//        if (this.categoryId != null || this.values.size() < LIMIT)
+//        {
+//          object.addProperty("type", GeoObjectImportConfiguration.TEXT);
+//
+//          if (this.categoryId != null)
+//          {
+//            object.addProperty("root", this.categoryId);
+//          }
+//        }
+//      }
+//
+//      return object;
+//    }
   }
 
   /**
@@ -312,11 +310,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
   {
     try
     {
-      JsonObject attributes = new JsonObject();
-      attributes.add(AttributeBooleanType.TYPE, new JsonArray());
-      attributes.add(GeoObjectImportConfiguration.TEXT, new JsonArray());
-      attributes.add(GeoObjectImportConfiguration.NUMERIC, new JsonArray());
-      attributes.add(AttributeDateType.TYPE, new JsonArray());
+      JSONObject attributes = new JSONObject();
+      attributes.put(AttributeBooleanType.TYPE, new JSONArray());
+      attributes.put(GeoObjectImportConfiguration.TEXT, new JSONArray());
+      attributes.put(GeoObjectImportConfiguration.NUMERIC, new JSONArray());
+      attributes.put(AttributeDateType.TYPE, new JSONArray());
 
       Set<Integer> keys = this.map.keySet();
 
@@ -328,11 +326,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
         String name = field.getName();
         String baseType = field.getBaseType();
 
-        attributes.get(baseType).getAsJsonArray().add(name);
+        attributes.getJSONArray(baseType).put(name);
 
         if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
         {
-          attributes.get(GeoObjectImportConfiguration.TEXT).getAsJsonArray().add(name);
+          attributes.getJSONArray(GeoObjectImportConfiguration.TEXT).put(name);
         }
       }
 

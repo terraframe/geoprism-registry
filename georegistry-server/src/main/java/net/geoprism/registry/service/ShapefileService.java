@@ -25,6 +25,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.ShapefileImporter;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
+
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -38,8 +46,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -49,14 +55,6 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
-
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.etl.ImportConfiguration;
-import net.geoprism.registry.etl.ShapefileImporter;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ShapefileService
 {
@@ -75,7 +73,7 @@ public class ShapefileService
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
   
-        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
+        JSONArray hierarchies = new JSONArray(ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false).toString());
   
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));

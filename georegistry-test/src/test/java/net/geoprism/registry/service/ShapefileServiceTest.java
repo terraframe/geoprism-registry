@@ -200,7 +200,7 @@ public class ShapefileServiceTest
     SessionFacade.getSessionForRequest(testData.adminClientRequest.getSessionId()).reloadPermissions();
   }
 
-//  @Test
+  @Test
   @Request
   public void testGetAttributeInformation()
   {
@@ -211,7 +211,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
+    JSONObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream);
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -251,7 +251,7 @@ public class ShapefileServiceTest
     JSONObject sheet = result.getJSONObject("sheet");
 
     Assert.assertNotNull(sheet);
-    Assert.assertEquals("cb_2017_us_state_500k", sheet.getJSONObject("name"));
+    Assert.assertEquals("cb_2017_us_state_500k", sheet.getString("name"));
 
     JSONObject attributes = sheet.getJSONObject("attributes");
 
@@ -267,7 +267,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(0, attributes.getJSONArray(AttributeDateType.TYPE).length());
   }
 
-//  @Test
+  @Test
   @Request
   public void testGetAttributeInformationPostalCode()
   {
@@ -287,7 +287,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip.test", istream);
+    JSONObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream);
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
@@ -320,7 +320,7 @@ public class ShapefileServiceTest
     Thread.sleep(100);
   }
   
-//  @Test
+  @Test
   @Request
   public void testImportShapefile() throws InterruptedException
   {
@@ -354,7 +354,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
   }
 
-//  @Test
+  @Test
   @Request
   public void testUpdateShapefile() throws InterruptedException
   {
@@ -405,7 +405,7 @@ public class ShapefileServiceTest
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportShapefileInteger() throws InterruptedException
   {
@@ -441,7 +441,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(131174431216L, object.getValue(this.testInteger.getName()));
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportShapefileWithParent() throws InterruptedException
   {
@@ -493,7 +493,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, parents.size());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportShapefileExcludeParent() throws InterruptedException
   {
@@ -533,7 +533,7 @@ public class ShapefileServiceTest
     Assert.assertNull(query.getSingleResult());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportShapefileWithBadParent() throws InterruptedException
   {
@@ -576,7 +576,7 @@ public class ShapefileServiceTest
     Assert.assertNull(query.getSingleResult());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportShapefileWithTerm() throws InterruptedException
   {
@@ -622,7 +622,7 @@ public class ShapefileServiceTest
     }
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportShapefileWithBadTerm() throws InterruptedException
   {
@@ -672,7 +672,7 @@ public class ShapefileServiceTest
     Assert.assertNull(query.getSingleResult());
   }
 
-//  @Test
+  @Test
   @Request
   public void testQueueImports() throws InterruptedException
   {

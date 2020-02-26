@@ -37,10 +37,9 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -74,7 +73,7 @@ public class ExcelService
         ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
         reader.process(is);
     
-        JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
+        JSONArray hierarchies = new JSONArray(ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false).toString());
     
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
@@ -113,17 +112,17 @@ public class ExcelService
     }
   }
 
-  private JsonObject getType(ServerGeoObjectType geoObjectType)
+  private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), true, SupportedLocaleDAO.getSupportedLocales()));
-    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
+    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), true, SupportedLocaleDAO.getSupportedLocales())).toString());
+    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    for (int i = 0; i < attributes.size(); i++)
+    for (int i = 0; i < attributes.length(); i++)
     {
-      JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
+      JSONObject attribute = attributes.getJSONObject(i);
+      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
 
-      attribute.addProperty(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
+      attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
     }
 
     return type;

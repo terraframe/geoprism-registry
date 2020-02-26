@@ -30,6 +30,8 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.io.DelegateShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -705,6 +707,9 @@ public class ExcelServiceTest
         attribute.put(GeoObjectImportConfiguration.TARGET, "Term");
       }
     }
+    
+    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL);
+    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
 
     return result;
   }
