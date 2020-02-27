@@ -19,7 +19,6 @@ import { CustomFormsModule } from 'ng2-validation'
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './component/form-fields/localized-text/localized-text.component';
 import { HierarchyComponent } from './component/hierarchy/hierarchy.component';
-import { LocalizationManagerComponent } from './component/localization-manager/localization-manager.component';
 import { CreateHierarchyTypeModalComponent } from './component/hierarchy/modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './component/hierarchy/modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './component/hierarchy/modals/create-geoobjtype-modal.component';
@@ -35,7 +34,6 @@ import { TermProblemPageComponent } from './component/importer/modals/term-probl
 import { TermProblemComponent } from './component/importer/modals/term-problem.component';
 import { SpreadsheetModalComponent } from './component/importer/modals/spreadsheet-modal.component';
 import { DataPageComponent } from './component/data-page/data-page.component';
-import { NewLocaleModalComponent } from './component/localization-manager/new-locale-modal.component';
 import { TermOptionWidgetComponent } from './component/hierarchy/geoobjecttype-management/term-option-widget.component';
 import { AttributeInputComponent } from './component/hierarchy/geoobjecttype-management/attribute-input.component';
 import { EditTermOptionInputComponent } from './component/hierarchy/geoobjecttype-management/edit-term-option-input.component';
@@ -114,7 +112,6 @@ import '../rxjs-extensions';
     ],
     declarations: [
         HierarchyComponent,
-        LocalizationManagerComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
         AddRemoveChildDetailComponent,
@@ -134,7 +131,6 @@ import '../rxjs-extensions';
         SpreadsheetModalComponent,
         GeoObjectTypePipe,
         GeoObjectAttributeCodeValidator,
-        NewLocaleModalComponent,
         EditAttributeModalContentComponent,
         TermOptionWidgetComponent,
         AttributeInputComponent,
@@ -197,7 +193,6 @@ import '../rxjs-extensions';
         CreateHierarchyTypeModalComponent,
         ShapefileModalComponent,
         SpreadsheetModalComponent,
-        NewLocaleModalComponent,
         TermOptionWidgetComponent,
         AttributeInputComponent,
         EditTermOptionInputComponent,

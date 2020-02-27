@@ -13,7 +13,6 @@ export class StepIndicatorComponent {
 
     @Input('steps')
     set steps(value: StepConfig) {
-        console.log(value)
         this._stepConfig = value;
     }
 

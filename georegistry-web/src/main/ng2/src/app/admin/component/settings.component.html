@@ -1,0 +1,167 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+
+    <div id="app-container" class="container">
+
+        <message></message>
+        <!-- <loading-bar></loading-bar> -->
+
+        <h2>
+            <localize key="settings.title"></localize>
+        </h2>
+
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div *ngIf="settings"> 
+            <div class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.information.heading"></localize></h3>
+
+                    <div class="content-wrapper">
+                        <h4><localize key="settings.version.label"></localize> {{getCGRVersion()}}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="isAdmin" class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.organizations.heading"></localize></h3>
+
+                    <div class="content-wrapper">
+                        <div class="list-table-wrapper">
+                            <table id="manage-organizations-table" class="list-table table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Code</th>
+                                        <th>Name</th>
+                                        <th>Contact</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let org of settings.organizations">
+                                        <td class="button-column">
+                                            <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"  [title]="'account.editTooltip' | localize"></a> 
+                                            <a class="fa fa-trash-o ico-remove" (click)="onRemoveOrganization(org)" [title]="'account.removeTooltip' | localize" ></a>
+                                        </td>
+                                        <td class="label-column">{{org.code}}</td>
+                                        <td class="label-column">{{org.name}}</td>
+                                        <td class="label-column">{{org.contact}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="button-column">
+                                            <a class="fa fa-plus" (click)="newOrganization()" [title]="'account.newTooltip' | localize"></a>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- <input class="btn btn-primary pull-right" style="margin-right: 15px;" type="submit" value="New organization"> -->
+                    </div>
+
+                </div>
+            </div>
+
+            <div *ngIf="isAdmin" class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.accounts.heading"></localize></h3>
+
+                    <div class="content-wrapper">
+                        <!-- <input class="btn btn-primary" style="" type="submit" value="Manage"> -->
+
+                        <a [routerLink]="'/admin/accounts/'" routerLinkActive="active">
+                            <button class="btn btn-primary" role="button">
+                                Manage Accounts
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="isAdmin" class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.localization.heading"></localize></h3>
+
+                    <div class="content-wrapper">
+                        <div class="list-table-wrapper">
+                            <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Language</th>
+                                        <th>Country</th>
+                                        <th>Variant</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let loc of installedLocales">
+                                        <td class="label-column">{{loc.language}}</td>
+                                        <td class="label-column">{{loc.country}}</td>
+                                        <td class="label-column">{{loc.variant}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="button-column"><a class="fa fa-plus" (click)="newLocalization()" [title]="'account.newTooltip' | localize"></a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <input class="btn btn-primary" type="submit" (click)="exportLocalization()" value="Export localization">
+                    
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="isAdmin" class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.branding.heading"></localize></h3>
+
+                    <div class="content-wrapper">
+                        <system-logos></system-logos>
+                    </div>
+
+                    <!-- <div class="content-wrapper">
+                        <div class="list-table-wrapper">
+                            <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Label</th>
+                                        <th>Preview</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let brand of settings.branding">
+                                        <td class="button-column">
+                                            <a class="fa fa-pencil ico-edit"  [title]="'account.editTooltip' | localize"></a> 
+                                            <a class="fa fa-trash-o ico-remove" [title]="'account.removeTooltip' | localize" ></a>
+                                        </td>
+                                        <td class="label-column username-col">{{brand.label}}</td>
+                                        <td class="label-column username-col">{{brand.url}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="button-column"><a class="fa fa-plus" (click)="newOrganization()" [title]="'account.newTooltip' | localize"></a></td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+
+            <div *ngIf="isAdmin" class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.email.heading"></localize></h3>
+                     
+                    <div class="content-wrapper">
+                        <input class="btn btn-primary" type="submit" (click)="configureEmail()" value="Configure">
+
+                        <i *ngIf="settings.email.isConfigured" class="fa fa-check" aria-hidden="true">Configured</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -65,9 +65,6 @@ export class HubComponent implements OnInit {
     //     }); 	  
     //   }
 
-    getVersion() {
-        return this.authService.getVersion();
-    }
 
     open( application: Application ): void {
         window.location.href = this.context + '/' + application.url;

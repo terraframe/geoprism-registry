@@ -37,7 +37,7 @@
     /* cursor: pointer; */
 }
 .step-indicator .nav-item.enabled{
-    background-color: #D51A1A;
+    background-color: #f05d5d;
     /* border-bottom: 4px solid black; */
     font-weight: bold;
 }

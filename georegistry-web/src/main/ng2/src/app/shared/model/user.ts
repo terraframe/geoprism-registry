@@ -4,4 +4,5 @@ export class User {
   roles:string[];
   roleDisplayLabels:string[];
   version:string;
+  installedLocales:string[];
 }

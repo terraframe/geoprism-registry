@@ -354,21 +354,21 @@ export class RegistryService {
             { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
                 "stepConfig": {"steps": [
                     {"label":"File Import", "complete":true, "enabled":false},
-                    {"label":"Field Mapping", "complete":true, "enabled":false},
+                    {"label":"Field Matching", "complete":true, "enabled":false},
                     {"label":"Staging", "complete":false, "enabled":true},
                     {"label":"Validation", "complete":false, "enabled":false}]
                 }},
                 { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
                 "stepConfig": {"steps": [
                         {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Mapping", "complete":false, "enabled":true},
+                        {"label":"Field Matching", "complete":false, "enabled":true},
                         {"label":"Staging", "complete":false, "enabled":false},
                         {"label":"Validation", "complete":false, "enabled":false}] 
                 }},
                 { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
                 "stepConfig": {"steps": [
                         {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Mapping", "complete":true, "enabled":false},
+                        {"label":"Field Matching", "complete":true, "enabled":false},
                         {"label":"Staging", "complete":true, "enabled":false},
                         {"label":"Validation", "complete":false, "enabled":true}] 
                 }}
@@ -387,21 +387,21 @@ export class RegistryService {
               { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
                 "stepConfig": {"steps": [
                     {"label":"File Import", "complete":true, "enabled":false},
-                    {"label":"Field Mapping", "complete":true, "enabled":false},
+                    {"label":"Field Matching", "complete":true, "enabled":false},
                     {"label":"Staging", "complete":false, "enabled":true},
                     {"label":"Validation", "complete":false, "enabled":false}]
                 }},
                 { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
                 "stepConfig": {"steps": [
                         {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Mapping", "complete":false, "enabled":true},
+                        {"label":"Field Matching", "complete":false, "enabled":true},
                         {"label":"Staging", "complete":false, "enabled":false},
                         {"label":"Validation", "complete":false, "enabled":false}] 
                 }},
                 { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
                 "stepConfig": {"steps": [
                         {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Mapping", "complete":true, "enabled":false},
+                        {"label":"Field Matching", "complete":true, "enabled":false},
                         {"label":"Staging", "complete":true, "enabled":false},
                         {"label":"Validation", "complete":false, "enabled":true}] 
                 }}

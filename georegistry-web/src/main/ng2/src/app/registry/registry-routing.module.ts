@@ -4,7 +4,6 @@ import { Routes, RouterModule, Resolve, ActivatedRouteSnapshot, RouterStateSnaps
 import { Observable } from 'rxjs/Observable';
 
 import { HierarchyComponent } from './component/hierarchy/hierarchy.component';
-import { LocalizationManagerComponent } from './component/localization-manager/localization-manager.component';
 import { SubmitChangeRequestComponent } from './component/submit-change-request/submit-change-request.component';
 import { MasterListManagerComponent } from './component/master-list/master-list-manager.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
@@ -37,11 +36,6 @@ const routes: Routes = [
         path: 'change-requests',
         component: ChangeRequestPageComponent,
         canActivate: [ContributerGuard]
-    },
-    {
-        path: 'localization-manager',
-        component: LocalizationManagerComponent,
-        canActivate: [AdminGuard]
     },
     {
         path: 'master-lists',
