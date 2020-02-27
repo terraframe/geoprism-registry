@@ -6,13 +6,6 @@
     <div id="app-container" class="container-fluid">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="row" style="padding: 30px 0 0 0;">
-            <div *ngIf="list" class="col-md-12">
-                <a [routerLink]="'/registry/master-list-history/' + list.masterlist">
-                  <i class="fa fa-arrow-left"></i> <localize key="masterlist.back"></localize>
-                </a>
-            </div>
-        </div>
         <div class="row">
             <div *ngIf="list" class="col-md-12">
                 <h2>

@@ -91,6 +91,7 @@ export class MasterListManagerComponent implements OnInit {
         } );
         this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + list.label + ']';
         this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+        this.bsModalRef.content.type = "danger";
 
          this.bsModalRef.content.onConfirm.subscribe( data => {
              this.service.deleteMasterList( list.oid ).then( response => {
