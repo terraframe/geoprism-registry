@@ -131,7 +131,7 @@ public class ExcelService
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String json)
   {
-    ImportConfiguration config = ImportConfiguration.build(json, false);
+    ImportConfiguration config = ImportConfiguration.build(json);
 
     String id = config.getVaultFileId();
     

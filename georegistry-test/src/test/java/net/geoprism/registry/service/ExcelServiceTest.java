@@ -214,7 +214,7 @@ public class ExcelServiceTest
     }
   }
 
-//  @Test
+  @Test
   @Request
   public void testGetAttributeInformation()
   {
@@ -258,7 +258,7 @@ public class ExcelServiceTest
     Assert.assertEquals(1, attributes.getJSONArray(AttributeDateType.TYPE).length());
   }
 
-//  @Test
+  @Test
   @Request
   public void testGetAttributeInformationPostalCode()
   {
@@ -374,7 +374,7 @@ public class ExcelServiceTest
     Assert.assertEquals(expected, geometry);
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportSpreadsheetInteger() throws InterruptedException
   {
@@ -407,7 +407,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(123), object.getValue(this.testInteger.getName()));
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportSpreadsheetDate() throws InterruptedException
   {
@@ -445,7 +445,7 @@ public class ExcelServiceTest
     Assert.assertEquals(calendar.getTime(), object.getValue(this.testDate.getName()));
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportSpreadsheetBoolean() throws InterruptedException
   {
@@ -478,7 +478,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Boolean(true), object.getValue(this.testBoolean.getName()));
   }
 
-//  @Test
+  @Test
   @Request
   public void testCreateWorkbook() throws IOException, InterruptedException
   {
@@ -525,7 +525,7 @@ public class ExcelServiceTest
     }
   }
 
-//  @Test
+  @Test
   @Request
   public void testExport() throws IOException
   {
@@ -584,7 +584,7 @@ public class ExcelServiceTest
     }
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportExcelWithParent() throws InterruptedException
   {
@@ -635,7 +635,7 @@ public class ExcelServiceTest
     Assert.assertEquals(1, parents.size());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportExcelWithPostalCode() throws InterruptedException
   {
@@ -710,7 +710,7 @@ public class ExcelServiceTest
     Assert.assertEquals(1, parents.size());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportExcelExcludeParent() throws InterruptedException
   {
@@ -737,7 +737,7 @@ public class ExcelServiceTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    Assert.assertEquals(new Long(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     JSONArray problems = new JSONArray(hist.getValidationProblems());
@@ -750,7 +750,7 @@ public class ExcelServiceTest
     Assert.assertNull(query.getSingleResult());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportExcelWithBadParent() throws InterruptedException
   {
@@ -789,7 +789,7 @@ public class ExcelServiceTest
     Assert.assertNull(query.getSingleResult());
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportExcelWithTerm() throws InterruptedException
   {
@@ -835,7 +835,7 @@ public class ExcelServiceTest
     }
   }
 
-//  @Test
+  @Test
   @Request
   public void testImportExcelWithBadTerm() throws InterruptedException
   {
@@ -859,7 +859,7 @@ public class ExcelServiceTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(new Long(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONArray problems = new JSONArray(hist.getValidationProblems());

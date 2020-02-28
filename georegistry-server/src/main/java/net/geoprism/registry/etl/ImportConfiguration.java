@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 import org.json.JSONObject;
@@ -33,6 +34,20 @@ abstract public class ImportConfiguration
   public ImportConfiguration()
   {
     
+  }
+  
+  public static ImportConfiguration build(String json)
+  {
+    JSONObject jo = new JSONObject(json);
+    
+    boolean includeCoordinates = false;
+    
+    if (jo.get(FORMAT_TYPE).equals(FormatImporterType.EXCEL.name()))
+    {
+      includeCoordinates = true;
+    }
+    
+    return ImportConfiguration.build(json, includeCoordinates);
   }
   
   public static ImportConfiguration build(String json, boolean includeCoordinates)

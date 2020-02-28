@@ -71,7 +71,7 @@ public class DataImportJob extends DataImportJobBase
   {
     ImportHistory history = (ImportHistory) executionContext.getJobHistoryRecord().getChild();
     ImportStage stage = history.getStage().get(0);
-    ImportConfiguration config = ImportConfiguration.build(history.getConfigJson(), false);
+    ImportConfiguration config = ImportConfiguration.build(history.getConfigJson());
     
     process(executionContext, history, stage, config);
   }

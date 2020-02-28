@@ -21,7 +21,7 @@ public class ETLService
   @Request(RequestType.SESSION)
   public JSONObject doImport(String sessionId, String json)
   {
-    ImportConfiguration config = ImportConfiguration.build(json, false);
+    ImportConfiguration config = ImportConfiguration.build(json);
 
     ImportHistory hist;
     
