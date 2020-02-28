@@ -60,6 +60,11 @@ public class DataImportJob extends DataImportJobBase
 
     return history;
   }
+  
+  protected void validate(ImportConfiguration config)
+  {
+    config.validate();
+  }
 
   @Override
   public void execute(ExecutionContext executionContext) throws MalformedURLException, InvocationTargetException
@@ -74,6 +79,8 @@ public class DataImportJob extends DataImportJobBase
   // TODO : It might actually be faster to first convert into a shared temp table, assuming you're resolving the parent references into it.
   private void process(ExecutionContext executionContext, ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
+    validate(config);
+    
     // TODO : We should have a single transaction where we do all the history configuration upfront, that way the job is either fully configured (and resumable) or it isn't (no in-between)
     config.setHistoryId(history.getOid());
     

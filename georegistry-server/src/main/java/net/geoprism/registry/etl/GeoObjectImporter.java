@@ -22,32 +22,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
@@ -72,9 +51,35 @@ import net.geoprism.registry.query.postgres.NonUniqueResultException;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
+import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.runwaysdk.ProblemException;
+import com.runwaysdk.ProblemIF;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.RequestState;
+import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.vividsolutions.jts.geom.Geometry;
+
 public class GeoObjectImporter implements ObjectImporterIF
 {
-  protected static final String ERROR_OBJECT_TYPE = GeoObject.class.getName();
+  protected static final String ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
   
   protected GeoObjectImportConfiguration configuration;
 
@@ -219,9 +224,25 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
             
-            GeoObject go = ServiceFactory.getAdapter().newGeoObjectInstance(entity.getType().getCode(), false);
-            entity.populate(go);
-            String json = go.toJSON().toString();
+            GeoObjectOverTime go = entity.toGeoObjectOverTime(); 
+            go.toJSON().toString();
+            
+            // We must ensure that any problems created during the transaction are
+            // logged now instead of when the request returns. As such, if any
+            // problems exist immediately throw a ProblemException so that normal
+            // exception handling can occur.
+            List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
+            
+            List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
+            for (ProblemIF problem : problems)
+            {
+              problems2.add(problem);
+            }
+
+            if (problems.size() != 0)
+            {
+              throw new ProblemException(null, problems2);
+            }
           }
         }
         finally
@@ -278,6 +299,8 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   public void importRowInTrans(FeatureRow row)
   {
+    String goJson = null;
+    
     try
     {
       int beforeProbCount = this.progressListener.getValidationProblems().size();
@@ -373,44 +396,39 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
           }
+          
+          GeoObjectOverTime go = entity.toGeoObjectOverTime(); 
+          goJson = go.toJSON().toString();
 
-          try
+          entity.apply(true);
+
+          if (parent != null)
           {
-            entity.apply(true);
-  
-            if (parent != null)
-            {
-              parent.addChild(entity, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
-            }
-            else if (isNew)
-            {
-              GeoEntity child = GeoEntity.getByKey(entity.getCode());
-              GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
-  
-              child.addLink(root, this.configuration.getHierarchy().getEntityType());
-            }
-  
-            // We must ensure that any problems created during the transaction are
-            // logged now instead of when the request returns. As such, if any
-            // problems exist immediately throw a ProblemException so that normal
-            // exception handling can occur.
-//            List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
-//  
-//            if (problems.size() != 0)
-//            {
-//              throw new ProblemException(null, problems);
-//            }
+            parent.addChild(entity, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
           }
-          catch(Throwable t)
+          else if (isNew)
           {
-            GeoObject go = ServiceFactory.getAdapter().newGeoObjectInstance(entity.getType().getCode(), false);
-            entity.populate(go);
-            
-            RecordedErrorException re = new RecordedErrorException();
-            re.setError(t);
-            re.setObjectJson(go.toJSON().toString());
-            re.setObjectType(ERROR_OBJECT_TYPE);
-            throw re;
+            GeoEntity child = GeoEntity.getByKey(entity.getCode());
+            GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
+
+            child.addLink(root, this.configuration.getHierarchy().getEntityType());
+          }
+
+          // We must ensure that any problems created during the transaction are
+          // logged now instead of when the request returns. As such, if any
+          // problems exist immediately throw a ProblemException so that normal
+          // exception handling can occur.
+          List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
+          
+          List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
+          for (ProblemIF problem : problems)
+          {
+            problems2.add(problem);
+          }
+
+          if (problems.size() != 0)
+          {
+            throw new ProblemException(null, problems2);
           }
         }
       }
@@ -423,6 +441,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     catch (IgnoreRowException e)
     {
       // Do nothing
+    }
+    catch(Throwable t)
+    {
+      RecordedErrorException re = new RecordedErrorException();
+      re.setError(t);
+      re.setObjectJson(goJson);
+      re.setObjectType(ERROR_OBJECT_TYPE);
+      throw re;
     }
     
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress()+1);

@@ -303,7 +303,15 @@ public class ExcelServiceTest
       waitTime += 10;
       if (waitTime > 20000)
       {
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ")");
+        String extra = "";
+        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
+        {
+          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), 100, 1).toString();
+          
+          extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
+        }
+        
+        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") " + extra);
         return;
       }
     }

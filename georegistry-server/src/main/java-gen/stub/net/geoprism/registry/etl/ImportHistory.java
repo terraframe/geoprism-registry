@@ -1,6 +1,11 @@
 package net.geoprism.registry.etl;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
 
 public class ImportHistory extends ImportHistoryBase
 {

@@ -154,5 +154,18 @@ abstract public class ImportConfiguration
   {
     this.functions.put(attributeName, function);
   }
+
+  public void validate()
+  {
+    if (this.historyId == null || this.historyId.length() == 0)
+    {
+      throw new RuntimeException("History Id is required");
+    }
+    
+    if (this.vaultFileId == null || this.vaultFileId.length() == 0)
+    {
+      throw new RuntimeException("Vault File Id is required");
+    }
+  }
   
 }

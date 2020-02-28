@@ -55,6 +55,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
@@ -440,6 +441,12 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     }
 
     return this;
+  }
+  
+  @Override
+  public void validate()
+  {
+    super.validate();
   }
 
   public static String getBaseType(String attributeType)

@@ -104,6 +104,7 @@ public class ETLService
   protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user)
   {
     JSONObject jo = new JSONObject();
+    
     jo.put("stage", hist.getStage().get(0));
     jo.put("status", hist.getStatus().get(0));
     jo.put("author", user.getUsername());
@@ -112,6 +113,44 @@ public class ETLService
     jo.put("importedRecords", hist.getImportedRecords());
     jo.put("workProgress", hist.getWorkProgress());
     jo.put("workTotal", hist.getWorkTotal());
+    
+    return jo;
+  }
+  
+  @Request(RequestType.SESSION)
+  public JSONArray getImportErrors(String sessionId, String historyId, int pageSize, int pageNumber)
+  {
+    JSONArray ja = new JSONArray();
+    
+    ImportErrorQuery query = new ImportErrorQuery(new QueryFactory());
+    
+    query.WHERE(query.getHistory().EQ(historyId));
+
+    query.restrictRows(pageSize, pageNumber);
+    
+    OIterator<? extends ImportError> it = query.getIterator();
+    while (it.hasNext())
+    {
+      ImportError err = it.next();
+      
+      ja.put(serializeImportError(err));
+    }
+    
+    return ja;
+  }
+  
+  protected JSONObject serializeImportError(ImportError err)
+  {
+    JSONObject jo = new JSONObject();
+    
+    jo.put("error", new JSONObject(err.getErrorJson()));
+    
+    if (err.getObjectJson() != null)
+    {
+      jo.put("object", new JSONObject(err.getObjectJson()));
+    }
+    
+    jo.put("objectType", err.getObjectType());
     
     return jo;
   }
