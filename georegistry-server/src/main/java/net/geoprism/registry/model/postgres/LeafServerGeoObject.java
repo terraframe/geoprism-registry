@@ -222,6 +222,15 @@ public class LeafServerGeoObject extends RelationalServerGeoObject implements Se
       this.getBusiness().appLock();
     }
   }
+  
+  @Override
+  public void unlock()
+  {
+    if (!this.getBusiness().isNew())
+    {
+      this.getBusiness().unlock();
+    }
+  }
 
   public void apply(boolean isImport)
   {

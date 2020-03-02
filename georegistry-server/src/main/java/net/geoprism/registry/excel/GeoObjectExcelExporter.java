@@ -55,7 +55,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Point;
 
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.LocationInfo;
@@ -150,7 +150,7 @@ public class GeoObjectExcelExporter
       String name = attribute.getName();
       Cell cell = row.createCell(col++);
 
-      if (name.equals(GeoObjectConfiguration.LATITUDE))
+      if (name.equals(GeoObjectImportConfiguration.LATITUDE))
       {
         Point point = (Point) object.getGeometry();
 
@@ -159,7 +159,7 @@ public class GeoObjectExcelExporter
           cell.setCellValue(point.getY());
         }
       }
-      else if (name.equals(GeoObjectConfiguration.LONGITUDE))
+      else if (name.equals(GeoObjectImportConfiguration.LONGITUDE))
       {
         Point point = (Point) object.getGeometry();
         if (point != null)

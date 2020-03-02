@@ -107,7 +107,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.model.LocationInfo;
@@ -974,14 +974,14 @@ public class MasterListVersion extends MasterListVersionBase
       {
         JsonObject longitude = new JsonObject();
         longitude.addProperty(NAME, "longitude");
-        longitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
+        longitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LONGITUDE_KEY));
         longitude.addProperty(TYPE, "none");
 
         attributes.add(longitude);
 
         JsonObject latitude = new JsonObject();
         latitude.addProperty(NAME, "latitude");
-        latitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
+        latitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LATITUDE_KEY));
         latitude.addProperty(TYPE, "none");
 
         attributes.add(latitude);
@@ -1095,7 +1095,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
 
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     if (filterJson != null && filterJson.length() > 0)
@@ -1152,7 +1152,7 @@ public class MasterListVersion extends MasterListVersionBase
 
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     JsonArray results = new JsonArray();

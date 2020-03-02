@@ -279,6 +279,16 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       this.getBusiness().appLock();
     }
   }
+  
+  @Override
+  public void unlock()
+  {
+    if (!this.geoEntity.isNew())
+    {
+      this.geoEntity.unlock();
+      this.getBusiness().unlock();
+    }
+  }
 
   @Override
   public void apply(boolean isImport)

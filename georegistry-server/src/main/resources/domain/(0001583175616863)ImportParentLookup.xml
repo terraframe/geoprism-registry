@@ -1,0 +1,43 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <mdException name="net.geoprism.registry.io.ParentCodeException" 
+                   label="Parent Code Exception" 
+                   description="Thrown when trying to lookup a parent with a code that does not exist" 
+                   message="Unable to find a parent location of type [{parentType}] and code [{parentCode}]">
+        <attributes>
+          <text name="parentType" label="Parent Type Label" />
+          <text name="parentCode" label="Parent Code" />
+          <text name="context" label="Context" />
+        </attributes>
+      </mdException>
+    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.modal.parentLookupType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.modal.parentLookupType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Parent Lookup Algorithm" />
+        </attributeStruct>
+      </object>
+    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.modal.all">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.modal.all" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code, label, and synonyms" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.modal.code">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.modal.code" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code only" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

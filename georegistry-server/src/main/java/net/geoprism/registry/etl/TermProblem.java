@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.io;
+package net.geoprism.registry.etl;
 
-import com.google.gson.JsonObject;
+import org.json.JSONObject;
 
-public class TermProblem implements Comparable<TermProblem>
+public class TermProblem extends ValidationProblem
 {
   private String label;
 
@@ -46,26 +46,23 @@ public class TermProblem implements Comparable<TermProblem>
     return mdAttributeId;
   }
 
+  @Override
   public String getKey()
   {
-    return this.mdAttributeId + "-" + this.label;
-  }
-
-  public JsonObject toJSON()
-  {
-    JsonObject object = new JsonObject();
-    object.addProperty("label", label);
-    object.addProperty("parentCode", parentCode);
-    object.addProperty("mdAttributeId", mdAttributeId);
-    object.addProperty("attributeCode", attributeCode);
-    object.addProperty("attributeLabel", attributeLabel);
-
-    return object;
+    return "TERM" + this.mdAttributeId + "-" + this.label;
   }
 
   @Override
-  public int compareTo(TermProblem problem)
+  public JSONObject toJSON()
   {
-    return this.getKey().compareTo(problem.getKey());
+    JSONObject object = new JSONObject();
+    object.put("type", "TermProblem");
+    object.put("label", label);
+    object.put("parentCode", parentCode);
+    object.put("mdAttributeId", mdAttributeId);
+    object.put("attributeCode", attributeCode);
+    object.put("attributeLabel", attributeLabel);
+
+    return object;
   }
 }

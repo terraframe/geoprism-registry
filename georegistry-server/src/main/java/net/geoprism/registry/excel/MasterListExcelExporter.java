@@ -54,7 +54,7 @@ import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class MasterListExcelExporter
 {
@@ -280,11 +280,11 @@ public class MasterListExcelExporter
     {
       Cell longitude = header.createCell(col++);
       longitude.setCellStyle(boldStyle);
-      longitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
+      longitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LONGITUDE_KEY));
 
       Cell latitude = header.createCell(col++);
       latitude.setCellStyle(boldStyle);
-      latitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
+      latitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LATITUDE_KEY));
     }
 
     for (MdAttributeConcreteDAOIF mdAttribute : this.mdAttributes)

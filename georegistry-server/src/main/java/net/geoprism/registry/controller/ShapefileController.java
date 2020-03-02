@@ -25,9 +25,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.json.JSONException;
+import net.geoprism.DataUploaderDTO;
+import net.geoprism.registry.etl.DataImportJob;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.ShapefileService;
 
-import com.google.gson.JsonObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
@@ -38,10 +43,7 @@ import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-
-import net.geoprism.DataUploaderDTO;
-import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.service.ShapefileService;
+import com.runwaysdk.mvc.RestResponse;
 
 @Controller(url = "shapefile")
 public class ShapefileController
@@ -60,13 +62,13 @@ public class ShapefileController
     {
       String fileName = file.getFilename();
 
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
       Date sDate = startDate != null ? format.parse(startDate) : null;
       Date eDate = endDate != null ? format.parse(endDate) : null;
 
-      JsonObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
+      JSONObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
 
       // object.add("options", service.getOptions(request.getSessionId()));
       // object.put("classifiers", new
@@ -74,14 +76,6 @@ public class ShapefileController
 
       return new RestBodyResponse(configuration);
     }
-  }
-
-  @Endpoint(url = "import-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF importShapefile(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration) throws JSONException
-  {
-    JsonObject response = service.importShapefile(request.getSessionId(), configuration);
-
-    return new RestBodyResponse(response);
   }
 
   @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)

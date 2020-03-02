@@ -16,17 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.excel;
+package net.geoprism.registry.etl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-
-import org.apache.poi.ss.util.CellReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.geoprism.ExceptionUtil;
 import net.geoprism.data.etl.ColumnType;
@@ -36,16 +32,20 @@ import net.geoprism.data.etl.excel.ExcelObjectException;
 import net.geoprism.data.etl.excel.ExcelValueException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.excel.MapFeatureRow;
 
-public class GeoObjectContentHandler implements SheetHandler
+import org.apache.poi.ss.util.CellReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ExcelContentHandler implements SheetHandler
 {
-  private static Logger        logger = LoggerFactory.getLogger(GeoObjectContentHandler.class);
+  private static Logger        logger = LoggerFactory.getLogger(ExcelContentHandler.class);
 
   /**
    * Handler which handles the view object once they have been created.
    */
-  private GeoObjectConverter   converter;
+  private ObjectImporterIF   objectImporter;
 
   /**
    * Column index-Column Name Map for the current sheet
@@ -55,12 +55,12 @@ public class GeoObjectContentHandler implements SheetHandler
   /**
    * Current row number
    */
-  private int                  rowNum;
+  private long                  rowNum;
 
   /**
    * Current error row number
    */
-  private int                  errorNum;
+  private long                  errorNum;
 
   /**
    * Current view
@@ -73,12 +73,20 @@ public class GeoObjectContentHandler implements SheetHandler
   private DateFormat           dateTimeFormat;
 
   boolean                      isFirstSheet;
+  
+  ImportStage stage;
+  
+  protected Long startIndex;
 
-  public GeoObjectContentHandler(GeoObjectConfiguration configuration)
+  public ExcelContentHandler(ObjectImporterIF objectImporter, ImportStage stage, Long startIndex)
   {
+    this.objectImporter = objectImporter;
+    
+    this.stage = stage;
+    
+    this.startIndex = startIndex;
+    
     this.isFirstSheet = true;
-
-    this.converter = new GeoObjectConverter(configuration);
 
     this.map = new HashMap<Integer, String>();
 
@@ -115,10 +123,17 @@ public class GeoObjectContentHandler implements SheetHandler
     {
       try
       {
-        if (this.rowNum != 0)
+        if (this.rowNum != 0 && rowNum >= this.startIndex)
         {
-          this.converter.create(new MapFeatureRow(this.row));
-
+          if (stage.equals(ImportStage.VALIDATE))
+          {
+            this.objectImporter.validateRow(new MapFeatureRow(this.row));
+          }
+          else
+          {
+            this.objectImporter.importRow(new MapFeatureRow(this.row));
+          }
+          
           this.row = new HashMap<String, Object>();
         }
       }
@@ -208,12 +223,12 @@ public class GeoObjectContentHandler implements SheetHandler
   {
   }
 
-  public int getTotalRows()
+  public long getTotalRows()
   {
     return rowNum;
   }
 
-  public int getNumberOfErrors()
+  public long getNumberOfErrors()
   {
     return ( this.errorNum - 1 );
   }

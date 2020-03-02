@@ -16,15 +16,16 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.shapefile;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+package net.geoprism.registry.etl;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
-public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationProblem>
+import org.json.JSONObject;
+
+import com.google.gson.JsonArray;
+
+public class GeoObjectLocationProblem extends ValidationProblem
 {
   private ServerGeoObjectType type;
 
@@ -42,37 +43,34 @@ public class GeoObjectLocationProblem implements Comparable<GeoObjectLocationPro
     this.parent = parent;
   }
 
+  @Override
   public String getKey()
   {
     if (this.parent != null)
     {
-      return this.parent.getCode() + "-" + this.label;
+      return "LOCATION" + this.parent.getCode() + "-" + this.label;
     }
     else
     {
-      return this.label;
+      return "LOCATION" + this.label;
     }
-  }
-
-  public JsonObject toJSON()
-  {
-    JsonObject object = new JsonObject();
-    object.addProperty("label", label);
-    object.addProperty("type", this.type.getCode());
-    object.addProperty("typeLabel", this.type.getLabel().getValue());
-    object.add("context", context);
-
-    if (this.parent != null)
-    {
-      object.addProperty("parent", this.parent.getCode());
-    }
-
-    return object;
   }
 
   @Override
-  public int compareTo(GeoObjectLocationProblem o)
+  public JSONObject toJSON()
   {
-    return this.getKey().compareTo(o.getKey());
+    JSONObject object = new JSONObject();
+    object.put("type", "LocationProblem");
+    object.put("label", label);
+    object.put("type", this.type.getCode());
+    object.put("typeLabel", this.type.getLabel().getValue());
+    object.put("context", context);
+
+    if (this.parent != null)
+    {
+      object.put("parent", this.parent.getCode());
+    }
+
+    return object;
   }
 }

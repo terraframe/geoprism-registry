@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.io;
 
-import com.google.gson.JsonObject;
+import org.json.JSONObject;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
@@ -56,12 +56,12 @@ public class Location
     this.function = function;
   }
 
-  public JsonObject toJson()
+  public JSONObject toJSON()
   {
-    JsonObject object = new JsonObject();
-    object.addProperty("label", this.type.getLabel().getValue());
-    object.addProperty("code", this.type.getCode());
-    object.addProperty("target", this.function.toJson());
+    JSONObject object = new JSONObject();
+    object.put("label", this.type.getLabel().getValue());
+    object.put("code", this.type.getCode());
+    object.put("target", this.function.toJson());
 
     return object;
   }
