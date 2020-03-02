@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -23,28 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
-
-import net.geoprism.data.importer.BasicColumnFunction;
-import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.etl.DataImportJob;
-import net.geoprism.registry.etl.ETLService;
-import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportConfiguration;
-import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportErrorQuery;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.LocationBuilder;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.postgres.CodeRestriction;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.test.USATestData;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
@@ -82,6 +60,28 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.etl.ETLService;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.ImportError;
+import net.geoprism.registry.etl.ImportErrorQuery;
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.Location;
+import net.geoprism.registry.io.LocationBuilder;
+import net.geoprism.registry.io.LookupType;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.test.USATestData;
+
 public class ShapefileServiceTest
 {
   protected USATestData        testData;
@@ -89,7 +89,7 @@ public class ShapefileServiceTest
   private AttributeTermType    testTerm;
 
   private AttributeIntegerType testInteger;
-  
+
   @Before
   public void setUp()
   {
@@ -102,26 +102,26 @@ public class ShapefileServiceTest
     this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
 
     reload();
-    
+
     clearData();
   }
-  
+
   @After
   public void tearDown() throws IOException
   {
     testData.cleanUp();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
-    
+
     clearData();
   }
-  
+
   @BeforeClass
   @Request
   public static void classSetUp()
   {
     clearData();
-    
+
     SchedulerManager.start();
   }
 
@@ -131,19 +131,18 @@ public class ShapefileServiceTest
   {
     SchedulerManager.shutdown();
   }
-  
+
   @Request
   private static void clearData()
   {
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     OIterator<? extends ImportError> ieit = ieq.getIterator();
-    
+
     while (ieit.hasNext())
     {
       ieit.next().delete();
     }
-    
-    
+
     JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
     OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
 
@@ -152,41 +151,52 @@ public class ShapefileServiceTest
       JobHistoryRecord jhr = jhrs.next();
       jhr.getChild().delete();
     }
-    
-    
+
     SynonymQuery sq = new SynonymQuery(new QueryFactory());
     sq.WHERE(sq.getDisplayLabel().localize().EQ("00"));
     OIterator<? extends Synonym> it = sq.getIterator();
-    
+
     while (it.hasNext())
     {
       it.next().delete();
     }
   }
-  
-//  @Before
-//  public void setUp()
-//  {
-//    this.testData = USATestData.newTestData(false);
-//
-//    this.adminCR = testData.adminClientRequest;
-//
-//    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-//    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
-//
-//    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
-//    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(), this.testData.STATE.getCode(), testInteger.toJSON().toString());
-//
-//    reload();
-//  }
-//  
-//  @After
-//  public void tearDown() throws IOException
-//  {
-//    testData.cleanUp();
-//
-//    FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
-//  }
+
+  // @Before
+  // public void setUp()
+  // {
+  // this.testData = USATestData.newTestData(false);
+  //
+  // this.adminCR = testData.adminClientRequest;
+  //
+  // AttributeTermType testTerm = (AttributeTermType)
+  // AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"),
+  // new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false,
+  // false, false);
+  // this.testTerm = (AttributeTermType)
+  // ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(),
+  // this.testData.STATE.getCode(), testTerm.toJSON().toString());
+  //
+  // AttributeIntegerType testInteger = (AttributeIntegerType)
+  // AttributeType.factory("testInteger", new
+  // LocalizedValue("testIntegerLocalName"), new
+  // LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE,
+  // false, false, false);
+  // this.testInteger = (AttributeIntegerType)
+  // ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(),
+  // this.testData.STATE.getCode(), testInteger.toJSON().toString());
+  //
+  // reload();
+  // }
+  //
+  // @After
+  // public void tearDown() throws IOException
+  // {
+  // testData.cleanUp();
+  //
+  // FileUtils.deleteDirectory(new
+  // File(VaultProperties.getPath("vault.default"), "files"));
+  // }
 
   @Request
   public void reload()
@@ -288,7 +298,7 @@ public class ShapefileServiceTest
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
-  
+
   private void waitUntilStatus(JobHistory hist, AllJobStatus status) throws InterruptedException
   {
     int waitTime = 0;
@@ -303,7 +313,7 @@ public class ShapefileServiceTest
       {
         Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
       }
-      
+
       Thread.sleep(10);
 
       waitTime += 10;
@@ -313,18 +323,18 @@ public class ShapefileServiceTest
         if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
         {
           extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), 100, 1).toString();
-          
-          extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
+
+          extra = extra + " " + ( (ImportHistory) hist ).getValidationProblems();
         }
-        
+
         Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") " + extra);
         return;
       }
     }
-    
+
     Thread.sleep(100);
   }
-  
+
   @Test
   @Request
   public void testImportShapefile() throws InterruptedException
@@ -342,13 +352,13 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    
+
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "01", testData.STATE.getCode());
 
     Assert.assertNotNull(object);
@@ -374,14 +384,14 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    
+
     /*
      * Import the shapefile twice
      */
@@ -389,9 +399,9 @@ public class ShapefileServiceTest
     config2.remove("historyId");
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), config2.toString());
     Assert.assertNotSame(hist.getOid(), hist2.getOid());
-    
+
     this.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
-    
+
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
     Assert.assertEquals(new Long(56), hist2.getWorkTotal());
@@ -426,13 +436,13 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    
+
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "01", testData.STATE.getCode());
 
     Assert.assertNotNull(object);
@@ -450,7 +460,6 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    
     ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
     geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
@@ -470,13 +479,13 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    
+
     String sessionId = this.testData.adminClientRequest.getSessionId();
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
 
@@ -487,6 +496,112 @@ public class ShapefileServiceTest
     List<ParentTreeNode> parents = nodes.getParents();
 
     Assert.assertEquals(1, parents.size());
+  }
+
+  @Test
+  @Request
+  public void testImportShapefileWithParentCode() throws InterruptedException
+  {
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    geoObj.setCode("00");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
+    geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
+
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+
+    config.setParentLookupType(LookupType.CODE);
+    config.setHierarchy(hierarchyType);
+    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD")));
+
+    ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+
+    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+
+    hist = ImportHistory.get(hist.getOid());
+
+    Assert.assertEquals(new Long(56), hist.getWorkTotal());
+    Assert.assertEquals(new Long(56), hist.getWorkProgress());
+    Assert.assertEquals(new Long(56), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+    final GeoObjectImportConfiguration test = new GeoObjectImportConfiguration();
+    test.fromJSON(hist.getConfigJson(), false);
+
+    Assert.assertEquals(config.getParentLookupType(), test.getParentLookupType());
+
+    String sessionId = this.testData.adminClientRequest.getSessionId();
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
+
+    Assert.assertEquals("01", object.getCode());
+
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { this.testData.COUNTRY.getCode() }, false, new Date());
+
+    List<ParentTreeNode> parents = nodes.getParents();
+
+    Assert.assertEquals(1, parents.size());
+  }
+
+  @Test
+  @Request
+  public void testImportShapefileWithBadParentCode() throws InterruptedException
+  {
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    geoObj.setCode("00");
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
+    geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
+
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+
+    config.setParentLookupType(LookupType.CODE);
+    config.setHierarchy(hierarchyType);
+    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("GEOID")));
+
+    ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+
+    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(56), hist.getWorkTotal());
+    Assert.assertEquals(new Long(56), hist.getWorkProgress());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+
+    final GeoObjectImportConfiguration test = new GeoObjectImportConfiguration();
+    test.fromJSON(hist.getConfigJson(), false);
+
+    Assert.assertEquals(config.getParentLookupType(), test.getParentLookupType());
+    
+//    JSONArray errors = new JSONArray(hist.getErrorJson());
+//
+//    Assert.assertEquals(0, errors.length());
+
+    // Ensure the geo objects were not created
+    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
+    query.setRestriction(new CodeRestriction("01"));
+
+    Assert.assertNull(query.getSingleResult());
   }
 
   @Test
@@ -511,14 +626,14 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
     JSONArray problems = new JSONArray(hist.getValidationProblems());
-    
+
     Assert.assertFalse(problems.length() > 0);
 
     // Ensure the geo objects were not created
@@ -549,14 +664,14 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(55), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
     JSONArray problems = new JSONArray(hist.getValidationProblems());
-    
+
     Assert.assertEquals(1, problems.length());
 
     // Ensure the geo objects were not created
@@ -591,7 +706,7 @@ public class ShapefileServiceTest
       ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
       this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-      
+
       hist = ImportHistory.get(hist.getOid());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
       Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -630,13 +745,13 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(55), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
-    
+
     JSONArray problems = new JSONArray(hist.getValidationProblems());
     Assert.assertEquals(1, problems.length());
 
@@ -674,49 +789,49 @@ public class ShapefileServiceTest
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.RUNNING);
-    
+
     hist = ImportHistory.get(hist.getOid());
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertTrue("Expected status new or queued, but was [" + hist2.getStatus().get(0) + "]", hist2.getStatus().get(0).equals(AllJobStatus.NEW) || hist2.getStatus().get(0).equals(AllJobStatus.QUEUED));
-    
+
     this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-    
+
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertTrue("Expected status running or queued, but was [" + hist2.getStatus().get(0) + "]", hist2.getStatus().get(0).equals(AllJobStatus.RUNNING) || hist2.getStatus().get(0).equals(AllJobStatus.QUEUED));
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
-    
+
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    
+
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "01", testData.STATE.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
     Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
-    
+
     this.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
-    
+
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertEquals(new Long(56), hist2.getWorkTotal());
     Assert.assertEquals(new Long(56), hist2.getWorkProgress());
-    
+
     Assert.assertEquals(ImportStage.COMPLETE, hist2.getStage().get(0));
   }
-  
+
   private ImportHistory importShapefile(String sessionId, String config)
   {
     String retConfig = new ETLService().doImport(sessionId, config).toString();
-    
+
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
-    
+
     String historyId = configuration.getHistoryId();
-    
+
     return ImportHistory.get(historyId);
   }
-  
+
   @Test
   @Request
   public void testBadParentSynonymAndResume() throws InterruptedException
@@ -738,13 +853,13 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
     this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(55), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
-    
+
     JSONArray problems = new JSONArray(hist.getValidationProblems());
     Assert.assertEquals(1, problems.length());
 
@@ -753,28 +868,28 @@ public class ShapefileServiceTest
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
-    
+
     // Resolve the import problem with a synonym
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.COUNTRY.getCode());
     geoObj.setCode("99");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label99");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-    
+
     ServerGeoObjectIF serverGo = new ServerGeoObjectService().apply(geoObj, true, false);
-    
+
     new GeoSynonymService().createGeoEntitySynonym(this.testData.adminClientRequest.getSessionId(), serverGo.getRunwayId(), "00");
-    
+
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
-    
+
     this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-    
+
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
-    
+
     String sessionId = this.testData.adminClientRequest.getSessionId();
     GeoObject go = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
 
@@ -786,7 +901,7 @@ public class ShapefileServiceTest
 
     Assert.assertEquals(1, parents.size());
   }
-  
+
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm)
   {
     JSONObject result = service.getShapefileConfiguration(this.testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream);
@@ -813,15 +928,15 @@ public class ShapefileServiceTest
       }
 
     }
-    
+
     result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE);
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
-    
+
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
 
     config.setStartDate(new Date());
     config.setEndDate(new Date());
-    
+
     return config;
   }
 }
