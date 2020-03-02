@@ -14,7 +14,18 @@
                                 <div class="panel-body">
                                     <ul class="list-group">
                                         <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
-                                            <h5 *ngIf="attr.code !== 'geometry'">{{attr.label.localizedValue}}
+                                            <h5 *ngIf="attr.code !== 'geometry'">
+
+                                              <span *ngIf="attr.code === 'code'">
+                                                <localize key="geoobject.code.alternate.label"></localize>
+                                              </span>
+                                              <span *ngIf="attr.code === 'displayLabel'">
+                                                <localize key="geoobject.displayLabel.alternate.label"></localize>
+                                              </span>
+                                              <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'">
+                                                {{attr.label.localizedValue}}
+                                              </span>
+                                              
                                               <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null">
                                                 ({{calculatedPostObject[attr.code].startDate}} - {{calculatedPostObject[attr.code].endDate}})
                                               </span>
