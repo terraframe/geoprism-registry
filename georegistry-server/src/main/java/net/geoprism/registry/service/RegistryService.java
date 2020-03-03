@@ -23,6 +23,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationQuery;
+import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.OrganizationConverter;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.ServerLookupRestriction;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.query.postgres.GeoObjectIterator;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.LookupRestriction;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
@@ -37,6 +58,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -46,7 +68,6 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -60,27 +81,8 @@ import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
-
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AdapterUtilities;
-import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.ServerLookupRestriction;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.query.postgres.GeoObjectIterator;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.LookupRestriction;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class RegistryService
 {
@@ -143,7 +145,7 @@ public class RegistryService
         MdTermRelationship mdTermRel = it2.next();
 
         // Ignore the IsARelationship class between universals. It should be
-        // depricated
+        // deprecated
         if (mdTermRel.definesType().equals(IsARelationship.CLASS))
         {
           continue;
@@ -157,6 +159,25 @@ public class RegistryService
     finally
     {
       it2.close();
+    }
+    
+    OrganizationQuery oQ = new OrganizationQuery(qf);
+    OIterator<? extends Organization> it3 = oQ.getIterator();
+    
+    try
+    {
+      while (it3.hasNext())
+      {
+        Organization organization = it3.next();
+        
+        OrganizationDTO organizationDTO =  new OrganizationConverter().build(organization);
+        
+        adapter.getMetadataCache().addOrganization(organizationDTO);
+      }
+    }
+    finally
+    {
+      it3.close();
     }
   }
 
@@ -284,6 +305,100 @@ public class RegistryService
 
   ///////////////////// Hierarchy Management /////////////////////
 
+  /**
+   * Returns the {@link OrganizationDTO}s with the given codes or all
+   * {@link OrganizationDTO}s if no codes are provided.
+   * 
+   * @param sessionId
+   * @param codes
+   *          codes of the {@link OrganizationDTO}s.
+   * @return the {@link OrganizationDTO}s with the given codes or all
+   *         {@link OrganizationDTO}s if no codes are provided.
+   */
+  @Request(RequestType.SESSION)
+  public OrganizationDTO[] getOrganizations(String sessionId, String[] codes)
+  {
+    if (codes == null || codes.length == 0)
+    {
+      return adapter.getMetadataCache().getAllOrganizations();
+    }
+
+    OrganizationDTO[] orgs = new OrganizationDTO[codes.length];
+
+    for (int i = 0; i < codes.length; ++i)
+    {
+      Optional<OrganizationDTO> optional = adapter.getMetadataCache().getOrganization(codes[i]);
+
+      if (optional.isPresent())
+      {
+        orgs[i] = optional.get();
+      }
+      else
+      {
+        DataNotFoundException ex = new DataNotFoundException();
+        ex.setDataIdentifier(codes[i]);
+        throw ex;
+      }
+    }
+
+    return orgs;
+  }
+  
+  /**
+   * Creates a {@link OrganizationDTO} from the given JSON.
+   * 
+   * @param sessionId
+   * @param json
+   *          JSON of the {@link OrganizationDTO} to be created.
+   * @return newly created {@link OrganizationDTO}
+   */
+  @Request(RequestType.SESSION)
+  public OrganizationDTO createOrganization(String sessionId, String json)
+  {
+    OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
+    
+    new OrganizationConverter().create(organizationDTO);
+
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addOrganization(organizationDTO);
+
+    return organizationDTO;
+  }
+  
+  /**
+   * Updates the given {@link OrganizationDTO} represented as JSON.
+   * 
+   * @pre given {@link OrganizationDTO} must already exist.
+   * 
+   * @param sessionId
+   * @param json
+   *          JSON of the {@link OrganizationDTO} to be updated.
+   * @return updated {@link OrganizationDTO}
+   */
+  @Request(RequestType.SESSION)
+  public OrganizationDTO updateOrganization(String sessionId, String json)
+  {
+    OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
+
+    new OrganizationConverter().update(organizationDTO);
+
+    return organizationDTO;
+  }
+  
+  /**
+   * Deletes the {@link OrganizationDTO} with the given code.
+   * 
+   * @param sessionId
+   * @param code
+   *          code of the {@link OrganizationDTO} to delete.
+   */
+  @Request(RequestType.SESSION)
+  public void deleteOrganization(String sessionId, String code)
+  {
+    Organization organization = Organization.getByKey(code);
+    organization.delete();
+  }
+  
   /**
    * Returns the {@link GeoObjectType}s with the given codes or all
    * {@link GeoObjectType}s if no codes are provided.

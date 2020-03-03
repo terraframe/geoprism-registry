@@ -1,0 +1,19 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.Organization" label="Organization" cacheAlgorithm="everything" generateController="false" publish="false">
+        <attributes>
+          <char name="code" size="32" required="true" indexType="unique index" label="Code" />
+          <localChar name="displayLabel" label="Label" required="true" />
+          <localText name="contactInfo" label="Contact Information" required="false" />
+        </attributes>
+      </mdBusiness>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.Organization"/> 
+    </delete>
+  </undoIt>
+</version>

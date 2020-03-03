@@ -20,6 +20,16 @@ package net.geoprism.registry.conversion;
 
 import java.util.List;
 
+import net.geoprism.DefaultConfiguration;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.InvalidMasterListCodeException;
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.WMSService;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -77,16 +87,6 @@ import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
-
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.InvalidMasterListCodeException;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 {
@@ -378,7 +378,10 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     LocalizedValue label = convert(universal.getDisplayLabel());
     LocalizedValue description = convert(universal.getDescription());
-    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsLeafType(), universal.getIsGeometryEditable(), frequency, ServiceFactory.getAdapter());
+    
+    String organizationCode = null;
+    
+    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsLeafType(), universal.getIsGeometryEditable(), frequency, organizationCode, ServiceFactory.getAdapter());
 
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);
 
