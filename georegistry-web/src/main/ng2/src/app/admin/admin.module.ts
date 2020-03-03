@@ -31,6 +31,9 @@ import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
 import { SystemLogoService } from './service/system-logo.service';
 import { EmailService } from './service/email.service';
 import { AccountService } from './service/account.service';
+import { SettingsService } from './service/settings.service';
+import { LocalizationManagerService } from './service/localization-manager.service';
+
 
 import { AccountsComponent } from './component/account/accounts.component';
 import { AccountInviteComponent } from './component/account/account-invite.component';
@@ -39,6 +42,10 @@ import { AccountComponent } from './component/account/account.component';
 import { SystemLogoComponent } from './component/logo/system-logo.component';
 import { SystemLogosComponent } from './component/logo/system-logos.component';
 import { EmailComponent } from './component/email/email.component';
+import { SettingsComponent } from './component/settings.component';
+import { OrganizationModalComponent } from './component/organization/organization-modal.component';
+import { NewLocaleModalComponent } from './component/localization-manager/new-locale-modal.component'
+
 
 import { AdminRoutingModule } from './admin-routing.module';
 
@@ -68,7 +75,10 @@ import '../rxjs-extensions';
         AccountComponent,
         SystemLogoComponent,
         SystemLogosComponent,
-        EmailComponent
+        EmailComponent,
+        SettingsComponent,
+        OrganizationModalComponent,
+        NewLocaleModalComponent
     ],
     exports: [
         SystemLogoComponent,
@@ -77,11 +87,15 @@ import '../rxjs-extensions';
     providers: [
         SystemLogoService,
         EmailService,
-        AccountService
+        AccountService,
+        SettingsService,
+        LocalizationManagerService
     ],
     entryComponents: [
         AccountInviteComponent,
-        AccountComponent
+        AccountComponent,
+        OrganizationModalComponent,
+        NewLocaleModalComponent
     ]
 } )
 export class AdminModule { }

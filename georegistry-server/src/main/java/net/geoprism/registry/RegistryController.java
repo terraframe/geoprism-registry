@@ -891,4 +891,22 @@ public class RegistryController
 
     return new RestBodyResponse(response);
   }
+  
+  /**
+   * Submit scheduled job conflict.
+   * 
+   * @param sessionId
+   * @param conflict
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "registry/submit-conflict")
+  public ResponseIF submitDataConflictResolution(ClientRequestIF request, @RequestParamter(name = "conflict") String conflict)
+  {
+    
+    // TODO: set this method up
+    
+    HierarchyType hierarchyType = this.registryService.createHierarchyType(request.getSessionId(), conflict);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(hierarchyType.toJSON(serializer));
+  }
 }

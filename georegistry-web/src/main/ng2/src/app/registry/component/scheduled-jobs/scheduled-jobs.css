@@ -1,0 +1,19 @@
+/* Accounting for the height of the header bar + a margin at the bottom */
+.new-admin-design-main {
+    height: calc(100% - 88px);
+}
+
+.solid-table-wrapper {
+    background: #F4F4F4;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+.solid-table-footer {
+    /* background: #b0b0b0; */
+    border-radius: 0 0 15px 15px;
+    padding: 0 0 10px 10px;
+}
+
+/* thead {
+    border-bottom: solid white 4px;
+} */

@@ -1,0 +1,127 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+    <createOrUpdate>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.menu">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="localization-manager.menu" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Languages" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization-manager.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="localization-manager.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Languages" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="accounts.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="accounts.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="User Accounts" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="accounts.link">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="accounts.link" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="User Accounts" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.menu">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.menu" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Lists" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.manager.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.manager.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Lists" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.table.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Change Requests" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.menu">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchies.menu" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="GeoObjects and Hierarchies" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.data.option">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="header.data.option" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Import / Export" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="navigator.menu">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="navigator.menu" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Explorer" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="system.image.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="system.image.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Icons" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="email.link">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="email.link" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Email Server" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="email.modal.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="email.modal.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Email Server" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="type.publish.view.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="type.publish.view.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="List Metadata" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      
+	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

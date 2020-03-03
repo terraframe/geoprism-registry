@@ -21,6 +21,8 @@ import { Component, OnInit, ViewChild, ElementRef, Inject, Input } from '@angula
 import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { Subject } from 'rxjs/Subject';
 
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
 
@@ -40,29 +42,31 @@ declare var acp: any;
     styles: []
 } )
 export class SystemLogoComponent implements OnInit {
-    oid: SystemLogo;
     message: string = null;
+    icon: SystemLogo;
 
     public uploader: FileUploader;
     public dropActive: boolean = false;
 
-    @ViewChild( 'uploadEl' )
-    private uploadElRef: ElementRef;
-
     file: any;
     context: string;
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private location: Location,
-        private iconService: SystemLogoService,
-        private eventService: EventService ) {
-        this.context = acp as string;
-    }
+    @ViewChild( 'uploadEl' )
+    private uploadElRef: ElementRef;
+
+    public onSuccess: Subject<any>;
+
+
+    constructor( private route: ActivatedRoute,
+        private eventService: EventService,
+        public bsModalRef: BsModalRef )
+        {
+            this.context = acp as string;
+        }
 
     ngOnInit(): void {
-        this.oid = this.route.snapshot.params['oid'];
+
+        this.onSuccess = new Subject();
 
         let options: FileUploaderOptions = {
             autoUpload: false,
@@ -72,6 +76,7 @@ export class SystemLogoComponent implements OnInit {
         };
 
         this.uploader = new FileUploader( options );
+
         this.uploader.onBeforeUploadItem = ( fileItem: any ) => {
             this.eventService.start();
         };
@@ -79,13 +84,14 @@ export class SystemLogoComponent implements OnInit {
             this.eventService.complete();
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
-            this.location.back();
+            this.onSuccess.next( item );
+            this.bsModalRef.hide();
         };
         this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
             this.error( response );
         };
         this.uploader.onBuildItemForm = ( fileItem: any, form: any ) => {
-            form.append( 'oid', this.oid );
+            form.append( 'oid', this.icon.oid );
         };
     }
 
@@ -93,7 +99,7 @@ export class SystemLogoComponent implements OnInit {
         let that = this;
 
         this.uploader.onAfterAddingFile = ( item => {
-            this.uploadElRef.nativeElement.value = ''
+            this.uploadElRef.nativeElement.value = '';
 
             let reader = new FileReader();
             reader.onload = function( e: any ) {
@@ -108,12 +114,12 @@ export class SystemLogoComponent implements OnInit {
     }
 
     cancel(): void {
-        this.location.back();
+        this.bsModalRef.hide();
     }
 
     onSubmit(): void {
-        if ( this.file == null ) {
-            this.location.back();
+        if( this.file == null ) {
+            this.bsModalRef.hide();
         }
         else {
             this.uploader.uploadAll();
