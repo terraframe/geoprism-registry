@@ -1,5 +1,6 @@
 package net.geoprism.registry.etl;
 
+import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -7,6 +8,7 @@ import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
+import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
@@ -40,6 +42,14 @@ public class ETLController
   public ResponseIF getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
     JSONArray config = this.service.getCompletedImports(sessionId, pageSize, pageNumber, sortAttr, isAscending);
+    
+    return new RestBodyResponse(config.toString());
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-errors")
+  public ResponseIF getImportErrors(String sessionId, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") int pageSize, @RequestParamter(name = "pageNumber") int pageNumber)
+  {
+    JSONArray config = this.service.getImportErrors(sessionId, historyId, pageSize, pageNumber);
     
     return new RestBodyResponse(config.toString());
   }

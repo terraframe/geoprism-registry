@@ -19,6 +19,8 @@ abstract public class ImportConfiguration
   
   public static final String VAULT_FILE_ID  = "vaultFileId";
   
+  public static final String IMPORT_STRATEGY  = "importStrategy";
+  
   protected String formatType;
   
   protected String objectType;
@@ -30,6 +32,15 @@ abstract public class ImportConfiguration
   protected LinkedList<RecordedErrorException> errors = new LinkedList<RecordedErrorException>();
   
   protected Map<String, ShapefileFunction> functions;
+  
+  protected ImportStrategy importStrategy;
+  
+  public static enum ImportStrategy {
+    NEW_AND_UPDATE,
+    NEW_ONLY,
+    UPDATE_ONLY
+    // DELETE
+  }
   
   public ImportConfiguration()
   {
@@ -68,6 +79,16 @@ abstract public class ImportConfiguration
     }
   }
   
+  public ImportStrategy getImportStrategy()
+  {
+    return importStrategy;
+  }
+
+  public void setImportStrategy(ImportStrategy importStrategy)
+  {
+    this.importStrategy = importStrategy;
+  }
+
   public String getVaultFileId()
   {
     return vaultFileId;
@@ -121,6 +142,8 @@ abstract public class ImportConfiguration
     }
     
     this.vaultFileId = jo.getString(VAULT_FILE_ID);
+    
+    this.importStrategy = ImportStrategy.valueOf(jo.getString(IMPORT_STRATEGY));
   }
   
   protected void toJSON(JSONObject jo)
@@ -129,6 +152,7 @@ abstract public class ImportConfiguration
     jo.put(FORMAT_TYPE, this.formatType);
     jo.put(HISTORY_ID, this.historyId);
     jo.put(VAULT_FILE_ID, this.vaultFileId);
+    jo.put(IMPORT_STRATEGY, this.importStrategy.name());
   }
   
   abstract public JSONObject toJSON();
@@ -180,6 +204,11 @@ abstract public class ImportConfiguration
     if (this.vaultFileId == null || this.vaultFileId.length() == 0)
     {
       throw new RuntimeException("Vault File Id is required");
+    }
+    
+    if (this.importStrategy == null)
+    {
+      throw new RuntimeException("Import strategy is required");
     }
   }
   
