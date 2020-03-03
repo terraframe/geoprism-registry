@@ -23,17 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import net.geoprism.data.etl.excel.ExcelDataFormatter;
-import net.geoprism.data.etl.excel.ExcelSheetReader;
-import net.geoprism.data.etl.excel.InvalidExcelFileException;
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.etl.ImportConfiguration;
-import net.geoprism.registry.excel.ExcelFieldContentsHandler;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.model.ServerGeoObjectType;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -49,11 +38,23 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
+import net.geoprism.data.etl.excel.ExcelDataFormatter;
+import net.geoprism.data.etl.excel.ExcelSheetReader;
+import net.geoprism.data.etl.excel.InvalidExcelFileException;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.excel.ExcelFieldContentsHandler;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
+
 public class ExcelService
 {
 
   @Request(RequestType.SESSION)
-  public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
+  public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy)
   {
     // Save the file to the file system
     try
@@ -81,6 +82,7 @@ public class ExcelService
         object.put(GeoObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
         object.put(GeoObjectImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+        object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
     
         if (startDate != null)
         {

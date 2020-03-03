@@ -1,20 +1,34 @@
 package net.geoprism.registry.etl;
 
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.runwaysdk.RunwayException;
+import com.runwaysdk.business.SmartException;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy;
 import com.runwaysdk.query.OrderBy.SortOrder;
+import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.GeoprismUser;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ETLService
 {
@@ -145,7 +159,7 @@ public class ETLService
     
     jo.put("error", new JSONObject(err.getErrorJson()));
     
-    if (err.getObjectJson() != null)
+    if (err.getObjectJson() != null && err.getObjectJson().length() > 0)
     {
       jo.put("object", new JSONObject(err.getObjectJson()));
     }

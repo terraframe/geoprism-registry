@@ -31,7 +31,9 @@ import java.util.Set;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -159,23 +161,10 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       ServerGeoObjectIF entity;
 
-      boolean isNew = false;
-
       if (geoId != null && geoId.length() > 0)
       {
-        entity = service.getGeoObjectByCode(geoId, this.configuration.getType());
-
-        if (entity == null)
-        {
-          isNew = true;
-
-          entity = service.newInstance(this.configuration.getType());
-          entity.setCode(geoId);
-        }
-        else
-        {
-          entity.lock();
-        }
+        entity = service.newInstance(this.configuration.getType());
+        entity.setCode(geoId);
 
         try
         {
@@ -204,12 +193,7 @@ public class GeoObjectImporter implements ObjectImporterIF
                 throw new InvalidGeometryException();
               }
             }
-
-            if (isNew)
-            {
-              entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-            }
-
+            
             Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
             Set<Entry<String, AttributeType>> entries = attributes.entrySet();
 
@@ -283,8 +267,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   }
 
   /**
-   * Imports a GeoObject based on the given SimpleFeature. If a matching
-   * GeoObject already exists then it is simply updated.
+   * Imports a GeoObject based on the given SimpleFeature.
    * 
    * @param feature
    * @throws Exception
@@ -336,16 +319,26 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       String geoId = this.getCode(row);
 
-      ServerGeoObjectIF entity;
+      ServerGeoObjectIF entity = null;
 
       boolean isNew = false;
 
       if (geoId != null && geoId.length() > 0)
       {
-        entity = service.getGeoObjectByCode(geoId, this.configuration.getType());
+        if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
+        {
+          entity = service.getGeoObjectByCode(geoId, this.configuration.getType());
+        }
 
         if (entity == null)
         {
+          if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY))
+          {
+            DataNotFoundException ex = new DataNotFoundException();
+            ex.setDataIdentifier(geoId);
+            throw ex;
+          }
+          
           isNew = true;
 
           entity = service.newInstance(this.configuration.getType());

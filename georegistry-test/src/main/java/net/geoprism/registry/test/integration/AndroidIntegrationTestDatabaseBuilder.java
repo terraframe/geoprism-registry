@@ -55,6 +55,6 @@ public class AndroidIntegrationTestDatabaseBuilder
   {
     data.newTestGeoObjectInfo("Utah", data.STATE).delete();
     data.newTestGeoObjectInfo("California", data.STATE).delete();
-    data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.DISTRICT).apply();
+    data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.DISTRICT).apply(null);
   }
 }

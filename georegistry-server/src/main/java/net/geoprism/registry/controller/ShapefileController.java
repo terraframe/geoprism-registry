@@ -27,6 +27,7 @@ import java.util.TimeZone;
 
 import net.geoprism.DataUploaderDTO;
 import net.geoprism.registry.etl.DataImportJob;
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ShapefileService;
 
@@ -56,7 +57,7 @@ public class ShapefileController
   }
 
   @Endpoint(url = "get-shapefile-configuration", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
+  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {
@@ -67,8 +68,10 @@ public class ShapefileController
 
       Date sDate = startDate != null ? format.parse(startDate) : null;
       Date eDate = endDate != null ? format.parse(endDate) : null;
+      
+      ImportStrategy strategy = ImportStrategy.valueOf(sStrategy);
 
-      JSONObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
+      JSONObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream, strategy);
 
       // object.add("options", service.getOptions(request.getSessionId()));
       // object.put("classifiers", new

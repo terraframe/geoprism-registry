@@ -25,10 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import net.geoprism.registry.etl.DataImportJob;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.ExcelService;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,6 +39,10 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.ExcelService;
+
 @Controller(url = "excel")
 public class ExcelImportController
 {
@@ -54,7 +54,7 @@ public class ExcelImportController
   }
 
   @Endpoint(url = "get-configuration", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
+  public ResponseIF getConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {
@@ -65,8 +65,10 @@ public class ExcelImportController
 
       Date sDate = startDate != null ? format.parse(startDate) : null;
       Date eDate = endDate != null ? format.parse(endDate) : null;
+      
+      ImportStrategy strategy = ImportStrategy.valueOf(sStrategy);
 
-      JSONObject configuration = service.getExcelConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
+      JSONObject configuration = service.getExcelConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream, strategy);
 
       // object.add("options", service.getOptions(request.getSessionId()));
       // object.put("classifiers", new
