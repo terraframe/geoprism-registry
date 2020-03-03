@@ -346,71 +346,79 @@ export class RegistryService {
             .toPromise();
     }
 
-    // getScheduledJobs(): Promise<ScheduledJob[]> {
-    getScheduledJobs(): ScheduledJob[] {
+    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<ScheduledJob[]> {
+
         let params: HttpParams = new HttpParams();
+        params = params.set('pageSize', pageSize.toString());
+        params = params.set('pageNumber', pageNumber.toString());
+        params = params.set('sortAttr', sortAttr);
+        params = params.set('isAscending', isAscending.toString());
 
-        return [
-            { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-                "stepConfig": {"steps": [
-                    {"label":"File Import", "complete":true, "enabled":false},
-                    {"label":"Field Matching", "complete":true, "enabled":false},
-                    {"label":"Staging", "complete":false, "enabled":true},
-                    {"label":"Validation", "complete":false, "enabled":false}]
-                }},
-                { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-                "stepConfig": {"steps": [
-                        {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Matching", "complete":false, "enabled":true},
-                        {"label":"Staging", "complete":false, "enabled":false},
-                        {"label":"Validation", "complete":false, "enabled":false}] 
-                }},
-                { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-                "stepConfig": {"steps": [
-                        {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Matching", "complete":true, "enabled":false},
-                        {"label":"Staging", "complete":true, "enabled":false},
-                        {"label":"Validation", "complete":false, "enabled":true}] 
-                }}
-            ]
+        // return [
+        //     { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+        //         "stepConfig": {"steps": [
+        //             {"label":"File Import", "complete":true, "enabled":false},
+        //             {"label":"Field Matching", "complete":true, "enabled":false},
+        //             {"label":"Staging", "complete":false, "enabled":true},
+        //             {"label":"Validation", "complete":false, "enabled":false}]
+        //         }},
+        //         { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+        //         "stepConfig": {"steps": [
+        //                 {"label":"File Import", "complete":true, "enabled":false},
+        //                 {"label":"Field Matching", "complete":false, "enabled":true},
+        //                 {"label":"Staging", "complete":false, "enabled":false},
+        //                 {"label":"Validation", "complete":false, "enabled":false}] 
+        //         }},
+        //         { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+        //         "stepConfig": {"steps": [
+        //                 {"label":"File Import", "complete":true, "enabled":false},
+        //                 {"label":"Field Matching", "complete":true, "enabled":false},
+        //                 {"label":"Staging", "complete":true, "enabled":false},
+        //                 {"label":"Validation", "complete":false, "enabled":true}] 
+        //         }}
+        //     ]
 
-        // return this.http
-        //     .get<ScheduledJob[]>( acp + '/registry/jobs', { params: params } )
-        //     .toPromise();
+        return this.http
+            .get<ScheduledJob[]>( acp + '/etl/get-active', { params: params } )
+            .toPromise();
     }
 
-     // getScheduledJobs(): Promise<ScheduledJob[]> {
-    getCompletedScheduledJobs(): ScheduledJob[] {
+    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<ScheduledJob[]> {
+
         let params: HttpParams = new HttpParams();
+        params = params.set('pageSize', pageSize.toString());
+        params = params.set('pageNumber', pageNumber.toString());
+        params = params.set('sortAttr', sortAttr);
+        params = params.set('isAscending', isAscending.toString());
 
-        return [
-              { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-                "stepConfig": {"steps": [
-                    {"label":"File Import", "complete":true, "enabled":false},
-                    {"label":"Field Matching", "complete":true, "enabled":false},
-                    {"label":"Staging", "complete":false, "enabled":true},
-                    {"label":"Validation", "complete":false, "enabled":false}]
-                }},
-                { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-                "stepConfig": {"steps": [
-                        {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Matching", "complete":false, "enabled":true},
-                        {"label":"Staging", "complete":false, "enabled":false},
-                        {"label":"Validation", "complete":false, "enabled":false}] 
-                }},
-                { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-                "stepConfig": {"steps": [
-                        {"label":"File Import", "complete":true, "enabled":false},
-                        {"label":"Field Matching", "complete":true, "enabled":false},
-                        {"label":"Staging", "complete":true, "enabled":false},
-                        {"label":"Validation", "complete":false, "enabled":true}] 
-                }}
+        // return [
+        //       { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+        //         "stepConfig": {"steps": [
+        //             {"label":"File Import", "complete":true, "enabled":false},
+        //             {"label":"Field Matching", "complete":true, "enabled":false},
+        //             {"label":"Staging", "complete":false, "enabled":true},
+        //             {"label":"Validation", "complete":false, "enabled":false}]
+        //         }},
+        //         { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+        //         "stepConfig": {"steps": [
+        //                 {"label":"File Import", "complete":true, "enabled":false},
+        //                 {"label":"Field Matching", "complete":false, "enabled":true},
+        //                 {"label":"Staging", "complete":false, "enabled":false},
+        //                 {"label":"Validation", "complete":false, "enabled":false}] 
+        //         }},
+        //         { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
+        //         "stepConfig": {"steps": [
+        //                 {"label":"File Import", "complete":true, "enabled":false},
+        //                 {"label":"Field Matching", "complete":true, "enabled":false},
+        //                 {"label":"Staging", "complete":true, "enabled":false},
+        //                 {"label":"Validation", "complete":false, "enabled":true}] 
+        //         }}
             
-            ]
+        //     ]
 
-        // return this.http
-        //     .get<ScheduledJob[]>( acp + '/registry/jobs', { params: params } )
-        //     .toPromise();
+        return this.http
+            .get<ScheduledJob[]>( acp + '/etl/get-completed', { params: params } )
+            .toPromise();
     }
 
     // getScheduledJob(): Promise<ScheduledJob[]> {

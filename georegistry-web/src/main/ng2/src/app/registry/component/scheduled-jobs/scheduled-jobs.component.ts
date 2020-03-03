@@ -40,16 +40,14 @@ export class ScheduledJobsComponent implements OnInit {
 
     ngOnInit(): void {
 
-        // this.service.getScheduledJobs().then( response => {
+        this.service.getScheduledJobs(1, 1, "createDate", true).then( response => {
 
-        //     this.jobs = response;
+            this.jobs = response;
 
-        // } ).catch(( err: HttpErrorResponse ) => {
-        //     this.error( err );
-        // } );
-
-        this.jobs = this.service.getScheduledJobs();
-
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+        
     }
 
 
