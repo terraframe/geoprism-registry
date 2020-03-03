@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -40,11 +40,14 @@ import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
+import net.geoprism.registry.io.LookupType;
+import net.geoprism.registry.io.ParentCodeException;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.postgres.CodeRestriction;
@@ -81,19 +84,19 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
-  protected static final String ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
-  
-  protected GeoObjectImportConfiguration configuration;
+  protected static final String            ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
 
-  protected ServerGeoObjectService service;
-  
+  protected GeoObjectImportConfiguration   configuration;
+
+  protected ServerGeoObjectService         service;
+
   protected Map<String, ServerGeoObjectIF> parentCache;
-  
-  protected static final String parentConcatToken = "&";
-  
-  protected ImportProgressListenerIF progressListener;
-  
-  protected FormatSpecificImporterIF formatImporter;
+
+  protected static final String            parentConcatToken = "&";
+
+  protected ImportProgressListenerIF       progressListener;
+
+  protected FormatSpecificImporterIF       formatImporter;
 
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
@@ -101,16 +104,19 @@ public class GeoObjectImporter implements ObjectImporterIF
     this.progressListener = progressListener;
     this.service = new ServerGeoObjectService();
     this.parentCache = new HashMap<String, ServerGeoObjectIF>();
-    
+
     final int MAX_ENTRIES = 10000; // The size of our parentCache
-    this.parentCache = new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES+1, .75F, true) {
+    this.parentCache = new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
+    {
       private static final long serialVersionUID = 1L;
-        public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest) {
-            return size() > MAX_ENTRIES;
-        }
+
+      public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
+      {
+        return size() > MAX_ENTRIES;
+      }
     };
   }
-  
+
   public FormatSpecificImporterIF getFormatSpecificImporter()
   {
     return formatImporter;
@@ -125,14 +131,14 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     return configuration;
   }
-  
+
   @Transaction
   public void validateRow(FeatureRow row)
   {
     try
     {
       int beforeProbCount = this.progressListener.getValidationProblems().size();
-      
+
       /*
        * 1. Check for location problems
        */
@@ -142,7 +148,10 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
       else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
       {
-        this.getParent(row);
+        if (!this.configuration.getParentLookupType().equals(LookupType.CODE))
+        {
+          this.getParent(row);
+        }
       }
 
       /*
@@ -160,63 +169,67 @@ public class GeoObjectImporter implements ObjectImporterIF
         try
         {
           entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
-  
+
           Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
           LocalizedValue entityName = this.getName(row);
-  
+
           if (entityName != null && this.hasValue(entityName))
           {
             entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
-  
+
             if (geometry != null)
             {
-              // TODO : We should be able to check the CRS here and throw a specific invalid CRS error if it's not what we expect.
-              // For some reason JTS always returns 0 when we call geometry.getSRID().
+              // TODO : We should be able to check the CRS here and throw a
+              // specific invalid CRS error if it's not what we expect.
+              // For some reason JTS always returns 0 when we call
+              // geometry.getSRID().
               if (geometry.isValid())
               {
                 entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
               }
               else
               {
-  //              throw new SridException();
+                // throw new SridException();
                 throw new InvalidGeometryException();
               }
             }
-  
+            
             Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
             Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-  
+
             for (Entry<String, AttributeType> entry : entries)
             {
               String attributeName = entry.getKey();
-  
+
               if (!attributeName.equals(GeoObject.CODE))
               {
                 ShapefileFunction function = this.configuration.getFunction(attributeName);
-  
+
                 if (function != null)
                 {
                   Object value = function.getValue(row);
-  
+
                   if (value != null)
                   {
                     AttributeType attributeType = entry.getValue();
-  
+
                     this.setValue(entity, attributeType, attributeName, value);
                   }
                 }
               }
             }
-            
-            GeoObjectOverTime go = entity.toGeoObjectOverTime(); 
+
+            GeoObjectOverTime go = entity.toGeoObjectOverTime();
             go.toJSON().toString();
-            
-            // We must ensure that any problems created during the transaction are
+
+            // We must ensure that any problems created during the transaction
+            // are
             // logged now instead of when the request returns. As such, if any
-            // problems exist immediately throw a ProblemException so that normal
+            // problems exist immediately throw a ProblemException so that
+            // normal
             // exception handling can occur.
             List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
-            
+
             List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
             for (ProblemIF problem : problems)
             {
@@ -234,10 +247,10 @@ public class GeoObjectImporter implements ObjectImporterIF
           entity.unlock();
         }
       }
-      
+
       if (beforeProbCount == this.progressListener.getValidationProblems().size())
       {
-        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()+1);
+        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
       }
     }
     catch (IgnoreRowException e)
@@ -249,8 +262,8 @@ public class GeoObjectImporter implements ObjectImporterIF
       RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress());
       this.progressListener.addValidationProblem(problem);
     }
-    
-    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress()+1);
+
+    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
   }
 
   /**
@@ -270,24 +283,24 @@ public class GeoObjectImporter implements ObjectImporterIF
       this.recordError(e);
     }
   }
-  
+
   @Transaction
   private void recordError(RecordedErrorException e)
   {
     this.progressListener.recordError(e.getError(), e.getObjectJson(), e.getObjectType());
-    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress()+1);
+    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
     this.configuration.addException(e);
   }
-  
+
   @Transaction
   public void importRowInTrans(FeatureRow row)
   {
     String goJson = null;
-    
+
     try
     {
       int beforeProbCount = this.progressListener.getValidationProblems().size();
-      
+
       ServerGeoObjectIF parent = null;
 
       /*
@@ -347,15 +360,17 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           if (geometry != null)
           {
-            // TODO : We should be able to check the CRS here and throw a specific invalid CRS error if it's not what we expect.
-            // For some reason JTS always returns 0 when we call geometry.getSRID().
+            // TODO : We should be able to check the CRS here and throw a
+            // specific invalid CRS error if it's not what we expect.
+            // For some reason JTS always returns 0 when we call
+            // geometry.getSRID().
             if (geometry.isValid())
             {
               entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
             }
             else
             {
-//              throw new SridException();
+              // throw new SridException();
               throw new InvalidGeometryException();
             }
           }
@@ -389,8 +404,8 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
           }
-          
-          GeoObjectOverTime go = entity.toGeoObjectOverTime(); 
+
+          GeoObjectOverTime go = entity.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
 
           entity.apply(true);
@@ -412,7 +427,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           // problems exist immediately throw a ProblemException so that normal
           // exception handling can occur.
           List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
-          
+
           List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
           for (ProblemIF problem : problems)
           {
@@ -425,17 +440,17 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
         }
       }
-      
+
       if (beforeProbCount == this.progressListener.getValidationProblems().size())
       {
-        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()+1);
+        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
       }
     }
     catch (IgnoreRowException e)
     {
       // Do nothing
     }
-    catch(Throwable t)
+    catch (Throwable t)
     {
       RecordedErrorException re = new RecordedErrorException();
       re.setError(t);
@@ -443,10 +458,10 @@ public class GeoObjectImporter implements ObjectImporterIF
       re.setObjectType(ERROR_OBJECT_TYPE);
       throw re;
     }
-    
-    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress()+1);
+
+    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
   }
-  
+
   private boolean hasValue(LocalizedValue value)
   {
     String defaultLocale = value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
@@ -500,7 +515,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     ServerGeoObjectIF parent = null;
 
     JsonArray context = new JsonArray();
-    
+
     ArrayList<String> parentKeyBuilder = new ArrayList<String>();
 
     for (Location location : locations)
@@ -510,32 +525,40 @@ public class GeoObjectImporter implements ObjectImporterIF
       if (label != null)
       {
         String key = parent != null ? parent.getCode() + "-" + label : label.toString();
-        
+
         parentKeyBuilder.add(label.toString());
 
         if (this.configuration.isExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, key))
         {
           throw new IgnoreRowException();
         }
-        
+
         // Check the parent cache
         String parentChainKey = StringUtils.join(parentKeyBuilder, parentConcatToken);
         if (this.parentCache.containsKey(parentChainKey))
         {
           parent = this.parentCache.get(parentChainKey);
-          
+
           JsonObject element = new JsonObject();
           element.addProperty("label", label.toString());
           element.addProperty("type", location.getType().getLabel().getValue());
 
           context.add(element);
-          
+
           continue;
         }
 
         // Search
         ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
-        query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), parent, this.configuration.getHierarchy()));
+
+        if (this.configuration.getParentLookupType().equals(LookupType.CODE))
+        {
+          query.setRestriction(new ServerCodeRestriction(label.toString()));
+        }
+        else
+        {
+          query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), parent, this.configuration.getHierarchy()));
+        }
 
         try
         {
@@ -551,7 +574,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             element.addProperty("type", location.getType().getLabel().getValue());
 
             context.add(element);
-            
+
             this.parentCache.put(parentChainKey, parent);
           }
           else
@@ -570,7 +593,19 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
 
-            this.progressListener.addValidationProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
+            if (this.configuration.getParentLookupType().equals(LookupType.CODE))
+            {
+              final ParentCodeException ex = new ParentCodeException();
+              ex.setParentCode(label.toString());
+              ex.setParentType(location.getType().getLabel().getValue());
+              ex.setContext(context.toString());
+
+              throw ex;
+            }
+            else
+            {
+              this.progressListener.addValidationProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
+            }
 
             return null;
           }
@@ -690,7 +725,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     }
   }
-  
+
   protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
   {
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))

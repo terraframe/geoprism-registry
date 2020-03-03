@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -28,17 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
-
-import net.geoprism.data.importer.BasicColumnFunction;
-import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.etl.GeoObjectLocationProblem;
-import net.geoprism.registry.etl.ImportConfiguration;
-import net.geoprism.registry.etl.TermProblem;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.service.ServiceFactory;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -55,73 +44,85 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.service.ServiceFactory;
+
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {
-  public static final String             PARENT_EXCLUSION  = "##PARENT##";
+  public static final String       PARENT_EXCLUSION   = "##PARENT##";
 
-  public static final String             START_DATE        = "startDate";
+  public static final String       START_DATE         = "startDate";
 
-  public static final String             END_DATE          = "endDate";
+  public static final String       END_DATE           = "endDate";
 
-  public static final String             TARGET            = "target";
+  public static final String       TARGET             = "target";
 
-  public static final String             BASE_TYPE         = "baseType";
+  public static final String       BASE_TYPE          = "baseType";
 
-  public static final String             TEXT              = "text";
+  public static final String       TEXT               = "text";
 
-  public static final String             LATITUDE          = "latitude";
+  public static final String       LATITUDE           = "latitude";
 
-  public static final String             LONGITUDE         = "longitude";
+  public static final String       LONGITUDE          = "longitude";
 
-  public static final String             NUMERIC           = "numeric";
+  public static final String       NUMERIC            = "numeric";
 
-  public static final String             HIERARCHIES       = "hierarchies";
+  public static final String       HIERARCHIES        = "hierarchies";
 
-  public static final String             HIERARCHY         = "hierarchy";
+  public static final String       HIERARCHY          = "hierarchy";
 
-  public static final String             LOCATIONS         = "locations";
+  public static final String       LOCATIONS          = "locations";
 
-  public static final String             TYPE              = "type";
+  public static final String       TYPE               = "type";
 
-  public static final String             HAS_POSTAL_CODE   = "hasPostalCode";
+  public static final String       HAS_POSTAL_CODE    = "hasPostalCode";
 
-  public static final String             POSTAL_CODE       = "postalCode";
+  public static final String       POSTAL_CODE        = "postalCode";
 
-  public static final String             SHEET             = "sheet";
+  public static final String       SHEET              = "sheet";
 
-  public static final String             EXCLUSIONS        = "exclusions";
+  public static final String       EXCLUSIONS         = "exclusions";
 
-  public static final String             VALUE             = "value";
-  
-  public static final String             LONGITUDE_KEY     = "georegistry.longitude.label";
+  public static final String       VALUE              = "value";
 
-  public static final String             LATITUDE_KEY      = "georegistry.latitude.label";
+  public static final String       LONGITUDE_KEY      = "georegistry.longitude.label";
 
-  public static final String             DATE_FORMAT       = "yyyy-MM-dd";
+  public static final String       LATITUDE_KEY       = "georegistry.latitude.label";
 
-  private ServerGeoObjectType            type;
+  public static final String       DATE_FORMAT        = "yyyy-MM-dd";
 
-  private GeoObject                      root;
+  public static final String       PARENT_LOOKUP_TYPE = "parentLookupType";
 
-  private Map<String, Set<String>>       exclusions;
+  private ServerGeoObjectType      type;
 
-  private boolean                        includeCoordinates;
+  private GeoObject                root;
 
-  private List<Location>                 locations;
+  private Map<String, Set<String>> exclusions;
 
-  private ServerHierarchyType            hierarchy;
+  private boolean                  includeCoordinates;
 
-  private Boolean                        postalCode;
+  private List<Location>           locations;
 
-  private Date                           startDate;
+  private ServerHierarchyType      hierarchy;
 
-  private Date                           endDate;
-  
+  private Boolean                  postalCode;
+
+  private Date                     startDate;
+
+  private Date                     endDate;
+
+  private LookupType               parentLookupType;
+
   public GeoObjectImportConfiguration()
   {
     this.includeCoordinates = false;
@@ -129,8 +130,9 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
     this.postalCode = false;
+    this.parentLookupType = LookupType.ALL;
   }
-  
+
   public boolean isIncludeCoordinates()
   {
     return includeCoordinates;
@@ -241,14 +243,24 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.postalCode = postalCode;
   }
 
+  public LookupType getParentLookupType()
+  {
+    return parentLookupType;
+  }
+
+  public void setParentLookupType(LookupType parentLookupType)
+  {
+    this.parentLookupType = parentLookupType;
+  }
+
   @Request
   @Override
   public JSONObject toJSON()
   {
     JSONObject config = new JSONObject();
-    
+
     super.toJSON(config);
-    
+
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -292,6 +304,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     config.put(GeoObjectImportConfiguration.TYPE, type);
     config.put(GeoObjectImportConfiguration.LOCATIONS, locations);
     config.put(GeoObjectImportConfiguration.POSTAL_CODE, this.isPostalCode());
+    config.put(GeoObjectImportConfiguration.PARENT_LOOKUP_TYPE, this.getParentLookupType().name());
 
     if (this.getStartDate() != null)
     {
@@ -332,7 +345,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public GeoObjectImportConfiguration fromJSON(String json, boolean includeCoordinates)
   {
     super.fromJSON(json);
-    
+
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -346,6 +359,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.setType(got);
     this.setIncludeCoordinates(includeCoordinates);
     this.setPostalCode(config.has(POSTAL_CODE) && config.getBoolean(POSTAL_CODE));
+    this.setParentLookupType(config.has(PARENT_LOOKUP_TYPE) ? LookupType.valueOf(config.getString(PARENT_LOOKUP_TYPE)) : LookupType.ALL);
 
     try
     {
@@ -377,10 +391,17 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
         GeoObjectType rootType = ancestors.get(0);
         GeoObjectQuery query = new GeoObjectQuery(ServerGeoObjectType.get(rootType));
-//        GeoObject root = query.getSingleResult();
-        GeoObject root = query.getIterator().next();
-
-        this.setRoot(root);
+        
+        if (query.getCount() > 0)
+        {
+          GeoObject root = query.getIterator().next();
+  
+          this.setRoot(root);
+        }
+        else
+        {
+          this.setRoot(null);
+        }
       }
     }
 
@@ -443,7 +464,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
     return this;
   }
-  
+
   @Override
   public void validate()
   {
