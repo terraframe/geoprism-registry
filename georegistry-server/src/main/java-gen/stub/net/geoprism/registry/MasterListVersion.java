@@ -833,41 +833,41 @@ public class MasterListVersion extends MasterListVersionBase
 
   private String getPeriod(MasterList masterlist, SimpleDateFormat format)
   {
-    ServerGeoObjectType type = masterlist.getGeoObjectType();
-
-    FrequencyType frequency = type.getFrequency();
-
-    if (frequency.equals(FrequencyType.ANNUAL))
-    {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-      calendar.setTime(this.getForDate());
-
-      return Integer.toString(calendar.get(Calendar.YEAR));
-    }
-    else if (frequency.equals(FrequencyType.QUARTER))
-    {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-      calendar.setTime(this.getForDate());
-
-      int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
-
-      return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
-    }
-    else if (frequency.equals(FrequencyType.MONTHLY))
-    {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-      calendar.setTime(this.getForDate());
-      calendar.set(Calendar.DAY_OF_MONTH, 1);
-
-      Date startOfWeek = calendar.getTime();
-
-      calendar.add(Calendar.MONTH, 1);
-      calendar.add(Calendar.DAY_OF_YEAR, -1);
-
-      Date endOfWeek = calendar.getTime();
-
-      return format.format(startOfWeek) + " - " + format.format(endOfWeek);
-    }
+//    ServerGeoObjectType type = masterlist.getGeoObjectType();
+//
+//    FrequencyType frequency = type.getFrequency();
+//
+//    if (frequency.equals(FrequencyType.ANNUAL))
+//    {
+//      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+//      calendar.setTime(this.getForDate());
+//
+//      return Integer.toString(calendar.get(Calendar.YEAR));
+//    }
+//    else if (frequency.equals(FrequencyType.QUARTER))
+//    {
+//      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+//      calendar.setTime(this.getForDate());
+//
+//      int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
+//
+//      return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
+//    }
+//    else if (frequency.equals(FrequencyType.MONTHLY))
+//    {
+//      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+//      calendar.setTime(this.getForDate());
+//      calendar.set(Calendar.DAY_OF_MONTH, 1);
+//
+//      Date startOfWeek = calendar.getTime();
+//
+//      calendar.add(Calendar.MONTH, 1);
+//      calendar.add(Calendar.DAY_OF_YEAR, -1);
+//
+//      Date endOfWeek = calendar.getTime();
+//
+//      return format.format(startOfWeek) + " - " + format.format(endOfWeek);
+//    }
 
     return format.format(this.getForDate());
   }

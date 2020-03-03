@@ -46,7 +46,6 @@ export class GeoObjectType {
     label: LocalizedValue;
     description: LocalizedValue;
     geometryType: string;
-    frequency: string;
     isLeaf: boolean;
     isGeometryEditable: boolean;
     attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];

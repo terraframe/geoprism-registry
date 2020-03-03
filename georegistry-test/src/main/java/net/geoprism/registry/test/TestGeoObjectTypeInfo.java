@@ -64,8 +64,6 @@ public class TestGeoObjectTypeInfo
     
     private ServerGeoObjectType         serverObject;
     
-    private FrequencyType             frequency;
-
     protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey)
     {
       initialize(testDataSet, genKey, GeometryType.MULTIPOLYGON);
@@ -85,7 +83,6 @@ public class TestGeoObjectTypeInfo
       this.children = new LinkedList<TestGeoObjectTypeInfo>();
       this.geomType = geomType;
       this.isLeaf = false; // Leaf types are not supported anymore
-      this.frequency = FrequencyType.DAILY;
     }
 
     public String getCode()
@@ -208,7 +205,7 @@ public class TestGeoObjectTypeInfo
         System.out.println("Applying TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
 
-      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, frequency, this.testDataSet.adapter);
+      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, this.testDataSet.adapter);
 //      ServerGeoObjectType type = new ServerGeoObjectTypeBuilder().create(got);
       this.serverObject = new ServerGeoObjectTypeConverter().create(got);
 
