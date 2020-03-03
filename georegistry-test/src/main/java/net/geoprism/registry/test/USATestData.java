@@ -4,20 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
+import java.util.Date;
 import java.util.Locale;
 
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -29,7 +30,6 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -75,7 +75,7 @@ public class USATestData extends TestDataSet
   public final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(this, "WashingtonDistrictTwo", DISTRICT);
 
   public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(this, "CANADA", COUNTRY);
-  
+
   /**
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
@@ -93,6 +93,8 @@ public class USATestData extends TestDataSet
   public final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(this, "Mexico State One", MEXICO_STATE);
 
   public final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(this, "Mexico State Two", MEXICO_STATE);
+
+  private Date                       date;
 
   {
     managedGeoObjectTypeInfos.add(COUNTRY);
@@ -121,7 +123,7 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(MEXICO_STATE_ONE);
     managedGeoObjectInfos.add(MEXICO_STATE_TWO);
   }
-  
+
   public static USATestData newTestDataForClass()
   {
     return newTestDataForClass(true);
@@ -129,12 +131,17 @@ public class USATestData extends TestDataSet
 
   public static USATestData newTestDataForClass(Boolean includeData)
   {
+    return newTestDataForClass(includeData, null);
+  }
+
+  public static USATestData newTestDataForClass(Boolean includeData, Date date)
+  {
     LocalProperties.setSkipCodeGenAndCompile(true);
     GeoserverFacade.setService(new NullGeoserverService());
 
     TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
 
-    USATestData data = new USATestData(adapter, includeData);
+    USATestData data = new USATestData(adapter, includeData, date);
 
     return data;
   }
@@ -147,12 +154,18 @@ public class USATestData extends TestDataSet
   @Request
   public static USATestData newTestData(boolean includeData)
   {
+    return USATestData.newTestData(includeData, null);
+  }
+
+  @Request
+  public static USATestData newTestData(boolean includeData, Date date)
+  {
     LocalProperties.setSkipCodeGenAndCompile(true);
     GeoserverFacade.setService(new NullGeoserverService());
 
     TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
 
-    USATestData data = new USATestData(adapter, includeData);
+    USATestData data = new USATestData(adapter, includeData, date);
     // data.setDebugMode(2);
     data.setUp();
 
@@ -173,10 +186,11 @@ public class USATestData extends TestDataSet
     return data;
   }
 
-  public USATestData(TestRegistryAdapterClient adapter, boolean includeData)
+  public USATestData(TestRegistryAdapterClient adapter, boolean includeData, Date date)
   {
     this.adapter = adapter;
     this.includeData = includeData;
+    this.date = date;
   }
 
   @Transaction
@@ -188,7 +202,7 @@ public class USATestData extends TestDataSet
       uni.apply();
     }
   }
-  
+
   @Transaction
   @Override
   public void setUpClassRelationships()
@@ -214,14 +228,14 @@ public class USATestData extends TestDataSet
     {
       for (TestGeoObjectInfo geo : managedGeoObjectInfos)
       {
-        geo.apply();
+        geo.apply(this.date);
       }
     }
 
     adminSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
   }
-  
+
   @Transaction
   @Override
   public void setUpRelationships()
@@ -247,7 +261,7 @@ public class USATestData extends TestDataSet
       MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, LocatedIn);
     }
   }
-  
+
   @Transaction
   @Override
   protected void setUpAfterApply()
@@ -256,7 +270,7 @@ public class USATestData extends TestDataSet
     {
       for (TestGeoObjectInfo geo : managedGeoObjectInfos)
       {
-        geo.apply();
+        geo.apply(this.date);
       }
     }
   }
@@ -265,11 +279,13 @@ public class USATestData extends TestDataSet
   @Override
   public void cleanUpClassInTrans()
   {
-//    if (STATE.getUniversal() != null && DISTRICT.getUniversal() != null)
-//    {
-//      ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
-//      hierarchyType.removeParentReferenceToLeafType(STATE.getUniversal(), DISTRICT.getUniversal());
-//    }
+    // if (STATE.getUniversal() != null && DISTRICT.getUniversal() != null)
+    // {
+    // ServerHierarchyType hierarchyType =
+    // ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    // hierarchyType.removeParentReferenceToLeafType(STATE.getUniversal(),
+    // DISTRICT.getUniversal());
+    // }
 
     super.cleanUpClassInTrans();
   }
