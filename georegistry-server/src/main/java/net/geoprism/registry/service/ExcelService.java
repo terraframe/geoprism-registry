@@ -44,6 +44,8 @@ import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
@@ -85,6 +87,8 @@ public class ExcelService
         object.put(GeoObjectImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
         object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
+        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
+        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
     
         if (startDate != null)
         {
@@ -134,16 +138,6 @@ public class ExcelService
     }
 
     return type;
-  }
-
-  @Request(RequestType.SESSION)
-  public void cancelImport(String sessionId, String json)
-  {
-    ImportConfiguration config = ImportConfiguration.build(json);
-
-    String id = config.getVaultFileId();
-    
-    VaultFile.get(id).delete();
   }
 
   @Request(RequestType.SESSION)

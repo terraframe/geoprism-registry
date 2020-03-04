@@ -387,12 +387,12 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
   private FrequencyType getFrequency(MdGeoVertexDAO mdVertex)
   {
-    if (mdVertex != null)
-    {
-      String name = mdVertex.getFrequency();
-
-      return FrequencyType.valueOf(name);
-    }
+//    if (mdVertex != null)
+//    {
+//      String name = mdVertex.getFrequency();
+//
+//      return FrequencyType.valueOf(name);
+//    }
 
     // Special case for root
     return FrequencyType.ANNUAL;

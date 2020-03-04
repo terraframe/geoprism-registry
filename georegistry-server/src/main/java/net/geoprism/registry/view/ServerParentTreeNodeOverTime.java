@@ -187,7 +187,12 @@ public class ServerParentTreeNodeOverTime
 
         JsonObject object = new JsonObject();
         object.addProperty("startDate", format.format(node.getDate()));
-        object.addProperty("endDate", format.format(node.getEndDate()));
+        
+        if (node.getEndDate() != null)
+        {
+          object.addProperty("endDate", format.format(node.getEndDate()));
+        }
+        
         object.add("parents", pArray);
 
         entries.add(object);

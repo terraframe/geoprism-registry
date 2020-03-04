@@ -1,20 +1,10 @@
 package net.geoprism.registry.etl;
 
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.runwaysdk.RunwayException;
-import com.runwaysdk.business.SmartException;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.OrderBy;
 import com.runwaysdk.query.OrderBy.SortOrder;
-import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -25,13 +15,19 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.GeoprismUser;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class ETLService
 {
+  @Request(RequestType.SESSION)
+  public void cancelImport(String sessionId, String json)
+  {
+    ImportConfiguration config = ImportConfiguration.build(json);
+
+    String id = config.getVaultFileId();
+    
+    VaultFile.get(id).delete();
+  }
+  
   @Request(RequestType.SESSION)
   public JSONObject doImport(String sessionId, String json)
   {
@@ -151,6 +147,66 @@ public class ETLService
     }
     
     return ja;
+  }
+  
+  @Request(RequestType.SESSION)
+  public JSONArray getValidationProblems(String sessionId, String historyId, int pageSize, int pageNumber)
+  {
+    JSONArray paginatedValidationProblems = new JSONArray();
+    
+    ImportHistory hist = ImportHistory.get(historyId);
+    
+    JSONArray allValidationProblems = new JSONArray(hist.getValidationProblems());
+    
+    for (int recordNum = 1; recordNum <= pageSize; ++recordNum)
+    {
+      int index = recordNum-1 + ((pageNumber-1)*pageSize);
+      
+      if (index < allValidationProblems.length())
+      {
+        paginatedValidationProblems.put(allValidationProblems.get(index));
+      }
+      else
+      {
+        break;
+      }
+    }
+    
+    return paginatedValidationProblems;
+  }
+  
+  @Request(RequestType.SESSION)
+  public JSONObject getImportDetails(String sessionId, String historyId, int pageSize, int pageNumber)
+  {
+    ImportHistory hist = ImportHistory.get(historyId);
+    DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+    GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+    
+    JSONObject jo = this.serializeHistory(hist, user);
+    
+    JSONObject errors = new JSONObject();
+    
+    errors.put("pageSize", pageSize);
+    errors.put("pageNumber", pageNumber);
+    
+    if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
+    {
+      errors.put("type", "ImportErrors");
+      
+      errors.put("page", this.getImportErrors(sessionId, historyId, pageSize, pageNumber));
+      
+      jo.put("errors", errors);
+    }
+    else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE) && hist.getValidationProblems().length() > 0)
+    {
+      errors.put("type", "ValidationErrors");
+      
+      errors.put("page", this.getValidationProblems(sessionId, historyId, pageSize, pageNumber));
+      
+      jo.put("errors", errors);
+    }
+    
+    return jo;
   }
   
   protected JSONObject serializeImportError(ImportError err)

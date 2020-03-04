@@ -11,6 +11,7 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 @Controller(url = "etl")
@@ -68,11 +69,27 @@ public class ETLController
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-errors")
-  public ResponseIF getImportErrors(String sessionId, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  public ResponseIF getImport(String sessionId, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
     JSONArray config = this.service.getImportErrors(sessionId, historyId, pageSize, pageNumber);
     
     return new RestBodyResponse(config.toString());
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-import-details")
+  public ResponseIF getImportDetails(String sessionId, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  {
+    JSONObject details = this.service.getImportDetails(sessionId, historyId, pageSize, pageNumber);
+    
+    return new RestBodyResponse(details.toString());
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "cancel-import")
+  public ResponseIF cancelImport(String sessionId, @RequestParamter(name = "config") String config)
+  {
+    this.service.cancelImport(sessionId, config);
+    
+    return new RestResponse();
   }
   
 }
