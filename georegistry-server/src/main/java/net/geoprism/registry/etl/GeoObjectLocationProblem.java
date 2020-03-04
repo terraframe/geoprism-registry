@@ -18,12 +18,11 @@
  */
 package net.geoprism.registry.etl;
 
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.google.gson.JsonArray;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class GeoObjectLocationProblem extends ValidationProblem
 {
@@ -33,9 +32,9 @@ public class GeoObjectLocationProblem extends ValidationProblem
 
   private String              label;
 
-  private JsonArray           context;
+  private JSONArray           context;
 
-  public GeoObjectLocationProblem(ServerGeoObjectType type, String label, ServerGeoObjectIF parent, JsonArray context)
+  public GeoObjectLocationProblem(ServerGeoObjectType type, String label, ServerGeoObjectIF parent, JSONArray context)
   {
     this.type = type;
     this.label = label;

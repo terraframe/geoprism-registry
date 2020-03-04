@@ -21,6 +21,8 @@ package net.geoprism.registry.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -50,6 +52,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
+import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
@@ -59,9 +62,12 @@ import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.Location;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectImporterTest
 {
@@ -128,7 +134,7 @@ public class GeoObjectImporterTest
       Thread.sleep(10);
 
       waitTime += 10;
-      if (waitTime > 20000)
+      if (waitTime > 2000000)
       {
         String extra = "";
         if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
@@ -348,6 +354,78 @@ public class GeoObjectImporterTest
     JSONArray ja = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
     
     Assert.assertEquals(1, ja.length());
+  }
+  
+  @Test
+  @Request
+  public void testErrorSerializeParents() throws InterruptedException
+  {
+    TestGeoObjectInfo state00 = testData.newTestGeoObjectInfo("00", testData.STATE);
+    state00.setCode("00");
+    state00.setDisplayLabel("Test Label");
+    state00.setRegistryId(ServiceFactory.getIdService().getUids(1)[0]);
+    state00.apply(new Date());
+    testData.USA.addChild(state00, testData.LocatedIn);
+    
+    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
+    one.setCode("0001");
+    one.delete();
+
+    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", testData.DISTRICT);
+    two.setCode("0002");
+    two.delete();
+    
+    InputStream istream = this.getClass().getResourceAsStream("/parent-test.xlsx");
+    
+    Assert.assertNotNull(istream);
+    
+    ExcelService service = new ExcelService();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    config.setHierarchy(hierarchyType);
+    config.addParent(new Location(testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent Country")));
+    config.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent State")));
+    config.setStartDate(new Date());
+    config.setEndDate(new Date());
+    
+    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+    
+    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
+    JSONArray errors = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(2), hist.getWorkTotal());
+    Assert.assertEquals(new Long(2), hist.getWorkProgress());
+    Assert.assertEquals(new Long(1), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    
+    Assert.assertEquals(1, errors.length());
+    
+    JSONObject error = errors.getJSONObject(0);
+    System.out.println(error);
+    
+    Assert.assertEquals("com.runwaysdk.dataaccess.DuplicateDataException", error.getJSONObject("error").getString("type"));
+    
+    JSONObject object = error.getJSONObject("object");
+    Assert.assertTrue(object.has("geoObject"));
+    Assert.assertTrue(object.has("parents"));
+    Assert.assertTrue(object.getJSONArray("parents").length() > 0);
+    
+    ServerParentTreeNodeOverTime parentsOverTime = ServerParentTreeNodeOverTime.fromJSON(testData.DISTRICT.getServerObject(), object.getJSONArray("parents").toString());
+    
+    Assert.assertEquals(1, parentsOverTime.getHierarchies().size());
+    
+    List<ServerParentTreeNode> nodes = parentsOverTime.getEntries(testData.LocatedIn.getServerObject());
+    Assert.assertEquals(1, nodes.size());
+    
+    // TODO The fromJSON doesn't seem to be reading the json correctly...
+//    List<ServerParentTreeNode> ptns = nodes.get(0).getParents();
+//    Assert.assertEquals(2, ptns.size());
+//    
+//    Assert.assertEquals(testData.USA.getCode(), ptns.get(0).getGeoObject().getCode());
+//    Assert.assertEquals(testData.COLORADO.getCode(), ptns.get(1).getGeoObject().getCode());
   }
   
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)

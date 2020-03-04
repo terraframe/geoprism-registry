@@ -2,6 +2,8 @@ package net.geoprism.registry.etl;
 
 import com.runwaysdk.RunwayException;
 
+import net.geoprism.registry.etl.GeoObjectImporter.GeoObjectParentErrorBuilder;
+
 public class RecordedErrorException extends RunwayException
 {
 
@@ -12,6 +14,8 @@ public class RecordedErrorException extends RunwayException
   private String objectJson;
   
   private String objectType;
+  
+  private GeoObjectParentErrorBuilder parentBuilder;
   
   public RecordedErrorException()
   {
@@ -48,4 +52,14 @@ public class RecordedErrorException extends RunwayException
     return objectType;
   }
 
+  public GeoObjectParentErrorBuilder getParentBuilder()
+  {
+    return parentBuilder;
+  }
+
+  public void setParentBuilder(GeoObjectParentErrorBuilder parentBuilder)
+  {
+    this.parentBuilder = parentBuilder;
+  }
+  
 }

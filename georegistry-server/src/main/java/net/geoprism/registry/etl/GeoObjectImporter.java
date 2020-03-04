@@ -28,6 +28,34 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.runwaysdk.ProblemException;
+import com.runwaysdk.ProblemIF;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.RequestState;
+import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.vividsolutions.jts.geom.Geometry;
+
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
@@ -47,6 +75,8 @@ import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
@@ -55,35 +85,12 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.NonUniqueResultException;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
-
-import org.apache.commons.lang.StringUtils;
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.runwaysdk.ProblemException;
-import com.runwaysdk.ProblemIF;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.RequestState;
-import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.vividsolutions.jts.geom.Geometry;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
+  private static final Logger logger = LoggerFactory.getLogger(GeoObjectImporter.class);
+  
   protected static final String            ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
 
   protected GeoObjectImportConfiguration   configuration;
@@ -116,6 +123,84 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     };
   }
+  
+  protected class GeoObjectParentErrorBuilder
+  {
+    protected ServerGeoObjectIF parent;
+    
+    protected ServerGeoObjectIF serverGO;
+    
+    protected GeoObjectParentErrorBuilder()
+    {
+      
+    }
+
+    public ServerGeoObjectIF getParent()
+    {
+      return this.parent;
+    }
+
+    public ServerGeoObjectIF getServerGO()
+    {
+      return this.serverGO;
+    }
+
+    public void setServerGO(ServerGeoObjectIF serverGo)
+    {
+      this.serverGO = serverGo;
+    }
+
+    public void setParent(ServerGeoObjectIF parent)
+    {
+      this.parent = parent;
+    }
+    
+    public JSONArray build()
+    {
+      JSONArray parents = new JSONArray();
+      
+      try
+      {
+        if (this.getParent() != null)
+        {
+          ServerGeoObjectIF parent = this.getParent();
+//          ServerGeoObjectIF serverGo = this.getServerGO();
+          
+          List<Location> locations = GeoObjectImporter.this.configuration.getLocations();
+          
+          String[] types = new String[locations.size()-1]; 
+          
+          for (int i = 0; i < locations.size()-1; ++i)
+          {
+            Location location = locations.get(i);
+            types[i] = location.getType().getCode();
+          }
+          
+          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
+          
+          ServerHierarchyType hierarchy = GeoObjectImporter.this.configuration.getHierarchy();
+          
+          ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
+          
+          ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate());
+          tnParent.setEndDate(GeoObjectImporter.this.configuration.getEndDate());
+          
+          tnParent.addParent(ptn);
+          
+          ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(GeoObjectImporter.this.configuration.getType());
+          parentsOverTime.add(hierarchy, tnParent);
+          
+          return new JSONArray(parentsOverTime.toJSON().toString());
+        }
+      }
+      catch (Throwable t2)
+      {
+        logger.error("Error constructing parents", t2);
+      }
+      
+      return parents;
+    }
+  };
 
   public FormatSpecificImporterIF getFormatSpecificImporter()
   {
@@ -287,7 +372,15 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   private void recordError(RecordedErrorException e)
   {
-    this.progressListener.recordError(e.getError(), e.getObjectJson(), e.getObjectType());
+    JSONObject obj = new JSONObject(e.getObjectJson());
+    
+    GeoObjectParentErrorBuilder parentBuilder = e.getParentBuilder();
+    if (parentBuilder != null)
+    {
+      obj.put("parents", parentBuilder.build());
+    }
+    
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType());
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
     this.configuration.addException(e);
   }
@@ -295,31 +388,21 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   public void importRowInTrans(FeatureRow row)
   {
+    GeoObjectOverTime go = null;
+    
     String goJson = null;
-
+    
+    ServerGeoObjectIF serverGo = null;
+    
+    ServerGeoObjectIF parent = null;
+    
+    GeoObjectParentErrorBuilder parentBuilder = new GeoObjectParentErrorBuilder();
+    
     try
     {
       int beforeProbCount = this.progressListener.getValidationProblems().size();
-
-      ServerGeoObjectIF parent = null;
-
-      /*
-       * First, try to get the parent and ensure that this row is not ignored.
-       * The getParent method will throw a IgnoreRowException if the parent is
-       * configured to be ignored.
-       */
-      if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
-      {
-        parent = this.parsePostalCode(row);
-      }
-      else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-      {
-        parent = this.getParent(row);
-      }
-
+      
       String geoId = this.getCode(row);
-
-      ServerGeoObjectIF entity = null;
 
       boolean isNew = false;
 
@@ -327,10 +410,10 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
         {
-          entity = service.getGeoObjectByCode(geoId, this.configuration.getType());
+          serverGo = service.getGeoObjectByCode(geoId, this.configuration.getType());
         }
 
-        if (entity == null)
+        if (serverGo == null)
         {
           if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY))
           {
@@ -341,22 +424,24 @@ public class GeoObjectImporter implements ObjectImporterIF
           
           isNew = true;
 
-          entity = service.newInstance(this.configuration.getType());
-          entity.setCode(geoId);
+          serverGo = service.newInstance(this.configuration.getType());
+          serverGo.setCode(geoId);
         }
         else
         {
-          entity.lock();
+          serverGo.lock();
         }
+        
+        parentBuilder.setServerGO(serverGo);
 
-        entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
+        serverGo.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
 
         Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
         LocalizedValue entityName = this.getName(row);
 
         if (entityName != null && this.hasValue(entityName))
         {
-          entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+          serverGo.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
 
           if (geometry != null)
           {
@@ -366,7 +451,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             // geometry.getSRID().
             if (geometry.isValid())
             {
-              entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
+              serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
             }
             else
             {
@@ -377,7 +462,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           if (isNew)
           {
-            entity.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+            serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
           }
 
           Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
@@ -399,24 +484,39 @@ public class GeoObjectImporter implements ObjectImporterIF
                 {
                   AttributeType attributeType = entry.getValue();
 
-                  this.setValue(entity, attributeType, attributeName, value);
+                  this.setValue(serverGo, attributeType, attributeName, value);
                 }
               }
             }
           }
 
-          GeoObjectOverTime go = entity.toGeoObjectOverTime();
+          go = serverGo.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
+          
+          /*
+           * Try to get the parent and ensure that this row is not ignored.
+           * The getParent method will throw a IgnoreRowException if the parent is
+           * configured to be ignored.
+           */
+          if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+          {
+            parent = this.parsePostalCode(row);
+          }
+          else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+          {
+            parent = this.getParent(row);
+          }
+          parentBuilder.setParent(parent);
 
-          entity.apply(true);
+          serverGo.apply(true);
 
           if (parent != null)
           {
-            parent.addChild(entity, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
+            parent.addChild(serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
           }
           else if (isNew)
           {
-            GeoEntity child = GeoEntity.getByKey(entity.getCode());
+            GeoEntity child = GeoEntity.getByKey(serverGo.getCode());
             GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
 
             child.addLink(root, this.configuration.getHierarchy().getEntityType());
@@ -452,10 +552,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
+      JSONObject obj = new JSONObject();
+      obj.put("geoObject", new JSONObject(goJson));
+      
       RecordedErrorException re = new RecordedErrorException();
       re.setError(t);
-      re.setObjectJson(goJson);
+      re.setObjectJson(obj.toString());
       re.setObjectType(ERROR_OBJECT_TYPE);
+      re.setParentBuilder(parentBuilder);
       throw re;
     }
 
@@ -514,7 +618,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     ServerGeoObjectIF parent = null;
 
-    JsonArray context = new JsonArray();
+    JSONArray context = new JSONArray();
 
     ArrayList<String> parentKeyBuilder = new ArrayList<String>();
 
@@ -539,11 +643,11 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           parent = this.parentCache.get(parentChainKey);
 
-          JsonObject element = new JsonObject();
-          element.addProperty("label", label.toString());
-          element.addProperty("type", location.getType().getLabel().getValue());
+          JSONObject element = new JSONObject();
+          element.put("label", label.toString());
+          element.put("type", location.getType().getLabel().getValue());
 
-          context.add(element);
+          context.put(element);
 
           continue;
         }
@@ -569,27 +673,27 @@ public class GeoObjectImporter implements ObjectImporterIF
           {
             parent = result;
 
-            JsonObject element = new JsonObject();
-            element.addProperty("label", label.toString());
-            element.addProperty("type", location.getType().getLabel().getValue());
+            JSONObject element = new JSONObject();
+            element.put("label", label.toString());
+            element.put("type", location.getType().getLabel().getValue());
 
-            context.add(element);
+            context.put(element);
 
             this.parentCache.put(parentChainKey, parent);
           }
           else
           {
-            if (context.size() == 0)
+            if (context.length() == 0)
             {
               GeoObject root = this.configuration.getRoot();
 
               if (root != null)
               {
-                JsonObject element = new JsonObject();
-                element.addProperty("label", root.getLocalizedDisplayLabel());
-                element.addProperty("type", root.getType().getLabel().getValue());
+                JSONObject element = new JSONObject();
+                element.put("label", root.getLocalizedDisplayLabel());
+                element.put("type", root.getType().getLabel().getValue());
 
-                context.add(element);
+                context.put(element);
               }
             }
 
