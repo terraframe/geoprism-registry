@@ -313,18 +313,18 @@ public class GeoObjectImporter implements ObjectImporterIF
             // problems exist immediately throw a ProblemException so that
             // normal
             // exception handling can occur.
-            List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
-
-            List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
-            for (ProblemIF problem : problems)
-            {
-              problems2.add(problem);
-            }
-
-            if (problems.size() != 0)
-            {
-              throw new ProblemException(null, problems2);
-            }
+//            List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
+//
+//            List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
+//            for (ProblemIF problem : problems)
+//            {
+//              problems2.add(problem);
+//            }
+//
+//            if (problems.size() != 0)
+//            {
+//              throw new ProblemException(null, problems2);
+//            }
           }
         }
         finally
@@ -553,7 +553,11 @@ public class GeoObjectImporter implements ObjectImporterIF
     catch (Throwable t)
     {
       JSONObject obj = new JSONObject();
-      obj.put("geoObject", new JSONObject(goJson));
+      
+      if (goJson != null)
+      {
+        obj.put("geoObject", new JSONObject(goJson));
+      }
       
       RecordedErrorException re = new RecordedErrorException();
       re.setError(t);
