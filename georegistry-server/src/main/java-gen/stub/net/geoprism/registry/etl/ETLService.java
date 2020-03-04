@@ -12,6 +12,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.GeoprismUser;
@@ -116,8 +117,8 @@ public class ETLService
     JSONObject jo = new JSONObject();
     
     jo.put("fileName", hist.getImportFile().getFileName());
-    jo.put("stage", hist.getStage().get(0));
-    jo.put("status", hist.getStatus().get(0));
+    jo.put("stage", hist.getStage().get(0).name());
+    jo.put("status", hist.getStatus().get(0).name());
     jo.put("author", user.getUsername());
     jo.put("createDate", hist.getCreateDate());
     jo.put("lastUpdateDate", hist.getLastUpdateDate());
@@ -126,9 +127,14 @@ public class ETLService
     jo.put("workTotal", hist.getWorkTotal());
     jo.put("historyId", hist.getOid());
     
-    if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE))
+    if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
     {
-      jo.put("error", new JSONObject(hist.getErrorJson()));
+      JSONObject exception = new JSONObject();
+      
+      exception.put("type", new JSONObject(hist.getErrorJson()).get("type"));
+      exception.put("message", hist.getLocalizedError(Session.getCurrentLocale()));
+      
+      jo.put("exception", exception);
     }
     
     return jo;
@@ -220,7 +226,10 @@ public class ETLService
   {
     JSONObject jo = new JSONObject();
     
-    jo.put("error", new JSONObject(err.getErrorJson()));
+    JSONObject exception = new JSONObject();
+    exception.put("type", new JSONObject(err.getErrorJson()).get("type"));
+    exception.put("message", JobHistory.readLocalizedException(new JSONObject(err.getErrorJson()), Session.getCurrentLocale()));
+    jo.put("exception", exception);
     
     if (err.getObjectJson() != null && err.getObjectJson().length() > 0)
     {

@@ -406,7 +406,7 @@ public class GeoObjectImporterTest
     JSONObject error = errors.getJSONObject(0);
     System.out.println(error);
     
-    Assert.assertEquals("com.runwaysdk.dataaccess.DuplicateDataException", error.getJSONObject("error").getString("type"));
+    Assert.assertEquals("com.runwaysdk.dataaccess.DuplicateDataException", error.getJSONObject("exception").getString("type"));
     
     JSONObject object = error.getJSONObject("object");
     Assert.assertTrue(object.has("geoObject"));
