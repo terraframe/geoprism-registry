@@ -20,7 +20,8 @@ package net.geoprism.registry.etl;
 
 import org.json.JSONObject;
 
-import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.business.SmartException;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 
 public class RowValidationProblem extends ValidationProblem
 {
@@ -46,7 +47,23 @@ public class RowValidationProblem extends ValidationProblem
     JSONObject object = new JSONObject();
     object.put("type", "RowValidationProblem");
     object.put("rowNum", this.rowNum);
-    object.put("exception", JobHistory.exceptionToJson(this.exception));
+    
+    
+    JSONObject joException = new JSONObject();
+    
+    if (exception instanceof SmartException)
+    {
+      joException.put("type", ((SmartException)this.exception).getType());
+    }
+    else
+    {
+      joException.put("type", this.exception.getClass().getName());
+    }
+    
+    String message = ExecutableJob.getMessageFromException(this.exception);
+    joException.put("message", message);
+    
+    object.put("exception", joException);
 
     return object;
   }

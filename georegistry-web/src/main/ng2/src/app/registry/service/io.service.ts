@@ -37,7 +37,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/excel/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .post<void>( acp + '/etl/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -67,7 +67,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/shapefile/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .post<void>( acp + '/etl/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

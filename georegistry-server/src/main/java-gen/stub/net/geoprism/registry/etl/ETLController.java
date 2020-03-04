@@ -85,7 +85,7 @@ public class ETLController
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "cancel-import")
-  public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "config") String config)
+  public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "configuration") String config)
   {
     this.service.cancelImport(request.getSessionId(), config);
     
