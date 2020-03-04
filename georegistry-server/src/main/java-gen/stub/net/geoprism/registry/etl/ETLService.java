@@ -126,6 +126,11 @@ public class ETLService
     jo.put("workTotal", hist.getWorkTotal());
     jo.put("historyId", hist.getOid());
     
+    if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE))
+    {
+      jo.put("error", new JSONObject(hist.getErrorJson()));
+    }
+    
     return jo;
   }
   
