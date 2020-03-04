@@ -42,8 +42,10 @@ import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportConfiguration;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -93,6 +95,10 @@ public class ExcelService
         {
           object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
         }
+        
+        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
+        
+        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
     
         return object;
       }

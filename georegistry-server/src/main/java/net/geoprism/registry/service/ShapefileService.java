@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.TimeZone;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportConfiguration;
 import net.geoprism.registry.etl.ShapefileImporter;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
@@ -93,6 +95,10 @@ public class ShapefileService
         {
           object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
         }
+        
+        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
+        
+        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
   
         return object;
       }

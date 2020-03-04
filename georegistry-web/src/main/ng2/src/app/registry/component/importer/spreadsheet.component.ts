@@ -12,6 +12,7 @@ import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component'
 import { IOService } from '../../service/io.service';
 import { EventService } from '../../../shared/service/event.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { ImportStrategy } from '../../model/registry';
 
 declare var acp: string;
 
@@ -27,6 +28,13 @@ export class SpreadsheetComponent implements OnInit {
      * List of geo object types from the system
      */
     types: { label: string, code: string }[]
+
+    importStrategy: ImportStrategy;
+    importStrategies: any[] = [
+        {"strategy": ImportStrategy.NEW_AND_UPDATE, "label": "new and update"},
+        {"strategy": ImportStrategy.NEW_ONLY, "label": "new only"},
+        {"strategy": ImportStrategy.UPDATE_ONLY, "label": "update only"}
+    ]
 
     /*
      * Currently selected code
@@ -76,6 +84,9 @@ export class SpreadsheetComponent implements OnInit {
             if ( this.startDate != null ) {
                 form.append( 'startDate', this.startDate );
             }
+            if (this.importStrategy) {
+                form.append( 'strategy', this.importStrategy)
+            }
         };
         this.uploader.onBeforeUploadItem = ( fileItem: any ) => {
             this.eventService.start();
@@ -87,7 +98,7 @@ export class SpreadsheetComponent implements OnInit {
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );
 
-            this.bsModalRef = this.modalService.show( SpreadsheetModalComponent, { backdrop: true } );
+            this.bsModalRef = this.modalService.show( SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true } );
             this.bsModalRef.content.configuration = configuration;
         };
         this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {

@@ -300,3 +300,10 @@ export class HierarchyOverTime {
         parents: { [k: string]: { text: string; geoObject: GeoObject } };
     }[];
 }
+
+export enum ImportStrategy {
+    "NEW_AND_UPDATE" = "NEW_AND_UPDATE",
+    "NEW_ONLY" = "NEW_ONLY",
+    "UPDATE_ONLY" = "UPDATE_ONLY"
+}
+
