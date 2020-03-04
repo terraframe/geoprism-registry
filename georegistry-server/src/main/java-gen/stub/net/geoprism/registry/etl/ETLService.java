@@ -115,6 +115,7 @@ public class ETLService
   {
     JSONObject jo = new JSONObject();
     
+    jo.put("fileName", hist.getImportFile().getFileName());
     jo.put("stage", hist.getStage().get(0));
     jo.put("status", hist.getStatus().get(0));
     jo.put("author", user.getUsername());
@@ -123,6 +124,7 @@ public class ETLService
     jo.put("importedRecords", hist.getImportedRecords());
     jo.put("workProgress", hist.getWorkProgress());
     jo.put("workTotal", hist.getWorkTotal());
+    jo.put("historyId", hist.getOid());
     
     return jo;
   }

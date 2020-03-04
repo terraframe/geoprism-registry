@@ -50,6 +50,16 @@ export class ScheduledJobsComponent implements OnInit {
         
     }
 
+    onViewAllCompleteJobs(): void {
+        this.service.getCompletedScheduledJobs(1, 1, "createDate", true).then( response => {
+
+            this.completedJobs = response;
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+    }
+
 
     onView( code: string ): void {
         this.router.navigate( ['/registry/master-list-history/', code] )
@@ -57,10 +67,6 @@ export class ScheduledJobsComponent implements OnInit {
 
     onViewAllActiveJobs(): void {
 
-    }
-
-    onViewAllCompleteJobs(): void {
-        
     }
 
 

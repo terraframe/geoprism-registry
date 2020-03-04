@@ -51,7 +51,7 @@ public class ETLController
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-completed")
-  public ResponseIF getCompletedImports(String sessionId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
+  public ResponseIF getCompletedImports(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
   {
     if (sortAttr == null || sortAttr == "")
     {
@@ -63,7 +63,7 @@ public class ETLController
       isAscending = true;
     }
     
-    JSONArray config = this.service.getCompletedImports(sessionId, pageSize, pageNumber, sortAttr, isAscending);
+    JSONArray config = this.service.getCompletedImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
     
     return new RestBodyResponse(config.toString());
   }
