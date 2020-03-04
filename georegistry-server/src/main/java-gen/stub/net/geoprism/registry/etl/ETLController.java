@@ -69,25 +69,25 @@ public class ETLController
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-errors")
-  public ResponseIF getImport(String sessionId, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  public ResponseIF getImport(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
-    JSONArray config = this.service.getImportErrors(sessionId, historyId, pageSize, pageNumber);
+    JSONArray config = this.service.getImportErrors(request.getSessionId(), historyId, pageSize, pageNumber);
     
     return new RestBodyResponse(config.toString());
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-import-details")
-  public ResponseIF getImportDetails(String sessionId, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  public ResponseIF getImportDetails(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
-    JSONObject details = this.service.getImportDetails(sessionId, historyId, pageSize, pageNumber);
+    JSONObject details = this.service.getImportDetails(request.getSessionId(), historyId, pageSize, pageNumber);
     
     return new RestBodyResponse(details.toString());
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "cancel-import")
-  public ResponseIF cancelImport(String sessionId, @RequestParamter(name = "config") String config)
+  public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "config") String config)
   {
-    this.service.cancelImport(sessionId, config);
+    this.service.cancelImport(request.getSessionId(), config);
     
     return new RestResponse();
   }

@@ -21,20 +21,20 @@
             </div> -->
 
             
-            <div *ngIf="conflict && conflict.problemType === 'RELATIONSHIP'">
+            <div *ngIf="conflict && conflict.error.type === 'net.geoprism.registry.io.ParentCodeException'">
+                <relationship-problem-widget [conflict]="conflict" [job]="job"></relationship-problem-widget>
+            </div>
+            <div *ngIf="conflict && conflict.error.type === 'REQUIREDVALUE'">
+                <relationship-problem-widget [conflict]="conflict" ></relationship-problem-widget>
+            </div>
+            <div *ngIf="conflict && conflict.error.type === 'SPATIALREFERENCE'">
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
             </div>
-            <div *ngIf="conflict && conflict.problemType === 'REQUIREDVALUE'">
-                <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
-            </div>
-            <div *ngIf="conflict && conflict.problemType === 'SPATIALREFERENCE'">
-                <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
-            </div>
-            <div *ngIf="conflict && conflict.problemType === 'DUPLICATE'">
+            <div *ngIf="conflict && conflict.error.type === 'DUPLICATE'">
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
             </div>
 
-            <div *ngIf="conflict && conflict.problemType === 'UNSPECIFIED'">
+            <div *ngIf="conflict && conflict.error.type === 'UNSPECIFIED'">
 
                 TODO: General error
 
@@ -42,8 +42,8 @@
 
 
             <div class="row-holder">
-                <div class="label-holder"></div>
-                <div class="holder">
+                <!-- <div class="label-holder"></div> -->
+                <div class="">
                     <div class="button-holder">
                         <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
                             <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>

@@ -209,35 +209,55 @@ export class ManageGeoObjectTypeModalState {
 }
 
 export class ScheduledJob {
-    oid: string;
+    historyId: string;
     fileName: string;
     stage: string;
-    stageStatus: string;
+    status: string;
     author: string;
     createDate: string;
     lastUpdateDate: string;
+    workProgress: number;
+    workTotal: number;
+}
+
+export class ScheduledJobOverview extends ScheduledJob{
     stepConfig: StepConfig;
 }
 
-export class ScheduledJobDetail {
-    oid: string;
-    fileName: string;
-    stage: string;
-    stageStatus: string;
-    author: string;
-    createDate: string;
-    lastUpdateDate: string;
-    importedRowCount: number;
-    failedRowCount: number;
-    rows: Conflict[]
+export class ScheduledJobDetail extends ScheduledJob {
+    workProgress: number;
+    // failedRowCount: number;
+    errors: ConflictsResponse
+}
+
+export class ConflictsResponse {
+    page: Conflict[];
+    pageSize: number;
+    pageNumber: number;
+    type: string;
 }
 
 export class Conflict {
-    oid: string;
-    sourceId: string;
-    problemType: string;
-    conflictStatus: string;
+    error: ConflictError;
+    object: ConflictObject;
+    objectType: string;
     selected?: boolean;
+}
+
+export class ConflictError {
+    attributes: ConflictErrorAttribute[];
+    type: string;
+    message: string;
+}
+
+export class ConflictErrorAttribute {
+    value: string;
+    key: string;
+}
+
+export class ConflictObject {
+    geoObject: GeoObjectOverTime;
+    parents: ParentTreeNode[];
 }
 
 export class StepConfig {

@@ -3,7 +3,9 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { GeoObjectType, MasterList, Conflict } from '../../../model/registry';
+import { GeoObjectType, MasterList, Conflict, ScheduledJob } from '../../../model/registry';
+
+import Utils from '../../../utility/Utils'
 
 import { RegistryService } from '../../../service/registry.service';
 
@@ -18,6 +20,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 export class RelationshipProblemWidgetComponent implements OnInit {
     message: string = null;
     @Input() conflict: Conflict;
+    @Input() job: ScheduledJob;
 
     /*
      * Observable subject for submission.  Called when an update is successful 
@@ -34,6 +37,10 @@ export class RelationshipProblemWidgetComponent implements OnInit {
 
         // this.onConflictAction = new Subject();
 
+    }
+
+    getFriendlyProblemType(type: string): string {
+        return Utils.getFriendlyProblemType(type);
     }
 
     onSubmit(): void {

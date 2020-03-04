@@ -10,7 +10,7 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { ScheduledJob, Step, StepConfig } from '../../model/registry';
+import { ScheduledJob, Step, StepConfig, ScheduledJobOverview } from '../../model/registry';
 
 @Component( {
     selector: 'scheduled-jobs',
@@ -19,7 +19,7 @@ import { ScheduledJob, Step, StepConfig } from '../../model/registry';
 } )
 export class ScheduledJobsComponent implements OnInit {
     message: string = null;
-    jobs: ScheduledJob[];
+    jobs: ScheduledJobOverview[];
     completedJobs: ScheduledJob[];
 
     /*
@@ -42,13 +42,54 @@ export class ScheduledJobsComponent implements OnInit {
 
         this.service.getScheduledJobs(1, 1, "createDate", true).then( response => {
 
-            this.jobs = response;
+            this.jobs = this.formatStepConfig(response);
 
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
-        
+
     }
+
+    formatStepConfig(jobs: ScheduledJob[]): ScheduledJobOverview[] {
+
+        let config: ScheduledJobOverview[] = [];
+        jobs.forEach(job => {
+            let jobConfig = {
+                fileName: job.fileName,
+                historyId: job.historyId,
+                stage: job.stage,
+                status: job.status,
+                author: job.author,
+                createDate: job.createDate,
+                lastUpdateDate: job.lastUpdateDate,
+                workProgress: job.workProgress,
+                workTotal: job.workTotal,
+                "stepConfig": {"steps": [
+                    {"label":"File Import", "complete":true, "enabled":false},
+
+                    {"label":"Staging",
+                        "complete":job.stage === "NEW" ? false : true,
+                        "enabled":job.stage === "NEW" ? true : false
+                    },
+
+                    {"label":"Validation",
+                        "complete":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? false : true,
+                        "enabled":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? true : false
+                    },
+
+                    {"label":"Database Import",
+                        "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? false : true,
+                        "enabled":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false
+                    }
+                ]}
+            }
+
+            config.push(jobConfig);
+        });
+
+        return config;
+    }
+
 
     onViewAllCompleteJobs(): void {
         this.service.getCompletedScheduledJobs(1, 1, "createDate", true).then( response => {

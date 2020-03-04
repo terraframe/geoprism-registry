@@ -41,7 +41,7 @@
                                         </div>
                                     </td> 
                                     <td *ngIf="isAdmin || isMaintainer" style="text-align: right;">  
-                                        <a [routerLink]="'/registry/job/' + job.oid" routerLinkActive="active">
+                                        <a [routerLink]="'/registry/job/' + job.historyId" routerLinkActive="active">
                                             <button class="btn btn-primary" role="button">
                                                 <localize key="scheduledjobs.detail.button"></localize>
                                             </button>
@@ -63,20 +63,24 @@
                                 <tr> 
                                     <th style="width:70%;border-bottom: none;">
                                         <localize style="line-height: 40px;" key="scheduledjobs.completedjobs.table.header"></localize>                                      
+                                    </th> 
+                                    <th>
                                         <button type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
                                             <localize key="scheduledjobs.view.completed.jobs.button"></localize>
                                         </button>
-                                    </th> 
+                                    </th>
                                 </tr> 
                             </thead> 
                             <tbody> 
                                 <tr *ngFor="let job of completedJobs; let i = index;"> 
                                     <td style="width:70%; vertical-align: middle;">
-                                        <i class="fa fa-file" aria-hidden="true"></i>
-                                        <p>{{job.fileName}}</p>
+                                        <div class="wrapper">
+                                            <i class="fa fa-file" style="position: absolute;" aria-hidden="true"></i>
+                                            <p style="padding-left: 30px;margin: 0;">{{job.fileName}}</p>
+                                        </div>
                                     </td> 
                                     <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;">                                
-                                        <button type="submit" (click)="onView(job.oid)" class="btn btn-primary" role="button"><localize key="scheduledjobs.detail.button"></localize></button>
+                                        <button type="submit" (click)="onView(job.historyId)" class="btn btn-primary" role="button"><localize key="scheduledjobs.detail.button"></localize></button>
                                         <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
                                     </td> 
                                 </tr> 
