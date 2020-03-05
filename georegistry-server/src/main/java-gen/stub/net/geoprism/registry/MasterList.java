@@ -4,28 +4,30 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -35,6 +37,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -45,32 +48,35 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class MasterList extends MasterListBase
 {
-  private static final long serialVersionUID = 190790165;
+  private static final long  serialVersionUID = 190790165;
 
-  public static String      LEAF             = "leaf";
+  public static final String LEAF             = "leaf";
 
-  public static String      TYPE_CODE        = "typeCode";
+  public static final String TYPE_CODE        = "typeCode";
 
-  public static String      ATTRIBUTES       = "attributes";
+  public static final String ATTRIBUTES       = "attributes";
 
-  public static String      NAME             = "name";
+  public static final String NAME             = "name";
 
-  public static String      LABEL            = "label";
+  public static final String LABEL            = "label";
 
-  public static String      VALUE            = "value";
+  public static final String VALUE            = "value";
 
-  public static String      TYPE             = "type";
+  public static final String TYPE             = "type";
 
-  public static String      BASE             = "base";
+  public static final String BASE             = "base";
 
-  public static String      DEPENDENCY       = "dependency";
+  public static final String DEPENDENCY       = "dependency";
 
-  public static String      DEFAULT_LOCALE   = "DefaultLocale";
+  public static final String DEFAULT_LOCALE   = "DefaultLocale";
+
+  public static final String VERSIONS         = "versions";
 
   public MasterList()
   {
@@ -167,6 +173,112 @@ public class MasterList extends MasterListBase
     return list;
   }
 
+  public List<Date> getFrequencyDates(Date startDate, Date endDate)
+  {
+    LinkedList<Date> dates = new LinkedList<Date>();
+
+    List<ChangeFrequency> frequencies = this.getFrequency();
+
+    if (frequencies.contains(ChangeFrequency.ANNUAL))
+    {
+      Calendar end = getEndOfYear(endDate);
+      Calendar calendar = getEndOfYear(startDate);
+
+      while (calendar.before(end) || calendar.equals(end))
+      {
+        dates.add(calendar.getTime());
+
+        calendar.add(Calendar.YEAR, 1);
+      }
+    }
+    else if (frequencies.contains(ChangeFrequency.QUARTER))
+    {
+      Calendar end = getEndOfQuarter(endDate);
+      Calendar calendar = getEndOfQuarter(startDate);
+
+      while (calendar.before(end) || calendar.equals(end))
+      {
+        dates.add(calendar.getTime());
+
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        this.moveToEndOfQuarter(calendar);
+      }
+    }
+    else if (frequencies.contains(ChangeFrequency.MONTHLY))
+    {
+      Calendar end = getEndOfMonth(endDate);
+      Calendar calendar = getEndOfMonth(startDate);
+
+      while (calendar.before(end) || calendar.equals(end))
+      {
+        dates.add(calendar.getTime());
+
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        this.moveToEndOfMonth(calendar);
+      }
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    return dates;
+  }
+
+  private Calendar getEndOfYear(Date date)
+  {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    calendar.setTime(date);
+    calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+    calendar.set(Calendar.DAY_OF_MONTH, 31);
+
+    return calendar;
+  }
+
+  private Calendar getEndOfQuarter(Date date)
+  {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    calendar.setTime(date);
+
+    moveToEndOfQuarter(calendar);
+
+    return calendar;
+  }
+
+  private Calendar getEndOfMonth(Date date)
+  {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    calendar.setTime(date);
+
+    moveToEndOfMonth(calendar);
+
+    return calendar;
+  }
+
+  private void moveToEndOfMonth(Calendar calendar)
+  {
+    calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+  }
+
+  private void moveToEndOfQuarter(Calendar calendar)
+  {
+    int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
+    int month = ( quarter * 3 ) - 1;
+
+    calendar.set(Calendar.MONTH, month);
+    moveToEndOfMonth(calendar);
+  }
+
+  public ChangeFrequency toFrequency()
+  {
+    if (this.getFrequency().size() > 0)
+    {
+      return this.getFrequency().get(0);
+    }
+
+    return ChangeFrequency.ANNUAL;
+  }
+
   public JsonObject toJSON()
   {
     return this.toJSON(false);
@@ -203,6 +315,7 @@ public class MasterList extends MasterListBase
     object.addProperty(MasterList.ORGANIZATION, this.getOrganization());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
+    object.addProperty(MasterList.FREQUENCY, this.toFrequency().name());
     object.add(MasterList.HIERARCHIES, this.getHierarchiesAsJson());
 
     if (this.getRepresentativityDate() != null)
@@ -226,7 +339,7 @@ public class MasterList extends MasterListBase
         jVersions.add(version.toJSON(false));
       }
 
-      object.add("versions", jVersions);
+      object.add(MasterList.VERSIONS, jVersions);
     }
 
     return object;
@@ -253,7 +366,7 @@ public class MasterList extends MasterListBase
   }
 
   @Transaction
-  public MasterListVersion getOrCreateVersion(Date forDate)
+  public MasterListVersion createVersion(Date forDate, String versionType)
   {
     // MasterListVersionQuery query = new MasterListVersionQuery(new
     // QueryFactory());
@@ -268,7 +381,43 @@ public class MasterList extends MasterListBase
     // }
     // }
 
-    return MasterListVersion.create(this, forDate);
+    return MasterListVersion.create(this, forDate, versionType);
+  }
+
+  @Transaction
+  public MasterListVersion getOrCreateVersion(Date forDate, String versionType)
+  {
+    MasterListVersionQuery query = new MasterListVersionQuery(new QueryFactory());
+    query.WHERE(query.getMasterlist().EQ(this));
+    query.AND(query.getForDate().EQ(forDate));
+    query.AND(query.getVersionType().EQ(versionType));
+
+    try (OIterator<? extends MasterListVersion> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return MasterListVersion.create(this, forDate, versionType);
+  }
+
+  @Transaction
+  public void publishFrequencyVersions()
+  {
+    final ServerGeoObjectType objectType = this.getGeoObjectType();
+    Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
+    List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
+
+    for (Date date : dates)
+    {
+      MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
+
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+      version.publish();
+    }
   }
 
   public ServerGeoObjectType getGeoObjectType()
@@ -315,6 +464,14 @@ public class MasterList extends MasterListBase
       list.setTelephoneNumber(object.get(MasterList.TELEPHONENUMBER).getAsString());
       list.setEmail(object.get(MasterList.EMAIL).getAsString());
       list.setHierarchies(object.get(MasterList.HIERARCHIES).getAsJsonArray().toString());
+
+      if (object.has(MasterList.FREQUENCY) && !object.get(MasterList.FREQUENCY).isJsonNull())
+      {
+        final String frequency = object.get(MasterList.FREQUENCY).getAsString();
+
+        list.clearFrequency();
+        list.addFrequency(ChangeFrequency.valueOf(frequency));
+      }
 
       if (object.has(MasterList.REPRESENTATIVITYDATE))
       {
@@ -426,5 +583,4 @@ public class MasterList extends MasterListBase
 
     return true;
   }
-
 }

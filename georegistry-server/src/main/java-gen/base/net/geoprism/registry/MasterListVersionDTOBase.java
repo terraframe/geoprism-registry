@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -292244736)
+@com.runwaysdk.business.ClassSignature(hash = -1072900028)
 public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterListVersion";
-  private static final long serialVersionUID = -292244736;
+  private static final long serialVersionUID = -1072900028;
   
   protected MasterListVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -61,6 +43,7 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
+  public static java.lang.String VERSIONTYPE = "versionType";
   public java.util.Date getCreateDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(CREATEDATE));
@@ -577,6 +560,43 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
+  }
+  
+  public String getVersionType()
+  {
+    return getValue(VERSIONTYPE);
+  }
+  
+  public void setVersionType(String value)
+  {
+    if(value == null)
+    {
+      setValue(VERSIONTYPE, "");
+    }
+    else
+    {
+      setValue(VERSIONTYPE, value);
+    }
+  }
+  
+  public boolean isVersionTypeWritable()
+  {
+    return isWritable(VERSIONTYPE);
+  }
+  
+  public boolean isVersionTypeReadable()
+  {
+    return isReadable(VERSIONTYPE);
+  }
+  
+  public boolean isVersionTypeModified()
+  {
+    return isModified(VERSIONTYPE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getVersionTypeMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(VERSIONTYPE).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.MasterListVersionDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

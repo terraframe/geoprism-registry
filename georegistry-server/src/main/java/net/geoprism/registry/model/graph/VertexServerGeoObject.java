@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -49,6 +49,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import com.runwaysdk.Pair;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -671,7 +672,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     // Do nothing
   }
-  
+
   @Override
   public void unlock()
   {
@@ -808,7 +809,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return node;
   }
-  
+
   @Override
   public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
   {
@@ -817,8 +818,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
     }
 
-    SortedSet<EdgeObject> edges; 
-    
+    SortedSet<EdgeObject> edges;
+
     if (this.getVertex().isNew())
     {
       edges = new TreeSet<EdgeObject>(new EdgeComparator());
@@ -903,12 +904,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
       }
     });
-    
+
     geoObj.setUid(vertex.getObjectValue(RegistryConstants.UUID));
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
     geoObj.setGeometry(this.getGeometry());
     geoObj.setDisplayLabel(this.getDisplayLabel());
-    
+
     if (vertex.isNew())// && !vertex.isAppliedToDB())
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
@@ -1027,7 +1028,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
       }
     });
-    
+
     if (vertex.isNew())// && !vertex.isAppliedToDB())
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
@@ -1430,9 +1431,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           statement.append(" OR ");
         }
 
-        statement.append("out.@class = :" + i);
+        statement.append("out.@class = :a" + i);
 
-        parameters.put(Integer.toString(i), type.getMdVertex().getDBClassName());
+        parameters.put("a" + Integer.toString(i), type.getMdVertex().getDBClassName());
       }
 
       statement.append("]");
@@ -1481,5 +1482,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     return response;
+  }
+
+  public static Pair<Date, Date> getDataRange(ServerGeoObjectType type)
+  {
+    final String dbClassName = type.getMdVertex().getDBClassName();
+
+    final Date startDate = new GraphQuery<Date>("SELECT MIN(status_cot.startDate) FROM " + dbClassName).getSingleResult();
+    final Date endDate = new GraphQuery<Date>("SELECT MAX(status_cot.startDate) FROM " + dbClassName).getSingleResult();
+
+    return new Pair<Date, Date>(startDate, endDate);
   }
 }
