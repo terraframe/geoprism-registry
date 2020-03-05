@@ -407,6 +407,76 @@ public class ExcelServiceTest
     Assert.assertNotNull(object);
     Assert.assertEquals(new Long(123), object.getValue(this.testInteger.getName()));
   }
+  
+  @Test
+  @Request
+  public void testImportSpreadsheetIntegerOverflow() throws InterruptedException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet-integer-overflow.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+
+    JSONObject json = this.getTestConfiguration(istream, service, null);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+
+    GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
+    configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
+    configuration.setHierarchy(hierarchyType);
+
+    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    
+    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(1), hist.getWorkTotal());
+    Assert.assertEquals(new Long(1), hist.getWorkProgress());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    
+    Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
+
+    // Ensure the geo objects were not created
+    GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
+    query.setRestriction(new CodeRestriction("0001"));
+
+    Assert.assertNull(query.getSingleResult());
+  }
+  
+  @Test
+  @Request
+  public void testImportSpreadsheetBadInteger() throws InterruptedException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet-bad-integer.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+
+    JSONObject json = this.getTestConfiguration(istream, service, null);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+
+    GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
+    configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
+    configuration.setHierarchy(hierarchyType);
+
+    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    
+    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(1), hist.getWorkTotal());
+    Assert.assertEquals(new Long(1), hist.getWorkProgress());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    
+    Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
+
+    // Ensure the geo objects were not created
+    GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
+    query.setRestriction(new CodeRestriction("0001"));
+
+    Assert.assertNull(query.getSingleResult());
+  }
 
   @Test
   @Request
