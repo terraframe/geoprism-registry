@@ -1,29 +1,67 @@
-<div class="modal-body">
+<div class="container">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
 
-    <div class="col-md-12 order-md-1">
-    <!-- <form #form="ngForm" class="modal-form">
+    <!-- <div class="col-md-12 order-md-1"> -->
 
-        <fieldset> -->
+    <!-- <div class="row">
 
-            <!-- <div class="row-holder">
-                <div class="label-holder"></div>
-                <div class="holder">
-                    <div class="button-holder">
-                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
-                            <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
-                        </button>
-                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-                            <localize key="io.submit"></localize>
-                        </button>
-                    </div>
-                </div>
-            </div> -->
-<!-- 
-        </fieldset>
-    </form> -->
+        <h2>
+            Review: {{job.fileName}} conflict
+        </h2>
+    </div> -->
+    <div *ngIf="conflict && job" class="row" style="background: #F4F4F4;
+                                        border-radius: 10px;
+                                        margin-bottom: 20px;
+                                        margin-top: 20px;
+                                        padding: 10px;">
+        <div class="col-md-6">
+            <div class="wrapper">
 
-        <h1>TODO: add {{conflict.problemType}} widget</h1>
+                <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
+                <p style="padding-left: 60px;">
+                    <span style="display: block;">
+                        <strong>{{job.fileName}}</strong>
+                    </span>
+                    <span style="display: block;">
+                        Uploaded by: {{job.author}}
+                    </span>
+                    <span style="display: block;">
+                        Started: {{job.createDate}}
+                    </span>
+                </p>
+
+            </div>
+        </div>
+        <div class="col-md-6"></div>
     </div>
+
+    <div class="row" style="background: #F4F4F4;
+                            border-radius: 10px;
+                            margin-bottom: 20px;
+                            margin-top: 20px;
+                            padding: 10px;">
+        <div class="col-md-12">
+
+            <div class="row">
+                <div class="col-md-6" style="background: white;border-radius: 10px;">
+                    <h4><strong>Problem</strong></h4>
+                    <p style="font-style: italic;">{{getFriendlyProblemType(conflict.error.type)}}</p>
+
+                    <h4><strong>Message</strong></h4>
+                    <p style="font-style: italic;">{{conflict.error.message}}</p>
+
+                    <h4><strong>To Resolve</strong></h4>
+                    <ol>
+                        <li>Step 1</li>
+                        <li>Step 2</li>
+                    </ol>
+                </div>
+                <div class="col-md-6" style="background: white;border-radius: 15px;">
+                    TODO: Widget
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

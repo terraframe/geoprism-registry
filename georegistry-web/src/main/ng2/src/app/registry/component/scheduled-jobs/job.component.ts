@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { JobConflictModalComponent } from './conflict-widgets/job-conflict-modal.component'
+
+import Utils from '../../utility/Utils'
 
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
@@ -23,6 +25,7 @@ export class JobComponent implements OnInit {
     job: ScheduledJobDetail;
     allSelected: boolean = false;
     
+    
     /*
      * Reference to the modal current showing
     */
@@ -32,7 +35,8 @@ export class JobComponent implements OnInit {
     isMaintainer: boolean;
     isContributor: boolean;
 
-    constructor( public service: RegistryService, private modalService: BsModalService, private router: Router,
+    constructor( public service: RegistryService, private modalService: BsModalService,
+        private router: Router, private route: ActivatedRoute,
         private localizeService: LocalizationService, authService: AuthService ) {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
@@ -41,16 +45,21 @@ export class JobComponent implements OnInit {
 
     ngOnInit(): void {
 
-        // this.service.getScheduledJobs().then( response => {
+        let historyId = this.route.snapshot.params["oid"];
 
-        //     this.jobs = response;
+        this.service.getScheduledJob(historyId, 1, 1).then( response => {
 
-        // } ).catch(( err: HttpErrorResponse ) => {
-        //     this.error( err );
-        // } );
+            this.job = response;
 
-        this.job = this.service.getScheduledJob();
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
 
+    }
+
+
+    getFriendlyProblemType(type: string): string {
+        return Utils.getFriendlyProblemType(type)
     }
 
 
@@ -63,6 +72,7 @@ export class JobComponent implements OnInit {
             ignoreBackdropClick: true,
         } );
         this.bsModalRef.content.conflict = conflict;
+        this.bsModalRef.content.job = this.job;
         this.bsModalRef.content.onConflictAction.subscribe( data => {
             // do something with the return
         } );
@@ -79,7 +89,7 @@ export class JobComponent implements OnInit {
     toggleAll(): void {
         this.allSelected = !this.allSelected;
 
-        this.job.rows.forEach(row => {
+        this.job.errors.page.forEach(row => {
             row.selected = this.allSelected;
         })
     }
