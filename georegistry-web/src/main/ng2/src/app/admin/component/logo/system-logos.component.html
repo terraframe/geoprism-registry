@@ -1,16 +1,7 @@
 <div>
-  <cgr-header></cgr-header>
 
-<div id="app-container" class="container" >
 
-  <message ></message>
-  <loading-bar></loading-bar>
-  
-  <div>
-    <span>
-      <h2> <localize key="system.image.title"></localize> </h2>
-    </span>
-  </div>
+  <!-- <message ></message> -->
   
   <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
   
@@ -34,7 +25,7 @@
           </td>
           <td class="label-column">{{ icon.label }}</td>
           <td class="icon-thumbnail-column">
-            <img style="width:42px;height:42px;" class="thumb" [src]="context + '/logo/view?id=' + icon.id" alt="Icon">
+            <img style="width:42px;height:42px;" class="thumb" [src]="context + '/logo/view?oid=' + icon.oid + '&random=' + random" alt="Icon">
           </td>
         </tr>      
       </tbody>    
@@ -42,6 +33,5 @@
   </div>
   
   <div *ngIf="icons === null" ><localize key='dataset.loadingData'></localize></div>
-</div>
 
 </div>

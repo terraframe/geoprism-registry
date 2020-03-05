@@ -33,7 +33,7 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let account of res.resultSet | paginate: { itemsPerPage: res.pageSize, currentPage: res.pageNumber, totalItems: res.count }" class="fade-ngRepeat-item">
-                        <td class="button-column"><a class="fa fa-pencil ico-edit" (click)="edit(account, $event)" [title]="'account.editTooltip' | localize"></a> <a class="fa fa-trash-o ico-remove" [title]="'account.removeTooltip' | localize" (click)="onClickRemove(account, $event)"></a></td>
+                        <td class="button-column"><a class="fa fa-pencil ico-edit" (click)="edit(account, $event)" [title]="'account.editTooltip' | localize"></a> 
                         <td class="label-column username-col">{{ account.username }}</td>
                         <td class="label-column firstname-col">{{ account.firstName }}</td>
                         <td class="label-column lastname-col">{{ account.lastName }}</td>

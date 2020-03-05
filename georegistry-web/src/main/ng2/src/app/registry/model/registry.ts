@@ -207,6 +207,48 @@ export class ManageGeoObjectTypeModalState {
     termOption: any;
 }
 
+export class ScheduledJob {
+    oid: string;
+    fileName: string;
+    stage: string;
+    stageStatus: string;
+    author: string;
+    createDate: string;
+    lastUpdateDate: string;
+    stepConfig: StepConfig;
+}
+
+export class ScheduledJobDetail {
+    oid: string;
+    fileName: string;
+    stage: string;
+    stageStatus: string;
+    author: string;
+    createDate: string;
+    lastUpdateDate: string;
+    importedRowCount: number;
+    failedRowCount: number;
+    rows: Conflict[]
+}
+
+export class Conflict {
+    oid: string;
+    sourceId: string;
+    problemType: string;
+    conflictStatus: string;
+    selected?: boolean;
+}
+
+export class StepConfig {
+    steps: Step[];
+}
+
+export class Step {
+    label: string;
+    complete: boolean;
+    enabled: boolean;
+}
+
 export class MasterList {
     oid: string;
     typeCode: string;

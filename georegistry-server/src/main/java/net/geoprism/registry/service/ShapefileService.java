@@ -27,7 +27,10 @@ import java.util.TimeZone;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileImporter;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
@@ -59,7 +62,7 @@ import com.runwaysdk.system.VaultFile;
 public class ShapefileService
 {
   @Request(RequestType.SESSION)
-  public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
+  public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy)
   {
     // Save the file to the file system
     try
@@ -81,6 +84,9 @@ public class ShapefileService
         object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf));
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+        object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
+        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
+        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
   
         if (startDate != null)
         {

@@ -1,0 +1,125 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+ 		<createOrUpdate>
+       
+       	  <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.menu">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.menu" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Settings" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="System Settings" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.code">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.code" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Unique ID" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.name">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.name" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Name" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.contact">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.contact" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Contact" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Organization" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="accounts.link">
+		      <attribute name="storeTag" value="UIText" />
+		      <attribute name="storeKey" value="accounts.link" />
+		      <attributeStruct name="storeValue">
+		        <attribute name="defaultLocale" value="Manage user accounts" />
+		      </attributeStruct>
+		   </object>
+		   
+		   <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.information.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.information.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="System Information" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.version.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.version.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Version:" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.organizations.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.organizations.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Organizations" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.accounts.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.accounts.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="User Accounts" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.localization.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.localization.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Localization" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.branding.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.branding.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Branding" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.email.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.email.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Email" />
+	        </attributeStruct>
+	      </object>
+	      
+	    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

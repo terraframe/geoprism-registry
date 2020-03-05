@@ -391,9 +391,17 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
         GeoObjectType rootType = ancestors.get(0);
         GeoObjectQuery query = new GeoObjectQuery(ServerGeoObjectType.get(rootType));
-        GeoObject root = query.getSingleResult();
-
-        this.setRoot(root);
+        
+        if (query.getCount() > 0)
+        {
+          GeoObject root = query.getIterator().next();
+  
+          this.setRoot(root);
+        }
+        else
+        {
+          this.setRoot(null);
+        }
       }
     }
 

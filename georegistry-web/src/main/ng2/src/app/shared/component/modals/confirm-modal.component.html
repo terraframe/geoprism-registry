@@ -7,7 +7,7 @@
       <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false" style="padding: 4px 18px;">
         <span class="ui-button-text">{{cancelText}}</span>
       </button>
-      <button type="button" (click)="confirm()" [ngClass]="type === 'DANGER' ? 'btn-danger' : 'btn-primary'" class="btn" role="button" aria-disabled="false" style="padding: 4px 18px;">
+      <button type="button" (click)="confirm()" [ngClass]="type.toUpperCase() === 'DANGER' ? 'btn-danger' : 'btn-primary'" class="btn" role="button" aria-disabled="false" style="padding: 4px 18px;">
         <span class="ui-button-text">{{submitText}}</span>
       </button>
     </div>

@@ -7,6 +7,7 @@ import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from '../sha
 import { PendingChangesGuard } from "../shared/service/pending-changes-guard";
 
 import { AccountsComponent } from './component/account/accounts.component';
+import { SettingsComponent } from './component/settings.component';
 import { AccountInviteComponent } from './component/account/account-invite.component';
 import { AccountInviteCompleteComponent } from './component/account/account-invite-complete.component';
 import { AccountComponent } from './component/account/account.component';
@@ -41,7 +42,13 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         component: AccountsComponent,
         data: { title: 'useraccounts.title' }
-    },    
+    },   
+    {
+        path: 'settings',
+        canActivate: [AuthGuard],
+        component: SettingsComponent,
+        data: { title: 'settings.title' }
+    }, 
     {
         path: 'accounts',
         canActivate: [AuthGuard],

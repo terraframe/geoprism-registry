@@ -1,0 +1,5 @@
+<div class="step-indicator" >
+    <ul *ngIf="_stepConfig && _stepConfig.steps && _stepConfig.steps.length > 0" class="list-inline nav nav-justified">
+        <li class="nav-item" [ngClass]="{'complete':step.complete, 'enabled':step.enabled}" *ngFor="let step of _stepConfig.steps">{{step.label}}</li>
+    </ul>
+</div>

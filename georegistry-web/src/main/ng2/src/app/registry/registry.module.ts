@@ -19,7 +19,6 @@ import { CustomFormsModule } from 'ng2-validation'
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './component/form-fields/localized-text/localized-text.component';
 import { HierarchyComponent } from './component/hierarchy/hierarchy.component';
-import { LocalizationManagerComponent } from './component/localization-manager/localization-manager.component';
 import { CreateHierarchyTypeModalComponent } from './component/hierarchy/modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './component/hierarchy/modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './component/hierarchy/modals/create-geoobjtype-modal.component';
@@ -35,7 +34,6 @@ import { TermProblemPageComponent } from './component/importer/modals/term-probl
 import { TermProblemComponent } from './component/importer/modals/term-problem.component';
 import { SpreadsheetModalComponent } from './component/importer/modals/spreadsheet-modal.component';
 import { DataPageComponent } from './component/data-page/data-page.component';
-import { NewLocaleModalComponent } from './component/localization-manager/new-locale-modal.component';
 import { TermOptionWidgetComponent } from './component/hierarchy/geoobjecttype-management/term-option-widget.component';
 import { AttributeInputComponent } from './component/hierarchy/geoobjecttype-management/attribute-input.component';
 import { EditTermOptionInputComponent } from './component/hierarchy/geoobjecttype-management/edit-term-option-input.component';
@@ -64,6 +62,14 @@ import { SpreadsheetComponent } from './component/importer/spreadsheet.component
 import { DataExportComponent } from './component/data-export/data-export.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
 import { MasterListHistoryComponent } from './component/master-list/master-list-history.component';
+import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
+import { JobComponent } from './component/scheduled-jobs/job.component';
+import { JobConflictModalComponent } from './component/scheduled-jobs/conflict-widgets/job-conflict-modal.component';
+import { RelationshipProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/relationship-problem-widget.component';
+import { RequiredValueProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/requiredvalue-problem-widget.component';
+import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/spatialreference-problem-widget.component';
+import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
+import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicator.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -102,11 +108,10 @@ import '../rxjs-extensions';
         NgxPaginationModule,
         CustomFormsModule,
         SharedModule,
-        RegistryRoutingModule        
+        RegistryRoutingModule
     ],
     declarations: [
         HierarchyComponent,
-        LocalizationManagerComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
         AddRemoveChildDetailComponent,
@@ -126,7 +131,6 @@ import '../rxjs-extensions';
         SpreadsheetModalComponent,
         GeoObjectTypePipe,
         GeoObjectAttributeCodeValidator,
-        NewLocaleModalComponent,
         EditAttributeModalContentComponent,
         TermOptionWidgetComponent,
         AttributeInputComponent,
@@ -159,6 +163,14 @@ import '../rxjs-extensions';
         MasterListManagerComponent,
         PublishModalComponent,
         ExportFormatModalComponent,
+        ScheduledJobsComponent,
+        JobComponent,
+        JobConflictModalComponent,
+        RelationshipProblemWidgetComponent,
+        RequiredValueProblemWidgetComponent,
+        SpatialReferenceProblemWidgetComponent,
+        DuplicateProblemWidgetComponent,
+        StepIndicatorComponent
     ],
     providers: [
         MapService,
@@ -170,6 +182,7 @@ import '../rxjs-extensions';
         RegistryService,
         DatePipe,
         ToEpochDateTimePipe,
+        StepIndicatorComponent
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -180,7 +193,6 @@ import '../rxjs-extensions';
         CreateHierarchyTypeModalComponent,
         ShapefileModalComponent,
         SpreadsheetModalComponent,
-        NewLocaleModalComponent,
         TermOptionWidgetComponent,
         AttributeInputComponent,
         EditTermOptionInputComponent,
@@ -197,6 +209,8 @@ import '../rxjs-extensions';
         DataPageComponent,
         ChangeRequestPageComponent,
         ActionDetailModalComponent,
+        JobConflictModalComponent,
+        StepIndicatorComponent
     ]
 } )
 export class RegistryModule { }

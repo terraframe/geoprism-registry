@@ -1,0 +1,64 @@
+<div>
+  <!-- <header></header> -->
+  
+  <message></message>
+
+  <loading-bar></loading-bar>
+
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
+    <!-- <div class="modal-dialog" style="height: 100%;"> -->
+      <!-- <div *ngIf="account" class="modal-content" style="height: 100%;overflow-y: auto;"> -->
+        <fieldset>            
+          <div class="heading">
+            <h3><localize key="organization.heading"></localize></h3>
+          </div>      
+          
+          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+          
+          <hr>        
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="organization.code"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="organization.code" name="code" required>
+              </span>
+            </div>
+          </div>     
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="organization.name"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="organization.name" name="name" required>
+              </span>
+            </div>
+          </div>  
+          <div class="row-holder">
+            <div class="label-holder">
+              <label><localize key="organization.contact"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="organization.contact" name="contact" required>
+              </span>
+            </div>
+          </div>  
+
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>                    
+            <div class="holder">
+              <div class="button-holder">
+                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
+                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      <!-- </div> -->
+    <!-- </div> -->
+  </form>
+</div>

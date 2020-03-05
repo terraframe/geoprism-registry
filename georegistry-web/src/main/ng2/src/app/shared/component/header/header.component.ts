@@ -48,7 +48,11 @@ export class CgrHeaderComponent {
     }
 
     getUsername() {
-        return this.service.getUsername();
+        let role: string = this.service.getRoleDisplayLabels();
+        let name: string = this.service.getUsername();
+
+        name = name + " (" + role + ")";
+        return name;
     }
 
     account(): void {
