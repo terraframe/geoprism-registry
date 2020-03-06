@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1614249284)
+@com.runwaysdk.business.ClassSignature(hash = 2019446302)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -295,6 +295,23 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportError.OWNER, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getResolution()
+  {
+    return getResolution(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getResolution(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportError.RESOLUTION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getResolution(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportError.RESOLUTION, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableLong getRowIndex()
   {
     return getRowIndex(null);
@@ -469,6 +486,9 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getResolution();
+    public com.runwaysdk.query.SelectableChar getResolution(String alias);
+    public com.runwaysdk.query.SelectableChar getResolution(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getRowIndex();
     public com.runwaysdk.query.SelectableLong getRowIndex(String alias);
     public com.runwaysdk.query.SelectableLong getRowIndex(String alias, String displayLabel);
@@ -737,6 +757,23 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportError.OWNER,  alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getResolution()
+  {
+    return getResolution(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getResolution(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportError.RESOLUTION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getResolution(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportError.RESOLUTION, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableLong getRowIndex()
   {
     return getRowIndex(null);
@@ -888,6 +925,9 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getResolution();
+    public com.runwaysdk.query.SelectableChar getResolution(String alias);
+    public com.runwaysdk.query.SelectableChar getResolution(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getRowIndex();
     public com.runwaysdk.query.SelectableLong getRowIndex(String alias);
     public com.runwaysdk.query.SelectableLong getRowIndex(String alias, String displayLabel);
@@ -1203,6 +1243,23 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportError.OWNER,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getResolution()
+  {
+    return getResolution(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getResolution(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportError.RESOLUTION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getResolution(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportError.RESOLUTION, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableLong getRowIndex()

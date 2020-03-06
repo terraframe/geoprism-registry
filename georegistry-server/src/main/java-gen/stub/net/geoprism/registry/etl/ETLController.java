@@ -32,6 +32,14 @@ public class ETLController
     return new RestBodyResponse(config.toString());
   }
   
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import")
+  public ResponseIF submitImportErrorResolution(ClientRequestIF request, @RequestParamter(name = "json") String json)
+  {
+    this.service.submitImportErrorResolution(request.getSessionId(), json);
+    
+    return new RestResponse();
+  }
+  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-active")
   public ResponseIF getActiveImports(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
   {

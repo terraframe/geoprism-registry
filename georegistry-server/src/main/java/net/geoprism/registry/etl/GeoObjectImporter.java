@@ -222,7 +222,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     try
     {
-      int beforeProbCount = this.progressListener.getValidationProblems().size();
+//      int beforeProbCount = this.progressListener.getValidationProblems().size();
 
       /*
        * 1. Check for location problems
@@ -333,10 +333,10 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
       }
 
-      if (beforeProbCount == this.progressListener.getValidationProblems().size())
-      {
-        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
-      }
+//      if (beforeProbCount == this.progressListener.getValidationProblems().size())
+//      {
+//        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
+//      }
     }
     catch (IgnoreRowException e)
     {
@@ -400,8 +400,6 @@ public class GeoObjectImporter implements ObjectImporterIF
     
     try
     {
-      int beforeProbCount = this.progressListener.getValidationProblems().size();
-      
       String geoId = this.getCode(row);
 
       boolean isNew = false;
@@ -507,6 +505,11 @@ public class GeoObjectImporter implements ObjectImporterIF
             parent = this.getParent(row);
           }
           parentBuilder.setParent(parent);
+          
+          if (this.progressListener.getValidationProblems().size() > 0)
+          {
+            throw new RuntimeException("Did not expect to encounter validation problems during import."); // TODO : SmartException?
+          }
 
           serverGo.apply(true);
 
@@ -538,12 +541,9 @@ public class GeoObjectImporter implements ObjectImporterIF
           {
             throw new ProblemException(null, problems2);
           }
+          
+          this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
         }
-      }
-
-      if (beforeProbCount == this.progressListener.getValidationProblems().size())
-      {
-        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
       }
     }
     catch (IgnoreRowException e)

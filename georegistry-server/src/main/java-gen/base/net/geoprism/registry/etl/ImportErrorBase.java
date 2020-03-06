@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 1554545477)
+@com.runwaysdk.business.ClassSignature(hash = -2069292377)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -24,11 +24,12 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
   public static java.lang.String OBJECTTYPE = "objectType";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String RESOLUTION = "resolution";
   public static java.lang.String ROWINDEX = "rowIndex";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 1554545477;
+  private static final long serialVersionUID = -2069292377;
   
   public ImportErrorBase()
   {
@@ -432,6 +433,34 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
     else
     {
       setValue(OWNER, oid);
+    }
+  }
+  
+  public String getResolution()
+  {
+    return getValue(RESOLUTION);
+  }
+  
+  public void validateResolution()
+  {
+    this.validateAttribute(RESOLUTION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getResolutionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(RESOLUTION);
+  }
+  
+  public void setResolution(String value)
+  {
+    if(value == null)
+    {
+      setValue(RESOLUTION, "");
+    }
+    else
+    {
+      setValue(RESOLUTION, value);
     }
   }
   

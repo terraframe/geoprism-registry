@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1240716962)
+@com.runwaysdk.business.ClassSignature(hash = 194975650)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,11 +12,13 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
   public static java.lang.String CONFIGJSON = "configJson";
+  public static java.lang.String ERRORCOUNT = "errorCount";
+  public static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String STAGE = "stage";
   public static java.lang.String VALIDATIONPROBLEMS = "validationProblems";
-  private static final long serialVersionUID = -1240716962;
+  private static final long serialVersionUID = 194975650;
   
   public ImportHistoryBase()
   {
@@ -48,6 +50,62 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     else
     {
       setValue(CONFIGJSON, value);
+    }
+  }
+  
+  public Long getErrorCount()
+  {
+    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(ERRORCOUNT));
+  }
+  
+  public void validateErrorCount()
+  {
+    this.validateAttribute(ERRORCOUNT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getErrorCountMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(ERRORCOUNT);
+  }
+  
+  public void setErrorCount(Long value)
+  {
+    if(value == null)
+    {
+      setValue(ERRORCOUNT, "");
+    }
+    else
+    {
+      setValue(ERRORCOUNT, java.lang.Long.toString(value));
+    }
+  }
+  
+  public Long getErrorResolvedCount()
+  {
+    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(ERRORRESOLVEDCOUNT));
+  }
+  
+  public void validateErrorResolvedCount()
+  {
+    this.validateAttribute(ERRORRESOLVEDCOUNT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getErrorResolvedCountMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(ERRORRESOLVEDCOUNT);
+  }
+  
+  public void setErrorResolvedCount(Long value)
+  {
+    if(value == null)
+    {
+      setValue(ERRORRESOLVEDCOUNT, "");
+    }
+    else
+    {
+      setValue(ERRORRESOLVEDCOUNT, java.lang.Long.toString(value));
     }
   }
   

@@ -41,11 +41,18 @@ import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.VaultProperties;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.LocatedIn;
+import com.runwaysdk.system.gis.geo.Synonym;
+import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryRecord;
+import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -58,6 +65,9 @@ import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportConfiguration;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.ImportError;
+import net.geoprism.registry.etl.ImportError.Resolution;
+import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
@@ -103,6 +113,8 @@ public class GeoObjectImporterTest
     {
       testData.setUpInstanceData();
     }
+    
+    clearData();
   }
 
   @After
@@ -114,6 +126,45 @@ public class GeoObjectImporterTest
     }
     
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
+    
+    clearData();
+  }
+  
+  @Request
+  private static void clearData()
+  {
+    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
+    OIterator<? extends ImportError> ieit = ieq.getIterator();
+    
+    while (ieit.hasNext())
+    {
+      ieit.next().delete();
+    }
+    
+    
+    JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
+    OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
+
+    while (jhrs.hasNext())
+    {
+      JobHistoryRecord jhr = jhrs.next();
+      
+      JobHistory hist = jhr.getChild();
+      ExecutableJob job = jhr.getParent();
+      jhr.delete();
+//      hist.delete();
+      job.delete();
+    }
+    
+    
+    SynonymQuery sq = new SynonymQuery(new QueryFactory());
+    sq.WHERE(sq.getDisplayLabel().localize().EQ("00"));
+    OIterator<? extends Synonym> it = sq.getIterator();
+    
+    while (it.hasNext())
+    {
+      it.next().delete();
+    }
   }
   
   private void waitUntilStatus(JobHistory hist, AllJobStatus status) throws InterruptedException
@@ -398,6 +449,8 @@ public class GeoObjectImporterTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(2), hist.getWorkTotal());
     Assert.assertEquals(new Long(2), hist.getWorkProgress());
+    Assert.assertEquals(new Long(1), hist.getErrorCount());
+    Assert.assertEquals(new Long(0), hist.getErrorResolvedCount());
     Assert.assertEquals(new Long(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
     
@@ -405,6 +458,8 @@ public class GeoObjectImporterTest
     
     JSONObject error = errors.getJSONObject(0);
     System.out.println(error);
+    
+    Assert.assertTrue(error.has("importErrorId"));
     
     Assert.assertEquals("com.runwaysdk.dataaccess.DuplicateDataException", error.getJSONObject("exception").getString("type"));
     
@@ -426,6 +481,34 @@ public class GeoObjectImporterTest
 //    
 //    Assert.assertEquals(testData.USA.getCode(), ptns.get(0).getGeoObject().getCode());
 //    Assert.assertEquals(testData.COLORADO.getCode(), ptns.get(1).getGeoObject().getCode());
+    
+    
+    // Test Resolving the error and then completing the import
+    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
+    Assert.assertEquals(1, ieq.getCount());
+    Assert.assertEquals(Resolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
+    
+    JSONObject resolution = new JSONObject();
+    resolution.put("importErrorId", error.get("importErrorId"));
+    resolution.put("resolution", Resolution.IGNORE);
+    resolution.put("historyId", hist.getOid());
+    
+    new ETLService().submitImportErrorResolution(testData.adminClientRequest.getSessionId(), resolution.toString());
+    
+    Assert.assertEquals(Resolution.IGNORE.name(), ieq.getIterator().next().getResolution());
+    
+    new ETLService().resolveImport(testData.adminClientRequest.getSessionId(), hist.getOid());
+    
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(2), hist.getWorkTotal());
+    Assert.assertEquals(new Long(2), hist.getWorkProgress());
+    Assert.assertEquals(new Long(1), hist.getErrorCount());
+    Assert.assertEquals(new Long(0), hist.getErrorResolvedCount());
+    Assert.assertEquals(new Long(1), hist.getImportedRecords());
+    Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
+    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+    
+    Assert.assertEquals(0, ieq.getCount());
   }
   
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)

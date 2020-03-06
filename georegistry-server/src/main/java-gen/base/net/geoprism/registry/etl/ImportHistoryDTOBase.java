@@ -1,10 +1,10 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1067771938)
+@com.runwaysdk.business.ClassSignature(hash = -1187281374)
 public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.scheduler.JobHistoryDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
-  private static final long serialVersionUID = -1067771938;
+  private static final long serialVersionUID = -1187281374;
   
   protected ImportHistoryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -28,6 +28,8 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   }
   
   public static java.lang.String CONFIGJSON = "configJson";
+  public static java.lang.String ERRORCOUNT = "errorCount";
+  public static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String STAGE = "stage";
@@ -67,6 +69,80 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getConfigJsonMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(CONFIGJSON).getAttributeMdDTO();
+  }
+  
+  public Long getErrorCount()
+  {
+    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(ERRORCOUNT));
+  }
+  
+  public void setErrorCount(Long value)
+  {
+    if(value == null)
+    {
+      setValue(ERRORCOUNT, "");
+    }
+    else
+    {
+      setValue(ERRORCOUNT, java.lang.Long.toString(value));
+    }
+  }
+  
+  public boolean isErrorCountWritable()
+  {
+    return isWritable(ERRORCOUNT);
+  }
+  
+  public boolean isErrorCountReadable()
+  {
+    return isReadable(ERRORCOUNT);
+  }
+  
+  public boolean isErrorCountModified()
+  {
+    return isModified(ERRORCOUNT);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeNumberMdDTO getErrorCountMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeNumberMdDTO) getAttributeDTO(ERRORCOUNT).getAttributeMdDTO();
+  }
+  
+  public Long getErrorResolvedCount()
+  {
+    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(ERRORRESOLVEDCOUNT));
+  }
+  
+  public void setErrorResolvedCount(Long value)
+  {
+    if(value == null)
+    {
+      setValue(ERRORRESOLVEDCOUNT, "");
+    }
+    else
+    {
+      setValue(ERRORRESOLVEDCOUNT, java.lang.Long.toString(value));
+    }
+  }
+  
+  public boolean isErrorResolvedCountWritable()
+  {
+    return isWritable(ERRORRESOLVEDCOUNT);
+  }
+  
+  public boolean isErrorResolvedCountReadable()
+  {
+    return isReadable(ERRORRESOLVEDCOUNT);
+  }
+  
+  public boolean isErrorResolvedCountModified()
+  {
+    return isModified(ERRORRESOLVEDCOUNT);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeNumberMdDTO getErrorResolvedCountMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeNumberMdDTO) getAttributeDTO(ERRORRESOLVEDCOUNT).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.VaultFileDTO getImportFile()

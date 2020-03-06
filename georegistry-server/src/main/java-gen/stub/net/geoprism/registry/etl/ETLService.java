@@ -1,8 +1,12 @@
 package net.geoprism.registry.etl;
 
+import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
@@ -15,7 +19,11 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.controller.GeoObjectEditorController;
+import net.geoprism.registry.etl.ImportError.Resolution;
 
 public class ETLService
 {
@@ -238,7 +246,106 @@ public class ETLService
     
     jo.put("objectType", err.getObjectType());
     
+    jo.put("importErrorId", err.getOid());
+    
+    jo.put("resolution", err.getResolution());
+    
     return jo;
   }
   
+  private void checkPermissions()
+  {
+    Map<String, String> roles = Session.getCurrentSession().getUserRoles();
+    if (! (roles.keySet().contains(DefaultConfiguration.ADMIN)
+        || roles.keySet().contains(RegistryConstants.REGISTRY_MAINTAINER_ROLE)
+        || roles.keySet().contains(RegistryConstants.REGISTRY_ADMIN_ROLE)
+      ))
+    {
+      throw new ProgrammingErrorException("You don't have permissions to access this endpoint.");
+    }
+  }
+
+  @Request(RequestType.SESSION)
+  public void submitImportErrorResolution(String sessionId, String json)
+  {
+    submitImportErrorResolutionInTrans(sessionId, json);
+  }
+
+  @Transaction
+  private void submitImportErrorResolutionInTrans(String sessionId, String json)
+  {
+    checkPermissions();
+    
+    JSONObject config = new JSONObject(json);
+    
+    ImportHistory hist = ImportHistory.get(config.getString("historyId"));
+    
+    ImportError err = ImportError.get(config.getString("importErrorId"));
+    
+    String resolution = config.getString("resolution");
+    
+    if (resolution.equals(Resolution.APPLY_GEO_OBJECT.name()))
+    {
+      String parentTreeNode = config.getString("parentTreeNode");
+      String geoObject = config.getString("geoObject");
+      Boolean isNew = config.getBoolean("isNew");
+      
+      new GeoObjectEditorController().applyInReq(sessionId, parentTreeNode, geoObject, isNew, null, null);
+      
+      err.appLock();
+      err.setResolution(resolution);
+      err.apply();
+      
+      hist.appLock();
+      hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
+      hist.apply();
+    }
+    else if (resolution.equals(Resolution.IGNORE.name()))
+    {
+      err.appLock();
+      err.setResolution(resolution);
+      err.apply();
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
+    }
+  }
+  
+  @Request(RequestType.SESSION)
+  public void resolveImport(String sessionId, String historyId)
+  {
+    resolveImportInTrans(historyId);
+  }
+  
+  @Transaction
+  private void resolveImportInTrans(String historyId)
+  {
+    checkPermissions();
+    
+    ImportHistory hist = ImportHistory.get(historyId);
+    hist.appLock();
+    
+    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
+    ieq.WHERE(ieq.getHistory().EQ(historyId));
+    OIterator<? extends ImportError> it = ieq.getIterator();
+    try
+    {
+      ImportError err = it.next();
+      
+      err.delete();
+    }
+    finally
+    {
+      it.close();
+    }
+    
+    hist.clearStatus();
+    hist.addStatus(AllJobStatus.SUCCESS);
+    
+    hist.clearStage();
+    hist.addStage(ImportStage.COMPLETE);
+    
+    hist.apply();
+  }
 }

@@ -77,6 +77,10 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
     error.setObjectType(objectType);
     error.apply();
     
+    this.history.appLock();
+    this.history.setErrorCount(this.history.getErrorCount() + 1);
+    this.history.apply();
+    
     this.recordedErrors++;
   }
   

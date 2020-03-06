@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -541716409)
+@com.runwaysdk.business.ClassSignature(hash = -517952117)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -53,6 +53,40 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.CONFIGJSON, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableLong getErrorCount()
+  {
+    return getErrorCount(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorCount(String alias)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.ERRORCOUNT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorCount(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.ERRORCOUNT, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount()
+  {
+    return getErrorResolvedCount(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, displayLabel);
 
   }
   public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()
@@ -198,6 +232,12 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableChar getConfigJson();
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getErrorCount();
+    public com.runwaysdk.query.SelectableLong getErrorCount(String alias);
+    public com.runwaysdk.query.SelectableLong getErrorCount(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getErrorResolvedCount();
+    public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias);
+    public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
@@ -260,6 +300,40 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.CONFIGJSON, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableLong getErrorCount()
+  {
+    return getErrorCount(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorCount(String alias)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORCOUNT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorCount(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORCOUNT, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount()
+  {
+    return getErrorResolvedCount(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, displayLabel);
 
   }
   public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()
@@ -370,6 +444,12 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableChar getConfigJson();
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getErrorCount();
+    public com.runwaysdk.query.SelectableLong getErrorCount(String alias);
+    public com.runwaysdk.query.SelectableLong getErrorCount(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getErrorResolvedCount();
+    public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias);
+    public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
@@ -481,6 +561,40 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.CONFIGJSON, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableLong getErrorCount()
+  {
+    return getErrorCount(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorCount(String alias)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORCOUNT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorCount(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORCOUNT, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount()
+  {
+    return getErrorResolvedCount(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, displayLabel);
 
   }
   public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()

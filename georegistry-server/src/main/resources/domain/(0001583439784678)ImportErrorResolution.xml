@@ -1,0 +1,30 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.etl.ImportError">
+        <create>
+          <attributes>
+            <text name="resolution" defaultValue="UNRESOLVED" />
+          </attributes>
+        </create>
+      </mdBusiness>
+      
+      <mdBusiness name="net.geoprism.registry.etl.ImportHistory">
+        <create>
+          <attributes>
+            <long name="errorCount" rejectNegative="true" label="errorCount" defaultValue="0" />
+            <long name="errorResolvedCount" rejectNegative="true" label="errorResolvedCount" defaultValue="0" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.ImportError.resolution" type="com.runwaysdk.system.metadata.MdAttributeText" />
+      <object key="net.geoprism.registry.etl.ImportHistory.errorCount" type="com.runwaysdk.system.metadata.MdAttributeLong" />
+      <object key="net.geoprism.registry.etl.ImportHistory.errorResolvedCount" type="com.runwaysdk.system.metadata.MdAttributeLong" />
+    </delete>
+  </undoIt>
+</version>
