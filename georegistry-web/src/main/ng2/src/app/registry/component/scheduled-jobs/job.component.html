@@ -74,10 +74,10 @@
                                         <boolean-field [(value)]="row.selected"></boolean-field>
                                     </td>
                                     <td class="label-column" style="vertical-align: middle;">
-                                        <p>{{getFriendlyProblemType(row.error.type)}}</p>
+                                        <p>{{getFriendlyProblemType(row.exception.type)}}</p>
                                     </td>
                                     <td class="label-column" style="vertical-align: middle;">
-                                        <p>{{row.error.message}}</p>
+                                        <p>{{row.exception.message}}</p>
                                     </td>
                                     <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
                                         <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
