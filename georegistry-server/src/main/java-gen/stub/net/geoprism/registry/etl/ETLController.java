@@ -32,10 +32,18 @@ public class ETLController
     return new RestBodyResponse(config.toString());
   }
   
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import")
-  public ResponseIF submitImportErrorResolution(ClientRequestIF request, @RequestParamter(name = "json") String json)
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "error-resolve")
+  public ResponseIF submitImportErrorResolution(ClientRequestIF request, @RequestParamter(name = "config") String config)
   {
-    this.service.submitImportErrorResolution(request.getSessionId(), json);
+    this.service.submitImportErrorResolution(request.getSessionId(), config);
+    
+    return new RestResponse();
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import-resolve")
+  public ResponseIF resolveImport(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId)
+  {
+    this.service.resolveImport(request.getSessionId(), historyId);
     
     return new RestResponse();
   }
