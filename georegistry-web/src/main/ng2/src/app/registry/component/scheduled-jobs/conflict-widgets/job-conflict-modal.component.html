@@ -21,20 +21,20 @@
             </div> -->
 
             
-            <div *ngIf="conflict && conflict.error.type === 'net.geoprism.registry.io.ParentCodeException'">
+            <div *ngIf="conflict && conflict.exception.type === 'net.geoprism.registry.io.ParentCodeException'">
                 <relationship-problem-widget [conflict]="conflict" [job]="job"></relationship-problem-widget>
             </div>
-            <div *ngIf="conflict && conflict.error.type === 'REQUIREDVALUE'">
+            <div *ngIf="conflict && conflict.exception.type === 'REQUIREDVALUE'">
                 <relationship-problem-widget [conflict]="conflict" ></relationship-problem-widget>
             </div>
-            <div *ngIf="conflict && conflict.error.type === 'SPATIALREFERENCE'">
+            <div *ngIf="conflict && conflict.exception.type === 'SPATIALREFERENCE'">
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
             </div>
-            <div *ngIf="conflict && conflict.error.type === 'DUPLICATE'">
+            <div *ngIf="conflict && conflict.exception.type === 'DUPLICATE'">
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
             </div>
 
-            <div *ngIf="conflict && conflict.error.type === 'UNSPECIFIED'">
+            <div *ngIf="conflict && conflict.exception.type === 'UNSPECIFIED'">
 
                 TODO: General error
 
