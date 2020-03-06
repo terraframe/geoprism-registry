@@ -52,13 +52,12 @@
                     <p style="font-style: italic;">{{conflict.exception.message}}</p>
 
                     <h4><strong>To Resolve</strong></h4>
-                    <ol>
-                        <li>Step 1</li>
-                        <li>Step 2</li>
-                    </ol>
+                    <p>TODO: how to address the issue.</p>
                 </div>
                 <div class="col-md-6" style="background: white;border-radius: 15px;">
-                    TODO: Widget
+                    <button type="submit" (click)="onConflictResolution(conflict, job)" class="btn btn-primary" role="button">
+                        <localize key="scheduledjobs.detail.button"></localize>
+                    </button>
                 </div>
             </div>
         </div>
