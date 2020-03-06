@@ -319,7 +319,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     }
 
     // Create the MdGeoVertexClass
-    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), geoObjectType.getFrequency());
+    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId());
     this.createDefaultAttributes(universal, mdVertex);
 
     assignDefaultRolePermissions(mdVertex);
@@ -374,28 +374,13 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = GeometryTypeFactory.get(geoPrismgeometryType);
 
-    FrequencyType frequency = getFrequency(mdVertex);
-
     LocalizedValue label = convert(universal.getDisplayLabel());
     LocalizedValue description = convert(universal.getDescription());
-    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsLeafType(), universal.getIsGeometryEditable(), frequency, ServiceFactory.getAdapter());
+    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsLeafType(), universal.getIsGeometryEditable(), ServiceFactory.getAdapter());
 
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);
 
     return new ServerGeoObjectType(geoObjType, universal, mdBusiness, mdVertex);
-  }
-
-  private FrequencyType getFrequency(MdGeoVertexDAO mdVertex)
-  {
-//    if (mdVertex != null)
-//    {
-//      String name = mdVertex.getFrequency();
-//
-//      return FrequencyType.valueOf(name);
-//    }
-
-    // Special case for root
-    return FrequencyType.ANNUAL;
   }
 
   public GeoObjectType convertAttributeTypes(Universal uni, GeoObjectType gt, MdBusiness mdBusiness)

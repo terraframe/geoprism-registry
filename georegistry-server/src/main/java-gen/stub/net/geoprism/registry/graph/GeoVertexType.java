@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.graph;
 
-import org.commongeoregistry.adapter.metadata.FrequencyType;
-
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
 import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
@@ -37,7 +35,7 @@ public class GeoVertexType extends GeoVertexTypeBase
     super();
   }
 
-  public static MdGeoVertexDAO create(String code, FrequencyType frequency)
+  public static MdGeoVertexDAO create(String code)
   {
     MdGeoVertexDAOIF mdGeoVertexDAO = MdGeoVertexDAO.getMdGeoVertexDAO(GeoVertex.CLASS);
 

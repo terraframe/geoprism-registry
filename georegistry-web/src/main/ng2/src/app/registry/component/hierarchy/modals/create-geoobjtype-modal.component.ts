@@ -35,7 +35,6 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
             "label": this.lService.create(),
             "description": this.lService.create(),
             "geometryType": "POINT",
-            "frequency": "ANNUAL",
             "isLeaf": false,
             "isGeometryEditable": true,
             "attributes": []

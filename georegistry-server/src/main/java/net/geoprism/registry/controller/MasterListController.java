@@ -90,7 +90,7 @@ public class MasterListController
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    JsonObject response = this.service.createVersion(request.getSessionId(), oid, format.parse(forDate));
+    JsonObject response = this.service.createExploratoryVersion(request.getSessionId(), oid, format.parse(forDate));
 
     return new RestBodyResponse(response);
   }
