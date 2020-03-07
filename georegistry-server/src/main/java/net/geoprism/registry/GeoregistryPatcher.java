@@ -84,7 +84,7 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
       {
         logger.info("Creating Vertex objects for [" + mdBusiness.definesType() + "].");
         
-        MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), FrequencyType.DAILY);
+        MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId());
         builder.createDefaultAttributes(universal, mdVertex);
   
         logger.info("Assigning default role permissions for [" + mdBusiness.definesType() + "].");

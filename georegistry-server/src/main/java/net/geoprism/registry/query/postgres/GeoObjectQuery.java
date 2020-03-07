@@ -95,20 +95,20 @@ public class GeoObjectQuery
   {
     QueryFactory factory = new QueryFactory();
     ValueQuery vQuery = new ValueQuery(factory);
-
-    if (this.type.isLeaf())
-    {
-      BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
-
-      configureLeafQuery(vQuery, bQuery);
-    }
-    else
-    {
+// Heads up: clean up
+//    if (this.type.isLeaf())
+//    {
+//      BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
+//
+//      configureLeafQuery(vQuery, bQuery);
+//    }
+//    else
+//    {
       GeoEntityQuery geQuery = new GeoEntityQuery(vQuery);
       BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
 
       configureEntityQuery(vQuery, geQuery, bQuery);
-    }
+//    }
 
     if (this.limit != null)
     {
@@ -163,27 +163,27 @@ public class GeoObjectQuery
 
     vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
   }
-
-  protected void configureLeafQuery(ValueQuery vQuery, BusinessQuery bQuery)
-  {
-    AttributeLocal label = bQuery.aLocalCharacter(DefaultAttribute.DISPLAY_LABEL.getName());
-
-    vQuery.SELECT(bQuery.aUUID(ComponentInfo.OID, ComponentInfo.OID));
-    vQuery.SELECT(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
-    vQuery.SELECT(bQuery.aEnumeration(DefaultAttribute.STATUS.getName()).aCharacter(EnumerationMasterInfo.NAME, DefaultAttribute.STATUS.getName()));
-    vQuery.SELECT(bQuery.get(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
-
-    this.selectLabelAttribute(vQuery, label);
-
-    this.selectCustomAttributes(vQuery, bQuery);
-
-    if (this.restriction != null)
-    {
-      this.restriction.restrict(vQuery, bQuery);
-    }
-
-    vQuery.ORDER_BY_ASC(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
-  }
+// Heads up: Clean up
+//  protected void configureLeafQuery(ValueQuery vQuery, BusinessQuery bQuery)
+//  {
+//    AttributeLocal label = bQuery.aLocalCharacter(DefaultAttribute.DISPLAY_LABEL.getName());
+//
+//    vQuery.SELECT(bQuery.aUUID(ComponentInfo.OID, ComponentInfo.OID));
+//    vQuery.SELECT(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
+//    vQuery.SELECT(bQuery.aEnumeration(DefaultAttribute.STATUS.getName()).aCharacter(EnumerationMasterInfo.NAME, DefaultAttribute.STATUS.getName()));
+//    vQuery.SELECT(bQuery.get(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
+//
+//    this.selectLabelAttribute(vQuery, label);
+//
+//    this.selectCustomAttributes(vQuery, bQuery);
+//
+//    if (this.restriction != null)
+//    {
+//      this.restriction.restrict(vQuery, bQuery);
+//    }
+//
+//    vQuery.ORDER_BY_ASC(bQuery.aCharacter(DefaultAttribute.CODE.getName()));
+//  }
 
   public GeoObjectIterator getIterator()
   {

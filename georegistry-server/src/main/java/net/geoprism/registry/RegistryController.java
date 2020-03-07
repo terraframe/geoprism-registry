@@ -578,6 +578,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "geoobjecttype/list-types", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  // Heads up: Cleanup includeLeafTypes parameter
   public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeLeafTypes") Boolean includeLeafTypes)
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null);
@@ -596,8 +597,9 @@ public class RegistryController
     for (int i = 0; i < gots.length; ++i)
     {
       GeoObjectType geoObjectType = gots[i];
-
-      if (!geoObjectType.getCode().equals("ROOT") && ( includeLeafTypes == null || includeLeafTypes || !geoObjectType.isLeaf() ))
+// Heads up: Cleanup
+//    if (!geoObjectType.getCode().equals("ROOT") && ( includeLeafTypes == null || includeLeafTypes || !geoObjectType.isLeaf() ))
+      if (!geoObjectType.getCode().equals("ROOT"))
       {
         JsonObject type = new JsonObject();
         type.addProperty("label", geoObjectType.getLabel().getValue());

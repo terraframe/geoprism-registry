@@ -214,7 +214,9 @@ public abstract class FeatureRowImporter
           {
             parent.addChild(entity, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
           }
-          else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
+          else if (isNew && !this.configuration.hasProblems())
+// Heads up: Clean up
+//          else if (isNew && !this.configuration.hasProblems() && !this.configuration.getType().isLeaf())
           {
             GeoEntity child = GeoEntity.getByKey(entity.getCode());
             GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);

@@ -157,19 +157,15 @@ public class ServerGeoObjectType
     return this.type.getGeometryType();
   }
 
+  // Heads up: clean up
   public FrequencyType getFrequency()
   {
-    return this.type.getFrequency();
+    return FrequencyType.ANNUAL;
   }
 
   public boolean isGeometryEditable()
   {
     return this.type.isGeometryEditable();
-  }
-
-  public boolean isLeaf()
-  {
-    return this.type.isLeaf();
   }
 
   public LocalizedValue getLabel()

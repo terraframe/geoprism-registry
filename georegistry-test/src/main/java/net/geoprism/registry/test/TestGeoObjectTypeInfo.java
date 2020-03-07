@@ -208,7 +208,11 @@ public class TestGeoObjectTypeInfo
         System.out.println("Applying TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
 
-      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, frequency, this.testDataSet.adapter);
+      String organizationCode = null;
+      
+// Heads up: cleans up
+//      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), this.getIsLeaf(), true, frequency, this.testDataSet.adapter);
+      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, this.testDataSet.adapter);
 //      ServerGeoObjectType type = new ServerGeoObjectTypeBuilder().create(got);
       this.serverObject = new ServerGeoObjectTypeConverter().create(got);
 
