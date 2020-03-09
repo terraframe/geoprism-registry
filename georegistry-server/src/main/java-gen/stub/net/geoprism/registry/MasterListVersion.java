@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -47,7 +47,6 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
@@ -148,6 +147,10 @@ public class MasterListVersion extends MasterListVersionBase
   public static String      DEFAULT_LOCALE   = "DefaultLocale";
 
   public static String      PERIOD           = "period";
+
+  public static String      PUBLISHED        = "PUBLISHED";
+
+  public static String      EXPLORATORY      = "EXPLORATORY";
 
   public MasterListVersion()
   {
@@ -833,18 +836,16 @@ public class MasterListVersion extends MasterListVersionBase
 
   private String getPeriod(MasterList masterlist, SimpleDateFormat format)
   {
-    ServerGeoObjectType type = masterlist.getGeoObjectType();
+    List<ChangeFrequency> frequency = masterlist.getFrequency();
 
-    FrequencyType frequency = type.getFrequency();
-
-    if (frequency.equals(FrequencyType.ANNUAL))
+    if (frequency.contains(ChangeFrequency.ANNUAL))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
 
       return Integer.toString(calendar.get(Calendar.YEAR));
     }
-    else if (frequency.equals(FrequencyType.QUARTER))
+    else if (frequency.contains(ChangeFrequency.QUARTER))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
@@ -853,7 +854,7 @@ public class MasterListVersion extends MasterListVersionBase
 
       return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
     }
-    else if (frequency.equals(FrequencyType.MONTHLY))
+    else if (frequency.contains(ChangeFrequency.MONTHLY))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
@@ -1362,11 +1363,12 @@ public class MasterListVersion extends MasterListVersionBase
   }
 
   @Transaction
-  public static MasterListVersion create(MasterList list, Date forDate)
+  public static MasterListVersion create(MasterList list, Date forDate, String versionType)
   {
     MasterListVersion version = new MasterListVersion();
     version.setMasterlist(list);
     version.setForDate(forDate);
+    version.setVersionType(versionType);
 
     TableMetadata metadata = null;
 

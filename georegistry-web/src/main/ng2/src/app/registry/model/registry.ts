@@ -46,7 +46,6 @@ export class GeoObjectType {
     label: LocalizedValue;
     description: LocalizedValue;
     geometryType: string;
-    frequency: string;
     isLeaf: boolean;
     isGeometryEditable: boolean;
     attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
@@ -238,7 +237,7 @@ export class ConflictsResponse {
 }
 
 export class Conflict {
-    error: ConflictError;
+    exception: ConflictError;
     object: ConflictObject;
     objectType: string;
     selected?: boolean;
