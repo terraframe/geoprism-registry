@@ -156,8 +156,16 @@ public class ETLService
       SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(TimeZone.getTimeZone("GMT"));
       
-      jo.put("configStartDate", format.format(((GeoObjectImportConfiguration)config).getStartDate()));
-      jo.put("configEndDate", format.format(((GeoObjectImportConfiguration)config).getEndDate()));
+      GeoObjectImportConfiguration casted = (GeoObjectImportConfiguration) config;
+      
+      if (casted.getStartDate() != null)
+      {
+        jo.put("configStartDate", format.format(casted.getStartDate()));
+      }
+      if (casted.getEndDate() != null)
+      {
+        jo.put("configEndDate", format.format(casted.getEndDate()));
+      }
     }
     
     jo.put("formatType", config.getFormatType());
