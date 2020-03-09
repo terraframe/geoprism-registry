@@ -28,3 +28,8 @@ label.btn.full-width-radio-button.disabled {
     background: var(--theme-button-color) !important;
     outline: 0px !important;
 }
+
+
+label.btn.full-width-radio-button.error {
+    border-color: #8c0000;
+}

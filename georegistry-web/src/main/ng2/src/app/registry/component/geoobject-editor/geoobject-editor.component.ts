@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, 
+    Input, Output, EventEmitter } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { DatePipe } from '@angular/common';
@@ -12,7 +13,8 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 
 
 import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, Attribute, 
+    AttributeTerm, AttributeDecimal, Term, ParentTreeNode, Conflict, ConflictObject } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
@@ -122,7 +124,7 @@ export class GeoObjectEditorComponent implements OnInit {
     ngOnInit(): void {
 
     }
-    
+
     findVotWithStartDate( votArray, startDate ): any {
       for (let i: number = 0; i < votArray.length; ++i)
       {
@@ -161,6 +163,30 @@ export class GeoObjectEditorComponent implements OnInit {
         this.registryService.newGeoObjectOverTime( typeCode ).then( retJson => {
             this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, retJson.geoObject.attributes);
             this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.goPropertiesPre ) ).attributes);
+
+            this.hierarchies = retJson.hierarchies;
+        } );
+    }
+
+    // Configures the widget to be used in a "New" context as a result of an integration conflict, 
+    // that is to say that it will be used to create a new GeoObject.
+    public configureAsNewFromError(conflictObject: ConflictObject, typeCode: string, dateStr: string, isGeometryEditable: boolean ) {
+        this.isNewGeoObject = true;
+        this.dateStr = dateStr;
+        this.forDate = new Date( Date.parse( dateStr ) );
+        this.isGeometryEditable = isGeometryEditable;
+
+        this.fetchGeoObjectType( typeCode );
+        this.fetchLocales();
+
+        this.registryService.newGeoObjectOverTime( typeCode ).then( retJson => {
+            this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, retJson.geoObject.attributes);
+            this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.goPropertiesPre ) ).attributes);
+
+            this.goPropertiesPre.attributes = conflictObject.geoObject.attributes;
+            this.goPropertiesPost.attributes = conflictObject.geoObject.attributes
+
+            console.log(this.goPropertiesPre)
 
             this.hierarchies = retJson.hierarchies;
         } );
@@ -270,9 +296,6 @@ export class GeoObjectEditorComponent implements OnInit {
             this.areParentsValid = this.parentSelector.getIsValid();
         }
         
-//        console.log("Attributes", this.arePropertiesValid);
-//        console.log("Parents", this.areParentsValid);
-
 //        this.isValid = this.arePropertiesValid && this.areGeometriesValid && this.areParentsValid;
         this.isValid = this.arePropertiesValid && this.areParentsValid;
     }

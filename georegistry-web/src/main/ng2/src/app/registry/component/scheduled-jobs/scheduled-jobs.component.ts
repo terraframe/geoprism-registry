@@ -19,8 +19,20 @@ import { ScheduledJob, Step, StepConfig, ScheduledJobOverview } from '../../mode
 } )
 export class ScheduledJobsComponent implements OnInit {
     message: string = null;
-    jobs: ScheduledJobOverview[];
-    completedJobs: ScheduledJob[];
+
+    activeJobsPage: any = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
+
+    completeJobsPage: any = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
 
     /*
      * Reference to the modal current showing
@@ -40,13 +52,7 @@ export class ScheduledJobsComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this.service.getScheduledJobs(1, 1, "createDate", true).then( response => {
-
-            this.jobs = this.formatStepConfig(response);
-
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        this.onActiveJobsPageChange( 1 );
 
     }
 
@@ -78,7 +84,7 @@ export class ScheduledJobsComponent implements OnInit {
                     },
 
                     {"label":"Database Import",
-                        "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? false : true,
+                        "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false,
                         "enabled":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false
                     }
                 ]}
@@ -92,13 +98,7 @@ export class ScheduledJobsComponent implements OnInit {
 
 
     onViewAllCompleteJobs(): void {
-        this.service.getCompletedScheduledJobs(1, 1, "createDate", true).then( response => {
-
-            this.completedJobs = response;
-
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        this.onCompleteJobsPageChange(1);
     }
 
 
@@ -106,8 +106,46 @@ export class ScheduledJobsComponent implements OnInit {
         this.router.navigate( ['/registry/master-list-history/', code] )
     }
 
-    onViewAllActiveJobs(): void {
+    onActiveJobsPageChange( pageNumber: any ): void {
 
+        this.message = null;
+
+        this.service.getScheduledJobs(this.activeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
+
+            this.activeJobsPage.results = this.formatStepConfig(response);
+            this.activeJobsPage.count = this.activeJobsPage.results.length;
+
+            // if(pageNumber > this.activeJobsPage.pageNumber){
+            //     this.activeJobsPage.pageNumber = this.activeJobsPage.pageNumber + 1;
+            // }
+            // else if(pageNumber < this.activeJobsPage.pageNumber){
+            //      this.activeJobsPage.pageNumber = this.activeJobsPage.pageNumber - 1;
+            // }
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+    }
+
+    onCompleteJobsPageChange( pageNumber: any ): void {
+
+        this.message = null;
+
+        this.service.getScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
+
+            this.completeJobsPage.results = response;
+            this.completeJobsPage.count = this.completeJobsPage.results.length;
+
+            // if(pageNumber > this.completeJobsPage.pageNumber){
+            //     this.completeJobsPage.pageNumber = this.completeJobsPage.pageNumber + 1;
+            // }
+            // else if(pageNumber < this.completeJobsPage.pageNumber){
+            //      this.completeJobsPage.pageNumber = this.completeJobsPage.pageNumber - 1;
+            // }
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
     }
 
 

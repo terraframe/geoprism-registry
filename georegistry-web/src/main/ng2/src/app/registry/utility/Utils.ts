@@ -53,7 +53,7 @@ export default class Utils {
         }
 
         if(probType === "net.geoprism.registry.io.AmbiguousParentException"){
-            return "Ambiguous Parent";
+            return "Multiple Parent Match";
         }
 
         if(probType === "net.geoprism.registry.io.InvalidGeometryException"){
@@ -66,6 +66,9 @@ export default class Utils {
 
         if(probType === "net.geoprism.registry.io.TermValueException"){
             // TODO
+        }
+        if(probType === "com.runwaysdk.dataaccess.DuplicateDataException"){
+            return "Duplicate Data";
         }
 
         return "";

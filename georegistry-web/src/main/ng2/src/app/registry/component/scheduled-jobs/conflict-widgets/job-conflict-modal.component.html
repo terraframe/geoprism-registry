@@ -21,7 +21,7 @@
             </div> -->
 
             
-            <div *ngIf="conflict && conflict.exception.type === 'net.geoprism.registry.io.ParentCodeException'">
+            <!-- <div *ngIf="conflict && conflict.exception.type === 'net.geoprism.registry.io.ParentCodeException'">
                 <relationship-problem-widget [conflict]="conflict" [job]="job"></relationship-problem-widget>
             </div>
             <div *ngIf="conflict && conflict.exception.type === 'REQUIREDVALUE'">
@@ -32,13 +32,15 @@
             </div>
             <div *ngIf="conflict && conflict.exception.type === 'DUPLICATE'">
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
+            </div> -->
+
+            <div *ngIf="job && job.errors.type === 'ImportErrors'">
+                <import-problem-widget [conflict]="conflict" [job]="job"></import-problem-widget>
+            </div>
+            <div *ngIf="job && job.errors.type === 'ValidationErrors'">
+                TODO
             </div>
 
-            <div *ngIf="conflict && conflict.exception.type === 'UNSPECIFIED'">
-
-                TODO: General error
-
-            </div>
 
 
             <div class="row-holder">

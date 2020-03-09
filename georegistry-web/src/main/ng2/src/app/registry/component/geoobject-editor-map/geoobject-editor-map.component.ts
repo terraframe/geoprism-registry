@@ -177,9 +177,12 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
             this.onValidChange();
         } );
 
+
         this.addLayers();
 
-        this.zoomToBbox();
+        if ( this.preGeometry != null && this.preGeometry !== "" ) {
+            this.zoomToBbox();
+        }
 
         // Add zoom and rotation controls to the map.
         this.map.addControl( new NavigationControl() );
@@ -272,10 +275,10 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     addLayers(): void {
-        if ( this.preGeometry != null ) {
+        if ( this.preGeometry != null && this.preGeometry !== "" ) {
             this.renderGeometryAsLayer( this.preGeometry, "pre", "#EFA22E" )
         }
-        if ( this.readOnly && this.postGeometry != null ) {
+        if ( this.readOnly && this.postGeometry != null && this.postGeometry !== "") {
             this.renderGeometryAsLayer( this.postGeometry, "post", "#3368EF" );
         }
     }

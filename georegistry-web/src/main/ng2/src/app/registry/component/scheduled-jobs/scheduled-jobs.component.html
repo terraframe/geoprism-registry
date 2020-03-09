@@ -15,15 +15,16 @@
                 <ul class="list-group">
                     <div class="solid-table-wrapper">
                         <table class="table table-striped"> 
-                            <thead> 
-                                <tr> 
-                                    <th style="">
+                            <thead > 
+                                <tr style="height: 56px;"> 
+                                    <th style="vertical-align: middle;">
                                         <localize key="scheduledjobs.jobs.table.header"></localize>                                      
                                     </th> 
                                 </tr> 
                             </thead> 
                             <tbody> 
-                                <tr *ngFor="let job of jobs; let i = index;"> 
+                                <!-- <tr *ngFor="let job of jobs; let i = index;">  -->
+                                <tr *ngFor="let job of activeJobsPage.results | paginate: { itemsPerPage: activeJobsPage.pageSize, currentPage: activeJobsPage.pageNumber, totalItems: activeJobsPage.count }" >
                                     <td style="vertical-align: middle;">
                                         <div class="wrapper">
                                             <i style="position: absolute;font-size: 40px;" class="fa fa-file" aria-hidden="true"></i>
@@ -52,8 +53,8 @@
 
                             </tbody> 
                         </table>
-                        <div class="solid-table-footer">
-                            <a (click)="onViewAllActiveJobs()" ><localize key="scheduledjobs.view.more.button"></localize></a>
+                        <div *ngIf="activeJobsPage.results.length > 0" class="solid-table-footer">
+                            <pagination-controls (pageChange)="onActiveJobsPageChange($event)"></pagination-controls>
                         </div>
                     </div>
 
@@ -64,15 +65,16 @@
                                     <th style="width:70%;border-bottom: none;">
                                         <localize style="line-height: 40px;" key="scheduledjobs.completedjobs.table.header"></localize>                                      
                                     </th> 
-                                    <th>
-                                        <button type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
+                                    <th style="border-bottom: none;">
+                                        <button *ngIf="completeJobsPage.results.length < 1" type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
                                             <localize key="scheduledjobs.view.completed.jobs.button"></localize>
                                         </button>
                                     </th>
                                 </tr> 
                             </thead> 
                             <tbody> 
-                                <tr *ngFor="let job of completedJobs; let i = index;"> 
+                                <!-- <tr *ngFor="let job of completedJobs; let i = index;">  -->
+                                <tr *ngFor="let job of completeJobsPage.results | paginate: { itemsPerPage: completeJobsPage.pageSize, currentPage: completeJobsPage.pageNumber, totalItems: completeJobsPage.count }" >
                                     <td style="width:70%; vertical-align: middle;">
                                         <div class="wrapper">
                                             <i class="fa fa-file" style="position: absolute;" aria-hidden="true"></i>
@@ -86,6 +88,10 @@
                                 </tr> 
                             </tbody> 
                         </table>
+
+                        <div *ngIf="completeJobsPage.results.length > 0" class="solid-table-footer">
+                            <pagination-controls (pageChange)="onCompleteJobsPageChange($event)"></pagination-controls>
+                        </div>
                     </div>
                 </ul>
 

@@ -24,7 +24,14 @@ export class JobComponent implements OnInit {
     message: string = null;
     job: ScheduledJobDetail;
     allSelected: boolean = false;
+    historyId: string = "";
     
+    page: any = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
     
     /*
      * Reference to the modal current showing
@@ -45,15 +52,9 @@ export class JobComponent implements OnInit {
 
     ngOnInit(): void {
 
-        let historyId = this.route.snapshot.params["oid"];
+        this.historyId = this.route.snapshot.params["oid"];
 
-        this.service.getScheduledJob(historyId, 1, 1).then( response => {
-
-            this.job = response;
-
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        this.onPageChange(1);
 
     }
 
@@ -76,6 +77,24 @@ export class JobComponent implements OnInit {
         this.bsModalRef.content.onConflictAction.subscribe( data => {
             // do something with the return
         } );
+    }
+
+    onPageChange( pageNumber: any ): void {
+
+        this.message = null;
+
+        this.service.getScheduledJob(this.historyId, this.page.pageSize, pageNumber).then( response => {
+
+            this.job = response;
+            
+            this.page.results = response.errors.page;
+            this.page.count = response.errors.page.length;
+            this.page.pageNumber = response.errors.pageNumber;
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+
     }
 
     onViewAllActiveJobs(): void {

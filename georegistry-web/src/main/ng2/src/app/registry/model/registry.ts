@@ -256,7 +256,7 @@ export class ConflictErrorAttribute {
 
 export class ConflictObject {
     geoObject: GeoObjectOverTime;
-    parents: ParentTreeNode[];
+    parents: HierarchyOverTime[];
 }
 
 export class StepConfig {
