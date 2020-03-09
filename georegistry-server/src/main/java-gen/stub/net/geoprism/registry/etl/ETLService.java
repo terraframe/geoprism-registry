@@ -1,6 +1,8 @@
 package net.geoprism.registry.etl;
 
+import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,6 +26,7 @@ import net.geoprism.GeoprismUser;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.GeoObjectEditorController;
 import net.geoprism.registry.etl.ImportError.Resolution;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ETLService
 {
@@ -67,16 +70,20 @@ public class ETLService
   }
   
   @Request(RequestType.SESSION)
-  public JSONArray getActiveImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
+  public JSONObject getActiveImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
     JSONArray ja = new JSONArray();
     
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.RUNNING).OR(ihq.getStatus().containsExactly(AllJobStatus.NEW)).OR(ihq.getStatus().containsExactly(AllJobStatus.QUEUED)).OR(ihq.getStatus().containsExactly(AllJobStatus.FEEDBACK)));
-    
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
+    
+    JSONObject page = new JSONObject();
+    page.put("count", ihq.getCount());
+    page.put("pageNumber", ihq.getPageNumber());
+    page.put("pageSize", ihq.getPageSize());
     
     OIterator<? extends ImportHistory> it = ihq.getIterator();
     
@@ -90,20 +97,26 @@ public class ETLService
       ja.put(serializeHistory(hist, user));
     }
     
-    return ja;
+    page.put("results", ja);
+    
+    return page;
   }
   
   @Request(RequestType.SESSION)
-  public JSONArray getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
+  public JSONObject getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
     JSONArray ja = new JSONArray();
     
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.SUCCESS).OR(ihq.getStatus().containsExactly(AllJobStatus.FAILURE)));
-    
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
+    
+    JSONObject page = new JSONObject();
+    page.put("count", ihq.getCount());
+    page.put("pageNumber", ihq.getPageNumber());
+    page.put("pageSize", ihq.getPageSize());
     
     OIterator<? extends ImportHistory> it = ihq.getIterator();
     
@@ -117,7 +130,9 @@ public class ETLService
       ja.put(serializeHistory(hist, user));
     }
     
-    return ja;
+    page.put("results", ja);
+    
+    return page;
   }
 
   protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user)
@@ -135,6 +150,20 @@ public class ETLService
     jo.put("workTotal", hist.getWorkTotal());
     jo.put("historyId", hist.getOid());
     
+    ImportConfiguration config = ImportConfiguration.build(hist.getConfigJson());
+    if (config instanceof GeoObjectImportConfiguration)
+    {
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+      
+      jo.put("configStartDate", format.format(((GeoObjectImportConfiguration)config).getStartDate()));
+      jo.put("configEndDate", format.format(((GeoObjectImportConfiguration)config).getEndDate()));
+    }
+    
+    jo.put("formatType", config.getFormatType());
+    jo.put("importStrategy", config.getImportStrategy().name());
+    jo.put("objectType", config.getObjectType());
+    
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
     {
       JSONObject exception = new JSONObject();
@@ -149,15 +178,27 @@ public class ETLService
   }
   
   @Request(RequestType.SESSION)
-  public JSONArray getImportErrors(String sessionId, String historyId, int pageSize, int pageNumber)
+  public JSONObject getImportErrors(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     JSONArray ja = new JSONArray();
     
     ImportErrorQuery query = new ImportErrorQuery(new QueryFactory());
     
     query.WHERE(query.getHistory().EQ(historyId));
+    
+    if (onlyUnresolved)
+    {
+      query.WHERE(query.getResolution().EQ(Resolution.UNRESOLVED.name()));
+    }
+    
+    query.ORDER_BY(query.getRowIndex(), SortOrder.ASC);
 
     query.restrictRows(pageSize, pageNumber);
+    
+    JSONObject page = new JSONObject();
+    page.put("count", query.getCount());
+    page.put("pageNumber", query.getPageNumber());
+    page.put("pageSize", query.getPageSize());
     
     OIterator<? extends ImportError> it = query.getIterator();
     while (it.hasNext())
@@ -167,37 +208,87 @@ public class ETLService
       ja.put(serializeImportError(err));
     }
     
-    return ja;
+    page.put("result", ja);
+    
+    return page;
   }
   
   @Request(RequestType.SESSION)
-  public JSONArray getValidationProblems(String sessionId, String historyId, int pageSize, int pageNumber)
+  public JSONObject getReferenceValidationProblems(String sessionId, String historyId, int pageSize, int pageNumber)
   {
-    JSONArray paginatedValidationProblems = new JSONArray();
-    
     ImportHistory hist = ImportHistory.get(historyId);
     
-    JSONArray allValidationProblems = new JSONArray(hist.getValidationProblems());
+    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+    vpq.WHERE(vpq.getHistory().EQ(hist).AND(vpq.getType().EQ(ParentReferenceProblem.CLASS).OR(vpq.getType().EQ(TermReferenceProblem.CLASS))));
+    vpq.restrictRows(pageSize, pageNumber);
+    vpq.ORDER_BY(vpq.getCreateDate(), SortOrder.ASC);
     
-    for (int recordNum = 1; recordNum <= pageSize; ++recordNum)
+    JSONObject page = new JSONObject();
+    page.put("count", vpq.getCount());
+    page.put("pageNumber", vpq.getPageNumber());
+    page.put("pageSize", vpq.getPageSize());
+    
+    JSONArray jaVP = new JSONArray();
+    
+    OIterator<? extends ValidationProblem> it = vpq.getIterator();
+    try
     {
-      int index = recordNum-1 + ((pageNumber-1)*pageSize);
-      
-      if (index < allValidationProblems.length())
+      while (it.hasNext())
       {
-        paginatedValidationProblems.put(allValidationProblems.get(index));
-      }
-      else
-      {
-        break;
+        ValidationProblem vp = it.next();
+        
+        jaVP.put(vp.toJSON());
       }
     }
+    finally
+    {
+      it.close();
+    }
     
-    return paginatedValidationProblems;
+    page.put("results", jaVP);
+    
+    return page;
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getImportDetails(String sessionId, String historyId, int pageSize, int pageNumber)
+  public JSONObject getRowValidationProblems(String sessionId, String historyId, int pageSize, int pageNumber)
+  {
+    ImportHistory hist = ImportHistory.get(historyId);
+    
+    RowValidationProblemQuery vpq = new RowValidationProblemQuery(new QueryFactory());
+    vpq.WHERE(vpq.getHistory().EQ(hist));
+    vpq.restrictRows(pageSize, pageNumber);
+    vpq.ORDER_BY(vpq.getRowNum(), SortOrder.ASC);
+    
+    JSONObject page = new JSONObject();
+    page.put("count", vpq.getCount());
+    page.put("pageNumber", vpq.getPageNumber());
+    page.put("pageSize", vpq.getPageSize());
+    
+    JSONArray jaVP = new JSONArray();
+    
+    OIterator<? extends ValidationProblem> it = vpq.getIterator();
+    try
+    {
+      while (it.hasNext())
+      {
+        ValidationProblem vp = it.next();
+        
+        jaVP.put(vp.toJSON());
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+    
+    page.put("results", jaVP);
+    
+    return page;
+  }
+  
+  @Request(RequestType.SESSION)
+  public JSONObject getImportDetails(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
@@ -205,26 +296,14 @@ public class ETLService
     
     JSONObject jo = this.serializeHistory(hist, user);
     
-    JSONObject errors = new JSONObject();
-    
-    errors.put("pageSize", pageSize);
-    errors.put("pageNumber", pageNumber);
-    
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
     {
-      errors.put("type", "ImportErrors");
-      
-      errors.put("page", this.getImportErrors(sessionId, historyId, pageSize, pageNumber));
-      
-      jo.put("errors", errors);
+      jo.put("importErrors", this.getImportErrors(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
     }
-    else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE) && hist.getValidationProblems().length() > 0)
+    else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
     {
-      errors.put("type", "ValidationErrors");
-      
-      errors.put("page", this.getValidationProblems(sessionId, historyId, pageSize, pageNumber));
-      
-      jo.put("errors", errors);
+      jo.put("referenceProblems", this.getReferenceValidationProblems(sessionId, historyId, pageSize, pageNumber));
+      jo.put("rowValidationProblems", this.getRowValidationProblems(sessionId, historyId, pageSize, pageNumber));
     }
     
     return jo;
@@ -347,5 +426,8 @@ public class ETLService
     hist.addStage(ImportStage.COMPLETE);
     
     hist.apply();
+    
+    VaultFile file = hist.getImportFile();
+    file.delete();
   }
 }

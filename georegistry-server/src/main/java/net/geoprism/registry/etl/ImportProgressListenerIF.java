@@ -1,7 +1,5 @@
 package net.geoprism.registry.etl;
 
-import java.util.Set;
-
 public interface ImportProgressListenerIF
 {
   public void setWorkTotal(Long workTotal);
@@ -20,7 +18,9 @@ public interface ImportProgressListenerIF
 
   public boolean hasValidationProblems();
 
-  public void addValidationProblem(ValidationProblem problem);
+  public void addReferenceProblem(ValidationProblem problem);
   
-  public Set<ValidationProblem> getValidationProblems();
+  public void addRowValidationProblem(ValidationProblem problem);
+  
+  public void applyValidationProblems();
 }

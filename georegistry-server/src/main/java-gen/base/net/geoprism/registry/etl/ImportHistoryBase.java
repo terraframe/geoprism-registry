@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 194975650)
+@com.runwaysdk.business.ClassSignature(hash = 886977315)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -17,8 +17,7 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String STAGE = "stage";
-  public static java.lang.String VALIDATIONPROBLEMS = "validationProblems";
-  private static final long serialVersionUID = 194975650;
+  private static final long serialVersionUID = 886977315;
   
   public ImportHistoryBase()
   {
@@ -225,34 +224,6 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF)mdClassIF.definesAttribute(STAGE);
-  }
-  
-  public String getValidationProblems()
-  {
-    return getValue(VALIDATIONPROBLEMS);
-  }
-  
-  public void validateValidationProblems()
-  {
-    this.validateAttribute(VALIDATIONPROBLEMS);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getValidationProblemsMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(VALIDATIONPROBLEMS);
-  }
-  
-  public void setValidationProblems(String value)
-  {
-    if(value == null)
-    {
-      setValue(VALIDATIONPROBLEMS, "");
-    }
-    else
-    {
-      setValue(VALIDATIONPROBLEMS, value);
-    }
   }
   
   protected String getDeclaredType()

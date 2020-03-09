@@ -61,7 +61,7 @@ public class ETLController
       isAscending = true;
     }
     
-    JSONArray config = this.service.getActiveImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+    JSONObject config = this.service.getActiveImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
     
     return new RestBodyResponse(config.toString());
   }
@@ -79,23 +79,23 @@ public class ETLController
       isAscending = true;
     }
     
-    JSONArray config = this.service.getCompletedImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+    JSONObject json = this.service.getCompletedImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
     
-    return new RestBodyResponse(config.toString());
+    return new RestBodyResponse(json.toString());
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-errors")
-  public ResponseIF getImport(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  public ResponseIF getImportErrors(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "onlyUnresolved") Boolean onlyUnresolved, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
-    JSONArray config = this.service.getImportErrors(request.getSessionId(), historyId, pageSize, pageNumber);
+    JSONObject json = this.service.getImportErrors(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
     
-    return new RestBodyResponse(config.toString());
+    return new RestBodyResponse(json.toString());
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-import-details")
-  public ResponseIF getImportDetails(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  public ResponseIF getImportDetails(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "onlyUnresolved") Boolean onlyUnresolved, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
-    JSONObject details = this.service.getImportDetails(request.getSessionId(), historyId, pageSize, pageNumber);
+    JSONObject details = this.service.getImportDetails(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
     
     return new RestBodyResponse(details.toString());
   }

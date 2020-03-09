@@ -3,6 +3,8 @@ package net.geoprism.registry.etl;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,9 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   
   private int recordedErrors = 0;
   
-  private Set<ValidationProblem> validationProblems = new TreeSet<ValidationProblem>();
+  private Set<ValidationProblem> referenceProblems = new TreeSet<ValidationProblem>();
+  
+  private Set<ValidationProblem> rowValidationProblems = new TreeSet<ValidationProblem>();
   
   public ImportHistoryProgressScribe(ImportHistory history)
   {
@@ -92,17 +96,33 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   @Override
   public boolean hasValidationProblems()
   {
-    return this.validationProblems.size() > 0;
+    return this.rowValidationProblems.size() > 0 || this.referenceProblems.size() > 0;
+  }
+  
+  @Override
+  public void addReferenceProblem(ValidationProblem problem)
+  {
+    this.referenceProblems.add(problem);
   }
 
   @Override
-  public void addValidationProblem(ValidationProblem problem)
+  public void addRowValidationProblem(ValidationProblem problem)
   {
-    this.validationProblems.add(problem);
+    this.rowValidationProblems.add(problem);
   }
-  
-  public Set<ValidationProblem> getValidationProblems()
+
+  @Override
+  public void applyValidationProblems()
   {
-    return this.validationProblems;
+    for (ValidationProblem problem : this.referenceProblems)
+    {
+      problem.setHistory(this.history);
+      problem.apply();
+    }
+    for (ValidationProblem problem : this.rowValidationProblems)
+    {
+      problem.setHistory(this.history);
+      problem.apply();
+    }
   }
 }

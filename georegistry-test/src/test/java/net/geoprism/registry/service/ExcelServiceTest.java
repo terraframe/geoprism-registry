@@ -84,6 +84,8 @@ import net.geoprism.registry.etl.ImportError;
 import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.ValidationProblem;
+import net.geoprism.registry.etl.ValidationProblemQuery;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.io.DelegateShapefileFunction;
@@ -181,9 +183,15 @@ public class ExcelServiceTest
   @Request
   private static void clearData()
   {
+    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+    OIterator<? extends ValidationProblem> vpit = vpq.getIterator();
+    while (vpit.hasNext())
+    {
+      vpit.next().delete();
+    }
+    
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     OIterator<? extends ImportError> ieit = ieq.getIterator();
-    
     while (ieit.hasNext())
     {
       ieit.next().delete();
@@ -192,7 +200,6 @@ public class ExcelServiceTest
     
     JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
     OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
-
     while (jhrs.hasNext())
     {
       JobHistoryRecord jhr = jhrs.next();
@@ -208,7 +215,6 @@ public class ExcelServiceTest
     SynonymQuery sq = new SynonymQuery(new QueryFactory());
     sq.WHERE(sq.getDisplayLabel().localize().EQ("00"));
     OIterator<? extends Synonym> it = sq.getIterator();
-    
     while (it.hasNext())
     {
       it.next().delete();
@@ -304,15 +310,15 @@ public class ExcelServiceTest
       waitTime += 10;
       if (waitTime > 20000)
       {
-        String extra = "";
-        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-        {
-          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), 100, 1).toString();
-          
-          extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
-        }
+//        String extra = "";
+//        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
+//        {
+//          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 100, 1).toString();
+//          
+//          extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
+//        }
         
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") " + extra);
+        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
         return;
       }
     }
@@ -811,9 +817,6 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    JSONArray problems = new JSONArray(hist.getValidationProblems());
-    Assert.assertEquals(0, problems.length());
-
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
     query.setRestriction(new CodeRestriction("0001"));
@@ -847,11 +850,12 @@ public class ExcelServiceTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT - 1), hist.getImportedRecords());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONArray problems = new JSONArray(hist.getValidationProblems());
-    Assert.assertEquals(1, problems.length());
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONArray results = page.getJSONArray("results");
+    Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.DISTRICT.getServerObject());
@@ -930,14 +934,15 @@ public class ExcelServiceTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(1), hist.getImportedRecords());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONArray problems = new JSONArray(hist.getValidationProblems());
-    Assert.assertEquals(1, problems.length());
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONArray results = page.getJSONArray("results");
+    Assert.assertEquals(1, results.length());
 
     // Assert the values of the problem
-    JSONObject problem = problems.getJSONObject(0);
+    JSONObject problem = results.getJSONObject(0);
 
     Assert.assertEquals("Test Term", problem.getString("label"));
     Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.getString("parentCode"));

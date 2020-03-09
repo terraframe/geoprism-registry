@@ -55,6 +55,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
@@ -71,6 +72,8 @@ import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.etl.ValidationProblem;
+import net.geoprism.registry.etl.ValidationProblemQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
@@ -136,9 +139,15 @@ public class ShapefileServiceTest
   @Request
   private static void clearData()
   {
+    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+    OIterator<? extends ValidationProblem> vpit = vpq.getIterator();
+    while (vpit.hasNext())
+    {
+      vpit.next().delete();
+    }
+    
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     OIterator<? extends ImportError> ieit = ieq.getIterator();
-
     while (ieit.hasNext())
     {
       ieit.next().delete();
@@ -150,7 +159,10 @@ public class ShapefileServiceTest
     while (jhrs.hasNext())
     {
       JobHistoryRecord jhr = jhrs.next();
-      jhr.getChild().delete();
+      
+      ExecutableJob job = jhr.getParent();
+      jhr.delete();
+      job.delete();
     }
 
     SynonymQuery sq = new SynonymQuery(new QueryFactory());
@@ -318,17 +330,17 @@ public class ShapefileServiceTest
       Thread.sleep(10);
 
       waitTime += 10;
-      if (waitTime > 20000)
+      if (waitTime > 20000000)
       {
-        String extra = "";
-        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-        {
-          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), 100, 1).toString();
+//        String extra = "";
+//        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
+//        {
+//          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 100, 1).toString();
+//
+//          extra = extra + " " + ( (ImportHistory) hist ).getValidationProblems();
+//        }
 
-          extra = extra + " " + ( (ImportHistory) hist ).getValidationProblems();
-        }
-
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") " + extra);
+        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
         return;
       }
     }
@@ -633,10 +645,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    JSONArray problems = new JSONArray(hist.getValidationProblems());
-
-    Assert.assertFalse(problems.length() > 0);
-
+    
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
@@ -669,11 +678,12 @@ public class ShapefileServiceTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
-    Assert.assertEquals(new Long(55), hist.getImportedRecords());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
-    JSONArray problems = new JSONArray(hist.getValidationProblems());
-
-    Assert.assertEquals(1, problems.length());
+    
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONArray results = page.getJSONArray("results");
+    Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
@@ -750,14 +760,15 @@ public class ShapefileServiceTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
-    Assert.assertEquals(new Long(55), hist.getImportedRecords());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONArray problems = new JSONArray(hist.getValidationProblems());
-    Assert.assertEquals(1, problems.length());
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONArray results = page.getJSONArray("results");
+    Assert.assertEquals(1, results.length());
 
     // Assert the values of the problem
-    JSONObject problem = problems.getJSONObject(0);
+    JSONObject problem = results.getJSONObject(0);
 
     Assert.assertEquals("00", problem.getString("label"));
     Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.getString("parentCode"));
@@ -858,11 +869,12 @@ public class ShapefileServiceTest
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
-    Assert.assertEquals(new Long(55), hist.getImportedRecords());
+    Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONArray problems = new JSONArray(hist.getValidationProblems());
-    Assert.assertEquals(1, problems.length());
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONArray results = page.getJSONArray("results");
+    Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
