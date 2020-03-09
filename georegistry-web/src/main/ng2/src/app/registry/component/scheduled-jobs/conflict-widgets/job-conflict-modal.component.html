@@ -34,10 +34,10 @@
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
             </div> -->
 
-            <div *ngIf="job && job.errors.type === 'ImportErrors'">
+            <div *ngIf="job && job.stage === 'IMPORT_RESOLVE'">
                 <import-problem-widget [conflict]="conflict" [job]="job"></import-problem-widget>
             </div>
-            <div *ngIf="job && job.errors.type === 'ValidationErrors'">
+            <div *ngIf="job && job.stage === 'VALIDATION_RESOLVE'">
                 TODO
             </div>
 

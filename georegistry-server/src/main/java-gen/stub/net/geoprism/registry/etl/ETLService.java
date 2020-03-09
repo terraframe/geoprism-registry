@@ -216,7 +216,7 @@ public class ETLService
       ja.put(serializeImportError(err));
     }
     
-    page.put("result", ja);
+    page.put("results", ja);
     
     return page;
   }

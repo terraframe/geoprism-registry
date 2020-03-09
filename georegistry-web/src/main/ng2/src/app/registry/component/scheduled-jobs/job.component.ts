@@ -13,7 +13,7 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { ScheduledJobDetail, Conflict } from '../../model/registry';
+import { Conflict, ScheduledJob } from '../../model/registry';
 
 @Component( {
     selector: 'job',
@@ -22,7 +22,7 @@ import { ScheduledJobDetail, Conflict } from '../../model/registry';
 } )
 export class JobComponent implements OnInit {
     message: string = null;
-    job: ScheduledJobDetail;
+    job: ScheduledJob;
     allSelected: boolean = false;
     historyId: string = "";
     
@@ -83,13 +83,11 @@ export class JobComponent implements OnInit {
 
         this.message = null;
 
-        this.service.getScheduledJob(this.historyId, this.page.pageSize, pageNumber).then( response => {
+        this.service.getScheduledJob(this.historyId, this.page.pageSize, pageNumber, true).then( response => {
 
             this.job = response;
             
-            this.page.results = response.errors.page;
-            this.page.count = response.errors.page.length;
-            this.page.pageNumber = response.errors.pageNumber;
+            this.page = response.importErrors;
 
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
@@ -108,7 +106,7 @@ export class JobComponent implements OnInit {
     toggleAll(): void {
         this.allSelected = !this.allSelected;
 
-        this.job.errors.page.forEach(row => {
+        this.job.importErrors.results.forEach(row => {
             row.selected = this.allSelected;
         })
     }
