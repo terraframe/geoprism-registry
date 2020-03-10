@@ -72,6 +72,7 @@ import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.etl.ValidationProblem;
 import net.geoprism.registry.etl.ValidationProblemQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -681,7 +682,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
     
-    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -763,7 +764,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -872,7 +873,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -889,8 +890,14 @@ public class ShapefileServiceTest
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServerGeoObjectIF serverGo = new ServerGeoObjectService().apply(geoObj, true, false);
-
-    new GeoSynonymService().createGeoEntitySynonym(this.testData.adminClientRequest.getSessionId(), serverGo.getRunwayId(), "00");
+    
+    JSONObject valRes = new JSONObject();
+    valRes.put("validationProblemId", results.getJSONObject(0).getString("id"));
+    valRes.put("resolution", ValidationResolution.SYNONYM);
+    valRes.put("entityId", serverGo.getRunwayId());
+    valRes.put("label", "00");
+    
+    new ETLService().submitValidationProblemResolution(this.testData.adminClientRequest.getSessionId(), valRes.toString());
 
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
@@ -913,6 +920,12 @@ public class ShapefileServiceTest
     List<ParentTreeNode> parents = nodes.getParents();
 
     Assert.assertEquals(1, parents.size());
+    
+    
+    JSONObject page2 = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONArray results2 = page2.getJSONArray("results");
+    Assert.assertEquals(0, results2.length());
+    Assert.assertEquals(0, page2.getInt("count"));
   }
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm)

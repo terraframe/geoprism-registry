@@ -1,6 +1,7 @@
 package net.geoprism.registry.etl;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -25,8 +26,10 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.GeoObjectEditorController;
-import net.geoprism.registry.etl.ImportError.Resolution;
+import net.geoprism.registry.etl.ImportError.ErrorResolution;
+import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.GeoSynonymService;
 
 public class ETLService
 {
@@ -134,6 +137,14 @@ public class ETLService
     
     return page;
   }
+  
+  private String formatDate(Date date)
+  {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    
+    return format.format(date);
+  }
 
   protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user)
   {
@@ -143,8 +154,8 @@ public class ETLService
     jo.put("stage", hist.getStage().get(0).name());
     jo.put("status", hist.getStatus().get(0).name());
     jo.put("author", user.getUsername());
-    jo.put("createDate", hist.getCreateDate());
-    jo.put("lastUpdateDate", hist.getLastUpdateDate());
+    jo.put("createDate", formatDate(hist.getCreateDate()));
+    jo.put("lastUpdateDate", formatDate(hist.getLastUpdateDate()));
     jo.put("importedRecords", hist.getImportedRecords());
     jo.put("workProgress", hist.getWorkProgress());
     jo.put("workTotal", hist.getWorkTotal());
@@ -153,18 +164,15 @@ public class ETLService
     ImportConfiguration config = ImportConfiguration.build(hist.getConfigJson());
     if (config instanceof GeoObjectImportConfiguration)
     {
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
-      
       GeoObjectImportConfiguration casted = (GeoObjectImportConfiguration) config;
       
       if (casted.getStartDate() != null)
       {
-        jo.put("configStartDate", format.format(casted.getStartDate()));
+        jo.put("configStartDate", formatDate(casted.getStartDate()));
       }
       if (casted.getEndDate() != null)
       {
-        jo.put("configEndDate", format.format(casted.getEndDate()));
+        jo.put("configEndDate", formatDate(casted.getEndDate()));
       }
     }
     
@@ -196,7 +204,7 @@ public class ETLService
     
     if (onlyUnresolved)
     {
-      query.WHERE(query.getResolution().EQ(Resolution.UNRESOLVED.name()));
+      query.WHERE(query.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
     }
     
     query.ORDER_BY(query.getRowIndex(), SortOrder.ASC);
@@ -222,7 +230,7 @@ public class ETLService
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getReferenceValidationProblems(String sessionId, String historyId, int pageSize, int pageNumber)
+  public JSONObject getReferenceValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
     
@@ -230,6 +238,11 @@ public class ETLService
     vpq.WHERE(vpq.getHistory().EQ(hist).AND(vpq.getType().EQ(ParentReferenceProblem.CLASS).OR(vpq.getType().EQ(TermReferenceProblem.CLASS))));
     vpq.restrictRows(pageSize, pageNumber);
     vpq.ORDER_BY(vpq.getCreateDate(), SortOrder.ASC);
+    
+    if (onlyUnresolved)
+    {
+      vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
+    }
     
     JSONObject page = new JSONObject();
     page.put("count", vpq.getCount());
@@ -259,7 +272,7 @@ public class ETLService
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getRowValidationProblems(String sessionId, String historyId, int pageSize, int pageNumber)
+  public JSONObject getRowValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
     
@@ -267,6 +280,11 @@ public class ETLService
     vpq.WHERE(vpq.getHistory().EQ(hist));
     vpq.restrictRows(pageSize, pageNumber);
     vpq.ORDER_BY(vpq.getRowNum(), SortOrder.ASC);
+    
+    if (onlyUnresolved)
+    {
+      vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
+    }
     
     JSONObject page = new JSONObject();
     page.put("count", vpq.getCount());
@@ -310,8 +328,8 @@ public class ETLService
     }
     else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
     {
-      jo.put("referenceProblems", this.getReferenceValidationProblems(sessionId, historyId, pageSize, pageNumber));
-      jo.put("rowValidationProblems", this.getRowValidationProblems(sessionId, historyId, pageSize, pageNumber));
+      jo.put("referenceProblems", this.getReferenceValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
+      jo.put("rowValidationProblems", this.getRowValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
     }
     
     return jo;
@@ -371,7 +389,7 @@ public class ETLService
     
     String resolution = config.getString("resolution");
     
-    if (resolution.equals(Resolution.APPLY_GEO_OBJECT.name()))
+    if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
     {
       String parentTreeNode = config.getString("parentTreeNode");
       String geoObject = config.getString("geoObject");
@@ -387,7 +405,53 @@ public class ETLService
       hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
       hist.apply();
     }
-    else if (resolution.equals(Resolution.IGNORE.name()))
+    else if (resolution.equals(ErrorResolution.IGNORE.name()))
+    {
+      err.appLock();
+      err.setResolution(resolution);
+      err.apply();
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
+    }
+  }
+  
+  @Request(RequestType.SESSION)
+  public void submitValidationProblemResolution(String sessionId, String json)
+  {
+    submitValidationProblemResolutionInTrans(sessionId, json);
+  }
+
+  @Transaction
+  private void submitValidationProblemResolutionInTrans(String sessionId, String json)
+  {
+    checkPermissions();
+    
+    JSONObject config = new JSONObject(json);
+    
+//    ImportHistory hist = ImportHistory.get(config.getString("historyId"));
+    
+    ValidationProblem err = ValidationProblem.get(config.getString("validationProblemId"));
+    
+    String resolution = config.getString("resolution");
+    
+    if (resolution.equals(ValidationResolution.SYNONYM.name()))
+    {
+      String entityId = config.getString("entityId");
+      String label = config.getString("label");
+      
+      new GeoSynonymService().createGeoEntitySynonym(sessionId, entityId, label);
+      
+      err.appLock();
+      err.setResolution(resolution);
+      err.apply();
+      
+//      hist.appLock();
+//      hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
+//      hist.apply();
+    }
+    else if (resolution.equals(ErrorResolution.IGNORE.name()))
     {
       err.appLock();
       err.setResolution(resolution);
