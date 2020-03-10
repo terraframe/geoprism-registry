@@ -10,6 +10,7 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
   {
     IGNORE,
     SYNONYM,
+    CREATE,
     UNRESOLVED
   }
   

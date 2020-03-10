@@ -22,6 +22,7 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
+import net.geoprism.DataUploader;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.RegistryConstants;
@@ -30,6 +31,7 @@ import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.GeoSynonymService;
+import net.geoprism.registry.service.RegistryService;
 
 public class ETLService
 {
@@ -424,43 +426,75 @@ public class ETLService
   }
 
   @Transaction
-  private void submitValidationProblemResolutionInTrans(String sessionId, String json)
+  private JSONObject submitValidationProblemResolutionInTrans(String sessionId, String json)
   {
     checkPermissions();
+    
+    JSONObject response = new JSONObject();
     
     JSONObject config = new JSONObject(json);
     
 //    ImportHistory hist = ImportHistory.get(config.getString("historyId"));
     
-    ValidationProblem err = ValidationProblem.get(config.getString("validationProblemId"));
+    ValidationProblem problem = ValidationProblem.get(config.getString("validationProblemId"));
     
     String resolution = config.getString("resolution");
     
     if (resolution.equals(ValidationResolution.SYNONYM.name()))
     {
-      String entityId = config.getString("entityId");
-      String label = config.getString("label");
+      if (problem instanceof TermReferenceProblem)
+      {
+        String entityId = config.getString("entityId");
+        String label = config.getString("label");
+        
+        response = new GeoSynonymService().createGeoEntitySynonym(sessionId, entityId, label);
+      }
+      else if (problem instanceof ParentReferenceProblem)
+      {
+        String classifierId = config.getString("classifierId");
+        String label = config.getString("label");
+        
+        response = new JSONObject(DataUploader.createClassifierSynonym(classifierId, label));
+      }
       
-      new GeoSynonymService().createGeoEntitySynonym(sessionId, entityId, label);
-      
-      err.appLock();
-      err.setResolution(resolution);
-      err.apply();
+      problem.appLock();
+      problem.setResolution(resolution);
+      problem.apply();
       
 //      hist.appLock();
 //      hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
 //      hist.apply();
     }
-    else if (resolution.equals(ErrorResolution.IGNORE.name()))
+    else if (resolution.equals(ValidationResolution.IGNORE.name()))
     {
-      err.appLock();
-      err.setResolution(resolution);
-      err.apply();
+      problem.appLock();
+      problem.setResolution(resolution);
+      problem.apply();
+    }
+    else if (resolution.equals(ValidationResolution.CREATE.name()))
+    {
+      if (problem instanceof TermReferenceProblem)
+      {
+        String parentTermCode = config.getString("parentTermCode");
+        String termJSON = config.getString("termJSON");
+        
+        response = new JSONObject(RegistryService.getInstance().createTerm(sessionId, parentTermCode, termJSON).toJSON().toString());
+      }
+      else if (problem instanceof ParentReferenceProblem)
+      {
+        // TODO
+      }
+      
+      problem.appLock();
+      problem.setResolution(resolution);
+      problem.apply();
     }
     else
     {
       throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
     }
+    
+    return response;
   }
   
   @Request(RequestType.SESSION)
