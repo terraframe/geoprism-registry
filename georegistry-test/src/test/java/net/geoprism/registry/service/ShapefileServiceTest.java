@@ -898,6 +898,8 @@ public class ShapefileServiceTest
     valRes.put("label", "00");
     
     new ETLService().submitValidationProblemResolution(this.testData.adminClientRequest.getSessionId(), valRes.toString());
+    
+    Assert.assertEquals(ValidationResolution.SYNONYM.name(), ValidationProblem.get(results.getJSONObject(0).getString("id")).getResolution());
 
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
