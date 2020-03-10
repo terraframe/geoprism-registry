@@ -14,6 +14,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 import { AuthService } from '../../../shared/service/auth.service';
 
 import { Conflict, ScheduledJob } from '../../model/registry';
+import { ModalTypes } from '../../../shared/model/modal';
 
 @Component( {
     selector: 'job',
@@ -100,7 +101,7 @@ export class JobComponent implements OnInit {
     }
 
     onViewAllCompleteJobs(): void {
-        
+
     }
 
     toggleAll(): void {
@@ -112,25 +113,30 @@ export class JobComponent implements OnInit {
     }
 
 
-    onDelete( list: { label: string, oid: string } ): void {
+    onResolveScheduledJob(historyId: string): void {
         this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
             animated: true,
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + list.label + ']';
-        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + this.job.fileName + ']';
+        this.bsModalRef.content.submitText = "Resolve all pending issues";
+        this.bsModalRef.content.type = ModalTypes.danger;
 
          this.bsModalRef.content.onConfirm.subscribe( data => {
-             
-            // this.service.deleteMasterList( list.oid ).then( response => {
-            //      this.lists = this.lists.filter(( value, index, arr ) => {
-            //          return value.oid !== list.oid;
-            //      } );
 
-            //  } ).catch(( err: HttpErrorResponse ) => {
-            //      this.error( err );
-            //  } );
+            this.service.resolveScheduledJob( historyId ).then( response => {
+
+                this.page = {
+                                count: 0,
+                                pageNumber: 1,
+                                pageSize: 10,
+                                results: []
+                            };
+
+             } ).catch(( err: HttpErrorResponse ) => {
+                 this.error( err );
+             } );
 
          } );
     }

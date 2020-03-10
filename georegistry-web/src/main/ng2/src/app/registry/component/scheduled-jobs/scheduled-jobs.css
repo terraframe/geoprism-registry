@@ -1,7 +1,8 @@
 /* Accounting for the height of the header bar + a margin at the bottom */
 .new-admin-design-main {
-    height: calc(100% - 88px);
+    /* height: calc(100% - 88px); */
 }
+
 
 .solid-table-wrapper {
     background: #F4F4F4;
