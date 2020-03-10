@@ -46,7 +46,6 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
@@ -68,7 +67,7 @@ import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterTyp
 import net.geoprism.registry.etl.ImportConfiguration;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportError.Resolution;
+import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
@@ -488,16 +487,16 @@ public class GeoObjectImporterTest
     // Test Resolving the error and then completing the import
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     Assert.assertEquals(1, ieq.getCount());
-    Assert.assertEquals(Resolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
+    Assert.assertEquals(ErrorResolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
     
     JSONObject resolution = new JSONObject();
     resolution.put("importErrorId", error.get("importErrorId"));
-    resolution.put("resolution", Resolution.IGNORE);
+    resolution.put("resolution", ErrorResolution.IGNORE);
     resolution.put("historyId", hist.getOid());
     
     new ETLService().submitImportErrorResolution(testData.adminClientRequest.getSessionId(), resolution.toString());
     
-    Assert.assertEquals(Resolution.IGNORE.name(), ieq.getIterator().next().getResolution());
+    Assert.assertEquals(ErrorResolution.IGNORE.name(), ieq.getIterator().next().getResolution());
     
     new ETLService().resolveImport(testData.adminClientRequest.getSessionId(), hist.getOid());
     
