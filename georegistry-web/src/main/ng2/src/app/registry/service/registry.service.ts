@@ -385,6 +385,23 @@ export class RegistryService {
             .toPromise();
     }
 
+
+    resolveScheduledJob(historyId: string): Promise<void> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>( acp + '/etl/import-resolve', JSON.stringify( { historyId: historyId } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+    }
+
+
     submitConflict( conflict: Conflict): Promise<any> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'

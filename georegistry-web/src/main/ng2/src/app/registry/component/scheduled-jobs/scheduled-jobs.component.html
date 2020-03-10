@@ -44,12 +44,13 @@
 
                                         </div>
                                     </td> 
-                                    <td *ngIf="isAdmin || isMaintainer" style="text-align: right;">  
+                                    <td *ngIf="isAdmin || isMaintainer" style="text-align: right;vertical-align: middle;">  
                                         <a [routerLink]="'/registry/job/' + job.historyId" routerLinkActive="active">
                                             <button class="btn btn-primary" role="button">
                                                 <localize key="scheduledjobs.detail.button"></localize>
                                             </button>
                                         </a>
+
                                         <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
                                     </td> 
                                 </tr> 
@@ -84,7 +85,7 @@
                                             <p style="padding-left: 30px;margin: 0;">{{job.fileName}}</p>
                                         </div>
                                     </td> 
-                                    <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;">                                
+                                    <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;vertical-align: middle;">                                
                                         <button type="submit" (click)="onView(job.historyId)" class="btn btn-primary" role="button"><localize key="scheduledjobs.detail.button"></localize></button>
                                         <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
                                     </td> 

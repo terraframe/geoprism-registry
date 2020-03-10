@@ -43,8 +43,9 @@
                 </div>
                 <div class="col-md-5 order-md-1"></div>
             </div>
-            <div *ngIf="job && job.importErrors" class="row">
+            <div *ngIf="job && job.importErrors.results.length > 0" class="row">
                 <div class="col-md-12 order-md-1">
+                    
                     <ul class="list-group">
             
                         <table class="list-table table table-bordered table-striped">
@@ -117,6 +118,10 @@
                         </div>
                     </ul>
                 </div>
+            </div>
+
+            <div *ngIf="job && job.importErrors.results.length > 0" class="button-holder" style="float: right;">
+                <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">Accept All As Complete</button>
             </div>
     </div>
 </div>

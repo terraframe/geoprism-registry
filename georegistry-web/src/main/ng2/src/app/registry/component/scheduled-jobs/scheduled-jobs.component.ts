@@ -11,6 +11,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 import { AuthService } from '../../../shared/service/auth.service';
 
 import { ScheduledJob, Step, StepConfig, ScheduledJobOverview, PaginationPage } from '../../model/registry';
+import { ModalTypes } from '../../../shared/model/modal';
 
 @Component( {
     selector: 'scheduled-jobs',
@@ -85,41 +86,6 @@ export class ScheduledJobsComponent implements OnInit {
             job.stepConfig = stepConfig;
         });
 
-        // let config: ScheduledJobOverview[] = [];
-        // page.results.forEach(job => {
-        //     let jobConfig = {
-        //         fileName: job.fileName,
-        //         historyId: job.historyId,
-        //         stage: job.stage,
-        //         status: job.status,
-        //         author: job.author,
-        //         createDate: job.createDate,
-        //         lastUpdateDate: job.lastUpdateDate,
-        //         workProgress: job.workProgress,
-        //         workTotal: job.workTotal,
-        //         "stepConfig": {"steps": [
-        //             {"label":"File Import", "complete":true, "enabled":false},
-
-        //             {"label":"Staging",
-        //                 "complete":job.stage === "NEW" ? false : true,
-        //                 "enabled":job.stage === "NEW" ? true : false
-        //             },
-
-        //             {"label":"Validation",
-        //                 "complete":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? false : true,
-        //                 "enabled":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? true : false
-        //             },
-
-        //             {"label":"Database Import",
-        //                 "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false,
-        //                 "enabled":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false
-        //             }
-        //         ]}
-        //     }
-        // });
-
-        // return config;
-
     }
 
 
@@ -161,25 +127,25 @@ export class ScheduledJobsComponent implements OnInit {
     }
 
 
-    onDelete( list: { label: string, oid: string } ): void {
+    onCancel( job: ScheduledJob ): void {
         this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
             animated: true,
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + list.label + ']';
+        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + job.fileName + ']';
         this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+        this.bsModalRef.content.type = ModalTypes.danger;
 
          this.bsModalRef.content.onConfirm.subscribe( data => {
-             
-            // this.service.deleteMasterList( list.oid ).then( response => {
-            //      this.lists = this.lists.filter(( value, index, arr ) => {
-            //          return value.oid !== list.oid;
-            //      } );
 
-            //  } ).catch(( err: HttpErrorResponse ) => {
-            //      this.error( err );
-            //  } );
+            this.service.cancelScheduledJob( job ).then( response => {
+
+                console.log(response)
+
+             } ).catch(( err: HttpErrorResponse ) => {
+                 this.error( err );
+             } );
 
          } );
     }
