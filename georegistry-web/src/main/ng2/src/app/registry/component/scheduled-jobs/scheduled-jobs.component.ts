@@ -10,7 +10,7 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { ScheduledJob, Step, StepConfig, ScheduledJobOverview } from '../../model/registry';
+import { ScheduledJob, Step, StepConfig, ScheduledJobOverview, PaginationPage } from '../../model/registry';
 
 @Component( {
     selector: 'scheduled-jobs',
@@ -20,14 +20,14 @@ import { ScheduledJob, Step, StepConfig, ScheduledJobOverview } from '../../mode
 export class ScheduledJobsComponent implements OnInit {
     message: string = null;
 
-    activeJobsPage: any = {
+    activeJobsPage: PaginationPage = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
         results: []
     };
 
-    completeJobsPage: any = {
+    completeJobsPage: PaginationPage = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
@@ -56,21 +56,12 @@ export class ScheduledJobsComponent implements OnInit {
 
     }
 
-    formatStepConfig(jobs: ScheduledJob[]): ScheduledJobOverview[] {
 
-        let config: ScheduledJobOverview[] = [];
-        jobs.forEach(job => {
-            let jobConfig = {
-                fileName: job.fileName,
-                historyId: job.historyId,
-                stage: job.stage,
-                status: job.status,
-                author: job.author,
-                createDate: job.createDate,
-                lastUpdateDate: job.lastUpdateDate,
-                workProgress: job.workProgress,
-                workTotal: job.workTotal,
-                "stepConfig": {"steps": [
+    formatStepConfig(page: PaginationPage): void {
+
+        page.results.forEach( job => {
+            let stepConfig = {
+                "steps": [
                     {"label":"File Import", "complete":true, "enabled":false},
 
                     {"label":"Staging",
@@ -87,13 +78,48 @@ export class ScheduledJobsComponent implements OnInit {
                         "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false,
                         "enabled":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false
                     }
-                ]}
+                ]
             }
 
-            config.push(jobConfig);
+            job = job as ScheduledJobOverview;
+            job.stepConfig = stepConfig;
         });
 
-        return config;
+        // let config: ScheduledJobOverview[] = [];
+        // page.results.forEach(job => {
+        //     let jobConfig = {
+        //         fileName: job.fileName,
+        //         historyId: job.historyId,
+        //         stage: job.stage,
+        //         status: job.status,
+        //         author: job.author,
+        //         createDate: job.createDate,
+        //         lastUpdateDate: job.lastUpdateDate,
+        //         workProgress: job.workProgress,
+        //         workTotal: job.workTotal,
+        //         "stepConfig": {"steps": [
+        //             {"label":"File Import", "complete":true, "enabled":false},
+
+        //             {"label":"Staging",
+        //                 "complete":job.stage === "NEW" ? false : true,
+        //                 "enabled":job.stage === "NEW" ? true : false
+        //             },
+
+        //             {"label":"Validation",
+        //                 "complete":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? false : true,
+        //                 "enabled":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? true : false
+        //             },
+
+        //             {"label":"Database Import",
+        //                 "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false,
+        //                 "enabled":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false
+        //             }
+        //         ]}
+        //     }
+        // });
+
+        // return config;
+
     }
 
 
@@ -112,15 +138,8 @@ export class ScheduledJobsComponent implements OnInit {
 
         this.service.getScheduledJobs(this.activeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
 
-            this.activeJobsPage.results = this.formatStepConfig(response);
-            this.activeJobsPage.count = this.activeJobsPage.results.length;
-
-            // if(pageNumber > this.activeJobsPage.pageNumber){
-            //     this.activeJobsPage.pageNumber = this.activeJobsPage.pageNumber + 1;
-            // }
-            // else if(pageNumber < this.activeJobsPage.pageNumber){
-            //      this.activeJobsPage.pageNumber = this.activeJobsPage.pageNumber - 1;
-            // }
+            this.activeJobsPage = response;
+            this.formatStepConfig(this.activeJobsPage);
 
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
@@ -133,15 +152,8 @@ export class ScheduledJobsComponent implements OnInit {
 
         this.service.getScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
 
-            this.completeJobsPage.results = response;
-            this.completeJobsPage.count = this.completeJobsPage.results.length;
-
-            // if(pageNumber > this.completeJobsPage.pageNumber){
-            //     this.completeJobsPage.pageNumber = this.completeJobsPage.pageNumber + 1;
-            // }
-            // else if(pageNumber < this.completeJobsPage.pageNumber){
-            //      this.completeJobsPage.pageNumber = this.completeJobsPage.pageNumber - 1;
-            // }
+            this.completeJobsPage = response;
+            this.formatStepConfig(this.completeJobsPage);
 
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );

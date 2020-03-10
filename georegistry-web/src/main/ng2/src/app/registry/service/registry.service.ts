@@ -24,7 +24,7 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
 import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, 
-    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, ScheduledJobDetail, Conflict } from '../model/registry';
+    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, Conflict, PaginationPage } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -346,7 +346,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<ScheduledJob[]> {
+    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
 
         let params: HttpParams = new HttpParams();
         params = params.set('pageSize', pageSize.toString());
@@ -356,11 +356,11 @@ export class RegistryService {
 
 
         return this.http
-            .get<ScheduledJob[]>( acp + '/etl/get-active', { params: params } )
+            .get<PaginationPage>( acp + '/etl/get-active', { params: params } )
             .toPromise();
     }
 
-    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<ScheduledJob[]> {
+    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
 
         let params: HttpParams = new HttpParams();
         params = params.set('pageSize', pageSize.toString());
@@ -369,18 +369,19 @@ export class RegistryService {
         params = params.set('isAscending', isAscending.toString());
 
         return this.http
-            .get<ScheduledJob[]>( acp + '/etl/get-completed', { params: params } )
+            .get<PaginationPage>( acp + '/etl/get-completed', { params: params } )
             .toPromise();
     }
 
-    getScheduledJob(historyId: string, pageSize: number, pageNumber: number): Promise<ScheduledJobDetail> {
+    getScheduledJob(historyId: string, pageSize: number, pageNumber: number, onlyUnresolved: boolean): Promise<ScheduledJob> {
         let params: HttpParams = new HttpParams();
         params = params.set("historyId", historyId);
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString())
+        params = params.set("onlyUnresolved", onlyUnresolved.toString());
 
         return this.http
-            .get<ScheduledJobDetail>( acp + '/etl/get-import-details', { params: params } )
+            .get<ScheduledJob>( acp + '/etl/get-import-details', { params: params } )
             .toPromise();
     }
 

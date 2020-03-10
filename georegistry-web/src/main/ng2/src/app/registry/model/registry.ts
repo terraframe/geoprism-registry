@@ -207,9 +207,16 @@ export class ManageGeoObjectTypeModalState {
     termOption: any;
 }
 
+export class PaginationPage {
+    pageNumber: number;
+    count: number;
+    pageSize: number;
+    results: any[];
+}
+
 export class ScheduledJob {
-    historyId: string;
     fileName: string;
+    historyId: string;
     stage: string;
     status: string;
     author: string;
@@ -217,24 +224,22 @@ export class ScheduledJob {
     lastUpdateDate: string;
     workProgress: number;
     workTotal: number;
+    importedRecords: number;
+    objectType: string;
+    formatType: string;
+    importStrategy: string;
+    configStartDate: string;
+    importErrors: PaginationPage
 }
 
 export class ScheduledJobOverview extends ScheduledJob{
     stepConfig: StepConfig;
 }
 
-export class ScheduledJobDetail extends ScheduledJob {
-    workProgress: number;
-    // failedRowCount: number;
-    errors: ConflictsResponse
-}
-
-export class ConflictsResponse {
-    page: Conflict[];
-    pageSize: number;
-    pageNumber: number;
-    type: string;
-}
+// export class ScheduledJobDetail extends ScheduledJob {
+//     // failedRowCount: number;
+//     importErrors: PaginationPage
+// }
 
 export class Conflict {
     exception: ConflictError;
