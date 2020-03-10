@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -35,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.commons.io.IOUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -117,6 +122,7 @@ import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase
 {
@@ -574,6 +580,35 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
 
+  public File generateShapefile()
+  {
+    String filename = this.getOid() + ".zip";
+
+    final MasterList list = this.getMasterlist();
+    final ServerGeoObjectType type = list.getGeoObjectType();
+
+    final File directory = list.getShapefileDirectory();
+    directory.mkdirs();
+
+    final File file = new File(directory, filename);
+
+    final GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, this.getPublishDate());
+
+    try (final InputStream istream = exporter.export())
+    {
+      try (final FileOutputStream fos = new FileOutputStream(file))
+      {
+        IOUtils.copy(istream, fos);
+      }
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+
+    return file;
+  }
+
   @Transaction
   public JsonObject publish()
   {
@@ -615,6 +650,8 @@ public class MasterListVersion extends MasterListVersionBase
             Business business = new Business(mdBusiness.definesType());
 
             publish(result, business, attributes, ancestorMap, locales);
+
+            Thread.yield();
           }
 
           ProgressService.put(this.getOid(), new Progress(current++, count, ""));

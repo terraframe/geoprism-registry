@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -29,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -46,6 +49,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -107,6 +111,28 @@ public class MasterList extends MasterListBase
     }
 
     super.delete();
+
+    final File directory = this.getShapefileDirectory();
+
+    if (directory.exists())
+    {
+      try
+      {
+        FileUtils.deleteDirectory(directory);
+      }
+      catch (IOException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
+    }
+  }
+
+  public File getShapefileDirectory()
+  {
+    final File root = GeoprismProperties.getGeoprismFileStorage();
+    final File directory = new File(root, "shapefiles");
+
+    return new File(directory, this.getOid());
   }
 
   public List<MasterListVersion> getVersions()
@@ -406,17 +432,27 @@ public class MasterList extends MasterListBase
   @Transaction
   public void publishFrequencyVersions()
   {
-    final ServerGeoObjectType objectType = this.getGeoObjectType();
-    Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-    List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
-
-    for (Date date : dates)
+    try
     {
-      MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
+      Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
-      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+      final ServerGeoObjectType objectType = this.getGeoObjectType();
+      Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
+      List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
-      version.publish();
+      for (Date date : dates)
+      {
+        MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
+
+        ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+        version.publish();
+        version.generateShapefile();
+      }
+    }
+    finally
+    {
+      Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
     }
   }
 
@@ -583,4 +619,89 @@ public class MasterList extends MasterListBase
 
     return true;
   }
+
+  public static JsonArray list()
+  {
+    JsonArray response = new JsonArray();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    OIterator<? extends MasterList> it = query.getIterator();
+
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+    try
+    {
+      while (it.hasNext())
+      {
+        MasterList list = it.next();
+
+        JsonObject object = new JsonObject();
+        object.addProperty("label", list.getDisplayLabel().getValue());
+        object.addProperty("oid", list.getOid());
+
+        object.addProperty("createDate", format.format(list.getCreateDate()));
+        object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+
+        response.add(object);
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+
+    return response;
+  }
+
+  public static JsonArray listByOrg()
+  {
+    JsonArray response = new JsonArray();
+
+    String[] orgs = new String[] { "Test" };
+
+    for (String org : orgs)
+    {
+      MasterListQuery query = new MasterListQuery(new QueryFactory());
+      query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+      OIterator<? extends MasterList> it = query.getIterator();
+
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+      JsonArray lists = new JsonArray();
+
+      try
+      {
+        while (it.hasNext())
+        {
+          MasterList list = it.next();
+
+          JsonObject object = new JsonObject();
+          object.addProperty("label", list.getDisplayLabel().getValue());
+          object.addProperty("oid", list.getOid());
+
+          object.addProperty("createDate", format.format(list.getCreateDate()));
+          object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+
+          lists.add(object);
+        }
+      }
+      finally
+      {
+        it.close();
+      }
+
+      JsonObject object = new JsonObject();
+      object.addProperty("oid", "test");
+      object.addProperty("label", org);
+      object.add("lists", lists);
+
+      response.add(object);
+    }
+
+    return response;
+  }
+
 }

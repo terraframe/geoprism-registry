@@ -395,7 +395,7 @@ public class MasterListTest
   }
 
   @Request
-  public JsonObject getJson(TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
+  public static JsonObject getJson(TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
   {
     JsonArray pArray = new JsonArray();
     for (TestGeoObjectTypeInfo parent : parents)
