@@ -1,6 +1,5 @@
 package net.geoprism.registry.etl;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.runwaysdk.constants.ClientRequestIF;
@@ -30,6 +29,14 @@ public class ETLController
     JSONObject config = this.service.doImport(request.getSessionId(), json);
     
     return new RestBodyResponse(config.toString());
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "validation-resolve")
+  public ResponseIF submitValidationProblemResolution(ClientRequestIF request, @RequestParamter(name = "config") String config)
+  {
+    this.service.submitValidationProblemResolution(request.getSessionId(), config);
+    
+    return new RestResponse();
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "error-resolve")

@@ -5,7 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { RelationshipProblemWidgetComponent } from './relationship-problem-widget.component'
 
-import { GeoObjectType, MasterList, Conflict, ScheduledJob } from '../../../model/registry';
+import { GeoObjectType, MasterList, Conflict, ScheduledJob, ScheduledJobOverview } from '../../../model/registry';
 
 import { RegistryService } from '../../../service/registry.service';
 
@@ -20,7 +20,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 export class JobConflictModalComponent implements OnInit {
     message: string = null;
     conflict: Conflict;
-    job: ScheduledJob;
+    job: ScheduledJobOverview;
 
     /*
      * Observable subject for submission.  Called when an update is successful 

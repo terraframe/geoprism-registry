@@ -6,6 +6,14 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
 {
   private static final long serialVersionUID = 681333878;
   
+  public static enum ValidationResolution
+  {
+    IGNORE,
+    SYNONYM,
+    CREATE,
+    UNRESOLVED
+  }
+  
   public ValidationProblem()
   {
     super();
@@ -20,6 +28,7 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
     json.put("resolution", this.getResolution());
     json.put("historyId", this.getHistory());
     json.put("type", this.getValidationProblemType());
+    json.put("id", this.getOid());
     
     return json;
   }
