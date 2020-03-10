@@ -444,17 +444,17 @@ public class ETLService
     {
       if (problem instanceof TermReferenceProblem)
       {
-        String entityId = config.getString("entityId");
-        String label = config.getString("label");
-        
-        response = new GeoSynonymService().createGeoEntitySynonym(sessionId, entityId, label);
-      }
-      else if (problem instanceof ParentReferenceProblem)
-      {
         String classifierId = config.getString("classifierId");
         String label = config.getString("label");
         
         response = new JSONObject(DataUploader.createClassifierSynonym(classifierId, label));
+      }
+      else if (problem instanceof ParentReferenceProblem)
+      {
+        String entityId = config.getString("entityId");
+        String label = config.getString("label");
+        
+        response = new GeoSynonymService().createGeoEntitySynonym(sessionId, entityId, label);
       }
       
       problem.appLock();
