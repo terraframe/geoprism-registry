@@ -43,6 +43,26 @@ public class ETLService
     String id = config.getVaultFileId();
     
     VaultFile.get(id).delete();
+    
+    if (config.getHistoryId() != null && config.getHistoryId().length() > 0)
+    {
+      String historyId = config.getHistoryId();
+      
+      ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+      vpq.WHERE(vpq.getHistory().EQ(historyId));
+      OIterator<? extends ValidationProblem> it = vpq.getIterator();
+      try
+      {
+        while (it.hasNext())
+        {
+          it.next().delete();
+        }
+      }
+      finally
+      {
+        it.close();
+      }
+    }
   }
   
   @Request(RequestType.SESSION)
