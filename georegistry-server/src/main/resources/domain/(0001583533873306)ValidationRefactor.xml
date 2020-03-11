@@ -1,0 +1,84 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.etl.ValidationProblem" isAbstract="true" publish="false" exported="false">
+        <attributes>
+          <text name="resolution" defaultValue="UNRESOLVED"/>
+          <reference name="history" label="history" type="net.geoprism.registry.etl.ImportHistory" />
+        </attributes>
+      </mdBusiness>
+      
+      <mdBusiness name="net.geoprism.registry.etl.ParentReferenceProblem" extends="net.geoprism.registry.etl.ValidationProblem">
+        <attributes>
+          <text name="label" label="label" />
+          <text name="typeCode" label="ServerGeoObjectType" />
+          <text name="parentCode" label="Parent Code" />
+          <text name="context" label="context" />
+        </attributes>
+      </mdBusiness>
+      
+      <mdBusiness name="net.geoprism.registry.etl.TermReferenceProblem" extends="net.geoprism.registry.etl.ValidationProblem">
+        <attributes>
+          <text name="label" label="label" />
+          <reference name="mdAttribute" label="mdAttribute" type="com.runwaysdk.system.metadata.MdAttributeTerm" />
+          <text name="parentCode" label="Parent Code" />
+          <text name="attributeCode" label="attributeCode" />
+          <text name="attributeLabel" label="attributeLabel" />
+        </attributes>
+      </mdBusiness>
+      
+      <mdBusiness name="net.geoprism.registry.etl.RowValidationProblem" extends="net.geoprism.registry.etl.ValidationProblem">
+        <attributes>
+          <text name="exceptionJson" label="exceptionJson" />
+          <long name="rowNum" label="rowNum" />
+        </attributes>
+      </mdBusiness>
+    </create>
+    <update></update>
+    <delete>
+      <object key="net.geoprism.registry.etl.ImportHistory.validationProblems" type="com.runwaysdk.system.metadata.MdAttributeText" />
+    </delete>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.ValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.ParentReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.TermReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.RowValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.ValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.ParentReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.TermReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.RowValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.ParentReferenceProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.RowValidationProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.TermReferenceProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.ValidationProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+    </delete>
+  </undoIt>
+</version>

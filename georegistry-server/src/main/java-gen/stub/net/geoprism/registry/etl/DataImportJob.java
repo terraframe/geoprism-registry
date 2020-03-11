@@ -4,16 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.Date;
 
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
-import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
@@ -65,6 +63,24 @@ public class DataImportJob extends DataImportJobBase
   {
     config.validate();
   }
+  
+  private void deleteValidationProblems(ImportHistory history)
+  {
+    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+    vpq.WHERE(vpq.getHistory().EQ(history));
+    OIterator<? extends ValidationProblem> it = vpq.getIterator();
+    try
+    {
+      while (it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+  }
 
   @Override
   public void execute(ExecutionContext executionContext) throws MalformedURLException, InvocationTargetException
@@ -86,10 +102,11 @@ public class DataImportJob extends DataImportJobBase
     
     if (stage.equals(ImportStage.VALIDATE))
     {
+      deleteValidationProblems(history);
+      
       history.appLock();
       history.setWorkProgress(0L);
       history.setImportedRecords(0L);
-      history.setValidationProblems("[]");
       history.apply();
       
       ImportProgressListenerIF progressListener = runImport(history, stage, config);
@@ -98,17 +115,12 @@ public class DataImportJob extends DataImportJobBase
       {
         executionContext.setStatus(AllJobStatus.FEEDBACK);
         
-        JSONArray validationProblems = new JSONArray();
-        for (ValidationProblem problem : progressListener.getValidationProblems())
-        {
-          validationProblems.put(problem.toJSON());
-        }
+        progressListener.applyValidationProblems();
         
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.VALIDATION_RESOLVE);
         history.setConfigJson(config.toJSON().toString());
-        history.setValidationProblems(validationProblems.toString());
         history.apply();
       }
       else
@@ -124,6 +136,8 @@ public class DataImportJob extends DataImportJobBase
     }
     else if (stage.equals(ImportStage.IMPORT))
     {
+      deleteValidationProblems(history);
+      
       history.appLock();
       history.setWorkProgress(0L);
       history.setImportedRecords(0L);

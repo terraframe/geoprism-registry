@@ -15,11 +15,11 @@ import { IOService } from '../../../service/io.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
 @Component( {
-    selector: 'relationship-problem-widget',
-    templateUrl: './relationship-problem-widget.component.html',
+    selector: 'import-problem-widget',
+    templateUrl: './import-problem-widget.component.html',
     styleUrls: []
 } )
-export class RelationshipProblemWidgetComponent implements OnInit {
+export class ImportProblemWidgetComponent implements OnInit {
     message: string = null;
     @Input() conflict: Conflict;
     @Input() job: ScheduledJob;
@@ -50,11 +50,12 @@ export class RelationshipProblemWidgetComponent implements OnInit {
         } );
 
         // TODO: change last param from fixed true to equivilent of this.list.isGeometryEditable
-        editModal.content.configureAsNew( conflict.object.geoObject.attributes.code, job.createDate, true );
+        editModal.content.configureAsNewFromError(conflict.object, conflict.object.geoObject.attributes.type, job.createDate, true );
         editModal.content.setMasterListId( null );
         editModal.content.setOnSuccessCallback(() => {
-            // Refresh the page
-            // this.onPageChange( this.page.pageNumber );
+
+            console.log("success")
+            
         } );
     }
 

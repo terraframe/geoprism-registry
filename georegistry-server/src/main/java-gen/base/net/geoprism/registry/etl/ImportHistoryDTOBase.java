@@ -1,10 +1,10 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1187281374)
+@com.runwaysdk.business.ClassSignature(hash = 1159668131)
 public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.scheduler.JobHistoryDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
-  private static final long serialVersionUID = -1187281374;
+  private static final long serialVersionUID = 1159668131;
   
   protected ImportHistoryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -33,7 +33,6 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String STAGE = "stage";
-  public static java.lang.String VALIDATIONPROBLEMS = "validationProblems";
   public String getConfigJson()
   {
     return getValue(CONFIGJSON);
@@ -275,43 +274,6 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   public final com.runwaysdk.transport.metadata.AttributeEnumerationMdDTO getStageMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeEnumerationMdDTO) getAttributeDTO(STAGE).getAttributeMdDTO();
-  }
-  
-  public String getValidationProblems()
-  {
-    return getValue(VALIDATIONPROBLEMS);
-  }
-  
-  public void setValidationProblems(String value)
-  {
-    if(value == null)
-    {
-      setValue(VALIDATIONPROBLEMS, "");
-    }
-    else
-    {
-      setValue(VALIDATIONPROBLEMS, value);
-    }
-  }
-  
-  public boolean isValidationProblemsWritable()
-  {
-    return isWritable(VALIDATIONPROBLEMS);
-  }
-  
-  public boolean isValidationProblemsReadable()
-  {
-    return isReadable(VALIDATIONPROBLEMS);
-  }
-  
-  public boolean isValidationProblemsModified()
-  {
-    return isModified(VALIDATIONPROBLEMS);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getValidationProblemsMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(VALIDATIONPROBLEMS).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.etl.ImportHistoryDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

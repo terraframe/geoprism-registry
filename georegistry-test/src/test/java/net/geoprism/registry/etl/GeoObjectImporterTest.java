@@ -16,13 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service;
+package net.geoprism.registry.etl;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -44,7 +46,6 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
@@ -66,7 +67,7 @@ import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterTyp
 import net.geoprism.registry.etl.ImportConfiguration;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportError.Resolution;
+import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
@@ -75,6 +76,8 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.service.ExcelService;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -187,15 +190,15 @@ public class GeoObjectImporterTest
       waitTime += 10;
       if (waitTime > 2000000)
       {
-        String extra = "";
-        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-        {
-          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), 100, 1).toString();
-          
-          extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
-        }
+//        String extra = "";
+//        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
+//        {
+//          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 100, 1).toString();
+//          
+//          extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
+//        }
         
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") " + extra);
+        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
         return;
       }
     }
@@ -274,9 +277,9 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
     
-    JSONArray ja = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     
-    Assert.assertEquals(0, ja.length());
+    Assert.assertEquals(0, json.getJSONArray("results").length());
   }
   
   @Test
@@ -337,9 +340,9 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
     
-    JSONArray ja = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     
-    Assert.assertEquals(2, ja.length());
+    Assert.assertEquals(2, json.getJSONArray("results").length());
   }
   
   @Test
@@ -402,9 +405,9 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
     
-    JSONArray ja = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     
-    Assert.assertEquals(1, ja.length());
+    Assert.assertEquals(1, json.getJSONArray("results").length());
   }
   
   @Test
@@ -444,7 +447,8 @@ public class GeoObjectImporterTest
     
     this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
     
-    JSONArray errors = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), 100, 1);
+    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONArray errors = json.getJSONArray("results");
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(2), hist.getWorkTotal());
@@ -457,7 +461,6 @@ public class GeoObjectImporterTest
     Assert.assertEquals(1, errors.length());
     
     JSONObject error = errors.getJSONObject(0);
-    System.out.println(error);
     
     Assert.assertTrue(error.has("importErrorId"));
     
@@ -486,16 +489,16 @@ public class GeoObjectImporterTest
     // Test Resolving the error and then completing the import
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     Assert.assertEquals(1, ieq.getCount());
-    Assert.assertEquals(Resolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
+    Assert.assertEquals(ErrorResolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
     
     JSONObject resolution = new JSONObject();
     resolution.put("importErrorId", error.get("importErrorId"));
-    resolution.put("resolution", Resolution.IGNORE);
+    resolution.put("resolution", ErrorResolution.IGNORE);
     resolution.put("historyId", hist.getOid());
     
     new ETLService().submitImportErrorResolution(testData.adminClientRequest.getSessionId(), resolution.toString());
     
-    Assert.assertEquals(Resolution.IGNORE.name(), ieq.getIterator().next().getResolution());
+    Assert.assertEquals(ErrorResolution.IGNORE.name(), ieq.getIterator().next().getResolution());
     
     new ETLService().resolveImport(testData.adminClientRequest.getSessionId(), hist.getOid());
     
@@ -509,6 +512,56 @@ public class GeoObjectImporterTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
     
     Assert.assertEquals(0, ieq.getCount());
+  }
+  
+  @Test
+  @Request
+  public void testGetImportDetails() throws InterruptedException
+  {
+    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
+    one.setCode("0001");
+    one.delete();
+
+    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", testData.DISTRICT);
+    two.setCode("0002");
+    two.delete();
+    
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
+    
+    Assert.assertNotNull(istream);
+    
+    ExcelService service = new ExcelService();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    config.setHierarchy(hierarchyType);
+    
+    Date startDate = new Date();
+    Date endDate = new Date();
+    config.setStartDate(startDate);
+    config.setEndDate(endDate);
+    
+    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+    
+    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(new Long(2), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    
+    JSONObject jo = new ETLService().getImportDetails(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    Assert.assertEquals(format.format(startDate), jo.getString("configStartDate"));
+    Assert.assertEquals(format.format(endDate), jo.getString("configEndDate"));
+    
+    JSONObject importErrors = jo.getJSONObject("importErrors");
+    JSONArray results = importErrors.getJSONArray("results");
+    
+    Assert.assertEquals(1, results.length());
   }
   
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)

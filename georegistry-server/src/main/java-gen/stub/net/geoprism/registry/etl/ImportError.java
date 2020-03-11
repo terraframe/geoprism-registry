@@ -6,7 +6,7 @@ public class ImportError extends ImportErrorBase
 {
   private static final long serialVersionUID = 1410792643;
   
-  public static enum Resolution
+  public static enum ErrorResolution
   {
     IGNORE,
     APPLY_GEO_OBJECT,
@@ -32,7 +32,7 @@ public class ImportError extends ImportErrorBase
   {
     if (this.getResolution().equals(""))
     {
-      this.setResolution(Resolution.UNRESOLVED.name());
+      this.setResolution(ErrorResolution.UNRESOLVED.name());
     }
     
     super.apply();

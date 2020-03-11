@@ -14,7 +14,7 @@
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.changePage(0);">
                         <localize key="geoobject.editor.tabZero"></localize>
                     </label>
-                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1}" (click)="this.changePage(1);">
+                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1, error: !areParentsValid}" (click)="this.changePage(1);">
                         <localize key="geoobject.editor.tabOne"></localize>
                     </label>
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2, disabled: !isGeometryEditable}" (click)="isGeometryEditable && this.changePage(2);">
@@ -74,6 +74,9 @@
                     <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="goForm.invalid || !this.isValid">
                         <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
                     </button>
+                    <span *ngIf="!areParentsValid" class="error-message" style="float: none;">
+                        Parents must be assigned.
+                    </span>
                 </div>
             </div>
         </div>

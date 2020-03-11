@@ -13,7 +13,8 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { ScheduledJobDetail, Conflict } from '../../model/registry';
+import { Conflict, ScheduledJob } from '../../model/registry';
+import { ModalTypes } from '../../../shared/model/modal';
 
 @Component( {
     selector: 'job',
@@ -22,9 +23,16 @@ import { ScheduledJobDetail, Conflict } from '../../model/registry';
 } )
 export class JobComponent implements OnInit {
     message: string = null;
-    job: ScheduledJobDetail;
+    job: ScheduledJob;
     allSelected: boolean = false;
+    historyId: string = "";
     
+    page: any = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
     
     /*
      * Reference to the modal current showing
@@ -45,15 +53,9 @@ export class JobComponent implements OnInit {
 
     ngOnInit(): void {
 
-        let historyId = this.route.snapshot.params["oid"];
+        this.historyId = this.route.snapshot.params["oid"];
 
-        this.service.getScheduledJob(historyId, 1, 1).then( response => {
-
-            this.job = response;
-
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        this.onPageChange(1);
 
     }
 
@@ -78,42 +80,63 @@ export class JobComponent implements OnInit {
         } );
     }
 
+    onPageChange( pageNumber: any ): void {
+
+        this.message = null;
+
+        this.service.getScheduledJob(this.historyId, this.page.pageSize, pageNumber, true).then( response => {
+
+            this.job = response;
+            
+            this.page = response.importErrors;
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+
+    }
+
     onViewAllActiveJobs(): void {
 
     }
 
     onViewAllCompleteJobs(): void {
-        
+
     }
 
     toggleAll(): void {
         this.allSelected = !this.allSelected;
 
-        this.job.errors.page.forEach(row => {
+        this.job.importErrors.results.forEach(row => {
             row.selected = this.allSelected;
         })
     }
 
 
-    onDelete( list: { label: string, oid: string } ): void {
+    onResolveScheduledJob(historyId: string): void {
         this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
             animated: true,
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + list.label + ']';
-        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + this.job.fileName + ']';
+        this.bsModalRef.content.submitText = "Resolve all pending issues";
+        this.bsModalRef.content.type = ModalTypes.danger;
 
          this.bsModalRef.content.onConfirm.subscribe( data => {
-             
-            // this.service.deleteMasterList( list.oid ).then( response => {
-            //      this.lists = this.lists.filter(( value, index, arr ) => {
-            //          return value.oid !== list.oid;
-            //      } );
 
-            //  } ).catch(( err: HttpErrorResponse ) => {
-            //      this.error( err );
-            //  } );
+            this.service.resolveScheduledJob( historyId ).then( response => {
+
+                this.page = {
+                                count: 0,
+                                pageNumber: 1,
+                                pageSize: 10,
+                                results: []
+                            };
+
+             } ).catch(( err: HttpErrorResponse ) => {
+                 this.error( err );
+             } );
 
          } );
     }

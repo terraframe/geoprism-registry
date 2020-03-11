@@ -100,7 +100,7 @@ export class CascadingGeoSelector {
             this.cHierarchies.push( object );
 
         } );
-        
+
         this.valid.emit();
     }
 

@@ -345,7 +345,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     catch (Throwable t)
     {
       RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress());
-      this.progressListener.addValidationProblem(problem);
+      this.progressListener.addRowValidationProblem(problem);
     }
 
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
@@ -506,7 +506,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
           parentBuilder.setParent(parent);
           
-          if (this.progressListener.getValidationProblems().size() > 0)
+          if (this.progressListener.hasValidationProblems())
           {
             throw new RuntimeException("Did not expect to encounter validation problems during import."); // TODO : SmartException?
           }
@@ -712,7 +712,9 @@ public class GeoObjectImporter implements ObjectImporterIF
             }
             else
             {
-              this.progressListener.addValidationProblem(new GeoObjectLocationProblem(location.getType(), label.toString(), parent, context));
+              String parentCode = (parent == null) ? null : parent.getCode();
+              
+              this.progressListener.addReferenceProblem(new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context));
             }
 
             return null;
@@ -816,7 +818,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-          this.progressListener.addValidationProblem(new TermProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
+          this.progressListener.addReferenceProblem(new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
         }
         else
         {

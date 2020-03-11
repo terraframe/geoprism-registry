@@ -70,6 +70,7 @@ import { RequiredValueProblemWidgetComponent } from './component/scheduled-jobs/
 import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/spatialreference-problem-widget.component';
 import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
 import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicator.component';
+import { ImportProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/import-problem-widget.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -170,7 +171,8 @@ import '../rxjs-extensions';
         RequiredValueProblemWidgetComponent,
         SpatialReferenceProblemWidgetComponent,
         DuplicateProblemWidgetComponent,
-        StepIndicatorComponent
+        StepIndicatorComponent,
+        ImportProblemWidgetComponent
     ],
     providers: [
         MapService,

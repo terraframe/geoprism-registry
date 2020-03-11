@@ -73,7 +73,7 @@
   <body ng-controller="DataManagementController" id="innerFrameHtml">
     <!-- HEADER AND NAVBAR -->
     <header>
-      <nav class="navbar navbar-default">
+      <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
           <div class="navbar-header">
             <a class="navbar-brand" href="${pageContext.request.contextPath}/cgr/manage#/menu" title="<gdb:localize key="userMenu.menuTooltip"/>"><img src="${pageContext.request.contextPath}/logo/view?id=logo" /></a>

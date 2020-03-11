@@ -10,7 +10,8 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { ScheduledJob, Step, StepConfig, ScheduledJobOverview } from '../../model/registry';
+import { ScheduledJob, Step, StepConfig, ScheduledJobOverview, PaginationPage } from '../../model/registry';
+import { ModalTypes } from '../../../shared/model/modal';
 
 @Component( {
     selector: 'scheduled-jobs',
@@ -19,8 +20,20 @@ import { ScheduledJob, Step, StepConfig, ScheduledJobOverview } from '../../mode
 } )
 export class ScheduledJobsComponent implements OnInit {
     message: string = null;
-    jobs: ScheduledJobOverview[];
-    completedJobs: ScheduledJob[];
+
+    activeJobsPage: PaginationPage = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
+
+    completeJobsPage: PaginationPage = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
 
     /*
      * Reference to the modal current showing
@@ -40,31 +53,16 @@ export class ScheduledJobsComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this.service.getScheduledJobs(1, 1, "createDate", true).then( response => {
-
-            this.jobs = this.formatStepConfig(response);
-
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        this.onActiveJobsPageChange( 1 );
 
     }
 
-    formatStepConfig(jobs: ScheduledJob[]): ScheduledJobOverview[] {
 
-        let config: ScheduledJobOverview[] = [];
-        jobs.forEach(job => {
-            let jobConfig = {
-                fileName: job.fileName,
-                historyId: job.historyId,
-                stage: job.stage,
-                status: job.status,
-                author: job.author,
-                createDate: job.createDate,
-                lastUpdateDate: job.lastUpdateDate,
-                workProgress: job.workProgress,
-                workTotal: job.workTotal,
-                "stepConfig": {"steps": [
+    formatStepConfig(page: PaginationPage): void {
+
+        page.results.forEach( job => {
+            let stepConfig = {
+                "steps": [
                     {"label":"File Import", "complete":true, "enabled":false},
 
                     {"label":"Staging",
@@ -78,27 +76,21 @@ export class ScheduledJobsComponent implements OnInit {
                     },
 
                     {"label":"Database Import",
-                        "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? false : true,
+                        "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false,
                         "enabled":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false
                     }
-                ]}
+                ]
             }
 
-            config.push(jobConfig);
+            job = job as ScheduledJobOverview;
+            job.stepConfig = stepConfig;
         });
 
-        return config;
     }
 
 
     onViewAllCompleteJobs(): void {
-        this.service.getCompletedScheduledJobs(1, 1, "createDate", true).then( response => {
-
-            this.completedJobs = response;
-
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        this.onCompleteJobsPageChange(1);
     }
 
 
@@ -106,33 +98,35 @@ export class ScheduledJobsComponent implements OnInit {
         this.router.navigate( ['/registry/master-list-history/', code] )
     }
 
-    onViewAllActiveJobs(): void {
+    onActiveJobsPageChange( pageNumber: any ): void {
 
-    }
+        this.message = null;
 
+        this.service.getScheduledJobs(this.activeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
 
-    onDelete( list: { label: string, oid: string } ): void {
-        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            this.activeJobsPage = response;
+            this.formatStepConfig(this.activeJobsPage);
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + list.label + ']';
-        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
-
-         this.bsModalRef.content.onConfirm.subscribe( data => {
-             
-            // this.service.deleteMasterList( list.oid ).then( response => {
-            //      this.lists = this.lists.filter(( value, index, arr ) => {
-            //          return value.oid !== list.oid;
-            //      } );
-
-            //  } ).catch(( err: HttpErrorResponse ) => {
-            //      this.error( err );
-            //  } );
-
-         } );
     }
+
+    onCompleteJobsPageChange( pageNumber: any ): void {
+
+        this.message = null;
+
+        this.service.getScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
+
+            this.completeJobsPage = response;
+            this.formatStepConfig(this.completeJobsPage);
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
+    }
+
+
 
     error( err: HttpErrorResponse ): void {
         // Handle error

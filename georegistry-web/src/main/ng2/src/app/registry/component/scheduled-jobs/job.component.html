@@ -43,8 +43,9 @@
                 </div>
                 <div class="col-md-5 order-md-1"></div>
             </div>
-            <div *ngIf="job && job.errors" class="row">
+            <div *ngIf="job && job.importErrors.results.length > 0" class="row">
                 <div class="col-md-12 order-md-1">
+                    
                     <ul class="list-group">
             
                         <table class="list-table table table-bordered table-striped">
@@ -68,8 +69,10 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr *ngFor="let row of job.errors.page; let i = index;">
+
+                            <tbody *ngIf="job.stage === 'IMPORT_RESOLVE'">
+                                <tr *ngFor="let row of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
+                                <!-- <tr *ngFor="let row of job.errors.page; let i = index;"> -->
                                     <td class="label-column">
                                         <boolean-field [(value)]="row.selected"></boolean-field>
                                     </td>
@@ -83,19 +86,42 @@
                                         <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
                                             <localize key="scheduledjobs.detail.button"></localize>
                                         </button>
-                                        <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
                                     </td>
                                 </tr>
-            
+                            </tbody>
+
+                            <tbody *ngIf="job.stage === 'VALIDATION_RESOLVE'">
+                                <tr *ngFor="let row of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
+                                    <td class="label-column">
+                                        <boolean-field [(value)]="row.selected"></boolean-field>
+                                    </td>
+                                    <td class="label-column" style="vertical-align: middle;">
+                                        TODO: Looks like exception isn't on the ValidationErrors object
+                                        <!-- <p>{{getFriendlyProblemType(row.exception.type)}}</p> -->
+                                    </td>
+                                    <td class="label-column" style="vertical-align: middle;">
+                                        <!-- <p>{{row.exception.message}}</p> -->
+                                        TODO: Looks like exception isn't on the ValidationErrors object
+                                    </td>
+                                    <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
+                                        <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
+                                            <localize key="scheduledjobs.detail.button"></localize>
+                                        </button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                         <div class="solid-table-footer">
-                            <a (click)="onViewAllActiveJobs()">
-                                <localize key="scheduledjobs.view.more.button"></localize>
-                            </a>
+                            <div *ngIf="page.results.length > 0" class="solid-table-footer">
+                                <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+                            </div>
                         </div>
                     </ul>
                 </div>
+            </div>
+
+            <div *ngIf="job && job.importErrors.results.length > 0" class="button-holder" style="float: right;">
+                <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">Accept All As Complete</button>
             </div>
     </div>
 </div>

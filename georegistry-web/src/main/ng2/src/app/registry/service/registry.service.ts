@@ -24,7 +24,7 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
 import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, 
-    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, ScheduledJobDetail, Conflict } from '../model/registry';
+    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, Conflict, PaginationPage } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -346,7 +346,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<ScheduledJob[]> {
+    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
 
         let params: HttpParams = new HttpParams();
         params = params.set('pageSize', pageSize.toString());
@@ -354,36 +354,13 @@ export class RegistryService {
         params = params.set('sortAttr', sortAttr);
         params = params.set('isAscending', isAscending.toString());
 
-        // return [
-        //     { fileName: "job 1", oid: "1", stage: "Staging", stageStatus: "active", author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-        //         "stepConfig": {"steps": [
-        //             {"label":"File Import", "complete":true, "enabled":false},
-        //             {"label":"Field Matching", "complete":true, "enabled":false},
-        //             {"label":"Staging", "complete":false, "enabled":true},
-        //             {"label":"Validation", "complete":false, "enabled":false}]
-        //         }},
-        //         { fileName: "job 2", oid: "2", stage: "Staging", stageStatus: "active", author: "joe", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-        //         "stepConfig": {"steps": [
-        //                 {"label":"File Import", "complete":true, "enabled":false},
-        //                 {"label":"Field Matching", "complete":false, "enabled":true},
-        //                 {"label":"Staging", "complete":false, "enabled":false},
-        //                 {"label":"Validation", "complete":false, "enabled":false}] 
-        //         }},
-        //         { fileName: "job 3", oid: "3", stage: "Staging", stageStatus: "active", author: "jane", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-        //         "stepConfig": {"steps": [
-        //                 {"label":"File Import", "complete":true, "enabled":false},
-        //                 {"label":"Field Matching", "complete":true, "enabled":false},
-        //                 {"label":"Staging", "complete":true, "enabled":false},
-        //                 {"label":"Validation", "complete":false, "enabled":true}] 
-        //         }}
-        //     ]
 
         return this.http
-            .get<ScheduledJob[]>( acp + '/etl/get-active', { params: params } )
+            .get<PaginationPage>( acp + '/etl/get-active', { params: params } )
             .toPromise();
     }
 
-    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<ScheduledJob[]> {
+    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
 
         let params: HttpParams = new HttpParams();
         params = params.set('pageSize', pageSize.toString());
@@ -392,32 +369,38 @@ export class RegistryService {
         params = params.set('isAscending', isAscending.toString());
 
         return this.http
-            .get<ScheduledJob[]>( acp + '/etl/get-completed', { params: params } )
+            .get<PaginationPage>( acp + '/etl/get-completed', { params: params } )
             .toPromise();
     }
 
-    getScheduledJob(historyId: string, pageSize: number, pageNumber: number): Promise<ScheduledJobDetail> {
+    getScheduledJob(historyId: string, pageSize: number, pageNumber: number, onlyUnresolved: boolean): Promise<ScheduledJob> {
         let params: HttpParams = new HttpParams();
         params = params.set("historyId", historyId);
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString())
-
-        // return { fileName: "job 1", oid: "1", stage: "Staging", status: "active", 
-        //         author: "justin", createDate: "10/10/2020", lastUpdateDate: "10/20/2020",
-        //         workProgress: 900, workTotal: 1000,
-        //         rows: [
-        //             {oid: "1", sourceId: "1", problemType: "RELATIONSHIP", conflictStatus: "Fail"},
-        //             {oid: "2", sourceId: "2", problemType: "REQUIREDVALUE", conflictStatus: "Fail"},
-        //             {oid: "3", sourceId: "3", problemType: "SPATIALREFERENCE", conflictStatus: "Fail"},
-        //             {oid: "4", sourceId: "4", problemType: "DUPLICATE", conflictStatus: "Fail"},
-        //             {oid: "5", sourceId: "5", problemType: "UNSPECIFIED", conflictStatus: "Fail"}
-        //         ]
-        //     }
+        params = params.set("onlyUnresolved", onlyUnresolved.toString());
 
         return this.http
-            .get<ScheduledJobDetail>( acp + '/etl/get-import-details', { params: params } )
+            .get<ScheduledJob>( acp + '/etl/get-import-details', { params: params } )
             .toPromise();
     }
+
+
+    resolveScheduledJob(historyId: string): Promise<void> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>( acp + '/etl/import-resolve', JSON.stringify( { historyId: historyId } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+    }
+
 
     submitConflict( conflict: Conflict): Promise<any> {
         let headers = new HttpHeaders( {
