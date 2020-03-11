@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service;
+package net.geoprism.registry.etl;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,6 +76,8 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.service.ExcelService;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -277,7 +279,7 @@ public class GeoObjectImporterTest
     
     JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     
-    Assert.assertEquals(0, json.getJSONArray("result").length());
+    Assert.assertEquals(0, json.getJSONArray("results").length());
   }
   
   @Test
@@ -340,7 +342,7 @@ public class GeoObjectImporterTest
     
     JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     
-    Assert.assertEquals(2, json.getJSONArray("result").length());
+    Assert.assertEquals(2, json.getJSONArray("results").length());
   }
   
   @Test
@@ -405,7 +407,7 @@ public class GeoObjectImporterTest
     
     JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     
-    Assert.assertEquals(1, json.getJSONArray("result").length());
+    Assert.assertEquals(1, json.getJSONArray("results").length());
   }
   
   @Test
@@ -446,7 +448,7 @@ public class GeoObjectImporterTest
     this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
     
     JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
-    JSONArray errors = json.getJSONArray("result");
+    JSONArray errors = json.getJSONArray("results");
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(2), hist.getWorkTotal());
@@ -557,7 +559,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(format.format(endDate), jo.getString("configEndDate"));
     
     JSONObject importErrors = jo.getJSONObject("importErrors");
-    JSONArray results = importErrors.getJSONArray("result");
+    JSONArray results = importErrors.getJSONArray("results");
     
     Assert.assertEquals(1, results.length());
   }

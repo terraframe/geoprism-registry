@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -50762471)
+@com.runwaysdk.business.ClassSignature(hash = 419741781)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -23,9 +23,10 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
   public static java.lang.String OWNER = "owner";
   public static java.lang.String RESOLUTION = "resolution";
   public static java.lang.String SEQ = "seq";
+  public static java.lang.String SEVERITY = "severity";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -50762471;
+  private static final long serialVersionUID = 419741781;
   
   public ValidationProblemBase()
   {
@@ -392,6 +393,34 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
     return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(SEQ);
   }
   
+  public Integer getSeverity()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(SEVERITY));
+  }
+  
+  public void validateSeverity()
+  {
+    this.validateAttribute(SEVERITY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getSeverityMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ValidationProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(SEVERITY);
+  }
+  
+  public void setSeverity(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(SEVERITY, "");
+    }
+    else
+    {
+      setValue(SEVERITY, java.lang.Integer.toString(value));
+    }
+  }
+  
   public String getSiteMaster()
   {
     return getValue(SITEMASTER);
@@ -427,13 +456,6 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
   protected String getDeclaredType()
   {
     return CLASS;
-  }
-  
-  public static ValidationProblemQuery getAllInstances(String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
-  {
-    ValidationProblemQuery query = new ValidationProblemQuery(new com.runwaysdk.query.QueryFactory());
-    com.runwaysdk.business.Entity.getAllInstances(query, sortAttribute, ascending, pageSize, pageNumber);
-    return query;
   }
   
   public static ValidationProblem get(String oid)

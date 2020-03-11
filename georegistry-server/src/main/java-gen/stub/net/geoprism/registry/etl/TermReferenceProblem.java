@@ -46,4 +46,15 @@ public class TermReferenceProblem extends TermReferenceProblemBase
 
     return object;
   }
+  
+  @Override
+  public void apply()
+  {
+    if (this.getSeverity() == null || this.getSeverity() == 0)
+    {
+      this.setSeverity(1);
+    }
+    
+    super.apply();
+  }
 }

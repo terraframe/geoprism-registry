@@ -63,4 +63,15 @@ public class RowValidationProblem extends RowValidationProblemBase
 
     return object;
   }
+  
+  @Override
+  public void apply()
+  {
+    if (this.getSeverity() == null || this.getSeverity() == 0)
+    {
+      this.setSeverity(100);
+    }
+    
+    super.apply();
+  }
 }

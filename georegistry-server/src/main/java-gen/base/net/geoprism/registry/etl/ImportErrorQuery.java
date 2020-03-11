@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 2019446302)
+@com.runwaysdk.business.ClassSignature(hash = 804551664)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -346,6 +346,23 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportError.SEQ, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getSeverity()
+  {
+    return getSeverity(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.etl.ImportError.SEVERITY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.etl.ImportError.SEVERITY, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getSiteMaster()
   {
     return getSiteMaster(null);
@@ -495,6 +512,9 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getSeverity();
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias);
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
@@ -808,6 +828,23 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportError.SEQ, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getSeverity()
+  {
+    return getSeverity(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportError.SEVERITY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportError.SEVERITY, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getSiteMaster()
   {
     return getSiteMaster(null);
@@ -934,6 +971,9 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getSeverity();
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias);
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
@@ -1294,6 +1334,23 @@ public  class ImportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportError.SEQ, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableInteger getSeverity()
+  {
+    return getSeverity(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportError.SEVERITY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.etl.ImportError.SEVERITY, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getSiteMaster()

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service;
+package net.geoprism.registry.etl;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +85,10 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.ShapefileService;
 import net.geoprism.registry.test.USATestData;
 
 public class ShapefileServiceTest
@@ -682,7 +686,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
     
-    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -764,7 +768,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -873,7 +877,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -899,7 +903,9 @@ public class ShapefileServiceTest
     
     new ETLService().submitValidationProblemResolution(this.testData.adminClientRequest.getSessionId(), valRes.toString());
     
-    Assert.assertEquals(ValidationResolution.SYNONYM.name(), ValidationProblem.get(results.getJSONObject(0).getString("id")).getResolution());
+    ValidationProblem vp = ValidationProblem.get(results.getJSONObject(0).getString("id"));
+    Assert.assertEquals(ValidationResolution.SYNONYM.name(), vp.getResolution());
+    Assert.assertEquals(ParentReferenceProblem.DEFAULT_SEVERITY, vp.getSeverity());
 
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
@@ -924,7 +930,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, parents.size());
     
     
-    JSONObject page2 = new ETLService().getReferenceValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page2 = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
     JSONArray results2 = page2.getJSONArray("results");
     Assert.assertEquals(0, results2.length());
     Assert.assertEquals(0, page2.getInt("count"));
