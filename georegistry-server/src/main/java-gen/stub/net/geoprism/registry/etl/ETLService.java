@@ -119,7 +119,7 @@ public class ETLService
       
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
       
-      ja.put(serializeHistory(hist, user));
+      ja.put(serializeHistory(hist, user, job));
     }
     
     page.put("results", ja);
@@ -152,7 +152,7 @@ public class ETLService
       
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
       
-      ja.put(serializeHistory(hist, user));
+      ja.put(serializeHistory(hist, user, job));
     }
     
     page.put("results", ja);
@@ -168,10 +168,11 @@ public class ETLService
     return format.format(date);
   }
 
-  protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user)
+  protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user, ExecutableJob job)
   {
     JSONObject jo = new JSONObject();
     
+    jo.put("jobType", job.getType());
     jo.put("fileName", hist.getImportFile().getFileName());
     jo.put("stage", hist.getStage().get(0).name());
     jo.put("status", hist.getStatus().get(0).name());
@@ -385,7 +386,7 @@ public class ETLService
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
     
-    JSONObject jo = this.serializeHistory(hist, user);
+    JSONObject jo = this.serializeHistory(hist, user, job);
     
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
     {
