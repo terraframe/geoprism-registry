@@ -52,7 +52,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>( acp + '/shapefile/import-shapefile', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

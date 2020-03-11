@@ -1,0 +1,30 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.ImportStrategy.NEW_AND_UPDATE">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.ImportStrategy.NEW_AND_UPDATE" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New and update" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.ImportStrategy.NEW_ONLY">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.ImportStrategy.NEW_ONLY" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New only" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.ImportStrategy.UPDATE_ONLY">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.ImportStrategy.UPDATE_ONLY" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Update only" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

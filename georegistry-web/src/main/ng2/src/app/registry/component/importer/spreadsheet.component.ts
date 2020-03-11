@@ -31,9 +31,9 @@ export class SpreadsheetComponent implements OnInit {
 
     importStrategy: ImportStrategy;
     importStrategies: any[] = [
-        {"strategy": ImportStrategy.NEW_AND_UPDATE, "label": "new and update"},
-        {"strategy": ImportStrategy.NEW_ONLY, "label": "new only"},
-        {"strategy": ImportStrategy.UPDATE_ONLY, "label": "update only"}
+        {"strategy": ImportStrategy.NEW_AND_UPDATE, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE")},
+        {"strategy": ImportStrategy.NEW_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY")},
+        {"strategy": ImportStrategy.UPDATE_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY")}
     ]
 
     /*
@@ -60,7 +60,7 @@ export class SpreadsheetComponent implements OnInit {
     fileRef: ElementRef;
 
 
-    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService ) { }
+    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService, private router: Router ) { }
 
     ngOnInit(): void {
         this.service.listGeoObjectTypes( true ).then( types => {
@@ -97,9 +97,11 @@ export class SpreadsheetComponent implements OnInit {
         };
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );
+            
+            this.router.navigate(['/registry/scheduled-jobs']);
 
-            this.bsModalRef = this.modalService.show( SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true } );
-            this.bsModalRef.content.configuration = configuration;
+            //this.bsModalRef = this.modalService.show( SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true } );
+            //this.bsModalRef.content.configuration = configuration;
         };
         this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
             this.error( JSON.parse( response ) );
