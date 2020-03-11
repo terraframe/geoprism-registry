@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import 'rxjs/add/operator/toPromise';
@@ -8,23 +8,26 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListVersion } from '../../model/registry';
 
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { PublishModalComponent } from './publish-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
 
 import { AuthService } from '../../../shared/service/auth.service';
 
 @Component({
-	selector: 'master-list-history',
-	templateUrl: './master-list-history.component.html',
+	selector: 'published-master-list-history',
+	templateUrl: './published-master-list-history.component.html',
 	styleUrls: []
 })
-export class MasterListHistoryComponent implements OnInit {
+export class PublishedMasterListHistoryComponent implements OnInit {
 	message: string = null;
 	list: MasterList = null;
-	forDate: string = '';
+	page: any = {
+		pageSize: 10,
+		pageNumber: 1,
+		count: 1,
+		results: []
+	};
 
 	@Input() oid: string;
 
@@ -38,8 +41,7 @@ export class MasterListHistoryComponent implements OnInit {
 	isContributor: boolean;
 
 
-	constructor(public service: RegistryService, private router: Router,
-		private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, authService: AuthService) {
 
 		this.isAdmin = authService.isAdmin();
 		this.isMaintainer = this.isAdmin || authService.isMaintainer();
@@ -47,17 +49,32 @@ export class MasterListHistoryComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.service.getMasterListHistory(this.oid, "EXPLORATORY").then(list => {
+		this.service.getMasterListHistory(this.oid, "PUBLISHED").then(list => {
 			this.list = list;
 		});
+
+		this.onPageChange(1);
 	}
 
 
 	onPublish(): void {
 		this.message = null;
 
-		this.service.createMasterListVersion(this.list.oid, this.forDate).then(version => {
-			this.list.versions.push(version);
+		this.service.publishMasterListVersions(this.list.oid).then((data: { job: string }) => {
+			// Refresh the page
+			this.onPageChange(this.page.pageNumber);
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
+	onPageChange(pageNumber: any): void {
+
+		this.message = null;
+
+		this.service.getPublishMasterListJobs(this.page.pageSize, pageNumber, "createDate", true).then(response => {
+
+			this.page = response;
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -82,28 +99,6 @@ export class MasterListHistoryComponent implements OnInit {
 
 		this.router.navigate(['/registry/master-list/', version.oid])
 	}
-
-	onDelete(version: MasterListVersion): void {
-		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
-		});
-		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + version.forDate + ']';
-		this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-
-		this.bsModalRef.content.onConfirm.subscribe(data => {
-			this.service.deleteMasterListVersion(version.oid).then(response => {
-				this.list.versions = this.list.versions.filter((value, index, arr) => {
-					return value.oid !== version.oid;
-				});
-
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		});
-	}
-
 
 	error(err: HttpErrorResponse): void {
 		// Handle error

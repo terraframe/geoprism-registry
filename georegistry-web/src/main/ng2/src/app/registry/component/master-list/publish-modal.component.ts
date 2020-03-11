@@ -73,7 +73,8 @@ export class PublishModalComponent implements OnInit {
                 telephoneNumber: '',
                 email: '',
                 hierarchies: [],
-				leaf: false
+				leaf: false,
+				frequency: 'ANNUAL'
             };
         }
 

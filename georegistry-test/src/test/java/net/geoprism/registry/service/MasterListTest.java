@@ -309,7 +309,7 @@ public class MasterListTest
     {
       service.createPublishedVersions(testData.adminClientRequest.getSessionId(), oid);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid);
+      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());

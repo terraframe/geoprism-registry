@@ -175,9 +175,9 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject getVersions(String sessionId, String oid)
+  public JsonObject getVersions(String sessionId, String oid, String versionType)
   {
-    return MasterList.get(oid).toJSON(true);
+    return MasterList.get(oid).toJSON(versionType);
   }
 
   @Request(RequestType.SESSION)

@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,6 +40,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.RegistryService;
 
@@ -116,6 +118,20 @@ public class MasterListController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish-versions")
+  public ResponseIF publishVersions(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+    final String jobId = this.service.createPublishedVersionsJob(request.getSessionId(), oid);
+
+    final RestResponse response = new RestResponse();
+    response.set("job", jobId);
+
+    return response;
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
   public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
@@ -125,9 +141,9 @@ public class MasterListController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
-  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "versionType") String versionType )
   {
-    JsonObject response = this.service.getVersions(request.getSessionId(), oid);
+    JsonObject response = this.service.getVersions(request.getSessionId(), oid, versionType);
 
     return new RestBodyResponse(response);
   }
@@ -190,4 +206,23 @@ public class MasterListController
 
     return new RestBodyResponse(response);
   }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-publish-jobs")
+  public ResponseIF getPublishJobs(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
+  {
+    if (sortAttr == null || sortAttr == "")
+    {
+      sortAttr = PublishMasterListJob.CREATEDATE;
+    }
+
+    if (isAscending == null)
+    {
+      isAscending = true;
+    }
+
+    JSONObject config = this.service.getPublishJobs(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+
+    return new RestBodyResponse(config.toString());
+  }
+
 }

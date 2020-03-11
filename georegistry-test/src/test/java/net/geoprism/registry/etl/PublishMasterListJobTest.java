@@ -47,6 +47,7 @@ import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.MasterListTest;
 import net.geoprism.registry.test.USATestData;
@@ -165,7 +166,7 @@ public class PublishMasterListJobTest
 
       this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid);
+      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
@@ -244,7 +245,7 @@ public class PublishMasterListJobTest
 
       this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid);
+      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
