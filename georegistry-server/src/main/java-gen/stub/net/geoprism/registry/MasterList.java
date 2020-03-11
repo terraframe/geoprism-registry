@@ -301,7 +301,6 @@ public class MasterList extends MasterListBase
     }
 
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
-    object.addProperty(MasterList.LEAF, type.isLeaf());
     object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
     object.addProperty(MasterList.LISTABSTRACT, this.getListAbstract());

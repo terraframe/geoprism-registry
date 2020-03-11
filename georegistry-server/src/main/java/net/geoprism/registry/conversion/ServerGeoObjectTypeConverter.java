@@ -20,11 +20,20 @@ package net.geoprism.registry.conversion;
 
 import java.util.List;
 
+import net.geoprism.DefaultConfiguration;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.InvalidMasterListCodeException;
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.WMSService;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.runwaysdk.ComponentIF;
@@ -37,6 +46,7 @@ import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeEnumerationInfo;
+import com.runwaysdk.constants.MdAttributeLocalCharacterEmbeddedInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
@@ -44,16 +54,15 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeEncryptionDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeFileDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeIndicatorDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeLocalDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeStructDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
-import com.runwaysdk.dataaccess.MdLocalStructDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeEnumerationDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeReferenceDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -61,32 +70,13 @@ import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.gis.mapping.GeoserverFacade;
-import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
-import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiPoint;
-import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
-import com.runwaysdk.system.gis.metadata.MdAttributePoint;
-import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeLocalCharacter;
 import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
-
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.InvalidMasterListCodeException;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 {
@@ -157,60 +147,61 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     objStatusNdAttrEnum.setDefiningMdClass(definingMdBusiness);
     objStatusNdAttrEnum.apply();
 
-    if (universal.getIsLeafType())
-    {
-      // DefaultAttribute.DISPLAY_LABEL
-      MdAttributeLocalCharacter labelMdAttr = new MdAttributeLocalCharacter();
-      labelMdAttr.setAttributeName(DefaultAttribute.DISPLAY_LABEL.getName());
-      labelMdAttr.getDisplayLabel().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
-      labelMdAttr.getDescription().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
-      labelMdAttr.setDefiningMdClass(definingMdBusiness);
-      labelMdAttr.setRequired(true);
-      labelMdAttr.apply();
-
-      com.runwaysdk.system.gis.geo.GeometryType geometryType = universal.getGeometryType().get(0);
-
-      MdAttributeGeometry mdAttributeGeometry;
-
-      if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
-      {
-        mdAttributeGeometry = new MdAttributePoint();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POINT_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
-      {
-        mdAttributeGeometry = new MdAttributeLineString();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_LINE_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
-      {
-        mdAttributeGeometry = new MdAttributePolygon();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POLYGON_ATTRIBUTE_LABEL);
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
-      {
-        mdAttributeGeometry = new MdAttributeMultiPoint();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_LABEL);
-
-      }
-      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
-      {
-        mdAttributeGeometry = new MdAttributeMultiLineString();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_LABEL);
-
-      }
-      else // geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON
-      {
-        mdAttributeGeometry = new MdAttributeMultiPolygon();
-        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
-      }
-
-      mdAttributeGeometry.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-      mdAttributeGeometry.setRequired(false);
-      mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
-      mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
-      mdAttributeGeometry.apply();
-    }
+// Heads up: clean up
+//    if (universal.getIsLeafType())
+//    {
+//      // DefaultAttribute.DISPLAY_LABEL
+//      MdAttributeLocalCharacter labelMdAttr = new MdAttributeLocalCharacter();
+//      labelMdAttr.setAttributeName(DefaultAttribute.DISPLAY_LABEL.getName());
+//      labelMdAttr.getDisplayLabel().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
+//      labelMdAttr.getDescription().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
+//      labelMdAttr.setDefiningMdClass(definingMdBusiness);
+//      labelMdAttr.setRequired(true);
+//      labelMdAttr.apply();
+//
+//      com.runwaysdk.system.gis.geo.GeometryType geometryType = universal.getGeometryType().get(0);
+//
+//      MdAttributeGeometry mdAttributeGeometry;
+//
+//      if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
+//      {
+//        mdAttributeGeometry = new MdAttributePoint();
+//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POINT_ATTRIBUTE_LABEL);
+//      }
+//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
+//      {
+//        mdAttributeGeometry = new MdAttributeLineString();
+//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_LINE_ATTRIBUTE_LABEL);
+//      }
+//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
+//      {
+//        mdAttributeGeometry = new MdAttributePolygon();
+//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POLYGON_ATTRIBUTE_LABEL);
+//      }
+//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
+//      {
+//        mdAttributeGeometry = new MdAttributeMultiPoint();
+//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_LABEL);
+//
+//      }
+//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
+//      {
+//        mdAttributeGeometry = new MdAttributeMultiLineString();
+//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_LABEL);
+//
+//      }
+//      else // geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON
+//      {
+//        mdAttributeGeometry = new MdAttributeMultiPolygon();
+//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
+//      }
+//
+//      mdAttributeGeometry.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+//      mdAttributeGeometry.setRequired(false);
+//      mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
+//      mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
+//      mdAttributeGeometry.apply();
+//    }
   }
 
   @Transaction
@@ -250,12 +241,21 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     // DefaultAttribute.DISPLAY_LABEL
     MdAttributeLocalCharacterEmbeddedDAO labelMdAttr = MdAttributeLocalCharacterEmbeddedDAO.newInstance();
-    labelMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.DISPLAY_LABEL.getName());
-    labelMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
-    labelMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
-    labelMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
-    labelMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+    labelMdAttr.setValue(MdAttributeLocalCharacterEmbeddedInfo.NAME, DefaultAttribute.DISPLAY_LABEL.getName());
+    labelMdAttr.setStructValue(MdAttributeLocalCharacterEmbeddedInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
+    labelMdAttr.setStructValue(MdAttributeLocalCharacterEmbeddedInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
+    labelMdAttr.setValue(MdAttributeLocalCharacterEmbeddedInfo.DEFINING_MD_CLASS, mdClass.getOid());
+    labelMdAttr.setValue(MdAttributeLocalCharacterEmbeddedInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
     labelMdAttr.apply();
+    
+    // DefaultAttribute.DISPLAY_LABEL
+    MdAttributeReferenceDAO orgMdAttrRef = MdAttributeReferenceDAO.newInstance();
+    orgMdAttrRef.setValue(MdAttributeReferenceInfo.NAME, DefaultAttribute.ORGANIZATION.getName());
+    orgMdAttrRef.setStructValue(MdAttributeReferenceInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.ORGANIZATION.getDefaultLocalizedName());
+    orgMdAttrRef.setStructValue(MdAttributeReferenceInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.ORGANIZATION.getDefaultDescription());
+    orgMdAttrRef.setValue(MdAttributeReferenceInfo.DEFINING_MD_CLASS, mdClass.getOid());
+    orgMdAttrRef.setValue(MdAttributeLocalCharacterEmbeddedInfo.REQUIRED, DefaultAttribute.ORGANIZATION.isRequired());
+    orgMdAttrRef.apply();
   }
 
   @Transaction
@@ -276,7 +276,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     Universal universal = new Universal();
     universal.setUniversalId(geoObjectType.getCode());
-    universal.setIsLeafType(geoObjectType.isLeaf());
+    universal.setIsLeafType(false);
     universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
 
     populate(universal.getDisplayLabel(), geoObjectType.getLabel());
@@ -308,15 +308,15 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     // Create the permissions for the new MdBusiness
     assignDefaultRolePermissions(mdBusiness);
-
-    if (geoObjectType.isLeaf())
-    {
-      MdBusinessDAOIF mdBusinessDAO = MdBusinessDAO.get(mdBusiness.getOid());
-      MdAttributeLocalDAOIF displayLabel = (MdAttributeLocalDAOIF) mdBusinessDAO.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName());
-      MdLocalStructDAOIF mdStruct = displayLabel.getMdStructDAOIF();
-
-      assignDefaultRolePermissions(mdStruct);
-    }
+// Heads up: clean up
+//    if (geoObjectType.isLeaf())
+//    {
+//      MdBusinessDAOIF mdBusinessDAO = MdBusinessDAO.get(mdBusiness.getOid());
+//      MdAttributeLocalDAOIF displayLabel = (MdAttributeLocalDAOIF) mdBusinessDAO.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName());
+//      MdLocalStructDAOIF mdStruct = displayLabel.getMdStructDAOIF();
+//
+//      assignDefaultRolePermissions(mdStruct);
+//    }
 
     // Create the MdGeoVertexClass
     MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId());
@@ -374,9 +374,13 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = GeometryTypeFactory.get(geoPrismgeometryType);
 
+
     LocalizedValue label = convert(universal.getDisplayLabel());
     LocalizedValue description = convert(universal.getDescription());
-    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsLeafType(), universal.getIsGeometryEditable(), ServiceFactory.getAdapter());
+    
+    String organizationCode = null;
+
+    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
 
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);
 

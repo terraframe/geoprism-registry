@@ -814,7 +814,6 @@ public class MasterListVersion extends MasterListVersionBase
 
     object.addProperty(MasterList.DISPLAYLABEL, masterlist.getDisplayLabel().getValue());
     object.addProperty(MasterListVersion.TYPE_CODE, type.getCode());
-    object.addProperty(MasterListVersion.LEAF, type.isLeaf());
     object.addProperty(MasterListVersion.MASTERLIST, masterlist.getOid());
     object.addProperty(MasterListVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));

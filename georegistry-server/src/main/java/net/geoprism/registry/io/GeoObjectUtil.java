@@ -82,63 +82,63 @@ public class GeoObjectUtil
   public static Map<String, LocationInfo> getAncestorMap(GeoObject object, ServerHierarchyType hierarchy)
   {
     Map<String, LocationInfo> map = new HashMap<String, LocationInfo>();
-
-    if (object.getType().isLeaf())
-    {
-      ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
-
-      Universal parentUniversal = (Universal) type.getUniversal().getParents(hierarchy.getUniversalType()).getAll().get(0);
-      String refAttributeName = hierarchy.getParentReferenceAttributeName(parentUniversal);
-
-      String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
-      String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
-
-      ValueQuery vQuery = new ValueQuery(new QueryFactory());
-      BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
-      GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
-      GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
-      UniversalQuery universalQuery = new UniversalQuery(vQuery);
-      BusinessQuery leafQuery = new BusinessQuery(vQuery, type.definesType());
-
-      GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
-
-      vQuery.SELECT(parentQuery.getOid());
-      vQuery.SELECT(parentQuery.getGeoId());
-      vQuery.SELECT(universalQuery.getKeyName());
-      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
-
-      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-      for (Locale locale : locales)
-      {
-        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
-      }
-
-      vQuery.AND(leafQuery.get(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
-      vQuery.AND(leafQuery.aReference(refAttributeName).EQ(childQuery));
-      vQuery.AND(parentQuery.getUniversal().EQ(universalQuery));
-      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.PARENTTERM).EQ(parentQuery));
-      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.CHILDTERM).EQ(childQuery));
-
-      OIterator<ValueObject> it = vQuery.getIterator();
-
-      try
-      {
-        while (it.hasNext())
-        {
-          ValueObject vObject = it.next();
-          String key = vObject.getValue(Universal.KEYNAME);
-
-          map.put(key, new ValueObjectContainer(vObject));
-        }
-      }
-      finally
-      {
-        it.close();
-      }
-    }
-    else
-    {
+// Heads up: clean up
+//    if (object.getType().isLeaf())
+//    {
+//      ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
+//
+//      Universal parentUniversal = (Universal) type.getUniversal().getParents(hierarchy.getUniversalType()).getAll().get(0);
+//      String refAttributeName = hierarchy.getParentReferenceAttributeName(parentUniversal);
+//
+//      String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
+//      String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
+//
+//      ValueQuery vQuery = new ValueQuery(new QueryFactory());
+//      BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
+//      GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
+//      GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
+//      UniversalQuery universalQuery = new UniversalQuery(vQuery);
+//      BusinessQuery leafQuery = new BusinessQuery(vQuery, type.definesType());
+//
+//      GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
+//
+//      vQuery.SELECT(parentQuery.getOid());
+//      vQuery.SELECT(parentQuery.getGeoId());
+//      vQuery.SELECT(universalQuery.getKeyName());
+//      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
+//
+//      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+//
+//      for (Locale locale : locales)
+//      {
+//        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+//      }
+//
+//      vQuery.AND(leafQuery.get(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
+//      vQuery.AND(leafQuery.aReference(refAttributeName).EQ(childQuery));
+//      vQuery.AND(parentQuery.getUniversal().EQ(universalQuery));
+//      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.PARENTTERM).EQ(parentQuery));
+//      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.CHILDTERM).EQ(childQuery));
+//
+//      OIterator<ValueObject> it = vQuery.getIterator();
+//
+//      try
+//      {
+//        while (it.hasNext())
+//        {
+//          ValueObject vObject = it.next();
+//          String key = vObject.getValue(Universal.KEYNAME);
+//
+//          map.put(key, new ValueObjectContainer(vObject));
+//        }
+//      }
+//      finally
+//      {
+//        it.close();
+//      }
+//    }
+//    else
+//    {
       String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
       String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
 
@@ -183,7 +183,7 @@ public class GeoObjectUtil
       {
         it.close();
       }
-    }
+//    }
 
     return map;
   }

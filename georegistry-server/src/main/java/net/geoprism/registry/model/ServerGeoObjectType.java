@@ -162,11 +162,6 @@ public class ServerGeoObjectType
     return this.type.isGeometryEditable();
   }
 
-  public boolean isLeaf()
-  {
-    return this.type.isLeaf();
-  }
-
   public LocalizedValue getLabel()
   {
     return this.type.getLabel();

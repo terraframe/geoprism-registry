@@ -115,9 +115,9 @@ public class RegistryIdService implements AdapterIdServiceIF
       ex.setRegistryId(registryId);
       throw ex;
     }
-
-    if (!got.isLeaf())
-    {
+// Heads up: clean up
+//    if (!got.isLeaf())
+//    {
       QueryFactory qf = new QueryFactory();
       ValueQuery vq = new ValueQuery(qf);
       BusinessQuery bq = qf.businessQuery(got.definesType());
@@ -146,34 +146,34 @@ public class RegistryIdService implements AdapterIdServiceIF
       {
         it.close();
       }
-    }
-    else
-    {
-      QueryFactory qf = new QueryFactory();
-      ValueQuery vq = new ValueQuery(qf);
-      BusinessQuery bq = qf.businessQuery(got.definesType());
-
-      vq.SELECT(bq.get(ComponentInfo.OID));
-      vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));
-
-      OIterator<ValueObject> it = vq.getIterator();
-
-      try
-      {
-        if (!it.hasNext())
-        {
-          InvalidRegistryIdException ex = new InvalidRegistryIdException();
-          ex.setRegistryId(registryId);
-          throw ex;
-        }
-
-        return it.next().getValue(ComponentInfo.OID);
-      }
-      finally
-      {
-        it.close();
-      }
-    }
+//    }
+//    else
+//    {
+//      QueryFactory qf = new QueryFactory();
+//      ValueQuery vq = new ValueQuery(qf);
+//      BusinessQuery bq = qf.businessQuery(got.definesType());
+//
+//      vq.SELECT(bq.get(ComponentInfo.OID));
+//      vq.WHERE(bq.get(RegistryConstants.UUID).EQ(registryId));
+//
+//      OIterator<ValueObject> it = vq.getIterator();
+//
+//      try
+//      {
+//        if (!it.hasNext())
+//        {
+//          InvalidRegistryIdException ex = new InvalidRegistryIdException();
+//          ex.setRegistryId(registryId);
+//          throw ex;
+//        }
+//
+//        return it.next().getValue(ComponentInfo.OID);
+//      }
+//      finally
+//      {
+//        it.close();
+//      }
+//    }
   }
 
   @Override

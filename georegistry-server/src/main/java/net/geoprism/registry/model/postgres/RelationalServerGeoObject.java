@@ -427,56 +427,56 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     ServerGeoObjectService service = new ServerGeoObjectService();
 
     ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, null);
-
-    if (child.getType().isLeaf())
-    {
-      List<MdAttributeDAOIF> mdAttributes = child.getMdAttributeDAOs().stream().filter(mdAttribute -> {
-        if (mdAttribute instanceof MdAttributeReferenceDAOIF)
-        {
-          MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
-
-          if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
-          {
-            return true;
-          }
-        }
-
-        return false;
-      }).collect(Collectors.toList());
-
-      mdAttributes.forEach(mdAttribute -> {
-
-        String parentRunwayId = (String) child.getValue(mdAttribute.definesAttribute());
-
-        if (parentRunwayId != null && parentRunwayId.length() > 0)
-        {
-          GeoEntity geParent = GeoEntity.get(parentRunwayId);
-          ServerGeoObjectIF parent = service.build(geParent);
-          Universal uni = parent.getType().getUniversal();
-
-          if (parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()))
-          {
-            ServerParentTreeNode tnParent;
-
-            ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
-
-            if (recursive)
-            {
-              tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
-            }
-            else
-            {
-              tnParent = new ServerParentTreeNode(parent, ht, null);
-            }
-
-            tnRoot.addParent(tnParent);
-          }
-        }
-      });
-
-    }
-    else
-    {
+// Heads up: Clean up
+//    if (child.getType().isLeaf())
+//    {
+//      List<MdAttributeDAOIF> mdAttributes = child.getMdAttributeDAOs().stream().filter(mdAttribute -> {
+//        if (mdAttribute instanceof MdAttributeReferenceDAOIF)
+//        {
+//          MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
+//
+//          if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
+//          {
+//            return true;
+//          }
+//        }
+//
+//        return false;
+//      }).collect(Collectors.toList());
+//
+//      mdAttributes.forEach(mdAttribute -> {
+//
+//        String parentRunwayId = (String) child.getValue(mdAttribute.definesAttribute());
+//
+//        if (parentRunwayId != null && parentRunwayId.length() > 0)
+//        {
+//          GeoEntity geParent = GeoEntity.get(parentRunwayId);
+//          ServerGeoObjectIF parent = service.build(geParent);
+//          Universal uni = parent.getType().getUniversal();
+//
+//          if (parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()))
+//          {
+//            ServerParentTreeNode tnParent;
+//
+//            ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
+//
+//            if (recursive)
+//            {
+//              tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
+//            }
+//            else
+//            {
+//              tnParent = new ServerParentTreeNode(parent, ht, null);
+//            }
+//
+//            tnRoot.addParent(tnParent);
+//          }
+//        }
+//      });
+//
+//    }
+//    else
+//    {
       String[] relationshipTypes = TermUtil.getAllChildRelationships(child.getRunwayId());
 
       Map<String, ServerHierarchyType> htMap = child.getHierarchyTypeMap(relationshipTypes);
@@ -505,7 +505,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
           tnRoot.addParent(tnParent);
         }
       }
-    }
+//    }
 
     return tnRoot;
   }
