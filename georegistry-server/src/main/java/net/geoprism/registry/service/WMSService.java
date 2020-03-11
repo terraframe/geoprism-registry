@@ -182,38 +182,38 @@ public class WMSService
     QueryFactory factory = new QueryFactory();
     ValueQuery vQuery = new ValueQuery(factory);
     Universal universal = type.getUniversal();
-
-    if (type.isLeaf())
-    {
-      BusinessQuery bQuery = new BusinessQuery(vQuery, universal.getMdBusiness().definesType());
-      AttributeLocal aLocalCharacter = bQuery.aLocalCharacter(DefaultAttribute.DISPLAY_LABEL.getName());
-      MdLocalStructDAOIF mdLocalStruct = aLocalCharacter.getMdStructDAOIF();
-
-      AttributeCharacter code = bQuery.aCharacter(DefaultAttribute.CODE.getName());
-      code.setColumnAlias(DefaultAttribute.CODE.getName());
-
-      vQuery.SELECT(code);
-
-      for (MdAttributeConcreteDAOIF mdAttributeConcrete : mdLocalStruct.definesAttributes())
-      {
-        if (this.isValidLocale(mdAttributeConcrete))
-        {
-          Attribute attribute = aLocalCharacter.get(mdAttributeConcrete.definesAttribute());
-          attribute.setColumnAlias(mdAttributeConcrete.getColumnName());
-
-          vQuery.SELECT(attribute);
-        }
-      }
-
-      Attribute geometry = bQuery.get(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-      geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
-
-      vQuery.SELECT(geometry);
-
-      vQuery.ORDER_BY_ASC(code);
-    }
-    else
-    {
+// Heads up: clean up
+//    if (type.isLeaf())
+//    {
+//      BusinessQuery bQuery = new BusinessQuery(vQuery, universal.getMdBusiness().definesType());
+//      AttributeLocal aLocalCharacter = bQuery.aLocalCharacter(DefaultAttribute.DISPLAY_LABEL.getName());
+//      MdLocalStructDAOIF mdLocalStruct = aLocalCharacter.getMdStructDAOIF();
+//
+//      AttributeCharacter code = bQuery.aCharacter(DefaultAttribute.CODE.getName());
+//      code.setColumnAlias(DefaultAttribute.CODE.getName());
+//
+//      vQuery.SELECT(code);
+//
+//      for (MdAttributeConcreteDAOIF mdAttributeConcrete : mdLocalStruct.definesAttributes())
+//      {
+//        if (this.isValidLocale(mdAttributeConcrete))
+//        {
+//          Attribute attribute = aLocalCharacter.get(mdAttributeConcrete.definesAttribute());
+//          attribute.setColumnAlias(mdAttributeConcrete.getColumnName());
+//
+//          vQuery.SELECT(attribute);
+//        }
+//      }
+//
+//      Attribute geometry = bQuery.get(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+//      geometry.setColumnAlias(GeoserverFacade.GEOM_COLUMN);
+//
+//      vQuery.SELECT(geometry);
+//
+//      vQuery.ORDER_BY_ASC(code);
+//    }
+//    else
+//    {
       GeoEntityQuery geQuery = new GeoEntityQuery(vQuery);
 
       SelectableChar geoId = geQuery.getGeoId(DefaultAttribute.CODE.getName());
@@ -279,7 +279,7 @@ public class WMSService
       }
 
       vQuery.WHERE(geQuery.getUniversal().EQ(universal));
-    }
+//    }
 
     return vQuery;
   }

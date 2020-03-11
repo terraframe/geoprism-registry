@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -2069292377)
+@com.runwaysdk.business.ClassSignature(hash = -303895417)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -27,9 +27,10 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
   public static java.lang.String RESOLUTION = "resolution";
   public static java.lang.String ROWINDEX = "rowIndex";
   public static java.lang.String SEQ = "seq";
+  public static java.lang.String SEVERITY = "severity";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -2069292377;
+  private static final long serialVersionUID = -303895417;
   
   public ImportErrorBase()
   {
@@ -506,6 +507,34 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportError.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(SEQ);
+  }
+  
+  public Integer getSeverity()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(SEVERITY));
+  }
+  
+  public void validateSeverity()
+  {
+    this.validateAttribute(SEVERITY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getSeverityMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(SEVERITY);
+  }
+  
+  public void setSeverity(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(SEVERITY, "");
+    }
+    else
+    {
+      setValue(SEVERITY, java.lang.Integer.toString(value));
+    }
   }
   
   public String getSiteMaster()

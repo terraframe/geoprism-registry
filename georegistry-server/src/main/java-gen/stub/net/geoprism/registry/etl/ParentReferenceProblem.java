@@ -7,6 +7,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ParentReferenceProblem extends ParentReferenceProblemBase
 {
+  public static final Integer DEFAULT_SEVERITY = 10;
+  
   public static final String TYPE = "ParentReferenceProblem";
   
   private static final long serialVersionUID = 1693574723;
@@ -60,5 +62,16 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
     }
 
     return object;
+  }
+  
+  @Override
+  public void apply()
+  {
+    if (this.getSeverity() == null || this.getSeverity() == 0)
+    {
+      this.setSeverity(DEFAULT_SEVERITY);
+    }
+    
+    super.apply();
   }
 }

@@ -185,10 +185,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectStrategyIF getStrategy(ServerGeoObjectType type)
   {
-    if (type.isLeaf())
-    {
-      return new CompositeGeoObjectStrategy(new LeafGeoObjectStrategy(type));
-    }
+// Heads up: clean up
+//    if (type.isLeaf())
+//    {
+//      return new CompositeGeoObjectStrategy(new LeafGeoObjectStrategy(type));
+//    }
 
     return new CompositeGeoObjectStrategy(new TreeGeoObjectStrategy(type));
   }

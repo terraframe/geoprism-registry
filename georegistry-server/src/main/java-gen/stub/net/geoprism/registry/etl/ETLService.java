@@ -119,7 +119,7 @@ public class ETLService
       
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
       
-      ja.put(serializeHistory(hist, user));
+      ja.put(serializeHistory(hist, user, job));
     }
     
     page.put("results", ja);
@@ -152,7 +152,7 @@ public class ETLService
       
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
       
-      ja.put(serializeHistory(hist, user));
+      ja.put(serializeHistory(hist, user, job));
     }
     
     page.put("results", ja);
@@ -168,10 +168,11 @@ public class ETLService
     return format.format(date);
   }
 
-  protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user)
+  protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user, ExecutableJob job)
   {
     JSONObject jo = new JSONObject();
     
+    jo.put("jobType", job.getType());
     jo.put("fileName", hist.getImportFile().getFileName());
     jo.put("stage", hist.getStage().get(0).name());
     jo.put("status", hist.getStatus().get(0).name());
@@ -252,13 +253,14 @@ public class ETLService
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getReferenceValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  public JSONObject getValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
     
     ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
-    vpq.WHERE(vpq.getHistory().EQ(hist).AND(vpq.getType().EQ(ParentReferenceProblem.CLASS).OR(vpq.getType().EQ(TermReferenceProblem.CLASS))));
+    vpq.WHERE(vpq.getHistory().EQ(hist));
     vpq.restrictRows(pageSize, pageNumber);
+    vpq.ORDER_BY(vpq.getSeverity(), SortOrder.DESC);
     vpq.ORDER_BY(vpq.getCreateDate(), SortOrder.ASC);
     
     if (onlyUnresolved)
@@ -293,47 +295,89 @@ public class ETLService
     return page;
   }
   
-  @Request(RequestType.SESSION)
-  public JSONObject getRowValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
-  {
-    ImportHistory hist = ImportHistory.get(historyId);
-    
-    RowValidationProblemQuery vpq = new RowValidationProblemQuery(new QueryFactory());
-    vpq.WHERE(vpq.getHistory().EQ(hist));
-    vpq.restrictRows(pageSize, pageNumber);
-    vpq.ORDER_BY(vpq.getRowNum(), SortOrder.ASC);
-    
-    if (onlyUnresolved)
-    {
-      vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
-    }
-    
-    JSONObject page = new JSONObject();
-    page.put("count", vpq.getCount());
-    page.put("pageNumber", vpq.getPageNumber());
-    page.put("pageSize", vpq.getPageSize());
-    
-    JSONArray jaVP = new JSONArray();
-    
-    OIterator<? extends ValidationProblem> it = vpq.getIterator();
-    try
-    {
-      while (it.hasNext())
-      {
-        ValidationProblem vp = it.next();
-        
-        jaVP.put(vp.toJSON());
-      }
-    }
-    finally
-    {
-      it.close();
-    }
-    
-    page.put("results", jaVP);
-    
-    return page;
-  }
+//  @Request(RequestType.SESSION)
+//  public JSONObject getReferenceValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+//  {
+//    ImportHistory hist = ImportHistory.get(historyId);
+//    
+//    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+//    vpq.WHERE(vpq.getHistory().EQ(hist).AND(vpq.getType().EQ(ParentReferenceProblem.CLASS).OR(vpq.getType().EQ(TermReferenceProblem.CLASS))));
+//    vpq.restrictRows(pageSize, pageNumber);
+//    vpq.ORDER_BY(vpq.getCreateDate(), SortOrder.ASC);
+//    
+//    if (onlyUnresolved)
+//    {
+//      vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
+//    }
+//    
+//    JSONObject page = new JSONObject();
+//    page.put("count", vpq.getCount());
+//    page.put("pageNumber", vpq.getPageNumber());
+//    page.put("pageSize", vpq.getPageSize());
+//    
+//    JSONArray jaVP = new JSONArray();
+//    
+//    OIterator<? extends ValidationProblem> it = vpq.getIterator();
+//    try
+//    {
+//      while (it.hasNext())
+//      {
+//        ValidationProblem vp = it.next();
+//        
+//        jaVP.put(vp.toJSON());
+//      }
+//    }
+//    finally
+//    {
+//      it.close();
+//    }
+//    
+//    page.put("results", jaVP);
+//    
+//    return page;
+//  }
+//  
+//  @Request(RequestType.SESSION)
+//  public JSONObject getRowValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+//  {
+//    ImportHistory hist = ImportHistory.get(historyId);
+//    
+//    RowValidationProblemQuery vpq = new RowValidationProblemQuery(new QueryFactory());
+//    vpq.WHERE(vpq.getHistory().EQ(hist));
+//    vpq.restrictRows(pageSize, pageNumber);
+//    vpq.ORDER_BY(vpq.getRowNum(), SortOrder.ASC);
+//    
+//    if (onlyUnresolved)
+//    {
+//      vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
+//    }
+//    
+//    JSONObject page = new JSONObject();
+//    page.put("count", vpq.getCount());
+//    page.put("pageNumber", vpq.getPageNumber());
+//    page.put("pageSize", vpq.getPageSize());
+//    
+//    JSONArray jaVP = new JSONArray();
+//    
+//    OIterator<? extends ValidationProblem> it = vpq.getIterator();
+//    try
+//    {
+//      while (it.hasNext())
+//      {
+//        ValidationProblem vp = it.next();
+//        
+//        jaVP.put(vp.toJSON());
+//      }
+//    }
+//    finally
+//    {
+//      it.close();
+//    }
+//    
+//    page.put("results", jaVP);
+//    
+//    return page;
+//  }
   
   @Request(RequestType.SESSION)
   public JSONObject getImportDetails(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
@@ -342,7 +386,7 @@ public class ETLService
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
     
-    JSONObject jo = this.serializeHistory(hist, user);
+    JSONObject jo = this.serializeHistory(hist, user, job);
     
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
     {
@@ -350,8 +394,7 @@ public class ETLService
     }
     else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
     {
-      jo.put("referenceProblems", this.getReferenceValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
-      jo.put("rowValidationProblems", this.getRowValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
+      jo.put("problems", this.getValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
     }
     
     return jo;

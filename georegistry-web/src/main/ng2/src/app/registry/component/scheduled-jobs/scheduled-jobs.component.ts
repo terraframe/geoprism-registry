@@ -127,28 +127,6 @@ export class ScheduledJobsComponent implements OnInit {
     }
 
 
-    onCancel( job: ScheduledJob ): void {
-        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + job.fileName + ']';
-        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
-        this.bsModalRef.content.type = ModalTypes.danger;
-
-         this.bsModalRef.content.onConfirm.subscribe( data => {
-
-            this.service.cancelScheduledJob( job ).then( response => {
-
-                console.log(response)
-
-             } ).catch(( err: HttpErrorResponse ) => {
-                 this.error( err );
-             } );
-
-         } );
-    }
 
     error( err: HttpErrorResponse ): void {
         // Handle error
