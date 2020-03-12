@@ -5,48 +5,45 @@
     <div id="app-container" class="container-fluid">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="py-5">
-            <h2>
-                <localize key="masterlist.manager.title"></localize>
-            </h2>
-        </div>
-        <div style="margin-top: 30px;margin-bottom: 30px;" class="row">
-            <div class="col-md-12">
-                <div *ngIf="isAdmin || isMaintainer" >
-                    <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-                        <localize key="hierarchy.management.button.create"></localize>                                      
-                    </button>                                
-                </div>
-            </div>
-        </div>
-        <div class="row">
+        <div class="row" *ngFor="let org of orgs;">
             <div class="col-md-12 order-md-1">
+                <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                    <div class="col-md-6">
+                        <div class="py-5">
+                            <h2>{{org.label}}</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div *ngIf="isAdmin || isMaintainer">
+                            <button type="submit" (click)="onCreate(org)" class="btn btn-primary" role="button">
+                                <localize key="hierarchy.management.button.create"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <ul class="list-group">
-                    <table class="table"> 
-                        <thead> 
-                            <tr> 
-                                <th style="width:70%;">
-                                  <localize key="masterlist.menu"></localize>                                      
-                                </th> 
-                                <!-- <th *ngIf="isAdmin || isMaintainer" style="width:30%;">
-                                    <button type="submit" (click)="onCreate()" class="btn btn-primary pull-right" role="button">
-                                      <localize key="hierarchy.management.button.create"></localize>                                      
-                                    </button>                                
-                                </th> -->
-                            </tr> 
-                        </thead> 
-                        <tbody> 
-                            <tr *ngFor="let list of lists; let i = index;"> 
-                                <td style="width:70%; vertical-align: middle;">
-                                    <a [routerLink]="'/registry/master-list-history/' + list.oid" routerLinkActive="active">{{list.label}}</a>
-                                </td> 
-                                <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;">                                
-                                    <button type="submit" (click)="onView(list.oid)" class="btn btn-primary" role="button"><localize key="modal.button.view"></localize></button>
-                                    <button type="submit" (click)="onEdit(list)" class="btn btn-primary" role="button"><localize key="masterlist.button.metadata"></localize></button>
-                                    <button type="submit" (click)="onDelete(list)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button>
-                                </td> 
-                            </tr> 
-                        </tbody> 
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 70%;"><localize key="masterlist.menu"></localize></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let list of org.lists; let i = index;">
+                                <td style="width: 70%; vertical-align: middle;"><a [routerLink]="'/registry/master-list-history/' + list.oid" routerLinkActive="active">{{list.label}}</a></td>
+                                <td *ngIf="isAdmin || isMaintainer" style="width: 30%; text-align: right;">
+                                    <button type="submit" (click)="onView(list.oid)" class="btn btn-primary" role="button">
+                                        <localize key="modal.button.view"></localize>
+                                    </button>
+                                    <button type="submit" (click)="onEdit(list)" class="btn btn-primary" role="button">
+                                        <localize key="masterlist.button.metadata"></localize>
+                                    </button>
+                                    <button type="submit" (click)="onDelete(org, list)" class="btn btn-danger" role="button">
+                                        <localize key="modal.button.delete"></localize>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </ul>
 

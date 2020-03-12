@@ -1,0 +1,76 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <delete>
+      <object key="net.geoprism.registry.MasterList.organization" type="com.runwaysdk.system.metadata.MdAttribute"></object>
+    </delete>
+
+    <update>
+      <mdBusiness name="net.geoprism.registry.MasterList">
+        <attributes>
+          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" indexType="non-unique index" required="true" label="Universal" />
+        </attributes>
+        <create>
+          <attributes>
+            <reference name="organization" label="Organization" required="false" type="net.geoprism.registry.Organization" />
+            <boolean name="isMaster" label="Is Master" description="Flag denoting if the list is a master list" />
+            <char name="visibility" label="Visibility" size="255" required="false" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.visibility">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.visibility" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Visibility" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.public">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.public" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Public" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.private">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.private" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Private" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.ismaster">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.ismaster" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Is Master" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.download">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.download" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Download Shapefile" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publish-shapefile">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.publish-shapefile" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish Shapefile" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.jobs">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.jobs" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Jobs" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

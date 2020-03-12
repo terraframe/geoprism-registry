@@ -46,6 +46,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
@@ -55,9 +56,13 @@ public class MasterListTest
 
   private static AttributeTermType testTerm;
 
+  private static Organization      org;
+
   @BeforeClass
   public static void setUpClass()
   {
+    setupOrg();
+
     testData = USATestData.newTestDataForClass(true, new Date());
     testData.setUpMetadata();
 
@@ -67,12 +72,32 @@ public class MasterListTest
     reload();
   }
 
+  @Request
+  private static void setupOrg()
+  {
+    org = new Organization();
+    org.setCode("Test");
+    org.getDisplayLabel().setValue("Test");
+    org.apply();
+  }
+
   @AfterClass
   public static void cleanUpClass()
   {
     if (testData != null)
     {
       testData.tearDownMetadata();
+    }
+
+    tearDownOrg();
+  }
+
+  @Request
+  private static void tearDownOrg()
+  {
+    if (org != null)
+    {
+      org.delete();
     }
   }
 
@@ -121,9 +146,11 @@ public class MasterListTest
     list.setAcknowledgements("Acknowledgements");
     list.setDisclaimer("Disclaimer");
     list.setContactName("Contact Name");
-    list.setOrganization("Organization");
+    list.setOrganization(org);
     list.setTelephoneNumber("Telephone Number");
     list.setEmail("Email");
+    list.setIsMaster(false);
+    list.setVisibility(MasterList.PUBLIC);
 
     JsonObject json = list.toJSON();
     MasterList test = MasterList.fromJSON(json);
@@ -212,7 +239,7 @@ public class MasterListTest
   @Request
   public void testCreateMultiple()
   {
-    JsonObject json = getJson(testData.STATE);
+    JsonObject json = getJson(org, testData.STATE);
 
     MasterList test1 = MasterList.create(json);
 
@@ -234,7 +261,7 @@ public class MasterListTest
   @Test
   public void testServiceCreateAndRemove()
   {
-    JsonObject listJson = getJson(testData.STATE);
+    JsonObject listJson = getJson(org, testData.STATE);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -247,7 +274,7 @@ public class MasterListTest
   @Test
   public void testList()
   {
-    JsonObject listJson = getJson(testData.STATE);
+    JsonObject listJson = getJson(org, testData.STATE);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -269,7 +296,7 @@ public class MasterListTest
   @Request
   public void testPublishVersion()
   {
-    JsonObject json = getJson(testData.STATE, testData.COUNTRY);
+    JsonObject json = getJson(org, testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -299,7 +326,7 @@ public class MasterListTest
   @Test
   public void testCreatePublishedVersions()
   {
-    JsonObject listJson = getJson(testData.STATE, testData.COUNTRY);
+    JsonObject listJson = getJson(org, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -309,7 +336,7 @@ public class MasterListTest
     {
       service.createPublishedVersions(testData.adminClientRequest.getSessionId(), oid);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid);
+      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
@@ -395,7 +422,7 @@ public class MasterListTest
   }
 
   @Request
-  public JsonObject getJson(TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
+  public static JsonObject getJson(Organization org, TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
   {
     JsonArray pArray = new JsonArray();
     for (TestGeoObjectTypeInfo parent : parents)
@@ -428,14 +455,15 @@ public class MasterListTest
     list.setAcknowledgements("Acknowledgements");
     list.setDisclaimer("Disclaimer");
     list.setContactName("Contact Name");
-    list.setOrganization("Organization");
+    list.setOrganization(org);
     list.setTelephoneNumber("Telephone Number");
     list.setEmail("Email");
     list.setHierarchies(array.toString());
     list.addFrequency(ChangeFrequency.ANNUAL);
+    list.setIsMaster(false);
+    list.setVisibility(MasterList.PUBLIC);
 
-    JsonObject listJson = list.toJSON();
-    return listJson;
+    return list.toJSON();
   }
 
 }

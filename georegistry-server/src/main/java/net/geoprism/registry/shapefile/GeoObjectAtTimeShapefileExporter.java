@@ -303,6 +303,8 @@ public class GeoObjectAtTimeShapefileExporter
         }
 
         prev = object;
+
+        Thread.yield();
       }
     } while (prev != null);
 
