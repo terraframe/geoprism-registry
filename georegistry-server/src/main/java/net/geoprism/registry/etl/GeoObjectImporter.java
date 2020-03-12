@@ -344,7 +344,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress());
+      RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress() + 1);
       this.progressListener.addRowValidationProblem(problem);
     }
 
