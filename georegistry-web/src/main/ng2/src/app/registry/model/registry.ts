@@ -229,7 +229,8 @@ export class ScheduledJob {
     formatType: string;
     importStrategy: string;
     configStartDate: string;
-    importErrors: PaginationPage
+    importErrors: PaginationPage;
+    problems: PaginationPage;
 }
 
 export class ScheduledJobOverview extends ScheduledJob{

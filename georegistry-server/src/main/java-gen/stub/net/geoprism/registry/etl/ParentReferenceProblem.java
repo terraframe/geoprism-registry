@@ -52,7 +52,7 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
     ServerGeoObjectType type = ServerGeoObjectType.get(this.getTypeCode());
     
     object.put("label", this.getLabel());
-    object.put("type", this.getTypeCode());
+    object.put("typeCode", this.getTypeCode());
     object.put("typeLabel", type.getLabel());
     object.put("context", this.getContext());
 

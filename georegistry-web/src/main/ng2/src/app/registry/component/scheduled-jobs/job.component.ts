@@ -58,6 +58,12 @@ export class JobComponent implements OnInit {
         this.onPageChange(1);
 
     }
+    
+    
+    formatValidationResolve(obj: any)
+    {
+      return JSON.stringify(obj);
+    }
 
 
     getFriendlyProblemType(type: string): string {
@@ -88,7 +94,14 @@ export class JobComponent implements OnInit {
 
             this.job = response;
             
-            this.page = response.importErrors;
+            if (this.job.stage === 'IMPORT_RESOLVE')
+            {
+              this.page = this.job.importErrors;
+            }
+            else if (this.job.stage === 'VALIDATION_RESOLVE')
+            {
+              this.page = this.job.problems;
+            }
 
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
