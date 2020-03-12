@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 930817994)
+@com.runwaysdk.business.ClassSignature(hash = -1087943009)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = 930817994;
+  private static final long serialVersionUID = -1087943009;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -39,6 +39,7 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String FREQUENCY = "frequency";
   public static java.lang.String HIERARCHIES = "hierarchies";
+  public static java.lang.String ISMASTER = "isMaster";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
@@ -57,6 +58,7 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
+  public static java.lang.String VISIBILITY = "visibility";
   public String getAccessConstraints()
   {
     return getValue(ACCESSCONSTRAINTS);
@@ -498,6 +500,43 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(HIERARCHIES).getAttributeMdDTO();
   }
   
+  public Boolean getIsMaster()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISMASTER));
+  }
+  
+  public void setIsMaster(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(ISMASTER, "");
+    }
+    else
+    {
+      setValue(ISMASTER, java.lang.Boolean.toString(value));
+    }
+  }
+  
+  public boolean isIsMasterWritable()
+  {
+    return isWritable(ISMASTER);
+  }
+  
+  public boolean isIsMasterReadable()
+  {
+    return isReadable(ISMASTER);
+  }
+  
+  public boolean isIsMasterModified()
+  {
+    return isModified(ISMASTER);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeBooleanMdDTO getIsMasterMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeBooleanMdDTO) getAttributeDTO(ISMASTER).getAttributeMdDTO();
+  }
+  
   public String getKeyName()
   {
     return getValue(KEYNAME);
@@ -671,23 +710,6 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LOCKEDBY).getAttributeMdDTO();
   }
   
-  public String getOrganization()
-  {
-    return getValue(ORGANIZATION);
-  }
-  
-  public void setOrganization(String value)
-  {
-    if(value == null)
-    {
-      setValue(ORGANIZATION, "");
-    }
-    else
-    {
-      setValue(ORGANIZATION, value);
-    }
-  }
-  
   public boolean isOrganizationWritable()
   {
     return isWritable(ORGANIZATION);
@@ -701,11 +723,6 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public boolean isOrganizationModified()
   {
     return isModified(ORGANIZATION);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getOrganizationMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ORGANIZATION).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.ActorDTO getOwner()
@@ -1076,6 +1093,43 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getUseConstraintsMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(USECONSTRAINTS).getAttributeMdDTO();
+  }
+  
+  public String getVisibility()
+  {
+    return getValue(VISIBILITY);
+  }
+  
+  public void setVisibility(String value)
+  {
+    if(value == null)
+    {
+      setValue(VISIBILITY, "");
+    }
+    else
+    {
+      setValue(VISIBILITY, value);
+    }
+  }
+  
+  public boolean isVisibilityWritable()
+  {
+    return isWritable(VISIBILITY);
+  }
+  
+  public boolean isVisibilityReadable()
+  {
+    return isReadable(VISIBILITY);
+  }
+  
+  public boolean isVisibilityModified()
+  {
+    return isModified(VISIBILITY);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getVisibilityMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(VISIBILITY).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.MasterListDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

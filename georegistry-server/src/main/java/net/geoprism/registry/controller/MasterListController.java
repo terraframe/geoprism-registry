@@ -141,7 +141,7 @@ public class MasterListController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
-  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "versionType") String versionType )
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "versionType") String versionType)
   {
     JsonObject response = this.service.getVersions(request.getSessionId(), oid, versionType);
 
@@ -189,6 +189,23 @@ public class MasterListController
     return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", code + ".zip");
   }
 
+  @Endpoint(url = "download-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF downloadShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
+  {
+    JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
+    String code = masterList.get(MasterList.TYPE_CODE).getAsString();
+
+    return new InputStreamResponse(service.downloadShapefile(request.getSessionId(), oid), "application/zip", code + ".zip");
+  }
+
+  @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF generateShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  {
+    final JsonObject object = service.generateShapefile(request.getSessionId(), oid);
+
+    return new RestBodyResponse(object);
+  }
+
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
@@ -208,7 +225,7 @@ public class MasterListController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-publish-jobs")
-  public ResponseIF getPublishJobs(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
+  public ResponseIF getPublishJobs(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
   {
     if (sortAttr == null || sortAttr == "")
     {
@@ -220,7 +237,7 @@ public class MasterListController
       isAscending = true;
     }
 
-    JSONObject config = this.service.getPublishJobs(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+    JSONObject config = this.service.getPublishJobs(request.getSessionId(), oid, pageSize, pageNumber, sortAttr, isAscending);
 
     return new RestBodyResponse(config.toString());
   }

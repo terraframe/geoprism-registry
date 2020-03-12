@@ -57,6 +57,33 @@
                     </select>
                 </div>
             </div>
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="masterlist.visibility"></localize></label>
+                </div>
+                <div class="holder">
+                    <select class="select-area" name="visibility" [(ngModel)]="master.visibility" [disabled]="readonly || edit" required>
+                        <option></option>
+                        <option value="PUBLIC"><localize key="masterlist.public"></localize></option>                        
+                        <option value="PRIVATE"><localize key="masterlist.private"></localize></option>
+                    </select>
+                </div>
+            </div>
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label> <localize key="masterlist.ismaster"></localize> </label>
+                </div>
+                <div class="holder">
+                    <div class="row">
+                        <div class="check-block" style="margin: 10px;">
+
+                            <div (click)="getIsDisabled($event) ? null : master.isMaster = !master.isMaster" name="isMaster" [ngClass]="{'chk-checked' : master.isMaster, 'disabled' : readonly || edit}" style="margin: 0;" class="jcf-unselectable chk-area">
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
             <!-- RepresentativityDate adn publishDate are being removed from the form but not 
@@ -159,15 +186,6 @@
                 </div>
                 <div class="holder">
                     <input [(ngModel)]="master.contactName" name="contactName" type="text" class="form-control" [disabled]="readonly" />
-                </div>
-            </div>
-            <div class="row-holder">
-                <div class="label-holder">
-                    <label> <localize key="masterlist.organization"></localize>
-                    </label>
-                </div>
-                <div class="holder">
-                    <input [(ngModel)]="master.organization" name="organization" type="text" class="form-control" [disabled]="readonly" />
                 </div>
             </div>
             <div class="row-holder">

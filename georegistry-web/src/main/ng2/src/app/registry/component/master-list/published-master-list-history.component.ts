@@ -1,18 +1,18 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { PublishModalComponent } from './publish-modal.component';
 import { MasterList, MasterListVersion } from '../../model/registry';
 
-import { PublishModalComponent } from './publish-modal.component';
-
 import { RegistryService } from '../../service/registry.service';
-
 import { AuthService } from '../../../shared/service/auth.service';
+
+declare var acp: any;
 
 @Component({
 	selector: 'published-master-list-history',
@@ -51,9 +51,10 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	ngOnInit(): void {
 		this.service.getMasterListHistory(this.oid, "PUBLISHED").then(list => {
 			this.list = list;
+
+			this.onPageChange(1);
 		});
 
-		this.onPageChange(1);
 	}
 
 
@@ -69,16 +70,18 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	}
 
 	onPageChange(pageNumber: any): void {
+		if (this.list != null) {
 
-		this.message = null;
+			this.message = null;
 
-		this.service.getPublishMasterListJobs(this.page.pageSize, pageNumber, "createDate", true).then(response => {
+			this.service.getPublishMasterListJobs(this.list.oid, this.page.pageSize, pageNumber, "createDate", true).then(response => {
 
-			this.page = response;
+				this.page = response;
 
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
 	}
 
 	onViewMetadata(event: any): void {
@@ -98,6 +101,21 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		event.preventDefault();
 
 		this.router.navigate(['/registry/master-list/', version.oid])
+	}
+
+	onPublishShapefile(version: MasterListVersion): void {
+
+		this.service.publishShapefile(version.oid).then(response => {
+
+			version.shapefile = response.shapefile;
+
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
+	onDownloadShapefile(version: MasterListVersion): void {
+		window.location.href = acp + '/master-list/download-shapefile?oid=' + version.oid;
 	}
 
 	error(err: HttpErrorResponse): void {

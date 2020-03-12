@@ -1,4 +1,3 @@
-
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
@@ -18,25 +17,24 @@
             <table class="list-table table">
                 <thead>
                     <tr>
-                        <!-- <th *ngFor="let attribute of history.history" class="label-column">
-
-								<a (click)="" style="display: table-cell; word-break: keep-all; word-wrap: normal;">{{history.displayLabel}} </a> 
-
-                            </th> -->
-
                         <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
                         <th style="width: 15%" class="label-column"><localize key="masterlist.forDate"></localize></th>
                         <th style="width: 15%" class="label-column"><localize key="masterlist.createDate"></localize></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item"> -->
                     <tr *ngFor="let version of list.versions">
                         <td style="width: 70%">
                             <div class="button-holder">
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">
                                     <localize key="modal.button.view"></localize>
                                 </button>
+                                <button type="submit" (click)="onPublishShapefile(version)" class="btn btn-primary" role="button">
+                                    <localize key="masterlist.publish-shapefile"></localize>
+                                </button>                                
+                                <button *ngIf="version.shapefile" type="submit" (click)="onDownloadShapefile(version)" class="btn btn-primary" role="button">
+                                    <localize key="masterlist.download"></localize>
+                                </button>                                
                             </div>
                         </td>
                         <td style="width: 15%" class="label-column">{{ version.forDate }}</td>
@@ -53,7 +51,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr style="height: 56px;">
-                                <th style="vertical-align: middle;">Jobs</th>
+                                <th style="vertical-align: middle;"><localize key="masterlist.jobs"></localize></th>
                             </tr>
                         </thead>
                         <tbody>

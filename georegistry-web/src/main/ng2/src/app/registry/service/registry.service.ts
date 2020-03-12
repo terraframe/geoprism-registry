@@ -698,6 +698,20 @@ export class RegistryService {
             .toPromise();
     }
 
+    publishShapefile( oid:string  ): Promise<MasterListVersion> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        let params = {
+            oid: oid
+        } as any;
+
+        return this.http
+            .post<MasterListVersion>( acp + '/master-list/generate-shapefile', JSON.stringify( params ), { headers: headers } )
+            .toPromise();
+    }
+
     progress( oid: string ): Promise<Progress> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'oid', oid );
@@ -715,9 +729,10 @@ export class RegistryService {
 			.toPromise();
 	}
 
-    getPublishMasterListJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
+    getPublishMasterListJobs(oid: string, pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
 
         let params: HttpParams = new HttpParams();
+        params = params.set('oid', oid);
         params = params.set('pageSize', pageSize.toString());
         params = params.set('pageNumber', pageNumber.toString());
         params = params.set('sortAttr', sortAttr);

@@ -19,6 +19,8 @@
 package net.geoprism.registry;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -609,6 +611,27 @@ public class MasterListVersion extends MasterListVersionBase
     return file;
   }
 
+  public InputStream downloadShapefile()
+  {
+    String filename = this.getOid() + ".zip";
+
+    final MasterList list = this.getMasterlist();
+
+    final File directory = list.getShapefileDirectory();
+    directory.mkdirs();
+
+    final File file = new File(directory, filename);
+
+    try
+    {
+      return new FileInputStream(file);
+    }
+    catch (FileNotFoundException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
   @Transaction
   public JsonObject publish()
   {
@@ -838,7 +861,10 @@ public class MasterListVersion extends MasterListVersionBase
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
+    String filename = this.getOid() + ".zip";
     MasterList masterlist = this.getMasterlist();
+    final File directory = masterlist.getShapefileDirectory();
+    final File file = new File(directory, filename);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
 
@@ -856,6 +882,7 @@ public class MasterListVersion extends MasterListVersionBase
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));
     object.addProperty(MasterListVersion.PERIOD, this.getPeriod(masterlist, format));
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
+    object.addProperty("shapefile", file.exists());
 
     if (this.getPublishDate() != null)
     {

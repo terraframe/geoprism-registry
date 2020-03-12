@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1564399946)
+@com.runwaysdk.business.ClassSignature(hash = 1565568287)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -25,6 +25,7 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String FREQUENCY = "frequency";
   public static java.lang.String HIERARCHIES = "hierarchies";
+  public static java.lang.String ISMASTER = "isMaster";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
@@ -43,7 +44,8 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
-  private static final long serialVersionUID = 1564399946;
+  public static java.lang.String VISIBILITY = "visibility";
+  private static final long serialVersionUID = 1565568287;
   
   public MasterListBase()
   {
@@ -397,6 +399,34 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     }
   }
   
+  public Boolean getIsMaster()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISMASTER));
+  }
+  
+  public void validateIsMaster()
+  {
+    this.validateAttribute(ISMASTER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getIsMasterMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(ISMASTER);
+  }
+  
+  public void setIsMaster(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(ISMASTER, "");
+    }
+    else
+    {
+      setValue(ISMASTER, java.lang.Boolean.toString(value));
+    }
+  }
+  
   public String getKeyName()
   {
     return getValue(KEYNAME);
@@ -541,7 +571,19 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
-  public String getOrganization()
+  public net.geoprism.registry.Organization getOrganization()
+  {
+    if (getValue(ORGANIZATION).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.Organization.get(getValue(ORGANIZATION));
+    }
+  }
+  
+  public String getOrganizationOid()
   {
     return getValue(ORGANIZATION);
   }
@@ -551,13 +593,13 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     this.validateAttribute(ORGANIZATION);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getOrganizationMd()
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getOrganizationMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ORGANIZATION);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(ORGANIZATION);
   }
   
-  public void setOrganization(String value)
+  public void setOrganization(net.geoprism.registry.Organization value)
   {
     if(value == null)
     {
@@ -565,7 +607,19 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     }
     else
     {
-      setValue(ORGANIZATION, value);
+      setValue(ORGANIZATION, value.getOid());
+    }
+  }
+  
+  public void setOrganizationId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(ORGANIZATION, "");
+    }
+    else
+    {
+      setValue(ORGANIZATION, oid);
     }
   }
   
@@ -886,6 +940,34 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     else
     {
       setValue(USECONSTRAINTS, value);
+    }
+  }
+  
+  public String getVisibility()
+  {
+    return getValue(VISIBILITY);
+  }
+  
+  public void validateVisibility()
+  {
+    this.validateAttribute(VISIBILITY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getVisibilityMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(VISIBILITY);
+  }
+  
+  public void setVisibility(String value)
+  {
+    if(value == null)
+    {
+      setValue(VISIBILITY, "");
+    }
+    else
+    {
+      setValue(VISIBILITY, value);
     }
   }
   

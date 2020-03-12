@@ -48,6 +48,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.MasterListTest;
 import net.geoprism.registry.test.USATestData;
@@ -56,24 +57,48 @@ public class PublishMasterListJobTest
 {
   protected static USATestData testData;
 
+  private static Organization  org;
+
   @BeforeClass
   public static void setUpClass()
   {
+    setupOrg();
+
     testData = USATestData.newTestDataForClass(true, new Date());
     testData.setUpMetadata();
 
     SchedulerManager.start();
   }
 
+  @Request
+  private static void setupOrg()
+  {
+    org = new Organization();
+    org.setCode("Testzzz");
+    org.getDisplayLabel().setValue("Testzzz");
+    org.apply();
+  }
+
   @AfterClass
   public static void cleanUpClass()
   {
+    SchedulerManager.shutdown();
+
     if (testData != null)
     {
       testData.tearDownMetadata();
     }
 
-    SchedulerManager.shutdown();
+    tearDownOrg();
+  }
+
+  @Request
+  private static void tearDownOrg()
+  {
+    if (org != null)
+    {
+      org.delete();
+    }
   }
 
   @Before
@@ -154,7 +179,7 @@ public class PublishMasterListJobTest
   @Test
   public void testNewAndUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -181,7 +206,7 @@ public class PublishMasterListJobTest
   @Test
   public void testGetPublishJobs() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -193,7 +218,7 @@ public class PublishMasterListJobTest
 
       this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JSONObject response = service.getPublishJobs(testData.adminClientRequest.getSessionId(), 10, 1, null, true);
+      final JSONObject response = service.getPublishJobs(testData.adminClientRequest.getSessionId(), oid, 10, 1, null, true);
       Assert.assertEquals(1, response.getInt("count"));
       Assert.assertEquals(1, response.getInt("pageNumber"));
       Assert.assertEquals(10, response.getInt("pageSize"));
@@ -222,7 +247,7 @@ public class PublishMasterListJobTest
   @Test
   public void testCreateMultiple() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);

@@ -132,13 +132,14 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject getPublishJobs(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
+  public JSONObject getPublishJobs(String sessionId, String oid, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
     final SortOrder order = isAscending ? SortOrder.ASC : SortOrder.DESC;
 
     QueryFactory qf = new QueryFactory();
 
     final PublishMasterListJobQuery query = new PublishMasterListJobQuery(qf);
+    query.WHERE(query.getMasterList().EQ(oid));
     // query.ORDER_BY(ihq.get(sortAttr), order);
     query.restrictRows(pageSize, pageNumber);
 
@@ -166,6 +167,15 @@ public class MasterListService
     MasterListVersion version = MasterListVersion.get(oid);
 
     return version.publish();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject generateShapefile(String sessionId, String oid)
+  {
+    MasterListVersion version = MasterListVersion.get(oid);
+    version.generateShapefile();
+
+    return version.toJSON(false);
   }
 
   @Request(RequestType.SESSION)
@@ -209,6 +219,12 @@ public class MasterListService
   public InputStream exportSpreadsheet(String sessionId, String oid, String filterJson)
   {
     return GeoRegistryUtil.exportMasterListExcel(oid, filterJson);
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream downloadShapefile(String sessionId, String oid)
+  {
+    return MasterListVersion.get(oid).downloadShapefile();
   }
 
   @Request(RequestType.SESSION)

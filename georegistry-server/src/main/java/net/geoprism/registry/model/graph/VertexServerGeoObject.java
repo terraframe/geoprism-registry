@@ -370,7 +370,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     Map<String, AttributeType> attributes = goTime.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      if (attributeName.equals(DefaultAttribute.ORGANIZATION.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
       {
         // Ignore the attributes
       }
@@ -409,7 +409,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       else if (this.vertex.hasAttribute(attributeName) && !this.vertex.getMdAttributeDAO(attributeName).isSystem())
       {
         this.getValuesOverTime(attributeName).clear();
-        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+        ValueOverTimeCollectionDTO collection = goTime.getAllValues(attributeName);
+
+        for (ValueOverTimeDTO votDTO : collection)
         {
           if (attribute instanceof AttributeTermType)
           {

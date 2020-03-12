@@ -295,6 +295,9 @@ export class MasterList {
 	hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
 	leaf: boolean;
 	frequency: string;
+	isMaster: boolean;
+	visibility: string;
+	frequency: string;
 	versions?: MasterListVersion[]
 }
 
@@ -308,8 +311,9 @@ export class MasterListVersion {
 	createDate: string;
 	publishDate: string;
 	attributes: any[];
-	locales?: string[];
 	isGeometryEditable: boolean;
+	locales?: string[];
+	shapefile?: boolean;
 }
 
 export class HierarchyOverTime {

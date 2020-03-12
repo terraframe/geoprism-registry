@@ -42,6 +42,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -51,6 +52,8 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.PublishMasterListJob;
+import net.geoprism.registry.etl.PublishMasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -82,6 +85,10 @@ public class MasterList extends MasterListBase
 
   public static final String VERSIONS         = "versions";
 
+  public static final String PUBLIC           = "PUBLIC";
+
+  public static final String PRIVATE          = "PRIVATE";
+
   public MasterList()
   {
     super();
@@ -108,6 +115,14 @@ public class MasterList extends MasterListBase
     for (MasterListVersion version : versions)
     {
       version.delete();
+    }
+
+    // Delete all jobs
+    List<PublishMasterListJob> jobs = this.getVersions();
+
+    for (PublishMasterListJob job : jobs)
+    {
+      job.delete();
     }
 
     super.delete();
@@ -148,6 +163,17 @@ public class MasterList extends MasterListBase
     try (OIterator<? extends MasterListVersion> it = query.getIterator())
     {
       return new LinkedList<MasterListVersion>(it.getAll());
+    }
+  }
+
+  public List<PublishMasterListJob> getVersions()
+  {
+    PublishMasterListJobQuery query = new PublishMasterListJobQuery(new QueryFactory());
+    query.WHERE(query.getMasterList().EQ(this));
+
+    try (OIterator<? extends PublishMasterListJob> it = query.getIterator())
+    {
+      return new LinkedList<PublishMasterListJob>(it.getAll());
     }
   }
 
@@ -346,10 +372,12 @@ public class MasterList extends MasterListBase
     object.addProperty(MasterList.ACKNOWLEDGEMENTS, this.getAcknowledgements());
     object.addProperty(MasterList.DISCLAIMER, this.getDisclaimer());
     object.addProperty(MasterList.CONTACTNAME, this.getContactName());
-    object.addProperty(MasterList.ORGANIZATION, this.getOrganization());
+    object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
     object.addProperty(MasterList.FREQUENCY, this.toFrequency().name());
+    object.addProperty(MasterList.ISMASTER, this.getIsMaster());
+    object.addProperty(MasterList.VISIBILITY, this.getVisibility());
     object.add(MasterList.HIERARCHIES, this.getHierarchiesAsJson());
 
     if (this.getRepresentativityDate() != null)
@@ -504,11 +532,21 @@ public class MasterList extends MasterListBase
       list.setAcknowledgements(object.get(MasterList.ACKNOWLEDGEMENTS).getAsString());
       list.setDisclaimer(object.get(MasterList.DISCLAIMER).getAsString());
       list.setContactName(object.get(MasterList.CONTACTNAME).getAsString());
-      list.setOrganization(object.get(MasterList.ORGANIZATION).getAsString());
       list.setTelephoneNumber(object.get(MasterList.TELEPHONENUMBER).getAsString());
       list.setEmail(object.get(MasterList.EMAIL).getAsString());
       list.setHierarchies(object.get(MasterList.HIERARCHIES).getAsJsonArray().toString());
+      list.setOrganizationId(object.get(MasterList.ORGANIZATION).getAsString());
 
+      if (object.has(MasterList.ISMASTER) && !object.get(MasterList.ISMASTER).isJsonNull())
+      {
+        list.setIsMaster(object.get(MasterList.ISMASTER).getAsBoolean());
+      }
+      
+      if (object.has(MasterList.VISIBILITY) && !object.get(MasterList.VISIBILITY).isJsonNull())
+      {
+        list.setVisibility(object.get(MasterList.VISIBILITY).getAsString());
+      }
+      
       if (object.has(MasterList.FREQUENCY) && !object.get(MasterList.FREQUENCY).isJsonNull())
       {
         final String frequency = object.get(MasterList.FREQUENCY).getAsString();
@@ -571,6 +609,23 @@ public class MasterList extends MasterListBase
   public static MasterList create(JsonObject object)
   {
     MasterList list = MasterList.fromJSON(object);
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(list.getUniversal()));
+    query.AND(query.getOrganization().EQ(list.getOrganization()));
+
+    if (!list.isNew())
+    {
+      query.AND(query.getOid().NE(list.getOid()));
+    }
+
+    if (query.getCount() > 0)
+    {
+      ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+
+      throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+    }
+
     list.apply();
 
     return list;
@@ -665,13 +720,15 @@ public class MasterList extends MasterListBase
 
   public static JsonArray listByOrg()
   {
+
     JsonArray response = new JsonArray();
 
-    String[] orgs = new String[] { "My Org", "Ministry of Awesomeness" };
+    final List<? extends Organization> orgs = Organization.getOrganizations();
 
-    for (String org : orgs)
+    for (Organization org : orgs)
     {
       MasterListQuery query = new MasterListQuery(new QueryFactory());
+      query.WHERE(query.getOrganization().EQ(org));
       query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
       OIterator<? extends MasterList> it = query.getIterator();
@@ -701,8 +758,8 @@ public class MasterList extends MasterListBase
       }
 
       JsonObject object = new JsonObject();
-      object.addProperty("oid", "test");
-      object.addProperty("label", org);
+      object.addProperty("oid", org.getOid());
+      object.addProperty("label", org.getDisplayLabel().getValue());
       object.add("lists", lists);
 
       response.add(object);
