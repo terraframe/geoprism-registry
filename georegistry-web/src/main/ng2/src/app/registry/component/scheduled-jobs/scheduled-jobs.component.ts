@@ -13,6 +13,8 @@ import { AuthService } from '../../../shared/service/auth.service';
 import { ScheduledJob, Step, StepConfig, ScheduledJobOverview, PaginationPage } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
 
+import {Observable} from 'rxjs/Rx';
+
 @Component( {
     selector: 'scheduled-jobs',
     templateUrl: './scheduled-jobs.component.html',
@@ -43,6 +45,13 @@ export class ScheduledJobsComponent implements OnInit {
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
+    
+    activeTimeCounter: number = 0;
+    completeTimeCounter: number = 0;
+    
+    pollingData: any;
+    
+    isViewAllOpen: boolean = false;
 
     constructor( public service: RegistryService, private modalService: BsModalService, private router: Router,
         private localizeService: LocalizationService, authService: AuthService ) {
@@ -53,10 +62,62 @@ export class ScheduledJobsComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this.onActiveJobsPageChange( 1 );
+      this.onActiveJobsPageChange( 1 );
+      
+      this.pollingData = Observable.interval(1000).subscribe(() => {
+        this.activeTimeCounter++
+        this.completeTimeCounter++
+      
+        if (this.isViewAllOpen)
+        {
+          if (this.activeTimeCounter >= 4)
+          {
+            this.onActiveJobsPageChange(this.activeJobsPage.pageNumber);
+            
+            this.activeTimeCounter = 0;
+          }
+          if (this.completeTimeCounter >= 7)
+          {
+            this.onCompleteJobsPageChange(this.completeJobsPage.pageNumber);
+            
+            this.completeTimeCounter = 0;
+          }
+        }
+        else
+        {
+          if (this.activeTimeCounter >= 2)
+          {
+            this.onActiveJobsPageChange(this.activeJobsPage.pageNumber);
+            
+            this.activeTimeCounter = 0;
+          }
+        }
+      });
 
     }
+    
+    ngOnDestroy() {
+      this.pollingData.unsubscribe();
+    }
 
+    formatJobStatus(job: ScheduledJobOverview) {
+      if (job.status === "FEEDBACK")
+      {
+        return this.localizeService.decode("etl.JobStatus.FEEDBACK");
+      }
+      else if (job.status === "RUNNING" || job.status === "NEW")
+      {
+        return this.localizeService.decode("etl.JobStatus.RUNNING");
+      }
+      else if (job.status === "QUEUED")
+      {
+        return this.localizeService.decode("etl.JobStatus.QUEUED");
+      }
+      else
+      {
+        return this.localizeService.decode("etl.JobStatus.RUNNING");
+      }
+    }
 
     formatStepConfig(page: PaginationPage): void {
 
@@ -90,7 +151,9 @@ export class ScheduledJobsComponent implements OnInit {
 
 
     onViewAllCompleteJobs(): void {
-        this.onCompleteJobsPageChange(1);
+      this.onCompleteJobsPageChange(1);
+      
+      this.isViewAllOpen = true;
     }
 
 
@@ -116,7 +179,7 @@ export class ScheduledJobsComponent implements OnInit {
 
         this.message = null;
 
-        this.service.getScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
+        this.service.getCompletedScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
 
             this.completeJobsPage = response;
             this.formatStepConfig(this.completeJobsPage);

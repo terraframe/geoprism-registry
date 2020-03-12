@@ -468,6 +468,7 @@ public class ETLService
       
       hist.appLock();
       hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
+      hist.setImportedRecords(hist.getImportedRecords() + 1);
       hist.apply();
     }
     else if (resolution.equals(ErrorResolution.IGNORE.name()))

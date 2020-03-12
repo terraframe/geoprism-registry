@@ -36,7 +36,7 @@
                                                     {{job.createDate}}
                                                 </span>
                                                 <span style="display: block;">
-                                                    Stage 3: Needs Resolution
+                                                    {{formatJobStatus(job)}}
                                                 </span>
                                             </p>
 
@@ -86,9 +86,11 @@
                                         </div>
                                     </td> 
                                     <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;vertical-align: middle;">                                
+                                        <!-- 
                                         <button type="submit" (click)="onView(job.historyId)" class="btn btn-primary" role="button"><localize key="scheduledjobs.detail.button"></localize></button>
+                                        -->
                                         <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
-                                    </td> 
+                                    </td>
                                 </tr> 
                             </tbody> 
                         </table>

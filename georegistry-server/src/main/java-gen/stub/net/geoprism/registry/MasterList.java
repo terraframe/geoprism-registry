@@ -483,7 +483,6 @@ public class MasterList extends MasterListBase
         ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
         version.publish();
-        version.generateShapefile();
       }
     }
     finally

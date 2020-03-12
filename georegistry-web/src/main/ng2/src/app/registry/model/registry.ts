@@ -215,21 +215,22 @@ export class PaginationPage {
 }
 
 export class ScheduledJob {
-	fileName: string;
-	historyId: string;
-	stage: string;
-	status: string;
-	author: string;
-	createDate: string;
-	lastUpdateDate: string;
-	workProgress: number;
-	workTotal: number;
-	importedRecords: number;
-	objectType: string;
-	formatType: string;
-	importStrategy: string;
-	configStartDate: string;
-	importErrors: PaginationPage
+    fileName: string;
+    historyId: string;
+    stage: string;
+    status: string;
+    author: string;
+    createDate: string;
+    lastUpdateDate: string;
+    workProgress: number;
+    workTotal: number;
+    importedRecords: number;
+    objectType: string;
+    formatType: string;
+    importStrategy: string;
+    configStartDate: string;
+    importErrors: PaginationPage;
+    problems: PaginationPage;
 }
 
 export class ScheduledJobOverview extends ScheduledJob {
