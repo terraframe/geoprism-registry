@@ -84,7 +84,8 @@ public class ExcelService
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
         object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
         object.put(GeoObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
-        object.put(GeoObjectImportConfiguration.VAULT_FILE_ID, vf.getOid());
+        object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
+        object.put(ImportConfiguration.FILE_NAME, fileName);
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
         object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
         object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
@@ -99,10 +100,6 @@ public class ExcelService
         {
           object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
         }
-        
-        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
-        
-        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
     
         return object;
       }

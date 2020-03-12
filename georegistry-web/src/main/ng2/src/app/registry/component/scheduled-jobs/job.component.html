@@ -135,5 +135,9 @@
             <div *ngIf="page && page.results != null && page.results.length > 0" class="button-holder" style="float: right;">
                 <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">Accept All As Complete</button>
             </div>
+            
+            <div *ngIf="page && page.results != null && page.results.length > 0 && job.stage === 'VALIDATION_RESOLVE'" class="button-holder" style="float: right;">
+                <button type="submit" (click)="onCancelScheduledJob(job.historyId)" class="btn btn-primary" role="button">Cancel Import</button>
+            </div>
     </div>
 </div>

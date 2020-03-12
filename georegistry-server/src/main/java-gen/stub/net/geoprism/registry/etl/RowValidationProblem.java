@@ -44,7 +44,7 @@ public class RowValidationProblem extends RowValidationProblemBase
   @Override
   public String buildKey()
   {
-    return String.valueOf(this.getRowNum());
+    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + String.valueOf(this.getRowNum());
   }
   
   @Override

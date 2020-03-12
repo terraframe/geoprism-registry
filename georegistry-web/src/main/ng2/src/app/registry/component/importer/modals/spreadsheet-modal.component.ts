@@ -100,7 +100,7 @@ export class SpreadsheetModalComponent implements OnInit {
     }
 
     handleCancel(): void {
-        this.service.cancelSpreadsheetImport( this.configuration ).then( response => {
+        this.service.cancelImport( this.configuration ).then( response => {
             this.bsModalRef.hide()
         } ).catch(( err: HttpErrorResponse) => {
             this.error( err );
