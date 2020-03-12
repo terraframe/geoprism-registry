@@ -57,6 +57,24 @@ export class ScheduledJobsComponent implements OnInit {
 
     }
 
+    formatJobStatus(job: ScheduledJobOverview) {
+      if (job.status === "FEEDBACK")
+      {
+        return this.localizeService.decode("etl.JobStatus.FEEDBACK");
+      }
+      else if (job.status === "RUNNING" || job.status === "NEW")
+      {
+        return this.localizeService.decode("etl.JobStatus.RUNNING");
+      }
+      else if (job.status === "QUEUED")
+      {
+        return this.localizeService.decode("etl.JobStatus.QUEUED");
+      }
+      else
+      {
+        return this.localizeService.decode("etl.JobStatus.RUNNING");
+      }
+    }
 
     formatStepConfig(page: PaginationPage): void {
 
