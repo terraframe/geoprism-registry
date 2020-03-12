@@ -96,10 +96,8 @@ export class ShapefileComponent implements OnInit {
         this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
             const configuration = JSON.parse( response );
 
-            this.router.navigate(['/registry/scheduled-jobs']);
-
-            //this.bsModalRef = this.modalService.show( ShapefileModalComponent, { backdrop: true } );
-            //this.bsModalRef.content.configuration = configuration;
+            this.bsModalRef = this.modalService.show( ShapefileModalComponent, { backdrop: true } );
+            this.bsModalRef.content.configuration = configuration;
         };
         this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
             this.error( JSON.parse( response ) );

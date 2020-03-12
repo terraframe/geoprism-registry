@@ -116,7 +116,7 @@ export class ScheduledJobsComponent implements OnInit {
 
         this.message = null;
 
-        this.service.getScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
+        this.service.getCompletedScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
 
             this.completeJobsPage = response;
             this.formatStepConfig(this.completeJobsPage);
