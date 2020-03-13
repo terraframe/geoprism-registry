@@ -17,7 +17,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 })
 export class PublishModalComponent implements OnInit {
 	message: string = null;
-	master: MasterList;
+	master: any;
 
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
