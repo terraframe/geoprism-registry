@@ -105,7 +105,7 @@ export class ShapefileModalComponent implements OnInit {
     handleCancel(): void {
         this.message = null;
 
-        this.service.cancelShapefileImport( this.configuration ).then( response => {
+        this.service.cancelImport( this.configuration ).then( response => {
             this.bsModalRef.hide()
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );

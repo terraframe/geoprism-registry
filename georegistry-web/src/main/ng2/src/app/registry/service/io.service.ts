@@ -29,7 +29,7 @@ export class IOService {
             .toPromise();
     }
 
-    cancelSpreadsheetImport( configuration: ImportConfiguration ): Promise<void> {
+    cancelImport( configuration: ImportConfiguration ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
@@ -53,21 +53,6 @@ export class IOService {
 
         return this.http
             .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise()
-    }
-
-    cancelShapefileImport( configuration: ImportConfiguration ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-        return this.http
-            .post<void>( acp + '/etl/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

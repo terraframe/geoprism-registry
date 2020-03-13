@@ -30,7 +30,7 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   @Override
   protected String buildKey()
   {
-    return "TERM" + this.getMdAttributeOid() + "-" + this.getLabel();
+    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + this.getMdAttributeOid() + "-" + this.getLabel();
   }
 
   @Override

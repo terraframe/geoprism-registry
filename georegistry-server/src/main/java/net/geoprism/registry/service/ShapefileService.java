@@ -85,6 +85,7 @@ public class ShapefileService
         object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
         object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf));
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
+        object.put(ImportConfiguration.FILE_NAME, fileName);
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
         object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
         object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
@@ -99,10 +100,6 @@ public class ShapefileService
         {
           object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
         }
-        
-        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
-        
-        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
   
         return object;
       }
