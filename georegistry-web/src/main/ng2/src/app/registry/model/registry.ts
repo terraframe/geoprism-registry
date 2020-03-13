@@ -298,7 +298,6 @@ export class MasterList {
 	frequency: string;
 	isMaster: boolean;
 	visibility: string;
-	frequency: string;
 	versions?: MasterListVersion[]
 }
 
