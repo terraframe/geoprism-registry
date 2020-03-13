@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { Subscription, Observable } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -36,6 +37,8 @@ export class PublishedMasterListHistoryComponent implements OnInit {
     */
 	private bsModalRef: BsModalRef;
 
+	pollingData: Subscription;
+
 	isAdmin: boolean;
 	isMaintainer: boolean;
 	isContributor: boolean;
@@ -55,8 +58,14 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 			this.onPageChange(1);
 		});
 
+		this.pollingData = Observable.interval(5000).subscribe(() => {
+			this.onPageChange(this.page.pageNumber);
+		});
 	}
 
+	ngOnDestroy() {
+		this.pollingData.unsubscribe();
+	}
 
 	onPublish(): void {
 		this.message = null;
@@ -105,9 +114,9 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 
 	onPublishShapefile(version: MasterListVersion): void {
 
-		this.service.publishShapefile(version.oid).then(response => {
+		this.service.publishShapefile(version.oid).then(() => {
 
-			version.shapefile = response.shapefile;
+			this.onPageChange(this.page.pageNumber);
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);

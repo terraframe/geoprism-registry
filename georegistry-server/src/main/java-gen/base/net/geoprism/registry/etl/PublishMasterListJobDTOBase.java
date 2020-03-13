@@ -1,10 +1,10 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1487320701)
-public abstract class PublishMasterListJobDTOBase extends com.runwaysdk.system.scheduler.ExecutableJobDTO
+@com.runwaysdk.business.ClassSignature(hash = -519239589)
+public abstract class PublishMasterListJobDTOBase extends net.geoprism.registry.etl.MasterListJobDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.PublishMasterListJob";
-  private static final long serialVersionUID = -1487320701;
+  private static final long serialVersionUID = -519239589;
   
   protected PublishMasterListJobDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -25,56 +25,6 @@ public abstract class PublishMasterListJobDTOBase extends com.runwaysdk.system.s
   protected java.lang.String getDeclaredType()
   {
     return CLASS;
-  }
-  
-  public static java.lang.String MASTERLIST = "masterList";
-  public net.geoprism.registry.MasterListDTO getMasterList()
-  {
-    if(getValue(MASTERLIST) == null || getValue(MASTERLIST).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.MasterListDTO.get(getRequest(), getValue(MASTERLIST));
-    }
-  }
-  
-  public String getMasterListOid()
-  {
-    return getValue(MASTERLIST);
-  }
-  
-  public void setMasterList(net.geoprism.registry.MasterListDTO value)
-  {
-    if(value == null)
-    {
-      setValue(MASTERLIST, "");
-    }
-    else
-    {
-      setValue(MASTERLIST, value.getOid());
-    }
-  }
-  
-  public boolean isMasterListWritable()
-  {
-    return isWritable(MASTERLIST);
-  }
-  
-  public boolean isMasterListReadable()
-  {
-    return isReadable(MASTERLIST);
-  }
-  
-  public boolean isMasterListModified()
-  {
-    return isModified(MASTERLIST);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getMasterListMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(MASTERLIST).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.etl.PublishMasterListJobDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

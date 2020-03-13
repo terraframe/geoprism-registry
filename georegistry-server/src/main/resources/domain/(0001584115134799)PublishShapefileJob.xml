@@ -1,0 +1,33 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.etl.PublishShapefileJob" extends="net.geoprism.registry.etl.MasterListJob" exported="false">
+        <attributes>
+          <reference name="version" type="net.geoprism.registry.MasterListVersion" label="Master List" required="true"/>
+        </attributes>      
+      </mdBusiness>    
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishShapefileJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="commongeoregistry.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishShapefileJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.PublishShapefileJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
+    
+    </delete>
+  </undoIt>
+</version>

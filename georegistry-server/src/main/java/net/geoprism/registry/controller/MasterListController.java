@@ -201,9 +201,12 @@ public class MasterListController
   @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF generateShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
   {
-    final JsonObject object = service.generateShapefile(request.getSessionId(), oid);
+    final String jobId = service.generateShapefile(request.getSessionId(), oid);
 
-    return new RestBodyResponse(object);
+    final RestResponse response = new RestResponse();
+    response.set("job", jobId);
+
+    return response;
   }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)

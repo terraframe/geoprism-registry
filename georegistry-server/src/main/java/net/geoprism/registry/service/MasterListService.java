@@ -41,8 +41,12 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.etl.MasterListJob;
+import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.etl.PublishMasterListJobQuery;
+import net.geoprism.registry.etl.PublishShapefileJob;
+import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.progress.ProgressService;
 
 public class MasterListService
@@ -138,18 +142,20 @@ public class MasterListService
 
     QueryFactory qf = new QueryFactory();
 
-    final PublishMasterListJobQuery query = new PublishMasterListJobQuery(qf);
+    final MasterListJobQuery query = new MasterListJobQuery(qf);
     query.WHERE(query.getMasterList().EQ(oid));
+    query.ORDER_BY_DESC(query.getCreateDate());
     // query.ORDER_BY(ihq.get(sortAttr), order);
     query.restrictRows(pageSize, pageNumber);
 
-    OIterator<? extends PublishMasterListJob> it = query.getIterator();
-
     JSONArray results = new JSONArray();
 
-    while (it.hasNext())
+    try (OIterator<? extends MasterListJob> it = query.getIterator())
     {
-      results.put(it.next().toJSON());
+      while (it.hasNext())
+      {
+        results.put(it.next().toJSON());
+      }
     }
 
     JSONObject page = new JSONObject();
@@ -170,12 +176,32 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject generateShapefile(String sessionId, String oid)
+  public String generateShapefile(String sessionId, String oid)
   {
     MasterListVersion version = MasterListVersion.get(oid);
-    version.generateShapefile();
 
-    return version.toJSON(false);
+    QueryFactory factory = new QueryFactory();
+
+    PublishShapefileJobQuery query = new PublishShapefileJobQuery(factory);
+    query.WHERE(query.getVersion().EQ(version));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new ProgrammingErrorException("This master list version has already been queued for generating a shapefile");
+    }
+
+    PublishShapefileJob job = new PublishShapefileJob();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.setVersion(version);
+    job.setMasterList(version.getMasterlist());
+    job.apply();
+
+    final JobHistory history = job.start();
+    return history.getOid();
   }
 
   @Request(RequestType.SESSION)
