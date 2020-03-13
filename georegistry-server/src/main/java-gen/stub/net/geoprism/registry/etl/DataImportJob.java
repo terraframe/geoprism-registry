@@ -45,7 +45,8 @@ public class DataImportJob extends DataImportJobBase
     ImportHistory history = (ImportHistory) this.createNewHistory();
 
     configuration.setHistoryId(history.getOid());
-
+    configuration.setJobId(this.getOid());
+    
     history.appLock();
     history.setConfigJson(configuration.toJSON().toString());
     history.setImportFileId(configuration.getVaultFileId());
@@ -111,7 +112,8 @@ public class DataImportJob extends DataImportJobBase
     // configuration upfront, that way the job is either fully configured (and
     // resumable) or it isn't (no in-between)
     config.setHistoryId(history.getOid());
-
+    config.setJobId(this.getOid());
+    
     if (stage.equals(ImportStage.VALIDATE))
     {
       deleteValidationProblems(history);

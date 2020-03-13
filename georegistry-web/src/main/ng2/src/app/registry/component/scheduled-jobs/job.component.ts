@@ -15,6 +15,7 @@ import { AuthService } from '../../../shared/service/auth.service';
 
 import { Conflict, ScheduledJob } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
+import { IOService } from '../../service/io.service';
 
 @Component( {
     selector: 'job',
@@ -45,7 +46,7 @@ export class JobComponent implements OnInit {
 
     constructor( public service: RegistryService, private modalService: BsModalService,
         private router: Router, private route: ActivatedRoute,
-        private localizeService: LocalizationService, authService: AuthService ) {
+        private localizeService: LocalizationService, authService: AuthService, public ioService: IOService ) {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
@@ -127,31 +128,53 @@ export class JobComponent implements OnInit {
 
 
     onResolveScheduledJob(historyId: string): void {
-        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+      this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+          animated: true,
+          backdrop: true,
+          ignoreBackdropClick: true,
+      } );
+      this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + this.job.fileName + ']';
+      this.bsModalRef.content.submitText = "Resolve all pending issues";
+      this.bsModalRef.content.type = ModalTypes.danger;
+  
+       this.bsModalRef.content.onConfirm.subscribe( data => {
+  
+          this.service.resolveScheduledJob( historyId ).then( response => {
+  
+              this.page = {
+                              count: 0,
+                              pageNumber: 1,
+                              pageSize: 10,
+                              results: []
+                          };
+  
+           } ).catch(( err: HttpErrorResponse ) => {
+               this.error( err );
+           } );
+  
+       } );
+    }
+    
+    onCancelScheduledJob(historyId: string): void {
+      this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+          animated: true,
+          backdrop: true,
+          ignoreBackdropClick: true,
+      } );
+      this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + this.job.fileName + ']';
+      this.bsModalRef.content.submitText = "Cancel import";
+      this.bsModalRef.content.type = ModalTypes.danger;
+      
+      this.bsModalRef.content.onConfirm.subscribe( data => {
+      
+        this.ioService.cancelImport( this.job.configuration ).then( response => {
+          //this.bsModalRef.hide()
+          this.router.navigate( ['/registry/scheduled-jobs'] )
+        } ).catch(( err: HttpErrorResponse ) => {
+          this.error( err );
         } );
-        this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + this.job.fileName + ']';
-        this.bsModalRef.content.submitText = "Resolve all pending issues";
-        this.bsModalRef.content.type = ModalTypes.danger;
-
-         this.bsModalRef.content.onConfirm.subscribe( data => {
-
-            this.service.resolveScheduledJob( historyId ).then( response => {
-
-                this.page = {
-                                count: 0,
-                                pageNumber: 1,
-                                pageSize: 10,
-                                results: []
-                            };
-
-             } ).catch(( err: HttpErrorResponse ) => {
-                 this.error( err );
-             } );
-
-         } );
+  
+      } );
     }
 
     error( err: HttpErrorResponse ): void {
