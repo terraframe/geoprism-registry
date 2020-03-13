@@ -27,7 +27,6 @@
   <undoIt>
     <delete>
       <object key="net.geoprism.registry.etl.PublishShapefileJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
-    
     </delete>
   </undoIt>
 </version>

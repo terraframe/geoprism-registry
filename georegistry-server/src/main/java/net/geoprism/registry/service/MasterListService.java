@@ -41,6 +41,7 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.etl.PublishMasterListJob;
@@ -123,7 +124,7 @@ public class MasterListService
 
     if (q.getCount() > 0)
     {
-      throw new ProgrammingErrorException("This master list has already been queued for publication");
+      throw new DuplicateJobException("This master list has already been queued for publication");
     }
 
     PublishMasterListJob job = new PublishMasterListJob();
@@ -191,7 +192,7 @@ public class MasterListService
 
     if (q.getCount() > 0)
     {
-      throw new ProgrammingErrorException("This master list version has already been queued for generating a shapefile");
+      throw new DuplicateJobException("This master list version has already been queued for generating a shapefile");
     }
 
     PublishShapefileJob job = new PublishShapefileJob();
