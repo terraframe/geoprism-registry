@@ -4,6 +4,15 @@
       <mdException name="net.geoprism.registry.etl.DuplicateJobException" label="Duplicate Job Exception" message="The same job has already been queued">
       </mdException>    
     </create>
+    <createOrUpdate>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.change.frequency">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.change.frequency" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Changing frequency will result in any published version being deleted" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
   </doIt>
   <undoIt>
     <delete>

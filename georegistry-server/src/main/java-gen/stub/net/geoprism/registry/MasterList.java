@@ -103,6 +103,20 @@ public class MasterList extends MasterListBase
       throw new InvalidMasterListCodeException("The master list code has an invalid character");
     }
 
+    /*
+     * Changing the frequency requires that any existing published version be
+     * deleted
+     */
+    if (this.isModified(MasterList.FREQUENCY))
+    {
+      final List<MasterListVersion> versions = this.getVersions(MasterListVersion.PUBLISHED);
+
+      for (MasterListVersion version : versions)
+      {
+        version.delete();
+      }
+    }
+
     super.apply();
   }
 
@@ -550,8 +564,15 @@ public class MasterList extends MasterListBase
       {
         final String frequency = object.get(MasterList.FREQUENCY).getAsString();
 
-        list.clearFrequency();
-        list.addFrequency(ChangeFrequency.valueOf(frequency));
+        final boolean same = list.getFrequency().stream().anyMatch(f -> {
+          return f.name().equals(frequency);
+        });
+
+        if (!same)
+        {
+          list.clearFrequency();
+          list.addFrequency(ChangeFrequency.valueOf(frequency));
+        }
       }
 
       if (object.has(MasterList.REPRESENTATIVITYDATE))

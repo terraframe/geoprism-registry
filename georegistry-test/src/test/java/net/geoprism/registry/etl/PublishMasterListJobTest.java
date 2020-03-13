@@ -46,6 +46,7 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
@@ -280,5 +281,74 @@ public class PublishMasterListJobTest
       service.remove(testData.adminClientRequest.getSessionId(), oid);
     }
 
+  }
+
+  @Test
+  public void testChangeFrequency() throws InterruptedException
+  {
+    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+
+    MasterListService service = new MasterListService();
+    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    String oid = result.get(ComponentInfo.OID).getAsString();
+
+    try
+    {
+      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+
+      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+
+      JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
+      
+      Assert.assertEquals(1, json.size());
+
+      result.addProperty(MasterList.FREQUENCY, ChangeFrequency.QUARTER.name());
+
+      service.create(testData.adminClientRequest.getSessionId(), result);
+
+      object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      json = object.get(MasterList.VERSIONS).getAsJsonArray();
+
+      Assert.assertEquals(0, json.size());
+    }
+    finally
+    {
+      service.remove(testData.adminClientRequest.getSessionId(), oid);
+    }
+  }
+  
+  @Test
+  public void testUpdate() throws InterruptedException
+  {
+    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+    
+    MasterListService service = new MasterListService();
+    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    String oid = result.get(ComponentInfo.OID).getAsString();
+    
+    try
+    {
+      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+      
+      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      
+      JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
+      
+      Assert.assertEquals(1, json.size());
+      
+      service.create(testData.adminClientRequest.getSessionId(), result);
+      
+      object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      json = object.get(MasterList.VERSIONS).getAsJsonArray();
+      
+      Assert.assertEquals(1, json.size());
+    }
+    finally
+    {
+      service.remove(testData.adminClientRequest.getSessionId(), oid);
+    }
+    
   }
 }
