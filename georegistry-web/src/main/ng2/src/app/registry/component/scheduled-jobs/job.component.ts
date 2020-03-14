@@ -176,8 +176,8 @@ export class JobComponent implements OnInit {
           backdrop: true,
           ignoreBackdropClick: true,
       } );
-      this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + this.job.fileName + ']';
-      this.bsModalRef.content.submitText = "Resolve all pending issues";
+      this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.description" );
+      this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.button" );
       this.bsModalRef.content.type = ModalTypes.danger;
   
        this.bsModalRef.content.onConfirm.subscribe( data => {
@@ -204,8 +204,8 @@ export class JobComponent implements OnInit {
           backdrop: true,
           ignoreBackdropClick: true,
       } );
-      this.bsModalRef.content.message = this.localizeService.decode( "confirm.modal.verify.delete" ) + ' [' + this.job.fileName + ']';
-      this.bsModalRef.content.submitText = "Cancel import";
+      this.bsModalRef.content.message = this.localizeService.decode( "etl.import.cancel.modal.description" );
+      this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.cancel.modal.button" );
       this.bsModalRef.content.type = ModalTypes.danger;
       
       this.bsModalRef.content.onConfirm.subscribe( data => {

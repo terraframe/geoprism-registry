@@ -1,0 +1,56 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.cancel.openModal">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.cancel.openModal" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel import" />
+        </attributeStruct>
+      </object>
+    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.cancel.modal.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.cancel.modal.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to cancel the import?" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.cancel.modal.button">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.cancel.modal.button" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel import" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.modal.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.modal.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to resume the import? All unresolved problems will be ignored." />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.modal.button">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.modal.button" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Resume Import" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.openModal">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.openModal" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Resume Import" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
