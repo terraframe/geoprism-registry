@@ -17,6 +17,8 @@ import { Conflict, ScheduledJob } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
 import { IOService } from '../../service/io.service';
 
+import {Observable} from 'rxjs/Rx';
+
 @Component( {
     selector: 'job',
     templateUrl: './job.component.html',
@@ -35,6 +37,8 @@ export class JobComponent implements OnInit {
         results: []
     };
     
+    timeCounter: number = 0;
+    
     /*
      * Reference to the modal current showing
     */
@@ -43,6 +47,9 @@ export class JobComponent implements OnInit {
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
+    
+    pollingData: any;
+    isPolling: boolean = false;
 
     constructor( public service: RegistryService, private modalService: BsModalService,
         private router: Router, private route: ActivatedRoute,
@@ -57,9 +64,12 @@ export class JobComponent implements OnInit {
         this.historyId = this.route.snapshot.params["oid"];
 
         this.onPageChange(1);
-
+        
     }
     
+    ngOnDestroy() {
+      this.stopPolling();
+    }
     
     formatValidationResolve(obj: any)
     {
@@ -103,11 +113,44 @@ export class JobComponent implements OnInit {
             {
               this.page = this.job.problems;
             }
+            
+            if (!this.isPolling && this.job.status === 'RUNNING')
+            {
+              this.startPolling();
+            }
+            else if (this.isPolling && this.job.status != 'RUNNING')
+            {
+              this.stopPolling();
+            }
 
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
 
+    }
+    
+    stopPolling(): void {
+      if (this.isPolling && this.pollingData != null)
+      {
+        this.pollingData.unsubscribe();
+      }
+    }
+    
+    startPolling(): void {
+      this.timeCounter = 0;
+    
+      this.pollingData = Observable.interval(1000).subscribe(() => {
+        this.timeCounter++
+        
+        if (this.timeCounter >= 2)
+        {
+          this.onPageChange(this.page.pageNumber);
+          
+          this.timeCounter = 0;
+        }
+      });
+      
+      this.isPolling = true;
     }
 
     onViewAllActiveJobs(): void {
