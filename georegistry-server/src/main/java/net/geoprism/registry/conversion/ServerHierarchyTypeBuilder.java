@@ -43,6 +43,7 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.AssociationType;
@@ -53,6 +54,7 @@ import com.runwaysdk.system.metadata.RelationshipCache;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -154,8 +156,8 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
     mdTermRelationship.setTypeName(hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
     mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
-    this.populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
-    this.populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
+    populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
+    populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
     mdTermRelationship.setIsAbstract(false);
     mdTermRelationship.setGenerateSource(false);
     mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_EVERYTHING);
@@ -168,6 +170,10 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     mdTermRelationship.setChildCardinality("*");
     mdTermRelationship.setParentMethod("Parent");
     mdTermRelationship.setChildMethod("Children");
+    
+    // Set the owner of the universal to the id of the corresponding role of the responsible organization.
+    String organizationCode = hierarchyType.getOrganizationCode();
+    setOwner(mdTermRelationship, organizationCode); 
 
     return mdTermRelationship;
   }
@@ -189,8 +195,8 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
     mdTermRelationship.setTypeName(hierarchyType.getCode());
     mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
-    this.populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
-    this.populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
+    populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
+    populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
     mdTermRelationship.setIsAbstract(false);
     mdTermRelationship.setGenerateSource(false);
     mdTermRelationship.addCacheAlgorithm(RelationshipCache.CACHE_NOTHING);
@@ -204,6 +210,10 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     mdTermRelationship.setParentMethod("Parent");
     mdTermRelationship.setChildMethod("Children");
 
+    // Set the owner of the universal to the id of the corresponding role of the responsible organization.
+    String organizationCode = hierarchyType.getOrganizationCode();
+    setOwner(mdTermRelationship, organizationCode); 
+    
     return mdTermRelationship;
   }
 
@@ -283,8 +293,6 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
    */
   public ServerHierarchyType get(MdTermRelationship universalRelationship)
   {
-    AttributeTypeConverter builder = new AttributeTypeConverter();
-
     String hierarchyKey = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(universalRelationship.getKey());
     String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(hierarchyKey);
     String mdEdgeKey = ServerHierarchyType.buildMdEdgeKey(hierarchyKey);
@@ -292,10 +300,13 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
 
-    LocalizedValue displayLabel = builder.convert(entityRelationship.getDisplayLabel());
-    LocalizedValue description = builder.convert(entityRelationship.getDescription());
+    LocalizedValue displayLabel = AttributeTypeConverter.convert(entityRelationship.getDisplayLabel());
+    LocalizedValue description = AttributeTypeConverter.convert(entityRelationship.getDescription());
 
-    HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description);
+    String ownerActerOid = universalRelationship.getOwnerId();
+    String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
+    
+    HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description, organizationCode);
 
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
 

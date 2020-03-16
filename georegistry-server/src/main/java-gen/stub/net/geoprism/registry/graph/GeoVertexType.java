@@ -36,7 +36,14 @@ public class GeoVertexType extends GeoVertexTypeBase
     super();
   }
 
-  public static MdGeoVertexDAO create(String code)
+  /**
+   * 
+   * 
+   * @param code
+   * @param ownerActorId = the ID of the {@link ActorDAOIF} that is the owner of the {@link MdGeoVertexDAOIF}.
+   * @return
+   */
+  public static MdGeoVertexDAO create(String code, String ownerActorId)
   {
     MdGeoVertexDAOIF mdGeoVertexDAO = MdGeoVertexDAO.getMdGeoVertexDAO(GeoVertex.CLASS);
 
@@ -46,6 +53,7 @@ public class GeoVertexType extends GeoVertexTypeBase
     child.setValue(MdGeoVertexInfo.SUPER_MD_VERTEX, mdGeoVertexDAO.getOid());
     child.setValue(MdGeoVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.TRUE);
     child.setValue(MdGeoVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
+    child.setValue(MdGeoVertexInfo.OWNER, ownerActorId);
     child.apply();
 
     return child;
@@ -61,9 +69,14 @@ public class GeoVertexType extends GeoVertexTypeBase
   {
     if (!code.equals(Universal.ROOT))
     {
-      return MdGeoVertexDAO.getMdGeoVertexDAO(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE + "." + code).getBusinessDAO();
+      return MdGeoVertexDAO.getMdGeoVertexDAO(buildMdGeoVertexKey(code)).getBusinessDAO();
     }
 
     return null;
+  }
+  
+  public static String buildMdGeoVertexKey(String mdGeoVertexCode)
+  {
+    return RegistryConstants.UNIVERSAL_GRAPH_PACKAGE + "." + mdGeoVertexCode;
   }
 }

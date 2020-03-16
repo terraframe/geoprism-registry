@@ -27,6 +27,7 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.graph.GraphObject;
@@ -36,8 +37,10 @@ import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class LocalizedValueConverter
@@ -191,6 +194,26 @@ public class LocalizedValueConverter
       {
         graphObject.setEmbeddedValue(attributeName, locale.toString(), value.getValue(locale), startDate, endDate);
       }
+    }
+  }
+  
+
+  /**
+   * Set the owner to the corresponding {@link Organization} role for the given code, or if code is null then
+   * the owner field is not set.
+   * 
+   * @param business
+   * @param organizationCode
+   */
+  protected static void setOwner(Business business, String organizationCode)
+  {
+    Organization organization = null;
+    Roles orgRole = null;
+    if (organizationCode != null && !organizationCode.equals(""))
+    {
+      organization = Organization.getByKey(organizationCode);
+      orgRole = organization.getRole();
+      business.setOwner(orgRole);
     }
   }
 

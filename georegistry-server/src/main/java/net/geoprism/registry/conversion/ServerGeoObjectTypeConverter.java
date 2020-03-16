@@ -24,6 +24,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -62,12 +63,12 @@ import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeEnumerationDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
-import com.runwaysdk.dataaccess.metadata.MdAttributeReferenceDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
@@ -247,15 +248,6 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     labelMdAttr.setValue(MdAttributeLocalCharacterEmbeddedInfo.DEFINING_MD_CLASS, mdClass.getOid());
     labelMdAttr.setValue(MdAttributeLocalCharacterEmbeddedInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
     labelMdAttr.apply();
-    
-    // DefaultAttribute.DISPLAY_LABEL
-    MdAttributeReferenceDAO orgMdAttrRef = MdAttributeReferenceDAO.newInstance();
-    orgMdAttrRef.setValue(MdAttributeReferenceInfo.NAME, DefaultAttribute.ORGANIZATION.getName());
-    orgMdAttrRef.setStructValue(MdAttributeReferenceInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.ORGANIZATION.getDefaultLocalizedName());
-    orgMdAttrRef.setStructValue(MdAttributeReferenceInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.ORGANIZATION.getDefaultDescription());
-    orgMdAttrRef.setValue(MdAttributeReferenceInfo.DEFINING_MD_CLASS, mdClass.getOid());
-    orgMdAttrRef.setValue(MdAttributeLocalCharacterEmbeddedInfo.REQUIRED, DefaultAttribute.ORGANIZATION.isRequired());
-    orgMdAttrRef.apply();
   }
 
   @Transaction
@@ -273,12 +265,16 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     {
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
-
+   
     Universal universal = new Universal();
     universal.setUniversalId(geoObjectType.getCode());
     universal.setIsLeafType(false);
     universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
-
+    
+    // Set the owner of the universal to the id of the corresponding role of the responsible organization.
+    String organizationCode = geoObjectType.getOrganizationCode();
+    setOwner(universal, organizationCode); 
+    
     populate(universal.getDisplayLabel(), geoObjectType.getLabel());
     populate(universal.getDescription(), geoObjectType.getDescription());
 
@@ -319,10 +315,15 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 //    }
 
     // Create the MdGeoVertexClass
-    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId());
+    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid());
     this.createDefaultAttributes(universal, mdVertex);
+    
+//    Organization organization = Organization.getByKey(geoObjectType.getCode());
+//    mdVertex.setValue(DefaultAttribute.ORGANIZATION.getName(), organization.getOid());
 
     assignDefaultRolePermissions(mdVertex);
+    
+    assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
 
     // Build the parent class term root if it does not exist.
     TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
@@ -334,6 +335,46 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     return serverGeoObjectType;
   }
 
+  private void create_RM_GeoObjectTypeRole()
+  {
+    
+  }
+  
+  /**
+   * Assigns all permissions to the 
+   * 
+   * @param mdGeoVertexDAO
+   * @param mdBusiness
+   * @param organizationCode
+   */
+  private void assignAll_RA_Permissions(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness, String organizationCode)
+  {
+    if (organizationCode != null && !organizationCode.trim().equals(""))
+    {
+      Organization organization = Organization.getByKey(organizationCode);
+      Roles orgRole = organization.getRegistryAdminiRole();
+    
+      this.assignAllPermissions(mdGeoVertexDAO, orgRole);
+    }
+  }
+  
+  /**
+   * Assigns all permissions to the {@link ComponentIF} to the given role.
+   * 
+   * Precondition: component is either a {@link MdGeoVertex} or a {@link MdBusiness}.
+   * 
+   * @param component
+   * @param role
+   */
+  private void assignAllPermissions(ComponentIF component, Roles role)
+  {
+    RoleDAO roleDAO = (RoleDAO)BusinessFacade.getEntityDAO(role);
+    roleDAO.grantPermission(Operation.CREATE, component.getOid());
+    roleDAO.grantPermission(Operation.DELETE, component.getOid());
+    roleDAO.grantPermission(Operation.WRITE, component.getOid());
+    roleDAO.grantPermission(Operation.WRITE_ALL, component.getOid());
+  }
+  
   public void assignDefaultRolePermissions(ComponentIF component)
   {
     RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
@@ -374,11 +415,12 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = GeometryTypeFactory.get(geoPrismgeometryType);
 
-
     LocalizedValue label = convert(universal.getDisplayLabel());
     LocalizedValue description = convert(universal.getDescription());
     
-    String organizationCode = null;
+    String ownerActerOid = universal.getOwnerOid();
+    
+    String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
 
     GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
 

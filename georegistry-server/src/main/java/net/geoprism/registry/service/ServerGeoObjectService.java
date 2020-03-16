@@ -21,16 +21,8 @@ package net.geoprism.registry.service;
 import java.util.Date;
 import java.util.List;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-
-import com.runwaysdk.business.Business;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.gis.geo.GeoEntity;
-
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.conversion.CompositeGeoObjectStrategy;
-import net.geoprism.registry.conversion.LeafGeoObjectStrategy;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
@@ -41,6 +33,13 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.GeoObjectSplitView;
+
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+
+import com.runwaysdk.business.Business;
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
