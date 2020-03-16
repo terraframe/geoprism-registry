@@ -76,8 +76,8 @@ public class MasterListTest
   private static void setupOrg()
   {
     org = new Organization();
-    org.setCode("Test");
-    org.getDisplayLabel().setValue("Test");
+    org.setCode("Org A");
+    org.getDisplayLabel().setValue("Org A");
     org.apply();
   }
 

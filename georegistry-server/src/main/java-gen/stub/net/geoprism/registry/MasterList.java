@@ -52,8 +52,8 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.etl.PublishMasterListJob;
-import net.geoprism.registry.etl.PublishMasterListJobQuery;
+import net.geoprism.registry.etl.MasterListJob;
+import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -103,6 +103,20 @@ public class MasterList extends MasterListBase
       throw new InvalidMasterListCodeException("The master list code has an invalid character");
     }
 
+    /*
+     * Changing the frequency requires that any existing published version be
+     * deleted
+     */
+    if (this.isModified(MasterList.FREQUENCY))
+    {
+      final List<MasterListVersion> versions = this.getVersions(MasterListVersion.PUBLISHED);
+
+      for (MasterListVersion version : versions)
+      {
+        version.delete();
+      }
+    }
+
     super.apply();
   }
 
@@ -110,19 +124,19 @@ public class MasterList extends MasterListBase
   @Transaction
   public void delete()
   {
+    // Delete all jobs
+    List<MasterListJob> jobs = this.getJobs();
+
+    for (MasterListJob job : jobs)
+    {
+      job.delete();
+    }
+
     List<MasterListVersion> versions = this.getVersions(null);
 
     for (MasterListVersion version : versions)
     {
       version.delete();
-    }
-
-    // Delete all jobs
-    List<PublishMasterListJob> jobs = this.getVersions();
-
-    for (PublishMasterListJob job : jobs)
-    {
-      job.delete();
     }
 
     super.delete();
@@ -166,14 +180,14 @@ public class MasterList extends MasterListBase
     }
   }
 
-  public List<PublishMasterListJob> getVersions()
+  public List<MasterListJob> getJobs()
   {
-    PublishMasterListJobQuery query = new PublishMasterListJobQuery(new QueryFactory());
+    MasterListJobQuery query = new MasterListJobQuery(new QueryFactory());
     query.WHERE(query.getMasterList().EQ(this));
 
-    try (OIterator<? extends PublishMasterListJob> it = query.getIterator())
+    try (OIterator<? extends MasterListJob> it = query.getIterator())
     {
-      return new LinkedList<PublishMasterListJob>(it.getAll());
+      return new LinkedList<MasterListJob>(it.getAll());
     }
   }
 
@@ -540,18 +554,25 @@ public class MasterList extends MasterListBase
       {
         list.setIsMaster(object.get(MasterList.ISMASTER).getAsBoolean());
       }
-      
+
       if (object.has(MasterList.VISIBILITY) && !object.get(MasterList.VISIBILITY).isJsonNull())
       {
         list.setVisibility(object.get(MasterList.VISIBILITY).getAsString());
       }
-      
+
       if (object.has(MasterList.FREQUENCY) && !object.get(MasterList.FREQUENCY).isJsonNull())
       {
         final String frequency = object.get(MasterList.FREQUENCY).getAsString();
 
-        list.clearFrequency();
-        list.addFrequency(ChangeFrequency.valueOf(frequency));
+        final boolean same = list.getFrequency().stream().anyMatch(f -> {
+          return f.name().equals(frequency);
+        });
+
+        if (!same)
+        {
+          list.clearFrequency();
+          list.addFrequency(ChangeFrequency.valueOf(frequency));
+        }
       }
 
       if (object.has(MasterList.REPRESENTATIVITYDATE))

@@ -74,7 +74,9 @@ export class PublishModalComponent implements OnInit {
 				email: '',
 				hierarchies: [],
 				leaf: false,
-				frequency: 'ANNUAL'
+				frequency: 'ANNUAL',
+				isMaster: null,
+				visibility: null
 			};
 		}
 	}

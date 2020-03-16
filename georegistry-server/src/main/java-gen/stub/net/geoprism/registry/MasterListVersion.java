@@ -113,6 +113,8 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.PublishShapefileJob;
+import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
@@ -567,6 +569,14 @@ public class MasterListVersion extends MasterListVersionBase
   @Transaction
   public void delete()
   {
+    // Delete all jobs
+    List<PublishShapefileJob> jobs = this.getJobs();
+
+    for (PublishShapefileJob job : jobs)
+    {
+      job.delete();
+    }
+
     MasterListAttributeGroup.deleteAll(this);
 
     MdBusiness mdTable = this.getMdBusiness();
@@ -579,6 +589,17 @@ public class MasterListVersion extends MasterListVersionBase
       mdBusiness.deleteAllRecords();
 
       mdTable.delete();
+    }
+  }
+
+  public List<PublishShapefileJob> getJobs()
+  {
+    PublishShapefileJobQuery query = new PublishShapefileJobQuery(new QueryFactory());
+    query.WHERE(query.getMasterList().EQ(this));
+
+    try (OIterator<? extends PublishShapefileJob> it = query.getIterator())
+    {
+      return new LinkedList<PublishShapefileJob>(it.getAll());
     }
   }
 

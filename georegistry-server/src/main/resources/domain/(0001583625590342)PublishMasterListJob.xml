@@ -1,15 +1,21 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <mdBusiness name="net.geoprism.registry.etl.PublishMasterListJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
+    
+      <mdBusiness name="net.geoprism.registry.etl.MasterListJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" isAbstract="true" exported="false">
         <attributes>
           <reference name="masterList" type="net.geoprism.registry.MasterList" label="Import File" required="true"/>
         </attributes>      
+      </mdBusiness>    
+      <mdBusiness name="net.geoprism.registry.etl.PublishMasterListJob" extends="net.geoprism.registry.etl.MasterListJob" exported="false">
       </mdBusiness>    
     </create>
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.MasterListJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.etl.PublishMasterListJob">
             <operation name="ALL" />
           </mdBusinessPermission>
@@ -17,6 +23,9 @@
       </role>
       <role roleName="commongeoregistry.RegistryMaintainer">
         <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.MasterListJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.etl.PublishMasterListJob">
             <operation name="ALL" />
           </mdBusinessPermission>
@@ -25,6 +34,9 @@
     </permissions>    
   </doIt>
   <undoIt>
-    <delete></delete>
+    <delete>
+      <object key="net.geoprism.registry.etl.PublishMasterListJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
+      <object key="net.geoprism.registry.etl.MasterListJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
+    </delete>
   </undoIt>
 </version>
