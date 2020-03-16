@@ -216,19 +216,19 @@ export class PaginationPage {
 }
 
 export class ScheduledJob {
-    fileName: string;
-    historyId: string;
-    stage: string;
-    status: string;
-    author: string;
-    createDate: string;
-    lastUpdateDate: string;
-    workProgress: number;
-    workTotal: number;
-    importedRecords: number;
-    configuration: ImportConfiguration;
-    importErrors: PaginationPage;
-    problems: PaginationPage;
+	fileName: string;
+	historyId: string;
+	stage: string;
+	status: string;
+	author: string;
+	createDate: string;
+	lastUpdateDate: string;
+	workProgress: number;
+	workTotal: number;
+	importedRecords: number;
+	configuration: ImportConfiguration;
+	importErrors: PaginationPage;
+	problems: PaginationPage;
 }
 
 export class ScheduledJobOverview extends ScheduledJob {
@@ -296,6 +296,7 @@ export class MasterList {
 	frequency: string;
 	isMaster: boolean;
 	visibility: string;
+	admin: boolean;
 	versions?: MasterListVersion[]
 }
 
@@ -337,7 +338,7 @@ export enum ImportStrategy {
 export class MasterListByOrg {
 	oid: string;
 	label: string;
-	lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[];
+	lists: { label: string, oid: string, createDate: string, lastUpdateDate: string, admin: boolean }[];
 }
 
 

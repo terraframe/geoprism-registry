@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
@@ -8,9 +8,8 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterList, MasterListVersion } from '../../model/registry';
+import { MasterListVersion } from '../../model/registry';
 
-import { PublishModalComponent } from './publish-modal.component';
 import { ExportFormatModalComponent } from './export-format-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
