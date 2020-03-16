@@ -36,7 +36,8 @@ html, body{height:100%;}
 body{
 	/* min-width:1030px; */
     overflow: hidden;
-    background: white;
+	background: white;
+	padding-top: 144px;
 }
 
 .new-admin-design-main {
@@ -1957,14 +1958,16 @@ option[selected]{ font-weight:bold}
 
 #location-explorer-list {
     padding: 10px;
-    height: calc(100% - 144px);
+	/* height: calc(100% - 144px); */
+	height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 #location-explorer-map {
     padding: 0;
-    height: calc(100% - 144px);
+	/* height: calc(100% - 144px); */
+	height: 100%;
 }
 
 .location-management-widget-section {

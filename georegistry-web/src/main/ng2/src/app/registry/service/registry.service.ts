@@ -23,7 +23,8 @@ import { Observable, TestScheduler } from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
-import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime } from '../model/registry';
+import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, 
+    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, Conflict, PaginationPage, MasterListByOrg } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -345,6 +346,77 @@ export class RegistryService {
             .toPromise();
     }
 
+    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
+
+        let params: HttpParams = new HttpParams();
+        params = params.set('pageSize', pageSize.toString());
+        params = params.set('pageNumber', pageNumber.toString());
+        params = params.set('sortAttr', sortAttr);
+        params = params.set('isAscending', isAscending.toString());
+
+
+        return this.http
+            .get<PaginationPage>( acp + '/etl/get-active', { params: params } )
+            .toPromise();
+    }
+
+    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
+
+        let params: HttpParams = new HttpParams();
+        params = params.set('pageSize', pageSize.toString());
+        params = params.set('pageNumber', pageNumber.toString());
+        params = params.set('sortAttr', sortAttr);
+        params = params.set('isAscending', isAscending.toString());
+
+        return this.http
+            .get<PaginationPage>( acp + '/etl/get-completed', { params: params } )
+            .toPromise();
+    }
+
+    getScheduledJob(historyId: string, pageSize: number, pageNumber: number, onlyUnresolved: boolean): Promise<ScheduledJob> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("historyId", historyId);
+        params = params.set("pageSize", pageSize.toString());
+        params = params.set("pageNumber", pageNumber.toString())
+        params = params.set("onlyUnresolved", onlyUnresolved.toString());
+
+        return this.http
+            .get<ScheduledJob>( acp + '/etl/get-import-details', { params: params } )
+            .toPromise();
+    }
+
+
+    resolveScheduledJob(historyId: string): Promise<void> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>( acp + '/etl/import-resolve', JSON.stringify( { historyId: historyId } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise()
+    }
+
+
+    submitConflict( conflict: Conflict): Promise<any> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<MasterList>( acp + '/master-list/create', JSON.stringify( { list: conflict } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+     }
+
     getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
         let params: HttpParams = new HttpParams();
 
@@ -353,9 +425,10 @@ export class RegistryService {
             .toPromise();
     }
 
-    getMasterListHistory( oid: string ): Promise<MasterList> {
+    getMasterListHistory( oid: string, versionType: string ): Promise<MasterList> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'oid', oid );
+        params = params.set( 'versionType', versionType );
 
         return this.http
             .get<MasterList>( acp + '/master-list/versions', { params: params } )
@@ -487,6 +560,21 @@ export class RegistryService {
             .toPromise();
     }
 
+    publishMasterListVersions( oid: string ): Promise<{ job: string }> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<{ job: string }>( acp + '/master-list/publish-versions', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+    }
+
     deleteMasterList( oid: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -610,12 +698,49 @@ export class RegistryService {
             .toPromise();
     }
 
+    publishShapefile( oid:string  ): Promise<MasterListVersion> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        let params = {
+            oid: oid
+        } as any;
+
+        return this.http
+            .post<MasterListVersion>( acp + '/master-list/generate-shapefile', JSON.stringify( params ), { headers: headers } )
+            .toPromise();
+    }
+
     progress( oid: string ): Promise<Progress> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'oid', oid );
 
         return this.http
             .get<Progress>( acp + '/master-list/progress', { params: params } )
+            .toPromise();
+    }
+
+	getMasterListsByOrg(): Promise<{ locales: string[], orgs: MasterListByOrg[] }> {
+		let params: HttpParams = new HttpParams();
+
+		return this.http
+			.get<{ locales: string[], orgs: MasterListByOrg[] }>(acp + '/master-list/list-org', { params: params })
+			.toPromise();
+	}
+
+    getPublishMasterListJobs(oid: string, pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
+
+        let params: HttpParams = new HttpParams();
+        params = params.set('oid', oid);
+        params = params.set('pageSize', pageSize.toString());
+        params = params.set('pageNumber', pageNumber.toString());
+        params = params.set('sortAttr', sortAttr);
+        params = params.set('isAscending', isAscending.toString());
+
+
+        return this.http
+            .get<PaginationPage>( acp + '/master-list/get-publish-jobs', { params: params } )
             .toPromise();
     }
 

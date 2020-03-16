@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,6 +40,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.RegistryService;
 
@@ -60,6 +62,16 @@ public class MasterListController
   {
     JsonObject response = new JsonObject();
     response.add("lists", this.service.listAll(request.getSessionId()));
+    response.add("locales", this.registryService.getLocales(request.getSessionId()));
+
+    return new RestBodyResponse(response);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-org")
+  public ResponseIF listOrg(ClientRequestIF request)
+  {
+    JsonObject response = new JsonObject();
+    response.add("orgs", this.service.listByOrg(request.getSessionId()));
     response.add("locales", this.registryService.getLocales(request.getSessionId()));
 
     return new RestBodyResponse(response);
@@ -90,7 +102,7 @@ public class MasterListController
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    JsonObject response = this.service.createVersion(request.getSessionId(), oid, format.parse(forDate));
+    JsonObject response = this.service.createExploratoryVersion(request.getSessionId(), oid, format.parse(forDate));
 
     return new RestBodyResponse(response);
   }
@@ -106,6 +118,20 @@ public class MasterListController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish-versions")
+  public ResponseIF publishVersions(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+    final String jobId = this.service.createPublishedVersionsJob(request.getSessionId(), oid);
+
+    final RestResponse response = new RestResponse();
+    response.set("job", jobId);
+
+    return response;
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
   public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
@@ -115,9 +141,9 @@ public class MasterListController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
-  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "versionType") String versionType)
   {
-    JsonObject response = this.service.getVersions(request.getSessionId(), oid);
+    JsonObject response = this.service.getVersions(request.getSessionId(), oid, versionType);
 
     return new RestBodyResponse(response);
   }
@@ -163,6 +189,23 @@ public class MasterListController
     return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", code + ".zip");
   }
 
+  @Endpoint(url = "download-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF downloadShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
+  {
+    JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
+    String code = masterList.get(MasterList.TYPE_CODE).getAsString();
+
+    return new InputStreamResponse(service.downloadShapefile(request.getSessionId(), oid), "application/zip", code + ".zip");
+  }
+
+  @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF generateShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  {
+    final JsonObject object = service.generateShapefile(request.getSessionId(), oid);
+
+    return new RestBodyResponse(object);
+  }
+
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
@@ -180,4 +223,23 @@ public class MasterListController
 
     return new RestBodyResponse(response);
   }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-publish-jobs")
+  public ResponseIF getPublishJobs(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
+  {
+    if (sortAttr == null || sortAttr == "")
+    {
+      sortAttr = PublishMasterListJob.CREATEDATE;
+    }
+
+    if (isAscending == null)
+    {
+      isAscending = true;
+    }
+
+    JSONObject config = this.service.getPublishJobs(request.getSessionId(), oid, pageSize, pageNumber, sortAttr, isAscending);
+
+    return new RestBodyResponse(config.toString());
+  }
+
 }

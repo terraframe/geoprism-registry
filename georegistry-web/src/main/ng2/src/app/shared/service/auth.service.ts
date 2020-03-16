@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '../model/user';
+import { Locale } from '../../admin/model/localization-manager';
 
 @Injectable()
 export class AuthService {
@@ -9,7 +10,8 @@ export class AuthService {
     userName:'',
     roles:[],
     roleDisplayLabels:[],
-    version:"0"
+    version:"0",
+    installedLocales: []
   };
 
     constructor( private service: CookieService ) {
@@ -24,6 +26,7 @@ export class AuthService {
             this.user.loggedIn = cookieDataJSON.loggedIn;
             this.user.roleDisplayLabels = cookieDataJSON.roleDisplayLabels;
             this.user.version = cookieDataJSON.version;
+            this.user.installedLocales = cookieDataJSON.installedLocales;
         }
     }
     
@@ -41,7 +44,8 @@ export class AuthService {
         userName:'',
         roles:[],
         roleDisplayLabels:[],
-        version:"0"
+        version:"0",
+        installedLocales: []
       };
     }
 
@@ -93,5 +97,9 @@ export class AuthService {
   
   getVersion(): string {
     return this.user.version;
+  }
+
+  getLocales(): any[] {
+    return this.user.installedLocales;
   }
 }

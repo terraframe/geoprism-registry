@@ -331,6 +331,13 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
     this.rSGO.lock();
     this.vSGO.lock();
   }
+  
+  @Override
+  public void unlock()
+  {
+    this.rSGO.unlock();
+    this.vSGO.unlock();
+  }
 
   @Override
   public void populate(GeoObject geoObject)

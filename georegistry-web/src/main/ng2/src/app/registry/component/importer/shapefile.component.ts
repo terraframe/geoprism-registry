@@ -11,6 +11,7 @@ import { ShapefileModalComponent } from './modals/shapefile-modal.component';
 import { IOService } from '../../service/io.service';
 import { EventService } from '../../../shared/service/event.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { ImportStrategy } from '../../model/registry';
 
 declare var acp: string;
 
@@ -26,6 +27,13 @@ export class ShapefileComponent implements OnInit {
      * List of geo object types from the system
      */
     types: { label: string, code: string }[]
+    
+    importStrategy: ImportStrategy;
+    importStrategies: any[] = [
+        {"strategy": ImportStrategy.NEW_AND_UPDATE, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE")},
+        {"strategy": ImportStrategy.NEW_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY")},
+        {"strategy": ImportStrategy.UPDATE_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY")}
+    ]
 
     /*
      * Currently selected code
@@ -50,7 +58,7 @@ export class ShapefileComponent implements OnInit {
     @ViewChild( 'myFile' )
     fileRef: ElementRef;
 
-    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService ) { }
+    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService, private router: Router ) { }
 
     ngOnInit(): void {
         this.service.listGeoObjectTypes( true ).then( types => {
@@ -72,6 +80,10 @@ export class ShapefileComponent implements OnInit {
 
             if ( this.startDate != null ) {
                 form.append( 'startDate', this.startDate );
+            }
+            
+            if (this.importStrategy) {
+                form.append( 'strategy', this.importStrategy)
             }
         };
         this.uploader.onBeforeUploadItem = ( fileItem: any ) => {

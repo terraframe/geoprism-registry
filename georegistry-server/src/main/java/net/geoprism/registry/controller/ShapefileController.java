@@ -25,9 +25,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.json.JSONException;
+import net.geoprism.DataUploaderDTO;
+import net.geoprism.registry.etl.DataImportJob;
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.ShapefileService;
 
-import com.google.gson.JsonObject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
@@ -38,10 +44,7 @@ import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-
-import net.geoprism.DataUploaderDTO;
-import net.geoprism.registry.io.GeoObjectConfiguration;
-import net.geoprism.registry.service.ShapefileService;
+import com.runwaysdk.mvc.RestResponse;
 
 @Controller(url = "shapefile")
 public class ShapefileController
@@ -54,19 +57,21 @@ public class ShapefileController
   }
 
   @Endpoint(url = "get-shapefile-configuration", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
+  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {
       String fileName = file.getFilename();
 
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
       Date sDate = startDate != null ? format.parse(startDate) : null;
       Date eDate = endDate != null ? format.parse(endDate) : null;
+      
+      ImportStrategy strategy = ImportStrategy.valueOf(sStrategy);
 
-      JsonObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream);
+      JSONObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream, strategy);
 
       // object.add("options", service.getOptions(request.getSessionId()));
       // object.put("classifiers", new
@@ -74,22 +79,6 @@ public class ShapefileController
 
       return new RestBodyResponse(configuration);
     }
-  }
-
-  @Endpoint(url = "import-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF importShapefile(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration) throws JSONException
-  {
-    JsonObject response = service.importShapefile(request.getSessionId(), configuration);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(url = "cancel-import", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "configuration") String configuration)
-  {
-    DataUploaderDTO.cancelImport(request, configuration);
-
-    return new RestBodyResponse("");
   }
 
   @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)

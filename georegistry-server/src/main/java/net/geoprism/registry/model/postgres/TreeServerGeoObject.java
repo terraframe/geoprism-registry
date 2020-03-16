@@ -279,6 +279,16 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       this.getBusiness().appLock();
     }
   }
+  
+  @Override
+  public void unlock()
+  {
+    if (!this.geoEntity.isNew())
+    {
+      this.geoEntity.unlock();
+      this.getBusiness().unlock();
+    }
+  }
 
   @Override
   public void apply(boolean isImport)
@@ -443,60 +453,61 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
     /*
      * Handle leaf node children
      */
-    if (childrenTypes != null)
-    {
-      for (int i = 0; i < childrenTypes.length; ++i)
-      {
-        ServerGeoObjectType childType = ServerGeoObjectType.get(childrenTypes[i]);
-
-        if (childType.isLeaf())
-        {
-          if (ArrayUtils.contains(childrenTypes, childType.getCode()))
-          {
-            List<MdAttributeDAOIF> mdAttributes = childType.definesAttributes().stream().filter(mdAttribute -> {
-              if (mdAttribute instanceof MdAttributeReferenceDAOIF)
-              {
-                MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
-
-                if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
-                {
-                  return true;
-                }
-              }
-
-              return false;
-            }).collect(Collectors.toList());
-
-            for (MdAttributeDAOIF mdAttribute : mdAttributes)
-            {
-              ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
-
-              BusinessQuery query = new QueryFactory().businessQuery(childType.definesType());
-              query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parent.getRunwayId()));
-
-              OIterator<Business> it = query.getIterator();
-
-              try
-              {
-                List<Business> children = it.getAll();
-
-                for (Business child : children)
-                {
-                  // Do something
-                  ServerGeoObjectIF goChild = service.build(childType, child);
-
-                  tnRoot.addChild(new ServerChildTreeNode(goChild, ht, null));
-                }
-              }
-              finally
-              {
-                it.close();
-              }
-            }
-          }
-        }
-      }
-    }
+// Heads up: Clean up
+//    if (childrenTypes != null)
+//    {
+//      for (int i = 0; i < childrenTypes.length; ++i)
+//      {
+//        ServerGeoObjectType childType = ServerGeoObjectType.get(childrenTypes[i]);
+//
+//        if (childType.isLeaf())
+//        {
+//          if (ArrayUtils.contains(childrenTypes, childType.getCode()))
+//          {
+//            List<MdAttributeDAOIF> mdAttributes = childType.definesAttributes().stream().filter(mdAttribute -> {
+//              if (mdAttribute instanceof MdAttributeReferenceDAOIF)
+//              {
+//                MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
+//
+//                if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
+//                {
+//                  return true;
+//                }
+//              }
+//
+//              return false;
+//            }).collect(Collectors.toList());
+//
+//            for (MdAttributeDAOIF mdAttribute : mdAttributes)
+//            {
+//              ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
+//
+//              BusinessQuery query = new QueryFactory().businessQuery(childType.definesType());
+//              query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parent.getRunwayId()));
+//
+//              OIterator<Business> it = query.getIterator();
+//
+//              try
+//              {
+//                List<Business> children = it.getAll();
+//
+//                for (Business child : children)
+//                {
+//                  // Do something
+//                  ServerGeoObjectIF goChild = service.build(childType, child);
+//
+//                  tnRoot.addChild(new ServerChildTreeNode(goChild, ht, null));
+//                }
+//              }
+//              finally
+//              {
+//                it.close();
+//              }
+//            }
+//          }
+//        }
+//      }
+//    }
 
     /*
      * Handle tree node children

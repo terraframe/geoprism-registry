@@ -1,16 +1,9 @@
 <div>
-  <cgr-header></cgr-header>
 
-<div>
   <message ></message>
   <loading-bar></loading-bar>
 
   <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="heading">
-          <h1><localize key="system.image.editHeader"></localize></h1>
-        </div>      
         
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
         
@@ -23,7 +16,7 @@
 
                 <div>
                   <!-- For display only when editing an icon-->
-                  <img *ngIf="!file" style="max-width:300px;max-height:300px;" [src]="context + '/logo/view?id=' + id" class="thumb">
+                  <img *ngIf="!file && icon" style="max-width:300px;max-height:300px;" [src]="context + '/logo/view?oid=' + icon.oid" class="thumb">
                       
                   <!-- Actual uploaded file preview -->
                   <img *ngIf="file" style="max-width:300px;max-height:300px;" [src]="file" class="thumb">
@@ -55,9 +48,6 @@
             </div>
           </div>
         </fieldset>  
-      </div>
-    </div>
   </form>
-</div>
 
 </div>

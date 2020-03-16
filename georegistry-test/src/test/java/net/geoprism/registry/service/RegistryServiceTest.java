@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -57,7 +57,7 @@ import net.geoprism.registry.test.USATestData;
 
 public class RegistryServiceTest
 {
-  protected static USATestData               testData;
+  protected static USATestData testData;
 
   @BeforeClass
   public static void setUpClass()
@@ -65,7 +65,7 @@ public class RegistryServiceTest
     testData = USATestData.newTestDataForClass();
     testData.setUpMetadata();
   }
-  
+
   @AfterClass
   public static void cleanUpClass()
   {
@@ -74,7 +74,7 @@ public class RegistryServiceTest
       testData.tearDownMetadata();
     }
   }
-  
+
   @Before
   public void setUp()
   {
@@ -92,7 +92,7 @@ public class RegistryServiceTest
       testData.tearDownInstanceData();
     }
   }
-  
+
   @Test
   public void testGetGeoObject()
   {
@@ -153,20 +153,20 @@ public class RegistryServiceTest
     waGeoObj.setWKTGeometry(testData.COLORADO.getWkt());
     waGeoObj.setDisplayLabel(displayLabel);
     waGeoObj.setStatus(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
-    
+
     testUpdateGO.setWkt(testData.COLORADO.getWkt());
     testUpdateGO.setDisplayLabel(testData.COLORADO.getDisplayLabel());
 
     GeoObject returnedUpdate = testData.adapter.updateGeoObject(waGeoObj.toJSON().toString());
     testUpdateGO.setRegistryId(returnedUpdate.getUid());
-    
+
     // Assert that the database is applied correctly
     testUpdateGO.assertApplied();
-    
+
     // Assert the GeoObject they returned to us is correct
     testUpdateGO.assertEquals(returnedUpdate);
     testData.assertGeoObjectStatus(returnedUpdate, DefaultTerms.GeoObjectStatusTerm.INACTIVE);
-    
+
     // Assert when we fetch our own GeoObject its also correct
     GeoObject freshFetched = testData.adapter.getGeoObject(geoObj.getUid(), testUpdateGO.getGeoObjectType().getCode());
     testUpdateGO.assertEquals(returnedUpdate);
@@ -203,25 +203,26 @@ public class RegistryServiceTest
 
     Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.getString("name"));
     Assert.assertEquals(testData.COLORADO.getOid(), result.getString("id"));
-    Assert.assertEquals(testData.COLORADO.getCode(), result.getString(GeoObject.CODE));    
+    Assert.assertEquals(testData.COLORADO.getCode(), result.getString(GeoObject.CODE));
   }
 
   @Test
   public void testGetGeoObjectSuggestionsNoParent()
   {
-    JSONArray results= testData.adapter.getGeoObjectSuggestions("Co", testData.STATE.getCode(), null, null, null);
-    
+    JSONArray results = testData.adapter.getGeoObjectSuggestions("Co", testData.STATE.getCode(), null, null, null);
+
     Assert.assertEquals(1, results.length());
-    
+
     JSONObject result = results.getJSONObject(0);
-    
+
     Assert.assertEquals(testData.COLORADO.getDisplayLabel(), result.getString("name"));
     Assert.assertEquals(testData.COLORADO.getOid(), result.getString("id"));
     Assert.assertEquals(testData.COLORADO.getCode(), result.getString(GeoObject.CODE));
   }
-  
+
   /**
-   * Test to make sure we can't just provide random ids, they actually have to be issued by our id service
+   * Test to make sure we can't just provide random ids, they actually have to
+   * be issued by our id service
    */
   @Test(expected = SmartExceptionDTO.class)
   public void testUnissuedIdCreate()
@@ -236,7 +237,8 @@ public class RegistryServiceTest
   }
 
   /**
-   * Test to make sure we can't just provide random ids, they actually have to be issued by our id service
+   * Test to make sure we can't just provide random ids, they actually have to
+   * be issued by our id service
    */
   @Test(expected = SmartExceptionDTO.class)
   public void testUnissuedIdUpdate()
@@ -320,14 +322,16 @@ public class RegistryServiceTest
     ChildTreeNode tn3 = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, distArr, true);
     testData.USA.assertEquals(tn3, distArr, true);
     Assert.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), testData.adapter).toJSON().toString());
-    
-    // Test null children types. We're using Mexico because it has no leaf nodes.
+
+    // Test null children types. We're using Mexico because it has no leaf
+    // nodes.
     ChildTreeNode tn4 = testData.adapter.getChildGeoObjects(testData.MEXICO.getRegistryId(), testData.MEXICO.getGeoObjectType().getCode(), null, true);
     testData.MEXICO.assertEquals(tn4, null, true);
     Assert.assertEquals(tn4.toJSON().toString(), ChildTreeNode.fromJSON(tn4.toJSON().toString(), testData.adapter).toJSON().toString());
-    
-    // Test empty children types. We're using Mexico because it has no leaf nodes.
-    ChildTreeNode tn5 = testData.adapter.getChildGeoObjects(testData.MEXICO.getRegistryId(), testData.MEXICO.getGeoObjectType().getCode(), new String[]{}, true);
+
+    // Test empty children types. We're using Mexico because it has no leaf
+    // nodes.
+    ChildTreeNode tn5 = testData.adapter.getChildGeoObjects(testData.MEXICO.getRegistryId(), testData.MEXICO.getGeoObjectType().getCode(), new String[] {}, true);
     testData.MEXICO.assertEquals(tn5, null, true);
     Assert.assertEquals(tn5.toJSON().toString(), ChildTreeNode.fromJSON(tn5.toJSON().toString(), testData.adapter).toJSON().toString());
   }
@@ -354,17 +358,17 @@ public class RegistryServiceTest
     ParentTreeNode tn3 = testData.adapter.getParentGeoObjects(childId, childTypeCode, countryArr, true, null);
     testData.CO_D_TWO.assertEquals(tn3, countryArr, true);
     Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), testData.adapter).toJSON().toString());
-    
+
     // Test null parent types
     ParentTreeNode tn4 = testData.adapter.getParentGeoObjects(childId, childTypeCode, null, true, null);
     testData.CO_D_TWO.assertEquals(tn4, null, true);
     Assert.assertEquals(tn4.toJSON().toString(), ParentTreeNode.fromJSON(tn4.toJSON().toString(), testData.adapter).toJSON().toString());
-    
+
     // Test empty parent types
-    ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childId, childTypeCode, new String[]{}, true, null);
+    ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childId, childTypeCode, new String[] {}, true, null);
     testData.CO_D_TWO.assertEquals(tn5, null, true);
     Assert.assertEquals(tn5.toJSON().toString(), ParentTreeNode.fromJSON(tn5.toJSON().toString(), testData.adapter).toJSON().toString());
-  }            
+  }
 
   @Test
   public void testGetHierarchyTypes()
@@ -391,7 +395,7 @@ public class RegistryServiceTest
   public void testAddChild()
   {
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", testData.STATE);
-    testAddChild.apply();
+    testAddChild.apply(null);
 
     ParentTreeNode ptnTestState = testData.adapter.addChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), LocatedIn.class.getSimpleName());
 
@@ -420,7 +424,7 @@ public class RegistryServiceTest
     }
     Assert.assertTrue("Did not find our test object in the list of returned children", found);
   }
-  
+
   @Test
   public void testRemoveChild()
   {
@@ -428,7 +432,7 @@ public class RegistryServiceTest
      * Remove Child
      */
     testData.adapter.removeChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testData.COLORADO.getRegistryId(), testData.COLORADO.getGeoObjectType().getCode(), LocatedIn.class.getSimpleName());
-    
+
     /*
      * Fetch the children and validate ours was removed
      */

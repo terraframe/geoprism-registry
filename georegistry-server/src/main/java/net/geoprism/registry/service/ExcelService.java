@@ -18,42 +18,39 @@
  */
 package net.geoprism.registry.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.json.JSONException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
-import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
-import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
-import net.geoprism.registry.excel.GeoObjectContentHandler;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.ImportProblemException;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
@@ -61,52 +58,51 @@ public class ExcelService
 {
 
   @Request(RequestType.SESSION)
-  public JsonObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream)
+  public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy)
   {
     // Save the file to the file system
     try
     {
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
-
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
+      
+      VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
-      String name = SessionPredicate.generateId();
-
-      File directory = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
-      directory.mkdirs();
-
-      File file = new File(directory, fileName);
-
-      FileUtils.copyInputStreamToFile(fileStream, file);
-
-      ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
-      ExcelDataFormatter formatter = new ExcelDataFormatter();
-
-      ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
-      reader.process(new FileInputStream(file));
-
-      JsonArray hierarchies = ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false);
-
-      JsonObject object = new JsonObject();
-      object.add(GeoObjectConfiguration.TYPE, this.getType(geoObjectType));
-      object.add(GeoObjectConfiguration.HIERARCHIES, hierarchies);
-      object.add(GeoObjectConfiguration.SHEET, handler.getSheets().get(0).getAsJsonObject());
-      object.addProperty(GeoObjectConfiguration.DIRECTORY, directory.getName());
-      object.addProperty(GeoObjectConfiguration.FILENAME, fileName);
-      object.addProperty(GeoObjectConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
-
-      if (startDate != null)
+      try (InputStream is = vf.openNewStream())
       {
-        object.addProperty(GeoObjectConfiguration.START_DATE, format.format(startDate));
+        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        
+        ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
+        ExcelDataFormatter formatter = new ExcelDataFormatter();
+    
+        ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
+        reader.process(is);
+    
+        JSONArray hierarchies = new JSONArray(ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false).toString());
+    
+        JSONObject object = new JSONObject();
+        object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
+        object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
+        object.put(GeoObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
+        object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
+        object.put(ImportConfiguration.FILE_NAME, fileName);
+        object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
+        object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
+        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
+        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
+    
+        if (startDate != null)
+        {
+          object.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
+        }
+    
+        if (endDate != null)
+        {
+          object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
+        }
+    
+        return object;
       }
-
-      if (endDate != null)
-      {
-        object.addProperty(GeoObjectConfiguration.END_DATE, format.format(endDate));
-      }
-
-      return object;
     }
     catch (InvalidFormatException e)
     {
@@ -125,100 +121,20 @@ public class ExcelService
     }
   }
 
-  private JsonObject getType(ServerGeoObjectType geoObjectType)
+  private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
-    JsonObject type = geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), true, SupportedLocaleDAO.getSupportedLocales()));
-    JsonArray attributes = type.get(GeoObjectType.JSON_ATTRIBUTES).getAsJsonArray();
+    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), true, SupportedLocaleDAO.getSupportedLocales())).toString());
+    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    for (int i = 0; i < attributes.size(); i++)
+    for (int i = 0; i < attributes.length(); i++)
     {
-      JsonObject attribute = attributes.get(i).getAsJsonObject();
-      String attributeType = attribute.get(AttributeType.JSON_TYPE).getAsString();
+      JSONObject attribute = attributes.getJSONObject(i);
+      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
 
-      attribute.addProperty(GeoObjectConfiguration.BASE_TYPE, GeoObjectConfiguration.getBaseType(attributeType));
+      attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
     }
 
     return type;
-  }
-
-  @Request(RequestType.SESSION)
-  public JsonObject importExcelFile(String sessionId, String config)
-  {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, true);
-
-    try
-    {
-      this.importExcelFile(configuration);
-    }
-    catch (ProgrammingErrorException e)
-    {
-      if (e.getCause() instanceof ImportProblemException)
-      {
-        // Do nothing: configuration should contain the details of the problem
-      }
-      else
-      {
-        throw e;
-      }
-    }
-
-    return configuration.toJson();
-  }
-
-  @Transaction
-  private JsonObject importExcelFile(GeoObjectConfiguration configuration)
-  {
-    String dir = configuration.getDirectory();
-    String fname = configuration.getFilename();
-
-    File directory = new File(new File(VaultProperties.getPath("vault.default"), "files"), dir);
-    directory.mkdirs();
-
-    File file = new File(directory, fname);
-
-    GeoObjectContentHandler handler = new GeoObjectContentHandler(configuration);
-    ExcelDataFormatter formatter = new ExcelDataFormatter();
-
-    ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
-
-    try
-    {
-      reader.process(new FileInputStream(file));
-    }
-    catch (RuntimeException e)
-    {
-      throw e;
-    }
-    catch (Exception e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-
-    if (configuration.hasProblems())
-    {
-      throw new ImportProblemException("Import contains problems");
-    }
-
-    return configuration.toJson();
-  }
-
-  @Request(RequestType.SESSION)
-  public void cancelImport(String sessionId, String config)
-  {
-    GeoObjectConfiguration configuration = GeoObjectConfiguration.parse(config, false);
-
-    try
-    {
-      String name = configuration.getDirectory();
-
-      File directory = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
-
-      FileUtils.deleteDirectory(directory);
-    }
-    catch (JSONException | IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
   }
 
   @Request(RequestType.SESSION)

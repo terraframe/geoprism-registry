@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1555383424)
+@com.runwaysdk.business.ClassSignature(hash = 1315457476)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -45,7 +27,8 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 1555383424;
+  public static java.lang.String VERSIONTYPE = "versionType";
+  private static final long serialVersionUID = 1315457476;
   
   public MasterListVersionBase()
   {
@@ -522,6 +505,34 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterListVersion.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
+  }
+  
+  public String getVersionType()
+  {
+    return getValue(VERSIONTYPE);
+  }
+  
+  public void validateVersionType()
+  {
+    this.validateAttribute(VERSIONTYPE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getVersionTypeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterListVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(VERSIONTYPE);
+  }
+  
+  public void setVersionType(String value)
+  {
+    if(value == null)
+    {
+      setValue(VERSIONTYPE, "");
+    }
+    else
+    {
+      setValue(VERSIONTYPE, value);
+    }
   }
   
   protected String getDeclaredType()

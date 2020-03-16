@@ -21,13 +21,17 @@ import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, View
 import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subject } from 'rxjs/Subject';
+
 
 import { Email } from '../../model/email';
 import { EmailService } from '../../service/email.service';
 
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+
 
 @Component({
-  
+
   selector: 'email',
   templateUrl: './email.component.html',
   styleUrls: []
@@ -35,46 +39,52 @@ import { EmailService } from '../../service/email.service';
 export class EmailComponent implements OnInit {
   message: string = null;
   public email: Email = {
-    oid:'',
-    server:'',
-    username:'',
-    password:'',
+    oid: '',
+    server: '',
+    username: '',
+    password: '',
     port: 0,
-    from:'',
-    to:'',
+    from: '',
+    to: '',
   };
+
+  public onSuccess: Subject<any>;
 
   constructor(
     private service: EmailService,
-    private router: Router,      
+    private router: Router,
     private route: ActivatedRoute,
-    private location: Location) {
+    private location: Location,
+    public bsModalRef: BsModalRef) {
   }
 
   ngOnInit(): void {
     this.service.getInstance().then(email => {
-      this.email = email; 
+      this.email = email;
     });
+
+    this.onSuccess = new Subject();
   }
-  
-  cancel(): void {    
-    this.location.back();
-  } 
-  
+
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
+
   onSubmit(): void {
     this.service.apply(this.email)
       .then(email => {
-        this.location.back();
+        this.onSuccess.next(true);
+        this.bsModalRef.hide();
       })
-    .catch(( err: HttpErrorResponse ) => {
-      this.error( err );
-    } );
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
   }
-  
-  error( err: HttpErrorResponse ): void {
+
+  error(err: HttpErrorResponse): void {
     // Handle error
-    if ( err !== null ) {
-      this.message = ( err.error.localizedMessage || err.error.message || err.message );
+    if (err !== null) {
+      this.message = (err.error.localizedMessage || err.error.message || err.message);
     }
   }
 }

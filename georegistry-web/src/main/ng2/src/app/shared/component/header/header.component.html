@@ -1,6 +1,6 @@
 <!-- HEADER AND NAVBAR -->
 <header>
-  <nav class="navbar navbar-default">
+  <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="{{context}}/cgr/manage#/menu"><img [src]="context + '/logo/view?id=logo'" /></a>
@@ -26,16 +26,21 @@
                 <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
                 <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/scheduled-jobs" routerLinkActive="active"><localize key="scheduledjobs.menu"></localize> </a></li>
                 <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
                 
-                <hr *ngIf="isAdmin">
+                <hr>
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>
+
+
+                <!-- <hr *ngIf="isAdmin">
                 <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/registry/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li>
                 <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
                 <li *ngIf="isAdmin" role="menuitem">
                     <a class="user-command-link" routerLink="/admin/accounts"><localize key="accounts.link"></localize></a>
                 </li>
-                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li>
+                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li> -->
   
                 <hr>
                 <li role="menuitem"><a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a></li>

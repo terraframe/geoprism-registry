@@ -4,20 +4,26 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -35,6 +41,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.commons.io.IOUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -47,7 +54,6 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
@@ -107,7 +113,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.io.GeoObjectConfiguration;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.model.LocationInfo;
@@ -118,6 +124,7 @@ import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase
 {
@@ -148,6 +155,10 @@ public class MasterListVersion extends MasterListVersionBase
   public static String      DEFAULT_LOCALE   = "DefaultLocale";
 
   public static String      PERIOD           = "period";
+
+  public static String      PUBLISHED        = "PUBLISHED";
+
+  public static String      EXPLORATORY      = "EXPLORATORY";
 
   public MasterListVersion()
   {
@@ -571,6 +582,56 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
 
+  public File generateShapefile()
+  {
+    String filename = this.getOid() + ".zip";
+
+    final MasterList list = this.getMasterlist();
+    final ServerGeoObjectType type = list.getGeoObjectType();
+
+    final File directory = list.getShapefileDirectory();
+    directory.mkdirs();
+
+    final File file = new File(directory, filename);
+
+    final GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, this.getPublishDate());
+
+    try (final InputStream istream = exporter.export())
+    {
+      try (final FileOutputStream fos = new FileOutputStream(file))
+      {
+        IOUtils.copy(istream, fos);
+      }
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+
+    return file;
+  }
+
+  public InputStream downloadShapefile()
+  {
+    String filename = this.getOid() + ".zip";
+
+    final MasterList list = this.getMasterlist();
+
+    final File directory = list.getShapefileDirectory();
+    directory.mkdirs();
+
+    final File file = new File(directory, filename);
+
+    try
+    {
+      return new FileInputStream(file);
+    }
+    catch (FileNotFoundException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
   @Transaction
   public JsonObject publish()
   {
@@ -612,6 +673,8 @@ public class MasterListVersion extends MasterListVersionBase
             Business business = new Business(mdBusiness.definesType());
 
             publish(result, business, attributes, ancestorMap, locales);
+
+            Thread.yield();
           }
 
           ProgressService.put(this.getOid(), new Progress(current++, count, ""));
@@ -798,7 +861,10 @@ public class MasterListVersion extends MasterListVersionBase
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
+    String filename = this.getOid() + ".zip";
     MasterList masterlist = this.getMasterlist();
+    final File directory = masterlist.getShapefileDirectory();
+    final File file = new File(directory, filename);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
 
@@ -811,12 +877,12 @@ public class MasterListVersion extends MasterListVersionBase
 
     object.addProperty(MasterList.DISPLAYLABEL, masterlist.getDisplayLabel().getValue());
     object.addProperty(MasterListVersion.TYPE_CODE, type.getCode());
-    object.addProperty(MasterListVersion.LEAF, type.isLeaf());
     object.addProperty(MasterListVersion.MASTERLIST, masterlist.getOid());
     object.addProperty(MasterListVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));
     object.addProperty(MasterListVersion.PERIOD, this.getPeriod(masterlist, format));
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
+    object.addProperty("shapefile", file.exists());
 
     if (this.getPublishDate() != null)
     {
@@ -833,18 +899,16 @@ public class MasterListVersion extends MasterListVersionBase
 
   private String getPeriod(MasterList masterlist, SimpleDateFormat format)
   {
-    ServerGeoObjectType type = masterlist.getGeoObjectType();
+    List<ChangeFrequency> frequency = masterlist.getFrequency();
 
-    FrequencyType frequency = type.getFrequency();
-
-    if (frequency.equals(FrequencyType.ANNUAL))
+    if (frequency.contains(ChangeFrequency.ANNUAL))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
 
       return Integer.toString(calendar.get(Calendar.YEAR));
     }
-    else if (frequency.equals(FrequencyType.QUARTER))
+    else if (frequency.contains(ChangeFrequency.QUARTER))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
@@ -853,7 +917,7 @@ public class MasterListVersion extends MasterListVersionBase
 
       return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
     }
-    else if (frequency.equals(FrequencyType.MONTHLY))
+    else if (frequency.contains(ChangeFrequency.MONTHLY))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
       calendar.setTime(this.getForDate());
@@ -974,14 +1038,14 @@ public class MasterListVersion extends MasterListVersionBase
       {
         JsonObject longitude = new JsonObject();
         longitude.addProperty(NAME, "longitude");
-        longitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectConfiguration.LONGITUDE_KEY));
+        longitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LONGITUDE_KEY));
         longitude.addProperty(TYPE, "none");
 
         attributes.add(longitude);
 
         JsonObject latitude = new JsonObject();
         latitude.addProperty(NAME, "latitude");
-        latitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectConfiguration.LATITUDE_KEY));
+        latitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LATITUDE_KEY));
         latitude.addProperty(TYPE, "none");
 
         attributes.add(latitude);
@@ -1095,7 +1159,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
 
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     if (filterJson != null && filterJson.length() > 0)
@@ -1152,7 +1216,7 @@ public class MasterListVersion extends MasterListVersionBase
 
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectConfiguration.DATE_FORMAT);
+    DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     JsonArray results = new JsonArray();
@@ -1362,11 +1426,12 @@ public class MasterListVersion extends MasterListVersionBase
   }
 
   @Transaction
-  public static MasterListVersion create(MasterList list, Date forDate)
+  public static MasterListVersion create(MasterList list, Date forDate, String versionType)
   {
     MasterListVersion version = new MasterListVersion();
     version.setMasterlist(list);
     version.setForDate(forDate);
+    version.setVersionType(versionType);
 
     TableMetadata metadata = null;
 

@@ -22,14 +22,14 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>( acp + '/excel/import-spreadsheet', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
             .toPromise();
     }
 
-    cancelSpreadsheetImport( configuration: ImportConfiguration ): Promise<void> {
+    cancelImport( configuration: ImportConfiguration ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
@@ -37,7 +37,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/excel/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .post<void>( acp + '/etl/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -52,22 +52,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>( acp + '/shapefile/import-shapefile', JSON.stringify( { configuration: configuration } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise()
-    }
-
-    cancelShapefileImport( configuration: ImportConfiguration ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-        return this.http
-            .post<void>( acp + '/shapefile/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+            .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

@@ -253,6 +253,12 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public void unlock()
+  {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   public void apply(boolean isImport)

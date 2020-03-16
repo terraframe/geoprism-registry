@@ -1,0 +1,63 @@
+<div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="text-center">
+        <h2>
+            <localize key="scheduledjobs.problemdetail.modal.title"></localize>
+        </h2>
+    </div>
+    <!-- <div class="col-md-12 order-md-1"> -->
+    <form #form="ngForm" class="modal-form">
+
+        <fieldset>
+            <!-- <div class="row-holder" *ngFor="let localeValue of master.displayLabel.localeValues">
+                <div class="label-holder">
+                    <label> <localize key="masterlist.label"></localize> ({{localeValue.locale}})
+                    </label>
+                </div>
+                <div class="holder">
+                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
+                </div>
+            </div> -->
+
+            
+            <!-- <div *ngIf="conflict && conflict.exception.type === 'net.geoprism.registry.io.ParentCodeException'">
+                <relationship-problem-widget [conflict]="conflict" [job]="job"></relationship-problem-widget>
+            </div>
+            <div *ngIf="conflict && conflict.exception.type === 'REQUIREDVALUE'">
+                <relationship-problem-widget [conflict]="conflict" ></relationship-problem-widget>
+            </div>
+            <div *ngIf="conflict && conflict.exception.type === 'SPATIALREFERENCE'">
+                <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
+            </div>
+            <div *ngIf="conflict && conflict.exception.type === 'DUPLICATE'">
+                <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
+            </div> -->
+
+            <div *ngIf="job && job.stage === 'IMPORT_RESOLVE'">
+                <import-problem-widget [conflict]="conflict" [job]="job"></import-problem-widget>
+            </div>
+            <div *ngIf="job && job.stage === 'VALIDATION_RESOLVE'">
+                TODO
+            </div>
+
+
+
+            <div class="row-holder">
+                <!-- <div class="label-holder"></div> -->
+                <div class="">
+                    <div class="button-holder">
+                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                            <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+                        </button>
+                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+                            <localize key="io.submit"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+    <!-- </div> -->
+</div>

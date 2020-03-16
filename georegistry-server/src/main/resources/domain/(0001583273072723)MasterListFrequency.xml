@@ -1,0 +1,63 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <enumerationMaster name="net.geoprism.registry.ChangeFrequencyMaster" label="Geometry Types Master" generateController="false" />
+
+      <object key="ANNUAL" type="net.geoprism.registry.ChangeFrequencyMaster">
+        <attribute name="enumName" value="ANNUAL" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Annual" />
+        </attributeStruct>
+      </object>
+
+      <object key="QUARTER" type="net.geoprism.registry.ChangeFrequencyMaster">
+        <attribute name="enumName" value="QUARTER" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Quarter" />
+        </attributeStruct>
+      </object>
+
+      <object key="MONTHLY" type="net.geoprism.registry.ChangeFrequencyMaster">
+        <attribute name="enumName" value="MONTHLY" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Monthly" />
+        </attributeStruct>
+      </object>
+
+      <object key="DAILY" type="net.geoprism.registry.ChangeFrequencyMaster">
+        <attribute name="enumName" value="DAILY" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Daily" />
+        </attributeStruct>
+      </object>
+
+      <mdEnumeration name="net.geoprism.registry.ChangeFrequency" type="net.geoprism.registry.ChangeFrequencyMaster">
+        <includeAll />
+      </mdEnumeration>
+    </create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.MasterList">
+        <create>
+          <attributes>
+            <enumeration name="frequency" label="Frequency" required="false" type="net.geoprism.registry.ChangeFrequency" immutable="false" selectMultiple="false" />
+          </attributes>
+        </create>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.MasterListVersion">
+        <create>
+          <attributes>
+            <char name="versionType" label="Version Type" size="255" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.MasterListVersion.versionType" type="com.runwaysdk.system.metadata.MdAttribute"></object>
+      <object key="net.geoprism.registry.MasterList.frequency" type="com.runwaysdk.system.metadata.MdAttribute"></object>
+      <object key="net.geoprism.registry.ChangeFrequency" type="com.runwaysdk.system.metadata.MdEnumeration"></object>
+      <object key="net.geoprism.registry.ChangeFrequencyMaster" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+    </delete>
+  </undoIt>
+</version>

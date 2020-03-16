@@ -4,11 +4,9 @@ import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TreeModule } from 'angular-tree-component';
 import { ContextMenuModule } from 'ngx-contextmenu';
-import { ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
-import { CookieService } from 'ngx-cookie-service';
 import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
@@ -19,7 +17,6 @@ import { CustomFormsModule } from 'ng2-validation'
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './component/form-fields/localized-text/localized-text.component';
 import { HierarchyComponent } from './component/hierarchy/hierarchy.component';
-import { LocalizationManagerComponent } from './component/localization-manager/localization-manager.component';
 import { CreateHierarchyTypeModalComponent } from './component/hierarchy/modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './component/hierarchy/modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './component/hierarchy/modals/create-geoobjtype-modal.component';
@@ -35,7 +32,6 @@ import { TermProblemPageComponent } from './component/importer/modals/term-probl
 import { TermProblemComponent } from './component/importer/modals/term-problem.component';
 import { SpreadsheetModalComponent } from './component/importer/modals/spreadsheet-modal.component';
 import { DataPageComponent } from './component/data-page/data-page.component';
-import { NewLocaleModalComponent } from './component/localization-manager/new-locale-modal.component';
 import { TermOptionWidgetComponent } from './component/hierarchy/geoobjecttype-management/term-option-widget.component';
 import { AttributeInputComponent } from './component/hierarchy/geoobjecttype-management/attribute-input.component';
 import { EditTermOptionInputComponent } from './component/hierarchy/geoobjecttype-management/edit-term-option-input.component';
@@ -63,7 +59,18 @@ import { ShapefileComponent } from './component/importer/shapefile.component';
 import { SpreadsheetComponent } from './component/importer/spreadsheet.component';
 import { DataExportComponent } from './component/data-export/data-export.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
+import { PublishedMasterListHistoryComponent } from './component/master-list/published-master-list-history.component';
 import { MasterListHistoryComponent } from './component/master-list/master-list-history.component';
+import { MasterListViewComponent } from './component/master-list/master-list-view.component';
+import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
+import { JobComponent } from './component/scheduled-jobs/job.component';
+import { JobConflictModalComponent } from './component/scheduled-jobs/conflict-widgets/job-conflict-modal.component';
+import { RelationshipProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/relationship-problem-widget.component';
+import { RequiredValueProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/requiredvalue-problem-widget.component';
+import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/spatialreference-problem-widget.component';
+import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
+import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicator.component';
+import { ImportProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/import-problem-widget.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -84,119 +91,131 @@ import { SharedModule } from '../shared/shared.module';
 import '../rxjs-extensions';
 
 
-@NgModule( {
-    imports: [
-        CommonModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FileUploadModule,
-//        ModalModule.forRoot(),
-        TreeModule,
-        ContextMenuModule,
-        BsDropdownModule,
-        ButtonsModule,
-        TypeaheadModule,
-        ProgressbarModule,
-        CollapseModule,
-        NgxPaginationModule,
-        CustomFormsModule,
-        SharedModule,
-        RegistryRoutingModule        
-    ],
-    declarations: [
-        HierarchyComponent,
-        LocalizationManagerComponent,
-        RequestTableComponent,
-        CreateUpdateGeoObjectDetailComponent,
-        AddRemoveChildDetailComponent,
-        SetParentDetailComponent,
-        CreateHierarchyTypeModalComponent,
-        AddChildToHierarchyModalComponent,
-        CreateGeoObjTypeModalComponent,
-        ManageAttributesModalComponent,
-        DefineAttributeModalContentComponent,
-        ShapefileModalComponent,
-        AttributesPageComponent,
-        LocationPageComponent,
-        LocationProblemPageComponent,
-        LocationProblemComponent,
-        TermProblemPageComponent,
-        TermProblemComponent,
-        SpreadsheetModalComponent,
-        GeoObjectTypePipe,
-        GeoObjectAttributeCodeValidator,
-        NewLocaleModalComponent,
-        EditAttributeModalContentComponent,
-        TermOptionWidgetComponent,
-        AttributeInputComponent,
-        EditTermOptionInputComponent,
-        ManageGeoObjectTypeModalComponent,
-        GeoObjectTypeInputComponent,
-        ManageTermOptionsComponent,
-        LocalizedInputComponent,
-        LocalizedTextComponent,
-        GeoObjectSharedAttributeEditorComponent,
-        ManageVersionsModalComponent,
-        SubmitChangeRequestComponent,
-        GeoObjectEditorComponent,
-        GeoObjectAttributeExcludesPipe,
-        ToEpochDateTimePipe,
-        GeoObjectEditorMapComponent,
-        SimpleEditControl,
-        DataPageComponent,
-        ChangeRequestPageComponent,
-        CascadingGeoSelector,
-        ManageParentVersionsModalComponent,        
-        ActionDetailModalComponent,
-        HierarchyComponent,
-        ShapefileComponent,
-        SpreadsheetComponent,
-        DataExportComponent,
-        MasterListComponent,
-        MasterListHistoryComponent,
-        // Master List screens
-        MasterListManagerComponent,
-        PublishModalComponent,
-        ExportFormatModalComponent,
-    ],
-    providers: [
-        MapService,
-        HierarchyService,
-        LocalizationManagerService,
-        ChangeRequestService,
-        IOService,
-        GeoObjectTypeManagementService,
-        RegistryService,
-        DatePipe,
-        ToEpochDateTimePipe,
-    ],
-    entryComponents: [
-        AddChildToHierarchyModalComponent,
-        CreateGeoObjTypeModalComponent,
-        ManageAttributesModalComponent,
-        DefineAttributeModalContentComponent,
-        EditAttributeModalContentComponent,
-        CreateHierarchyTypeModalComponent,
-        ShapefileModalComponent,
-        SpreadsheetModalComponent,
-        NewLocaleModalComponent,
-        TermOptionWidgetComponent,
-        AttributeInputComponent,
-        EditTermOptionInputComponent,
-        ManageGeoObjectTypeModalComponent,
-        GeoObjectTypeInputComponent,
-        ManageTermOptionsComponent,
-        GeoObjectSharedAttributeEditorComponent,
-        ManageVersionsModalComponent,
-        ManageParentVersionsModalComponent,
-        SubmitChangeRequestComponent,
-        GeoObjectEditorComponent,
-        PublishModalComponent,
-        ExportFormatModalComponent,
-        DataPageComponent,
-        ChangeRequestPageComponent,
-        ActionDetailModalComponent,
-    ]
-} )
+@NgModule({
+	imports: [
+		CommonModule,
+		RouterModule,
+		FormsModule,
+		ReactiveFormsModule,
+		FileUploadModule,
+		//        ModalModule.forRoot(),
+		TreeModule,
+		ContextMenuModule,
+		BsDropdownModule,
+		ButtonsModule,
+		TypeaheadModule,
+		ProgressbarModule,
+		CollapseModule,
+		NgxPaginationModule,
+		CustomFormsModule,
+		SharedModule,
+		RegistryRoutingModule
+	],
+	declarations: [
+		HierarchyComponent,
+		RequestTableComponent,
+		CreateUpdateGeoObjectDetailComponent,
+		AddRemoveChildDetailComponent,
+		SetParentDetailComponent,
+		CreateHierarchyTypeModalComponent,
+		AddChildToHierarchyModalComponent,
+		CreateGeoObjTypeModalComponent,
+		ManageAttributesModalComponent,
+		DefineAttributeModalContentComponent,
+		ShapefileModalComponent,
+		AttributesPageComponent,
+		LocationPageComponent,
+		LocationProblemPageComponent,
+		LocationProblemComponent,
+		TermProblemPageComponent,
+		TermProblemComponent,
+		SpreadsheetModalComponent,
+		GeoObjectTypePipe,
+		GeoObjectAttributeCodeValidator,
+		EditAttributeModalContentComponent,
+		TermOptionWidgetComponent,
+		AttributeInputComponent,
+		EditTermOptionInputComponent,
+		ManageGeoObjectTypeModalComponent,
+		GeoObjectTypeInputComponent,
+		ManageTermOptionsComponent,
+		LocalizedInputComponent,
+		LocalizedTextComponent,
+		GeoObjectSharedAttributeEditorComponent,
+		ManageVersionsModalComponent,
+		SubmitChangeRequestComponent,
+		GeoObjectEditorComponent,
+		GeoObjectAttributeExcludesPipe,
+		ToEpochDateTimePipe,
+		GeoObjectEditorMapComponent,
+		SimpleEditControl,
+		DataPageComponent,
+		ChangeRequestPageComponent,
+		CascadingGeoSelector,
+		ManageParentVersionsModalComponent,
+		ActionDetailModalComponent,
+		HierarchyComponent,
+		ShapefileComponent,
+		SpreadsheetComponent,
+		DataExportComponent,
+		// Master List screens
+		MasterListManagerComponent,
+		MasterListComponent,
+		MasterListHistoryComponent,
+		PublishedMasterListHistoryComponent,
+		PublishModalComponent,
+		MasterListViewComponent,
+		// Scheduled jobs
+		ExportFormatModalComponent,
+		ScheduledJobsComponent,
+		JobComponent,
+		JobConflictModalComponent,
+		RelationshipProblemWidgetComponent,
+		RequiredValueProblemWidgetComponent,
+		SpatialReferenceProblemWidgetComponent,
+		DuplicateProblemWidgetComponent,
+		StepIndicatorComponent,
+		ImportProblemWidgetComponent
+	],
+	providers: [
+		MapService,
+		HierarchyService,
+		LocalizationManagerService,
+		ChangeRequestService,
+		IOService,
+		GeoObjectTypeManagementService,
+		RegistryService,
+		DatePipe,
+		ToEpochDateTimePipe,
+		StepIndicatorComponent
+	],
+	entryComponents: [
+		AddChildToHierarchyModalComponent,
+		CreateGeoObjTypeModalComponent,
+		ManageAttributesModalComponent,
+		DefineAttributeModalContentComponent,
+		EditAttributeModalContentComponent,
+		CreateHierarchyTypeModalComponent,
+		ShapefileModalComponent,
+		SpreadsheetModalComponent,
+		TermOptionWidgetComponent,
+		AttributeInputComponent,
+		EditTermOptionInputComponent,
+		ManageGeoObjectTypeModalComponent,
+		GeoObjectTypeInputComponent,
+		ManageTermOptionsComponent,
+		GeoObjectSharedAttributeEditorComponent,
+		ManageVersionsModalComponent,
+		ManageParentVersionsModalComponent,
+		SubmitChangeRequestComponent,
+		GeoObjectEditorComponent,
+		PublishModalComponent,
+		ExportFormatModalComponent,
+		DataPageComponent,
+		ChangeRequestPageComponent,
+		ActionDetailModalComponent,
+		JobConflictModalComponent,
+		StepIndicatorComponent
+	]
+})
 export class RegistryModule { }

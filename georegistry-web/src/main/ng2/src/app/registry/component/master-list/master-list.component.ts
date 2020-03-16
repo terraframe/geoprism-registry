@@ -219,7 +219,7 @@ export class MasterListComponent implements OnInit {
     }
 
     onEdit( data ): void {
-        let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
+        let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true } );
         editModal.content.configureAsExisting( data.code, this.list.typeCode, this.list.forDate, this.list.isGeometryEditable );
         editModal.content.setMasterListId( this.list.oid );
         editModal.content.setOnSuccessCallback(() => {
@@ -267,7 +267,7 @@ export class MasterListComponent implements OnInit {
     }
 
     onNewGeoObject(): void {
-        let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true } );
+        let editModal = this.modalService.show( GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true } );
         //editModal.content.fetchGeoObject( data.code, this.list.typeCode );
         editModal.content.configureAsNew( this.list.typeCode, this.list.forDate, this.list.isGeometryEditable );
         editModal.content.setMasterListId( this.list.oid );

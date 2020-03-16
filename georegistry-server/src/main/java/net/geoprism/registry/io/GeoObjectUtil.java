@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -60,85 +60,90 @@ public class GeoObjectUtil
     Iterator<String> codes = (Iterator<String>) value;
     StringBuilder builder = new StringBuilder();
 
-    boolean first = true;
-
-    while (codes.hasNext())
+    if (codes != null)
     {
-      String code = codes.next();
-      Term term = attributeType.getTermByCode(code).get();
+      boolean first = true;
 
-      if (!first)
+      while (codes.hasNext())
       {
-        builder.append(",");
+        String code = codes.next();
+        Term term = attributeType.getTermByCode(code).get();
+
+        if (!first)
+        {
+          builder.append(",");
+        }
+
+        builder.append(term.getLabel());
+        first = false;
       }
 
-      builder.append(term.getLabel());
-      first = false;
+      return builder.toString();
     }
 
-    return builder.toString();
+    return null;
   }
 
   public static Map<String, LocationInfo> getAncestorMap(GeoObject object, ServerHierarchyType hierarchy)
   {
     Map<String, LocationInfo> map = new HashMap<String, LocationInfo>();
-
-    if (object.getType().isLeaf())
-    {
-      ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
-
-      Universal parentUniversal = (Universal) type.getUniversal().getParents(hierarchy.getUniversalType()).getAll().get(0);
-      String refAttributeName = hierarchy.getParentReferenceAttributeName(parentUniversal);
-
-      String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
-      String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
-
-      ValueQuery vQuery = new ValueQuery(new QueryFactory());
-      BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
-      GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
-      GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
-      UniversalQuery universalQuery = new UniversalQuery(vQuery);
-      BusinessQuery leafQuery = new BusinessQuery(vQuery, type.definesType());
-
-      GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
-
-      vQuery.SELECT(parentQuery.getOid());
-      vQuery.SELECT(parentQuery.getGeoId());
-      vQuery.SELECT(universalQuery.getKeyName());
-      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
-
-      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
-
-      for (Locale locale : locales)
-      {
-        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
-      }
-
-      vQuery.AND(leafQuery.get(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
-      vQuery.AND(leafQuery.aReference(refAttributeName).EQ(childQuery));
-      vQuery.AND(parentQuery.getUniversal().EQ(universalQuery));
-      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.PARENTTERM).EQ(parentQuery));
-      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.CHILDTERM).EQ(childQuery));
-
-      OIterator<ValueObject> it = vQuery.getIterator();
-
-      try
-      {
-        while (it.hasNext())
-        {
-          ValueObject vObject = it.next();
-          String key = vObject.getValue(Universal.KEYNAME);
-
-          map.put(key, new ValueObjectContainer(vObject));
-        }
-      }
-      finally
-      {
-        it.close();
-      }
-    }
-    else
-    {
+// Heads up: clean up
+//    if (object.getType().isLeaf())
+//    {
+//      ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
+//
+//      Universal parentUniversal = (Universal) type.getUniversal().getParents(hierarchy.getUniversalType()).getAll().get(0);
+//      String refAttributeName = hierarchy.getParentReferenceAttributeName(parentUniversal);
+//
+//      String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
+//      String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
+//
+//      ValueQuery vQuery = new ValueQuery(new QueryFactory());
+//      BusinessQuery aptQuery = new BusinessQuery(vQuery, packageName + "." + typeName);
+//      GeoEntityQuery parentQuery = new GeoEntityQuery(vQuery);
+//      GeoEntityQuery childQuery = new GeoEntityQuery(vQuery);
+//      UniversalQuery universalQuery = new UniversalQuery(vQuery);
+//      BusinessQuery leafQuery = new BusinessQuery(vQuery, type.definesType());
+//
+//      GeoEntityDisplayLabelQueryStructIF label = parentQuery.getDisplayLabel();
+//
+//      vQuery.SELECT(parentQuery.getOid());
+//      vQuery.SELECT(parentQuery.getGeoId());
+//      vQuery.SELECT(universalQuery.getKeyName());
+//      vQuery.SELECT(label.get(MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.DISPLAY_LABEL.getName()));
+//
+//      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+//
+//      for (Locale locale : locales)
+//      {
+//        vQuery.SELECT(label.get(locale.toString(), DefaultAttribute.DISPLAY_LABEL.getName() + "_" + locale.toString()));
+//      }
+//
+//      vQuery.AND(leafQuery.get(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
+//      vQuery.AND(leafQuery.aReference(refAttributeName).EQ(childQuery));
+//      vQuery.AND(parentQuery.getUniversal().EQ(universalQuery));
+//      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.PARENTTERM).EQ(parentQuery));
+//      vQuery.AND(aptQuery.aReference(LocatedInAllPathsTable.CHILDTERM).EQ(childQuery));
+//
+//      OIterator<ValueObject> it = vQuery.getIterator();
+//
+//      try
+//      {
+//        while (it.hasNext())
+//        {
+//          ValueObject vObject = it.next();
+//          String key = vObject.getValue(Universal.KEYNAME);
+//
+//          map.put(key, new ValueObjectContainer(vObject));
+//        }
+//      }
+//      finally
+//      {
+//        it.close();
+//      }
+//    }
+//    else
+//    {
       String packageName = DatabaseAllPathsStrategy.getPackageName((MdTerm) BusinessFacade.get(MdTermDAO.getMdTermDAO(GeoEntity.CLASS)));
       String typeName = DatabaseAllPathsStrategy.getTypeName(hierarchy.getEntityRelationshipDAO());
 
@@ -183,7 +188,7 @@ public class GeoObjectUtil
       {
         it.close();
       }
-    }
+//    }
 
     return map;
   }

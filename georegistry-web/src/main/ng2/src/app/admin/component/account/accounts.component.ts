@@ -64,28 +64,6 @@ export class AccountsComponent implements OnInit {
         } );
     }
 
-    remove( user: User ): void {
-        this.service.remove( user.oid ).then( response => {
-            this.res.resultSet = this.res.resultSet.filter( h => h.oid !== user.oid );
-        } )
-            .catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
-    }
-
-    onClickRemove( account: User ): void {
-        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
-        this.bsModalRef.content.message = this.localizeService.decode( "account.removeContent" );
-        this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
-
-        this.bsModalRef.content.onConfirm.subscribe( data => {
-            this.remove( account );
-        } );
-    }
 
     edit( user: User ): void {
         // this.router.navigate(['/admin/account', user.oid]);

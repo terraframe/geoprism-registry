@@ -1,13 +1,11 @@
-<div>
-  <cgr-header></cgr-header>
 
 <div>
   <message ></message>  
   <loading-bar></loading-bar>
   
   <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-    <div class="modal-dialog">
-      <div class="modal-content">
+    <!-- <div class="modal-dialog"> -->
+      <!-- <div class="modal-content"> -->
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
         <div class="heading">
           <h1><localize key="email.modal.heading"></localize></h1>
@@ -97,9 +95,7 @@
             </div>
           </div>
         </fieldset>
-      </div>
-    </div>
+      <!-- </div> -->
+    <!-- </div> -->
   </form>
-</div>
-
 </div>

@@ -17,7 +17,7 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -27,6 +27,8 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { LocalizationService } from '../../../shared/service/localization.service';
+
+import { SystemLogoComponent } from './system-logo.component'
 
 import { SystemLogo } from '../../model/system-logo';
 import { SystemLogoService } from '../../service/system-logo.service';
@@ -44,20 +46,23 @@ export class SystemLogosComponent implements OnInit {
   context: string;
   bsModalRef: BsModalRef;
   message: string = null;
+  random = 0;
 
   constructor(
     private router: Router,
     private service: SystemLogoService,
     private modalService: BsModalService,
-    private localizeService: LocalizationService) {
-	  
-    this.context = acp as string;    
+    private localizeService: LocalizationService,
+    private changeDetectorRef: ChangeDetectorRef
+    ) {
+
+    this.context = acp as string;
   }
 
   ngOnInit(): void {
-    this.getIcons();    
+    this.getIcons();
   }
-  
+
   onClickRemove(icon) : void {
     this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
         animated: true,
@@ -71,30 +76,52 @@ export class SystemLogosComponent implements OnInit {
       this.remove(icon);
     } );
   }
-    
-  getIcons() : void {
+
+  getIcons(): void {
     this.service.getIcons().then(resp => {
-        
-      this.icons = resp.icons;        
+
+      this.icons = resp.icons;
     })
     .catch(( err: HttpErrorResponse ) => {
       this.error( err );
     } );
   }
-  
-  edit(icon: SystemLogo) : void {
-    this.router.navigate(['/admin/logo', icon.oid]);
-  }  
-  
-  remove(icon: SystemLogo) : void {
+
+  edit(icon: SystemLogo): void {
+    // this.router.navigate(['/admin/logo', icon.oid]);
+
+    let bsModalRef = this.modalService.show( SystemLogoComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+
+        bsModalRef.content.icon = icon;
+
+        bsModalRef.content.onSuccess.subscribe( data => {
+
+          this.icons.forEach(ico => {
+
+            // Setting a random number at the end of the url is a hack to change 
+            // the image url to force Angular to rerender the image.
+            this.random = Math.random();
+
+            ico.oid = ico.oid
+          })
+
+          this.changeDetectorRef.detectChanges();
+        })
+  }
+
+  remove(icon: SystemLogo): void {
     this.service.remove(icon.oid).then(response => {
       icon.custom = false;
     })
     .catch(( err: HttpErrorResponse ) => {
       this.error( err );
     } );
-  }  
-  
+  }
+
   error( err: HttpErrorResponse ): void {
     // Handle error
     if ( err !== null ) {
