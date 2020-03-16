@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angula
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
+import { Router } from '@angular/router';
 
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
@@ -23,7 +24,7 @@ export class ShapefileModalComponent implements OnInit {
     state: string = 'MAP';
 
     constructor( private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
-        private localizeService: LocalizationService ) {
+        private localizeService: LocalizationService, private router: Router ) {
     }
 
     ngOnInit(): void {
@@ -90,8 +91,10 @@ export class ShapefileModalComponent implements OnInit {
             else {
                 this.bsModalRef.hide()
 
-                this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
-                this.bsModalRef.content.message = this.localizeService.decode( "upload.success.message" );
+                this.router.navigate(['/registry/scheduled-jobs']);
+
+                //this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
+                //this.bsModalRef.content.message = this.localizeService.decode( "upload.success.message" );
             }
         } ).catch(( response: HttpErrorResponse ) => {
             this.error( response );
@@ -102,7 +105,7 @@ export class ShapefileModalComponent implements OnInit {
     handleCancel(): void {
         this.message = null;
 
-        this.service.cancelShapefileImport( this.configuration ).then( response => {
+        this.service.cancelImport( this.configuration ).then( response => {
             this.bsModalRef.hide()
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );

@@ -17,7 +17,11 @@ abstract public class ImportConfiguration
   
   public static final String HISTORY_ID  = "historyId";
   
+  public static final String JOB_ID  = "jobId";
+  
   public static final String VAULT_FILE_ID  = "vaultFileId";
+  
+  public static final String FILE_NAME  = "fileName";
   
   public static final String IMPORT_STRATEGY  = "importStrategy";
   
@@ -27,7 +31,11 @@ abstract public class ImportConfiguration
   
   protected String historyId;
   
+  protected String jobId;
+  
   protected String vaultFileId;
+  
+  protected String fileName;
   
   protected LinkedList<RecordedErrorException> errors = new LinkedList<RecordedErrorException>();
   
@@ -108,6 +116,16 @@ abstract public class ImportConfiguration
   {
     this.historyId = historyId;
   }
+  
+  public String getJobId()
+  {
+    return jobId;
+  }
+
+  public void setJobId(String jobId)
+  {
+    this.jobId = jobId;
+  }
 
   public String getFormatType()
   {
@@ -141,9 +159,16 @@ abstract public class ImportConfiguration
       this.historyId = jo.getString(HISTORY_ID);
     }
     
+    if (jo.has(JOB_ID))
+    {
+      this.jobId = jo.getString(JOB_ID);
+    }
+    
     this.vaultFileId = jo.getString(VAULT_FILE_ID);
     
     this.importStrategy = ImportStrategy.valueOf(jo.getString(IMPORT_STRATEGY));
+    
+    this.fileName = jo.getString(FILE_NAME);
   }
   
   protected void toJSON(JSONObject jo)
@@ -151,8 +176,10 @@ abstract public class ImportConfiguration
     jo.put(OBJECT_TYPE, this.objectType);
     jo.put(FORMAT_TYPE, this.formatType);
     jo.put(HISTORY_ID, this.historyId);
+    jo.put(JOB_ID, this.jobId);
     jo.put(VAULT_FILE_ID, this.vaultFileId);
     jo.put(IMPORT_STRATEGY, this.importStrategy.name());
+    jo.put(FILE_NAME, this.fileName);
   }
   
   abstract public JSONObject toJSON();

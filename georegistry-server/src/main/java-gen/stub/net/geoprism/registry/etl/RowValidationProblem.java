@@ -44,7 +44,7 @@ public class RowValidationProblem extends RowValidationProblemBase
   @Override
   public String buildKey()
   {
-    return String.valueOf(this.getRowNum());
+    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + String.valueOf(this.getRowNum());
   }
   
   @Override
@@ -56,7 +56,7 @@ public class RowValidationProblem extends RowValidationProblemBase
   @Override
   public JSONObject toJSON()
   {
-    JSONObject object = new JSONObject();
+    JSONObject object = super.toJSON();
     
     object.put("rowNum", this.getRowNum());
     object.put("exception", this.getExceptionJson());

@@ -1,0 +1,22 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.etl.DuplicateJobException" label="Duplicate Job Exception" message="The same job has already been queued">
+      </mdException>    
+    </create>
+    <createOrUpdate>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.change.frequency">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.change.frequency" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Changing frequency will result in any published version being deleted" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.DuplicateJobException" type="com.runwaysdk.system.metadata.MdException"/>    
+    </delete>
+  </undoIt>
+</version>

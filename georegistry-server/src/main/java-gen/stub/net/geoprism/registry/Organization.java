@@ -5,16 +5,18 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
+import java.util.List;
+import com.runwaysdk.query.QueryFactory;
 
 public class Organization extends OrganizationBase
 {
   private static final long serialVersionUID = -640706555;
-  
+
   public Organization()
   {
     super();
   }
-  
+
   /**
    * Builds the this object's key name.
    */
@@ -282,5 +284,13 @@ public class Organization extends OrganizationBase
     {
       return null;
     }
+  }
+
+  public static List<? extends Organization> getOrganizations()
+  {
+    OrganizationQuery query = new OrganizationQuery(new QueryFactory());
+    query.ORDER_BY_ASC(query.getDisplayLabel().localize());
+
+    return query.getIterator().getAll();
   }
 }

@@ -19,22 +19,35 @@
 package net.geoprism.registry.service;
 
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.etl.DuplicateJobException;
+import net.geoprism.registry.etl.MasterListJob;
+import net.geoprism.registry.etl.MasterListJobQuery;
+import net.geoprism.registry.etl.PublishMasterListJob;
+import net.geoprism.registry.etl.PublishMasterListJobQuery;
+import net.geoprism.registry.etl.PublishShapefileJob;
+import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.progress.ProgressService;
 
 public class MasterListService
@@ -43,42 +56,13 @@ public class MasterListService
   @Request(RequestType.SESSION)
   public JsonArray listAll(String sessionId)
   {
-    return list();
+    return MasterList.list();
   }
 
-  public JsonArray list()
+  @Request(RequestType.SESSION)
+  public JsonArray listByOrg(String sessionId)
   {
-    JsonArray response = new JsonArray();
-
-    MasterListQuery query = new MasterListQuery(new QueryFactory());
-    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
-
-    OIterator<? extends MasterList> it = query.getIterator();
-
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-    try
-    {
-      while (it.hasNext())
-      {
-        MasterList list = it.next();
-
-        JsonObject object = new JsonObject();
-        object.addProperty("label", list.getDisplayLabel().getValue());
-        object.addProperty("oid", list.getOid());
-
-        object.addProperty("createDate", format.format(list.getCreateDate()));
-        object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
-
-        response.add(object);
-      }
-    }
-    finally
-    {
-      it.close();
-    }
-
-    return response;
+    return MasterList.listByOrg();
   }
 
   @Request(RequestType.SESSION)
@@ -125,11 +109,100 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
+  public String createPublishedVersionsJob(String sessionId, String oid)
+  {
+    MasterList masterList = MasterList.get(oid);
+
+    QueryFactory factory = new QueryFactory();
+
+    PublishMasterListJobQuery query = new PublishMasterListJobQuery(factory);
+    query.WHERE(query.getMasterList().EQ(masterList));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new DuplicateJobException("This master list has already been queued for publication");
+    }
+
+    PublishMasterListJob job = new PublishMasterListJob();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.setMasterList(masterList);
+    job.apply();
+
+    final JobHistory history = job.start();
+    return history.getOid();
+  }
+
+  @Request(RequestType.SESSION)
+  public JSONObject getPublishJobs(String sessionId, String oid, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
+  {
+    final SortOrder order = isAscending ? SortOrder.ASC : SortOrder.DESC;
+
+    QueryFactory qf = new QueryFactory();
+
+    final MasterListJobQuery query = new MasterListJobQuery(qf);
+    query.WHERE(query.getMasterList().EQ(oid));
+    query.ORDER_BY_DESC(query.getCreateDate());
+    // query.ORDER_BY(ihq.get(sortAttr), order);
+    query.restrictRows(pageSize, pageNumber);
+
+    JSONArray results = new JSONArray();
+
+    try (OIterator<? extends MasterListJob> it = query.getIterator())
+    {
+      while (it.hasNext())
+      {
+        results.put(it.next().toJSON());
+      }
+    }
+
+    JSONObject page = new JSONObject();
+    page.put("count", query.getCount());
+    page.put("pageNumber", query.getPageNumber());
+    page.put("pageSize", query.getPageSize());
+    page.put("results", results);
+
+    return page;
+  }
+
+  @Request(RequestType.SESSION)
   public JsonObject publish(String sessionId, String oid)
   {
     MasterListVersion version = MasterListVersion.get(oid);
 
     return version.publish();
+  }
+
+  @Request(RequestType.SESSION)
+  public String generateShapefile(String sessionId, String oid)
+  {
+    MasterListVersion version = MasterListVersion.get(oid);
+
+    QueryFactory factory = new QueryFactory();
+
+    PublishShapefileJobQuery query = new PublishShapefileJobQuery(factory);
+    query.WHERE(query.getVersion().EQ(version));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new DuplicateJobException("This master list version has already been queued for generating a shapefile");
+    }
+
+    PublishShapefileJob job = new PublishShapefileJob();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.setVersion(version);
+    job.setMasterList(version.getMasterlist());
+    job.apply();
+
+    final JobHistory history = job.start();
+    return history.getOid();
   }
 
   @Request(RequestType.SESSION)
@@ -139,9 +212,9 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject getVersions(String sessionId, String oid)
+  public JsonObject getVersions(String sessionId, String oid, String versionType)
   {
-    return MasterList.get(oid).toJSON(true);
+    return MasterList.get(oid).toJSON(versionType);
   }
 
   @Request(RequestType.SESSION)
@@ -173,6 +246,12 @@ public class MasterListService
   public InputStream exportSpreadsheet(String sessionId, String oid, String filterJson)
   {
     return GeoRegistryUtil.exportMasterListExcel(oid, filterJson);
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream downloadShapefile(String sessionId, String oid)
+  {
+    return MasterListVersion.get(oid).downloadShapefile();
   }
 
   @Request(RequestType.SESSION)

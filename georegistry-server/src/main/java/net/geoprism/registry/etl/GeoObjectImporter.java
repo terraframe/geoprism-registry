@@ -89,8 +89,8 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
-  private static final Logger logger = LoggerFactory.getLogger(GeoObjectImporter.class);
-  
+  private static final Logger              logger            = LoggerFactory.getLogger(GeoObjectImporter.class);
+
   protected static final String            ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
 
   protected GeoObjectImportConfiguration   configuration;
@@ -123,16 +123,16 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     };
   }
-  
+
   protected class GeoObjectParentErrorBuilder
   {
     protected ServerGeoObjectIF parent;
-    
+
     protected ServerGeoObjectIF serverGO;
-    
+
     protected GeoObjectParentErrorBuilder()
     {
-      
+
     }
 
     public ServerGeoObjectIF getParent()
@@ -154,42 +154,42 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       this.parent = parent;
     }
-    
+
     public JSONArray build()
     {
       JSONArray parents = new JSONArray();
-      
+
       try
       {
         if (this.getParent() != null)
         {
           ServerGeoObjectIF parent = this.getParent();
-//          ServerGeoObjectIF serverGo = this.getServerGO();
-          
+          // ServerGeoObjectIF serverGo = this.getServerGO();
+
           List<Location> locations = GeoObjectImporter.this.configuration.getLocations();
-          
-          String[] types = new String[locations.size()-1]; 
-          
-          for (int i = 0; i < locations.size()-1; ++i)
+
+          String[] types = new String[locations.size() - 1];
+
+          for (int i = 0; i < locations.size() - 1; ++i)
           {
             Location location = locations.get(i);
             types[i] = location.getType().getCode();
           }
-          
+
           ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
-          
+
           ServerHierarchyType hierarchy = GeoObjectImporter.this.configuration.getHierarchy();
-          
+
           ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
-          
+
           ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate());
           tnParent.setEndDate(GeoObjectImporter.this.configuration.getEndDate());
-          
+
           tnParent.addParent(ptn);
-          
+
           ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(GeoObjectImporter.this.configuration.getType());
           parentsOverTime.add(hierarchy, tnParent);
-          
+
           return new JSONArray(parentsOverTime.toJSON().toString());
         }
       }
@@ -197,7 +197,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         logger.error("Error constructing parents", t2);
       }
-      
+
       return parents;
     }
   };
@@ -222,7 +222,8 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     try
     {
-//      int beforeProbCount = this.progressListener.getValidationProblems().size();
+      // int beforeProbCount =
+      // this.progressListener.getValidationProblems().size();
 
       /*
        * 1. Check for location problems
@@ -278,7 +279,7 @@ public class GeoObjectImporter implements ObjectImporterIF
                 throw new InvalidGeometryException();
               }
             }
-            
+
             Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
             Set<Entry<String, AttributeType>> entries = attributes.entrySet();
 
@@ -313,18 +314,19 @@ public class GeoObjectImporter implements ObjectImporterIF
             // problems exist immediately throw a ProblemException so that
             // normal
             // exception handling can occur.
-//            List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
-//
-//            List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
-//            for (ProblemIF problem : problems)
-//            {
-//              problems2.add(problem);
-//            }
-//
-//            if (problems.size() != 0)
-//            {
-//              throw new ProblemException(null, problems2);
-//            }
+            // List<ProblemIF> problems =
+            // RequestState.getProblemsInCurrentRequest();
+            //
+            // List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
+            // for (ProblemIF problem : problems)
+            // {
+            // problems2.add(problem);
+            // }
+            //
+            // if (problems.size() != 0)
+            // {
+            // throw new ProblemException(null, problems2);
+            // }
           }
         }
         finally
@@ -333,10 +335,12 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
       }
 
-//      if (beforeProbCount == this.progressListener.getValidationProblems().size())
-//      {
-//        this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
-//      }
+      // if (beforeProbCount ==
+      // this.progressListener.getValidationProblems().size())
+      // {
+      // this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()
+      // + 1);
+      // }
     }
     catch (IgnoreRowException e)
     {
@@ -344,7 +348,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress());
+      RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress() + 1);
       this.progressListener.addRowValidationProblem(problem);
     }
 
@@ -367,19 +371,21 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       this.recordError(e);
     }
+
+    Thread.yield();
   }
 
   @Transaction
   private void recordError(RecordedErrorException e)
   {
     JSONObject obj = new JSONObject(e.getObjectJson());
-    
+
     GeoObjectParentErrorBuilder parentBuilder = e.getParentBuilder();
     if (parentBuilder != null)
     {
       obj.put("parents", parentBuilder.build());
     }
-    
+
     this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType());
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
     this.configuration.addException(e);
@@ -389,15 +395,15 @@ public class GeoObjectImporter implements ObjectImporterIF
   public void importRowInTrans(FeatureRow row)
   {
     GeoObjectOverTime go = null;
-    
+
     String goJson = null;
-    
+
     ServerGeoObjectIF serverGo = null;
-    
+
     ServerGeoObjectIF parent = null;
-    
+
     GeoObjectParentErrorBuilder parentBuilder = new GeoObjectParentErrorBuilder();
-    
+
     try
     {
       String geoId = this.getCode(row);
@@ -419,7 +425,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             ex.setDataIdentifier(geoId);
             throw ex;
           }
-          
+
           isNew = true;
 
           serverGo = service.newInstance(this.configuration.getType());
@@ -429,7 +435,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           serverGo.lock();
         }
-        
+
         parentBuilder.setServerGO(serverGo);
 
         serverGo.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
@@ -490,10 +496,10 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           go = serverGo.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
-          
+
           /*
-           * Try to get the parent and ensure that this row is not ignored.
-           * The getParent method will throw a IgnoreRowException if the parent is
+           * Try to get the parent and ensure that this row is not ignored. The
+           * getParent method will throw a IgnoreRowException if the parent is
            * configured to be ignored.
            */
           if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
@@ -505,10 +511,12 @@ public class GeoObjectImporter implements ObjectImporterIF
             parent = this.getParent(row);
           }
           parentBuilder.setParent(parent);
-          
+
           if (this.progressListener.hasValidationProblems())
           {
-            throw new RuntimeException("Did not expect to encounter validation problems during import."); // TODO : SmartException?
+            throw new RuntimeException("Did not expect to encounter validation problems during import."); // TODO
+                                                                                                          // :
+                                                                                                          // SmartException?
           }
 
           serverGo.apply(true);
@@ -541,7 +549,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           {
             throw new ProblemException(null, problems2);
           }
-          
+
           this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
         }
       }
@@ -553,12 +561,12 @@ public class GeoObjectImporter implements ObjectImporterIF
     catch (Throwable t)
     {
       JSONObject obj = new JSONObject();
-      
+
       if (goJson != null)
       {
         obj.put("geoObject", new JSONObject(goJson));
       }
-      
+
       RecordedErrorException re = new RecordedErrorException();
       re.setError(t);
       re.setObjectJson(obj.toString());
@@ -712,8 +720,8 @@ public class GeoObjectImporter implements ObjectImporterIF
             }
             else
             {
-              String parentCode = (parent == null) ? null : parent.getCode();
-              
+              String parentCode = ( parent == null ) ? null : parent.getCode();
+
               this.progressListener.addReferenceProblem(new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context));
             }
 

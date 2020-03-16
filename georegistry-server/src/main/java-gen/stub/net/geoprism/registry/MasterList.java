@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -29,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -39,6 +42,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -46,7 +50,10 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.MasterListJob;
+import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -78,6 +85,10 @@ public class MasterList extends MasterListBase
 
   public static final String VERSIONS         = "versions";
 
+  public static final String PUBLIC           = "PUBLIC";
+
+  public static final String PRIVATE          = "PRIVATE";
+
   public MasterList()
   {
     super();
@@ -92,6 +103,20 @@ public class MasterList extends MasterListBase
       throw new InvalidMasterListCodeException("The master list code has an invalid character");
     }
 
+    /*
+     * Changing the frequency requires that any existing published version be
+     * deleted
+     */
+    if (this.isModified(MasterList.FREQUENCY))
+    {
+      final List<MasterListVersion> versions = this.getVersions(MasterListVersion.PUBLISHED);
+
+      for (MasterListVersion version : versions)
+      {
+        version.delete();
+      }
+    }
+
     super.apply();
   }
 
@@ -99,7 +124,15 @@ public class MasterList extends MasterListBase
   @Transaction
   public void delete()
   {
-    List<MasterListVersion> versions = this.getVersions();
+    // Delete all jobs
+    List<MasterListJob> jobs = this.getJobs();
+
+    for (MasterListJob job : jobs)
+    {
+      job.delete();
+    }
+
+    List<MasterListVersion> versions = this.getVersions(null);
 
     for (MasterListVersion version : versions)
     {
@@ -107,16 +140,54 @@ public class MasterList extends MasterListBase
     }
 
     super.delete();
+
+    final File directory = this.getShapefileDirectory();
+
+    if (directory.exists())
+    {
+      try
+      {
+        FileUtils.deleteDirectory(directory);
+      }
+      catch (IOException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
+    }
   }
 
-  public List<MasterListVersion> getVersions()
+  public File getShapefileDirectory()
+  {
+    final File root = GeoprismProperties.getGeoprismFileStorage();
+    final File directory = new File(root, "shapefiles");
+
+    return new File(directory, this.getOid());
+  }
+
+  public List<MasterListVersion> getVersions(String versionType)
   {
     MasterListVersionQuery query = new MasterListVersionQuery(new QueryFactory());
     query.WHERE(query.getMasterlist().EQ(this));
 
+    if (versionType != null)
+    {
+      query.AND(query.getVersionType().EQ(versionType));
+    }
+
     try (OIterator<? extends MasterListVersion> it = query.getIterator())
     {
       return new LinkedList<MasterListVersion>(it.getAll());
+    }
+  }
+
+  public List<MasterListJob> getJobs()
+  {
+    MasterListJobQuery query = new MasterListJobQuery(new QueryFactory());
+    query.WHERE(query.getMasterList().EQ(this));
+
+    try (OIterator<? extends MasterListJob> it = query.getIterator())
+    {
+      return new LinkedList<MasterListJob>(it.getAll());
     }
   }
 
@@ -177,49 +248,53 @@ public class MasterList extends MasterListBase
   {
     LinkedList<Date> dates = new LinkedList<Date>();
 
-    List<ChangeFrequency> frequencies = this.getFrequency();
-
-    if (frequencies.contains(ChangeFrequency.ANNUAL))
+    if (startDate != null && endDate != null)
     {
-      Calendar end = getEndOfYear(endDate);
-      Calendar calendar = getEndOfYear(startDate);
 
-      while (calendar.before(end) || calendar.equals(end))
+      List<ChangeFrequency> frequencies = this.getFrequency();
+
+      if (frequencies.contains(ChangeFrequency.ANNUAL))
       {
-        dates.add(calendar.getTime());
+        Calendar end = getEndOfYear(endDate);
+        Calendar calendar = getEndOfYear(startDate);
 
-        calendar.add(Calendar.YEAR, 1);
+        while (calendar.before(end) || calendar.equals(end))
+        {
+          dates.add(calendar.getTime());
+
+          calendar.add(Calendar.YEAR, 1);
+        }
       }
-    }
-    else if (frequencies.contains(ChangeFrequency.QUARTER))
-    {
-      Calendar end = getEndOfQuarter(endDate);
-      Calendar calendar = getEndOfQuarter(startDate);
-
-      while (calendar.before(end) || calendar.equals(end))
+      else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
-        dates.add(calendar.getTime());
+        Calendar end = getEndOfQuarter(endDate);
+        Calendar calendar = getEndOfQuarter(startDate);
 
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        this.moveToEndOfQuarter(calendar);
+        while (calendar.before(end) || calendar.equals(end))
+        {
+          dates.add(calendar.getTime());
+
+          calendar.add(Calendar.DAY_OF_YEAR, 1);
+          this.moveToEndOfQuarter(calendar);
+        }
       }
-    }
-    else if (frequencies.contains(ChangeFrequency.MONTHLY))
-    {
-      Calendar end = getEndOfMonth(endDate);
-      Calendar calendar = getEndOfMonth(startDate);
-
-      while (calendar.before(end) || calendar.equals(end))
+      else if (frequencies.contains(ChangeFrequency.MONTHLY))
       {
-        dates.add(calendar.getTime());
+        Calendar end = getEndOfMonth(endDate);
+        Calendar calendar = getEndOfMonth(startDate);
 
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        this.moveToEndOfMonth(calendar);
+        while (calendar.before(end) || calendar.equals(end))
+        {
+          dates.add(calendar.getTime());
+
+          calendar.add(Calendar.DAY_OF_YEAR, 1);
+          this.moveToEndOfMonth(calendar);
+        }
       }
-    }
-    else
-    {
-      throw new UnsupportedOperationException();
+      else
+      {
+        throw new UnsupportedOperationException();
+      }
     }
 
     return dates;
@@ -281,10 +356,10 @@ public class MasterList extends MasterListBase
 
   public JsonObject toJSON()
   {
-    return this.toJSON(false);
+    return this.toJSON(null);
   }
 
-  public JsonObject toJSON(boolean includeVersions)
+  public JsonObject toJSON(String versionType)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -311,10 +386,12 @@ public class MasterList extends MasterListBase
     object.addProperty(MasterList.ACKNOWLEDGEMENTS, this.getAcknowledgements());
     object.addProperty(MasterList.DISCLAIMER, this.getDisclaimer());
     object.addProperty(MasterList.CONTACTNAME, this.getContactName());
-    object.addProperty(MasterList.ORGANIZATION, this.getOrganization());
+    object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
     object.addProperty(MasterList.FREQUENCY, this.toFrequency().name());
+    object.addProperty(MasterList.ISMASTER, this.getIsMaster());
+    object.addProperty(MasterList.VISIBILITY, this.getVisibility());
     object.add(MasterList.HIERARCHIES, this.getHierarchiesAsJson());
 
     if (this.getRepresentativityDate() != null)
@@ -327,9 +404,9 @@ public class MasterList extends MasterListBase
       object.addProperty(MasterList.PUBLISHDATE, format.format(this.getPublishDate()));
     }
 
-    if (includeVersions)
+    if (versionType != null)
     {
-      List<MasterListVersion> versions = this.getVersions();
+      List<MasterListVersion> versions = this.getVersions(versionType);
 
       JsonArray jVersions = new JsonArray();
 
@@ -346,7 +423,7 @@ public class MasterList extends MasterListBase
 
   private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, List<Locale> locales)
   {
-    List<MasterListVersion> versions = this.getVersions();
+    List<MasterListVersion> versions = this.getVersions(null);
 
     for (MasterListVersion version : versions)
     {
@@ -356,7 +433,7 @@ public class MasterList extends MasterListBase
 
   private void removeAttributeType(AttributeType attributeType)
   {
-    List<MasterListVersion> versions = this.getVersions();
+    List<MasterListVersion> versions = this.getVersions(null);
 
     for (MasterListVersion version : versions)
     {
@@ -405,17 +482,26 @@ public class MasterList extends MasterListBase
   @Transaction
   public void publishFrequencyVersions()
   {
-    final ServerGeoObjectType objectType = this.getGeoObjectType();
-    Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-    List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
-
-    for (Date date : dates)
+    try
     {
-      MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
+      Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
-      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+      final ServerGeoObjectType objectType = this.getGeoObjectType();
+      Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
+      List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
-      version.publish();
+      for (Date date : dates)
+      {
+        MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
+
+        ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+        version.publish();
+      }
+    }
+    finally
+    {
+      Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
     }
   }
 
@@ -459,17 +545,34 @@ public class MasterList extends MasterListBase
       list.setAcknowledgements(object.get(MasterList.ACKNOWLEDGEMENTS).getAsString());
       list.setDisclaimer(object.get(MasterList.DISCLAIMER).getAsString());
       list.setContactName(object.get(MasterList.CONTACTNAME).getAsString());
-      list.setOrganization(object.get(MasterList.ORGANIZATION).getAsString());
       list.setTelephoneNumber(object.get(MasterList.TELEPHONENUMBER).getAsString());
       list.setEmail(object.get(MasterList.EMAIL).getAsString());
       list.setHierarchies(object.get(MasterList.HIERARCHIES).getAsJsonArray().toString());
+      list.setOrganizationId(object.get(MasterList.ORGANIZATION).getAsString());
+
+      if (object.has(MasterList.ISMASTER) && !object.get(MasterList.ISMASTER).isJsonNull())
+      {
+        list.setIsMaster(object.get(MasterList.ISMASTER).getAsBoolean());
+      }
+
+      if (object.has(MasterList.VISIBILITY) && !object.get(MasterList.VISIBILITY).isJsonNull())
+      {
+        list.setVisibility(object.get(MasterList.VISIBILITY).getAsString());
+      }
 
       if (object.has(MasterList.FREQUENCY) && !object.get(MasterList.FREQUENCY).isJsonNull())
       {
         final String frequency = object.get(MasterList.FREQUENCY).getAsString();
 
-        list.clearFrequency();
-        list.addFrequency(ChangeFrequency.valueOf(frequency));
+        final boolean same = list.getFrequency().stream().anyMatch(f -> {
+          return f.name().equals(frequency);
+        });
+
+        if (!same)
+        {
+          list.clearFrequency();
+          list.addFrequency(ChangeFrequency.valueOf(frequency));
+        }
       }
 
       if (object.has(MasterList.REPRESENTATIVITYDATE))
@@ -526,6 +629,23 @@ public class MasterList extends MasterListBase
   public static MasterList create(JsonObject object)
   {
     MasterList list = MasterList.fromJSON(object);
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(list.getUniversal()));
+    query.AND(query.getOrganization().EQ(list.getOrganization()));
+
+    if (!list.isNew())
+    {
+      query.AND(query.getOid().NE(list.getOid()));
+    }
+
+    if (query.getCount() > 0)
+    {
+      ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+
+      throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+    }
+
     list.apply();
 
     return list;
@@ -582,4 +702,90 @@ public class MasterList extends MasterListBase
 
     return true;
   }
+
+  public static JsonArray list()
+  {
+    JsonArray response = new JsonArray();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    OIterator<? extends MasterList> it = query.getIterator();
+
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+    try
+    {
+      while (it.hasNext())
+      {
+        MasterList list = it.next();
+
+        JsonObject object = new JsonObject();
+        object.addProperty("label", list.getDisplayLabel().getValue());
+        object.addProperty("oid", list.getOid());
+
+        object.addProperty("createDate", format.format(list.getCreateDate()));
+        object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+
+        response.add(object);
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+
+    return response;
+  }
+
+  public static JsonArray listByOrg()
+  {
+
+    JsonArray response = new JsonArray();
+
+    final List<? extends Organization> orgs = Organization.getOrganizations();
+
+    for (Organization org : orgs)
+    {
+      MasterListQuery query = new MasterListQuery(new QueryFactory());
+      query.WHERE(query.getOrganization().EQ(org));
+      query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+      OIterator<? extends MasterList> it = query.getIterator();
+
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+      JsonArray lists = new JsonArray();
+
+      try
+      {
+        while (it.hasNext())
+        {
+          MasterList list = it.next();
+
+          JsonObject object = new JsonObject();
+          object.addProperty("label", list.getDisplayLabel().getValue());
+          object.addProperty("oid", list.getOid());
+          object.addProperty("createDate", format.format(list.getCreateDate()));
+          object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+
+          lists.add(object);
+        }
+      }
+      finally
+      {
+        it.close();
+      }
+
+      JsonObject object = new JsonObject();
+      object.addProperty("oid", org.getOid());
+      object.addProperty("label", org.getDisplayLabel().getValue());
+      object.add("lists", lists);
+
+      response.add(object);
+    }
+
+    return response;
+  }
+
 }

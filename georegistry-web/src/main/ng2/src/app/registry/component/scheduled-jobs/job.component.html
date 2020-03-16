@@ -43,31 +43,48 @@
                 </div>
                 <div class="col-md-5 order-md-1"></div>
             </div>
-            <div *ngIf="job && job.importErrors.results.length > 0" class="row">
+            <div *ngIf="page && page.results.length > 0" class="row">
                 <div class="col-md-12 order-md-1">
                     
                     <ul class="list-group">
             
                         <table class="list-table table table-bordered table-striped">
-                            <thead>
+                            <thead *ngIf="job.stage === 'IMPORT_RESOLVE'">
                                 <tr>
-                                    <th class="label-column">
-                                    <div class="check-block">
-                                            <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
-                                                <span></span>
-                                            </div>
-                                        </div>
-                                    </th>
-                                    <th class="label-column">
-                                        Problem Type
-                                    </th>
-                                    <th class="label-column">
-                                        Message
-                                    </th>
-                                    <th class="label-column">
-                                        
-                                    </th>
+	                                <th class="label-column">
+	                                  <div class="check-block">
+	                                   <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
+	                                     <span></span>
+	                                   </div>
+	                                  </div>
+	                                </th>
+	                                <th class="label-column">
+	                                    Problem Type
+	                                </th>
+	                                <th class="label-column">
+	                                    Message
+	                                </th>
+	                                <th class="label-column">
+	                                    
+	                                </th>
                                 </tr>
+                            </thead>
+                            <thead *ngIf="job.stage === 'VALIDATION_RESOLVE'">
+                              <tr>
+                                <th class="label-column">
+                                  <div class="check-block">
+                                   <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
+                                     <span></span>
+                                   </div>
+                                  </div>
+                                </th>
+                                <th class="label-column">
+                                  TODO
+                                </th>
+                                <th class="label-column">
+                                  
+                                </th>
+                              </tr>
                             </thead>
 
                             <tbody *ngIf="job.stage === 'IMPORT_RESOLVE'">
@@ -91,24 +108,19 @@
                             </tbody>
 
                             <tbody *ngIf="job.stage === 'VALIDATION_RESOLVE'">
-                                <tr *ngFor="let row of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
-                                    <td class="label-column">
-                                        <boolean-field [(value)]="row.selected"></boolean-field>
-                                    </td>
-                                    <td class="label-column" style="vertical-align: middle;">
-                                        TODO: Looks like exception isn't on the ValidationErrors object
-                                        <!-- <p>{{getFriendlyProblemType(row.exception.type)}}</p> -->
-                                    </td>
-                                    <td class="label-column" style="vertical-align: middle;">
-                                        <!-- <p>{{row.exception.message}}</p> -->
-                                        TODO: Looks like exception isn't on the ValidationErrors object
-                                    </td>
-                                    <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
-                                        <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
-                                            <localize key="scheduledjobs.detail.button"></localize>
-                                        </button>
-                                    </td>
-                                </tr>
+	                            <tr *ngFor="let row of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
+	                             <td class="label-column">
+	                               <boolean-field [(value)]="row.selected"></boolean-field>
+	                             </td>
+	                             <td class="label-column" style="vertical-align: middle;">
+	                               <p>{{formatValidationResolve(row)}}</p>
+	                             </td>
+	                             <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
+	                              <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
+	                                  <localize key="scheduledjobs.detail.button"></localize>
+	                              </button>
+	                             </td>
+	                            </tr>
                             </tbody>
                         </table>
                         <div class="solid-table-footer">
@@ -120,8 +132,12 @@
                 </div>
             </div>
 
-            <div *ngIf="job && job.importErrors.results.length > 0" class="button-holder" style="float: right;">
+            <div *ngIf="page && page.results != null && page.results.length > 0" class="button-holder" style="float: right;">
                 <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">Accept All As Complete</button>
+            </div>
+            
+            <div *ngIf="page && page.results != null && page.results.length > 0 && job.stage === 'VALIDATION_RESOLVE'" class="button-holder" style="float: right;">
+                <button type="submit" (click)="onCancelScheduledJob(job.historyId)" class="btn btn-primary" role="button">Cancel Import</button>
             </div>
     </div>
 </div>

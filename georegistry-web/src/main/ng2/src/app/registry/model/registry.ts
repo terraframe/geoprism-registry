@@ -1,54 +1,55 @@
 import { LocalizedValue } from '../../shared/model/core';
 import { LocalizationService } from '../../shared/service/localization.service';
+import { ImportConfiguration } from './io';
 
 export const PRESENT: string = '5000-12-31'
 
 export class TreeEntity {
-    id: string;
-    name: string;
-    hasChildren: boolean;
+	id: string;
+	name: string;
+	hasChildren: boolean;
 }
 
 export class Term {
-    code: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
+	code: string;
+	label: LocalizedValue;
+	description: LocalizedValue;
 
-    constructor( code: string, label: LocalizedValue, description: LocalizedValue ) {
-        this.code = code;
-        this.label = label;
-        this.description = description;
-    }
-    children: Term[] = [];
+	constructor(code: string, label: LocalizedValue, description: LocalizedValue) {
+		this.code = code;
+		this.label = label;
+		this.description = description;
+	}
+	children: Term[] = [];
 
-    addChild( term: Term ) {
-        this.children.push( term );
-    }
+	addChild(term: Term) {
+		this.children.push(term);
+	}
 }
 
 export class GeoObject {
-    type: string;
-    geometry: any;
-    properties: {
-        uid: string,
-        code: string,
-        displayLabel: LocalizedValue,
-        type: string,
-        status: string[],
-        sequence: string
-        createDate: string,
-        lastUpdateDate: string,
-    };
+	type: string;
+	geometry: any;
+	properties: {
+		uid: string,
+		code: string,
+		displayLabel: LocalizedValue,
+		type: string,
+		status: string[],
+		sequence: string
+		createDate: string,
+		lastUpdateDate: string,
+	};
 }
 
 export class GeoObjectType {
-    code: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
-    geometryType: string;
-    isLeaf: boolean;
-    isGeometryEditable: boolean;
-    attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
+	code: string;
+	label: LocalizedValue;
+	description: LocalizedValue;
+	geometryType: string;
+	isLeaf: boolean;
+	isGeometryEditable: boolean;
+	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 }
 
 // export class Attribute {
@@ -67,151 +68,151 @@ export class GeoObjectType {
 
 export class GeoObjectOverTime {
 
-    geoObjectType: GeoObjectType;
+	geoObjectType: GeoObjectType;
 
-    attributes: any;
+	attributes: any;
 
-    public constructor( geoObjectType: GeoObjectType, attributes: any ) {
-        this.geoObjectType = geoObjectType;
-        this.attributes = attributes;
-    }
+	public constructor(geoObjectType: GeoObjectType, attributes: any) {
+		this.geoObjectType = geoObjectType;
+		this.attributes = attributes;
+	}
 
-    public getVotAtDate( date: Date, attrCode: string, lService: LocalizationService ) {
-        let retVot = { startDate: date, endDate: null, value: null };
+	public getVotAtDate(date: Date, attrCode: string, lService: LocalizationService) {
+		let retVot = { startDate: date, endDate: null, value: null };
 
-        const time = date.getTime();
+		const time = date.getTime();
 
-        for ( let i = 0; i < this.geoObjectType.attributes.length; ++i ) {
-            let attr = this.geoObjectType.attributes[i];
+		for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
+			let attr = this.geoObjectType.attributes[i];
 
-            if ( attr.code === attrCode ) {
-                if ( attr.type === 'local' ) {
-                    retVot.value = lService.create();
-                }
+			if (attr.code === attrCode) {
+				if (attr.type === 'local') {
+					retVot.value = lService.create();
+				}
 
-                if ( attr.isChangeOverTime ) {
-                    let values = this.attributes[attr.code].values;
+				if (attr.isChangeOverTime) {
+					let values = this.attributes[attr.code].values;
 
-                    values.forEach( vot => {
+					values.forEach(vot => {
 
-                        const startDate = Date.parse( vot.startDate );
-                        const endDate = Date.parse( vot.endDate );
+						const startDate = Date.parse(vot.startDate);
+						const endDate = Date.parse(vot.endDate);
 
-                        if ( time >= startDate && time <= endDate ) {
+						if (time >= startDate && time <= endDate) {
 
-                            if ( attr.type === 'local' ) {
-                                retVot.value = JSON.parse( JSON.stringify( vot.value ) );
-                            }
-                            else if ( attr.type === 'term' && vot.value != null && Array.isArray( vot.value ) && vot.value.length > 0 ) {
-                                retVot.value = vot.value[0];
-                            }
-                            else {
-                                retVot.value = vot.value;
-                            }
-                        }
-                    } );
-                }
-                else {
-                    retVot.value = this.attributes[attr.code];
-                }
+							if (attr.type === 'local') {
+								retVot.value = JSON.parse(JSON.stringify(vot.value));
+							}
+							else if (attr.type === 'term' && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0) {
+								retVot.value = vot.value[0];
+							}
+							else {
+								retVot.value = vot.value;
+							}
+						}
+					});
+				}
+				else {
+					retVot.value = this.attributes[attr.code];
+				}
 
-                break;
-            }
-        }
+				break;
+			}
+		}
 
-        return retVot;
-    }
+		return retVot;
+	}
 }
 
 export class ValueOverTime {
-    startDate: string;
-    endDate: string;
-    value: any;
-    removable?: boolean;
+	startDate: string;
+	endDate: string;
+	value: any;
+	removable?: boolean;
 }
 
 export class Attribute {
-    code: string;
-    type: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
-    isDefault: boolean;
-    required: boolean;
-    unique: boolean;
-    isChangeOverTime?: boolean;
+	code: string;
+	type: string;
+	label: LocalizedValue;
+	description: LocalizedValue;
+	isDefault: boolean;
+	required: boolean;
+	unique: boolean;
+	isChangeOverTime?: boolean;
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean ) {
+	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 
-        this.code = code;
-        this.type = type;
-        this.label = label;
-        this.description = description;
-        this.isDefault = isDefault;
-        this.required = required;
-        this.unique = unique;
-        this.isChangeOverTime = isChangeOverTime;
-    }
+		this.code = code;
+		this.type = type;
+		this.label = label;
+		this.description = description;
+		this.isDefault = isDefault;
+		this.required = required;
+		this.unique = unique;
+		this.isChangeOverTime = isChangeOverTime;
+	}
 
 }
 
 export class AttributeTerm extends Attribute {
-    //descendants: Attribute[];
+	//descendants: Attribute[];
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean ) {
-        super( code, type, label, description, isDefault, required, unique, isChange );
-    }
+	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
+		super(code, type, label, description, isDefault, required, unique, isChange);
+	}
 
-    rootTerm: Term = new Term( null, null, null );
+	rootTerm: Term = new Term(null, null, null);
 
-    termOptions: Term[] = [];
+	termOptions: Term[] = [];
 
-    setRootTerm( term: Term ) {
-        this.rootTerm = term;
-    }
+	setRootTerm(term: Term) {
+		this.rootTerm = term;
+	}
 }
 
 export class AttributeDecimal extends Attribute {
-    precision: number = 32;
-    scale: number = 8;
+	precision: number = 32;
+	scale: number = 8;
 
-    constructor( code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean ) {
-        super( code, type, label, description, isDefault, required, unique, isChange );
-    }
+	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
+		super(code, type, label, description, isDefault, required, unique, isChange);
+	}
 }
 
 export enum GeoObjectTypeModalStates {
-    "manageAttributes" = "MANAGE-ATTRIBUTES",
-    "editAttribute" = "EDIT-ATTRIBUTE",
-    "defineAttribute" = "DEFINE-ATTRIBUTE",
-    "manageTermOption" = "MANAGE-TERM-OPTION",
-    "editTermOption" = "EDIT-TERM-OPTION",
-    "manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
+	"manageAttributes" = "MANAGE-ATTRIBUTES",
+	"editAttribute" = "EDIT-ATTRIBUTE",
+	"defineAttribute" = "DEFINE-ATTRIBUTE",
+	"manageTermOption" = "MANAGE-TERM-OPTION",
+	"editTermOption" = "EDIT-TERM-OPTION",
+	"manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
 }
 
 export class TreeNode {
-    geoObject: GeoObject;
-    hierarchyType: string;
+	geoObject: GeoObject;
+	hierarchyType: string;
 }
 
 export class ChildTreeNode extends TreeNode {
-    children: ChildTreeNode[];
+	children: ChildTreeNode[];
 }
 
 export class ParentTreeNode extends TreeNode {
-    parents: ParentTreeNode[];
+	parents: ParentTreeNode[];
 }
 
 export class ManageGeoObjectTypeModalState {
-    state: string;
-    attribute: any;
-    termOption: any;
+	state: string;
+	attribute: any;
+	termOption: any;
 }
 
 export class PaginationPage {
-    pageNumber: number;
-    count: number;
-    pageSize: number;
-    results: any[];
+	pageNumber: number;
+	count: number;
+	pageSize: number;
+	results: any[];
 }
 
 export class ScheduledJob {
@@ -225,15 +226,13 @@ export class ScheduledJob {
     workProgress: number;
     workTotal: number;
     importedRecords: number;
-    objectType: string;
-    formatType: string;
-    importStrategy: string;
-    configStartDate: string;
-    importErrors: PaginationPage
+    configuration: ImportConfiguration;
+    importErrors: PaginationPage;
+    problems: PaginationPage;
 }
 
-export class ScheduledJobOverview extends ScheduledJob{
-    stepConfig: StepConfig;
+export class ScheduledJobOverview extends ScheduledJob {
+	stepConfig: StepConfig;
 }
 
 // export class ScheduledJobDetail extends ScheduledJob {
@@ -242,92 +241,103 @@ export class ScheduledJobOverview extends ScheduledJob{
 // }
 
 export class Conflict {
-    exception: ConflictError;
-    object: ConflictObject;
-    objectType: string;
-    selected?: boolean;
+	exception: ConflictError;
+	object: ConflictObject;
+	objectType: string;
+	selected?: boolean;
 }
 
 export class ConflictError {
-    attributes: ConflictErrorAttribute[];
-    type: string;
-    message: string;
+	attributes: ConflictErrorAttribute[];
+	type: string;
+	message: string;
 }
 
 export class ConflictErrorAttribute {
-    value: string;
-    key: string;
+	value: string;
+	key: string;
 }
 
 export class ConflictObject {
-    geoObject: GeoObjectOverTime;
-    parents: HierarchyOverTime[];
+	geoObject: GeoObjectOverTime;
+	parents: HierarchyOverTime[];
 }
 
 export class StepConfig {
-    steps: Step[];
+	steps: Step[];
 }
 
 export class Step {
-    label: string;
-    complete: boolean;
-    enabled: boolean;
+	label: string;
+	complete: boolean;
+	enabled: boolean;
 }
 
 export class MasterList {
-    oid: string;
-    typeCode: string;
-    displayLabel: LocalizedValue;
-    code: string;
-    representativityDate: Date;
-    publishDate: Date;
-    listAbstract: string;
-    process: string;
-    progress: string;
-    accessConstraints: string;
-    useConstraints: string;
-    acknowledgements: string;
-    disclaimer: string;
-    contactName: string;
-    organization: string;
-    telephoneNumber: string;
-    email: string;
-    hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
-    leaf: boolean;
-    versions?: MasterListVersion[]
+	oid: string;
+	typeCode: string;
+	displayLabel: LocalizedValue;
+	code: string;
+	representativityDate: Date;
+	publishDate: Date;
+	listAbstract: string;
+	process: string;
+	progress: string;
+	accessConstraints: string;
+	useConstraints: string;
+	acknowledgements: string;
+	disclaimer: string;
+	contactName: string;
+	organization: string;
+	telephoneNumber: string;
+	email: string;
+	hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+	leaf: boolean;
+	frequency: string;
+	isMaster: boolean;
+	visibility: string;
+	versions?: MasterListVersion[]
 }
 
 export class MasterListVersion {
-    displayLabel: string;
-    oid: string;
-    typeCode: string;
-    leaf: boolean;
-    masterlist: string;
-    forDate: string;
-    createDate: string;
-    publishDate: string;
-    attributes: any[];
-    locales?: string[];
-    isGeometryEditable: boolean;
+	displayLabel: string;
+	oid: string;
+	typeCode: string;
+	leaf: boolean;
+	masterlist: string;
+	forDate: string;
+	createDate: string;
+	publishDate: string;
+	attributes: any[];
+	isGeometryEditable: boolean;
+	locales?: string[];
+	shapefile?: boolean;
 }
 
 export class HierarchyOverTime {
-    code: string;
-    label: string;
-    types: {
-        code: string;
-        label: string;
-    }[];
-    entries: {
-        startDate: string;
-        endDate: string;
-        parents: { [k: string]: { text: string; geoObject: GeoObject } };
-    }[];
+	code: string;
+	label: string;
+	types: {
+		code: string;
+		label: string;
+	}[];
+	entries: {
+		startDate: string;
+		endDate: string;
+		parents: { [k: string]: { text: string; geoObject: GeoObject } };
+	}[];
 }
 
 export enum ImportStrategy {
-    "NEW_AND_UPDATE" = "NEW_AND_UPDATE",
-    "NEW_ONLY" = "NEW_ONLY",
-    "UPDATE_ONLY" = "UPDATE_ONLY"
+	"NEW_AND_UPDATE" = "NEW_AND_UPDATE",
+	"NEW_ONLY" = "NEW_ONLY",
+	"UPDATE_ONLY" = "UPDATE_ONLY"
 }
+
+export class MasterListByOrg {
+	oid: string;
+	label: string;
+	lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[];
+}
+
 

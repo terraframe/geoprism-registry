@@ -38,15 +38,26 @@ public class ETLService
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String json)
   {
+    cancelImportInTrans(sessionId, json);
+  }
+  
+  @Transaction
+  private void cancelImportInTrans(String sessionId, String json)
+  {
     ImportConfiguration config = ImportConfiguration.build(json);
 
     String id = config.getVaultFileId();
-    
+
     VaultFile.get(id).delete();
     
     if (config.getHistoryId() != null && config.getHistoryId().length() > 0)
     {
       String historyId = config.getHistoryId();
+      
+      if (!ImportHistory.get(historyId).getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
+      {
+        throw new ProgrammingErrorException("Import jobs can only be canceled if they are in " + ImportStage.VALIDATION_RESOLVE.name() + " stage.");
+      }
       
       ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
       vpq.WHERE(vpq.getHistory().EQ(historyId));
@@ -62,6 +73,14 @@ public class ETLService
       {
         it.close();
       }
+      
+      ImportHistory hist = ImportHistory.lock(historyId);
+      hist.clearStage();
+      hist.addStage(ImportStage.COMPLETE);
+      hist.clearStatus();
+      hist.addStatus(AllJobStatus.CANCELED);
+      hist.setImportedRecords(0L);
+      hist.apply();
     }
   }
   
@@ -134,7 +153,7 @@ public class ETLService
     
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
-    ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.SUCCESS).OR(ihq.getStatus().containsExactly(AllJobStatus.FAILURE)));
+    ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.SUCCESS).OR(ihq.getStatus().containsExactly(AllJobStatus.FAILURE)).OR(ihq.getStatus().containsExactly(AllJobStatus.CANCELED)));
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
     
@@ -172,8 +191,10 @@ public class ETLService
   {
     JSONObject jo = new JSONObject();
     
+    JSONObject config = new JSONObject(hist.getConfigJson());
+    
     jo.put("jobType", job.getType());
-    jo.put("fileName", hist.getImportFile().getFileName());
+    jo.put("fileName", config.getString(ImportConfiguration.FILE_NAME));
     jo.put("stage", hist.getStage().get(0).name());
     jo.put("status", hist.getStatus().get(0).name());
     jo.put("author", user.getUsername());
@@ -183,25 +204,8 @@ public class ETLService
     jo.put("workProgress", hist.getWorkProgress());
     jo.put("workTotal", hist.getWorkTotal());
     jo.put("historyId", hist.getOid());
-    
-    ImportConfiguration config = ImportConfiguration.build(hist.getConfigJson());
-    if (config instanceof GeoObjectImportConfiguration)
-    {
-      GeoObjectImportConfiguration casted = (GeoObjectImportConfiguration) config;
-      
-      if (casted.getStartDate() != null)
-      {
-        jo.put("configStartDate", formatDate(casted.getStartDate()));
-      }
-      if (casted.getEndDate() != null)
-      {
-        jo.put("configEndDate", formatDate(casted.getEndDate()));
-      }
-    }
-    
-    jo.put("formatType", config.getFormatType());
-    jo.put("importStrategy", config.getImportStrategy().name());
-    jo.put("objectType", config.getObjectType());
+    jo.put("jobId", config.getString(ImportConfiguration.JOB_ID));
+    jo.put("configuration", config);
     
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
     {
@@ -468,6 +472,7 @@ public class ETLService
       
       hist.appLock();
       hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
+      hist.setImportedRecords(hist.getImportedRecords() + 1);
       hist.apply();
     }
     else if (resolution.equals(ErrorResolution.IGNORE.name()))

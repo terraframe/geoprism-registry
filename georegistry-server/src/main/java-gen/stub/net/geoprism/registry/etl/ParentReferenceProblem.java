@@ -31,11 +31,11 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
   {
     if (this.getParentCode() != null && this.getParentCode().length() > 0)
     {
-      return this.getValidationProblemType() + this.getParentCode() + "-" + this.getLabel();
+      return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + this.getParentCode() + "-" + this.getLabel();
     }
     else
     {
-      return this.getValidationProblemType() + this.getLabel();
+      return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + this.getLabel();
     }
   }
   
@@ -52,7 +52,7 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
     ServerGeoObjectType type = ServerGeoObjectType.get(this.getTypeCode());
     
     object.put("label", this.getLabel());
-    object.put("type", this.getTypeCode());
+    object.put("typeCode", this.getTypeCode());
     object.put("typeLabel", type.getLabel());
     object.put("context", this.getContext());
 
