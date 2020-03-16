@@ -27,7 +27,7 @@ import { Subject } from 'rxjs/Subject';
 
 import { Account, User } from '../../model/account';
 import { Organization } from '../../model/settings';
-import { AccountService } from '../../service/account.service';
+import { SettingsService } from '../../service/settings.service';
 
 @Component( {
     selector: 'organization-modal',
@@ -37,12 +37,12 @@ import { AccountService } from '../../service/account.service';
 export class OrganizationModalComponent implements OnInit {
 
     message: string = null;
-    organization: Organization = {name: "", code: "", contact: ""};
+    organization: Organization = {label: "", code: "", contactInfo: ""};
 
     public onSuccess: Subject<Organization>;
 
     constructor(
-        private service: AccountService,
+        private service: SettingsService,
         public bsModalRef: BsModalRef
     ) {
     }
@@ -56,15 +56,12 @@ export class OrganizationModalComponent implements OnInit {
     }
 
     onSubmit(): void {
-        this.onSuccess.next( this.organization );
-        this.bsModalRef.hide();
-
-        // this.service.apply( this.account.user, roleIds ).then( data => {
-        //     this.onEdit.next( data );
-        //     this.bsModalRef.hide();
-        // } ).catch(( err: HttpErrorResponse ) => {
-        //     this.error( err );
-        // } );
+        this.service.newOrganization( this.organization.code, this.organization.label, this.organization.contactInfo ).then( data => {
+            this.onSuccess.next( data );
+            this.bsModalRef.hide();
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
     }
 
     public error( err: HttpErrorResponse ): void {

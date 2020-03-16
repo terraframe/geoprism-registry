@@ -12,7 +12,7 @@
 
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div *ngIf="settings"> 
+        <div> 
             <div class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.information.heading"></localize></h3>
@@ -39,14 +39,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let org of settings.organizations">
+                                    <tr *ngFor="let org of organizations">
                                         <td class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"  [title]="'account.editTooltip' | localize"></a> 
                                             <a class="fa fa-trash-o ico-remove" (click)="onRemoveOrganization(org)" [title]="'account.removeTooltip' | localize" ></a>
                                         </td>
                                         <td class="label-column">{{org.code}}</td>
-                                        <td class="label-column">{{org.name}}</td>
-                                        <td class="label-column">{{org.contact}}</td>
+                                        <td class="label-column">{{org.label.localizedValue}}</td>
+                                        <td class="label-column">{{org.contactInfo.localizedValue}}</td>
                                     </tr>
                                     <tr>
                                         <td class="button-column">

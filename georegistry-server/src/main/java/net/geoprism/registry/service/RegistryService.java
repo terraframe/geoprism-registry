@@ -1104,4 +1104,17 @@ public class RegistryService
 
     return object.toGeoObjectOverTime();
   }
+  
+  @Request(RequestType.SESSION)
+  public Organization createOrganization(String sessionId, String code, String label, String contact)
+  {
+    
+    final Organization org = new Organization();
+    org.setCode(code);
+    org.getDisplayLabel().setValue(label);
+    org.getContactInfo().setValue(contact);
+    org.apply();
+    
+    return org;
+  }
 }

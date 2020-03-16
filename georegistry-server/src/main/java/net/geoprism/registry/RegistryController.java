@@ -38,11 +38,14 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mongodb.util.JSON;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -910,5 +913,46 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
+  }
+  
+  /**
+   * Submit scheduled job conflict.
+   * 
+   * @param sessionId
+   * @param conflict
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
+  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "label") String label, @RequestParamter(name = "contact") String contact)
+  {
+    
+    Organization org = this.registryService.createOrganization(request.getSessionId(), code, label, contact);
+    
+    return new RestBodyResponse(org);
+  }
+  
+  /**
+   * Returns an array of (label, entityId) pairs that under the given
+   * parent/hierarchy and have the given label.
+   * 
+   * @throws ParseException
+   *
+   * @pre
+   * @post
+   *
+   * @returns @throws
+   **/
+  @Endpoint(url = "organizations/get-all", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF getOrganizations(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "date") String date) throws ParseException
+  {
+
+    OrganizationDTO[] orgs = this.registryService.getOrganizations(request.getSessionId(), null);
+    
+    JsonArray orgsJson = new JsonArray();
+    for(OrganizationDTO org : orgs)
+    {
+      orgsJson.add(org.toJSON());
+    }
+    
+    return new RestBodyResponse(orgsJson);
   }
 }

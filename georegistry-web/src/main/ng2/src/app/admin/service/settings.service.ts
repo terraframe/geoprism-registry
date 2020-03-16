@@ -27,7 +27,7 @@ import { EventService } from '../../shared/service/event.service'
 import { MessageContainer } from '../../shared/model/core';
 
 import { Account, User, PageResult, UserInvite } from '../model/account';
-import { Settings } from '../model/settings'
+import { Settings, Organization } from '../model/settings'
 
 declare var acp: any;
 
@@ -36,14 +36,16 @@ export class SettingsService {
 
     constructor( private http: HttpClient, private eventService: EventService ) { }
 
-    getSettings(): Settings {
+    getOrganizations(): Promise<Organization[]> {
 
-        return {
-            organizations: [{name: "MOH", code: "MOH", contact: "Jon Smith 333-333-3333"}],
-            localizations: [{language: "Kmer", country: "Cambodia", variant: null}],
-            branding: [{label: "logo", url:"fake/path"}, {label: "banner", url:"fake/path"}],
-            email: {isConfigured: false}
-        }
+        this.eventService.start();
+    
+        return this.http
+            .get<Organization[]>(acp + '/cgr/organizations/get-all')
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
     }
 
     editOrganization( oid: string ): Promise<Account> {
@@ -78,7 +80,7 @@ export class SettingsService {
             .toPromise();
     }
 
-    newOrganization( ): Promise<Account> {
+    newOrganization(code: string, label: string, contact: string ): Promise<any> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -87,7 +89,7 @@ export class SettingsService {
         this.eventService.start();
 
         return this.http
-            .post<Account>( acp + '/account/edit', JSON.stringify( { oid: "" } ), { headers: headers } )
+            .post<any>( acp + '/cgr/orgainization/create', JSON.stringify( { code: code, label: label, contact: contact } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

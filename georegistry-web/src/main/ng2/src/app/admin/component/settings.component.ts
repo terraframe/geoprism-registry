@@ -54,11 +54,12 @@ declare let acp: string;
 export class SettingsComponent implements OnInit {
     bsModalRef: BsModalRef;
     message: string = null;
-    settings: Settings;
+    organizations: any = [];
     installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
+    settings: Settings = {email: {isConfigured: false}}
 
     constructor(
         private router: Router,
@@ -74,10 +75,13 @@ export class SettingsComponent implements OnInit {
      }
 
     ngOnInit(): void {
-        this.settings = this.settingsService.getSettings();
+
+         this.settingsService.getOrganizations().then( orgs => {
+            this.organizations = orgs
+        } );
 
         this.installedLocales = this.getLocales();
-        console.log(this.installedLocales)
+
     }
 
 
@@ -104,7 +108,7 @@ export class SettingsComponent implements OnInit {
         bsModalRef.content.organization = org;
 
         bsModalRef.content.onSuccess.subscribe( data => {
-            this.settings.organizations.push(data);
+            this.organizations.push(data);
         })
     }
 
@@ -120,7 +124,7 @@ export class SettingsComponent implements OnInit {
         } );
 
          bsModalRef.content.onSuccess.subscribe( data => {
-            this.settings.organizations.push(data);
+            this.organizations.push(data);
          })
     }
 
@@ -134,7 +138,7 @@ export class SettingsComponent implements OnInit {
         } );
 
         bsModalRef.content.onSuccess.subscribe( data => {
-            this.settings.localizations.push(data);
+            this.installedLocales.push(data);
         })
     }
 
