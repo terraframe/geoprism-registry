@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <object key="Roles.commongeoregistry.Organization" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="commongeoregistry.Organization" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Root Organization" />
+        </attributeStruct>
+      </object>
+    </create>
+  
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="com.runwaysdk.system.Roles">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.RoleInheritance">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>
+    
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.Roles" key="Roles.commongeoregistry.Organization"/> 
+    </delete>
+  </undoIt>
+</version>

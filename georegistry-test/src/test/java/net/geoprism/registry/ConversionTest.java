@@ -22,8 +22,11 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
 
+import junit.framework.Assert;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.test.USATestData;
+
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -39,10 +42,6 @@ import org.junit.Test;
 
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-
-import junit.framework.Assert;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.test.USATestData;
 
 public class ConversionTest
 {

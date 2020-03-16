@@ -23,6 +23,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.WMSService;
+
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -33,7 +48,6 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
@@ -67,20 +81,6 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.ontology.TermUtil;
-
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectType
 {
@@ -694,4 +694,10 @@ public class ServerGeoObjectType
     return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
   }
 
+//  public String buildRMRoleName()
+//  {
+//    String ownerActorOid = this.universal.getOwnerOid();
+//    Organization.getRootOrganization(ownerActorOid)
+//  }
+  
 }
