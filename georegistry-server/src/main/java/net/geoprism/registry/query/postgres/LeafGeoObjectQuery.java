@@ -30,7 +30,7 @@ import com.runwaysdk.query.ValueQuery;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
-
+// Heads up: Clean up - no longer needed
 public class LeafGeoObjectQuery extends AbstractGeoObjectQuery implements ServerGeoObjectQuery
 {
 
