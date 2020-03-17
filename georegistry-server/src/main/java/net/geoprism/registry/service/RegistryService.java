@@ -368,12 +368,13 @@ public class RegistryService
   {
     OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
     
-    new OrganizationConverter().create(organizationDTO);
+    final Organization org = new OrganizationConverter().create(organizationDTO);
+    OrganizationDTO dto = org.toDTO(); 
 
     // If this did not error out then add to the cache
-    adapter.getMetadataCache().addOrganization(organizationDTO);
+    adapter.getMetadataCache().addOrganization(dto);
 
-    return organizationDTO;
+    return dto;
   }
   
   /**
@@ -391,9 +392,13 @@ public class RegistryService
   {
     OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
 
-    new OrganizationConverter().update(organizationDTO);
+    final Organization org = new OrganizationConverter().create(organizationDTO);
+    OrganizationDTO dto = org.toDTO(); 
+    
+    // If this did not error out then add to the cache
+    adapter.getMetadataCache().addOrganization(dto);
 
-    return organizationDTO;
+    return dto;
   }
   
   /**
@@ -408,6 +413,9 @@ public class RegistryService
   {
     Organization organization = Organization.getByKey(code);
     organization.delete();
+    
+    // If this did not error out then remove from the cache
+    adapter.getMetadataCache().removeOrganization(code);
   }
   
   /**

@@ -924,7 +924,6 @@ public class RegistryController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
   public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json )
   {
-    
     OrganizationDTO org = this.registryService.createOrganization(request.getSessionId(), json);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
     
