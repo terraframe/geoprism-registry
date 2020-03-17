@@ -1,7 +1,7 @@
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div *ngIf="list && (isMaintainer || isAdmin)" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+    <div *ngIf="list && (list.admin)" style="margin-top: 30px; margin-bottom: 30px;" class="row">
 
         <div class="col-md-12">
             <form #myForm="ngForm">

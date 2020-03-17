@@ -103,6 +103,11 @@ public class MasterList extends MasterListBase
       throw new InvalidMasterListCodeException("The master list code has an invalid character");
     }
 
+    if (!Organization.isRegistryAdmin(this.getOrganization()))
+    {
+      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+    }
+
     /*
      * Changing the frequency requires that any existing published version be
      * deleted
@@ -372,7 +377,16 @@ public class MasterList extends MasterListBase
 
     if (this.isAppliedToDB())
     {
+      final Organization org = this.getOrganization();
+
       object.addProperty(MasterList.OID, this.getOid());
+      object.addProperty(MasterList.ORGANIZATION, org.getOid());
+      object.addProperty("admin", Organization.isRegistryAdmin(org));
+    }
+    else
+    {
+      object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
+      object.addProperty("admin", false);
     }
 
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
@@ -386,7 +400,6 @@ public class MasterList extends MasterListBase
     object.addProperty(MasterList.ACKNOWLEDGEMENTS, this.getAcknowledgements());
     object.addProperty(MasterList.DISCLAIMER, this.getDisclaimer());
     object.addProperty(MasterList.CONTACTNAME, this.getContactName());
-    object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
     object.addProperty(MasterList.FREQUENCY, this.toFrequency().name());
@@ -780,6 +793,7 @@ public class MasterList extends MasterListBase
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
       object.addProperty("label", org.getDisplayLabel().getValue());
+      object.addProperty("admin", Organization.isRegistryAdmin(org));
       object.add("lists", lists);
 
       response.add(object);

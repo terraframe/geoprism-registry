@@ -53,8 +53,8 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
     
     object.put("label", this.getLabel());
     object.put("typeCode", this.getTypeCode());
-    object.put("typeLabel", type.getLabel());
-    object.put("context", this.getContext());
+    object.put("typeLabel", new JSONObject(type.getLabel().toJSON().toString()));
+    object.put("context", new JSONArray(this.getContext()));
 
     if (this.getParentCode() != null && this.getParentCode().length() > 0)
     {

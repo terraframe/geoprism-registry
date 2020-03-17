@@ -137,7 +137,7 @@
             </div>
             
             <div *ngIf="page && page.results != null && page.results.length > 0 && job.stage === 'VALIDATION_RESOLVE'" class="button-holder" style="float: right;">
-                <button type="submit" (click)="onCancelScheduledJob(job.historyId)" class="btn btn-primary" role="button"><localize key="etl.import.cancel.openModal"></localize></button>
+                <button type="button" (click)="onCancelScheduledJob(job.historyId)" class="btn btn-primary" role="button"><localize key="etl.import.cancel.openModal"></localize></button>
             </div>
     </div>
 </div>

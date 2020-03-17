@@ -76,6 +76,17 @@ export class JobComponent implements OnInit {
       return JSON.stringify(obj);
     }
 
+    onProblemResolved(conflict: any): void {
+      for (let i = 0; i < this.page.results.length; ++i)
+      {
+        let pageConflict = this.page.results[i];
+        
+        if (pageConflict.id === conflict.id)
+        {
+          this.page.results.splice(i, 1);
+        }
+      }
+    }
 
     getFriendlyProblemType(type: string): string {
         return Utils.getFriendlyProblemType(type)
@@ -93,7 +104,10 @@ export class JobComponent implements OnInit {
         this.bsModalRef.content.conflict = conflict;
         this.bsModalRef.content.job = this.job;
         this.bsModalRef.content.onConflictAction.subscribe( data => {
-            // do something with the return
+          if (data.action === 'RESOLVED')
+          {
+            this.onProblemResolved(data.data);
+          }
         } );
     }
 
@@ -180,22 +194,22 @@ export class JobComponent implements OnInit {
       this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.button" );
       this.bsModalRef.content.type = ModalTypes.danger;
   
-       this.bsModalRef.content.onConfirm.subscribe( data => {
+      this.bsModalRef.content.onConfirm.subscribe( data => {
   
-          this.service.resolveScheduledJob( historyId ).then( response => {
+        this.service.resolveScheduledJob( historyId ).then( response => {
   
-              this.page = {
-                              count: 0,
-                              pageNumber: 1,
-                              pageSize: 10,
-                              results: []
-                          };
+            this.page = {
+                            count: 0,
+                            pageNumber: 1,
+                            pageSize: 10,
+                            results: []
+                        };
   
-           } ).catch(( err: HttpErrorResponse ) => {
-               this.error( err );
-           } );
+         } ).catch(( err: HttpErrorResponse ) => {
+             this.error( err );
+         } );
   
-       } );
+     } );
     }
     
     onCancelScheduledJob(historyId: string): void {
