@@ -27,12 +27,8 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     @Input() job: ScheduledJob;
     @Output() public onProblemResolved = new EventEmitter<any>();
     
+    termId: string = null;
     searchLabel: string;
-
-    /*
-     * Observable subject for submission.  Called when an update is successful 
-     */
-    // onConflictAction: Subject<any>;
 
     readonly: boolean = false;
     edit: boolean = false;
@@ -44,45 +40,25 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
 
     ngOnInit(): void {
 
-        // this.onConflictAction = new Subject();
-        
-        // this.searchLabel = this.conflict.label;
-        
         this.conflict.parent = null;
         this.searchLabel = "";
 
-    }
-    
-    getString(conflict: any): string {
-      return JSON.stringify(conflict);
     }
 
     getValidationProblemDisplayLabel(conflict: any): string {
       return conflict.type;
     }
     
-    getTypeAheadObservable( typeCode: string, conflict: any ): Observable<any> {
-
-        let parentCode = null;
-        let hierarchyCode = this.job.configuration.hierarchy;
-
+    getTypeAheadObservable( conflict: any ): Observable<any> {
         return Observable.create(( observer: any ) => {
-            this.service.getGeoObjectSuggestions( this.searchLabel, typeCode, parentCode, hierarchyCode, this.job.startDate ).then( results => {
+            this.iService.getTermSuggestions( conflict.mdAttributeId, this.searchLabel, '20' ).then( results => {
                 observer.next( results );
             } );
         } );
     }
-
-    typeaheadOnSelect( e: TypeaheadMatch, conflict: any ): void {
-
-        this.service.getParentGeoObjects( e.item.uid, conflict.typeCode, [], false, this.job.startDate ).then( ancestors => {
-
-            conflict.parent = ancestors.geoObject;
-            this.searchLabel = ancestors.geoObject.properties.displayLabel.localizedValue;
-
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+    
+    typeaheadOnSelect( e: TypeaheadMatch ): void {
+        this.termId = e.item.value;
     }
     
     onIgnore(): void {
@@ -106,8 +82,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
       let cfg = {
         validationProblemId: this.conflict.id,
         resolution: "SYNONYM",
-        code: this.conflict.parent.properties.code,
-        typeCode: this.conflict.parent.properties.type,
+        classifierId: this.termId,
         label: this.conflict.label
       };
     
