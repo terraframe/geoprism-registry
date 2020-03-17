@@ -33,7 +33,6 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.FrequencyType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
@@ -694,4 +693,10 @@ public class ServerGeoObjectType
     return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
   }
 
+//  public String buildRMRoleName()
+//  {
+//    String ownerActorOid = this.universal.getOwnerOid();
+//    Organization.getRootOrganization(ownerActorOid)
+//  }
+  
 }

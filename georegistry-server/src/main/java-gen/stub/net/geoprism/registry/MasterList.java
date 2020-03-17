@@ -52,8 +52,8 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.etl.PublishMasterListJob;
-import net.geoprism.registry.etl.PublishMasterListJobQuery;
+import net.geoprism.registry.etl.MasterListJob;
+import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -103,6 +103,25 @@ public class MasterList extends MasterListBase
       throw new InvalidMasterListCodeException("The master list code has an invalid character");
     }
 
+    if (!Organization.isRegistryAdmin(this.getOrganization()))
+    {
+      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+    }
+
+    /*
+     * Changing the frequency requires that any existing published version be
+     * deleted
+     */
+    if (this.isModified(MasterList.FREQUENCY))
+    {
+      final List<MasterListVersion> versions = this.getVersions(MasterListVersion.PUBLISHED);
+
+      for (MasterListVersion version : versions)
+      {
+        version.delete();
+      }
+    }
+
     super.apply();
   }
 
@@ -110,19 +129,19 @@ public class MasterList extends MasterListBase
   @Transaction
   public void delete()
   {
+    // Delete all jobs
+    List<MasterListJob> jobs = this.getJobs();
+
+    for (MasterListJob job : jobs)
+    {
+      job.delete();
+    }
+
     List<MasterListVersion> versions = this.getVersions(null);
 
     for (MasterListVersion version : versions)
     {
       version.delete();
-    }
-
-    // Delete all jobs
-    List<PublishMasterListJob> jobs = this.getVersions();
-
-    for (PublishMasterListJob job : jobs)
-    {
-      job.delete();
     }
 
     super.delete();
@@ -166,14 +185,14 @@ public class MasterList extends MasterListBase
     }
   }
 
-  public List<PublishMasterListJob> getVersions()
+  public List<MasterListJob> getJobs()
   {
-    PublishMasterListJobQuery query = new PublishMasterListJobQuery(new QueryFactory());
+    MasterListJobQuery query = new MasterListJobQuery(new QueryFactory());
     query.WHERE(query.getMasterList().EQ(this));
 
-    try (OIterator<? extends PublishMasterListJob> it = query.getIterator())
+    try (OIterator<? extends MasterListJob> it = query.getIterator())
     {
-      return new LinkedList<PublishMasterListJob>(it.getAll());
+      return new LinkedList<MasterListJob>(it.getAll());
     }
   }
 
@@ -358,7 +377,16 @@ public class MasterList extends MasterListBase
 
     if (this.isAppliedToDB())
     {
+      final Organization org = this.getOrganization();
+
       object.addProperty(MasterList.OID, this.getOid());
+      object.addProperty(MasterList.ORGANIZATION, org.getOid());
+      object.addProperty("admin", Organization.isRegistryAdmin(org));
+    }
+    else
+    {
+      object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
+      object.addProperty("admin", false);
     }
 
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
@@ -372,7 +400,6 @@ public class MasterList extends MasterListBase
     object.addProperty(MasterList.ACKNOWLEDGEMENTS, this.getAcknowledgements());
     object.addProperty(MasterList.DISCLAIMER, this.getDisclaimer());
     object.addProperty(MasterList.CONTACTNAME, this.getContactName());
-    object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
     object.addProperty(MasterList.FREQUENCY, this.toFrequency().name());
@@ -540,18 +567,25 @@ public class MasterList extends MasterListBase
       {
         list.setIsMaster(object.get(MasterList.ISMASTER).getAsBoolean());
       }
-      
+
       if (object.has(MasterList.VISIBILITY) && !object.get(MasterList.VISIBILITY).isJsonNull())
       {
         list.setVisibility(object.get(MasterList.VISIBILITY).getAsString());
       }
-      
+
       if (object.has(MasterList.FREQUENCY) && !object.get(MasterList.FREQUENCY).isJsonNull())
       {
         final String frequency = object.get(MasterList.FREQUENCY).getAsString();
 
-        list.clearFrequency();
-        list.addFrequency(ChangeFrequency.valueOf(frequency));
+        final boolean same = list.getFrequency().stream().anyMatch(f -> {
+          return f.name().equals(frequency);
+        });
+
+        if (!same)
+        {
+          list.clearFrequency();
+          list.addFrequency(ChangeFrequency.valueOf(frequency));
+        }
       }
 
       if (object.has(MasterList.REPRESENTATIVITYDATE))
@@ -759,6 +793,7 @@ public class MasterList extends MasterListBase
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
       object.addProperty("label", org.getDisplayLabel().getValue());
+      object.addProperty("admin", Organization.isRegistryAdmin(org));
       object.add("lists", lists);
 
       response.add(object);

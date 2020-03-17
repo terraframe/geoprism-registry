@@ -49,12 +49,13 @@
                     <label> <localize key="data.property.label.frequency"></localize></label>
                 </div>
                 <div class="holder">
-                    <select class="select-area" name="frequency" [(ngModel)]="master.frequency" [disabled]="readonly || edit" required>
+                    <select class="select-area" name="frequency" [(ngModel)]="master.frequency" [disabled]="readonly" required #frequency="ngModel">
                         <option></option>
                         <option value="ANNUAL"><localize key="georegistry.frequency.annual"></localize></option>
                         <option value="QUARTER"><localize key="georegistry.frequency.quarter"></localize></option>
                         <option value="MONTHLY"><localize key="georegistry.frequency.monthly"></localize></option>
-                    </select>
+                    </select>                    
+                    <small *ngIf="(edit && frequency.dirty)" class="form-text text-danger"><localize key="masterlist.change.frequency"></localize></small>
                 </div>
             </div>
             <div class="row-holder">
@@ -62,7 +63,7 @@
                     <label><localize key="masterlist.visibility"></localize></label>
                 </div>
                 <div class="holder">
-                    <select class="select-area" name="visibility" [(ngModel)]="master.visibility" [disabled]="readonly || edit" required>
+                    <select class="select-area" name="visibility" [(ngModel)]="master.visibility" [disabled]="readonly" required>
                         <option></option>
                         <option value="PUBLIC"><localize key="masterlist.public"></localize></option>                        
                         <option value="PRIVATE"><localize key="masterlist.private"></localize></option>

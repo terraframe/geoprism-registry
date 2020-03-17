@@ -34,11 +34,14 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -46,6 +49,7 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
@@ -77,6 +81,9 @@ public class PublishMasterListJobTest
     org.setCode("Testzzz");
     org.getDisplayLabel().setValue("Testzzz");
     org.apply();
+
+    final Roles role = org.getRegistryAdminiRole();
+    RoleDAO.get(role.getOid()).assignMember(UserDAO.findUser("admin"));
   }
 
   @AfterClass
@@ -272,6 +279,75 @@ public class PublishMasterListJobTest
 
       final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
+
+      Assert.assertEquals(1, json.size());
+    }
+    finally
+    {
+      service.remove(testData.adminClientRequest.getSessionId(), oid);
+    }
+
+  }
+
+  @Test
+  public void testChangeFrequency() throws InterruptedException
+  {
+    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+
+    MasterListService service = new MasterListService();
+    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    String oid = result.get(ComponentInfo.OID).getAsString();
+
+    try
+    {
+      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+
+      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+
+      JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
+
+      Assert.assertEquals(1, json.size());
+
+      result.addProperty(MasterList.FREQUENCY, ChangeFrequency.QUARTER.name());
+
+      service.create(testData.adminClientRequest.getSessionId(), result);
+
+      object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      json = object.get(MasterList.VERSIONS).getAsJsonArray();
+
+      Assert.assertEquals(0, json.size());
+    }
+    finally
+    {
+      service.remove(testData.adminClientRequest.getSessionId(), oid);
+    }
+  }
+
+  @Test
+  public void testUpdate() throws InterruptedException
+  {
+    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+
+    MasterListService service = new MasterListService();
+    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    String oid = result.get(ComponentInfo.OID).getAsString();
+
+    try
+    {
+      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+
+      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+
+      JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
+
+      Assert.assertEquals(1, json.size());
+
+      service.create(testData.adminClientRequest.getSessionId(), result);
+
+      object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
     }

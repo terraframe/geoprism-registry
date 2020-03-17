@@ -26,7 +26,6 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -41,8 +40,15 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationRAException;
+import net.geoprism.registry.etl.DuplicateJobException;
+import net.geoprism.registry.etl.MasterListJob;
+import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.etl.PublishMasterListJobQuery;
+import net.geoprism.registry.etl.PublishShapefileJob;
+import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.progress.ProgressService;
 
 public class MasterListService
@@ -89,6 +95,12 @@ public class MasterListService
   public JsonObject createExploratoryVersion(String sessionId, String oid, Date forDate)
   {
     MasterList masterList = MasterList.get(oid);
+
+    if (!Organization.isRegistryAdmin(masterList.getOrganization()))
+    {
+      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+    }
+
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -119,7 +131,7 @@ public class MasterListService
 
     if (q.getCount() > 0)
     {
-      throw new ProgrammingErrorException("This master list has already been queued for publication");
+      throw new DuplicateJobException("This master list has already been queued for publication");
     }
 
     PublishMasterListJob job = new PublishMasterListJob();
@@ -138,18 +150,20 @@ public class MasterListService
 
     QueryFactory qf = new QueryFactory();
 
-    final PublishMasterListJobQuery query = new PublishMasterListJobQuery(qf);
+    final MasterListJobQuery query = new MasterListJobQuery(qf);
     query.WHERE(query.getMasterList().EQ(oid));
+    query.ORDER_BY_DESC(query.getCreateDate());
     // query.ORDER_BY(ihq.get(sortAttr), order);
     query.restrictRows(pageSize, pageNumber);
 
-    OIterator<? extends PublishMasterListJob> it = query.getIterator();
-
     JSONArray results = new JSONArray();
 
-    while (it.hasNext())
+    try (OIterator<? extends MasterListJob> it = query.getIterator())
     {
-      results.put(it.next().toJSON());
+      while (it.hasNext())
+      {
+        results.put(it.next().toJSON());
+      }
     }
 
     JSONObject page = new JSONObject();
@@ -170,12 +184,38 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject generateShapefile(String sessionId, String oid)
+  public String generateShapefile(String sessionId, String oid)
   {
     MasterListVersion version = MasterListVersion.get(oid);
-    version.generateShapefile();
+    final MasterList masterlist = version.getMasterlist();
 
-    return version.toJSON(false);
+    if (!Organization.isRegistryAdmin(masterlist.getOrganization()))
+    {
+      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+    }
+
+    QueryFactory factory = new QueryFactory();
+
+    PublishShapefileJobQuery query = new PublishShapefileJobQuery(factory);
+    query.WHERE(query.getVersion().EQ(version));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new DuplicateJobException("This master list version has already been queued for generating a shapefile");
+    }
+
+    PublishShapefileJob job = new PublishShapefileJob();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.setVersion(version);
+    job.setMasterList(version.getMasterlist());
+    job.apply();
+
+    final JobHistory history = job.start();
+    return history.getOid();
   }
 
   @Request(RequestType.SESSION)
