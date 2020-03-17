@@ -80,7 +80,7 @@ export class SettingsService {
             .toPromise();
     }
 
-    newOrganization(code: string, label: string, contact: string ): Promise<any> {
+    newOrganization(json: any ): Promise<any> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -89,7 +89,7 @@ export class SettingsService {
         this.eventService.start();
 
         return this.http
-            .post<any>( acp + '/cgr/orgainization/create', JSON.stringify( { code: code, label: label, contact: contact } ), { headers: headers } )
+            .post<any>( acp + '/cgr/orgainization/create', JSON.stringify( { json: json } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

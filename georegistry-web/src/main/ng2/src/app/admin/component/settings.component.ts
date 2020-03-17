@@ -54,7 +54,7 @@ declare let acp: string;
 export class SettingsComponent implements OnInit {
     bsModalRef: BsModalRef;
     message: string = null;
-    organizations: any = [];
+    organizations: Organization[] = [];
     installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
     isAdmin: boolean;
     isMaintainer: boolean;
@@ -76,11 +76,17 @@ export class SettingsComponent implements OnInit {
 
     ngOnInit(): void {
 
-         this.settingsService.getOrganizations().then( orgs => {
-            this.organizations = orgs
-        } );
+        // this.registryService.getLocales().then( locales => {
+        //     this.localizeService.setLocales( locales );
+        // } ).catch(( err: HttpErrorResponse ) => {
+        //     this.error( err );
+        // } );
 
         this.installedLocales = this.getLocales();
+
+        this.settingsService.getOrganizations().then( orgs => {
+            this.organizations = orgs
+        } );
 
     }
 

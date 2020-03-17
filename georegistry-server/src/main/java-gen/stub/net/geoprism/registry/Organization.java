@@ -6,14 +6,6 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 import java.util.List;
-<<<<<<< HEAD
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-=======
->>>>>>> dev
 import com.runwaysdk.query.QueryFactory;
 
 public class Organization extends OrganizationBase

@@ -32,7 +32,12 @@
             </div>          
             <div class="holder" >
               <span class="text">
-                <input type="text" [(ngModel)]="organization.label" name="name" required>
+
+                <div class="form-group" *ngFor="let localeValue of organization.label.localeValues">
+                  <label><localize key="data.property.label.label"></localize> ({{localeValue.locale}})</label>
+                  <input  [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
+                </div>
+                <!-- <input type="text" [(ngModel)]="organization.label" name="name" required> -->
               </span>
             </div>
           </div>  
@@ -42,7 +47,11 @@
             </div>          
             <div class="holder" >
               <span class="text">
-                <input type="text" [(ngModel)]="organization.contactInfo" name="contact" required>
+                <div class="form-group" *ngFor="let localeValue of organization.contactInfo.localeValues">
+                  <label><localize key="data.property.label.label"></localize> ({{localeValue.locale}})</label>
+                  <input  [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input" class="form-control" required>
+                </div>
+                <!-- <input type="text" [(ngModel)]="organization.contactInfo" name="contact" required> -->
               </span>
             </div>
           </div>  

@@ -922,12 +922,13 @@ public class RegistryController
    * @param conflict
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
-  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "label") String label, @RequestParamter(name = "contact") String contact)
+  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json )
   {
     
-    Organization org = this.registryService.createOrganization(request.getSessionId(), code, label, contact);
+    OrganizationDTO org = this.registryService.createOrganization(request.getSessionId(), json);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
     
-    return new RestBodyResponse(org);
+    return new RestBodyResponse(org.toJSON(serializer));
   }
   
   /**
@@ -946,11 +947,12 @@ public class RegistryController
   {
 
     OrganizationDTO[] orgs = this.registryService.getOrganizations(request.getSessionId(), null);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
     
     JsonArray orgsJson = new JsonArray();
     for(OrganizationDTO org : orgs)
     {
-      orgsJson.add(org.toJSON());
+      orgsJson.add(org.toJSON(serializer));
     }
     
     return new RestBodyResponse(orgsJson);

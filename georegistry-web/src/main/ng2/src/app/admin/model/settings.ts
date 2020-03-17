@@ -22,9 +22,9 @@ export class Settings {
 }
 
 export class Organization {
-  label: string;
   code: string;
-  contactInfo: string;
+  label: any;
+  contactInfo: any;
 }
 
 export class Localization {
