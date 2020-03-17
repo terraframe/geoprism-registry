@@ -753,41 +753,40 @@ public class MasterList extends MasterListBase
 
   public static JsonArray listByOrg()
   {
-
     JsonArray response = new JsonArray();
 
     final List<? extends Organization> orgs = Organization.getOrganizations();
 
     for (Organization org : orgs)
     {
+      final boolean isMember = Organization.isMember(org);
+
       MasterListQuery query = new MasterListQuery(new QueryFactory());
       query.WHERE(query.getOrganization().EQ(org));
       query.ORDER_BY_DESC(query.getDisplayLabel().localize());
-
-      OIterator<? extends MasterList> it = query.getIterator();
 
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
       JsonArray lists = new JsonArray();
 
-      try
+      try (OIterator<? extends MasterList> it = query.getIterator())
       {
         while (it.hasNext())
         {
           MasterList list = it.next();
 
-          JsonObject object = new JsonObject();
-          object.addProperty("label", list.getDisplayLabel().getValue());
-          object.addProperty("oid", list.getOid());
-          object.addProperty("createDate", format.format(list.getCreateDate()));
-          object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+          if (isMember || list.getVisibility().equals(MasterList.PUBLIC))
+          {
+            JsonObject object = new JsonObject();
+            object.addProperty("label", list.getDisplayLabel().getValue());
+            object.addProperty("oid", list.getOid());
+            object.addProperty("createDate", format.format(list.getCreateDate()));
+            object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+            object.addProperty("isMaster", list.getIsMaster());
 
-          lists.add(object);
+            lists.add(object);
+          }
         }
-      }
-      finally
-      {
-        it.close();
       }
 
       JsonObject object = new JsonObject();

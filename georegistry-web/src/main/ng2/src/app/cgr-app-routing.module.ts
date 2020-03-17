@@ -1,7 +1,6 @@
-import { NgModule, Injectable, Inject } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { Routes, RouterModule, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent } from './core/component/login/login.component'
 import { HubComponent } from './core/component/hub/hub.component';
@@ -9,7 +8,6 @@ import { ForgotPasswordComponent } from './core/component/forgotpassword/forgotp
 import { ForgotPasswordCompleteComponent } from './core/component/forgotpassword-complete/forgotpassword-complete.component'
 
 import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from './shared/service/guard.service';
-import { PendingChangesGuard } from "./shared/service/pending-changes-guard";
 
 const routes: Routes = [
     {

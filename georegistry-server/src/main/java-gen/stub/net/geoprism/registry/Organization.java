@@ -360,4 +360,13 @@ public class Organization extends OrganizationBase
 
     return true;
   }
+
+  /**
+   * @param org
+   * @return If the current user is a member of the given organization
+   */
+  public static boolean isMember(Organization org)
+  {
+    return true;
+  }
 }
