@@ -1,0 +1,122 @@
+<div class="container">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+
+    <!-- <div class="col-md-12 order-md-1"> -->
+
+    <!-- <div class="row">
+
+        <h2>
+            Review: {{job.fileName}} conflict
+        </h2>
+    </div> -->
+    <div *ngIf="conflict && job" class="row" style="background: #F4F4F4;
+                                        border-radius: 10px;
+                                        margin-bottom: 20px;
+                                        margin-top: 20px;
+                                        padding: 10px;">
+        <div class="col-md-6">
+            <div class="wrapper">
+
+                <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
+                <p style="padding-left: 60px;">
+                    <span style="display: block;">
+                        <strong>{{job.fileName}}</strong>
+                    </span>
+                    <span style="display: block;">
+                        Uploaded by: {{job.author}}
+                    </span>
+                    <span style="display: block;">
+                        Started: {{job.createDate}}
+                    </span>
+                </p>
+
+            </div>
+        </div>
+        <div class="col-md-6"></div>
+    </div>
+
+    <div class="row" style="background: #F4F4F4;
+                            border-radius: 10px;
+                            margin-bottom: 20px;
+                            margin-top: 20px;
+                            padding: 10px;">
+        <div class="col-md-12">
+
+            <div class="row">
+                <div class="col-md-6" style="background: white;border-radius: 10px; width: 41%; margin-right:7px;">
+                    <h4><strong>Problem</strong></h4>
+                    <p style="font-style: italic;">{{getValidationProblemDisplayLabel(conflict)}}</p>
+
+                    <h4><strong>Message</strong></h4>
+                    <p style="font-style: italic;">Your data contains references to a GeoObject parent which cannot be found.</p>
+
+                    <h4><strong>To Resolve</strong></h4>
+                    <!-- TODO : Localize -->
+                    <p>You may create a synonym or ignore all rows which contain this parent label. Synonyms are system-wide and will apply to labels for all future imports.</p>
+                </div>
+                <div class="com-md-6" style="background: white; border-radius: 10px; width:41%; float:left; height:250px;">
+	                <div class="row-holder">
+	                  <div class="label-holder" style="width:100px;">
+		                  <label>
+		                    <span class="text">Context</span> <!-- TODO : Localize -->
+		                  </label>
+	                  </div>
+	                  <div class="holder" style="width:300px;">
+	                    <div *ngIf="conflict.context.length > 0" style="margin-top:10px;">
+		                    <ol *ngFor="let con of conflict.context">
+								          <li>{{con.label}} ({{con.type}})</li>
+								        </ol>
+							        </div>
+	                  </div>
+	                </div>
+	                <div class="row-holder">
+	                  <div class="label-holder" style="width:100px;">
+	                    <label>
+	                      <span class="text">Label</span> <!-- TODO : Localize -->
+	                    </label>
+	                  </div>
+	                  <div class="holder" style="width:300px;">
+	                    <span class="text" style="margin-top:10px;">{{conflict.label}}</span>
+	                  </div>
+	                </div>
+	                <div class="row-holder" style="overflow:visible;">
+                    <div class="label-holder" style="width:100px;">
+                      <label>
+                        <span class="text">Synonym</span> <!-- TODO : Localize -->
+                      </label>
+                    </div>
+                    <div class="holder" style="width:300px;">
+                      <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
+	                      name="parentSearch"
+	                      [(ngModel)]="searchLabel"
+	                      [typeaheadAsync]="true"
+	                      [typeahead]="getTypeAheadObservable(conflict.typeCode, conflict)"
+	                      (typeaheadOnSelect)="typeaheadOnSelect($event, conflict)"
+	                      [typeaheadOptionsLimit]="7"
+	                      typeaheadOptionField="name"
+	                      [typeaheadMinLength]="0"
+	                      [typeaheadWaitMs]="300">
+                    </div>
+                  </div>
+                  <div class="row-holder">
+                    <div class="label-holder" style="width:100px;">
+                      <label>
+                        <span class="text">Actions</span> <!-- TODO : Localize -->
+                      </label>
+                    </div>
+                    <div class="holder" style="width:300px;">
+                      <button type="submit" [disabled]="conflict.parent == null" (click)="onCreateSynonym()" class="btn btn-primary" role="button">
+                        Create Synonym
+                      </button>
+                      <button type="submit" (click)="onIgnore()" class="btn btn-primary" role="button">
+                        Ignore
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -225,6 +225,8 @@ export class ScheduledJob {
     lastUpdateDate: string;
     workProgress: number;
     workTotal: number;
+    startDate: string;
+    endDate: string;
     importedRecords: number;
     configuration: ImportConfiguration;
     importErrors: PaginationPage;

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { RelationshipProblemWidgetComponent } from './relationship-problem-widget.component'
+import { ParentReferenceProblemWidgetComponent } from './parent-reference-problem-widget.component'
+import { TermReferenceProblemWidgetComponent } from './term-reference-problem-widget.component'
 
 import { GeoObjectType, MasterList, Conflict, ScheduledJob, ScheduledJobOverview } from '../../../model/registry';
 
@@ -21,7 +22,7 @@ export class JobConflictModalComponent implements OnInit {
     message: string = null;
     conflict: Conflict;
     job: ScheduledJobOverview;
-
+    
     /*
      * Observable subject for submission.  Called when an update is successful 
      */
@@ -31,12 +32,16 @@ export class JobConflictModalComponent implements OnInit {
     edit: boolean = false;
 
 
-    constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
+    constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) {
+      this.onConflictAction = new Subject();
+    }
 
     ngOnInit(): void {
-
-        this.onConflictAction = new Subject();
-
+      
+    }
+    
+    onProblemResolvedListener(conflict: any): void {
+      this.onConflictAction.next({action:"RESOLVED", data: conflict});
     }
 
     onSubmit(): void {
