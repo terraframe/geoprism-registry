@@ -330,6 +330,11 @@ public class Organization extends OrganizationBase
     return query.getIterator().getAll();
   }
 
+  public OrganizationDTO toDTO()
+  {
+    return new OrganizationDTO(this.getCode(), LocalizedValueConverter.convert(this.getDisplayLabel()), LocalizedValueConverter.convert(this.getContactInfo()));
+  }
+
   public static List<Organization> getUserAdminOrganizations()
   {
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
