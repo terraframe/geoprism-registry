@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { ParentReferenceProblemWidgetComponent } from './parent-reference-problem-widget.component'
 import { TermReferenceProblemWidgetComponent } from './term-reference-problem-widget.component'
+import { RowValidationProblemWidgetComponent } from './row-validation-problem-widget.component'
 
 import { GeoObjectType, MasterList, Conflict, ScheduledJob, ScheduledJobOverview } from '../../../model/registry';
 

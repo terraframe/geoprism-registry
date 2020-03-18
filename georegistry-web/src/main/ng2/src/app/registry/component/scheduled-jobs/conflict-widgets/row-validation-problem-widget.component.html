@@ -1,0 +1,84 @@
+<div class="container">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+
+    <!-- <div class="col-md-12 order-md-1"> -->
+
+    <!-- <div class="row">
+
+        <h2>
+            Review: {{job.fileName}} conflict
+        </h2>
+    </div> -->
+    <div *ngIf="conflict && job" class="row" style="background: #F4F4F4;
+                                        border-radius: 10px;
+                                        margin-bottom: 20px;
+                                        margin-top: 20px;
+                                        padding: 10px;">
+        <div class="col-md-6">
+            <div class="wrapper">
+
+                <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
+                <p style="padding-left: 60px;">
+                    <span style="display: block;">
+                        <strong>{{job.fileName}}</strong>
+                    </span>
+                    <span style="display: block;">
+                        Uploaded by: {{job.author}}
+                    </span>
+                    <span style="display: block;">
+                        Started: {{job.createDate}}
+                    </span>
+                </p>
+
+            </div>
+        </div>
+        <div class="col-md-6"></div>
+    </div>
+
+    <div class="row" style="background: #F4F4F4;
+                            border-radius: 10px;
+                            margin-bottom: 20px;
+                            margin-top: 20px;
+                            padding: 10px;">
+        <div class="col-md-12">
+
+            <div class="row">
+                <div class="col-md-6" style="background: white;border-radius: 10px; width: 41%; margin-right:7px;">
+                    <h4><strong>Problem</strong></h4>
+                    <p style="font-style: italic;">{{getValidationProblemDisplayLabel(conflict)}}</p>
+
+                    <h4><strong>Message</strong></h4>
+                    <p style="font-style: italic;">The system encountered an unexpected error while processing this row.</p>
+
+                    <h4><strong>To Resolve</strong></h4>
+                    <!-- TODO : Localize -->
+                    <p>You must correct the data in the original source format and re-import.</p>
+                </div>
+                <div class="com-md-6" style="background: white; border-radius: 10px; width:41%; float:left; height:250px;">
+	                <div class="row-holder">
+	                  <div class="label-holder" style="width:100px;">
+		                  <label>
+		                    <span class="text">Row Number</span> <!-- TODO : Localize -->
+		                  </label>
+	                  </div>
+	                  <div class="holder" style="width:300px;">
+                      <span class="text" style="margin-top:10px;">{{conflict.rowNum}}</span>
+                    </div>
+	                </div>
+	                <div class="row-holder">
+	                  <div class="label-holder" style="width:100px;">
+	                    <label>
+	                      <span class="text">Message</span> <!-- TODO : Localize -->
+	                    </label>
+	                  </div>
+	                  <div class="holder" style="width:300px;">
+	                    <span class="text" style="margin-top:10px;">{{conflict.exception.message}}</span>
+	                  </div>
+	                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

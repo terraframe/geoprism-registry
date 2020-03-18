@@ -1,5 +1,7 @@
 package net.geoprism.registry.etl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -21,6 +23,7 @@ import net.geoprism.registry.service.ServerGeoObjectService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -84,6 +87,40 @@ public class ETLService
       hist.setImportedRecords(0L);
       hist.apply();
     }
+  }
+  
+  @Request(RequestType.SESSION)
+  public JSONObject reImport(String sessionId, MultipartFileParameter file, String json)
+  {
+    reImportInTrans(file, json);
+    
+    return this.doImport(sessionId, json);
+  }
+  
+  @Transaction
+  public void reImportInTrans(MultipartFileParameter file, String json)
+  {
+    ImportConfiguration config = ImportConfiguration.build(json);
+    
+    VaultFile vf = VaultFile.get(config.getVaultFileId());
+    vf.delete();
+    
+    VaultFile vf2 = null;
+    try (InputStream is = file.getInputStream())
+    {
+      vf2 = VaultFile.createAndApply(file.getFilename(), is);
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+    
+    config.setVaultFileId(vf2.getOid());
+    
+    ImportHistory hist = ImportHistory.lock(config.getHistoryId());
+    hist.setImportFile(vf2);
+    hist.setConfigJson(config.toJSON().toString());
+    hist.apply();
   }
   
   @Request(RequestType.SESSION)
@@ -573,15 +610,23 @@ public class ETLService
   @Request(RequestType.SESSION)
   public void resolveImport(String sessionId, String historyId)
   {
-    resolveImportInTrans(historyId);
-  }
-  
-  @Transaction
-  private void resolveImportInTrans(String historyId)
-  {
     checkPermissions();
     
     ImportHistory hist = ImportHistory.get(historyId);
+    
+    if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
+    {
+      resolveImportInTrans(historyId, hist);
+    }
+    else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
+    {
+      this.doImport(Session.getCurrentSession().getOid(), hist.getConfigJson());
+    }
+  }
+
+  @Transaction
+  private void resolveImportInTrans(String historyId, ImportHistory hist)
+  {
     hist.appLock();
     
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
@@ -609,4 +654,5 @@ public class ETLService
     VaultFile file = hist.getImportFile();
     file.delete();
   }
+
 }

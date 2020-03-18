@@ -40,6 +40,7 @@
             <div *ngIf="conflict && job && job.stage === 'VALIDATION_RESOLVE'">
               <parent-reference-problem-widget *ngIf="conflict.type === 'ParentReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></parent-reference-problem-widget>
               <term-reference-problem-widget *ngIf="conflict.type === 'TermReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></term-reference-problem-widget>
+              <row-validation-problem-widget *ngIf="conflict.type === 'RowValidationProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></row-validation-problem-widget>
             </div>
             
             <div class="row-holder">
