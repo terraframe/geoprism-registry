@@ -65,7 +65,8 @@ import { MasterListViewComponent } from './component/master-list/master-list-vie
 import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
 import { JobComponent } from './component/scheduled-jobs/job.component';
 import { JobConflictModalComponent } from './component/scheduled-jobs/conflict-widgets/job-conflict-modal.component';
-import { RelationshipProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/relationship-problem-widget.component';
+import { ParentReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/parent-reference-problem-widget.component';
+import { TermReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/term-reference-problem-widget.component';
 import { RequiredValueProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/requiredvalue-problem-widget.component';
 import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/spatialreference-problem-widget.component';
 import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
@@ -170,7 +171,8 @@ import '../rxjs-extensions';
 		ScheduledJobsComponent,
 		JobComponent,
 		JobConflictModalComponent,
-		RelationshipProblemWidgetComponent,
+		ParentReferenceProblemWidgetComponent,
+		TermReferenceProblemWidgetComponent,
 		RequiredValueProblemWidgetComponent,
 		SpatialReferenceProblemWidgetComponent,
 		DuplicateProblemWidgetComponent,

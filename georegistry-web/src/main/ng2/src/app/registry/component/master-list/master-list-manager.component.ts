@@ -60,7 +60,7 @@ export class MasterListManagerComponent implements OnInit {
 		});
 		this.bsModalRef.content.init(org);
 		this.bsModalRef.content.onMasterListChange.subscribe(list => {
-			org.lists.push({ label: list.displayLabel.localizedValue, oid: list.oid, createDate: list.createDate, lastUpdateDate: list.lastUpdateDate });
+			org.lists.push({ label: list.displayLabel.localizedValue, oid: list.oid, createDate: list.createDate, lastUpdateDate: list.lastUpdateDate, admin:true });
 		});
 	}
 

@@ -1,18 +1,22 @@
 package net.geoprism.registry;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 
-import java.util.List;
-
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 
-import com.runwaysdk.query.QueryFactory;
 
 public class Organization extends OrganizationBase
 {
@@ -326,9 +330,39 @@ public class Organization extends OrganizationBase
     return query.getIterator().getAll();
   }
 
-  public OrganizationDTO toDTO()
+  public static List<Organization> getUserAdminOrganizations()
   {
-    return new OrganizationDTO(this.getCode(), LocalizedValueConverter.convert(this.getDisplayLabel()), LocalizedValueConverter.convert(this.getContactInfo()));
+    OrganizationQuery query = new OrganizationQuery(new QueryFactory());
+    query.ORDER_BY_ASC(query.getDisplayLabel().localize());
+
+    try (final OIterator<? extends Organization> iterator = query.getIterator())
+    {
+      final List<? extends Organization> orgs = iterator.getAll();
+
+      List<Organization> result = orgs.stream().filter(o -> {
+        return Organization.isRegistryAdmin(o);
+      }).collect(Collectors.toList());
+
+      return result;
+    }
   }
 
+  /**
+   * @param org
+   * @return If the current user is part of the registry admin role for the
+   *         given organization
+   */
+  public static boolean isRegistryAdmin(Organization org)
+  {
+    String roleName = Organization.getRegistryAdminRoleName(org.getCode());
+
+    final SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      return session.userHasRole(roleName);
+    }
+
+    return true;
+  }
 }

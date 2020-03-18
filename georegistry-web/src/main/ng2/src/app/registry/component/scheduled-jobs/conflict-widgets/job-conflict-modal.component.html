@@ -33,16 +33,15 @@
             <div *ngIf="conflict && conflict.exception.type === 'DUPLICATE'">
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
             </div> -->
-
+            
             <div *ngIf="job && job.stage === 'IMPORT_RESOLVE'">
                 <import-problem-widget [conflict]="conflict" [job]="job"></import-problem-widget>
             </div>
             <div *ngIf="job && job.stage === 'VALIDATION_RESOLVE'">
-                TODO
+              <parent-reference-problem-widget *ngIf="conflict.type === 'ParentReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></parent-reference-problem-widget>
+              <term-reference-problem-widget *ngIf="conflict.type === 'TermReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></term-reference-problem-widget>
             </div>
-
-
-
+            
             <div class="row-holder">
                 <!-- <div class="label-holder"></div> -->
                 <div class="">
@@ -50,7 +49,7 @@
                         <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
                             <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
                         </button>
-                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+                        <button *ngIf="!readonly && !(job != null && job.stage === 'VALIDATION_RESOLVE')" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
                             <localize key="io.submit"></localize>
                         </button>
                     </div>

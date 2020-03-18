@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -34,11 +32,14 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -77,6 +78,9 @@ public class PublishShapefileJobTest
     org.setCode("Testzzz");
     org.getDisplayLabel().setValue("Testzzz");
     org.apply();
+
+    final Roles role = org.getRegistryAdminiRole();
+    RoleDAO.get(role.getOid()).assignMember(UserDAO.findUser("admin"));
   }
 
   @AfterClass

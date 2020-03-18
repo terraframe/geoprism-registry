@@ -400,7 +400,21 @@ export class RegistryService {
             } )
             .toPromise()
     }
+    
+    submitValidationResolve( config: any ): Promise<any> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
 
+        this.eventService.start();
+
+        return this.http
+            .post<MasterList>( acp + '/etl/validation-resolve', JSON.stringify( { config: config } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+     }
 
     submitConflict( conflict: Conflict): Promise<any> {
         let headers = new HttpHeaders( {

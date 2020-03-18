@@ -26,7 +26,6 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -41,6 +40,8 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
@@ -94,6 +95,12 @@ public class MasterListService
   public JsonObject createExploratoryVersion(String sessionId, String oid, Date forDate)
   {
     MasterList masterList = MasterList.get(oid);
+
+    if (!Organization.isRegistryAdmin(masterList.getOrganization()))
+    {
+      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+    }
+
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -180,6 +187,12 @@ public class MasterListService
   public String generateShapefile(String sessionId, String oid)
   {
     MasterListVersion version = MasterListVersion.get(oid);
+    final MasterList masterlist = version.getMasterlist();
+
+    if (!Organization.isRegistryAdmin(masterlist.getOrganization()))
+    {
+      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+    }
 
     QueryFactory factory = new QueryFactory();
 

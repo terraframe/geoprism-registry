@@ -35,12 +35,15 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.ChangeFrequency;
@@ -79,6 +82,9 @@ public class MasterListTest
     org.setCode("Org A");
     org.getDisplayLabel().setValue("Org A");
     org.apply();
+
+    final Roles role = org.getRegistryAdminiRole();
+    RoleDAO.get(role.getOid()).assignMember(UserDAO.findUser("admin"));
   }
 
   @AfterClass
