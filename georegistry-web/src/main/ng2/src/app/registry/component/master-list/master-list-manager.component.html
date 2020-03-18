@@ -30,7 +30,12 @@
                         </thead>
                         <tbody>
                             <tr *ngFor="let list of org.lists; let i = index;">
-                                <td style="width: 70%; vertical-align: middle;"><a [routerLink]="'/registry/master-list-view/' + list.oid" routerLinkActive="active">{{list.label}}</a></td>
+                                <td style="width: 70%; vertical-align: middle;">
+                                  <a [routerLink]="'/registry/master-list-view/' + list.oid" routerLinkActive="active">
+                                    {{list.label}}
+                                    <span *ngIf="list.isMaster"><localize key="masterlist.master"></localize></span>
+                                  </a>
+                                </td>
                                 <td style="width: 30%; text-align: right;">
                                     <button type="submit" (click)="onView(list.oid)" class="btn btn-primary" role="button">
                                         <localize key="modal.button.view"></localize>

@@ -34,10 +34,10 @@
                 <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
             </div> -->
             
-            <div *ngIf="job && job.stage === 'IMPORT_RESOLVE'">
+            <div *ngIf="conflict && job && job.stage === 'IMPORT_RESOLVE'">
                 <import-problem-widget [conflict]="conflict" [job]="job"></import-problem-widget>
             </div>
-            <div *ngIf="job && job.stage === 'VALIDATION_RESOLVE'">
+            <div *ngIf="conflict && job && job.stage === 'VALIDATION_RESOLVE'">
               <parent-reference-problem-widget *ngIf="conflict.type === 'ParentReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></parent-reference-problem-widget>
               <term-reference-problem-widget *ngIf="conflict.type === 'TermReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></term-reference-problem-widget>
             </div>
