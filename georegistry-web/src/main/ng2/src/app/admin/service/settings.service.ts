@@ -48,7 +48,7 @@ export class SettingsService {
             .toPromise();
     }
 
-    editOrganization( oid: string ): Promise<Account> {
+    updateOrganization( json: any ): Promise<Organization> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -57,23 +57,7 @@ export class SettingsService {
         this.eventService.start();
 
         return this.http
-            .post<Account>( acp + '/account/edit', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-    }
-
-    removeOrganization( oid: string ): Promise<Account> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-        return this.http
-            .post<Account>( acp + '/account/edit', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post<Organization>( acp + '/cgr/orgainization/update', JSON.stringify( { json: json } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -95,6 +79,23 @@ export class SettingsService {
             } )
             .toPromise();
     }
+
+    removeOrganization(code: any ): Promise<void> {
+
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http
+            .post<any>( acp + '/cgr/orgainization/delete', JSON.stringify( { code: code } ), { headers: headers } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+    }
+
 
 
 }

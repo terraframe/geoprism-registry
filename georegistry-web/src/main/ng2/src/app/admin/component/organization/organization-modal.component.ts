@@ -39,6 +39,7 @@ export class OrganizationModalComponent implements OnInit {
 
     message: string = null;
     organization: Organization = {code: "", label: this.lService.create(), contactInfo: this.lService.create()};
+    isNewOrganization: boolean = true;
 
     public onSuccess: Subject<Organization>;
 
@@ -58,12 +59,22 @@ export class OrganizationModalComponent implements OnInit {
     }
 
     onSubmit(): void {
-        this.service.newOrganization( this.organization ).then( data => {
-            this.onSuccess.next( data );
-            this.bsModalRef.hide();
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        if(this.isNewOrganization){
+            this.service.newOrganization( this.organization ).then( data => {
+                this.onSuccess.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
+        }
+        else {
+            this.service.updateOrganization( this.organization ).then( data => {
+                this.onSuccess.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
+        }
     }
 
     public error( err: HttpErrorResponse ): void {

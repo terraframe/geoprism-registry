@@ -22,7 +22,7 @@
             </div>          
             <div class="holder" >
               <span class="text">
-                <input type="text" [(ngModel)]="organization.code" name="code" required>
+                <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
               </span>
             </div>
           </div>     
@@ -49,7 +49,7 @@
               <span class="text">
                 <div class="form-group" *ngFor="let localeValue of organization.contactInfo.localeValues">
                   <label><localize key="data.property.label.label"></localize> ({{localeValue.locale}})</label>
-                  <input  [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input" class="form-control" required>
+                  <input  [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input" class="form-control">
                 </div>
                 <!-- <input type="text" [(ngModel)]="organization.contactInfo" name="contact" required> -->
               </span>

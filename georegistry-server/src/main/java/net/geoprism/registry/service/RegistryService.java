@@ -392,7 +392,7 @@ public class RegistryService
   {
     OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
 
-    final Organization org = new OrganizationConverter().create(organizationDTO);
+    final Organization org = new OrganizationConverter().update(organizationDTO);
     OrganizationDTO dto = org.toDTO(); 
     
     // If this did not error out then add to the cache

@@ -42,7 +42,7 @@
                                     <tr *ngFor="let org of organizations">
                                         <td class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"  [title]="'account.editTooltip' | localize"></a> 
-                                            <a class="fa fa-trash-o ico-remove" (click)="onRemoveOrganization(org)" [title]="'account.removeTooltip' | localize" ></a>
+                                            <a class="fa fa-trash-o ico-remove" (click)="onRemoveOrganization(org.code, org.code)" [title]="'account.removeTooltip' | localize" ></a>
                                         </td>
                                         <td class="label-column">{{org.code}}</td>
                                         <td class="label-column">{{org.label.localizedValue}}</td>

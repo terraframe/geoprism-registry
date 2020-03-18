@@ -916,21 +916,6 @@ public class RegistryController
   }
   
   /**
-   * Submit scheduled job conflict.
-   * 
-   * @param sessionId
-   * @param conflict
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
-  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json )
-  {
-    OrganizationDTO org = this.registryService.createOrganization(request.getSessionId(), json);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-    
-    return new RestBodyResponse(org.toJSON(serializer));
-  }
-  
-  /**
    * Returns an array of (label, entityId) pairs that under the given
    * parent/hierarchy and have the given label.
    * 
@@ -955,5 +940,49 @@ public class RegistryController
     }
     
     return new RestBodyResponse(orgsJson);
+  }
+  
+  /**
+   * Submit new organization.
+   * 
+   * @param sessionId
+   * @param json
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
+  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json )
+  {
+    OrganizationDTO org = this.registryService.createOrganization(request.getSessionId(), json);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+    
+    return new RestBodyResponse(org.toJSON(serializer));
+  }
+  
+  /**
+   * Delete organization.
+   * 
+   * @param sessionId
+   * @param json
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/delete")
+  public ResponseIF removeOrganization(ClientRequestIF request, @RequestParamter(name = "code") String code )
+  {
+    this.registryService.deleteOrganization(request.getSessionId(), code);
+    
+    return new RestResponse();
+  }
+  
+  /**
+   * Update organization.
+   * 
+   * @param sessionId
+   * @param json
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/update")
+  public ResponseIF updateOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json )
+  {
+    OrganizationDTO org = this.registryService.updateOrganization(request.getSessionId(), json);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+    
+    return new RestBodyResponse(org.toJSON(serializer));
   }
 }
