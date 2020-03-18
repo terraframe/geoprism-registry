@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
-import { GeoObjectType, MasterList, Conflict, ScheduledJob } from '../../../model/registry';
+import { GeoObjectType, MasterList, ScheduledJob } from '../../../model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
 
@@ -23,7 +23,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 } )
 export class RowValidationProblemWidgetComponent implements OnInit {
     message: string = null;
-    @Input() conflict: any;
+    @Input() problem: any;
     @Input() job: ScheduledJob;
     @Output() public onProblemResolved = new EventEmitter<any>();
     
@@ -46,9 +46,9 @@ export class RowValidationProblemWidgetComponent implements OnInit {
 
         // this.onConflictAction = new Subject();
         
-        // this.searchLabel = this.conflict.label;
+        // this.searchLabel = this.problem.label;
         
-        this.conflict.parent = null;
+        this.problem.parent = null;
         this.searchLabel = "";
 
     }
@@ -88,12 +88,12 @@ export class RowValidationProblemWidgetComponent implements OnInit {
     onIgnore(): void {
       let cfg = {
         resolution: "IGNORE",
-        validationProblemId: this.conflict.id
+        validationProblemId: this.problem.id
       };
     
       this.service.submitValidationResolve( cfg ).then( response => {
         
-        this.onProblemResolved.emit(this.conflict);
+        this.onProblemResolved.emit(this.problem);
         
         this.bsModalRef.hide()
         
@@ -104,16 +104,16 @@ export class RowValidationProblemWidgetComponent implements OnInit {
     
     onCreateSynonym(): void {
       let cfg = {
-        validationProblemId: this.conflict.id,
+        validationProblemId: this.problem.id,
         resolution: "SYNONYM",
-        code: this.conflict.parent.properties.code,
-        typeCode: this.conflict.parent.properties.type,
-        label: this.conflict.label
+        code: this.problem.parent.properties.code,
+        typeCode: this.problem.parent.properties.type,
+        label: this.problem.label
       };
     
       this.service.submitValidationResolve( cfg ).then( response => {
         
-        this.onProblemResolved.emit(this.conflict);
+        this.onProblemResolved.emit(this.problem);
         
         this.bsModalRef.hide()
         

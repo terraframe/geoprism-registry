@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
-import { GeoObjectType, MasterList, Conflict, ScheduledJob } from '../../../model/registry';
+import { GeoObjectType, MasterList, ScheduledJob } from '../../../model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
 
@@ -23,7 +23,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 } )
 export class TermReferenceProblemWidgetComponent implements OnInit {
     message: string = null;
-    @Input() conflict: any;
+    @Input() problem: any;
     @Input() job: ScheduledJob;
     @Output() public onProblemResolved = new EventEmitter<any>();
     
@@ -40,7 +40,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this.conflict.parent = null;
+        this.problem.parent = null;
         this.searchLabel = "";
 
     }
@@ -64,12 +64,12 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     onIgnore(): void {
       let cfg = {
         resolution: "IGNORE",
-        validationProblemId: this.conflict.id
+        validationProblemId: this.problem.id
       };
     
       this.service.submitValidationResolve( cfg ).then( response => {
         
-        this.onProblemResolved.emit(this.conflict);
+        this.onProblemResolved.emit(this.problem);
         
         this.bsModalRef.hide()
         
@@ -80,15 +80,15 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     
     onCreateSynonym(): void {
       let cfg = {
-        validationProblemId: this.conflict.id,
+        validationProblemId: this.problem.id,
         resolution: "SYNONYM",
         classifierId: this.termId,
-        label: this.conflict.label
+        label: this.problem.label
       };
     
       this.service.submitValidationResolve( cfg ).then( response => {
         
-        this.onProblemResolved.emit(this.conflict);
+        this.onProblemResolved.emit(this.problem);
         
         this.bsModalRef.hide()
         

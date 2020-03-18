@@ -43,6 +43,7 @@ export default class Utils {
         return dateObj.getUTCFullYear() + "-" + ( month < 10 ? "0" : "" ) + month + "-" + ( day < 10 ? "0" : "" ) + day;
     }
     
+    // TODO : Localize
     static getFriendlyProblemType(probType: string): string {
         if(probType === "net.geoprism.registry.io.ParentCodeException"){
             return "Parent Lookup";

@@ -116,6 +116,7 @@ public class ETLService
     }
     
     config.setVaultFileId(vf2.getOid());
+    config.setFileName(file.getFilename());
     
     ImportHistory hist = ImportHistory.lock(config.getHistoryId());
     hist.setImportFile(vf2);

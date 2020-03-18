@@ -14,7 +14,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, Attribute, 
-    AttributeTerm, AttributeDecimal, Term, ParentTreeNode, Conflict, ConflictObject } from '../../model/registry';
+    AttributeTerm, AttributeDecimal, Term, ParentTreeNode, ImportError } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
@@ -168,9 +168,8 @@ export class GeoObjectEditorComponent implements OnInit {
         } );
     }
 
-    // Configures the widget to be used in a "New" context as a result of an integration conflict, 
-    // that is to say that it will be used to create a new GeoObject.
-    public configureAsNewFromError(conflictObject: ConflictObject, typeCode: string, dateStr: string, isGeometryEditable: boolean ) {
+    // Configures the widget to be used to resolve an ImportError
+    public configureFromImportError(importError: ImportError, typeCode: string, dateStr: string, isGeometryEditable: boolean ) {
         this.isNewGeoObject = true;
         this.dateStr = dateStr;
         this.forDate = new Date( Date.parse( dateStr ) );
@@ -183,8 +182,8 @@ export class GeoObjectEditorComponent implements OnInit {
             this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, retJson.geoObject.attributes);
             this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.goPropertiesPre ) ).attributes);
 
-            this.goPropertiesPre.attributes = conflictObject.geoObject.attributes;
-            this.goPropertiesPost.attributes = conflictObject.geoObject.attributes
+            this.goPropertiesPre.attributes = importError.object.geoObject.attributes;
+            this.goPropertiesPost.attributes = importError.object.geoObject.attributes
 
             console.log(this.goPropertiesPre)
 

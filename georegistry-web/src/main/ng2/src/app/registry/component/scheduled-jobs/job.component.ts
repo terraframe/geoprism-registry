@@ -14,7 +14,7 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { Conflict, ScheduledJob } from '../../model/registry';
+import { ScheduledJob } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
 import { IOService } from '../../service/io.service';
 
@@ -78,12 +78,12 @@ export class JobComponent implements OnInit {
       return JSON.stringify(obj);
     }
 
-    onProblemResolved(conflict: any): void {
+    onProblemResolved(problem: any): void {
       for (let i = 0; i < this.page.results.length; ++i)
       {
         let pageConflict = this.page.results[i];
         
-        if (pageConflict.id === conflict.id)
+        if (pageConflict.id === problem.id)
         {
           this.page.results.splice(i, 1);
         }
@@ -95,7 +95,7 @@ export class JobComponent implements OnInit {
     }
 
 
-    onEdit( conflict: Conflict ): void {
+    onEdit( problem: any ): void {
         // this.router.navigate( ['/registry/master-list-history/', code] )
 
          this.bsModalRef = this.modalService.show( JobConflictModalComponent, {
@@ -103,7 +103,7 @@ export class JobComponent implements OnInit {
             backdrop: true,
             ignoreBackdropClick: true,
         } );
-        this.bsModalRef.content.conflict = conflict;
+        this.bsModalRef.content.problem = problem;
         this.bsModalRef.content.job = this.job;
         this.bsModalRef.content.onConflictAction.subscribe( data => {
           if (data.action === 'RESOLVED')
