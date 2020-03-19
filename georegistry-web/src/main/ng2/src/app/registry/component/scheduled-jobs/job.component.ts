@@ -210,49 +210,48 @@ export class JobComponent implements OnInit {
     }
 
     onResolveScheduledJob(historyId: string): void {
-      this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-          animated: true,
-          backdrop: true,
-          ignoreBackdropClick: true,
-      } );
-      
-      if (this.job.stage === 'VALIDATION_RESOLVE')
+      if (this.page.results.length == 0)
       {
-        // this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.description" );
-        this.bsModalRef.content.message = "Are you sure you want to resume the import?"; // TODO : Localize
-        this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.button" );
+        this.service.resolveScheduledJob( historyId ).then( response => {
+          this.router.navigate( ['/registry/scheduled-jobs'] );
+        } ).catch(( err: HttpErrorResponse ) => {
+          this.error( err );
+        } );
       }
       else
       {
-        this.bsModalRef.content.message = "Are you sure you want to complete the import? All unresolved problems will be ignored."; // TODO : Localize
-        this.bsModalRef.content.submitText = "Complete Import"; // TODO : Localize
+        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+        
+        if (this.job.stage === 'VALIDATION_RESOLVE')
+        {
+          // this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.description" );
+          this.bsModalRef.content.message = "Are you sure you want to resume the import?"; // TODO : Localize
+          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.button" );
+        }
+        else
+        {
+          this.bsModalRef.content.message = "Are you sure you want to complete the import? All unresolved problems will be ignored."; // TODO : Localize
+          this.bsModalRef.content.submitText = "Complete Import"; // TODO : Localize
+        }
+        
+        this.bsModalRef.content.type = ModalTypes.danger;
+    
+        this.bsModalRef.content.onConfirm.subscribe( data => {
+    
+          this.service.resolveScheduledJob( historyId ).then( response => {
+    
+              this.router.navigate( ['/registry/scheduled-jobs'] )
+              
+           } ).catch(( err: HttpErrorResponse ) => {
+               this.error( err );
+           } );
+    
+        } );
       }
-      
-      this.bsModalRef.content.type = ModalTypes.danger;
-  
-      this.bsModalRef.content.onConfirm.subscribe( data => {
-  
-        this.service.resolveScheduledJob( historyId ).then( response => {
-  
-          if (this.job.stage === 'VALIDATION_RESOLVE')
-          {
-            this.router.navigate( ['/registry/scheduled-jobs'] )
-          }
-          else
-          {
-            this.page = {
-                            count: 0,
-                            pageNumber: 1,
-                            pageSize: 10,
-                            results: []
-                        };
-          }
-  
-         } ).catch(( err: HttpErrorResponse ) => {
-             this.error( err );
-         } );
-  
-     } );
     }
     
     onCancelScheduledJob(historyId: string): void {

@@ -17,9 +17,12 @@ import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.GeoSynonymService;
+import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -460,7 +463,7 @@ public class ETLService
     
     jo.put("objectType", err.getObjectType());
     
-    jo.put("importErrorId", err.getOid());
+    jo.put("id", err.getOid());
     
     jo.put("resolution", err.getResolution());
     
@@ -500,9 +503,16 @@ public class ETLService
     
     if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
     {
-      String parentTreeNode = config.getString("parentTreeNode");
-      String geoObject = config.getString("geoObject");
+      String parentTreeNode = config.get("parentTreeNode").toString();
+      String geoObject = config.get("geoObject").toString();
       Boolean isNew = config.getBoolean("isNew");
+      
+      if (isNew)
+      {
+        GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
+        go.setUid(RegistryIdService.getInstance().next());
+        geoObject = go.toJSON().toString();
+      }
       
       new GeoObjectEditorController().applyInReq(sessionId, parentTreeNode, geoObject, isNew, null, null);
       

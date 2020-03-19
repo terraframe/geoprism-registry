@@ -402,19 +402,34 @@ export class RegistryService {
     }
     
     submitValidationResolve( config: any ): Promise<any> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-        return this.http
-            .post<MasterList>( acp + '/etl/validation-resolve', JSON.stringify( { config: config } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-     }
+      let headers = new HttpHeaders( {
+        'Content-Type': 'application/json'
+      } );
+  
+      this.eventService.start();
+  
+      return this.http
+        .post<MasterList>( acp + '/etl/validation-resolve', JSON.stringify( { config: config } ), { headers: headers } )
+        .finally(() => {
+            this.eventService.complete();
+        } )
+        .toPromise();
+    }
+    
+    submitErrorResolve( config: any ): Promise<any> {
+      let headers = new HttpHeaders( {
+        'Content-Type': 'application/json'
+      } );
+      
+      this.eventService.start();
+      
+      return this.http
+        .post<MasterList>( acp + '/etl/error-resolve', JSON.stringify( { config: config } ), { headers: headers } )
+        .finally(() => {
+            this.eventService.complete();
+        } )
+        .toPromise();
+    }
 
     getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
         let params: HttpParams = new HttpParams();

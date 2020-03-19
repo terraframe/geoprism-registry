@@ -246,6 +246,8 @@ export class ImportError {
 	exception: ServerException;
 	object: ImportErrorObject;
 	objectType: string;
+	id: string;
+	resolution: string;
 	selected?: boolean;
 }
 
@@ -263,6 +265,7 @@ export class ServerExceptionAttribute {
 export class ImportErrorObject {
 	geoObject: GeoObjectOverTime;
 	parents: HierarchyOverTime[];
+	isNew: boolean;
 }
 
 export class StepConfig {

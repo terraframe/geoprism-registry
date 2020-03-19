@@ -35,7 +35,7 @@
             </div> -->
             
             <div *ngIf="problem && job && job.stage === 'IMPORT_RESOLVE'">
-                <import-problem-widget [problem]="problem" [job]="job"></import-problem-widget>
+                <import-problem-widget (onProblemResolved)="onProblemResolvedListener($event, problem)" [problem]="problem" [job]="job"></import-problem-widget>
             </div>
             <div *ngIf="problem && job && job.stage === 'VALIDATION_RESOLVE'">
               <parent-reference-problem-widget *ngIf="problem.type === 'ParentReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, problem)" [problem]="problem" [job]="job" ></parent-reference-problem-widget>
