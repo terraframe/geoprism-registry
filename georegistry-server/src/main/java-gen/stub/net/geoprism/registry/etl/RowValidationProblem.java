@@ -59,7 +59,7 @@ public class RowValidationProblem extends RowValidationProblemBase
     JSONObject object = super.toJSON();
     
     object.put("rowNum", this.getRowNum());
-    object.put("exception", this.getExceptionJson());
+    object.put("exception", new JSONObject(this.getExceptionJson()));
 
     return object;
   }

@@ -65,8 +65,10 @@ import { MasterListViewComponent } from './component/master-list/master-list-vie
 import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
 import { JobComponent } from './component/scheduled-jobs/job.component';
 import { JobConflictModalComponent } from './component/scheduled-jobs/conflict-widgets/job-conflict-modal.component';
+import { ReuploadModalComponent } from './component/scheduled-jobs/conflict-widgets/reupload-modal.component';
 import { ParentReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/parent-reference-problem-widget.component';
 import { TermReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/term-reference-problem-widget.component';
+import { RowValidationProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/row-validation-problem-widget.component';
 import { RequiredValueProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/requiredvalue-problem-widget.component';
 import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/spatialreference-problem-widget.component';
 import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
@@ -171,8 +173,10 @@ import '../rxjs-extensions';
 		ScheduledJobsComponent,
 		JobComponent,
 		JobConflictModalComponent,
+		ReuploadModalComponent,
 		ParentReferenceProblemWidgetComponent,
 		TermReferenceProblemWidgetComponent,
+		RowValidationProblemWidgetComponent,
 		RequiredValueProblemWidgetComponent,
 		SpatialReferenceProblemWidgetComponent,
 		DuplicateProblemWidgetComponent,
@@ -217,6 +221,7 @@ import '../rxjs-extensions';
 		ChangeRequestPageComponent,
 		ActionDetailModalComponent,
 		JobConflictModalComponent,
+		ReuploadModalComponent,
 		StepIndicatorComponent
 	]
 })

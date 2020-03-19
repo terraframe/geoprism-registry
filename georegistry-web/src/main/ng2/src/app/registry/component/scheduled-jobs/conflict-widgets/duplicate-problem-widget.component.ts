@@ -3,7 +3,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { GeoObjectType, MasterList, Conflict } from '../../../model/registry';
+import { GeoObjectType, MasterList } from '../../../model/registry';
 
 import { RegistryService } from '../../../service/registry.service';
 
@@ -17,7 +17,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 } )
 export class DuplicateProblemWidgetComponent implements OnInit {
     message: string = null;
-    @Input() conflict: Conflict;
+    @Input() conflict: any;
 
     /*
      * Observable subject for submission.  Called when an update is successful 

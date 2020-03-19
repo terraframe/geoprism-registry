@@ -24,7 +24,7 @@ import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/finally';
 
 import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, 
-    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, Conflict, PaginationPage, MasterListByOrg } from '../model/registry';
+    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage, MasterListByOrg } from '../model/registry';
 import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
@@ -402,34 +402,34 @@ export class RegistryService {
     }
     
     submitValidationResolve( config: any ): Promise<any> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-        return this.http
-            .post<MasterList>( acp + '/etl/validation-resolve', JSON.stringify( { config: config } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-     }
-
-    submitConflict( conflict: Conflict): Promise<any> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-        return this.http
-            .post<MasterList>( acp + '/master-list/create', JSON.stringify( { list: conflict } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-     }
+      let headers = new HttpHeaders( {
+        'Content-Type': 'application/json'
+      } );
+  
+      this.eventService.start();
+  
+      return this.http
+        .post<MasterList>( acp + '/etl/validation-resolve', JSON.stringify( { config: config } ), { headers: headers } )
+        .finally(() => {
+            this.eventService.complete();
+        } )
+        .toPromise();
+    }
+    
+    submitErrorResolve( config: any ): Promise<any> {
+      let headers = new HttpHeaders( {
+        'Content-Type': 'application/json'
+      } );
+      
+      this.eventService.start();
+      
+      return this.http
+        .post<MasterList>( acp + '/etl/error-resolve', JSON.stringify( { config: config } ), { headers: headers } )
+        .finally(() => {
+            this.eventService.complete();
+        } )
+        .toPromise();
+    }
 
     getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
         let params: HttpParams = new HttpParams();

@@ -186,7 +186,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           tnParent.setEndDate(GeoObjectImporter.this.configuration.getEndDate());
 
           tnParent.addParent(ptn);
-
+          
           ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(GeoObjectImporter.this.configuration.getType());
           parentsOverTime.add(hierarchy, tnParent);
 
@@ -401,14 +401,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     ServerGeoObjectIF serverGo = null;
 
     ServerGeoObjectIF parent = null;
+    
+    boolean isNew = false;
 
     GeoObjectParentErrorBuilder parentBuilder = new GeoObjectParentErrorBuilder();
 
     try
     {
       String geoId = this.getCode(row);
-
-      boolean isNew = false;
 
       if (geoId != null && geoId.length() > 0)
       {
@@ -566,6 +566,8 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         obj.put("geoObject", new JSONObject(goJson));
       }
+      
+      obj.put("isNew", isNew);
 
       RecordedErrorException re = new RecordedErrorException();
       re.setError(t);

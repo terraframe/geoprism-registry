@@ -131,9 +131,29 @@
                     </ul>
                 </div>
             </div>
+            
+            <div *ngIf="page.results.length == 0 && job.stage === 'VALIDATION_RESOLVE'" style="width: 50%; margin: 0 auto;">
+              <span style="display:block;">Congratulations! All validation problems have been resolved.</span> <!-- TODO : Localize -->
+              <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">Reimport</button> <!-- TODO : Localize -->
+            </div>
+            
+            <div *ngIf="page.results.length == 0 && job.stage === 'IMPORT_RESOLVE'" style="width: 50%; margin: 0 auto;">
+              <span style="display:block;">Congratulations! All import problems have been resolved.</span> <!-- TODO : Localize -->
+              <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">Complete Import</button> <!-- TODO : Localize -->
+            </div>
 
-            <div *ngIf="page && page.results != null && page.results.length > 0" class="button-holder" style="float: right;">
-                <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button"><localize key="etl.import.resume.openModal"></localize></button>
+            <div *ngIf="page && page.results != null && page.results.length > 0 && !hasRowValidationProblem" class="button-holder" style="float: right;">
+                <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
+                  <localize *ngIf="job && job.stage === 'VALIDATION_RESOLVE'" key="etl.import.resume.openModal"></localize>
+                  <!--  <localize *ngIf="job && job.stage === 'IMPORT_RESOLVE'" key="etl.import.complete.openModal"></localize> --> <!-- TODO : Localize -->
+                  <span *ngIf="job && job.stage === 'IMPORT_RESOLVE'">Complete Import</span> <!-- TODO : Localize -->
+                </button>
+            </div>
+            
+            <div *ngIf="hasRowValidationProblem"class="button-holder" style="float: right;">
+              <button type="submit" (click)="onReuploadAndResume(job.historyId)" class="btn btn-primary" role="button">
+                  <span>Re-Upload and Resume Import</span> <!-- TODO : Localize -->
+                </button>
             </div>
             
             <div *ngIf="page && page.results != null && page.results.length > 0 && job.stage === 'VALIDATION_RESOLVE'" class="button-holder" style="float: right;">

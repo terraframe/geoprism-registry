@@ -1,0 +1,32 @@
+<div class="confirm-modal modal-body text-center">
+  
+  <h3 style="padding-bottom:10px;">{{title}}</h3>
+  
+  <span *ngIf="errorMessage">{{errorMessage}}</span>
+  
+  <span>{{message}}</span>
+  
+  <form *ngIf="job" style="margin-top: 30px;" #form="ngForm">
+    <div class="form-group row">
+        <label class="col-md-3 text-right" for="file">
+          <localize *ngIf="job.configuration.formatType === 'SHAPEFILE'" key="io.shapefile"></localize>
+          <localize *ngIf="job.configuration.formatType === 'EXCEL'" key="io.spreadsheet"></localize>
+        </label>
+        <div class="col-md-9">
+            <input *ngIf="job.configuration.formatType === 'SHAPEFILE'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".zip" required />
+            <input *ngIf="job.configuration.formatType === 'EXCEL'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".xlsx,.zip" required />
+        </div>
+    </div>
+    
+	  <div class="modal-footer">
+	    <div class="button-holder">
+	      <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false" style="padding: 4px 18px;">
+	        <span class="ui-button-text">{{cancelText}}</span>
+	      </button>
+	      <button type="button" (click)="confirm()" [ngClass]="type.toUpperCase() === 'DANGER' ? 'btn-danger' : 'btn-primary'" class="btn" role="button" aria-disabled="false" style="padding: 4px 18px;">
+	        <span class="ui-button-text">{{submitText}}</span>
+	      </button>
+	    </div>
+	  </div>
+  </form>
+</div>  

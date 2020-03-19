@@ -49,71 +49,33 @@
                     <p style="font-style: italic;">{{getValidationProblemDisplayLabel(problem)}}</p>
 
                     <h4><strong>Message</strong></h4>
-                    <p style="font-style: italic;">Your data contains references to a GeoObject parent which cannot be found.</p>
+                    <p style="font-style: italic;">The system encountered an unexpected error while processing this row.</p>
 
                     <h4><strong>To Resolve</strong></h4>
                     <!-- TODO : Localize -->
-                    <p>You may create a synonym or ignore all rows which contain this parent label. Synonyms are system-wide and will apply to labels for all future imports.</p>
+                    <p>You must correct the data in the original source format and re-import.</p>
                 </div>
                 <div class="com-md-6" style="background: white; border-radius: 10px; width:41%; float:left; height:250px;">
 	                <div class="row-holder">
 	                  <div class="label-holder" style="width:100px;">
 		                  <label>
-		                    <span class="text">Context</span> <!-- TODO : Localize -->
+		                    <span class="text">Row Number</span> <!-- TODO : Localize -->
 		                  </label>
 	                  </div>
 	                  <div class="holder" style="width:300px;">
-	                    <div *ngIf="problem.context.length > 0" style="margin-top:10px;">
-		                    <ol *ngFor="let con of problem.context">
-								          <li>{{con.label}} ({{con.type}})</li>
-								        </ol>
-							        </div>
-	                  </div>
+                      <span class="text" style="margin-top:10px;">{{problem.rowNum}}</span>
+                    </div>
 	                </div>
 	                <div class="row-holder">
 	                  <div class="label-holder" style="width:100px;">
 	                    <label>
-	                      <span class="text">Label</span> <!-- TODO : Localize -->
+	                      <span class="text">Message</span> <!-- TODO : Localize -->
 	                    </label>
 	                  </div>
 	                  <div class="holder" style="width:300px;">
-	                    <span class="text" style="margin-top:10px;">{{problem.label}}</span>
+	                    <span class="text" style="margin-top:10px;">{{problem.exception.message}}</span>
 	                  </div>
 	                </div>
-	                <div class="row-holder" style="overflow:visible;">
-                    <div class="label-holder" style="width:100px;">
-                      <label>
-                        <span class="text">Synonym</span> <!-- TODO : Localize -->
-                      </label>
-                    </div>
-                    <div class="holder" style="width:300px;">
-                      <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
-	                      name="parentSearch"
-	                      [(ngModel)]="searchLabel"
-	                      [typeaheadAsync]="true"
-	                      [typeahead]="getTypeAheadObservable(problem.typeCode, problem)"
-	                      (typeaheadOnSelect)="typeaheadOnSelect($event, problem)"
-	                      [typeaheadOptionsLimit]="7"
-	                      typeaheadOptionField="name"
-	                      [typeaheadMinLength]="0"
-	                      [typeaheadWaitMs]="300">
-                    </div>
-                  </div>
-                  <div class="row-holder">
-                    <div class="label-holder" style="width:100px;">
-                      <label>
-                        <span class="text">Actions</span> <!-- TODO : Localize -->
-                      </label>
-                    </div>
-                    <div class="holder" style="width:300px;">
-                      <button type="submit" [disabled]="problem.parent == null" (click)="onCreateSynonym()" class="btn btn-primary" role="button">
-                        Create Synonym
-                      </button>
-                      <button type="submit" (click)="onIgnore()" class="btn btn-primary" role="button">
-                        Ignore
-                      </button>
-                    </div>
-                  </div>
                 </div>
             </div>
         </div>

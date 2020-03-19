@@ -242,27 +242,30 @@ export class ScheduledJobOverview extends ScheduledJob {
 //     importErrors: PaginationPage
 // }
 
-export class Conflict {
-	exception: ConflictError;
-	object: ConflictObject;
+export class ImportError {
+	exception: ServerException;
+	object: ImportErrorObject;
 	objectType: string;
+	id: string;
+	resolution: string;
 	selected?: boolean;
 }
 
-export class ConflictError {
-	attributes: ConflictErrorAttribute[];
+export class ServerException {
+	attributes: ServerExceptionAttribute[];
 	type: string;
 	message: string;
 }
 
-export class ConflictErrorAttribute {
+export class ServerExceptionAttribute {
 	value: string;
 	key: string;
 }
 
-export class ConflictObject {
+export class ImportErrorObject {
 	geoObject: GeoObjectOverTime;
 	parents: HierarchyOverTime[];
+	isNew: boolean;
 }
 
 export class StepConfig {

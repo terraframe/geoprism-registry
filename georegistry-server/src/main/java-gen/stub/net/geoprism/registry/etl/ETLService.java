@@ -1,5 +1,7 @@
 package net.geoprism.registry.etl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -15,12 +17,16 @@ import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.GeoSynonymService;
+import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -84,6 +90,41 @@ public class ETLService
       hist.setImportedRecords(0L);
       hist.apply();
     }
+  }
+  
+  @Request(RequestType.SESSION)
+  public JSONObject reImport(String sessionId, MultipartFileParameter file, String json)
+  {
+    reImportInTrans(file, json);
+    
+    return this.doImport(sessionId, json);
+  }
+  
+  @Transaction
+  public void reImportInTrans(MultipartFileParameter file, String json)
+  {
+    ImportConfiguration config = ImportConfiguration.build(json);
+    
+    VaultFile vf = VaultFile.get(config.getVaultFileId());
+    vf.delete();
+    
+    VaultFile vf2 = null;
+    try (InputStream is = file.getInputStream())
+    {
+      vf2 = VaultFile.createAndApply(file.getFilename(), is);
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+    
+    config.setVaultFileId(vf2.getOid());
+    config.setFileName(file.getFilename());
+    
+    ImportHistory hist = ImportHistory.lock(config.getHistoryId());
+    hist.setImportFile(vf2);
+    hist.setConfigJson(config.toJSON().toString());
+    hist.apply();
   }
   
   @Request(RequestType.SESSION)
@@ -422,7 +463,7 @@ public class ETLService
     
     jo.put("objectType", err.getObjectType());
     
-    jo.put("importErrorId", err.getOid());
+    jo.put("id", err.getOid());
     
     jo.put("resolution", err.getResolution());
     
@@ -462,9 +503,16 @@ public class ETLService
     
     if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
     {
-      String parentTreeNode = config.getString("parentTreeNode");
-      String geoObject = config.getString("geoObject");
+      String parentTreeNode = config.get("parentTreeNode").toString();
+      String geoObject = config.get("geoObject").toString();
       Boolean isNew = config.getBoolean("isNew");
+      
+      if (isNew)
+      {
+        GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
+        go.setUid(RegistryIdService.getInstance().next());
+        geoObject = go.toJSON().toString();
+      }
       
       new GeoObjectEditorController().applyInReq(sessionId, parentTreeNode, geoObject, isNew, null, null);
       
@@ -573,15 +621,23 @@ public class ETLService
   @Request(RequestType.SESSION)
   public void resolveImport(String sessionId, String historyId)
   {
-    resolveImportInTrans(historyId);
-  }
-  
-  @Transaction
-  private void resolveImportInTrans(String historyId)
-  {
     checkPermissions();
     
     ImportHistory hist = ImportHistory.get(historyId);
+    
+    if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
+    {
+      resolveImportInTrans(historyId, hist);
+    }
+    else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
+    {
+      this.doImport(Session.getCurrentSession().getOid(), hist.getConfigJson());
+    }
+  }
+
+  @Transaction
+  private void resolveImportInTrans(String historyId, ImportHistory hist)
+  {
     hist.appLock();
     
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
@@ -609,4 +665,5 @@ public class ETLService
     VaultFile file = hist.getImportFile();
     file.delete();
   }
+
 }

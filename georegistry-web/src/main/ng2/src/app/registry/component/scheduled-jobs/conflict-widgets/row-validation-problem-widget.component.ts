@@ -17,18 +17,22 @@ import { IOService } from '../../../service/io.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
 @Component( {
-    selector: 'term-reference-problem-widget',
-    templateUrl: './term-reference-problem-widget.component.html',
+    selector: 'row-validation-problem-widget',
+    templateUrl: './row-validation-problem-widget.component.html',
     styleUrls: []
 } )
-export class TermReferenceProblemWidgetComponent implements OnInit {
+export class RowValidationProblemWidgetComponent implements OnInit {
     message: string = null;
     @Input() problem: any;
     @Input() job: ScheduledJob;
     @Output() public onProblemResolved = new EventEmitter<any>();
     
-    termId: string = null;
     searchLabel: string;
+
+    /*
+     * Observable subject for submission.  Called when an update is successful 
+     */
+    // onConflictAction: Subject<any>;
 
     readonly: boolean = false;
     edit: boolean = false;
@@ -40,25 +44,45 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
 
     ngOnInit(): void {
 
+        // this.onConflictAction = new Subject();
+        
+        // this.searchLabel = this.problem.label;
+        
         this.problem.parent = null;
         this.searchLabel = "";
 
+    }
+    
+    getString(conflict: any): string {
+      return JSON.stringify(conflict);
     }
 
     getValidationProblemDisplayLabel(conflict: any): string {
       return conflict.type;
     }
     
-    getTypeAheadObservable( conflict: any ): Observable<any> {
+    getTypeAheadObservable( typeCode: string, conflict: any ): Observable<any> {
+
+        let parentCode = null;
+        let hierarchyCode = this.job.configuration.hierarchy;
+
         return Observable.create(( observer: any ) => {
-            this.iService.getTermSuggestions( conflict.mdAttributeId, this.searchLabel, '20' ).then( results => {
+            this.service.getGeoObjectSuggestions( this.searchLabel, typeCode, parentCode, hierarchyCode, this.job.startDate ).then( results => {
                 observer.next( results );
             } );
         } );
     }
-    
-    typeaheadOnSelect( e: TypeaheadMatch ): void {
-        this.termId = e.item.value;
+
+    typeaheadOnSelect( e: TypeaheadMatch, conflict: any ): void {
+
+        this.service.getParentGeoObjects( e.item.uid, conflict.typeCode, [], false, this.job.startDate ).then( ancestors => {
+
+            conflict.parent = ancestors.geoObject;
+            this.searchLabel = ancestors.geoObject.properties.displayLabel.localizedValue;
+
+        } ).catch(( err: HttpErrorResponse ) => {
+            this.error( err );
+        } );
     }
     
     onIgnore(): void {
@@ -82,7 +106,8 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
       let cfg = {
         validationProblemId: this.problem.id,
         resolution: "SYNONYM",
-        classifierId: this.termId,
+        code: this.problem.parent.properties.code,
+        typeCode: this.problem.parent.properties.type,
         label: this.problem.label
       };
     

@@ -21,25 +21,26 @@
             </div> -->
 
             
-            <!-- <div *ngIf="conflict && conflict.exception.type === 'net.geoprism.registry.io.ParentCodeException'">
-                <relationship-problem-widget [conflict]="conflict" [job]="job"></relationship-problem-widget>
+            <!-- <div *ngIf="problem && problem.exception.type === 'net.geoprism.registry.io.ParentCodeException'">
+                <relationship-problem-widget [problem]="problem" [job]="job"></relationship-problem-widget>
             </div>
-            <div *ngIf="conflict && conflict.exception.type === 'REQUIREDVALUE'">
-                <relationship-problem-widget [conflict]="conflict" ></relationship-problem-widget>
+            <div *ngIf="problem && problem.exception.type === 'REQUIREDVALUE'">
+                <relationship-problem-widget [problem]="problem" ></relationship-problem-widget>
             </div>
-            <div *ngIf="conflict && conflict.exception.type === 'SPATIALREFERENCE'">
-                <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
+            <div *ngIf="problem && problem.exception.type === 'SPATIALREFERENCE'">
+                <relationship-problem-widget [problem]="problem"></relationship-problem-widget>
             </div>
-            <div *ngIf="conflict && conflict.exception.type === 'DUPLICATE'">
-                <relationship-problem-widget [conflict]="conflict"></relationship-problem-widget>
+            <div *ngIf="problem && problem.exception.type === 'DUPLICATE'">
+                <relationship-problem-widget [problem]="problem"></relationship-problem-widget>
             </div> -->
             
-            <div *ngIf="conflict && job && job.stage === 'IMPORT_RESOLVE'">
-                <import-problem-widget [conflict]="conflict" [job]="job"></import-problem-widget>
+            <div *ngIf="problem && job && job.stage === 'IMPORT_RESOLVE'">
+                <import-problem-widget (onProblemResolved)="onProblemResolvedListener($event, problem)" [problem]="problem" [job]="job"></import-problem-widget>
             </div>
-            <div *ngIf="conflict && job && job.stage === 'VALIDATION_RESOLVE'">
-              <parent-reference-problem-widget *ngIf="conflict.type === 'ParentReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></parent-reference-problem-widget>
-              <term-reference-problem-widget *ngIf="conflict.type === 'TermReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, conflict)" [conflict]="conflict" [job]="job" ></term-reference-problem-widget>
+            <div *ngIf="problem && job && job.stage === 'VALIDATION_RESOLVE'">
+              <parent-reference-problem-widget *ngIf="problem.type === 'ParentReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, problem)" [problem]="problem" [job]="job" ></parent-reference-problem-widget>
+              <term-reference-problem-widget *ngIf="problem.type === 'TermReferenceProblem'" (onProblemResolved)="onProblemResolvedListener($event, problem)" [problem]="problem" [job]="job" ></term-reference-problem-widget>
+              <row-validation-problem-widget *ngIf="problem.type === 'RowValidationProblem'" (onProblemResolved)="onProblemResolvedListener($event, problem)" [problem]="problem" [job]="job" ></row-validation-problem-widget>
             </div>
             
             <div class="row-holder">
@@ -47,10 +48,7 @@
                 <div class="">
                     <div class="button-holder">
                         <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
-                            <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
-                        </button>
-                        <button *ngIf="!readonly && !(job != null && job.stage === 'VALIDATION_RESOLVE')" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-                            <localize key="io.submit"></localize>
+                            <localize key="io.back"></localize>
                         </button>
                     </div>
                 </div>
