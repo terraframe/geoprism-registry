@@ -13,6 +13,11 @@ import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+
+
 public class Organization extends OrganizationBase
 {
   private static final long serialVersionUID = -640706555;
@@ -323,6 +328,11 @@ public class Organization extends OrganizationBase
     query.ORDER_BY_ASC(query.getDisplayLabel().localize());
 
     return query.getIterator().getAll();
+  }
+
+  public OrganizationDTO toDTO()
+  {
+    return new OrganizationDTO(this.getCode(), LocalizedValueConverter.convert(this.getDisplayLabel()), LocalizedValueConverter.convert(this.getContactInfo()));
   }
 
   public static List<Organization> getUserAdminOrganizations()

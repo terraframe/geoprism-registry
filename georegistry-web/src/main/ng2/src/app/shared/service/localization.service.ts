@@ -1,11 +1,16 @@
 import { Injectable } from '@angular/core';
 import { LocalizedValue } from '../model/core';
+import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
+import { EventService } from '../../shared/service/event.service';
 
 declare var Globalize: any;
 declare var com: any
+declare var acp: any;
 
 @Injectable()
 export class LocalizationService {
+
+    constructor( private http: HttpClient, private eventService: EventService ) { }
 
     locales: string[] = ['defaultLocale'];
 

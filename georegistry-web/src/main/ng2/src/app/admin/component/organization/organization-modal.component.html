@@ -22,7 +22,7 @@
             </div>          
             <div class="holder" >
               <span class="text">
-                <input type="text" [(ngModel)]="organization.code" name="code" required>
+                <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
               </span>
             </div>
           </div>     
@@ -32,7 +32,12 @@
             </div>          
             <div class="holder" >
               <span class="text">
-                <input type="text" [(ngModel)]="organization.name" name="name" required>
+
+                <div class="form-group" *ngFor="let localeValue of organization.label.localeValues">
+                  <label> {{localeValue.locale}}</label>
+                  <input  [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
+                </div>
+                <!-- <input type="text" [(ngModel)]="organization.label" name="name" required> -->
               </span>
             </div>
           </div>  
@@ -42,7 +47,22 @@
             </div>          
             <div class="holder" >
               <span class="text">
-                <input type="text" [(ngModel)]="organization.contact" name="contact" required>
+                <div class="form-group" *ngFor="let localeValue of organization.contactInfo.localeValues">
+                  <label> {{localeValue.locale}}</label>
+                  <input  [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input" class="form-control">
+                </div>
+                <!-- <input type="text" [(ngModel)]="organization.contactInfo" name="contact" required> -->
+              </span>
+            </div>
+          </div>  
+
+          <div class="row-holder">
+            <div class="label-holder">
+              {{organization.label.localizedValue}} Registry Administrator
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
               </span>
             </div>
           </div>  

@@ -42,6 +42,7 @@ import { LocaleInfo, AllLocaleInfo, Locale } from '../model/localization-manager
 import { SystemLogo } from '../model/system-logo';
 import { SystemLogoService } from '../service/system-logo.service';
 import { AuthService } from '../../shared/service/auth.service';
+import { ModalTypes } from '../../shared/model/modal';
 
 
 declare let acp: string;
@@ -54,11 +55,12 @@ declare let acp: string;
 export class SettingsComponent implements OnInit {
     bsModalRef: BsModalRef;
     message: string = null;
-    settings: Settings;
+    organizations: Organization[] = [];
     installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
+    settings: Settings = {email: {isConfigured: false}}
 
     constructor(
         private router: Router,
@@ -74,10 +76,19 @@ export class SettingsComponent implements OnInit {
      }
 
     ngOnInit(): void {
-        this.settings = this.settingsService.getSettings();
+
+        // this.registryService.getLocales().then( locales => {
+        //     this.localizeService.setLocales( locales );
+        // } ).catch(( err: HttpErrorResponse ) => {
+        //     this.error( err );
+        // } );
 
         this.installedLocales = this.getLocales();
-        console.log(this.installedLocales)
+
+        this.settingsService.getOrganizations().then( orgs => {
+            this.organizations = orgs
+        } );
+
     }
 
 
@@ -102,14 +113,39 @@ export class SettingsComponent implements OnInit {
         } );
 
         bsModalRef.content.organization = org;
+        bsModalRef.content.isNewOrganization = false;
 
         bsModalRef.content.onSuccess.subscribe( data => {
-            this.settings.organizations.push(data);
+            this.organizations.push(data);
         })
     }
 
-    public onRemoveOrganization(org: Organization): void {
+    public onRemoveOrganization(code: string, name: string): void {
 
+        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + name + ']';
+        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+        this.bsModalRef.content.type = ModalTypes.danger;
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+            // this.settingsService.removeOrganization(code);
+            
+            this.settingsService.removeOrganization(code).then(response => {
+				for(let i = this.organizations.length - 1; i >= 0; i--) {
+                    if(this.organizations[i].code === code){
+                        this.organizations.splice(i, 1);
+                    }
+                }
+
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+            });
+            
+        });
     }
 
     public newOrganization(): void {
@@ -119,8 +155,10 @@ export class SettingsComponent implements OnInit {
             ignoreBackdropClick: true,
         } );
 
+        bsModalRef.content.isNewOrganization = true;
+
          bsModalRef.content.onSuccess.subscribe( data => {
-            this.settings.organizations.push(data);
+            this.organizations.push(data);
          })
     }
 
@@ -134,7 +172,7 @@ export class SettingsComponent implements OnInit {
         } );
 
         bsModalRef.content.onSuccess.subscribe( data => {
-            this.settings.localizations.push(data);
+            this.installedLocales.push(data);
         })
     }
 

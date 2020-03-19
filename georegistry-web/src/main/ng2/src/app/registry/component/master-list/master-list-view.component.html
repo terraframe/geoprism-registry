@@ -26,8 +26,8 @@
                 </div>
 
                 <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
-                    <published-master-list-history *ngIf="content === 'PUB'" [oid]="list.oid"></published-master-list-history>
-                    <master-list-history *ngIf="content === 'EXP'" [oid]="list.oid"></master-list-history>
+                    <published-master-list-history *ngIf="list && content === 'PUB'" [oid]="list.oid"></published-master-list-history>
+                    <master-list-history *ngIf="list && content === 'EXP'" [oid]="list.oid"></master-list-history>
                 </div>
 
             </div>
