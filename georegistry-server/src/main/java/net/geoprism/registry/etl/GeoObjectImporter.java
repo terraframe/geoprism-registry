@@ -389,7 +389,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType());
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getWorkProgress() + 1);
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
     this.configuration.addException(e);
   }

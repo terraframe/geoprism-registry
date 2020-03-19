@@ -73,13 +73,14 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   }
 
   @Override
-  public void recordError(Throwable ex, String objectJson, String objectType)
+  public void recordError(Throwable ex, String objectJson, String objectType, long rowNum)
   {
     ImportError error = new ImportError();
     error.setHistory(this.history);
     error.setErrorJson(JobHistory.exceptionToJson(ex).toString());
     error.setObjectJson(objectJson);
     error.setObjectType(objectType);
+    error.setRowIndex(rowNum);
     error.apply();
     
     this.history.appLock();

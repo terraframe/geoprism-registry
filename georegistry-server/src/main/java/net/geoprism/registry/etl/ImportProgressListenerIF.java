@@ -14,7 +14,7 @@ public interface ImportProgressListenerIF
   
   public Long getImportedRecords();
   
-  public void recordError(Throwable ex, String objectJson, String objectType);
+  public void recordError(Throwable ex, String objectJson, String objectType, long rowNum);
 
   public boolean hasValidationProblems();
 
