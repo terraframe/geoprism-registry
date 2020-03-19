@@ -85,6 +85,9 @@
                                   Label
                                 </th>
                                 <th class="label-column">
+                                  Affected Rows
+                                </th>
+                                <th class="label-column">
                                   
                                 </th>
                               </tr>
@@ -121,6 +124,9 @@
 	                             <td class="label-column" style="vertical-align: middle;">
                                  <p *ngIf="row.type === 'RowValidationProblem'">{{row.exception.message}}</p>
                                  <p *ngIf="row.type === 'ParentReferenceProblem' || row.type === 'TermReferenceProblem'">{{row.label}}</p>
+                               </td>
+                               <td class="label-column" style="vertical-align: middle;">
+                                 <p>{{formatAffectedRows(row.affectedRows)}}</p>
                                </td>
 	                             <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
 	                              <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
