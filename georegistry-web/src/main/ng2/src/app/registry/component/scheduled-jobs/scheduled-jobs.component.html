@@ -75,6 +75,9 @@
 	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
                               Imported Records <!-- TOTO : Localize -->                   
                             </th>
+                            <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
+                              Import Date <!-- TOTO : Localize -->                   
+                            </th>
 	                          <th style="border-bottom: none;">
 	                            <button *ngIf="completeJobsPage.results.length < 1" type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
 	                              <localize key="scheduledjobs.view.completed.jobs.button"></localize>
@@ -96,6 +99,9 @@
 	                        </td>
 	                        <td style="width:70%; vertical-align: middle;">
                             <p style="padding-left: 0px;margin: 0;">{{job.importedRecords}}</p>
+                          </td>
+                          <td style="width:70%; vertical-align: middle;">
+                            <p style="padding-left: 0px;margin: 0;">{{job.lastUpdateDate}}</p>
                           </td>
 	                        <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;vertical-align: middle;">                                
 	                           <!-- 
