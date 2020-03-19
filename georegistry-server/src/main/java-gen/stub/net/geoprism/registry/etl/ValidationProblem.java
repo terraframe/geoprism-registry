@@ -1,5 +1,7 @@
 package net.geoprism.registry.etl;
 
+import java.util.Date;
+
 import org.json.JSONObject;
 
 public abstract class ValidationProblem extends ValidationProblemBase implements Comparable<ValidationProblem>
@@ -20,6 +22,21 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
   }
   
   abstract public String getValidationProblemType();
+  
+  @Override
+  public String getKey()
+  {
+    String key = super.getKey();
+    
+    if (key == null || key.length() == 0)
+    {
+      return this.buildKey();
+    }
+    else
+    {
+      return key;
+    }
+  }
   
   public JSONObject toJSON()
   {

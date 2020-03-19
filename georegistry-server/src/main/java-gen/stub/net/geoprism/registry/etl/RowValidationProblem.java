@@ -74,4 +74,22 @@ public class RowValidationProblem extends RowValidationProblemBase
     
     super.apply();
   }
+  
+  public int compareTo(ValidationProblem problem)
+  {
+    if (this.getKey().equals(problem.getKey()))
+    {
+      return 0;
+    }
+    
+    if (problem instanceof RowValidationProblem)
+    {
+//      return this.getRowNum().compareTo(((RowValidationProblem) problem).getRowNum());
+      return ((RowValidationProblem) problem).getRowNum().compareTo(this.getRowNum());
+    }
+    else
+    {
+      return super.compareTo(problem);
+    }
+  }
 }

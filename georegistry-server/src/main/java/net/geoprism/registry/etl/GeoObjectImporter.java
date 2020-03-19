@@ -349,6 +349,8 @@ public class GeoObjectImporter implements ObjectImporterIF
     catch (Throwable t)
     {
       RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress() + 1);
+      problem.setHistoryId(this.configuration.historyId);
+      
       this.progressListener.addRowValidationProblem(problem);
     }
 
@@ -724,7 +726,10 @@ public class GeoObjectImporter implements ObjectImporterIF
             {
               String parentCode = ( parent == null ) ? null : parent.getCode();
 
-              this.progressListener.addReferenceProblem(new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context));
+              ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context);
+              prp.setHistoryId(this.configuration.historyId);
+              
+              this.progressListener.addReferenceProblem(prp);
             }
 
             return null;
@@ -828,7 +833,10 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-          this.progressListener.addReferenceProblem(new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
+          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
+          trp.setHistoryId(this.configuration.getHistoryId());
+          
+          this.progressListener.addReferenceProblem(trp);
         }
         else
         {
