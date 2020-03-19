@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 2139068755)
+@com.runwaysdk.business.ClassSignature(hash = 440758212)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,8 +12,7 @@ public abstract class RowValidationProblemBase extends net.geoprism.registry.etl
 {
   public final static String CLASS = "net.geoprism.registry.etl.RowValidationProblem";
   public static java.lang.String EXCEPTIONJSON = "exceptionJson";
-  public static java.lang.String ROWNUM = "rowNum";
-  private static final long serialVersionUID = 2139068755;
+  private static final long serialVersionUID = 440758212;
   
   public RowValidationProblemBase()
   {
@@ -45,34 +44,6 @@ public abstract class RowValidationProblemBase extends net.geoprism.registry.etl
     else
     {
       setValue(EXCEPTIONJSON, value);
-    }
-  }
-  
-  public Long getRowNum()
-  {
-    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(ROWNUM));
-  }
-  
-  public void validateRowNum()
-  {
-    this.validateAttribute(ROWNUM);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getRowNumMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.RowValidationProblem.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(ROWNUM);
-  }
-  
-  public void setRowNum(Long value)
-  {
-    if(value == null)
-    {
-      setValue(ROWNUM, "");
-    }
-    else
-    {
-      setValue(ROWNUM, java.lang.Long.toString(value));
     }
   }
   

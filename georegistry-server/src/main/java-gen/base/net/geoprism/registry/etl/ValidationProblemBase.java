@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 419741781)
+@com.runwaysdk.business.ClassSignature(hash = -812915980)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,6 +11,7 @@ package net.geoprism.registry.etl;
 public abstract class ValidationProblemBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.etl.ValidationProblem";
+  public static java.lang.String AFFECTEDROWS = "affectedRows";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
@@ -26,11 +27,39 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
   public static java.lang.String SEVERITY = "severity";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 419741781;
+  private static final long serialVersionUID = -812915980;
   
   public ValidationProblemBase()
   {
     super();
+  }
+  
+  public String getAffectedRows()
+  {
+    return getValue(AFFECTEDROWS);
+  }
+  
+  public void validateAffectedRows()
+  {
+    this.validateAttribute(AFFECTEDROWS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAffectedRowsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ValidationProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(AFFECTEDROWS);
+  }
+  
+  public void setAffectedRows(String value)
+  {
+    if(value == null)
+    {
+      setValue(AFFECTEDROWS, "");
+    }
+    else
+    {
+      setValue(AFFECTEDROWS, value);
+    }
   }
   
   public java.util.Date getCreateDate()

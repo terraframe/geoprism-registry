@@ -291,7 +291,7 @@ public class ETLService
     {
       ImportError err = it.next();
       
-      ja.put(serializeImportError(err));
+      ja.put(err.toJSON());
     }
     
     page.put("results", ja);
@@ -308,7 +308,7 @@ public class ETLService
     vpq.WHERE(vpq.getHistory().EQ(hist));
     vpq.restrictRows(pageSize, pageNumber);
     vpq.ORDER_BY(vpq.getSeverity(), SortOrder.DESC);
-    vpq.ORDER_BY(vpq.getCreateDate(), SortOrder.ASC);
+    vpq.ORDER_BY(vpq.getAffectedRows(), SortOrder.ASC);
     
     if (onlyUnresolved)
     {
@@ -443,29 +443,6 @@ public class ETLService
     {
       jo.put("problems", this.getValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
     }
-    
-    return jo;
-  }
-  
-  protected JSONObject serializeImportError(ImportError err)
-  {
-    JSONObject jo = new JSONObject();
-    
-    JSONObject exception = new JSONObject();
-    exception.put("type", new JSONObject(err.getErrorJson()).get("type"));
-    exception.put("message", JobHistory.readLocalizedException(new JSONObject(err.getErrorJson()), Session.getCurrentLocale()));
-    jo.put("exception", exception);
-    
-    if (err.getObjectJson() != null && err.getObjectJson().length() > 0)
-    {
-      jo.put("object", new JSONObject(err.getObjectJson()));
-    }
-    
-    jo.put("objectType", err.getObjectType());
-    
-    jo.put("id", err.getOid());
-    
-    jo.put("resolution", err.getResolution());
     
     return jo;
   }

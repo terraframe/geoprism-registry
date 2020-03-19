@@ -73,6 +73,11 @@ export class JobComponent implements OnInit {
       this.stopPolling();
     }
     
+    formatAffectedRows(rows: string)
+    {
+      return rows.replace(/,/g, ", ");
+    }
+    
     formatValidationResolve(obj: any)
     {
       return JSON.stringify(obj);

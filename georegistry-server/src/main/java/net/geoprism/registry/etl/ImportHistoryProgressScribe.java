@@ -1,5 +1,6 @@
 package net.geoprism.registry.etl;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -72,13 +73,14 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   }
 
   @Override
-  public void recordError(Throwable ex, String objectJson, String objectType)
+  public void recordError(Throwable ex, String objectJson, String objectType, long rowNum)
   {
     ImportError error = new ImportError();
     error.setHistory(this.history);
     error.setErrorJson(JobHistory.exceptionToJson(ex).toString());
     error.setObjectJson(objectJson);
     error.setObjectType(objectType);
+    error.setRowIndex(rowNum);
     error.apply();
     
     this.history.appLock();
@@ -102,12 +104,38 @@ class ImportHistoryProgressScribe implements ImportProgressListenerIF
   @Override
   public void addReferenceProblem(ValidationProblem problem)
   {
+    Iterator<ValidationProblem> it = this.referenceProblems.iterator();
+    
+    while (it.hasNext())
+    {
+      ValidationProblem vp = it.next();
+      
+      if (vp.getKey().equals(problem.getKey()))
+      {
+        vp.addAffectedRowNumber(Long.valueOf(problem.getAffectedRows()));
+        return;
+      }
+    }
+    
     this.referenceProblems.add(problem);
   }
 
   @Override
   public void addRowValidationProblem(ValidationProblem problem)
   {
+    Iterator<ValidationProblem> it = this.rowValidationProblems.iterator();
+    
+    while (it.hasNext())
+    {
+      ValidationProblem vp = it.next();
+      
+      if (vp.getKey().equals(problem.getKey()))
+      {
+        vp.addAffectedRowNumber(Long.valueOf(problem.getAffectedRows()));
+        return;
+      }
+    }
+    
     this.rowValidationProblems.add(problem);
   }
 
