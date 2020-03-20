@@ -65,7 +65,7 @@ export class ScheduledJobsComponent implements OnInit {
 
       this.onActiveJobsPageChange( 1 );
       
-      this.pollingData = Observable.interval(5000).subscribe(() => {
+      this.pollingData = Observable.interval(1000).subscribe(() => {
         this.activeTimeCounter++
         this.completeTimeCounter++
       
@@ -102,13 +102,16 @@ export class ScheduledJobsComponent implements OnInit {
     }
 
     formatJobStatus(job: ScheduledJobOverview) {
-      if (job.status === "FEEDBACK") {
+      if (job.status === "FEEDBACK")
+      {
         return this.localizeService.decode("etl.JobStatus.FEEDBACK");
       }
-      else if (job.status === "RUNNING" || job.status === "NEW") {
+      else if (job.status === "RUNNING" || job.status === "NEW")
+      {
         return this.localizeService.decode("etl.JobStatus.RUNNING");
       }
-      else if (job.status === "QUEUED") {
+      else if (job.status === "QUEUED")
+      {
         return this.localizeService.decode("etl.JobStatus.QUEUED");
       }
       else if (job.status === "SUCCESS")
