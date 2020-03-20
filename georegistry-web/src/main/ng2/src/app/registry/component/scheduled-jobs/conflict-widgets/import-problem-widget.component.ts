@@ -43,7 +43,7 @@ export class ImportProblemWidgetComponent implements OnInit {
             ignoreBackdropClick: true
         } );
 
-        editModal.content.configureFromImportError(this.problem, this.job.historyId, this.job.createDate, true);
+        editModal.content.configureFromImportError(this.problem, this.job.historyId, this.job.configuration.startDate, true);
         editModal.content.setMasterListId( null );
         editModal.content.setOnSuccessCallback(() => {
 

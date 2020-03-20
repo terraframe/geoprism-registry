@@ -111,7 +111,20 @@ export class ScheduledJobsComponent implements OnInit {
       else if (job.status === "QUEUED") {
         return this.localizeService.decode("etl.JobStatus.QUEUED");
       }
-      else {
+      else if (job.status === "SUCCESS")
+      {
+        return "Success" // TODO : Localize
+      }
+      else if (job.status === "CANCELED")
+      {
+        return "Canceled" // TOOD : Localize
+      }
+      else if (job.status === "FAILURE")
+      {
+        return "Failed" // TODO : Localize
+      }
+      else
+      {
         return this.localizeService.decode("etl.JobStatus.RUNNING");
       }
     }
