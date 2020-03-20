@@ -102,6 +102,11 @@ export class RowValidationProblemWidgetComponent implements OnInit {
       } );
     }
     
+    formatAffectedRows(rows: string)
+    {
+      return rows.replace(/,/g, ", ");
+    }
+    
     onCreateSynonym(): void {
       let cfg = {
         validationProblemId: this.problem.id,
