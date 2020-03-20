@@ -1,0 +1,248 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+    <createOrUpdate>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.fix.problems.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.fix.problems.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Resolve Problems" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.fix.problem.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.fix.problem.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Resolve" />
+	        </attributeStruct>
+	      </object>
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.step.indicator.file.import.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.step.indicator.file.import.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="File Import" />
+	        </attributeStruct>
+	      </object>
+	      
+	     <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.step.indicator.staging.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.step.indicator.staging.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Staging" />
+	        </attributeStruct>
+	      </object>
+	      
+
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.step.indicator.validation.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.step.indicator.validation.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Validation" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.step.indicator.db.import.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.step.indicator.db.import.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Database Import" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.reimport.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.reimport.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Reimport" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.complete.import.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.complete.import.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Complete Import" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.validation.problems.complete.msg">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.validation.problems.complete.msg" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="All validation problems have been resolved." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.import.problems.complete.msg">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.import.problems.complete.msg" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="All import problems have been resolved." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.reupload.resume.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.reupload.resume.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Re-Upload and Resume Import" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.validation.table.problem.type.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.validation.table.problem.type.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Problem Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.validation.table.label.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.validation.table.label.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Label" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.validation.table.affected.rows.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.validation.table.affected.rows.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Affected Rows" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.import.table.problem.type.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.import.table.problem.type.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Problem Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.import.table.message.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.import.table.message.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Message" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.import.table.row.number.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.import.table.row.number.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Row Number" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.started.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.started.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Started:" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.uploaded.by.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.uploaded.by.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Uploaded by:" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.imported.out.of.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.imported.out.of.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="imported out of" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.imported.total.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.imported.total.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="total" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.remaining.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.remaining.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="remaining" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.parent.lookup">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.problem.type.parent.lookup" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Parent Lookup" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.postal.code.lookup">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.problem.type.postal.code.lookup" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Postal Code Lookup" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.multi.parent.lookup">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.problem.type.multi.parent.lookup" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Multiple Parent Match" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.invalid.geom.lookup">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.problem.type.invalid.geom.lookup" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Invalid Geometry" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.invalid.geom.lookup">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.problem.type.invalid.geom.lookup" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Invalid Geometry" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.required.value.lookup">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.problem.type.required.value.lookup" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Empty Value Where Required" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.duplicate.data.lookup">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.job.problem.type.duplicate.data.lookup" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Duplicate Data" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	</createOrUpdate>
+	
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
