@@ -43,35 +43,4 @@ export default class Utils {
         return dateObj.getUTCFullYear() + "-" + ( month < 10 ? "0" : "" ) + month + "-" + ( day < 10 ? "0" : "" ) + day;
     }
     
-    // TODO : Localize
-    static getFriendlyProblemType(probType: string): string {
-        if(probType === "net.geoprism.registry.io.ParentCodeException"){
-            return "Parent Lookup";
-        }
-
-        if(probType === "net.geoprism.registry.io.PostalCodeLocationException"){
-            return "Postal Code Lookup";
-        }
-
-        if(probType === "net.geoprism.registry.io.AmbiguousParentException"){
-            return "Multiple Parent Match";
-        }
-
-        if(probType === "net.geoprism.registry.io.InvalidGeometryException"){
-            return "Invalid Geometry";
-        }
-
-        if(probType === "net.geoprism.registry.DataNotFoundException"){
-            return "Empty Value Where Required";
-        }
-
-        if(probType === "net.geoprism.registry.io.TermValueException"){
-            // TODO
-        }
-        if(probType === "com.runwaysdk.dataaccess.DuplicateDataException"){
-            return "Duplicate Data";
-        }
-
-        return "";
-    }
 }

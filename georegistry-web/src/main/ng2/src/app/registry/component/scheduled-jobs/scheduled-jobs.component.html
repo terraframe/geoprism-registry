@@ -45,13 +45,17 @@
                                         </div>
                                     </td> 
                                     <td *ngIf="isAdmin || isMaintainer" style="text-align: right;vertical-align: middle;">  
-                                        <a [routerLink]="'/registry/job/' + job.historyId" routerLinkActive="active">
-                                            <button class="btn btn-primary" role="button">
-                                                <localize key="scheduledjobs.detail.button"></localize>
-                                            </button>
-                                        </a>
 
-                                        <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
+                                        <div class="button-holder" style="float: right;">
+                                            <a [routerLink]="'/registry/job/' + job.historyId" routerLinkActive="active">
+                                                <button class="btn btn-primary" role="button">
+                                                    <localize key="scheduledjobs.fix.problems.button"></localize>
+                                                </button>
+                                            </a>
+                                            <button type="button" (click)="onCancelScheduledJob(job.historyId, job)" class="btn btn-danger" role="button">
+                                                <localize key="etl.import.cancel.openModal"></localize>
+                                            </button>
+                                        </div>
                                     </td> 
                                 </tr> 
 

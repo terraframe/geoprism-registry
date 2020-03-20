@@ -9,6 +9,7 @@ import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
+import { IOService } from '../../service/io.service';
 
 import { ScheduledJob, Step, StepConfig, ScheduledJobOverview, PaginationPage } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
@@ -54,7 +55,7 @@ export class ScheduledJobsComponent implements OnInit {
     isViewAllOpen: boolean = false;
 
     constructor( public service: RegistryService, private modalService: BsModalService, private router: Router,
-        private localizeService: LocalizationService, authService: AuthService ) {
+        private localizeService: LocalizationService, authService: AuthService, public ioService: IOService ) {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
@@ -64,7 +65,7 @@ export class ScheduledJobsComponent implements OnInit {
 
       this.onActiveJobsPageChange( 1 );
       
-      this.pollingData = Observable.interval(1000).subscribe(() => {
+      this.pollingData = Observable.interval(5000).subscribe(() => {
         this.activeTimeCounter++
         this.completeTimeCounter++
       
@@ -101,52 +102,74 @@ export class ScheduledJobsComponent implements OnInit {
     }
 
     formatJobStatus(job: ScheduledJobOverview) {
-      if (job.status === "FEEDBACK")
-      {
+      if (job.status === "FEEDBACK") {
         return this.localizeService.decode("etl.JobStatus.FEEDBACK");
       }
-      else if (job.status === "RUNNING" || job.status === "NEW")
-      {
+      else if (job.status === "RUNNING" || job.status === "NEW") {
         return this.localizeService.decode("etl.JobStatus.RUNNING");
       }
-      else if (job.status === "QUEUED")
-      {
+      else if (job.status === "QUEUED") {
         return this.localizeService.decode("etl.JobStatus.QUEUED");
       }
-      else
-      {
+      else {
         return this.localizeService.decode("etl.JobStatus.RUNNING");
       }
     }
 
     formatStepConfig(page: PaginationPage): void {
 
-        page.results.forEach( job => {
-            let stepConfig = {
-                "steps": [
-                    {"label":"File Import", "complete":true, "enabled":false},
+      page.results.forEach(job => {
+        
+        let stepConfig = {
+          "steps": [
+            { "label": "File Import", "status": "COMPLETE" },
 
-                    {"label":"Staging",
-                        "complete":job.stage === "NEW" ? false : true,
-                        "enabled":job.stage === "NEW" ? true : false
-                    },
+            {
+              "label": "Staging",
+              "status": job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
+            },
 
-                    {"label":"Validation",
-                        "complete":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? false : true,
-                        "enabled":job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? true : false
-                    },
+            {
+              "label": "Validation",
+              "status": job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "VALIDATE")
+            },
 
-                    {"label":"Database Import",
-                        "complete":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false,
-                        "enabled":job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? true : false
-                    }
-                ]
+            {
+              "label": "Database Import",
+              "status": job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? this.getJobStatus(job) : ""
             }
+          ]
+        }
 
-            job = job as ScheduledJobOverview;
-            job.stepConfig = stepConfig;
-        });
+        job = job as ScheduledJobOverview;
+        job.stepConfig = stepConfig;
+      });
 
+    }
+
+
+    getCompletedStatus(jobStage: string, targetStage: string): string{
+      let order = ["NEW", "VALIDATE", "VALIDATION_RESOLVE", "IMPORT", "IMPORT_RESOLVE", "RESUME_IMPORT"];
+
+      let jobPos = order.indexOf(jobStage);
+      let targetPos = order.indexOf(targetStage);
+      if(targetPos < jobPos){
+        return "COMPLETE";
+      }
+      else {
+        return "";
+      }
+    }
+
+    getJobStatus(job: ScheduledJob): string{
+      if(job.status === "QUEUED" || job.status === "RUNNING") {
+        return "WORKING"
+      }
+      else if(job.status === "FEEDBACK") {
+        return "STUCK";
+      }
+
+      return "";
     }
 
 
@@ -187,6 +210,31 @@ export class ScheduledJobsComponent implements OnInit {
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
+    }
+
+    
+    onCancelScheduledJob(historyId: string, job: ScheduledJob): void {
+      this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+          animated: true,
+          backdrop: true,
+          ignoreBackdropClick: true,
+      } );
+      
+      this.bsModalRef.content.message = this.localizeService.decode( "etl.import.cancel.modal.description" );
+      this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.cancel.modal.button" );
+      
+      this.bsModalRef.content.type = ModalTypes.danger;
+      
+      this.bsModalRef.content.onConfirm.subscribe( data => {
+      
+        this.ioService.cancelImport( job.configuration ).then( response => {
+          this.bsModalRef.hide()
+          // this.router.navigate( ['/registry/scheduled-jobs'] )
+        } ).catch(( err: HttpErrorResponse ) => {
+          this.error( err );
+        } );
+  
+      } );
     }
 
 
