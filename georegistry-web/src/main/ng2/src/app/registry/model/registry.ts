@@ -216,6 +216,7 @@ export class PaginationPage {
 }
 
 export class ScheduledJob {
+  jobId: string;
 	fileName: string;
 	historyId: string;
 	stage: string;

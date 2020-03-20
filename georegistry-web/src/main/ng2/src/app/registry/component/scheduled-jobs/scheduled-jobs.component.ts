@@ -245,7 +245,20 @@ export class ScheduledJobsComponent implements OnInit {
       
         this.ioService.cancelImport( job.configuration ).then( response => {
           this.bsModalRef.hide()
-          // this.router.navigate( ['/registry/scheduled-jobs'] )
+          
+          for (let i = 0; i < this.activeJobsPage.results.length; ++i)
+          {
+            let activeJob = this.activeJobsPage.results[i];
+            
+            if (activeJob.jobId === job.jobId)
+            {
+              this.activeJobsPage.results.splice(i, 1);
+              break;
+            }
+          }
+          
+          this.onViewAllCompleteJobs();
+          
         } ).catch(( err: HttpErrorResponse ) => {
           this.error( err );
         } );
@@ -256,6 +269,8 @@ export class ScheduledJobsComponent implements OnInit {
 
 
     error( err: HttpErrorResponse ): void {
+      console.log("ERROR", err);
+    
         // Handle error
         if ( err !== null ) {
             this.message = ( err.error.localizedMessage || err.error.message || err.message );
