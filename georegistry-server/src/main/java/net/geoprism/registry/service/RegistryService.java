@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import net.geoprism.GeoprismUser;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.DataNotFoundException;
@@ -59,6 +60,7 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -314,6 +316,21 @@ public class RegistryService
     return new GeoObjectQuery(type);
   }
 
+  ///////////////////// User/Role Management /////////////////////
+  
+  @Request(RequestType.SESSION)
+  public RegistryRole[] getRolesForUser(String sessionId, String userOID)
+  {
+    return new RegistryRole[]{};
+  }
+  
+  @Request(RequestType.SESSION)
+  public GeoprismUser[] getUsersForOrganization(String sessionId, String organizationCode)
+  {
+    return new GeoprismUser[]{};
+  }
+  
+  
   ///////////////////// Hierarchy Management /////////////////////
 
   /**
@@ -409,6 +426,10 @@ public class RegistryService
     Organization organization = Organization.getByKey(code);
     organization.delete();
   }
+  
+  
+  
+  
   
   /**
    * Returns the {@link GeoObjectType}s with the given codes or all

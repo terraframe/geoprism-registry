@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry;
 
+import org.commongeoregistry.adapter.metadata.RegistryRole;
+
 public interface RegistryConstants
 {
   public static final String REGISTRY_PACKAGE                 = "net.geoprism.registry";
@@ -52,7 +54,7 @@ public interface RegistryConstants
 
   public static final String GEO_MULTIPOLYGON_ATTRIBUTE_LABEL = "Geo MultiPolygon";
 
-  public static final String REGISTRY_ROLE_PREFIX             = "commongeoregistry.";
+  public static final String REGISTRY_ROLE_PREFIX             = RegistryRole.Type.REGISTRY_ROLE_PREFIX+".";
 
   public static final String REGISTRY_MAINTAINER_PREFIX       = REGISTRY_ROLE_PREFIX + "registry.maintainer.";
 
@@ -65,8 +67,6 @@ public interface RegistryConstants
   public static final String API_CONSUMER_ROLE                = REGISTRY_ROLE_PREFIX + "APIConsumer";
   
   public static final String REGISTRY_ROOT_ORG_ROLE           = REGISTRY_ROLE_PREFIX + "Organization";
-  
-  public static final String REGISTRY_ORG_RA_ROLE_SUFFIX      = "RA";
 
   public final static String TERM_CLASS                       = "CLASS";
 }

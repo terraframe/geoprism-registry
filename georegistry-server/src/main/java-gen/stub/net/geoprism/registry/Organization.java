@@ -3,6 +3,8 @@ package net.geoprism.registry;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.commongeoregistry.adapter.metadata.RegistryRole;
+
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -91,20 +93,7 @@ public class Organization extends OrganizationBase
    */
   public String getRoleName()
   {
-    return getRoleName(this.getCode());
-  }
-
-  /**
-   * Constructs a role name for the {@link Organization} with the given code.
-   * 
-   * @param organizationCode
-   *          {@link Organization} code.
-   * 
-   * @return role name for the {@link Organization} with the given code.
-   */
-  public static String getRoleName(String organizationCode)
-  {
-    return RegistryConstants.REGISTRY_ROOT_ORG_ROLE + "." + organizationCode;
+    return RegistryRole.Type.getRoleName(this.getCode());
   }
 
   /**
@@ -115,7 +104,6 @@ public class Organization extends OrganizationBase
   public Roles getRole()
   {
     return Roles.findRoleByName(this.getRoleName());
-    // return RoleDAO.findRole(this.getRoleName());
   }
 
   /**
@@ -129,7 +117,7 @@ public class Organization extends OrganizationBase
    */
   public static RoleDAOIF getRole(String organizationCode)
   {
-    return RoleDAO.findRole(getRoleName(organizationCode));
+    return RoleDAO.findRole(RegistryRole.Type.getRoleName(organizationCode));
   }
 
   /**
@@ -141,24 +129,7 @@ public class Organization extends OrganizationBase
    */
   public String getRegistryAdminRoleName()
   {
-    return getRegistryAdminRoleName(this.getCode());
-  }
-
-  /**
-   * Constructs a {@link RoleDAOIF} for the Registry Administrator for the
-   * {@link Organization} with the given code.
-   * 
-   * @param organizationCode
-   *          {@link Organization} code.
-   * 
-   * @return {@link RoleDAOIF} for the Registry Administrator for the
-   *         {@link Organization} with the given code.
-   */
-  public static String getRegistryAdminRoleName(String organizationCode)
-  {
-    String organizationRoleName = getRoleName(organizationCode);
-
-    return organizationRoleName + "." + RegistryConstants.REGISTRY_ORG_RA_ROLE_SUFFIX;
+    return RegistryRole.Type.getRA_RoleName(this.getCode());
   }
 
   /**
@@ -184,7 +155,7 @@ public class Organization extends OrganizationBase
    */
   public static Roles getRegistryAdminiRole(String organizationCode)
   {
-    return Roles.findRoleByName(getRegistryAdminRoleName(organizationCode));
+    return Roles.findRoleByName(RegistryRole.Type.getRA_RoleName(organizationCode));
   }
 
   /**
@@ -349,7 +320,7 @@ public class Organization extends OrganizationBase
    */
   public static boolean isRegistryAdmin(Organization org)
   {
-    String roleName = Organization.getRegistryAdminRoleName(org.getCode());
+    String roleName = RegistryRole.Type.getRA_RoleName((org.getCode()));
 
     final SessionIF session = Session.getCurrentSession();
 

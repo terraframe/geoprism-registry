@@ -49,8 +49,6 @@ public class OrganizationConverter extends LocalizedValueConverter
   {
    
     Organization organization = Organization.getByKey(organizationDTO.getCode());
-    
-    organization.setCode(organizationDTO.getCode());
  
     populate(organization.getDisplayLabel(), organizationDTO.getLabel());
     populate(organization.getContactInfo(), organizationDTO.getContactInfo());
