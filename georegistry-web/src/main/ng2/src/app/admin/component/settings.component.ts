@@ -188,6 +188,16 @@ export class SettingsComponent implements OnInit {
          })
     }
 
+    inviteUsers(): void {
+        // this.router.navigate(['/admin/invite']);	  
+
+        this.bsModalRef = this.modalService.show( AccountInviteComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+        } );
+    }
+
 
     public error( err: HttpErrorResponse ): void {
         // Handle error
