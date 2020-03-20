@@ -186,7 +186,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           tnParent.setEndDate(GeoObjectImporter.this.configuration.getEndDate());
 
           tnParent.addParent(ptn);
-
+          
           ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(GeoObjectImporter.this.configuration.getType());
           parentsOverTime.add(hierarchy, tnParent);
 
@@ -348,7 +348,10 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      RowValidationProblem problem = new RowValidationProblem(t, this.progressListener.getWorkProgress() + 1);
+      RowValidationProblem problem = new RowValidationProblem(t);
+      problem.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+      problem.setHistoryId(this.configuration.historyId);
+      
       this.progressListener.addRowValidationProblem(problem);
     }
 
@@ -386,7 +389,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType());
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getWorkProgress() + 1);
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
     this.configuration.addException(e);
   }
@@ -401,14 +404,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     ServerGeoObjectIF serverGo = null;
 
     ServerGeoObjectIF parent = null;
+    
+    boolean isNew = false;
 
     GeoObjectParentErrorBuilder parentBuilder = new GeoObjectParentErrorBuilder();
 
     try
     {
       String geoId = this.getCode(row);
-
-      boolean isNew = false;
 
       if (geoId != null && geoId.length() > 0)
       {
@@ -566,6 +569,8 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         obj.put("geoObject", new JSONObject(goJson));
       }
+      
+      obj.put("isNew", isNew);
 
       RecordedErrorException re = new RecordedErrorException();
       re.setError(t);
@@ -722,7 +727,11 @@ public class GeoObjectImporter implements ObjectImporterIF
             {
               String parentCode = ( parent == null ) ? null : parent.getCode();
 
-              this.progressListener.addReferenceProblem(new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context));
+              ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context);
+              prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+              prp.setHistoryId(this.configuration.historyId);
+              
+              this.progressListener.addReferenceProblem(prp);
             }
 
             return null;
@@ -826,7 +835,11 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-          this.progressListener.addReferenceProblem(new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue()));
+          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
+          trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+          trp.setHistoryId(this.configuration.getHistoryId());
+          
+          this.progressListener.addReferenceProblem(trp);
         }
         else
         {

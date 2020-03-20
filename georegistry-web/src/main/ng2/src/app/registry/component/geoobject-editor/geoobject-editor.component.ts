@@ -14,7 +14,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, Attribute, 
-    AttributeTerm, AttributeDecimal, Term, ParentTreeNode, Conflict, ConflictObject } from '../../model/registry';
+    AttributeTerm, AttributeDecimal, Term, ParentTreeNode, ImportError } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
@@ -56,6 +56,8 @@ export class GeoObjectEditorComponent implements OnInit {
     isNewGeoObject: boolean = false;
 
     @Input() onSuccessCallback: Function;
+    
+    submitFunction: Function = null;
 
     isAdmin: boolean;
     isMaintainer: boolean;
@@ -168,28 +170,45 @@ export class GeoObjectEditorComponent implements OnInit {
         } );
     }
 
-    // Configures the widget to be used in a "New" context as a result of an integration conflict, 
-    // that is to say that it will be used to create a new GeoObject.
-    public configureAsNewFromError(conflictObject: ConflictObject, typeCode: string, dateStr: string, isGeometryEditable: boolean ) {
-        this.isNewGeoObject = true;
+    // Configures the widget to be used to resolve an ImportError
+    public configureFromImportError( importError: ImportError, historyId: string, dateStr: string, isGeometryEditable: boolean ) {
+        let typeCode = importError.object.geoObject.attributes.type;
+        this.isNewGeoObject = importError.object.isNew;
         this.dateStr = dateStr;
         this.forDate = new Date( Date.parse( dateStr ) );
         this.isGeometryEditable = isGeometryEditable;
 
         this.fetchGeoObjectType( typeCode );
         this.fetchLocales();
-
-        this.registryService.newGeoObjectOverTime( typeCode ).then( retJson => {
-            this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, retJson.geoObject.attributes);
-            this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, JSON.parse( JSON.stringify( this.goPropertiesPre ) ).attributes);
-
-            this.goPropertiesPre.attributes = conflictObject.geoObject.attributes;
-            this.goPropertiesPost.attributes = conflictObject.geoObject.attributes
-
-            console.log(this.goPropertiesPre)
-
-            this.hierarchies = retJson.hierarchies;
-        } );
+        
+        this.hierarchies = importError.object.parents;
+        this.areParentsValid = true;
+        
+        // TODO : Maybe we should ask the server for the pre object, if it exists.
+        this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
+        this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
+        
+        this.submitFunction = () => {
+          let config = {
+            historyId : historyId,
+            importErrorId: importError.id,
+            resolution: 'APPLY_GEO_OBJECT',
+            parentTreeNode: this.hierarchies,
+            geoObject: this.goSubmit,
+            isNew: importError.object.isNew
+          }
+        
+          this.registryService.submitErrorResolve( config )
+            .then(() => {
+  
+              if ( this.onSuccessCallback != null ) {
+                  this.onSuccessCallback();
+              }
+  
+            } ).catch(( err: HttpErrorResponse ) => {
+              this.error( err );
+            } );
+        }
     }
 
     // Configures the widget to be used in an "Edit Existing" context
@@ -338,35 +357,42 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     public error( err: HttpErrorResponse ): void {
-        // TODO
-
-        // Handle error
-        if ( err !== null ) {
-            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+      // TODO
+  
+      // Handle error
+      if ( err !== null ) {
+          this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+          this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
+      }
     }
 
     public cancel(): void {
-        this.bsModalRef.hide();
+      this.bsModalRef.hide();
     }
 
     public submit(): void {
-        if ( this.isValid ) {
-            this.bsModalRef.hide();
-
-            this.persistModelChanges();
-
-            this.registryService.applyGeoObjectEdit( this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId, this.notes )
-                .then(() => {
-
-                    if ( this.onSuccessCallback != null ) {
-                        this.onSuccessCallback();
-                    }
-
-                } ).catch(( err: HttpErrorResponse ) => {
-                    this.error( err );
-                } );
+      if ( this.isValid ) {
+        this.bsModalRef.hide();
+    
+        this.persistModelChanges();
+        
+        if (this.submitFunction == null)
+        {
+          this.registryService.applyGeoObjectEdit( this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId, this.notes )
+            .then(() => {
+  
+              if ( this.onSuccessCallback != null ) {
+                  this.onSuccessCallback();
+              }
+  
+            } ).catch(( err: HttpErrorResponse ) => {
+              this.error( err );
+            } );
         }
+        else
+        {
+          this.submitFunction();
+        }
+      }
     }
 }

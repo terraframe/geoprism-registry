@@ -63,41 +63,59 @@
                     </div>
 
                     <div class="solid-table-wrapper">
-                        <table class="table table-striped"> 
-                            <thead> 
-                                <tr> 
-                                    <th style="width:70%;border-bottom: none;">
-                                        <localize style="line-height: 40px;" key="scheduledjobs.completedjobs.table.header"></localize>                                      
-                                    </th> 
-                                    <th style="border-bottom: none;">
-                                        <button *ngIf="completeJobsPage.results.length < 1" type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
-                                            <localize key="scheduledjobs.view.completed.jobs.button"></localize>
-                                        </button>
-                                    </th>
-                                </tr> 
-                            </thead> 
-                            <tbody> 
-                                <!-- <tr *ngFor="let job of completedJobs; let i = index;">  -->
-                                <tr *ngFor="let job of completeJobsPage.results | paginate: { itemsPerPage: completeJobsPage.pageSize, currentPage: completeJobsPage.pageNumber, totalItems: completeJobsPage.count }" >
-                                    <td style="width:70%; vertical-align: middle;">
-                                        <div class="wrapper">
-                                            <i class="fa fa-file" style="position: absolute;" aria-hidden="true"></i>
-                                            <p style="padding-left: 30px;margin: 0;">{{job.fileName}}</p>
-                                        </div>
-                                    </td> 
-                                    <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;vertical-align: middle;">                                
-                                        <!-- 
-                                        <button type="submit" (click)="onView(job.historyId)" class="btn btn-primary" role="button"><localize key="scheduledjobs.detail.button"></localize></button>
-                                        -->
-                                        <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
-                                    </td>
-                                </tr> 
-                            </tbody> 
-                        </table>
-
-                        <div *ngIf="completeJobsPage.results.length > 0" class="solid-table-footer">
-                            <pagination-controls (pageChange)="onCompleteJobsPageChange($event)"></pagination-controls>
-                        </div>
+	                    <table class="table table-striped"> 
+	                      <thead> 
+	                        <tr> 
+	                          <th style="width:70%;border-bottom: none;">
+	                            <localize style="line-height: 40px;" key="scheduledjobs.completedjobs.table.header"></localize>                                      
+	                          </th>
+	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
+	                            Status <!-- TOTO : Localize -->                   
+	                          </th>
+	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
+                              Imported Records <!-- TOTO : Localize -->                   
+                            </th>
+                            <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
+                              Import Date <!-- TOTO : Localize -->                   
+                            </th>
+	                          <th style="border-bottom: none;">
+	                            <button *ngIf="completeJobsPage.results.length < 1" type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
+	                              <localize key="scheduledjobs.view.completed.jobs.button"></localize>
+	                            </button>
+	                          </th>
+	                        </tr> 
+	                      </thead> 
+	                      <tbody> 
+	                      <!-- <tr *ngFor="let job of completedJobs; let i = index;">  -->
+	                      <tr *ngFor="let job of completeJobsPage.results | paginate: { itemsPerPage: completeJobsPage.pageSize, currentPage: completeJobsPage.pageNumber, totalItems: completeJobsPage.count }" >
+	                        <td style="width:70%; vertical-align: middle;">
+	                          <div class="wrapper">
+                              <i class="fa fa-file" style="position: absolute;" aria-hidden="true"></i>
+                              <p style="padding-left: 30px;margin: 0;">{{job.fileName}}</p>
+	                          </div>
+	                        </td>
+	                        <td style="width:70%; vertical-align: middle;">
+	                          <p style="padding-left: 0px;margin: 0;">{{formatJobStatus(job)}}</p>
+	                        </td>
+	                        <td style="width:70%; vertical-align: middle;">
+                            <p style="padding-left: 0px;margin: 0;">{{job.importedRecords}}</p>
+                          </td>
+                          <td style="width:70%; vertical-align: middle;">
+                            <p style="padding-left: 0px;margin: 0;">{{job.lastUpdateDate}}</p>
+                          </td>
+	                        <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;vertical-align: middle;">                                
+	                           <!-- 
+	                           <button type="submit" (click)="onView(job.historyId)" class="btn btn-primary" role="button"><localize key="scheduledjobs.detail.button"></localize></button>
+	                           -->
+	                           <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
+	                        </td>
+	                       </tr> 
+	                      </tbody> 
+	                    </table>
+	
+	                    <div *ngIf="completeJobsPage.results.length > 0" class="solid-table-footer">
+                        <pagination-controls (pageChange)="onCompleteJobsPageChange($event)"></pagination-controls>
+	                    </div>
                     </div>
                 </ul>
 

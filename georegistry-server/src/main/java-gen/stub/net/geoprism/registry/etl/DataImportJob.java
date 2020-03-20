@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -42,6 +43,16 @@ public class DataImportJob extends DataImportJobBase
 
   private ImportHistory executableJobStart(ImportConfiguration configuration)
   {
+    JobHistoryRecord record = startInTrans(configuration);
+
+    this.getQuartzJob().start(record);
+
+    return (ImportHistory) record.getChild();
+  }
+  
+  @Transaction
+  private JobHistoryRecord startInTrans(ImportConfiguration configuration)
+  {
     ImportHistory history = (ImportHistory) this.createNewHistory();
 
     configuration.setHistoryId(history.getOid());
@@ -54,10 +65,8 @@ public class DataImportJob extends DataImportJobBase
 
     JobHistoryRecord record = new JobHistoryRecord(this, history);
     record.apply();
-
-    this.getQuartzJob().start(record);
-
-    return history;
+    
+    return record;
   }
 
   protected void validate(ImportConfiguration config)
@@ -65,7 +74,7 @@ public class DataImportJob extends DataImportJobBase
     config.validate();
   }
 
-  private void deleteValidationProblems(ImportHistory history)
+  public static void deleteValidationProblems(ImportHistory history)
   {
     ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
     vpq.WHERE(vpq.getHistory().EQ(history));
@@ -262,12 +271,22 @@ public class DataImportJob extends DataImportJobBase
   @Override
   public synchronized void resume(JobHistoryRecord jhr)
   {
+    this.resumeInTrans(jhr);
+    
+    super.resume(jhr);
+  }
+  
+  @Transaction
+  private void resumeInTrans(JobHistoryRecord jhr)
+  {
     ImportHistory hist = (ImportHistory) jhr.getChild();
 
     ImportStage stage = hist.getStage().get(0);
 
     if (stage.equals(ImportStage.VALIDATION_RESOLVE))
     {
+      DataImportJob.deleteValidationProblems(hist);
+      
       hist.appLock();
       hist.clearStage();
       hist.addStage(ImportStage.VALIDATE);
@@ -292,8 +311,6 @@ public class DataImportJob extends DataImportJobBase
       hist.addStage(ImportStage.VALIDATE);
       hist.apply();
     }
-
-    super.resume(jhr);
   }
 
   @Override

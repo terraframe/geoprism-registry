@@ -1,8 +1,17 @@
 package net.geoprism.registry.etl;
 
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
+import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+
 import org.json.JSONObject;
 
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
@@ -21,6 +30,14 @@ public class ETLController
   public ETLController()
   {
     this.service = new ETLService();
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "reimport")
+  public ResponseIF doReImport(ClientRequestIF request, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "json") String json)
+  {
+    JSONObject config = this.service.reImport(request.getSessionId(), file, json);
+    
+    return new RestBodyResponse(config.toString());
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import")

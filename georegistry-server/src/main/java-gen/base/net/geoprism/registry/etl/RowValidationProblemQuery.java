@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1306470902)
+@com.runwaysdk.business.ClassSignature(hash = 1069239547)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -55,23 +55,6 @@ public  class RowValidationProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.RowValidationProblem.EXCEPTIONJSON, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableLong getRowNum()
-  {
-    return getRowNum(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableLong getRowNum(String alias)
-  {
-    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.RowValidationProblem.ROWNUM, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableLong getRowNum(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.RowValidationProblem.ROWNUM, alias, displayLabel);
-
-  }
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -107,9 +90,6 @@ public  class RowValidationProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getExceptionJson();
     public com.runwaysdk.query.SelectableChar getExceptionJson(String alias);
     public com.runwaysdk.query.SelectableChar getExceptionJson(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableLong getRowNum();
-    public com.runwaysdk.query.SelectableLong getRowNum(String alias);
-    public com.runwaysdk.query.SelectableLong getRowNum(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.etl.RowValidationProblem rowValidationProblem);
 
@@ -162,23 +142,6 @@ public  class RowValidationProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.RowValidationProblem.EXCEPTIONJSON, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableLong getRowNum()
-  {
-    return getRowNum(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableLong getRowNum(String alias)
-  {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.RowValidationProblem.ROWNUM, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableLong getRowNum(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.RowValidationProblem.ROWNUM, alias, displayLabel);
-
-  }
   }
 
 /**
@@ -191,9 +154,6 @@ public  class RowValidationProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getExceptionJson();
     public com.runwaysdk.query.SelectableChar getExceptionJson(String alias);
     public com.runwaysdk.query.SelectableChar getExceptionJson(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableLong getRowNum();
-    public com.runwaysdk.query.SelectableLong getRowNum(String alias);
-    public com.runwaysdk.query.SelectableLong getRowNum(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.etl.RowValidationProblem ... rowValidationProblem);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.etl.RowValidationProblem ... rowValidationProblem);
@@ -293,23 +253,6 @@ public  class RowValidationProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getExceptionJson(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.RowValidationProblem.EXCEPTIONJSON, alias, displayLabel);
-
-  }
-  public com.runwaysdk.query.SelectableLong getRowNum()
-  {
-    return getRowNum(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableLong getRowNum(String alias)
-  {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.RowValidationProblem.ROWNUM, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableLong getRowNum(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.RowValidationProblem.ROWNUM, alias, displayLabel);
 
   }
   }

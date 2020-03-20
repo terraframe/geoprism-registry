@@ -15,6 +15,11 @@ import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+
+
 public class Organization extends OrganizationBase
 {
   private static final long serialVersionUID = -640706555;
@@ -296,6 +301,11 @@ public class Organization extends OrganizationBase
     return query.getIterator().getAll();
   }
 
+  public OrganizationDTO toDTO()
+  {
+    return new OrganizationDTO(this.getCode(), LocalizedValueConverter.convert(this.getDisplayLabel()), LocalizedValueConverter.convert(this.getContactInfo()));
+  }
+
   public static List<Organization> getUserAdminOrganizations()
   {
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
@@ -329,6 +339,15 @@ public class Organization extends OrganizationBase
       return session.userHasRole(roleName);
     }
 
+    return true;
+  }
+
+  /**
+   * @param org
+   * @return If the current user is a member of the given organization
+   */
+  public static boolean isMember(Organization org)
+  {
     return true;
   }
 }

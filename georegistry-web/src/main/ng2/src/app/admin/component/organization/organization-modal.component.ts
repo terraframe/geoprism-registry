@@ -27,7 +27,8 @@ import { Subject } from 'rxjs/Subject';
 
 import { Account, User } from '../../model/account';
 import { Organization } from '../../model/settings';
-import { AccountService } from '../../service/account.service';
+import { SettingsService } from '../../service/settings.service';
+import { LocalizationService } from '../../../shared/service/localization.service';
 
 @Component( {
     selector: 'organization-modal',
@@ -37,13 +38,15 @@ import { AccountService } from '../../service/account.service';
 export class OrganizationModalComponent implements OnInit {
 
     message: string = null;
-    organization: Organization = {name: "", code: "", contact: ""};
+    organization: Organization = {code: "", label: this.lService.create(), contactInfo: this.lService.create()};
+    isNewOrganization: boolean = true;
 
     public onSuccess: Subject<Organization>;
 
     constructor(
-        private service: AccountService,
-        public bsModalRef: BsModalRef
+        private service: SettingsService,
+        public bsModalRef: BsModalRef,
+        private lService: LocalizationService
     ) {
     }
 
@@ -56,15 +59,22 @@ export class OrganizationModalComponent implements OnInit {
     }
 
     onSubmit(): void {
-        this.onSuccess.next( this.organization );
-        this.bsModalRef.hide();
-
-        // this.service.apply( this.account.user, roleIds ).then( data => {
-        //     this.onEdit.next( data );
-        //     this.bsModalRef.hide();
-        // } ).catch(( err: HttpErrorResponse ) => {
-        //     this.error( err );
-        // } );
+        if(this.isNewOrganization){
+            this.service.newOrganization( this.organization ).then( data => {
+                this.onSuccess.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
+        }
+        else {
+            this.service.updateOrganization( this.organization ).then( data => {
+                this.onSuccess.next( data );
+                this.bsModalRef.hide();
+            } ).catch(( err: HttpErrorResponse ) => {
+                this.error( err );
+            } );
+        }
     }
 
     public error( err: HttpErrorResponse ): void {

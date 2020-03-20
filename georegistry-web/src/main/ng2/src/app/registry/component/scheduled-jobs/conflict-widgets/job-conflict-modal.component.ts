@@ -5,8 +5,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { ParentReferenceProblemWidgetComponent } from './parent-reference-problem-widget.component'
 import { TermReferenceProblemWidgetComponent } from './term-reference-problem-widget.component'
+import { RowValidationProblemWidgetComponent } from './row-validation-problem-widget.component'
 
-import { GeoObjectType, MasterList, Conflict, ScheduledJob, ScheduledJobOverview } from '../../../model/registry';
+import { GeoObjectType, MasterList, ScheduledJob, ScheduledJobOverview } from '../../../model/registry';
 
 import { RegistryService } from '../../../service/registry.service';
 
@@ -20,7 +21,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 } )
 export class JobConflictModalComponent implements OnInit {
     message: string = null;
-    conflict: Conflict;
+    problem: any;
     job: ScheduledJobOverview;
     
     /*
@@ -40,18 +41,8 @@ export class JobConflictModalComponent implements OnInit {
       
     }
     
-    onProblemResolvedListener(conflict: any): void {
-      this.onConflictAction.next({action:"RESOLVED", data: conflict});
-    }
-
-    onSubmit(): void {
-        this.service.submitConflict( this.conflict ).then( response => {
-
-            this.onConflictAction.next( response );
-            this.bsModalRef.hide();
-        } ).catch(( err: HttpErrorResponse) => {
-            this.error( err );
-        } );
+    onProblemResolvedListener(problem: any): void {
+      this.onConflictAction.next({action:"RESOLVED", data: problem});
     }
 
     onCancel(): void {

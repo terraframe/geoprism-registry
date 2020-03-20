@@ -49,11 +49,15 @@ public class OrganizationConverter extends LocalizedValueConverter
   {
    
     Organization organization = Organization.getByKey(organizationDTO.getCode());
+    
+    organization.lock();
+    organization.setCode(organizationDTO.getCode());
  
     populate(organization.getDisplayLabel(), organizationDTO.getLabel());
     populate(organization.getContactInfo(), organizationDTO.getContactInfo());
     
     organization.apply();
+    organization.unlock();
     
     return organization;
   }

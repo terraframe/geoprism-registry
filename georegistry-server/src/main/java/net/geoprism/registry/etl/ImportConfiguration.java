@@ -189,6 +189,16 @@ abstract public class ImportConfiguration
     return this.errors.size() > 0;
   }
   
+  public String getFileName()
+  {
+    return fileName;
+  }
+
+  public void setFileName(String fileName)
+  {
+    this.fileName = fileName;
+  }
+
   /**
    * Be careful when using this method because if an import was resumed half-way through then
    * this won't include errors which were created last time the import ran. You probably want

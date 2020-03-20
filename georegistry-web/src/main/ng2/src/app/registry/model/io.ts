@@ -61,6 +61,8 @@ export class ImportConfiguration {
 	postalCode: boolean;
 	hasPostalCode: boolean;
 	locations: Location[];
+	formatType: string;
+	objectType: string;
 	locationProblems: LocationProblem[];
 	termProblems: TermProblem[];
 	exclusions: Exclusion[];

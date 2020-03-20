@@ -1,10 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { GeoObjectType, MasterList, Conflict, ScheduledJob } from '../../../model/registry';
+import { GeoObjectType, MasterList, ScheduledJob, ImportError } from '../../../model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
 
@@ -21,13 +21,9 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 } )
 export class ImportProblemWidgetComponent implements OnInit {
     message: string = null;
-    @Input() conflict: Conflict;
+    @Input() problem: ImportError;
     @Input() job: ScheduledJob;
-
-    /*
-     * Observable subject for submission.  Called when an update is successful 
-     */
-    // onConflictAction: Subject<any>;
+    @Output() public onProblemResolved = new EventEmitter<any>();
 
     readonly: boolean = false;
     edit: boolean = false;
@@ -39,22 +35,20 @@ export class ImportProblemWidgetComponent implements OnInit {
 
     ngOnInit(): void {
 
-        // this.onConflictAction = new Subject();
-
     }
 
-    onConflictResolution(conflict: Conflict, job: ScheduledJob): void {
+    onEditGeoObject(): void {
         let editModal = this.modalService.show( GeoObjectEditorComponent, {
             backdrop: true,
             ignoreBackdropClick: true
         } );
 
-        // TODO: change last param from fixed true to equivilent of this.list.isGeometryEditable
-        editModal.content.configureAsNewFromError(conflict.object, conflict.object.geoObject.attributes.type, job.createDate, true );
+        editModal.content.configureFromImportError(this.problem, this.job.historyId, this.job.configuration.startDate, true);
         editModal.content.setMasterListId( null );
         editModal.content.setOnSuccessCallback(() => {
 
-            console.log("success")
+          this.onProblemResolved.emit(this.problem);
+          this.bsModalRef.hide()
             
         } );
     }
@@ -68,7 +62,7 @@ export class ImportProblemWidgetComponent implements OnInit {
     }
 
     onCancel(): void {
-        this.bsModalRef.hide()
+      this.bsModalRef.hide();
     }
 
     error( err: HttpErrorResponse ): void {

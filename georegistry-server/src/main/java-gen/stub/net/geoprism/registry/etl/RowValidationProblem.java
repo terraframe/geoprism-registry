@@ -16,10 +16,9 @@ public class RowValidationProblem extends RowValidationProblemBase
     super();
   }
   
-  public RowValidationProblem(Throwable exception, Long rowNum)
+  public RowValidationProblem(Throwable exception)
   {
     this.setExceptionJson(RowValidationProblem.serializeException(exception).toString());
-    this.setRowNum(rowNum);
   }
   
   public static JSONObject serializeException(Throwable exception)
@@ -44,7 +43,9 @@ public class RowValidationProblem extends RowValidationProblemBase
   @Override
   public String buildKey()
   {
-    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + String.valueOf(this.getRowNum());
+    JSONObject err = new JSONObject(this.getExceptionJson());
+    
+    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + err.getString("message");
   }
   
   @Override
@@ -58,8 +59,7 @@ public class RowValidationProblem extends RowValidationProblemBase
   {
     JSONObject object = super.toJSON();
     
-    object.put("rowNum", this.getRowNum());
-    object.put("exception", this.getExceptionJson());
+    object.put("exception", new JSONObject(this.getExceptionJson()));
 
     return object;
   }

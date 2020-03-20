@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 1477101324)
+@com.runwaysdk.business.ClassSignature(hash = -243383317)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -37,6 +37,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
   public String getClassType()
   {
     return net.geoprism.registry.etl.ValidationProblem.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ValidationProblem.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ValidationProblem.AFFECTEDROWS, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
@@ -396,6 +413,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
   public interface ValidationProblemQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAffectedRows();
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -476,6 +496,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
       return this.NE(validationProblem.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ValidationProblem.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ValidationProblem.AFFECTEDROWS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
@@ -775,6 +812,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
   public interface ValidationProblemQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAffectedRows();
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -903,6 +943,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
       }
 
       return this.containsExactly(itemIdArray);
+  }
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ValidationProblem.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ValidationProblem.AFFECTEDROWS, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {

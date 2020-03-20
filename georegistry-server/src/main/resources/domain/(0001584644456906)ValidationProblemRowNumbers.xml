@@ -1,0 +1,20 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.etl.ValidationProblem">
+        <create>
+          <attributes>
+            <text name="affectedRows" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+    <delete>
+      <object key="net.geoprism.registry.etl.RowValidationProblem.rowNum" type="com.runwaysdk.system.metadata.MdAttributeLong"/>
+    </delete>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

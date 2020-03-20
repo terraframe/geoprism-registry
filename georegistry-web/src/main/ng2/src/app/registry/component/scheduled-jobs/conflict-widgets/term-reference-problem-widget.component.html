@@ -7,10 +7,10 @@
     <!-- <div class="row">
 
         <h2>
-            Review: {{job.fileName}} conflict
+            Review: {{job.fileName}} problem
         </h2>
     </div> -->
-    <div *ngIf="conflict && job" class="row" style="background: #F4F4F4;
+    <div *ngIf="problem && job" class="row" style="background: #F4F4F4;
                                         border-radius: 10px;
                                         margin-bottom: 20px;
                                         margin-top: 20px;
@@ -43,33 +43,29 @@
                             padding: 10px;">
         <div class="col-md-12">
 
-            <div class="row">
+            <div *ngIf="problem" class="row">
                 <div class="col-md-6" style="background: white;border-radius: 10px; width: 41%; margin-right:7px;">
                     <h4><strong>Problem</strong></h4>
-                    <p style="font-style: italic;">{{getValidationProblemDisplayLabel(conflict)}}</p>
+                    <p style="font-style: italic;">{{getValidationProblemDisplayLabel(problem)}}</p>
 
                     <h4><strong>Message</strong></h4>
-                    <p style="font-style: italic;">Your data contains references to a GeoObject parent which cannot be found.</p>
+                    <p style="font-style: italic;">Your data contains references to a term which cannot be found.</p> <!-- TODO : Localize -->
 
                     <h4><strong>To Resolve</strong></h4>
                     <!-- TODO : Localize -->
-                    <p>You may create a synonym or ignore all rows which contain this parent label. Synonyms are system-wide and will apply to labels for all future imports.</p>
+                    <p>You may create a synonym or ignore all rows which contain this term label. These synonyms are system-wide and will apply to term labels for all future imports.</p>
                 </div>
                 <div class="com-md-6" style="background: white; border-radius: 10px; width:41%; float:left; height:250px;">
 	                <div class="row-holder">
-	                  <div class="label-holder" style="width:100px;">
-		                  <label>
-		                    <span class="text">Context</span> <!-- TODO : Localize -->
-		                  </label>
-	                  </div>
-	                  <div class="holder" style="width:300px;">
-	                    <div *ngIf="conflict.context.length > 0" style="margin-top:10px;">
-		                    <ol *ngFor="let con of conflict.context">
-								          <li>{{con.label}} ({{con.type}})</li>
-								        </ol>
-							        </div>
-	                  </div>
-	                </div>
+                    <div class="label-holder" style="width:100px;">
+                      <label>
+                        <span class="text">Attribute Label</span> <!-- TODO : Localize -->
+                      </label>
+                    </div>
+                    <div class="holder" style="width:300px;">
+                      <span class="text" style="margin-top:10px;">{{problem.attributeLabel}}</span>
+                    </div>
+                  </div>
 	                <div class="row-holder">
 	                  <div class="label-holder" style="width:100px;">
 	                    <label>
@@ -77,7 +73,7 @@
 	                    </label>
 	                  </div>
 	                  <div class="holder" style="width:300px;">
-	                    <span class="text" style="margin-top:10px;">{{conflict.label}}</span>
+	                    <span class="text" style="margin-top:10px;">{{problem.label}}</span>
 	                  </div>
 	                </div>
 	                <div class="row-holder" style="overflow:visible;">
@@ -88,13 +84,13 @@
                     </div>
                     <div class="holder" style="width:300px;">
                       <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
-	                      name="parentSearch"
+	                      name="termSearch"
 	                      [(ngModel)]="searchLabel"
 	                      [typeaheadAsync]="true"
-	                      [typeahead]="getTypeAheadObservable(conflict.typeCode, conflict)"
-	                      (typeaheadOnSelect)="typeaheadOnSelect($event, conflict)"
+	                      [typeahead]="getTypeAheadObservable(problem)"
+	                      (typeaheadOnSelect)="typeaheadOnSelect($event, problem)"
 	                      [typeaheadOptionsLimit]="7"
-	                      typeaheadOptionField="name"
+	                      typeaheadOptionField="label"
 	                      [typeaheadMinLength]="0"
 	                      [typeaheadWaitMs]="300">
                     </div>
@@ -106,7 +102,7 @@
                       </label>
                     </div>
                     <div class="holder" style="width:300px;">
-                      <button type="submit" [disabled]="conflict.parent == null" (click)="onCreateSynonym()" class="btn btn-primary" role="button">
+                      <button type="submit" [disabled]="termId == null" (click)="onCreateSynonym()" class="btn btn-primary" role="button">
                         Create Synonym
                       </button>
                       <button type="submit" (click)="onIgnore()" class="btn btn-primary" role="button">

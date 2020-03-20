@@ -18,16 +18,13 @@
 ///
 
 export class Settings {
-  organizations: Organization[];
-  localizations: Localization[];
-  branding: Brand[];
   email: Email;
 }
 
 export class Organization {
-  name: string;
   code: string;
-  contact: string;
+  label: any;
+  contactInfo: any;
 }
 
 export class Localization {
