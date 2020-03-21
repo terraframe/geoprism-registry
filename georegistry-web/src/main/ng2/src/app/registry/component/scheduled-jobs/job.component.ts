@@ -261,14 +261,13 @@ export class JobComponent implements OnInit {
         
         if (this.job.stage === 'VALIDATION_RESOLVE')
         {
-          // this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.description" );
-          this.bsModalRef.content.message = "Are you sure you want to resume the import?"; // TODO : Localize
-          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.button" );
+          this.bsModalRef.content.message =  this.localizeService.decode( "etl.import.resume.modal.validationDescription" );
+          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.validationButton" );
         }
         else
         {
-          this.bsModalRef.content.message = "Are you sure you want to complete the import? All unresolved problems will be ignored."; // TODO : Localize
-          this.bsModalRef.content.submitText = "Complete Import"; // TODO : Localize
+          this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.importDescription" );
+          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.importButton" );
         }
         
         this.bsModalRef.content.type = ModalTypes.danger;
