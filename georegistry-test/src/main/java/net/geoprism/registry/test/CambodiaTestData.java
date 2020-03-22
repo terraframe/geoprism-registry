@@ -20,11 +20,6 @@ package net.geoprism.registry.test;
 
 import org.commongeoregistry.adapter.constants.GeometryType;
 
-import com.runwaysdk.constants.LocalProperties;
-
-import net.geoprism.gis.geoserver.GeoserverFacade;
-import net.geoprism.gis.geoserver.NullGeoserverService;
-
 public class CambodiaTestData extends TestDataSet
 {
   public final String                TEST_DATA_KEY    = "CAM";

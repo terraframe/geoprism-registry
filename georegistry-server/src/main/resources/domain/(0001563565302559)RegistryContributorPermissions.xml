@@ -30,7 +30,7 @@
       </object>
     </createOrUpdate>
     <permissions>
-      <role roleName="commongeoregistry.RegistryContributor">
+      <role roleName="cgr.RegistryContributor">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.IdRecord">
             <operation name="ALL" />

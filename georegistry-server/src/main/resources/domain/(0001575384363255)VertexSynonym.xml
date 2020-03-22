@@ -41,7 +41,7 @@
           </mdRelationshipPermission>          
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryMaintainer">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>      
           <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
             <operation name="ALL" />
@@ -51,7 +51,7 @@
           </mdRelationshipPermission>          
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryContributor">
+      <role roleName="cgr.RegistryContributor">
         <grant>          
           <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
             <operation name="READ" />
@@ -63,7 +63,7 @@
           </mdRelationshipPermission>          
         </grant>
       </role>
-      <role roleName="commongeoregistry.APIConsumer">
+      <role roleName="cgr.APIConsumer">
         <grant>          
           <mdBusinessPermission type="net.geoprism.registry.graph.GeoVertexSynonym">
             <operation name="READ" />

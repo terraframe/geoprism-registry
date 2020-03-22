@@ -42,7 +42,7 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryMaintainer">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
             <mdMethodPermission methodName="submitChangeRequest">
@@ -76,7 +76,7 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryContributor">
+      <role roleName="cgr.RegistryContributor">
         <grant>
           <!-- Administration permissions -->
           <mdBusinessPermission type="net.geoprism.GeoprismUser">

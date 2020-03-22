@@ -55,7 +55,7 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryMaintainer">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>      
           <mdBusinessPermission type="net.geoprism.registry.etl.ValidationProblem">
             <operation name="ALL" />

@@ -36,14 +36,14 @@
           </mdRelationshipPermission>          
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryMaintainer">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>      
           <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
             <operation name="ALL" />
           </mdRelationshipPermission>          
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryContributor">
+      <role roleName="cgr.RegistryContributor">
         <grant>          
           <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
             <operation name="READ" />
@@ -51,7 +51,7 @@
           </mdRelationshipPermission>          
         </grant>
       </role>
-      <role roleName="commongeoregistry.APIConsumer">
+      <role roleName="cgr.APIConsumer">
         <grant>          
           <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
             <operation name="READ" />
