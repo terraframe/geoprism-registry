@@ -20,23 +20,6 @@ package net.geoprism.registry;
 
 import java.util.List;
 
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.LocatedIn;
-import com.runwaysdk.system.gis.geo.Synonym;
-import com.runwaysdk.system.metadata.MdTermRelationship;
-
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
@@ -46,6 +29,20 @@ import net.geoprism.registry.query.postgres.SynonymRestriction;
 import net.geoprism.registry.query.postgres.UidRestriction;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.USATestData;
+
+import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.session.Request;
+import com.runwaysdk.system.gis.geo.LocatedIn;
+import com.runwaysdk.system.gis.geo.Synonym;
 
 public class GeoObjectQueryTest
 {

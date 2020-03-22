@@ -19,6 +19,7 @@
 package net.geoprism.registry.conversion;
 
 import java.util.List;
+import java.util.Locale;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.GeoObjectStatus;
@@ -36,6 +37,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
@@ -66,11 +68,14 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.constants.MdGeoVertexInfo;
 import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
@@ -324,6 +329,8 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     assignDefaultRolePermissions(mdVertex);
     
     assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
+    create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+    assign_RM_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
 
     // Build the parent class term root if it does not exist.
     TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
@@ -335,9 +342,41 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     return serverGeoObjectType;
   }
 
-  private void create_RM_GeoObjectTypeRole()
+  private void create_RM_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
   {
+    if (organizationCode != null && !organizationCode.trim().equals(""))
+    {
+      String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
+
+      Locale locale = Session.getCurrentLocale();
+      String defaultDisplayLabel = mdGeoVertexDAO.getLocalValue(MdGeoVertexInfo.DISPLAY_LABEL, locale) + " Registry Maintainer";
+
+      // Heads up: clean up move to Roles.java?
+      Roles rmOrgRole = new Roles();
+      rmOrgRole.setRoleName(rmRoleName);
+      rmOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);
+      rmOrgRole.apply();
+      
+      String orgRoleName = RegistryRole.Type.getRootOrgRoleName(organizationCode);
+      Roles orgRole = Roles.findRoleByName(orgRoleName);
+      
+      RoleDAO orgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(orgRole);
+      RoleDAO rmOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(rmOrgRole);
+      orgRoleDAO.addInheritance(rmOrgRoleDAO);
+    }
+  }
     
+  private void assign_RM_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness, String organizationCode, String geoObjectTypeCode)
+  {
+    if (organizationCode != null && !organizationCode.trim().equals(""))
+    {
+      String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
+      
+      Roles rmRole = Roles.findRoleByName(rmRoleName);
+    
+      this.assignAllPermissions(mdBusiness, rmRole);
+      this.assignAllPermissions(mdGeoVertexDAO, rmRole);
+    }
   }
   
   /**
@@ -352,9 +391,10 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     if (organizationCode != null && !organizationCode.trim().equals(""))
     {
       Organization organization = Organization.getByKey(organizationCode);
-      Roles orgRole = organization.getRegistryAdminiRole();
+      Roles raRole = organization.getRegistryAdminiRole();
     
-      this.assignAllPermissions(mdGeoVertexDAO, orgRole);
+      this.assignAllPermissions(mdBusiness, raRole);
+      this.assignAllPermissions(mdGeoVertexDAO, raRole);
     }
   }
   

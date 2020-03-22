@@ -8,12 +8,58 @@
           <localText name="contactInfo" label="Contact Information" required="false" />
         </attributes>
       </mdBusiness>
+      <object key="Roles.cgr.Org" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="cgr.Org" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Root Organization" />
+        </attributeStruct>
+      </object>
+      <object key="Roles.cgr.SRA" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="cgr.SRA" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Root Organization" />
+        </attributeStruct>
+      </object>
     </create>
     <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.Organization">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Roles">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.RoleInheritance">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.SRA">
+        <superRole roleName="geoprism.admin.Administrator" />
+      </role>
+    </permissions>
   </doIt>
   <undoIt>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <revoke>
+          <mdBusinessPermission type="net.geoprism.registry.Organization">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.Roles">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="com.runwaysdk.system.RoleInheritance">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </revoke>
+      </role>
+    </permissions>
     <delete>
       <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.Organization"/> 
+      <object type="com.runwaysdk.system.Roles" key="Roles.cgr.Organization"/> 
     </delete>
   </undoIt>
 </version>

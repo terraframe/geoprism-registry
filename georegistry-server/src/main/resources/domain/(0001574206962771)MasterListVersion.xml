@@ -51,7 +51,7 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryMaintainer">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.MasterListVersion">
             <operation name="ALL" />
@@ -61,7 +61,7 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <role roleName="commongeoregistry.RegistryContributor">
+      <role roleName="cgr.RegistryContributor">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.MasterListVersion">
             <operation name="READ" />
@@ -73,7 +73,7 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <role roleName="commongeoregistry.APIConsumer">
+      <role roleName="cgr.APIConsumer">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.MasterListVersion">
             <operation name="READ" />

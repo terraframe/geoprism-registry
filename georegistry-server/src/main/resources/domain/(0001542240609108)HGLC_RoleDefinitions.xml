@@ -21,33 +21,33 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <object key="Roles.commongeoregistry.RegistryAdministrator" type="com.runwaysdk.system.Roles">
-        <attribute name="roleName" value="commongeoregistry.RegistryAdministrator" />
+      <object key="Roles.cgr.RegistryAdministrator" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="cgr.RegistryAdministrator" />
         <attributeStruct name="displayLabel">
           <attribute name="defaultLocale" value="Registry Administrator" />
         </attributeStruct>
       </object>
-      <object key="Roles.commongeoregistry.RegistryContributor" type="com.runwaysdk.system.Roles">
-        <attribute name="roleName" value="commongeoregistry.RegistryContributor" />
+      <object key="Roles.cgr.RegistryContributor" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="cgr.RegistryContributor" />
         <attributeStruct name="displayLabel">
           <attribute name="defaultLocale" value="Registry Contributor" />
         </attributeStruct>
       </object>
-      <object key="Roles.commongeoregistry.APIConsumer" type="com.runwaysdk.system.Roles">
-        <attribute name="roleName" value="commongeoregistry.APIConsumer" />
+      <object key="Roles.cgr.APIConsumer" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="cgr.APIConsumer" />
         <attributeStruct name="displayLabel">
           <attribute name="defaultLocale" value="API Consumer" />
         </attributeStruct>
       </object>
-      <object key="Roles.commongeoregistry.RegistryMaintainer" type="com.runwaysdk.system.Roles">
-        <attribute name="roleName" value="commongeoregistry.RegistryMaintainer" />
+      <object key="Roles.cgr.RegistryMaintainer" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="cgr.RegistryMaintainer" />
         <attributeStruct name="displayLabel">
           <attribute name="defaultLocale" value="Registry Maintainer" />
         </attributeStruct>
       </object>
 <!-- 
-      <object key="Roles.commongeoregistry.registry.maintainer.LocatedIn" type="com.runwaysdk.system.Roles">
-        <attribute name="roleName" value="commongeoregistry.registry.maintainer.LocatedIn" />
+      <object key="Roles.cgr.registry.maintainer.LocatedIn" type="com.runwaysdk.system.Roles">
+        <attribute name="roleName" value="cgr.registry.maintainer.LocatedIn" />
         <attributeStruct name="displayLabel">
           <attribute name="defaultLocale" value="Located In Registry Maintainer" />
         </attributeStruct>
@@ -55,12 +55,12 @@
  -->      
     </create>
     <permissions>
-      <role roleName="commongeoregistry.RegistryAdministrator">
+      <role roleName="cgr.RegistryAdministrator">
         <superRole roleName="geoprism.admin.Administrator" />
       </role>
 <!-- 
-      <role roleName="commongeoregistry.registry.maintainer.LocatedIn">
-        <superRole roleName="commongeoregistry.RegistryMaintainer" />
+      <role roleName="cgr.registry.maintainer.LocatedIn">
+        <superRole roleName="cgr.RegistryMaintainer" />
       </role>
  -->      
     </permissions>

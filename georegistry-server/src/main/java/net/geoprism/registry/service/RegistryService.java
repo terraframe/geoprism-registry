@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,7 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
+import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
@@ -77,6 +79,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
@@ -321,12 +324,37 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public RegistryRole[] getRolesForUser(String sessionId, String userOID)
   {
-    return new RegistryRole[]{};
+    GeoprismUser geoPrismUser = GeoprismUser.get(userOID);
+    
+    OIterator<? extends Roles> i = geoPrismUser.getAllAssignedRole();
+    
+    ArrayList<RegistryRole> registryRoles = new ArrayList<RegistryRole>();
+    
+    for (Roles role : i)
+    {
+      String roleName = role.getRoleName();
+      
+      if (RegistryRole.Type.isOrgRole(roleName))
+      {
+        RegistryRole registryRole = new RegistryRoleConverter().build(role);
+        registryRoles.add(registryRole);
+      }
+    }
+    
+    return (RegistryRole[])registryRoles.toArray();
+    
+//    return new RegistryRole[]{};
   }
   
   @Request(RequestType.SESSION)
   public GeoprismUser[] getUsersForOrganization(String sessionId, String organizationCode)
   {
+//    Organization organization = Organization.getByCode(organizationCode);
+//    
+//    Roles role = null;
+//    
+//    role.getAllSingleActor();
+    
     return new GeoprismUser[]{};
   }
   
@@ -489,7 +517,9 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
   {
-    ServerGeoObjectType type = new ServerGeoObjectTypeConverter().create(gtJSON);
+    ServerGeoObjectType type = null;
+ 
+    type = new ServerGeoObjectTypeConverter().create(gtJSON);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
@@ -737,7 +767,8 @@ public class RegistryService
   }
 
   /**
-   * Deletes the {@link GeoObjectType} with the given code.
+   * Deletes the {@link GeoObjectType} with the given code. Do nothing
+   * if the type does not exist.
    * 
    * @param sessionId
    * @param code
@@ -747,7 +778,11 @@ public class RegistryService
   public void deleteGeoObjectType(String sessionId, String code)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
-    type.delete();
+    
+    if (type != null)
+    {
+      type.delete();
+    }
   }
 
   /**

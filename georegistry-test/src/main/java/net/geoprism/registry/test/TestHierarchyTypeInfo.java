@@ -18,20 +18,14 @@
  */
 package net.geoprism.registry.test;
 
-import org.commongeoregistry.adapter.Optional;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
-
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.session.Request;
-import com.runwaysdk.system.metadata.MdClass;
-import com.runwaysdk.system.metadata.MdTermRelationship;
-
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
+
+import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
+
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Request;
 
 public class TestHierarchyTypeInfo
 {

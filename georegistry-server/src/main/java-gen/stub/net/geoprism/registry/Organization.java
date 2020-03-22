@@ -98,7 +98,7 @@ public class Organization extends OrganizationBase
    */
   public String getRoleName()
   {
-    return RegistryRole.Type.getRoleName(this.getCode());
+    return RegistryRole.Type.getRootOrgRoleName(this.getCode());
   }
 
   /**
@@ -122,7 +122,7 @@ public class Organization extends OrganizationBase
    */
   public static RoleDAOIF getRole(String organizationCode)
   {
-    return RoleDAO.findRole(RegistryRole.Type.getRoleName(organizationCode));
+    return RoleDAO.findRole(RegistryRole.Type.getRootOrgRoleName(organizationCode));
   }
 
   /**
@@ -179,7 +179,7 @@ public class Organization extends OrganizationBase
 
     RoleDAO orgRole = RoleDAO.createRole(roleName, defaultDisplayLabel);
 
-    RoleDAO rootOrgRole = (RoleDAO) RoleDAO.findRole(RegistryConstants.REGISTRY_ROOT_ORG_ROLE);
+    RoleDAO rootOrgRole = (RoleDAO) RoleDAO.findRole(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE);
 
     rootOrgRole.addInheritance(orgRole);
   }
@@ -276,12 +276,12 @@ public class Organization extends OrganizationBase
 
     // If the role name does not contain the organization root name, then it is
     // not a role that pertains to an organization.
-    if (roleName.indexOf(RegistryConstants.REGISTRY_ROOT_ORG_ROLE) <= -1)
+    if (roleName.indexOf(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE) <= -1)
     {
       return null;
     }
 
-    String organizationCode = roleName.substring(RegistryConstants.REGISTRY_ROOT_ORG_ROLE.length() + 1, roleName.length());
+    String organizationCode = roleName.substring(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE.length() + 1, roleName.length());
 
     try
     {

@@ -23,6 +23,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.WMSService;
+
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -35,6 +49,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -55,6 +70,8 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.Actor;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
@@ -66,20 +83,6 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.ontology.TermUtil;
-
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectType
 {
@@ -204,7 +207,13 @@ public class ServerGeoObjectType
     {
       this.deleteInTransaction();
 
-      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+      Session session = (Session) Session.getCurrentSession();
+      
+      // If this is being called in a JUnit test scenario then there is no session object in the request.
+      if (session != null)
+      {
+        session.reloadPermissions();
+      }
 
       // If we get here then it was successfully deleted
       // We have to do a full metadata cache
@@ -256,6 +265,26 @@ public class ServerGeoObjectType
     // Delete the term root
     Classifier classRootTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
     classRootTerm.delete();
+
+    Actor ownerActor = this.universal.getOwner();
+    
+    if (ownerActor instanceof Roles)
+    {
+      Roles ownerRole = (Roles)ownerActor;
+      String roleName = ownerRole.getRoleName();
+      
+      if (RegistryRole.Type.isOrgRole(roleName))
+      {
+        String organizationCode = RegistryRole.Type.parseOrgCode(roleName);
+        
+        String geoObjectTypeCode = this.type.getCode();
+        
+        String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
+        
+        Roles role = Roles.findRoleByName(rmRoleName);
+        role.delete();
+      }
+    }
   }
 
   public void update(GeoObjectType geoObjectTypeNew)
