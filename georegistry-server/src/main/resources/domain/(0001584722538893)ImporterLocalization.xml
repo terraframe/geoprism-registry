@@ -1,0 +1,241 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="accounts.inviteUser">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="accounts.inviteUser" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Invite User" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.detail.button">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="scheduledjobs.detail.button" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit GeoObject" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.parentProblem.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.parentProblem.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Your data contains references to a GeoObject parent which cannot be found." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.parentProblem.toResolve">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.parentProblem.toResolve" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="You may create a synonym or ignore all rows which contain this parent label. Synonyms are system-wide and will apply to labels for all future imports." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.header.problem">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.header.problem" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Problem" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.header.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.header.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Message" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.header.toResolve">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.header.toResolve" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="To Resolve" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.parent.context">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.parent.context" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Context" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.parent.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.parent.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Label" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.parent.synonym">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.parent.synonym" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Synonym" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.parent.actions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.parent.actions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Actions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="reuploadmodal.import">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="reuploadmodal.import" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="reuploadmodal.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="reuploadmodal.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Your import contained problems which must be resolved by fixing and re-uploading the source data." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="reuploadmodal.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="reuploadmodal.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reupload and Reimport" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.rowValidation.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.rowValidation.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The system encountered an unexpected error while processing this row." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.rowValidation.toResolve">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.rowValidation.toResolve" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="You must correct the data in the original source format and re-import." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.rowValidation.rowNumber">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.rowValidation.rowNumber" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Row Number" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.rowValidation.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.rowValidation.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Message" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.modal.validationDescription">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.modal.validationDescription" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to resume the import?" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.modal.validationButton">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.modal.validationButton" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Resume Import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.modal.importDescription">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.modal.importDescription" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to complete the import? All unresolved problems will be ignored." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.modal.importButton">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.modal.importButton" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Complete Import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.SUCCESS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.SUCCESS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Success" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.CANCELED">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.CANCELED" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Canceled" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.FAILURE">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.FAILURE" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Failed" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.termReference.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.termReference.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Your data contains references to a term which cannot be found." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.termReference.toResolve">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.termReference.toResolve" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="You may create a synonym or ignore all rows which contain this term label. These synonyms are system-wide and will apply to term labels for all future imports." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.reference.createSynonym">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.reference.createSynonym" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Synonym" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.reference.ignore">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.reference.ignore" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Ignore" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.termReference.actions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.termReference.actions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Actions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.termReference.synonym">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.termReference.synonym" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Synonym" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.termReference.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.termReference.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Label" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.problem.termReference.attributeLabel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.problem.termReference.attributeLabel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Attribute Label" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

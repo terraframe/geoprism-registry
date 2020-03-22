@@ -15,13 +15,13 @@ declare var acp: any;
     styleUrls: ['../../../../shared/component/modals/modal.css']
 } )
 export class ReuploadModalComponent {
-  @Input() title: string = "Reupload and Reimport"; // TODO : Localize
+  @Input() title: string = this.localizeService.decode("reuploadmodal.title");
 
-  @Input() message: string = "Your import contained problems which must be resolved by fixing and re-uploading the source data."; // TODO : Localize
+  @Input() message: string = this.localizeService.decode("reuploadmodal.message");
   
   @Input() data: any;
   
-  @Input() submitText: string = "Import"; // TODO : Localize
+  @Input() submitText: string = this.localizeService.decode("reuploadmodal.import");
   
   @Input() cancelText: string = this.localizeService.decode("modal.button.cancel");
   

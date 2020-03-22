@@ -95,8 +95,36 @@ export class JobComponent implements OnInit {
       }
     }
 
-    getFriendlyProblemType(type: string): string {
-        return Utils.getFriendlyProblemType(type)
+    getFriendlyProblemType(probType: string): string {
+
+        if(probType === "net.geoprism.registry.io.ParentCodeException"){
+            return this.localizeService.decode( "scheduledjobs.job.problem.type.parent.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.io.PostalCodeLocationException"){
+            return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.io.AmbiguousParentException"){
+          return this.localizeService.decode( "scheduledjobs.job.problem.type.multi.parent.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.io.InvalidGeometryException"){
+          return this.localizeService.decode( "scheduledjobs.job.problem.type.invalid.geom.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.DataNotFoundException"){
+          return this.localizeService.decode( "scheduledjobs.job.problem.type.required.value.lookup" );
+        }
+
+        // if(probType === "net.geoprism.registry.io.TermValueException"){
+        //   return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
+        // }
+        if(probType === "com.runwaysdk.dataaccess.DuplicateDataException"){
+          return this.localizeService.decode( "scheduledjobs.job.problem.type.duplicate.data.lookup" );
+        }
+
+        return probType;
     }
 
 
@@ -233,14 +261,13 @@ export class JobComponent implements OnInit {
         
         if (this.job.stage === 'VALIDATION_RESOLVE')
         {
-          // this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.description" );
-          this.bsModalRef.content.message = "Are you sure you want to resume the import?"; // TODO : Localize
-          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.button" );
+          this.bsModalRef.content.message =  this.localizeService.decode( "etl.import.resume.modal.validationDescription" );
+          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.validationButton" );
         }
         else
         {
-          this.bsModalRef.content.message = "Are you sure you want to complete the import? All unresolved problems will be ignored."; // TODO : Localize
-          this.bsModalRef.content.submitText = "Complete Import"; // TODO : Localize
+          this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.importDescription" );
+          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.importButton" );
         }
         
         this.bsModalRef.content.type = ModalTypes.danger;

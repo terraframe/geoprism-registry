@@ -53,8 +53,36 @@ export class ImportProblemWidgetComponent implements OnInit {
         } );
     }
 
-    getFriendlyProblemType(type: string): string {
-        return Utils.getFriendlyProblemType(type);
+    getFriendlyProblemType(probType: string): string {
+
+        if(probType === "net.geoprism.registry.io.ParentCodeException"){
+            return this.lService.decode( "scheduledjobs.job.problem.type.parent.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.io.PostalCodeLocationException"){
+            return this.lService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.io.AmbiguousParentException"){
+          return this.lService.decode( "scheduledjobs.job.problem.type.multi.parent.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.io.InvalidGeometryException"){
+          return this.lService.decode( "scheduledjobs.job.problem.type.invalid.geom.lookup" );
+        }
+
+        if(probType === "net.geoprism.registry.DataNotFoundException"){
+          return this.lService.decode( "scheduledjobs.job.problem.type.required.value.lookup" );
+        }
+
+        // if(probType === "net.geoprism.registry.io.TermValueException"){
+        //   return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
+        // }
+        if(probType === "com.runwaysdk.dataaccess.DuplicateDataException"){
+          return this.lService.decode( "scheduledjobs.job.problem.type.duplicate.data.lookup" );
+        }
+
+        return probType;
     }
 
     onSubmit(): void {

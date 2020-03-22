@@ -32,12 +32,15 @@
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
 }
+.step-indicator .nav-item {
+    font-weight: bold;
+}
 .step-indicator .nav-item.complete{
     background-color: #B7A2D5;
-    /* cursor: pointer; */
 }
-.step-indicator .nav-item.enabled{
+.step-indicator .nav-item.stuck{
     background-color: #f05d5d;
-    /* border-bottom: 4px solid black; */
-    font-weight: bold;
+}
+.step-indicator .nav-item.working{
+    background-color: #ffbc58;
 }

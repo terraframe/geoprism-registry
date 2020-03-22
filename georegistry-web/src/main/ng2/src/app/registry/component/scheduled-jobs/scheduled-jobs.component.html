@@ -24,7 +24,7 @@
                             </thead> 
                             <tbody> 
                                 <!-- <tr *ngFor="let job of jobs; let i = index;">  -->
-                                <tr *ngFor="let job of activeJobsPage.results | paginate: { itemsPerPage: activeJobsPage.pageSize, currentPage: activeJobsPage.pageNumber, totalItems: activeJobsPage.count }" >
+                                <tr *ngFor="let job of activeJobsPage.results | paginate: { id: 'activeJobs', itemsPerPage: activeJobsPage.pageSize, currentPage: activeJobsPage.pageNumber, totalItems: activeJobsPage.count }" >
                                     <td style="vertical-align: middle;">
                                         <div class="wrapper">
                                             <i style="position: absolute;font-size: 40px;" class="fa fa-file" aria-hidden="true"></i>
@@ -45,20 +45,25 @@
                                         </div>
                                     </td> 
                                     <td *ngIf="isAdmin || isMaintainer" style="text-align: right;vertical-align: middle;">  
-                                        <a [routerLink]="'/registry/job/' + job.historyId" routerLinkActive="active">
-                                            <button class="btn btn-primary" role="button">
-                                                <localize key="scheduledjobs.detail.button"></localize>
-                                            </button>
-                                        </a>
 
-                                        <!-- <button type="submit" (click)="onDelete(job)" class="btn btn-danger" role="button"><localize key="modal.button.delete"></localize></button> -->
+                                        <div class="button-holder" style="float: right;">
+                                            <a [routerLink]="'/registry/job/' + job.historyId" routerLinkActive="active">
+                                                <button class="btn btn-primary" role="button">
+                                                    <localize *ngIf="job.stage === 'IMPORT_RESOLVE' || job.stage === 'VALIDATION_RESOLVE'" key="scheduledjobs.fix.problems.button"></localize>
+                                                    <localize *ngIf="job.stage != 'IMPORT_RESOLVE' && job.stage != 'VALIDATION_RESOLVE'" key="scheduledjobs.detail.button"></localize>
+                                                </button>
+                                            </a>
+                                            <button *ngIf="job.stage === 'VALIDATION_RESOLVE'" type="button" (click)="onCancelScheduledJob(job.historyId, job)" class="btn btn-danger" role="button">
+                                                <localize key="etl.import.cancel.openModal"></localize>
+                                            </button>
+                                        </div>
                                     </td> 
                                 </tr> 
 
                             </tbody> 
                         </table>
                         <div *ngIf="activeJobsPage.results.length > 0" class="solid-table-footer">
-                            <pagination-controls (pageChange)="onActiveJobsPageChange($event)"></pagination-controls>
+                            <pagination-controls id="activeJobs" (pageChange)="onActiveJobsPageChange($event)"></pagination-controls>
                         </div>
                     </div>
 
@@ -66,17 +71,17 @@
 	                    <table class="table table-striped"> 
 	                      <thead> 
 	                        <tr> 
-	                          <th style="width:70%;border-bottom: none;">
+	                          <th style="width:40%;border-bottom: none;">
 	                            <localize style="line-height: 40px;" key="scheduledjobs.completedjobs.table.header"></localize>                                      
 	                          </th>
-	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
-	                            Status <!-- TOTO : Localize -->                   
+	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:22%;border-bottom: none;">
+	                            <localize style="line-height: 40px;" key="scheduledjobs.status"></localize>                   
 	                          </th>
-	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
-                              Imported Records <!-- TOTO : Localize -->                   
+	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:22%;border-bottom: none;">
+                              <localize style="line-height: 40px;" key="scheduledjobs.importedRecords"></localize>                   
                             </th>
-                            <th *ngIf="completeJobsPage.results.length > 0" style="width:70%;border-bottom: none;">
-                              Import Date <!-- TOTO : Localize -->                   
+                            <th *ngIf="completeJobsPage.results.length > 0" style="width:30%;border-bottom: none;">
+                              <localize style="line-height: 40px;" key="scheduledjobs.importDate"></localize>                   
                             </th>
 	                          <th style="border-bottom: none;">
 	                            <button *ngIf="completeJobsPage.results.length < 1" type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
@@ -87,20 +92,20 @@
 	                      </thead> 
 	                      <tbody> 
 	                      <!-- <tr *ngFor="let job of completedJobs; let i = index;">  -->
-	                      <tr *ngFor="let job of completeJobsPage.results | paginate: { itemsPerPage: completeJobsPage.pageSize, currentPage: completeJobsPage.pageNumber, totalItems: completeJobsPage.count }" >
-	                        <td style="width:70%; vertical-align: middle;">
+	                      <tr *ngFor="let job of completeJobsPage.results | paginate: { id: 'completeJobs', itemsPerPage: completeJobsPage.pageSize, currentPage: completeJobsPage.pageNumber, totalItems: completeJobsPage.count }" >
+	                        <td style="width:40%; vertical-align: middle;">
 	                          <div class="wrapper">
                               <i class="fa fa-file" style="position: absolute;" aria-hidden="true"></i>
                               <p style="padding-left: 30px;margin: 0;">{{job.fileName}}</p>
 	                          </div>
 	                        </td>
-	                        <td style="width:70%; vertical-align: middle;">
+	                        <td style="width:15%; vertical-align: middle;">
 	                          <p style="padding-left: 0px;margin: 0;">{{formatJobStatus(job)}}</p>
 	                        </td>
-	                        <td style="width:70%; vertical-align: middle;">
+	                        <td style="width:15%; vertical-align: middle;">
                             <p style="padding-left: 0px;margin: 0;">{{job.importedRecords}}</p>
                           </td>
-                          <td style="width:70%; vertical-align: middle;">
+                          <td style="width:30%; vertical-align: middle;">
                             <p style="padding-left: 0px;margin: 0;">{{job.lastUpdateDate}}</p>
                           </td>
 	                        <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;vertical-align: middle;">                                
@@ -114,7 +119,7 @@
 	                    </table>
 	
 	                    <div *ngIf="completeJobsPage.results.length > 0" class="solid-table-footer">
-                        <pagination-controls (pageChange)="onCompleteJobsPageChange($event)"></pagination-controls>
+                        <pagination-controls id="completeJobs" (pageChange)="onCompleteJobsPageChange($event)"></pagination-controls>
 	                    </div>
                     </div>
                 </ul>

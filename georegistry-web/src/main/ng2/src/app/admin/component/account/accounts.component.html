@@ -13,8 +13,7 @@
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
         <div class="row">
-            <input class="btn btn-primary pull-right" style="margin-right: 15px;" type="submit" value="Invite User" (click)="inviteUsers()">
-            <!-- TODO : Localize -->
+          <input class="btn btn-primary pull-right" style="margin-right: 15px;" [value]="'accounts.inviteUser' | localize" type="submit" (click)="inviteUsers()">
         </div>
 
         <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
