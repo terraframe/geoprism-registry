@@ -341,9 +341,9 @@ public class RegistryService
       }
     }
     
-    return (RegistryRole[])registryRoles.toArray();
+    RegistryRole[] registryRoleArray = registryRoles.toArray(new RegistryRole[RegistryRole.size()]);
     
-//    return new RegistryRole[]{};
+    return registryRoleArray;
   }
   
   @Request(RequestType.SESSION)
