@@ -93,9 +93,9 @@ public class HierarchyManagementServiceTest
 
   private static TestGeoObjectTypeInfo VILLAGE;
 
-  private static TestGeoObjectTypeInfo HOUSEHOLD;
-
-  private static TestGeoObjectTypeInfo RIVER;
+//  private static TestGeoObjectTypeInfo HOUSEHOLD;
+//
+//  private static TestGeoObjectTypeInfo RIVER;
 
   private static TestHierarchyTypeInfo REPORTING_DIVISION;
 
@@ -119,8 +119,8 @@ public class HierarchyManagementServiceTest
     PROVINCE = testData.newTestGeoObjectTypeInfo("HMST_Province");
     DISTRICT = testData.newTestGeoObjectTypeInfo("HMST_District");
     VILLAGE = testData.newTestGeoObjectTypeInfo("HMST_Village");
-    HOUSEHOLD = testData.newTestGeoObjectTypeInfo("HMST_Household");
-    RIVER = testData.newTestGeoObjectTypeInfo("HMST_River");
+//    HOUSEHOLD = testData.newTestGeoObjectTypeInfo("HMST_Household");
+//    RIVER = testData.newTestGeoObjectTypeInfo("HMST_River");
 
     ADMINISTRATIVE_DIVISION = testData.newTestHierarchyTypeInfo("HMST_AdminDiv");
     REPORTING_DIVISION = testData.newTestHierarchyTypeInfo("HMST_ReportDiv");
@@ -458,8 +458,6 @@ public class HierarchyManagementServiceTest
     }
   }
 
-  
-  // Heads up: clean up finish
   @Request
   private void checkMdGraphAttributes(String code)
   {

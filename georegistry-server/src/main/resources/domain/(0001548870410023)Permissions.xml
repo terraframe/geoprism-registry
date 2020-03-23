@@ -21,7 +21,7 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <permissions>
-      <role roleName="commongeoregistry.RegistryMaintainer">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>
           <!-- Administration permissions -->
           <mdBusinessPermission type="net.geoprism.GeoprismUser">
@@ -377,7 +377,7 @@
           </mdBusinessPermission>		  
         </grant>
       </role>
-      <role roleName="commongeoregistry.APIConsumer">
+      <role roleName="cgr.APIConsumer">
         <grant>
           <!-- Administration permissions -->
           <mdBusinessPermission type="net.geoprism.GeoprismUser">
@@ -753,7 +753,7 @@
         </grant>
       </role>
 <!-- 
-      <role roleName="commongeoregistry.registry.maintainer.LocatedIn">
+      <role roleName="cgr.registry.maintainer.LocatedIn">
         <grant>
 		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.LocatedIn">
 		     <operation name="ALL" />

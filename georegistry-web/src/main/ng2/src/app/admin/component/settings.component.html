@@ -33,9 +33,15 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th>Code</th>
-                                        <th>Name</th>
-                                        <th>Contact</th>
+                                        <th>
+                                            <localize key="settings.manage.orgs.table.code.header"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="settings.manage.orgs.table.name.header"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="settings.manage.orgs.table.contact.header"></localize>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -73,11 +79,21 @@
                     <div class="content-wrapper">
                         <!-- <input class="btn btn-primary" style="" type="submit" value="Manage"> -->
 
-                        <a [routerLink]="'/admin/accounts/'" routerLinkActive="active">
-                            <button class="btn btn-primary" role="button">
-                                Manage Accounts
-                            </button>
-                        </a>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a [routerLink]="'/admin/accounts/'" routerLinkActive="active">
+                                    <button class="btn btn-primary" role="button">
+                                        <localize key="settings.manage.accounts.button"></localize>
+                                    </button>
+                                </a>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input class="btn btn-primary" style="margin-top:10px;" type="submit" value="Invite User" (click)="inviteUsers()">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

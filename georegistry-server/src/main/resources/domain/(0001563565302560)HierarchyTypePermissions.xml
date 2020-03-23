@@ -30,7 +30,7 @@
       </object>
     </createOrUpdate>
     <permissions>
-      <role roleName="commongeoregistry.RegistryMaintainer">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
             <mdMethodPermission methodName="createHierarchyType">

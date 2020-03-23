@@ -26,6 +26,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AbstractActionQuery;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.WMSService;
+
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -36,8 +44,6 @@ import com.runwaysdk.ClientSession;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.generated.system.gis.geo.AllowedInAllPathsTableQuery;
-import com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTableQuery;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.resource.ClasspathResource;
@@ -49,17 +55,6 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
-
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
-import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.action.AbstractAction;
-import net.geoprism.registry.action.AbstractActionQuery;
-import net.geoprism.registry.action.ChangeRequest;
-import net.geoprism.registry.action.ChangeRequestQuery;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.WMSService;
 
 abstract public class TestDataSet
 {
@@ -307,27 +302,27 @@ abstract public class TestDataSet
     managedGeoObjectInfosExtras = new ArrayList<TestGeoObjectInfo>();
   }
 
-  private void rebuildAllpaths()
-  {
-    Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
-    Universal.getStrategy().initialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
-    GeoEntity.getStrategy().initialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
-
-    if (new AllowedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
-    {
-      Universal.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
-    }
-
-    if (new LocatedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
-    {
-      GeoEntity.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
-    }
-
-    if (new ClassifierIsARelationshipAllPathsTableQuery(new QueryFactory()).getCount() == 0)
-    {
-      Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
-    }
-  }
+//  private void rebuildAllpaths()
+//  {
+//    Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
+//    Universal.getStrategy().initialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
+//    GeoEntity.getStrategy().initialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
+//
+//    if (new AllowedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+//    {
+//      Universal.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
+//    }
+//
+//    if (new LocatedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+//    {
+//      GeoEntity.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
+//    }
+//
+//    if (new ClassifierIsARelationshipAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+//    {
+//      Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
+//    }
+//  }
 
   @Request
   public static void deleteAllActions()
