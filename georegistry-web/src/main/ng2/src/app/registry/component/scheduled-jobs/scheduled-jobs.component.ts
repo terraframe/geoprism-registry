@@ -204,7 +204,7 @@ export class ScheduledJobsComponent implements OnInit {
 
         this.message = null;
 
-        this.service.getScheduledJobs(this.activeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
+        this.service.getScheduledJobs(this.activeJobsPage.pageSize, pageNumber, "createDate", false).then( response => {
 
             this.activeJobsPage = response;
             this.formatStepConfig(this.activeJobsPage);
@@ -218,7 +218,7 @@ export class ScheduledJobsComponent implements OnInit {
 
         this.message = null;
 
-        this.service.getCompletedScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", true).then( response => {
+        this.service.getCompletedScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", false).then( response => {
 
             this.completeJobsPage = response;
             this.formatStepConfig(this.completeJobsPage);

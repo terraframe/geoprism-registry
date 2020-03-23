@@ -181,8 +181,18 @@ export class GeoObjectEditorComponent implements OnInit {
         this.fetchGeoObjectType( typeCode );
         this.fetchLocales();
         
-        this.hierarchies = importError.object.parents;
-        this.areParentsValid = true;
+        if (importError.object != null && importError.object.parents != null && importError.object.parents.length > 0)
+        {
+          this.hierarchies = importError.object.parents;
+          this.areParentsValid = true;
+        }
+        else
+        {
+          this.registryService.newGeoObjectOverTime( typeCode ).then( retJson => {
+            this.hierarchies = retJson.hierarchies;
+          } );
+          this.areParentsValid = false;
+        }
         
         // TODO : Maybe we should ask the server for the pre object, if it exists.
         this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);

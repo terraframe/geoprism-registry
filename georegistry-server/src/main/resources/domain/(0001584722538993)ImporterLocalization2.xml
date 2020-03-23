@@ -29,11 +29,18 @@
           <attribute name="defaultLocale" value="Imported Records" />
         </attributeStruct>
       </object>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.importDate">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.importStartDate">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="scheduledjobs.importDate" />
+        <attribute name="storeKey" value="scheduledjobs.importStartDate" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Import Date" />
+          <attribute name="defaultLocale" value="Import Start Date" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.importEndDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="scheduledjobs.importEndDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import End Date" />
         </attributeStruct>
       </object>
     </createOrUpdate>

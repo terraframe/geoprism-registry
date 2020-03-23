@@ -80,8 +80,11 @@
 	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:22%;border-bottom: none;">
                               <localize style="line-height: 40px;" key="scheduledjobs.importedRecords"></localize>                   
                             </th>
-                            <th *ngIf="completeJobsPage.results.length > 0" style="width:30%;border-bottom: none;">
-                              <localize style="line-height: 40px;" key="scheduledjobs.importDate"></localize>                   
+                            <th *ngIf="completeJobsPage.results.length > 0" style="width:20%;border-bottom: none;">
+                              <localize style="line-height: 40px;" key="scheduledjobs.importStartDate"></localize>                   
+                            </th>
+                            <th *ngIf="completeJobsPage.results.length > 0" style="width:20%;border-bottom: none;">
+                              <localize style="line-height: 40px;" key="scheduledjobs.importEndDate"></localize>                   
                             </th>
 	                          <th style="border-bottom: none;">
 	                            <button *ngIf="completeJobsPage.results.length < 1" type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
@@ -99,13 +102,16 @@
                               <p style="padding-left: 30px;margin: 0;">{{job.fileName}}</p>
 	                          </div>
 	                        </td>
-	                        <td style="width:15%; vertical-align: middle;">
+	                        <td style="width:22%; vertical-align: middle;">
 	                          <p style="padding-left: 0px;margin: 0;">{{formatJobStatus(job)}}</p>
 	                        </td>
-	                        <td style="width:15%; vertical-align: middle;">
+	                        <td style="width:22%; vertical-align: middle;">
                             <p style="padding-left: 0px;margin: 0;">{{job.importedRecords}}</p>
                           </td>
-                          <td style="width:30%; vertical-align: middle;">
+                          <td style="width:20%; vertical-align: middle;">
+                            <p style="padding-left: 0px;margin: 0;">{{job.createDate}}</p>
+                          </td>
+                          <td style="width:20%; vertical-align: middle;">
                             <p style="padding-left: 0px;margin: 0;">{{job.lastUpdateDate}}</p>
                           </td>
 	                        <td *ngIf="isAdmin || isMaintainer" style="width:30%;text-align: right;vertical-align: middle;">                                

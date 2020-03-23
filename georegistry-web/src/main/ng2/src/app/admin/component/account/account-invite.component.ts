@@ -27,7 +27,9 @@ import 'rxjs/add/operator/switchMap';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { Account, UserInvite } from '../../model/account';
+import { Organization } from '../../model/settings';
 
+import { SettingsService } from '../../service/settings.service'
 import { AccountService } from '../../service/account.service';
 import { AccountComponent } from './account.component';
 
@@ -40,12 +42,15 @@ import { AccountComponent } from './account.component';
 export class AccountInviteComponent implements OnInit {
     invite: UserInvite;
     message: string = null;
+    organization: Organization;
+    organizations: Organization[];
 
     constructor(
         private service: AccountService,
         private route: ActivatedRoute,
         private location: Location,
-        public bsModalRef: BsModalRef ) {
+        public bsModalRef: BsModalRef,
+        public settingsService: SettingsService ) {
     }
 
     ngOnInit(): void {
@@ -56,6 +61,12 @@ export class AccountInviteComponent implements OnInit {
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
+
+        this.settingsService.getOrganizations().then(orgs => {
+            this.organizations = orgs
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     cancel(): void {
@@ -76,6 +87,10 @@ export class AccountInviteComponent implements OnInit {
         }
 
         return null;
+    }
+
+    onOrgChange(event: any): void {
+        console.log("change the geoobjecttypes")
     }
 
     onSubmit(): void {

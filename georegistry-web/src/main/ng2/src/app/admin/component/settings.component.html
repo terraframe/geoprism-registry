@@ -33,9 +33,15 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th>Code</th>
-                                        <th>Name</th>
-                                        <th>Contact</th>
+                                        <th>
+                                            <localize key="settings.manage.orgs.table.code.header"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="settings.manage.orgs.table.name.header"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="settings.manage.orgs.table.contact.header"></localize>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -59,8 +65,6 @@
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- <input class="btn btn-primary pull-right" style="margin-right: 15px;" type="submit" value="New organization"> -->
                     </div>
 
                 </div>
@@ -71,13 +75,22 @@
                     <h3><localize key="settings.accounts.heading"></localize></h3>
 
                     <div class="content-wrapper">
-                        <!-- <input class="btn btn-primary" style="" type="submit" value="Manage"> -->
 
-                        <a [routerLink]="'/admin/accounts/'" routerLinkActive="active">
-                            <button class="btn btn-primary" role="button">
-                                Manage Accounts
-                            </button>
-                        </a>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a [routerLink]="'/admin/accounts/'" routerLinkActive="active">
+                                    <button class="btn btn-primary" role="button">
+                                        <localize key="settings.manage.accounts.button"></localize>
+                                    </button>
+                                </a>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input class="btn btn-primary" style="margin-top:10px;" type="submit" value="Invite User" (click)="inviteUsers()">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -91,9 +104,15 @@
                             <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Language</th>
-                                        <th>Country</th>
-                                        <th>Variant</th>
+                                        <th>
+                                            <localize key="settings.manage.lang.table.language.header"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="settings.manage.lang.table.country.header"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="settings.manage.lang.table.variant.header"></localize>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -122,38 +141,10 @@
                     <div class="content-wrapper">
                         <system-logos></system-logos>
                     </div>
-
-                    <!-- <div class="content-wrapper">
-                        <div class="list-table-wrapper">
-                            <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Label</th>
-                                        <th>Preview</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let brand of settings.branding">
-                                        <td class="button-column">
-                                            <a class="fa fa-pencil ico-edit"  [title]="'account.editTooltip' | localize"></a> 
-                                            <a class="fa fa-trash-o ico-remove" [title]="'account.removeTooltip' | localize" ></a>
-                                        </td>
-                                        <td class="label-column username-col">{{brand.label}}</td>
-                                        <td class="label-column username-col">{{brand.url}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="button-column"><a class="fa fa-plus" (click)="newOrganization()" [title]="'account.newTooltip' | localize"></a></td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> -->
                 </div>
             </div>
 
-            <div *ngIf="isAdmin" class="row">
+            <div *ngIf="isAdmin" class="row" style="margin-bottom: 30px;">
                 <div class="col-md-12">
                     <h3><localize key="settings.email.heading"></localize></h3>
                      

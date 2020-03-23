@@ -39,6 +39,7 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -984,5 +985,29 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
     
     return new RestBodyResponse(org.toJSON(serializer));
+  }
+  
+  /**
+   * Returns an array of roles
+   * 
+   *
+   * @pre
+   * @post
+   *
+   * @returns 
+   **/
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "account/get-roles-for-user")
+  public ResponseIF getRolesForUser(ClientRequestIF request, @RequestParamter(name = "userOID") String userOID) 
+  {
+
+    RegistryRole[] roles = this.registryService.getRolesForUser(request.getSessionId(), userOID);
+    
+    JsonArray rolesJson = new JsonArray();
+    for(RegistryRole role : roles)
+    {
+      rolesJson.add(role.toJSON());
+    }
+    
+    return new RestBodyResponse(rolesJson);
   }
 }
