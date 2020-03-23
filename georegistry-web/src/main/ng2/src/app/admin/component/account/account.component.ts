@@ -50,6 +50,13 @@ export class AccountComponent implements OnInit {
         else if ( oid ) {
             this.service.edit( oid ).then( data => {
                 this.account = data;
+
+                // this.service.getRolesForUser( oid ).then( roles => {
+                //     console.log(roles);
+                // } ).catch(( err: HttpErrorResponse ) => {
+                //     this.error( err );
+                // } );
+                
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
             } );

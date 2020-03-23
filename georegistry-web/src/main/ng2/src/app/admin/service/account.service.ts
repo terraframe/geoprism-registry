@@ -192,4 +192,19 @@ export class AccountService {
             } )
             .toPromise();
     }
+
+    getRolesForUser( userOID: string ): Promise<any> {
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'userOID', userOID );
+
+        this.eventService.start();
+
+        return this.http
+            .get<any>( acp + '/account/get-roles-for-user', { params: params } )
+            .finally(() => {
+                this.eventService.complete();
+            } )
+            .toPromise();
+    }
+
 }

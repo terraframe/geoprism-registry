@@ -35,9 +35,9 @@ import { EmailComponent } from './email/email.component'
 import { OrganizationModalComponent } from './organization/organization-modal.component'
 import { NewLocaleModalComponent } from './localization-manager/new-locale-modal.component';
 
-import { SettingsService } from '../service/settings.service'
+import { SettingsService } from '../service/settings.service';
 import { Settings, Organization } from '../model/settings';
-import { LocaleInfo, AllLocaleInfo, Locale } from '../model/localization-manager'
+import { LocaleInfo, AllLocaleInfo, Locale } from '../model/localization-manager';
 
 import { SystemLogo } from '../model/system-logo';
 import { SystemLogoService } from '../service/system-logo.service';
@@ -85,9 +85,11 @@ export class SettingsComponent implements OnInit {
 
         this.installedLocales = this.getLocales();
 
-        this.settingsService.getOrganizations().then( orgs => {
+        this.settingsService.getOrganizations().then(orgs => {
             this.organizations = orgs
-        } );
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
 
     }
 
@@ -196,6 +198,8 @@ export class SettingsComponent implements OnInit {
             backdrop: true,
             ignoreBackdropClick: true,
         } );
+
+        this.bsModalRef.content.organization = null;
     }
 
 

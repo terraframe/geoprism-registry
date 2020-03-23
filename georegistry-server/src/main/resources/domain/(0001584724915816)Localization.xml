@@ -1,0 +1,90 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  <createOrUpdate>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="accounts.invite.user.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="accounts.invite.user.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Invite User" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.accounts.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.manage.accounts.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Manage Accounts" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.orgs.table.code.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.manage.orgs.table.code.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Code" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.orgs.table.name.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.manage.orgs.table.name.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Name" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.orgs.table.contact.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.manage.orgs.table.contact.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Contact" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.lang.table.language.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.manage.lang.table.language.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Language" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.lang.table.variant.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.manage.lang.table.variant.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Variant" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.lang.table.country.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.manage.lang.table.country.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Country" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.organization.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.organization.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Organization" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	</createOrUpdate>
+	
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

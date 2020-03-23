@@ -28,6 +28,22 @@
               </div>                                          
             </div>
           </div>   
+
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="account.organization.label"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <select id="org-select" name="org-select" class="select-area" style="float:none;" (change)="onOrgChange($event)" [(ngModel)]="organization" required>
+                <option value=""></option>
+                <option *ngFor="let option of organizations" [value]="option.code">
+                  {{option.label.localizedValue}}</option>
+              </select>
+            </div>
+          </div>
+
           <div *ngFor="let group of invite.groups">
             <div class="heading">
               <h3><localize [key]="'com.runwaysdk.ui.userstable.UsersTable.' + group.name"></localize></h3>
@@ -42,6 +58,7 @@
               </div>
             </div>              
           </div>
+
           <div class="row-holder">
             <div class="label-holder">
             </div>                    
