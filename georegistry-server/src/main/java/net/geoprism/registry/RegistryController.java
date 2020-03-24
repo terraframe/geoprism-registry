@@ -864,7 +864,8 @@ public class RegistryController
 
   /**
    * Returns a map with a list of all the types, all of the hierarchies, and all
-   * of the locales currently installed in the system
+   * of the locales currently installed in the system. This endpoint is used to
+   * populate the hierarchy manager.
    * 
    * @param request
    * @return

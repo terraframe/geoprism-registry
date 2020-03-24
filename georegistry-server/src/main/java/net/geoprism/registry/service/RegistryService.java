@@ -126,6 +126,11 @@ public class RegistryService
       while (it.hasNext())
       {
         Universal uni = it.next();
+        
+        if (uni.getKey().equals(Universal.ROOT_KEY))
+        {
+          continue;
+        }
 
         ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
 
