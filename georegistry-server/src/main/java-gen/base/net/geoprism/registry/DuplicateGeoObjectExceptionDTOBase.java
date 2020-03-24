@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -643306804)
+@com.runwaysdk.business.ClassSignature(hash = -1061607102)
 public abstract class DuplicateGeoObjectExceptionDTOBase extends com.runwaysdk.business.SmartExceptionDTO
 {
   public final static String CLASS = "net.geoprism.registry.DuplicateGeoObjectException";
-  private static final long serialVersionUID = -643306804;
+  private static final long serialVersionUID = -1061607102;
   
   public DuplicateGeoObjectExceptionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequestIF)
   {
@@ -52,9 +52,9 @@ public abstract class DuplicateGeoObjectExceptionDTOBase extends com.runwaysdk.b
   }
   
   public static java.lang.String ATTRIBUTENAME = "attributeName";
-  public static java.lang.String CODE = "code";
   public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
   public static java.lang.String OID = "oid";
+  public static java.lang.String VALUE = "value";
   public String getAttributeName()
   {
     return getValue(ATTRIBUTENAME);
@@ -90,43 +90,6 @@ public abstract class DuplicateGeoObjectExceptionDTOBase extends com.runwaysdk.b
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getAttributeNameMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ATTRIBUTENAME).getAttributeMdDTO();
-  }
-  
-  public String getCode()
-  {
-    return getValue(CODE);
-  }
-  
-  public void setCode(String value)
-  {
-    if(value == null)
-    {
-      setValue(CODE, "");
-    }
-    else
-    {
-      setValue(CODE, value);
-    }
-  }
-  
-  public boolean isCodeWritable()
-  {
-    return isWritable(CODE);
-  }
-  
-  public boolean isCodeReadable()
-  {
-    return isReadable(CODE);
-  }
-  
-  public boolean isCodeModified()
-  {
-    return isModified(CODE);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getCodeMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(CODE).getAttributeMdDTO();
   }
   
   public String getGeoObjectType()
@@ -166,6 +129,43 @@ public abstract class DuplicateGeoObjectExceptionDTOBase extends com.runwaysdk.b
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(GEOOBJECTTYPE).getAttributeMdDTO();
   }
   
+  public String getValue()
+  {
+    return getValue(VALUE);
+  }
+  
+  public void setValue(String value)
+  {
+    if(value == null)
+    {
+      setValue(VALUE, "");
+    }
+    else
+    {
+      setValue(VALUE, value);
+    }
+  }
+  
+  public boolean isValueWritable()
+  {
+    return isWritable(VALUE);
+  }
+  
+  public boolean isValueReadable()
+  {
+    return isReadable(VALUE);
+  }
+  
+  public boolean isValueModified()
+  {
+    return isModified(VALUE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getValueMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(VALUE).getAttributeMdDTO();
+  }
+  
   /**
    * Overrides java.lang.Throwable#getMessage() to retrieve the localized
    * message from the exceptionDTO, instead of from a class variable.
@@ -175,9 +175,9 @@ public abstract class DuplicateGeoObjectExceptionDTOBase extends com.runwaysdk.b
     java.lang.String template = super.getMessage();
     
     template = template.replace("{attributeName}", this.getAttributeName().toString());
-    template = template.replace("{code}", this.getCode().toString());
     template = template.replace("{geoObjectType}", this.getGeoObjectType().toString());
     template = template.replace("{oid}", this.getOid().toString());
+    template = template.replace("{value}", this.getValue().toString());
     
     return template;
   }

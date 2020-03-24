@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -867550132)
+@com.runwaysdk.business.ClassSignature(hash = 576784322)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,10 +12,10 @@ public abstract class DuplicateGeoObjectExceptionBase extends com.runwaysdk.busi
 {
   public final static String CLASS = "net.geoprism.registry.DuplicateGeoObjectException";
   public static java.lang.String ATTRIBUTENAME = "attributeName";
-  public static java.lang.String CODE = "code";
   public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
   public static java.lang.String OID = "oid";
-  private static final long serialVersionUID = -867550132;
+  public static java.lang.String VALUE = "value";
+  private static final long serialVersionUID = 576784322;
   
   public DuplicateGeoObjectExceptionBase()
   {
@@ -65,34 +65,6 @@ public abstract class DuplicateGeoObjectExceptionBase extends com.runwaysdk.busi
     }
   }
   
-  public String getCode()
-  {
-    return getValue(CODE);
-  }
-  
-  public void validateCode()
-  {
-    this.validateAttribute(CODE);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getCodeMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.DuplicateGeoObjectException.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(CODE);
-  }
-  
-  public void setCode(String value)
-  {
-    if(value == null)
-    {
-      setValue(CODE, "");
-    }
-    else
-    {
-      setValue(CODE, value);
-    }
-  }
-  
   public String getGeoObjectType()
   {
     return getValue(GEOOBJECTTYPE);
@@ -137,6 +109,34 @@ public abstract class DuplicateGeoObjectExceptionBase extends com.runwaysdk.busi
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
+  public String getValue()
+  {
+    return getValue(VALUE);
+  }
+  
+  public void validateValue()
+  {
+    this.validateAttribute(VALUE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getValueMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.DuplicateGeoObjectException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(VALUE);
+  }
+  
+  public void setValue(String value)
+  {
+    if(value == null)
+    {
+      setValue(VALUE, "");
+    }
+    else
+    {
+      setValue(VALUE, value);
+    }
+  }
+  
   protected String getDeclaredType()
   {
     return CLASS;
@@ -146,9 +146,9 @@ public abstract class DuplicateGeoObjectExceptionBase extends com.runwaysdk.busi
   {
     java.lang.String message = super.localize(locale);
     message = replace(message, "{attributeName}", this.getAttributeName());
-    message = replace(message, "{code}", this.getCode());
     message = replace(message, "{geoObjectType}", this.getGeoObjectType());
     message = replace(message, "{oid}", this.getOid());
+    message = replace(message, "{value}", this.getValue());
     return message;
   }
   
