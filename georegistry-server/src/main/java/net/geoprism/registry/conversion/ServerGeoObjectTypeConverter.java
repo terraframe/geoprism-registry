@@ -331,6 +331,9 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
     create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
     assign_RM_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+    
+    create_RC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+    create_AC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
 
     // Build the parent class term root if it does not exist.
     TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
@@ -342,6 +345,52 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     return serverGeoObjectType;
   }
 
+  private void create_AC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
+  {
+    if (organizationCode != null && !organizationCode.trim().equals(""))
+    {
+      String acRoleName = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectTypeCode);
+      
+      Locale locale = Session.getCurrentLocale();
+      String defaultDisplayLabel = mdGeoVertexDAO.getLocalValue(MdGeoVertexInfo.DISPLAY_LABEL, locale) + " API Consumer";
+      
+      Roles acOrgRole = new Roles();
+      acOrgRole.setRoleName(acRoleName);
+      acOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);
+      acOrgRole.apply();
+      
+      String orgRoleName = RegistryRole.Type.getRootOrgRoleName(organizationCode);
+      Roles orgRole = Roles.findRoleByName(orgRoleName);
+      
+      RoleDAO orgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(orgRole);
+      RoleDAO acOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(acOrgRole);
+      orgRoleDAO.addInheritance(acOrgRoleDAO);
+    }
+  }
+  
+  private void create_RC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
+  {
+    if (organizationCode != null && !organizationCode.trim().equals(""))
+    {
+      String rcRoleName = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectTypeCode);
+      
+      Locale locale = Session.getCurrentLocale();
+      String defaultDisplayLabel = mdGeoVertexDAO.getLocalValue(MdGeoVertexInfo.DISPLAY_LABEL, locale) + " Registry Contributor";
+      
+      Roles rcOrgRole = new Roles();
+      rcOrgRole.setRoleName(rcRoleName);
+      rcOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);
+      rcOrgRole.apply();
+      
+      String orgRoleName = RegistryRole.Type.getRootOrgRoleName(organizationCode);
+      Roles orgRole = Roles.findRoleByName(orgRoleName);
+      
+      RoleDAO orgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(orgRole);
+      RoleDAO rcOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(rcOrgRole);
+      orgRoleDAO.addInheritance(rcOrgRoleDAO);
+    }
+  }
+  
   private void create_RM_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
@@ -351,7 +400,6 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       Locale locale = Session.getCurrentLocale();
       String defaultDisplayLabel = mdGeoVertexDAO.getLocalValue(MdGeoVertexInfo.DISPLAY_LABEL, locale) + " Registry Maintainer";
 
-      // Heads up: clean up move to Roles.java?
       Roles rmOrgRole = new Roles();
       rmOrgRole.setRoleName(rmRoleName);
       rmOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);

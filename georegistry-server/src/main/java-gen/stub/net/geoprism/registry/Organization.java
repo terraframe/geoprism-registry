@@ -1,23 +1,27 @@
 package net.geoprism.registry;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.dataaccess.EntityDAOIF;
+import com.runwaysdk.dataaccess.cache.ObjectCache;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
-
-import net.geoprism.registry.conversion.LocalizedValueConverter;
-
-import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+import com.runwaysdk.system.gis.geo.Universal;
 
 
 public class Organization extends OrganizationBase
@@ -164,6 +168,33 @@ public class Organization extends OrganizationBase
   }
 
   /**
+   * Return an array of {@link GeoObjectType} codes for this {@link Organization}.
+   * 
+   * @return array of {@link GeoObjectType} codes for this {@link Organization}.
+   */
+  public String[] getGeoObjectTypes()
+  {
+    // For performance, get all of the universals defined
+    List<? extends EntityDAOIF> universalList =  ObjectCache.getCachedEntityDAOs(Universal.CLASS);
+    
+    List<String> typeCodeList = new LinkedList<String>();
+    
+    for (EntityDAOIF entityDAOIF : universalList)
+    {
+      // Check to see if the universal is owned by the organization role.
+      String ownerId = entityDAOIF.getValue(Universal.OWNER);
+      Roles organizationRole = this.getRole();
+      if (ownerId.equals(organizationRole.getOid()))
+      {
+        String geoObjectTypeCode = entityDAOIF.getValue(Universal.UNIVERSALID);
+        typeCodeList.add(geoObjectTypeCode);
+      }
+    }
+    
+    return typeCodeList.toArray(new String[typeCodeList.size()]);
+  }
+  
+  /**
    * Creates a {@link RoleDAOIF} for this {@link Organization}.
    * 
    * Precondition: a {@link RoleDAOIF} does not exist for this
@@ -294,7 +325,7 @@ public class Organization extends OrganizationBase
   }
 
   public static List<? extends Organization> getOrganizations()
-  {
+  {    
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getDisplayLabel().localize());
 

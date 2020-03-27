@@ -37,6 +37,8 @@ public class ServiceFactory
   
   private RegistryAdapter adapter;
   
+  private AccountService accountService;
+  
   private void initialize()
   {
     this.registryService = new RegistryService();
@@ -45,6 +47,8 @@ public class ServiceFactory
     this.idService = new RegistryIdService();
     
     this.adapter = new RegistryAdapterServer(this.idService);
+    
+    this.accountService = new AccountService();
     
     this.registryService.initialize(this.adapter);
   }
@@ -68,6 +72,11 @@ public class ServiceFactory
   public static RegistryService getRegistryService()
   {
     return ServiceFactory.getInstance().registryService;
+  }
+  
+  public static AccountService getAccountService()
+  {
+    return ServiceFactory.getInstance().accountService;
   }
   
   public static ConversionService getConversionService()

@@ -38,6 +38,8 @@ public class OrganizationAndRoleTest
   
   public static ClientSession            adminSession                 = null;
   
+  public static final String             DISTRICT                     = "District";
+  
   public static final String             VILLAGE                      = "Village";
   
   public static final String             MOI_ORG_CODE                 = "MOI";
@@ -63,15 +65,15 @@ public class OrganizationAndRoleTest
   @Before
   public void setUp()
   {
-    this.deleteGeoObjectType(VILLAGE);
-    this.deleteOrganization(MOI_ORG_CODE);
+    deleteGeoObjectType(VILLAGE);
+    deleteOrganization(MOI_ORG_CODE);
   }
   
   @After
   public void tearDown() throws IOException
   { 
-    this.deleteGeoObjectType(VILLAGE);
-    this.deleteOrganization(MOI_ORG_CODE);
+    deleteGeoObjectType(VILLAGE);
+    deleteOrganization(MOI_ORG_CODE);
   }
 
   
@@ -90,7 +92,7 @@ public class OrganizationAndRoleTest
 
     try
     {
-      organization = this.createOrganization(MOI_ORG_CODE);
+      organization = createOrganization(MOI_ORG_CODE);
       
       Roles orgRole = organization.getRole();
       Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE+"."+MOI_ORG_CODE, orgRole.getRoleName());
@@ -165,7 +167,7 @@ public class OrganizationAndRoleTest
   {
     String organizationCode = MOI_ORG_CODE; 
     
-    this.createOrganization(organizationCode);
+    createOrganization(organizationCode);
     
     try
     {
@@ -180,7 +182,7 @@ public class OrganizationAndRoleTest
     }
     finally
     {
-      this.deleteOrganization(organizationCode);
+      deleteOrganization(organizationCode);
     }
   }
   
@@ -210,9 +212,8 @@ public class OrganizationAndRoleTest
     String organizationCode = MOI_ORG_CODE; 
     String geoObjectTypeCode = VILLAGE;
     
-    this.createOrganization(organizationCode);
-    
-    this.createGeoObjectType(organizationCode, geoObjectTypeCode);
+    createOrganization(organizationCode);
+    createGeoObjectType(organizationCode, geoObjectTypeCode);
     
     try
     {
@@ -227,8 +228,8 @@ public class OrganizationAndRoleTest
     }
     finally
     {      
-      this.deleteGeoObjectType(geoObjectTypeCode);
-      this.deleteOrganization(organizationCode);
+      deleteGeoObjectType(geoObjectTypeCode);
+      deleteOrganization(organizationCode);
     }
   }
 
@@ -261,6 +262,39 @@ public class OrganizationAndRoleTest
     Assert.assertFalse("Invalid RC role name was parsed as valid", RegistryRole.Type.isAC_Role(invalidRole));
   }
   
+  @Test
+  @Request
+  public void testGetGeoObjectTypesMethod()
+  {
+    String organizationCode = MOI_ORG_CODE; 
+    String villageCode = VILLAGE;
+    String districtCode = DISTRICT;
+    
+    Organization organization = createOrganization(organizationCode);
+    
+    createGeoObjectType(organizationCode, villageCode);
+    createGeoObjectType(organizationCode, districtCode);
+    
+    try
+    {
+      String[] geoObjectTypeCodes = organization.getGeoObjectTypes();
+      
+      Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", 2, geoObjectTypeCodes.length);
+
+      java.util.Arrays.sort(geoObjectTypeCodes);
+      
+      Assert.assertEquals(districtCode, geoObjectTypeCodes[0]);
+      Assert.assertEquals(villageCode, geoObjectTypeCodes[1]);
+    }
+    finally
+    {      
+      deleteGeoObjectType(villageCode);
+      deleteGeoObjectType(districtCode);
+      deleteOrganization(organizationCode);
+    }
+  }
+  
+  
   /**
    * Precondition: Needs to be called within {@link Request} and {@link Transaction} annotations.
    * 
@@ -269,7 +303,7 @@ public class OrganizationAndRoleTest
    * @return created and persisted {@link Organization} object.
    */
   @Request
-  private Organization createOrganization(String organizationCode)
+  public static Organization createOrganization(String organizationCode)
   {
     Organization organization = new Organization();
     organization.setCode(organizationCode);
@@ -287,7 +321,7 @@ public class OrganizationAndRoleTest
    * 
    */
   @Request
-  private void deleteOrganization(String organizationCode)
+  public static void deleteOrganization(String organizationCode)
   {
     Organization organization = null;
     
@@ -300,7 +334,7 @@ public class OrganizationAndRoleTest
   }
   
   @Request
-  private void createGeoObjectType(String organizationCode, String geoObjectTypeCode)
+  public static void createGeoObjectType(String organizationCode, String geoObjectTypeCode)
   {    
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
     GeoObjectType province = MetadataFactory.newGeoObjectType(geoObjectTypeCode, GeometryType.POLYGON, new LocalizedValue(geoObjectTypeCode), new LocalizedValue(""), true, organizationCode, registry);
@@ -311,7 +345,7 @@ public class OrganizationAndRoleTest
   }
   
   @Request
-  private void deleteGeoObjectType(String geoObjectTypeCode)
+  public static void deleteGeoObjectType(String geoObjectTypeCode)
   {
     try
     {

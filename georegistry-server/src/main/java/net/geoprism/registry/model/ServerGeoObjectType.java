@@ -280,8 +280,15 @@ public class ServerGeoObjectType
         String geoObjectTypeCode = this.type.getCode();
         
         String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
-        
         Roles role = Roles.findRoleByName(rmRoleName);
+        role.delete();
+        
+        String rcRoleName = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectTypeCode);
+        role = Roles.findRoleByName(rcRoleName);
+        role.delete();
+        
+        String acRoleName = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectTypeCode);
+        role = Roles.findRoleByName(acRoleName);
         role.delete();
       }
     }
