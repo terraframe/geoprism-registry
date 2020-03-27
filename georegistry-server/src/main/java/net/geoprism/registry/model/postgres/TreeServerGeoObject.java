@@ -20,12 +20,32 @@ package net.geoprism.registry.model.postgres;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import net.geoprism.dashboard.GeometryUpdateException;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.DuplicateGeoObjectException;
+import net.geoprism.registry.DuplicateGeoObjectMultipleException;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerChildTreeNode;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.service.RegistryIdService;
+import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -46,14 +66,15 @@ import com.runwaysdk.business.BusinessEnumeration;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.RelationshipQuery;
 import com.runwaysdk.business.ontology.TermAndRel;
+import com.runwaysdk.constants.ElementInfo;
+import com.runwaysdk.dataaccess.AttributeIF;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -62,24 +83,6 @@ import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
-
-import net.geoprism.dashboard.GeometryUpdateException;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.GeometryTypeException;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.model.ServerChildTreeNode;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class TreeServerGeoObject extends RelationalServerGeoObject implements ServerGeoObjectIF
 {
@@ -300,7 +303,34 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       throw new GeometryUpdateException();
     }
 
-    this.geoEntity.apply();
+    try
+    {
+      this.geoEntity.apply();
+    }
+    catch (DuplicateDataException e)
+    {
+      if (e.getAttributes().size() == 1)
+      {
+        DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
+        ex.setGeoObjectType(this.getType().getLabel().getValue());
+        ex.setValue(e.getValues().get(0));
+        ex.setAttributeName(this.getAttributeLabel(e.getAttributes().get(0)));
+        throw ex;
+      }
+      else
+      {
+        List<String> attrLabels = new ArrayList<String>();
+        
+        for (AttributeIF attr : e.getAttributes())
+        {
+          attrLabels.add(this.getAttributeLabel(attr));
+        }
+        
+        DuplicateGeoObjectMultipleException ex = new DuplicateGeoObjectMultipleException();
+        ex.setAttributeLabels(StringUtils.join(attrLabels, ", "));
+        throw ex;
+      }
+    }
 
     if (isNew)
     {
@@ -308,6 +338,21 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
     }
 
     this.getBusiness().apply();
+  }
+  
+  public String getAttributeLabel(AttributeIF attr)
+  {
+    if (attr.getName().equals(ElementInfo.KEY) || attr.getName().equals(ElementInfo.OID) || attr.getName().equals(GeoEntity.GEOID))
+    {
+      return this.getType().getAttribute(DefaultAttribute.CODE.getName()).get().getLabel().getValue();
+    }
+    
+    if (this.getType().getAttribute(attr.getName()).isPresent())
+    {
+      return this.getType().getAttribute(attr.getName()).get().getLabel().getValue();
+    }
+    
+    return attr.getDisplayLabel(Session.getCurrentLocale());
   }
 
   @Override

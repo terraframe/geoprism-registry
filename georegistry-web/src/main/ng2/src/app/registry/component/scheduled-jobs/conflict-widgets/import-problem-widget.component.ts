@@ -78,7 +78,10 @@ export class ImportProblemWidgetComponent implements OnInit {
         // if(probType === "net.geoprism.registry.io.TermValueException"){
         //   return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
         // }
-        if(probType === "com.runwaysdk.dataaccess.DuplicateDataException"){
+        if(
+          probType === "com.runwaysdk.dataaccess.DuplicateDataException"
+          || probType === "net.geoprism.registry.DuplicateGeoObjectException"
+          ){
           return this.lService.decode( "scheduledjobs.job.problem.type.duplicate.data.lookup" );
         }
 

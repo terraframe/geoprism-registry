@@ -1,0 +1,30 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.DuplicateGeoObjectException"
+        message="A {geoObjectType} with the {attributeName} [{value}] already exists. Please choose a different value."
+      >
+        <attributes>
+          <text name="geoObjectType" required="true" label="district" />
+          <text name="value" required="true" label="code" />
+          <text name="attributeName" required="true" label="attributeName" />
+        </attributes>
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.DuplicateGeoObjectMultipleException"
+        message="The attributes {attributeLabels} must be unique."
+      >
+        <attributes>
+          <text name="attributeLabels" required="true" label="attributeLabels" />
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.DuplicateGeoObjectException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.DuplicateGeoObjectMultipleException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>
