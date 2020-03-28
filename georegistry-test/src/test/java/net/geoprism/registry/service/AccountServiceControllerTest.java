@@ -90,8 +90,11 @@ public class AccountServiceControllerTest
     OrganizationAndRoleTest.deleteOrganization(ORG_MOI);
   }
   
+  /** 
+   * Test returning possible roles that can be assigned to a person for a given organization.
+   */
   @Test
-  public void createUserWithRoles()
+  public void createUserWithOrgRoles()
   {
     RestResponse response = (RestResponse)controller.newInstance(clientRequest, ORG_MOI);
     
@@ -120,16 +123,41 @@ public class AccountServiceControllerTest
     }
     
     Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
-    
-    /*
-    cgr.Org.MOI.RA
-    cgr.Org.MOI.Village.RM
-    cgr.Org.MOI.Village.RC
-    cgr.Org.MOI.Village.AC
-    cgr.Org.MOI.District.RM
-    cgr.Org.MOI.District.RC
-    cgr.Org.MOI.District.AC
-    */
   }
   
+  /** 
+   * Test returning all possible roles that can be assigned to a person.
+   */
+  @Test
+  public void createUserWithRoles()
+  {
+    RestResponse response = (RestResponse)controller.newInstance(clientRequest, "");
+    
+    Pair pair = (Pair)response.getAttribute("roles");
+    
+    JSONArray roleJSONArray = (JSONArray)pair.getFirst();
+    
+    Assert.assertEquals(8, roleJSONArray.length());
+    
+    Set<String> rolesFoundSet = new HashSet<String>();
+    rolesFoundSet.add(RegistryRole.Type.getSRA_RoleName());
+    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+    
+    for (int i = 0; i < roleJSONArray.length(); i++)
+    {
+      String jsonString = roleJSONArray.getString(i);
+      RegistryRole registryRole = RegistryRole.fromJSON(jsonString);
+
+      
+      rolesFoundSet.remove(registryRole.getName());
+    }
+    
+    Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
+  }
 }
