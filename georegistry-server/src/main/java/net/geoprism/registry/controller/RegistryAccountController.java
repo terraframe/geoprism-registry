@@ -12,6 +12,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -69,7 +70,7 @@ public class RegistryAccountController
     
     GeoprismUserDTO user = UserInviteDTO.newUserInst(request);
     RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(request.getSessionId(), orgCodeArray);
-    JSONArray rolesJSONArray = this.createRoleMap(registryRoles);
+    JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
     
     RestResponse response = new RestResponse();
     response.set("user", user);
@@ -78,13 +79,13 @@ public class RegistryAccountController
     return response;
   }
   
-  private JSONArray createRoleMap(RegistryRole[] roles) throws JSONException
+  private JsonArray createRoleMap(RegistryRole[] roles) 
   {
-    JSONArray roleJSONArray = new JSONArray();
+    JsonArray roleJSONArray = new JsonArray();
     
     for (RegistryRole role : roles)
     {
-      roleJSONArray.put(role.toJSON().toString());
+      roleJSONArray.add(role.toJSON());
     }
     
     return roleJSONArray;
