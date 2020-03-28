@@ -54,7 +54,7 @@ public class RegistryAccountController
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF newInstance(ClientRequestIF request, String organizationCodes) throws JSONException
+  public ResponseIF newInstance(ClientRequestIF request, @RequestParamter(name = "organizationCodes") String organizationCodes) throws JSONException
   {
     String[] orgCodeArray = organizationCodes.split("\\,");
     
