@@ -109,24 +109,42 @@ public class AccountService
   {
     List<RegistryRole> registryRoleList = new LinkedList<RegistryRole>();
     
-    boolean containsOrganization = false;
+    List<String> orgCodesToProcess = new LinkedList<String>();
+    
     for (String organizationCode : organizationCodes)
     {
       if (!organizationCode.trim().equals(""))
       {
-        containsOrganization = true;
-        
-        Organization organization = Organization.getByKey(organizationCode.trim());
-      
-        addRolesForOrganization(registryRoleList, organization);
+        orgCodesToProcess.add(organizationCode.trim());
       }
     }
     
-    // If no organizations were provided, fetch all of the objects.
-    if (containsOrganization == false)
+    List<Organization> organizationList;
+    
+    if (orgCodesToProcess.size() == 0)
     {
-
+      // Add the SRA role
+      String sraRoleName = RegistryRole.Type.getSRA_RoleName();
+      Roles sraRole = Roles.findRoleByName(sraRoleName);
+      registryRoleList.add(new RegistryRoleConverter().build(sraRole));
+      
+      organizationList = Organization.getOrganizationsFromCache();
     }
+    else
+    {
+      organizationList = new LinkedList<Organization>();
+      
+      for (String organizationCode : organizationCodes)
+      {
+        organizationList.add(Organization.getByCode(organizationCode));
+      }
+    }
+    
+    for (Organization organization : organizationList)
+    {
+      addRolesForOrganization(registryRoleList, organization);
+    }
+
     
     return registryRoleList.toArray(new RegistryRole[registryRoleList.size()]);
   }

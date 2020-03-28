@@ -332,6 +332,27 @@ public class Organization extends OrganizationBase
     return query.getIterator().getAll();
   }
 
+  /**
+   * Returns all of the organizations as {@link Organization} objects from the cache unsorted
+   * instead of fetching from the database.
+   * @return
+   */
+  public static List<Organization> getOrganizationsFromCache()
+  {
+    // For performance, get all of the universals defined
+    List<? extends EntityDAOIF> organizationDAOs =  ObjectCache.getCachedEntityDAOs(Organization.CLASS);
+    
+    List<Organization> organizationList = new LinkedList<Organization>();
+    
+    for (EntityDAOIF entityDAOIF : organizationDAOs)
+    {
+      Organization organization = (Organization)BusinessFacade.get(entityDAOIF);
+      organizationList.add(organization);
+    }
+    
+    return organizationList;
+  }
+  
   public OrganizationDTO toDTO()
   {
     return new OrganizationDTO(this.getCode(), LocalizedValueConverter.convert(this.getDisplayLabel()), LocalizedValueConverter.convert(this.getContactInfo()));

@@ -53,6 +53,15 @@ public class RegistryAccountController
     return new AccountController().get(request);
   }
   
+  /**
+   * Returns all roles associated with the given {@link OrganizationDTO} codes. If no codes are provided then
+   * return all roles defined in the registry.
+   * 
+   * @param request
+   * @param organizationCodes comma separated list of {@link OrganizationDTO} codes. 
+   * @return
+   * @throws JSONException
+   */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF newInstance(ClientRequestIF request, String organizationCodes) throws JSONException
   {
