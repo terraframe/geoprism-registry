@@ -3,13 +3,27 @@
 
         <cgr-header></cgr-header>
         <loading-bar></loading-bar>
-
+        
         <div id="app-container" class="container-fluid">
             <div class="nav-icon-container">
 
                 <div *ngIf="applications?.length > 0" class="row-fluid vertical-center-row">
                     <div class="col-md-3 col-sm-4 col-xs-2"></div>
                     <div class="col-md-6 col-sm-4 col-xs-8">
+                      <!-- TODO : Better CSS -->
+                      <div *ngIf="tasks.length > 0" style="width: 50%; margin: 0 auto;">
+							          <h3>Your Tasks</h3>
+							          
+							          <ul class="list-group">
+								          <li class="list-group-item" *ngFor="let task of tasks;" style="height:100px;">
+								            <span style="height: 100px;width: 80%;display: inline-block;">{{task.msg}}</span>
+								            <button (click)="onCompleteTask(task)" style="display: inline-block;height: 80px;width: 20%;float: right; border-color:black; background-color:lightblue">
+								              OK
+								            </button>
+								          </li>
+							          </ul>
+							        </div>
+                    
                         <div *ngFor="let app of applications; let i = index;">
 
                             <div class="row" *ngIf="i % 4 === 0">

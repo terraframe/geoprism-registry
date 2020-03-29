@@ -37,6 +37,7 @@ declare var acp: any;
 export class HubComponent implements OnInit {
     context: string;
     applications: Application[] = [];
+    tasks: any = [];
     isAdmin: boolean = false;
     buckets: string = 'col-sm-6';
     bsModalRef: BsModalRef;
@@ -46,17 +47,27 @@ export class HubComponent implements OnInit {
         private authService: AuthService,
         private modalService: BsModalService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         this.context = acp as string;
     }
 
     ngOnInit(): void {
-        this.service.applications().then( applications => {
-            this.applications = applications;
-        } );
-
-        this.isAdmin = this.authService.isAdmin();
+      this.service.applications().then( applications => {
+          this.applications = applications;
+      } );
+      
+      this.service.getMyTasks().then( tasks => {
+          this.tasks = tasks;
+      } );
+  
+      this.isAdmin = this.authService.isAdmin();
+    }
+    
+    onCompleteTask(task: any): void {
+      this.service.completeTask(task.id).then( () => {
+        this.tasks.splice(this.tasks.indexOf(task), 1);
+      } );
     }
 
     //   logout():void {

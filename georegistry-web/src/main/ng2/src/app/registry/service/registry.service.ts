@@ -42,7 +42,7 @@ export class RegistryService {
         return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], locales: string[] }>( acp + '/cgr/init' )
             .toPromise();
     }
-
+    
     // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
     getGeoObjectTypes( types: any ): Promise<GeoObjectType[]> {
         let params: HttpParams = new HttpParams();
