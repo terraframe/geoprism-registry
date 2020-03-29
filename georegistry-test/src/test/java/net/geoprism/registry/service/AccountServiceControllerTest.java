@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.Pair;
@@ -101,9 +102,9 @@ public class AccountServiceControllerTest
     
     Pair pair = (Pair)response.getAttribute("roles");
     
-    JSONArray roleJSONArray = (JSONArray)pair.getFirst();
+    JsonArray roleJSONArray = (JsonArray)pair.getFirst();
     
-    Assert.assertEquals(7, roleJSONArray.length());
+    Assert.assertEquals(7, roleJSONArray.size());
     
     Set<String> rolesFoundSet = new HashSet<String>();
     
@@ -115,7 +116,7 @@ public class AccountServiceControllerTest
     rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
     rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
     
-    for (int i = 0; i < roleJSONArray.length(); i++)
+    for (int i = 0; i < roleJSONArray.size(); i++)
     {
       JsonObject json = (JsonObject)roleJSONArray.get(i);
       RegistryRole registryRole = RegistryRole.fromJSON(json.toString());
@@ -127,18 +128,34 @@ public class AccountServiceControllerTest
   }
   
   /** 
-   * Test returning all possible roles that can be assigned to a person.
+   * Test returning all possible roles that can be assigned to a person by passing in an empty string for the organizations.
    */
   @Test
-  public void createUserWithRoles()
+  public void createUserWithRolesEmptyOrgString()
   {
     RestResponse response = (RestResponse)controller.newInstance(clientRequest, "");
     
+    createUserWIthRoles(response);
+  }
+  
+  /** 
+   * Test returning all possible roles that can be assigned to a person by passing in an empty string for the organizations.
+   */
+  @Test
+  public void createUserWithRolesEmptyOrgNull()
+  {
+    RestResponse response = (RestResponse)controller.newInstance(clientRequest, null);
+    
+    createUserWIthRoles(response);
+  }
+  
+  private void createUserWIthRoles(RestResponse response)
+  {
     Pair pair = (Pair)response.getAttribute("roles");
     
-    JSONArray roleJSONArray = (JSONArray)pair.getFirst();
+    JsonArray roleJSONArray = (JsonArray)pair.getFirst();
     
-    Assert.assertEquals(8, roleJSONArray.length());
+    Assert.assertEquals(8, roleJSONArray.size());
     
     Set<String> rolesFoundSet = new HashSet<String>();
     rolesFoundSet.add(RegistryRole.Type.getSRA_RoleName());
@@ -150,7 +167,7 @@ public class AccountServiceControllerTest
     rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
     rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
     
-    for (int i = 0; i < roleJSONArray.length(); i++)
+    for (int i = 0; i < roleJSONArray.size(); i++)
     {
       JsonObject json = (JsonObject)roleJSONArray.get(i);
       RegistryRole registryRole = RegistryRole.fromJSON(json.toString());
