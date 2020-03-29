@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.Pair;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -116,8 +117,8 @@ public class AccountServiceControllerTest
     
     for (int i = 0; i < roleJSONArray.length(); i++)
     {
-      String jsonString = roleJSONArray.getString(i);
-      RegistryRole registryRole = RegistryRole.fromJSON(jsonString);
+      JsonObject json = (JsonObject)roleJSONArray.get(i);
+      RegistryRole registryRole = RegistryRole.fromJSON(json.toString());
       
       rolesFoundSet.remove(registryRole.getName());
     }
@@ -151,10 +152,9 @@ public class AccountServiceControllerTest
     
     for (int i = 0; i < roleJSONArray.length(); i++)
     {
-      String jsonString = roleJSONArray.getString(i);
-      RegistryRole registryRole = RegistryRole.fromJSON(jsonString);
+      JsonObject json = (JsonObject)roleJSONArray.get(i);
+      RegistryRole registryRole = RegistryRole.fromJSON(json.toString());
 
-      
       rolesFoundSet.remove(registryRole.getName());
     }
     

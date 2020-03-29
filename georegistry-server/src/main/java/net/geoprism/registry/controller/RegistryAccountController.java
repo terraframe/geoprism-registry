@@ -65,8 +65,17 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF newInstance(ClientRequestIF request, String organizationCodes) throws JSONException
   {
-    String[] orgCodeArray = organizationCodes.split("\\,");
+    String[] orgCodeArray = null;
     
+    if (organizationCodes != null)
+    {
+      orgCodeArray = organizationCodes.split("\\,");
+    }
+    else
+    {
+      orgCodeArray = new String[0];
+    }
+
     GeoprismUserDTO user = UserInviteDTO.newUserInst(request);
     RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(request.getSessionId(), orgCodeArray);
     JSONArray rolesJSONArray = this.createRoleMap(registryRoles);
@@ -84,7 +93,7 @@ public class RegistryAccountController
     
     for (RegistryRole role : roles)
     {
-      roleJSONArray.put(role.toJSON().toString());
+      roleJSONArray.put(role.toJSON());
     }
     
     return roleJSONArray;
