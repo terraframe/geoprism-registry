@@ -20,6 +20,12 @@ public class Task extends TaskBase
 {
   private static final long serialVersionUID = 508070126;
   
+  public static enum TaskStatus
+  {
+    UNRESOLVED,
+    RESOLVED
+  }
+  
   public Task()
   {
     super();

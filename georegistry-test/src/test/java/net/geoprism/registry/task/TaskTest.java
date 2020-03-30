@@ -1,6 +1,7 @@
 package net.geoprism.registry.task;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -14,9 +15,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.ibm.icu.util.Calendar;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -26,6 +29,7 @@ import com.runwaysdk.system.Roles;
 
 import junit.framework.Assert;
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.test.TestDataSet;
 
 public class TaskTest
@@ -149,19 +153,41 @@ public class TaskTest
   }
   
   @Test
-  public void testTasks()
+  public void testCreateAndFetchTasks()
   {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(new Date());
+
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    Date dateMin = cal.getTime();
+    
+    cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + 1);
+    Date dateMax = cal.getTime();
+    
     createInstanceData(chineseSession.getSessionId());
     
     JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONObject(0);
     Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", chinaJO.getString("templateKey"));
+    Assert.assertNotNull(chinaJO.getString("id"));
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
+    Assert.assertTrue(dateMin.before(new Date(chinaJO.getLong("createDate"))));
+    Assert.assertTrue(dateMax.after(new Date(chinaJO.getLong("createDate"))));
+    Assert.assertTrue(chinaJO.isNull("completedDate"));
     Assert.assertEquals(
         "区 D1 Chinese已拆分。 您必须将孩子重新分配给新父母。",
         chinaJO.getString("msg")
     );
     
+    System.out.println(chinaJO);
+    
     JSONObject koreaJO = TaskService.getTasksForCurrentUser(koreanSession.getSessionId()).getJSONObject(0);
     Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", koreaJO.getString("templateKey"));
+    Assert.assertNotNull(koreaJO.getString("id"));
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.getString("status"));
+    Assert.assertTrue(dateMin.before(new Date(koreaJO.getLong("createDate"))));
+    Assert.assertTrue(dateMax.after(new Date(koreaJO.getLong("createDate"))));
+    Assert.assertTrue(koreaJO.isNull("completedDate"));
     Assert.assertEquals(
         "지구 D1 Korean이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.",
         koreaJO.getString("msg")
@@ -169,6 +195,11 @@ public class TaskTest
     
     JSONObject canadaJO = TaskService.getTasksForCurrentUser(canadaSession.getSessionId()).getJSONObject(0);
     Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", canadaJO.getString("templateKey"));
+    Assert.assertNotNull(canadaJO.getString("id"));
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.getString("status"));
+    Assert.assertTrue(dateMin.before(new Date(canadaJO.getLong("createDate"))));
+    Assert.assertTrue(dateMax.after(new Date(canadaJO.getLong("createDate"))));
+    Assert.assertTrue(canadaJO.isNull("completedDate"));
     Assert.assertEquals(
         "Oh no! The district eh D1 Canada has split. You must reassign the children with new parents eh.",
         canadaJO.getString("msg")
@@ -176,10 +207,51 @@ public class TaskTest
     
     JSONObject italianJO = TaskService.getTasksForCurrentUser(italianSession.getSessionId()).getJSONObject(0);
     Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", italianJO.getString("templateKey"));
+    Assert.assertNotNull(italianJO.getString("id"));
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.getString("status"));
+    Assert.assertTrue(dateMin.before(new Date(italianJO.getLong("createDate"))));
+    Assert.assertTrue(dateMax.after(new Date(italianJO.getLong("createDate"))));
+    Assert.assertTrue(italianJO.isNull("completedDate"));
     Assert.assertEquals(
         "The district D1 has split. You must reassign the children with new parents.",
         italianJO.getString("msg")
     );
+  }
+  
+  @Test
+  @Request
+  public void testCompleteTask()
+  {
+    createInstanceData(chineseSession.getSessionId());
+    
+    JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONObject(0);
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
+    
+    TaskService.completeTask(chineseSession.getSessionId(), chinaJO.getString("id"));
+    
+    Task t = Task.get(chinaJO.getString("id"));
+    Assert.assertEquals(TaskStatus.RESOLVED.name(), t.getStatus());
+  }
+  
+  @Test
+  @Request
+  public void testDeleteTask()
+  {
+    createInstanceData(chineseSession.getSessionId());
+    
+    JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONObject(0);
+    
+    TaskService.deleteTask(chineseSession.getSessionId(), chinaJO.getString("id"));
+    
+    try
+    {
+      Task.get(chinaJO.getString("id"));
+      Assert.fail();
+    }
+    catch (DataNotFoundException e)
+    {
+      
+    }
   }
   
   @Request(RequestType.SESSION)

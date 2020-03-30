@@ -1,6 +1,6 @@
 package net.geoprism.registry.task;
 
-@com.runwaysdk.business.ClassSignature(hash = 1527210265)
+@com.runwaysdk.business.ClassSignature(hash = -525699907)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -278,6 +278,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.task.Task.SITEMASTER, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getStatus()
+  {
+    return getStatus(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStatus(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.task.Task.STATUS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStatus(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.task.Task.STATUS, alias, displayLabel);
+
+  }
   public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate()
   {
     return getTemplate(null);
@@ -552,6 +569,9 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getStatus();
+    public com.runwaysdk.query.SelectableChar getStatus(String alias);
+    public com.runwaysdk.query.SelectableChar getStatus(String alias, String displayLabel);
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate();
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias);
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias, String displayLabel);
@@ -825,6 +845,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SITEMASTER, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getStatus()
+  {
+    return getStatus(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStatus(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.STATUS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStatus(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.STATUS, alias, displayLabel);
+
+  }
   public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate()
   {
     return getTemplate(null);
@@ -1070,6 +1107,9 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getStatus();
+    public com.runwaysdk.query.SelectableChar getStatus(String alias);
+    public com.runwaysdk.query.SelectableChar getStatus(String alias, String displayLabel);
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate();
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias);
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias, String displayLabel);
@@ -1362,6 +1402,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SITEMASTER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getStatus()
+  {
+    return getStatus(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStatus(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.STATUS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStatus(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.STATUS, alias, displayLabel);
 
   }
   public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate()

@@ -1,6 +1,6 @@
 package net.geoprism.registry.task;
 
-@com.runwaysdk.business.ClassSignature(hash = -721401054)
+@com.runwaysdk.business.ClassSignature(hash = 741777222)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -25,9 +25,10 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
   public static java.lang.String OWNER = "owner";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
+  public static java.lang.String STATUS = "status";
   public static java.lang.String TEMPLATE = "template";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -721401054;
+  private static final long serialVersionUID = 741777222;
   
   public TaskBase()
   {
@@ -345,6 +346,34 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.task.Task.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(SITEMASTER);
+  }
+  
+  public String getStatus()
+  {
+    return getValue(STATUS);
+  }
+  
+  public void validateStatus()
+  {
+    this.validateAttribute(STATUS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getStatusMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.task.Task.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(STATUS);
+  }
+  
+  public void setStatus(String value)
+  {
+    if(value == null)
+    {
+      setValue(STATUS, "");
+    }
+    else
+    {
+      setValue(STATUS, value);
+    }
   }
   
   public com.runwaysdk.localization.LocalizedValueStore getTemplate()

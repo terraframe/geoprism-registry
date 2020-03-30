@@ -37,9 +37,22 @@ import net.geoprism.registry.task.TaskService;
 public class TaskController
 {
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF get(ClientRequestIF request) throws JSONException
+  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "orderBy") String orderBy, @RequestParamter(name = "pageNum") Integer pageNum, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "whereStatus") String whereStatus) throws JSONException
   {
-    JSONArray jo = TaskService.getTasksForCurrentUser(request.getSessionId());
+    if (orderBy == null || orderBy.length() == 0)
+    {
+      orderBy = "createDate";
+    }
+    if (pageNum == null || pageNum == 0)
+    {
+      pageNum = 1;
+    }
+    if (pageSize == null || pageSize == 0)
+    {
+      pageSize = Integer.MAX_VALUE;
+    }
+    
+    JSONArray jo = TaskService.getTasksForCurrentUser(request.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
     
     return new RestBodyResponse(jo.toString());
   }

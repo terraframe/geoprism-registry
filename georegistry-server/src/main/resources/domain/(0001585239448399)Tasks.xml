@@ -1,0 +1,61 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.GeoObjectSplitOrphanedChildren">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.GeoObjectSplitOrphanedChildren" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The {typeName} {oldParentName} has split. You must reassign the children with new parents." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdBusiness
+        name="net.geoprism.registry.task.Task"
+        cacheAlgorithm="everything"
+        publish="false"
+      >
+        <attributes>
+          <reference name="template" type="com.runwaysdk.localization.LocalizedValueStore" required="true"/>
+          <localText name="message"></localText>
+          <text name="status" label="status" defaultValue="UNRESOLVED"/>
+        </attributes>
+      </mdBusiness>
+      <mdRelationship
+        name="net.geoprism.registry.task.TaskHasRole"
+        label="TaskHasRole"
+        cacheAlgorithm="everything"
+        publish="false"
+      >
+        <parent cardinality="*" name="net.geoprism.registry.task.Task" method="Task" />
+        <child cardinality="*" name="com.runwaysdk.system.Roles" method="Role" />
+      </mdRelationship>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.task.Task">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.task.TaskHasRole">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+        <grant>
+          <mdRelationshipPermission type="com.runwaysdk.localization.LocalizedValueStore">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.task.Task" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.task.TaskHasRole" type="com.runwaysdk.system.metadata.MdRelationship"/>
+    </delete>
+  </undoIt>
+</version>
