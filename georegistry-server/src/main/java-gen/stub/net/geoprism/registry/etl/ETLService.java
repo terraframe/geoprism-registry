@@ -222,7 +222,7 @@ public class ETLService
     return page;
   }
   
-  private String formatDate(Date date)
+  public static String formatDate(Date date)
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));

@@ -18,8 +18,8 @@
  */
 package net.geoprism.registry.controller;
 
-import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
@@ -52,7 +52,7 @@ public class TaskController
       pageSize = Integer.MAX_VALUE;
     }
     
-    JSONArray jo = TaskService.getTasksForCurrentUser(request.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
+    JSONObject jo = TaskService.getTasksForCurrentUser(request.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
     
     return new RestBodyResponse(jo.toString());
   }

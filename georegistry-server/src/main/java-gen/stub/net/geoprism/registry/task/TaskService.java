@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.localization.LocalizedValueStoreQuery;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -15,28 +16,28 @@ import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.RolesQuery;
 
+import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.task.Task.TaskStatus;
 
 public class TaskService
 {
-  public static JSONArray getTasksForCurrentUser(String sessionId)
+  public static JSONObject getTasksForCurrentUser(String sessionId)
   {
     return TaskService.getTasksForCurrentUser(sessionId, "createDate", 1, Integer.MAX_VALUE, null);
   }
   
   @Request(RequestType.SESSION)
-  public static JSONArray getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
+  public static JSONObject getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
   {
     QueryFactory qf = new QueryFactory();
     
     ValueQuery vq = new ValueQuery(qf);
     
-    TaskHasRoleQuery thrq = new TaskHasRoleQuery(qf);
+    TaskHasRoleQuery thrq = new TaskHasRoleQuery(vq);
     
-    TaskQuery tq = new TaskQuery(qf);
+    TaskQuery tq = new TaskQuery(vq);
     vq.WHERE(thrq.getParent().EQ(tq));
     
     if (whereStatus != null)
@@ -44,7 +45,7 @@ public class TaskService
       vq.WHERE(tq.getStatus().EQ(whereStatus));
     }
     
-    RolesQuery rq = new RolesQuery(qf);
+    RolesQuery rq = new RolesQuery(vq);
     vq.WHERE(thrq.getChild().EQ(rq));
     
     
@@ -53,25 +54,28 @@ public class TaskService
     
     for (String roleName : roles.keySet())
     {
-      Roles role = Roles.findRoleByName(roleName);
-      
       if (cond == null)
       {
-        cond = rq.getRoleName().EQ(role.getRoleName());
+        cond = rq.getRoleName().EQ(roleName);
       }
       else
       {
-        cond = cond.OR(rq.getRoleName().EQ(role.getRoleName()));
+        cond = cond.OR(rq.getRoleName().EQ(roleName));
       }
     }
     
     vq.WHERE(cond);
     
+    LocalizedValueStoreQuery lvsqTemplate = new LocalizedValueStoreQuery(vq);
+    vq.WHERE(tq.getTemplate().EQ(lvsqTemplate));
+    
+    LocalizedValueStoreQuery lvsqTitle = new LocalizedValueStoreQuery(vq);
+    vq.WHERE(tq.getTitle().EQ(lvsqTitle));
     
     vq.SELECT(tq.getOid("oid"));
-    vq.SELECT(tq.getTemplate().getStoreKey("templateKey"));
+    vq.SELECT(lvsqTemplate.getStoreKey("templateKey"));
     vq.SELECT(tq.getMessage().localize("msg"));
-    vq.SELECT(tq.getTitle().getStoreValue().localize("title"));
+    vq.SELECT(lvsqTitle.getStoreValue().localize("title"));
     vq.SELECT(tq.getStatus("status"));
     vq.SELECT(tq.getCreateDate("createDate"));
     vq.SELECT(tq.getLastUpdateDate("completedDate"));
@@ -80,7 +84,14 @@ public class TaskService
     vq.restrictRows(pageSize, pageNum);
     
     
-    JSONArray ja = new JSONArray();
+    
+    JSONObject page = new JSONObject();
+    
+    page.put("count", vq.getCount());
+    page.put("pageNumber", pageNum);
+    page.put("pageSize", pageSize);
+    
+    JSONArray results = new JSONArray();
     
     OIterator<ValueObject> it = vq.getIterator();
     
@@ -94,13 +105,15 @@ public class TaskService
       jo.put("msg", vo.getValue("msg"));
       jo.put("title", vo.getValue("title"));
       jo.put("status", vo.getValue("status"));
-      jo.put("createDate", MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate")).getTime());
-      jo.put("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate")).getTime() : null);
+      jo.put("createDate", ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate"))));
+      jo.put("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate"))) : null);
       
-      ja.put(jo);
+      results.put(jo);
     }
     
-    return ja;
+    page.put("results", results);
+    
+    return page;
   }
 
   @Request(RequestType.SESSION)

@@ -10,7 +10,7 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { GeoObjectType, GeoObjectOverTime, Task } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, Task, PaginationPage } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
@@ -30,11 +30,28 @@ export class TaskViewerComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
 
-    inProgressTasks: Task[] = [];
+    inProgressTasks: PaginationPage = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
     
-    completedTasks: Task[] = [];
+    completedTasks: PaginationPage = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
     
     message: string;
+    
+    isViewAllOpen: boolean = false;
+    
+    activeTimeCounter: number = 0;
+    completeTimeCounter: number = 0;
+    
+    pollingData: any;
 
     constructor( private registryService: RegistryService,
                  private localizeService: LocalizationService,
@@ -47,31 +64,81 @@ export class TaskViewerComponent implements OnInit {
     }
 
     ngOnInit(): void {
-      this.registryService.getMyTasks('UNRESOLVED').then( tasks => {
-        this.inProgressTasks = tasks;
+      this.onInProgressTasksPageChange( 1 );
+      
+      this.pollingData = Observable.interval(1000).subscribe(() => {
+        this.activeTimeCounter++
+        this.completeTimeCounter++
+      
+        if (this.isViewAllOpen)
+        {
+          if (this.activeTimeCounter >= 4)
+          {
+            this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
+            
+            this.activeTimeCounter = 0;
+          }
+          if (this.completeTimeCounter >= 7)
+          {
+            this.onCompletedTasksPageChange(this.completedTasks.pageNumber);
+            
+            this.completeTimeCounter = 0;
+          }
+        }
+        else
+        {
+          if (this.activeTimeCounter >= 2)
+          {
+            this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
+            
+            this.activeTimeCounter = 0;
+          }
+        }
+      });
+    }
+    
+    upper(str: string): string {
+      if (str != null)
+      {
+        return str.toUpperCase();
+      }
+      else
+      {
+        return "";
+      }
+    }
+    
+    onInProgressTasksPageChange( pageNumber: any ): void {
+      this.message = null;
+
+      this.registryService.getMyTasks( pageNumber, this.inProgressTasks.pageSize, 'UNRESOLVED').then( page => {
+        this.inProgressTasks = page;
+        console.log("In Progress Tasks", page);
       } );
-      this.registryService.getMyTasks('RESOLVED').then( tasks => {
-        this.completedTasks = tasks;
+    }
+    
+    onCompletedTasksPageChange( pageNumber: any ): void {
+      this.message = null;
+
+      this.registryService.getMyTasks( pageNumber, this.completedTasks.pageSize, 'RESOLVED').then( page => {
+        this.completedTasks = page;
+        console.log("Completed Tasks", page);
       } );
     }
     
     onCompleteTask(task: any): void {
+      this.isViewAllOpen = true;
+    
       this.registryService.completeTask(task.id).then( () => {
-        this.inProgressTasks.splice(this.inProgressTasks.indexOf(task), 1);
+        this.inProgressTasks.results.splice(this.inProgressTasks.results.indexOf(task), 1);
+        this.completedTasks.results.push(task);
+        this.onCompletedTasksPageChange(1);
       } );
     }
     
-    getTitle(): string {
-      return this.authService.getUsername() + "'s Tasks"; // TODO : Localize
-    }
-
-    private fetchGeoObjectType( code: string ) {
-      this.registryService.getGeoObjectTypes( [code] )
-        .then( geoObjectType => {
-          this.geoObjectType = geoObjectType[0];
-        } ).catch(( err: HttpErrorResponse ) => {
-          console.log( err );
-          //                this.error( err );
-        } );
+    onViewAllCompletedTasks(): void {
+      this.isViewAllOpen = true;
+      
+      this.onCompletedTasksPageChange(1);
     }
 }

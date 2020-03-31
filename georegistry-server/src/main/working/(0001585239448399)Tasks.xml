@@ -12,7 +12,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="tasks.geoObjectSplitOrphanedChildren.template" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="The {typeName} {oldParentName} has split. You must reassign the children with new parents." />
+          <attribute name="defaultLocale" value="{typeName} {oldParentName} was divided into {newParentName1} and {newParentName2} on {splitDate}. {childTypeName} geo-objects may need to be reassigned accordingly." />
         </attributeStruct>
       </object>
     </createOrUpdate>

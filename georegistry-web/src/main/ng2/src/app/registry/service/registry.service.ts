@@ -43,9 +43,12 @@ export class RegistryService {
             .toPromise();
     }
     
-    getMyTasks( whereStatus: string ): Promise<any> {
+    getMyTasks( pageNum: number, pageSize: number, whereStatus: string ): Promise<any> {
       let params: HttpParams = new HttpParams();
       
+      params = params.set( 'orderBy', 'createDate' );
+      params = params.set( 'pageNum', pageNum.toString() );
+      params = params.set( 'pageSize', pageSize.toString() );
       params = params.set( 'whereStatus', whereStatus );
     
       return this.http
