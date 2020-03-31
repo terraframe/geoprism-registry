@@ -1204,27 +1204,27 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 
 /* .modal .modal-dialog .modal-content .modal-body */
 .modal-dialog{
-	width:1000px;
-	margin:0 auto 30px;
-	background:none;
-	border-radius:0;
-	box-shadow:none;
+	/* width:1000px; */
+	/* margin:0 auto 30px; */
+	/* background:none; */
+	/* border-radius:0; */
+	/* box-shadow:none; */
 }
 .modal-content{
 	background: white;
     border: 1px solid #aaa;
-	border-radius:0;
-	box-shadow:none;
+	/* border-radius:0; */
+	/* box-shadow:none; */
 	color:#333;
-    /* padding:17px 50px 0 0; */
     overflow-x:hidden;
-    /* overflow-y:auto; */
     overflow: visible;
-	/* height:calc(95vh - 52px); */
 }
 .modal-content .heading{
-	padding:0 0 0 268px;
-	margin:0 0 26px;
+	padding: 15px;
+	border-bottom: 1px solid #e5e5e5;
+	margin-bottom: 15px;
+	font-weight: bold;
+	color: #999;
 }
 .modal-content h1{
 	font-size:24px;
@@ -1234,7 +1234,6 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 }
 .modal-form{
     overflow:hidden;
-    /* min-height: 50vh; */
 }
 .modal-form .row-holder{
 	position:relative;
@@ -1244,8 +1243,10 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 .modal-form .row-holder .row-holder{padding:0 0 0 12px;}
 .modal-form .label-holder{
 	float:left;
-	width:236px;
-	margin:0 18px 0 0;
+	/* width:236px;
+	margin:0 18px 0 0; */
+	width: 30%;
+	margin: 0;
 	text-align:right;
 	min-height:2px;
 	position:relative;
@@ -1269,14 +1270,15 @@ div.row-holder .chk-area, div.row-holder .rad-area {
 
 .modal-form .holder{
 	float:left;
-	width:600px;
-	border-left:1px solid #ccc;
+	/* width:600px;
+	border-left:1px solid #ccc; */
+	width: 70%;
+    border-left: none;
 	padding:0 11px 18px 12px;
 	position:relative;
 }
 .modal-form .wide-holder{
 	float:left;
-/* 	width:900px; */
 	width: 100%;
 	border-left:1px solid #ccc;
 	padding:0 11px 18px 12px;
@@ -1312,62 +1314,6 @@ input :focus::-moz-placeholder{opacity:0 !important;}
 	position:relative;
 	width:100%;
 }
-/* .modal-form .text input[type="text"]{
-	background:#eee;
-	border:1px solid #aaa;
-	width:100%;
-	height:38px;
-	padding:5px 10px;
-	margin:0;
-	float:left;
-	font-size:18px;
-	line-height:24px;
-	color:#333;
-	box-shadow:none;
-	outline:none;
-}
-.modal-form .text input[type="text"]::-moz-placeholder{
-	color:#333;
-	opacity:1;
-}
-.modal-form .text input[type="text"]:-ms-input-placeholder{color:#333;}
-.modal-form .text input[type="text"]::-webkit-input-placeholder{color:#333;}
-.modal-form .text input[type="text"]:-moz-placeholder{color:#333;}
-.modal-form .text input[type="text"]:focus{border-color:#6BA542;}
-.modal-form .text input[type="text"]:disabled {
-    color: #999;
-}
-
-.modal-form .text input[type="textarea"]{
-	background:#eee;
-	border:1px solid #aaa;
-	width:99%;
-	padding:5px 10px;
-	margin:0;
-	float:left;
-	font-size:18px;
-	line-height:24px;
-	color:#333;
-	box-shadow:none;
-	outline:none;
-	word-wrap: break-word;
-    word-break: break-word;
-    height: 150px;
-    overflow-y: scroll;
-    resize: none;
-    max-height: 150px;
-}
-.modal-form .text input[type="textarea"]::-moz-placeholder{
-	color:#333;
-	opacity:1;
-}
-.modal-form .text input[type="textarea"]:-ms-input-placeholder{color:#333;}
-.modal-form .text input[type="textarea"]::-webkit-input-placeholder{color:#333;}
-.modal-form .text input[type="textarea"]:-moz-placeholder{color:#333;}
-.modal-form .text input[type="textarea"]:focus{border-color:#6BA542;}
-.modal-form .text input[type="textarea"]:disabled {
-    color: #999;
-} */
 
 .modal-form .text textarea{
 	background:white;
@@ -1407,7 +1353,7 @@ input :focus::-moz-placeholder{opacity:0 !important;}
 	position:relative;
 	margin:0 7px 0 0;
 	padding:0 0 0 2px;
-	min-width: 150px;
+	/* min-width: 150px; */
 	white-space: nowrap;
 }
 .modal-form .vertical-checkbox-container .check-block{ 
@@ -1431,15 +1377,17 @@ input :focus::-moz-placeholder{opacity:0 !important;}
 	width: 100%;
 }
 
-.modal-form .check-block .chk-area{margin:25px 0px 0 0;}
+.modal-form .check-block .chk-area{
+	/* margin:25px 0px 0 0; */
+}
 .modal-form .check-block label{
 	float:left;
 	font-size:13px;
 	line-height:16px;
 	font-weight:normal;
-	margin:26px 5px 0;
+	/* margin:26px 5px 0; */
 	color:#333;
-	width:110px;
+	/* width:110px; */
 }
 .modal-form .cell{
 	float:left;
@@ -1850,7 +1798,9 @@ option[selected]{ font-weight:bold}
 .select-options.drop-tab-select ul a{padding:1px 7px;}
 .modal-form .button-holder{
 	overflow:hidden;
-	padding:0 0 0 1px;
+	/* padding:0 0 0 1px; */
+	text-align: right;
+	margin: 10px;
 }
 .modal-form .button-holder .btn,
 .modal-form .button-holder .btn:hover,
@@ -1858,7 +1808,7 @@ option[selected]{ font-weight:bold}
 .modal-form .button-holder .btn:focus{
 	min-width:77px;
 	padding:4px 10px;
-	margin:0 11px 0 0;
+	/* margin:0 11px 0 0; */
 	outline:none;
 	border-width:1px;
 }
