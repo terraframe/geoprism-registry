@@ -20,10 +20,45 @@ public class Task extends TaskBase
 {
   private static final long serialVersionUID = 508070126;
   
+  public static enum TaskType
+  {
+    GeoObjectSplitOrphanedChildren("tasks.geoObjectSplitOrphanedChildren.title", "tasks.geoObjectSplitOrphanedChildren.template");
+    
+    private String titleKey;
+    
+    private String templateKey;
+    
+    private TaskType(String titleKey, String templateKey)
+    {
+      this.titleKey = titleKey;
+      this.templateKey = templateKey;
+    }
+
+    public String getTitleKey()
+    {
+      return titleKey;
+    }
+
+    public void setTitleKey(String titleKey)
+    {
+      this.titleKey = titleKey;
+    }
+
+    public String getTemplateKey()
+    {
+      return templateKey;
+    }
+
+    public void setMsgKey(String msgKey)
+    {
+      this.templateKey = msgKey;
+    }
+  }
+  
   public static enum TaskStatus
   {
     UNRESOLVED,
-    RESOLVED
+    RESOLVED;
   }
   
   public Task()
@@ -31,17 +66,21 @@ public class Task extends TaskBase
     super();
   }
   
-  public static Task createNewTask(Collection<Roles> roles, LocalizedValueStore lvs, Map<String, LocalizedValue> values)
+  public static Task createNewTask(Collection<Roles> roles, TaskType taskType, Map<String, LocalizedValue> values)
   {
-    Task task = new Task();
-    task.setTemplate(lvs);
+    LocalizedValueStore lvsTitle = LocalizedValueStore.getByKey(taskType.getTitleKey());
+    LocalizedValueStore lvsTemplate = LocalizedValueStore.getByKey(taskType.getTemplateKey());
     
-    processLocale(lvs, values, task, MdAttributeLocalInfo.DEFAULT_LOCALE);
+    Task task = new Task();
+    task.setTitle(lvsTitle);
+    task.setTemplate(lvsTemplate);
+    
+    processLocale(lvsTemplate, values, task, MdAttributeLocalInfo.DEFAULT_LOCALE);
     
     List<Locale> locales = LocalizationFacade.getInstalledLocales();
     for (Locale locale : locales)
     {
-      processLocale(lvs, values, task, locale.toString());
+      processLocale(lvsTemplate, values, task, locale.toString());
     }
     
     task.apply();

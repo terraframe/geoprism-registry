@@ -57,19 +57,9 @@ export class HubComponent implements OnInit {
           this.applications = applications;
       } );
       
-      this.service.getMyTasks().then( tasks => {
-          this.tasks = tasks;
-      } );
-  
       this.isAdmin = this.authService.isAdmin();
     }
     
-    onCompleteTask(task: any): void {
-      this.service.completeTask(task.id).then( () => {
-        this.tasks.splice(this.tasks.indexOf(task), 1);
-      } );
-    }
-
     //   logout():void {
     //     this.sessionService.logout().then(response => {
     //       this.router.navigate(['/login']);	  

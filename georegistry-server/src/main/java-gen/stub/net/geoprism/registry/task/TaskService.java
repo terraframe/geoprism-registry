@@ -41,7 +41,7 @@ public class TaskService
     
     if (whereStatus != null)
     {
-      vq.WHERE(tq.getStatus().EQ(TaskStatus.RESOLVED.name()));
+      vq.WHERE(tq.getStatus().EQ(whereStatus));
     }
     
     RolesQuery rq = new RolesQuery(qf);
@@ -71,6 +71,7 @@ public class TaskService
     vq.SELECT(tq.getOid("oid"));
     vq.SELECT(tq.getTemplate().getStoreKey("templateKey"));
     vq.SELECT(tq.getMessage().localize("msg"));
+    vq.SELECT(tq.getTitle().getStoreValue().localize("title"));
     vq.SELECT(tq.getStatus("status"));
     vq.SELECT(tq.getCreateDate("createDate"));
     vq.SELECT(tq.getLastUpdateDate("completedDate"));
@@ -91,6 +92,7 @@ public class TaskService
       jo.put("id", vo.getValue("oid"));
       jo.put("templateKey", vo.getValue("templateKey"));
       jo.put("msg", vo.getValue("msg"));
+      jo.put("title", vo.getValue("title"));
       jo.put("status", vo.getValue("status"));
       jo.put("createDate", MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate")).getTime());
       jo.put("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate")).getTime() : null);

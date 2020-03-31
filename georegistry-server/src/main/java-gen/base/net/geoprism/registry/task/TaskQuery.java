@@ -1,6 +1,6 @@
 package net.geoprism.registry.task;
 
-@com.runwaysdk.business.ClassSignature(hash = -525699907)
+@com.runwaysdk.business.ClassSignature(hash = -1840916198)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -318,6 +318,29 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.task.Task.TEMPLATE, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle()
+  {
+    return getTitle(null);
+
+  }
+ 
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.task.Task.TITLE);
+
+    return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.task.Task.TITLE, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.task.Task.TITLE);
+
+    return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.task.Task.TITLE, mdAttributeIF, this, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getType()
   {
     return getType(null);
@@ -360,6 +383,10 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.task.Task.TEMPLATE)) 
+    {
+       return new com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.task.Task.TITLE)) 
     {
        return new com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
@@ -575,6 +602,9 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate();
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias);
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias, String displayLabel);
+    public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle();
+    public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias);
+    public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
@@ -879,6 +909,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.get(net.geoprism.registry.task.Task.TEMPLATE,  alias, displayLabel);
 
   }
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle()
+  {
+    return getTitle(null);
+
+  }
+ 
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias)
+  {
+    return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.get(net.geoprism.registry.task.Task.TITLE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.get(net.geoprism.registry.task.Task.TITLE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getType()
   {
     return getType(null);
@@ -1040,6 +1087,10 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     {
        return new com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.task.Task.TITLE)) 
+    {
+       return new com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else 
     {
       String error = "Attribute type ["+mdAttributeIF.getType()+"] is invalid.";
@@ -1113,6 +1164,9 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate();
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias);
     public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTemplate(String alias, String displayLabel);
+    public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle();
+    public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias);
+    public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
@@ -1438,6 +1492,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.get(net.geoprism.registry.task.Task.TEMPLATE,  alias, displayLabel);
 
   }
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle()
+  {
+    return getTitle(null);
+
+  }
+ 
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias)
+  {
+    return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.get(net.geoprism.registry.task.Task.TITLE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF getTitle(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReferenceIF)this.get(net.geoprism.registry.task.Task.TITLE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getType()
   {
     return getType(null);
@@ -1480,6 +1551,10 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.task.Task.TEMPLATE)) 
+    {
+       return new com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.task.Task.TITLE)) 
     {
        return new com.runwaysdk.localization.LocalizedValueStoreQuery.LocalizedValueStoreQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }

@@ -43,27 +43,4 @@ export class HubService {
       .post<Application[]>(acp + '/menu/applications', {headers: headers})
       .toPromise();
   }  
-  
-  getMyTasks( ): Promise<any> {
-    let params: HttpParams = new HttpParams();
-  
-    return this.http
-        .get<any>( acp + '/tasks/get', { params: params } )
-        .toPromise();
-  }
-  
-  completeTask( taskId: string ): Promise<Response> {
-    let headers = new HttpHeaders( {
-      'Content-Type': 'application/json'
-    } );
-    
-    //this.eventService.start();
-    
-    return this.http
-      .post<any>( acp + '/tasks/complete', JSON.stringify( { 'id': taskId } ), { headers: headers } )
-      .finally(() => {
-          //this.eventService.complete();
-      } )
-      .toPromise();
-  }
 }

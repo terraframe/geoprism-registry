@@ -1,9 +1,16 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <createOrUpdate>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.GeoObjectSplitOrphanedChildren">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.geoObjectSplitOrphanedChildren.title">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="tasks.GeoObjectSplitOrphanedChildren" />
+        <attribute name="storeKey" value="tasks.geoObjectSplitOrphanedChildren.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Split Has Orphaned Children" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.geoObjectSplitOrphanedChildren.template">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.geoObjectSplitOrphanedChildren.template" />
         <attributeStruct name="storeValue">
           <attribute name="defaultLocale" value="The {typeName} {oldParentName} has split. You must reassign the children with new parents." />
         </attributeStruct>
@@ -17,6 +24,7 @@
       >
         <attributes>
           <reference name="template" type="com.runwaysdk.localization.LocalizedValueStore" required="true"/>
+          <reference name="title" type="com.runwaysdk.localization.LocalizedValueStore" required="true"/>
           <localText name="message"></localText>
           <text name="status" label="status" defaultValue="UNRESOLVED"/>
         </attributes>

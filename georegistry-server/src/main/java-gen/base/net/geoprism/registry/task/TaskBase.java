@@ -1,6 +1,6 @@
 package net.geoprism.registry.task;
 
-@com.runwaysdk.business.ClassSignature(hash = 741777222)
+@com.runwaysdk.business.ClassSignature(hash = -95759119)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -27,8 +27,9 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String STATUS = "status";
   public static java.lang.String TEMPLATE = "template";
+  public static java.lang.String TITLE = "title";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 741777222;
+  private static final long serialVersionUID = -95759119;
   
   public TaskBase()
   {
@@ -425,6 +426,58 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
     else
     {
       setValue(TEMPLATE, oid);
+    }
+  }
+  
+  public com.runwaysdk.localization.LocalizedValueStore getTitle()
+  {
+    if (getValue(TITLE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.localization.LocalizedValueStore.get(getValue(TITLE));
+    }
+  }
+  
+  public String getTitleOid()
+  {
+    return getValue(TITLE);
+  }
+  
+  public void validateTitle()
+  {
+    this.validateAttribute(TITLE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getTitleMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.task.Task.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(TITLE);
+  }
+  
+  public void setTitle(com.runwaysdk.localization.LocalizedValueStore value)
+  {
+    if(value == null)
+    {
+      setValue(TITLE, "");
+    }
+    else
+    {
+      setValue(TITLE, value.getOid());
+    }
+  }
+  
+  public void setTitleId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(TITLE, "");
+    }
+    else
+    {
+      setValue(TITLE, oid);
     }
   }
   

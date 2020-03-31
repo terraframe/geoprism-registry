@@ -1,6 +1,7 @@
 package net.geoprism.registry.task;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +16,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.ibm.icu.util.Calendar;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
@@ -30,6 +30,7 @@ import com.runwaysdk.system.Roles;
 import junit.framework.Assert;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.task.Task.TaskStatus;
+import net.geoprism.registry.task.Task.TaskType;
 import net.geoprism.registry.test.TestDataSet;
 
 public class TaskTest
@@ -62,7 +63,7 @@ public class TaskTest
     lvOldParentName.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "D1");
     values.put("oldParentName", lvOldParentName);
     
-    Task.createNewTask(roles, LocalizedValueStore.getByKey("tasks.GeoObjectSplitOrphanedChildren"), values);
+    Task.createNewTask(roles, TaskType.GeoObjectSplitOrphanedChildren, values);
   }
   
   @BeforeClass
@@ -158,17 +159,16 @@ public class TaskTest
     Calendar cal = Calendar.getInstance();
     cal.setTime(new Date());
 
-    cal.set(Calendar.SECOND, 0);
-    cal.set(Calendar.MILLISECOND, 0);
+    cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) - 1);
     Date dateMin = cal.getTime();
     
-    cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + 1);
+    cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + 2);
     Date dateMax = cal.getTime();
     
     createInstanceData(chineseSession.getSessionId());
     
     JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONObject(0);
-    Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", chinaJO.getString("templateKey"));
+    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), chinaJO.getString("templateKey"));
     Assert.assertNotNull(chinaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
     Assert.assertTrue(dateMin.before(new Date(chinaJO.getLong("createDate"))));
@@ -178,11 +178,12 @@ public class TaskTest
         "区 D1 Chinese已拆分。 您必须将孩子重新分配给新父母。",
         chinaJO.getString("msg")
     );
+    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CHINESE), chinaJO.getString("title"));
     
     System.out.println(chinaJO);
     
     JSONObject koreaJO = TaskService.getTasksForCurrentUser(koreanSession.getSessionId()).getJSONObject(0);
-    Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", koreaJO.getString("templateKey"));
+    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), koreaJO.getString("templateKey"));
     Assert.assertNotNull(koreaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.getString("status"));
     Assert.assertTrue(dateMin.before(new Date(koreaJO.getLong("createDate"))));
@@ -192,9 +193,10 @@ public class TaskTest
         "지구 D1 Korean이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.",
         koreaJO.getString("msg")
     );
+    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.getString("title"));
     
     JSONObject canadaJO = TaskService.getTasksForCurrentUser(canadaSession.getSessionId()).getJSONObject(0);
-    Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", canadaJO.getString("templateKey"));
+    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), canadaJO.getString("templateKey"));
     Assert.assertNotNull(canadaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.getString("status"));
     Assert.assertTrue(dateMin.before(new Date(canadaJO.getLong("createDate"))));
@@ -204,9 +206,10 @@ public class TaskTest
         "Oh no! The district eh D1 Canada has split. You must reassign the children with new parents eh.",
         canadaJO.getString("msg")
     );
+    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.getString("title"));
     
     JSONObject italianJO = TaskService.getTasksForCurrentUser(italianSession.getSessionId()).getJSONObject(0);
-    Assert.assertEquals("tasks.GeoObjectSplitOrphanedChildren", italianJO.getString("templateKey"));
+    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), italianJO.getString("templateKey"));
     Assert.assertNotNull(italianJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.getString("status"));
     Assert.assertTrue(dateMin.before(new Date(italianJO.getLong("createDate"))));
@@ -216,21 +219,36 @@ public class TaskTest
         "The district D1 has split. You must reassign the children with new parents.",
         italianJO.getString("msg")
     );
+    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), italianJO.getString("title"));
   }
   
   @Test
   @Request
   public void testCompleteTask()
   {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(new Date());
+
+    cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) - 1);
+    Date dateMin = cal.getTime();
+    
+    cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + 2);
+    Date dateMax = cal.getTime();
+    
     createInstanceData(chineseSession.getSessionId());
     
     JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONObject(0);
+    Assert.assertTrue(chinaJO.isNull("completedDate"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
     
     TaskService.completeTask(chineseSession.getSessionId(), chinaJO.getString("id"));
+    JSONObject chinaJO2 = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONObject(0);
     
-    Task t = Task.get(chinaJO.getString("id"));
+    Task t = Task.get(chinaJO2.getString("id"));
     Assert.assertEquals(TaskStatus.RESOLVED.name(), t.getStatus());
+    
+    Assert.assertTrue(dateMin.before(new Date(chinaJO2.getLong("completedDate"))));
+    Assert.assertTrue(dateMax.after(new Date(chinaJO2.getLong("completedDate"))));
   }
   
   @Test
@@ -261,13 +279,21 @@ public class TaskTest
     roles.add(Roles.findRoleByName(DefaultConfiguration.ADMIN));
     
     
-    LocalizedValueStore lv = LocalizedValueStore.getByKey("tasks.GeoObjectSplitOrphanedChildren");
+    LocalizedValueStore lv = LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey());
     lv.lock();
-    lv.setStructValue(LocalizedValueStore.STOREVALUE, MdAttributeLocalInfo.DEFAULT_LOCALE, "The {typeName} {oldParentName} has split. You must reassign the children with new parents.");
-    lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CHINESE.toString(), "{typeName} {oldParentName}已拆分。 您必须将孩子重新分配给新父母。");
-    lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.KOREAN.toString(), "{typeName} {oldParentName}이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.");
-    lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CANADA.toString(), "Oh no! The {typeName} {oldParentName} has split. You must reassign the children with new parents eh.");
+    lv.setStructValue(LocalizedValueStore.STOREVALUE, MdAttributeLocalInfo.DEFAULT_LOCALE, "Split Has Orphaned Children");
+    lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CHINESE.toString(), "斯普利特有孤儿");
+    lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.KOREAN.toString(), "스 플리트는 고아를 낳았다");
+    lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CANADA.toString(), "Oh no! Split Has Orphaned Children eh.");
     lv.apply();
+    
+    LocalizedValueStore lv2 = LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey());
+    lv2.lock();
+    lv2.setStructValue(LocalizedValueStore.STOREVALUE, MdAttributeLocalInfo.DEFAULT_LOCALE, "The {typeName} {oldParentName} has split. You must reassign the children with new parents.");
+    lv2.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CHINESE.toString(), "{typeName} {oldParentName}已拆分。 您必须将孩子重新分配给新父母。");
+    lv2.setStructValue(LocalizedValueStore.STOREVALUE, Locale.KOREAN.toString(), "{typeName} {oldParentName}이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.");
+    lv2.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CANADA.toString(), "Oh no! The {typeName} {oldParentName} has split. You must reassign the children with new parents eh.");
+    lv2.apply();
     
     
     Map<String, LocalizedValue> values = new HashMap<String, LocalizedValue>();
@@ -286,6 +312,6 @@ public class TaskTest
     lvOldParentName.setValue(Locale.CANADA, "D1 Canada");
     values.put("oldParentName", lvOldParentName);
     
-    Task.createNewTask(roles, LocalizedValueStore.getByKey("tasks.GeoObjectSplitOrphanedChildren"), values);
+    Task.createNewTask(roles, TaskType.GeoObjectSplitOrphanedChildren, values);
   }
 }
