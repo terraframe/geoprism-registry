@@ -15,6 +15,63 @@
           <attribute name="defaultLocale" value="{typeName} {oldParentName} was divided into {newParentName1} and {newParentName2} on {splitDate}. {childTypeName} geo-objects may need to be reassigned accordingly." />
         </attributeStruct>
       </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.openTasksTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.openTasksTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Open Tasks" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.taskMessage">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.taskMessage" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Task Message:" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.createDateLabel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.createDateLabel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Creation Date:" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.completeDateLabel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.completeDateLabel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Completion Date:" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.open">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.open" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Open" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.complete">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.complete" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Complete" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.completedTasksTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.completedTasksTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Completed Tasks" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.tasks">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.tasks" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Tasks" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create>
       <mdBusiness
