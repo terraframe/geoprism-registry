@@ -1,11 +1,14 @@
 package net.geoprism.registry;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -168,30 +171,33 @@ public class Organization extends OrganizationBase
   }
 
   /**
-   * Return an array of {@link GeoObjectType} codes for this {@link Organization}.
+   * Return a map of {@link GeoObjectType} codes and labels for this {@link Organization}.
    * 
-   * @return array of {@link GeoObjectType} codes for this {@link Organization}.
+   * @return a map of {@link GeoObjectType} codes and labels for this {@link Organization}.
    */
-  public String[] getGeoObjectTypes()
+  public Map<String, LocalizedValue> getGeoObjectTypes()
   {
     // For performance, get all of the universals defined
     List<? extends EntityDAOIF> universalList =  ObjectCache.getCachedEntityDAOs(Universal.CLASS);
     
-    List<String> typeCodeList = new LinkedList<String>();
+    Map<String, LocalizedValue> typeCodeMap = new HashMap<String, LocalizedValue>();
     
     for (EntityDAOIF entityDAOIF : universalList)
     {
+      Universal universal = (Universal)BusinessFacade.get(entityDAOIF);
+
       // Check to see if the universal is owned by the organization role.
-      String ownerId = entityDAOIF.getValue(Universal.OWNER);
+      String ownerId = universal.getOwnerOid();
       Roles organizationRole = this.getRole();
       if (ownerId.equals(organizationRole.getOid()))
       {
-        String geoObjectTypeCode = entityDAOIF.getValue(Universal.UNIVERSALID);
-        typeCodeList.add(geoObjectTypeCode);
+
+        String geoObjectTypeCode = universal.getUniversalId();
+        typeCodeMap.put(geoObjectTypeCode, LocalizedValueConverter.convert(universal.getDisplayLabel()));
       }
     }
     
-    return typeCodeList.toArray(new String[typeCodeList.size()]);
+    return typeCodeMap;
   }
   
   /**

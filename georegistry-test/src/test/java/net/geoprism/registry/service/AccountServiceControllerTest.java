@@ -120,7 +120,6 @@ public class AccountServiceControllerTest
     {
       JsonObject json = (JsonObject)roleJSONArray.get(i);
       RegistryRole registryRole = RegistryRole.fromJSON(json.toString());
-      
       rolesFoundSet.remove(registryRole.getName());
     }
     
@@ -135,7 +134,7 @@ public class AccountServiceControllerTest
   {
     RestResponse response = (RestResponse)controller.newInstance(clientRequest, "");
     
-    createUserWIthRoles(response);
+    createUserWithRoles(response);
   }
   
   /** 
@@ -146,10 +145,10 @@ public class AccountServiceControllerTest
   {
     RestResponse response = (RestResponse)controller.newInstance(clientRequest, null);
     
-    createUserWIthRoles(response);
+    createUserWithRoles(response);
   }
   
-  private void createUserWIthRoles(RestResponse response)
+  private void createUserWithRoles(RestResponse response)
   {
     Pair pair = (Pair)response.getAttribute("roles");
     
@@ -171,7 +170,6 @@ public class AccountServiceControllerTest
     {
       JsonObject json = (JsonObject)roleJSONArray.get(i);
       RegistryRole registryRole = RegistryRole.fromJSON(json.toString());
-
       rolesFoundSet.remove(registryRole.getName());
     }
     
