@@ -74,6 +74,7 @@ import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jo
 import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
 import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicator.component';
 import { ImportProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/import-problem-widget.component';
+import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -181,7 +182,8 @@ import '../rxjs-extensions';
 		SpatialReferenceProblemWidgetComponent,
 		DuplicateProblemWidgetComponent,
 		StepIndicatorComponent,
-		ImportProblemWidgetComponent
+		ImportProblemWidgetComponent,
+		TaskViewerComponent
 	],
 	providers: [
 		MapService,

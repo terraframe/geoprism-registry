@@ -29,6 +29,7 @@
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/scheduled-jobs" routerLinkActive="active"><localize key="scheduledjobs.menu"></localize> </a></li>
                 <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
+                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/tasks" routerLinkActive="active"><localize key="header.tasks"></localize></a></li>
                 
                 <hr>
                 <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>

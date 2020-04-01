@@ -54,6 +54,16 @@ export class GeoObjectType {
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 }
 
+export class Task {
+  id: string;
+  templateKey: string;
+  msg: string;
+  title: string;
+  status: string;
+  createDate: number;
+  completedDate: number;
+}
+
 // export class Attribute {
 
 //   name: string;

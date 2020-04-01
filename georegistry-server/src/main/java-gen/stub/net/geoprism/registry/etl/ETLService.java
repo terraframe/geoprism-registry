@@ -222,10 +222,10 @@ public class ETLService
     return page;
   }
   
-  private String formatDate(Date date)
+  public static String formatDate(Date date)
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT, Session.getCurrentLocale());
+//    format.setTimeZone(TimeZone.getTimeZone("GMT"));
     
     return format.format(date);
   }
