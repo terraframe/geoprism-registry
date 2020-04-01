@@ -74,6 +74,7 @@ import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jo
 import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
 import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicator.component';
 import { ImportProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/import-problem-widget.component';
+import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -81,6 +82,7 @@ import { GeoObjectTypePipe } from './pipe/geoobjecttype.pipe';
 import { GeoObjectAttributeExcludesPipe } from './pipe/geoobject-attribute-excludes.pipe';
 import { ToEpochDateTimePipe } from './pipe/to-epoch-date-time.pipe';
 import { RegistryService } from './service/registry.service';
+import { TaskService } from './service/task.service';
 import { HierarchyService } from './service/hierarchy.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { ChangeRequestService } from './service/change-request.service';
@@ -181,7 +183,8 @@ import '../rxjs-extensions';
 		SpatialReferenceProblemWidgetComponent,
 		DuplicateProblemWidgetComponent,
 		StepIndicatorComponent,
-		ImportProblemWidgetComponent
+		ImportProblemWidgetComponent,
+		TaskViewerComponent
 	],
 	providers: [
 		MapService,
@@ -191,6 +194,7 @@ import '../rxjs-extensions';
 		IOService,
 		GeoObjectTypeManagementService,
 		RegistryService,
+		TaskService,
 		DatePipe,
 		ToEpochDateTimePipe,
 		StepIndicatorComponent

@@ -41,6 +41,20 @@ h1 {
     border-color: #6BA542;
 }
 
+input[type=button].btn.btn-primary, 
+input[type=submit].btn.btn-primary,
+button.btn-primary, 
+button.btn.btn-primary {
+    color: #6BA542; /* IE fallback */
+    color: var(--theme-submit-button-color);
+
+    background: #EDF4E8; /* IE fallback */
+    background: var(--theme-submit-button-color-light);
+
+    border-color: #6BA542; /* IE fallback */
+    border-color: var(--theme-button-color-border);
+}
+
 /* unvisited link */
 a:link {
     color: grey;

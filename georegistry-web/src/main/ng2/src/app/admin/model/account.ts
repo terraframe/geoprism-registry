@@ -35,11 +35,11 @@ export class User {
   roles: string[];
 }
 
-export class Role {
-  roleId:string;
-  displayLabel:string;
-  assigned:boolean;
-}
+// export class Role {
+//   roleId:string;
+//   displayLabel:string;
+//   assigned:boolean;
+// }
 
 export class Group {
   name:string;
@@ -49,8 +49,34 @@ export class Group {
 
 export class Account {
   user:User;
-  groups:Group[];
+  roles: any;
   changePassword:boolean;
+}
+
+export class Role {
+  type:string;
+  name:string;
+  label:any;
+  orgCode:string;
+  geoObjectTypeCode:string;
+  isEnabled?: boolean;
+}
+
+export class FormattedRoles {
+  SRA: Role;
+  ORGANIZATIONS: FormattedOrganization[];
+}
+
+export class FormattedOrganization {
+  ORGANIZATION: string;
+  RA: Role;
+  GEOOBJECTTYPEROLES: FormattedGeoObjectTypeRoleGroup[];
+}
+
+export class FormattedGeoObjectTypeRoleGroup {
+  ENABLEDROLE: string;
+  GEOOBJECTTYPEID: string;
+  GEOOBJECTTYPEROLESGROUP: Role[];
 }
 
 export class PageResult {

@@ -1,0 +1,185 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness
+        name="net.geoprism.registry.task.Task"
+        cacheAlgorithm="everything"
+        publish="false"
+      >
+        <attributes>
+          <reference name="template" type="com.runwaysdk.localization.LocalizedValueStore" required="true"/>
+          <reference name="title" type="com.runwaysdk.localization.LocalizedValueStore" required="true"/>
+          <localText name="message"></localText>
+          <text name="status" label="status" defaultValue="UNRESOLVED"/>
+        </attributes>
+      </mdBusiness>
+      <mdRelationship
+        name="net.geoprism.registry.task.TaskHasRole"
+        label="TaskHasRole"
+        cacheAlgorithm="everything"
+        publish="false"
+      >
+        <parent cardinality="*" name="net.geoprism.registry.task.Task" method="Task" />
+        <child cardinality="*" name="com.runwaysdk.system.Roles" method="Role" />
+      </mdRelationship>
+    </create>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.geoObjectSplitOrphanedChildren.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.geoObjectSplitOrphanedChildren.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Split Has Orphaned Children" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.geoObjectSplitOrphanedChildren.template">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.geoObjectSplitOrphanedChildren.template" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="{typeName} {oldParentName} was divided into {newParentName1} and {newParentName2} on {splitDate}. {childTypeName} geo-objects may need to be reassigned accordingly." />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.viewCompletedTasksButton">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.viewCompletedTasksButton" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View Completed Tasks" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.openTasksTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.openTasksTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Open Tasks" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.taskMessage">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.taskMessage" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Task Message:" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.createDateLabel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.createDateLabel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Creation Date:" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.completeDateLabel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.completeDateLabel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Completion Date:" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.open">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.open" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Open" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.complete">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.complete" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Complete" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.completedTasksTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.completedTasksTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Completed Tasks" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.tasks">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.tasks" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Tasks" />
+        </attributeStruct>
+      </object>
+      
+      <!-- Create Organizations Task -->
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.sysinit.createOrganizations.template">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.sysinit.createOrganizations.template" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="You need to populate the system with organizations." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.sysinit.createOrganizations.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.sysinit.createOrganizations.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Organizations" />
+        </attributeStruct>
+      </object>
+      <object type="net.geoprism.registry.task.Task" key="tasks.sysinit.createOrganizations.template">
+        <attributeReference name="template" key="tasks.sysinit.createOrganizations.template"/>
+        <attributeReference name="title" key="tasks.sysinit.createOrganizations.title"/>
+        <attributeStruct name="message">
+          <attribute name="defaultLocale" value="You need to populate the system with organizations." />
+        </attributeStruct>
+        <attribute name="status" value="UNRESOLVED"/>
+      </object>
+      <relationship parentKey="tasks.sysinit.createOrganizations.template" key="tasks.sysinit.createOrganizations.template.Roles.cgr.SRA" type="net.geoprism.registry.task.TaskHasRole" childKey="Roles.cgr.SRA"></relationship>
+      <relationship parentKey="tasks.sysinit.createOrganizations.template" key="tasks.sysinit.createOrganizations.template.Roles.geoprism.admin.Administrator" type="net.geoprism.registry.task.TaskHasRole" childKey="Roles.geoprism.admin.Administrator"></relationship>
+      
+      <!-- Create Hierarchies Task -->
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.sysinit.createHierarchies.template">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.sysinit.createHierarchies.template" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="You need to populate the system with hierarchies." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.sysinit.createHierarchies.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.sysinit.createHierarchies.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Hierarchies" />
+        </attributeStruct>
+      </object>
+      <object type="net.geoprism.registry.task.Task" key="tasks.sysinit.createHierarchies.template">
+        <attributeReference name="template" key="tasks.sysinit.createHierarchies.template"/>
+        <attributeReference name="title" key="tasks.sysinit.createHierarchies.title"/>
+        <attributeStruct name="message">
+          <attribute name="defaultLocale" value="You need to populate the system with hierarchies." />
+        </attributeStruct>
+        <attribute name="status" value="UNRESOLVED"/>
+      </object>
+      <relationship parentKey="tasks.sysinit.createHierarchies.template" key="tasks.sysinit.createHierarchies.template.Roles.cgr.SRA" type="net.geoprism.registry.task.TaskHasRole" childKey="Roles.cgr.SRA"></relationship>
+      <relationship parentKey="tasks.sysinit.createHierarchies.template" key="tasks.sysinit.createHierarchies.template.Roles.geoprism.admin.Administrator" type="net.geoprism.registry.task.TaskHasRole" childKey="Roles.geoprism.admin.Administrator"></relationship>
+    </createOrUpdate>
+    <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.task.Task">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.task.TaskHasRole">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+        <grant>
+          <mdRelationshipPermission type="com.runwaysdk.localization.LocalizedValueStore">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.task.Task" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.task.TaskHasRole" type="com.runwaysdk.system.metadata.MdRelationship"/>
+    </delete>
+  </undoIt>
+</version>

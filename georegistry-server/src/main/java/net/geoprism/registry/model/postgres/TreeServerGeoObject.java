@@ -309,7 +309,11 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
     }
     catch (DuplicateDataException e)
     {
-      if (e.getAttributes().size() == 1)
+      if (e.getAttributes().size() == 0)
+      {
+        throw e;
+      }
+      else if (e.getAttributes().size() == 1)
       {
         DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
         ex.setGeoObjectType(this.getType().getLabel().getValue());

@@ -29,6 +29,7 @@ import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
 import { templateJitUrl } from '@angular/compiler';
+import { Organization } from '../../admin/model/settings';
 
 declare var acp: any;
 
@@ -42,7 +43,7 @@ export class RegistryService {
         return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], locales: string[] }>( acp + '/cgr/init' )
             .toPromise();
     }
-
+    
     // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
     getGeoObjectTypes( types: any ): Promise<GeoObjectType[]> {
         let params: HttpParams = new HttpParams();
@@ -755,6 +756,19 @@ export class RegistryService {
 
         return this.http
             .get<PaginationPage>( acp + '/master-list/get-publish-jobs', { params: params } )
+            .toPromise();
+    }
+
+
+    getOrganizations(): Promise<Organization[]> {
+
+        this.eventService.start();
+
+        return this.http
+            .get<Organization[]>(acp + '/cgr/organizations/get-all')
+            .finally(() => {
+                this.eventService.complete();
+            })
             .toPromise();
     }
 

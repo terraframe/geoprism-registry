@@ -1,14 +1,621 @@
 @import '~angular-tree-component/dist/angular-tree-component.css';
 @import '~mapbox-gl/dist/mapbox-gl.css';
 @import '~@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+@import url('./modal.scss');
+@import url('form.scss');
 
-// *{
-//   font-family: var(--font-family-default);
+
+/* 
+ * International Development:
+ * 
+ * #6BA542  - green
+ * #7C868D  - grey
+ * #3E2A5A  - dark purple
+ * #A29BAB  - light purple
+ * #DBD7A5  - yellow  
+ */
+
+html, body{height:100%;}
+body{
+	/* min-width:1030px; */
+    overflow: hidden;
+	background: white;
+	padding-top: 144px;
+}
+
+.new-admin-design-main {
+    height: 100%;
+    overflow-y: auto;
+}
+
+*{
+  font-family: 'Roboto', sans-serif;
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6{
+  font-family: 'Roboto', sans-serif;
+}
+
+#main-content-frame {
+	float: right;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+body.iFrameBody {
+	overflow: hidden; /* This ensures the report panel doesn't force a scroll bar on render */
+	background-color: inherit;
+}
+
+div.pageContent {
+	padding: 13px 25px 0 25px;
+	height: 100%;
+	overflow-y: auto;
+}
+
+#innerFrameHtml {
+   height: 100% !important;
+}
+
+#main {
+    /* overflow: auto; */
+    height: 100% !important;
+}
+
+/* 
+*
+* Main container styles 
+*
+*/
+#wrapper{
+	position:relative;
+	min-height:100%;
+	overflow:hidden;
+	padding:0 0 50px 275px;
+	z-index:2;
+}
+
+
+/*
+*
+* Default page links 
+*
+*/
+a:focus,
+a:hover{
+	text-decoration:none;
+	outline: none;
+	cursor: pointer;
+}
+a:active{
+	text-decoration:none;
+	background-color:transparent;
+}
+
+a.link-active {
+	color: #00bfff;
+}
+
+.hidden,
+form legend{
+	display:block !important;
+	visibility:visible !important;
+	position:absolute;
+	left:-9999px;
+	top:auto;
+	width:1px;
+	height:1px;
+	overflow:hidden;
+}
+
+
+.none{display:none;}
+
+
+
+/*
+*
+* Icons
+*
+*/
+.fa, 
+.button-column .fa {
+    color: #767676; /* IE fallback */
+    color: var(--theme-button-black);
+    font-size: 18px;
+}
+.fa-stack:hover .fa {
+	color: #00bfff;
+}
+
+.fa > p {
+	color: black;
+}
+
+i {
+	font-style: normal;
+}
+
+a.fa:hover, 
+a.fa:focus, 
+i.clickable.fa:hover, 
+i.clickable.fa:focus {
+    color: #6BA542; /* IE fallback */
+    color: var(--theme-submit-button-color);
+    cursor: pointer;
+}
+
+.fa.ico-edit:hover{
+    color: #6BA542; /* IE fallback */
+    color: var(--theme-submit-button-color-hover);
+    cursor: pointer;
+}
+.fa.ico-remove:hover{
+    color: #e30000; /* IE fallback */
+    color: var(--theme-alert-color);
+    cursor: pointer;
+}
+
+
+//
+// Specific icons
+//
+
+.fa.fa-question-circle.help-info-ico{
+	font-size: 17px;
+    color: #02789E;
+    vertical-align: middle;
+    margin-right: 5px;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    position: relative;
+    float: left;
+}
+
+i.fa.fa-cloud-upload{
+    font-size: 70px;
+    padding: 40px;
+    font-weight: normal;
+    color: darkgrey;
+    width: 100%;
+  	text-align: center;
+  	top: 50%;
+  	-ms-transform: translateY(-50%);
+  	-webkit-transform: translateY(-50%);
+  	transform: translateY(-50%);
+  	position: relative;
+}
+
+i.fa.fa-sitemap{
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+a:hover > .fa.fa-caret-right{
+	display:none;
+}
+a:hover > .fa.fa-caret-down{
+	display:inline-block !important;
+}
+
+
+/*
+*
+* Buttons
+*
+*/
+input[type=button],
+input[type=submit],
+button.btn {
+    min-width: 104px;
+    height: 40px;
+}
+input[type=button]:focus,
+input[type=button]:active,
+input[type=submit]:focus,
+input[type=submit]:active,
+button.btn:focus, 
+button.btn:active {
+    outline: 0 !important;
+    box-shadow: none;
+}
+input[type=button].btn.btn-primary, 
+input[type=submit].btn.btn-primary,
+button.btn-primary, 
+button.btn.btn-primary {
+    color: #6BA542; /* IE fallback */
+    color: var(--theme-submit-button-color);
+
+    background: #EDF4E8; /* IE fallback */
+    background: var(--theme-submit-button-color-light);
+
+    border-color: #6BA542; /* IE fallback */
+    border-color: var(--theme-button-color-border);
+}
+input[type=button].btn.btn-primary:hover, 
+input[type=submit].btn.btn-primary:hover,
+input[type=button].btn.btn-primary:active, 
+input[type=submit].btn.btn-primary:active,
+button.btn-primary:hover, 
+button.btn.btn-primary:hover,
+button.btn-primary:active, 
+button.btn.btn-primary:active  {
+    color: #6BA542; /* IE fallback */
+    color: var(--theme-submit-button-color);
+
+    border-color: #6BA542; /* IE fallback */
+    border-color: var(--theme-button-color-border);
+
+    background: #f4fcef; /* IE fallback */
+    background: var(--theme-submit-button-color-light-hover);
+}
+input[type=button].btn.btn-primary:disabled, 
+input[type=submit].btn.btn-primary:disabled,
+button.btn-primary:disabled, 
+button.btn.btn-primary:disabled  {
+    background: #EDF4E8; /* IE fallback */
+    background: var(--theme-submit-button-color-light);
+}
+
+input[type=button].btn.btn-default, 
+input[type=submit].btn.btn-default,
+button.btn.btn-default {
+    background: white;
+
+    color: grey; /* IE fallback */
+    color: var(--theme-cancel-button-color);
+
+    border-color: #6BA542; /* IE fallback */
+    border-color: var(--theme-default-button-color-border);
+}
+input[type=button].btn.btn-default:hover, 
+input[type=submit].btn.btn-default:hover,
+input[type=button].btn.btn-default:active, 
+input[type=submit].btn.btn-default:active,
+button.btn-default:hover, 
+button.btn.btn-default:hover {
+    color: #6BA542; /* IE fallback */
+    color: var(--theme-cancel-button-color-hover);
+    background: #f8f8f8;
+}
+
+.btn-danger{
+	background-color: #f18d8a;
+	border-color: #6d0400;
+}
+.btn-danger:hover{
+	background-color: #f3aca9;
+}
+
+.delete-btn{
+  font-size: 20px;
+}
+.delete-btn:hover {
+    color: #e30000; /* IE fallback */
+    color: var(--theme-alert-color) !important;
+    cursor: pointer;
+}
+
+
+
+/*
+*
+* Lists
+*
+*/
+li.list-group-item.draggable:hover{
+  cursor: grab;
+}
+
+
+li.list-group-item a{
+	bottom: 2px;
+}
+
+li.list-group-item i.fa {
+    line-height: 25px;
+}
+
+li.list-group-item {
+    font-size: 18px;
+    background-color: rgba(255,255,255,0.75);
+    border-radius: 0;
+    color: #767676; /* IE fallback */
+    color: var(--theme-text-dark);
+}
+li.list-group-item:first-child{
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+li.list-group-item:last-child {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+li.list-group-item.clickable:hover {
+  background: #f2f2f2; 
+  cursor: pointer;
+}
+
+li.list-group-item.active {
+  background: #f2f2f2; 
+}
+.list-group-item.active, 
+.list-group-item.active:hover, 
+.list-group-item.active:focus {
+    border-color: #6BA542; /* IE fallback */
+    border-color: var(--theme-submit-button-color);
+
+    color: #767676; /* IE fallback */
+    color: var(--theme-text-dark);
+}
+
+
+
+
+/*
+* Standard list table input
+*/
+.list-table input[readonly] {
+	float: left;
+    height: 32px;
+    margin: 0 11px 0 0;
+    padding: 6px 10px;
+    font-size: 14px;
+    line-height: 18px;
+    color: #7b7b7b;
+    border: 1px solid #ddd;
+    background: #eeeeee;
+    outline: none;
+}
+
+/*
+* Read only list table inputs
+*/
+.list-table input[readonly]:hover,
+.list-table input[readonly]:focus {
+	cursor: pointer;	
+	border: 1px solid #00bfff;
+}
+.list-table input[readonly] + .fa.fa-pencil.ico-edit {
+	display: none;
+	color: #bababa;
+}
+.list-table input[readonly]:hover + .fa.fa-pencil.ico-edit {
+	display: inline-block;
+	margin-left: -40px;
+	margin-top: 3px;
+}
+
+
+
+/*
+* List tables are generic tables with the intent presenting a list of options
+*
+* DEFAULT REQUIREMENTS: 
+** 4 columns wide
+** must be wrapped in a fixed width container
+** page specific overrides must be added to other css files to maintain this as a generic element
+*/    
+.list-table-wrapper{
+	max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.list-table {
+	font-size: 14px;
+}
+.list-table td {
+    vertical-align: middle;
+    width: 25%;
+}
+.list-table td dl{
+	margin: 0;
+}
+.list-table .label-column{
+	width: 25%;
+	vertical-align: middle;
+}
+.list-table .description-column {
+	width: 25%;
+	font-size: 14px;
+}
+.list-table .icon-thumbnail-column {
+	width: 25%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+//
+// List table buttons
+//
+.list-table .button-column{
+	width: 15%;
+	vertical-align: middle;
+    text-align: center;
+}
+
+.list-table .fa{
+	font-size: 25px;
+	color: #bababa;
+}
+
+.list-table .fa:hover{
+	color: #6BA542; 
+    color: var(--theme-submit-button-color);
+}
+
+.list-table tr td button {
+	vertical-align: middle;
+}
+
+.list-table .fa.fa-pencil.ico-edit{
+	float: none;
+}
+
+
+/* .list-table input[type="text"] {
+	width: 100%;
+} */
+
+
+/* 
+*
+* custom radio styles 
+*
+*/
+.chk-area,
+.rad-area{
+	border:1px solid #a6a6a6;
+	margin:7px 11px 0 0;
+	float:left;
+	width:20px;
+	height:20px;
+	background:#eee;
+}
+.chk-area:hover,
+.rad-area:hover{
+	cursor: pointer;
+}
+.rad-area{
+	padding:5px;
+	border-radius:50%;
+}
+.rad-checked{
+	border-color:#02789e;
+	background:#00bfff;
+}
+.rad-checked span{
+	display:block;
+	width:8px;
+	height:8px;
+	border-radius:50%;
+	background:#fff;
+}
+.rad-focus{border-color:#6BA542;}
+.rad-focus.rad-checked{border-color:#02789e;}
+.rad-disabled{
+	border-color:#dbdbdb;
+	background:#f8f8f8;
+}
+.rad-checked.rad-disabled{
+	border:1px solid #b3b3b3;
+	background:#ccc;
+}
+div.row-holder .chk-area, div.row-holder .rad-area {
+	margin: 0px 11px 0 0;
+}
+
+
+/* 
+*
+* Custom checkbox styles 
+*
+*/
+// .chk-checked{
+//     border-color:#02789e;
+//     background: #6BA542 url(../images/sprite.png) no-repeat -43px -20px; /* IE fallback */
+// 	background: var(--theme-submit-button-color-hover) url(../images/sprite.png) no-repeat -43px -20px;
 // }
-// h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6{
-//   font-family: var(--font-family-default);
+// .chk-focus{border-color:#6BA542;}
+// .chk-focus.chk-checked{border-color:#02789e;}
+// .chk-disabled{
+// 	border:1px solid #dbdbdb;
+// 	background:#f8f8f8;
+// }
+// .chk-checked.chk-disabled{
+// 	border:1px solid #b3b3b3;
+// 	background:#b3b3b3 url(../images/sprite.png) no-repeat -65px -20px;
 // }
 
+// .checkbox-container {
+// 	display: block;
+// 	height: 20px;
+// 	margin-top: 7px;
+// }
+
+// .checkbox-label {
+// 	float: left;
+// 	display: block;
+// 	margin-left: 7px;
+// }
+
+
+/*
+*
+* File Upload
+*
+*/
+.upload-text{
+   	font-size: 18px;
+   	color: grey;
+	padding: 0;
+   	bottom: 0;
+   	text-align: center;
+   	left: 0;
+   	right: 0;
+   	margin: 0 auto;
+}
+   
+.drop-box:hover i,
+.drop-box:hover::before, 
+.drop-box:hover::after, 
+.drop-box:hover>:first-child::before, 
+.drop-box:hover>:first-child::after,
+.drop-box:hover p{
+	  color: #6BA542;
+	  border-color:#6BA542;
+	  opacity: 1;
+	  cursor: pointer;
+}
+   
+.drop-box-container{
+	height: 200px;
+	margin-top: 25px;
+   	border: 3px grey dashed;
+   	border-radius: 5px;
+}
+   
+.inner-drop-box{
+   	height: 100%;
+}
+   
+.drop-box {
+     position:relative;
+     height: 100%;
+}
+   
+.drop-active{
+   	border: 3px #6BA542 dashed;
+}
+
+	
+/* 
+* skip styles 
+*/
+.skip a{
+	position:absolute;
+	left:-10000px;
+	top:0;
+	overflow:hidden;
+}
+.skip a:focus{
+	position:static;
+	width:auto;
+	height:auto;
+}
+
+
+
+/*
+*
+* Angular Tree 
+*
+*/
 .node-content-wrapper, .tree-children {
   position: relative;
   font-size: 18px;
@@ -72,3 +679,7 @@ tree-node-expander{
 tree-loading-component {
   display:none; // hack to remove loading html
   }
+
+  
+
+

@@ -1,6 +1,7 @@
 import { LocalizedValue } from '../../shared/model/core';
 import { LocalizationService } from '../../shared/service/localization.service';
 import { ImportConfiguration } from './io';
+import { Organization } from '../../admin/model/settings';
 
 export const PRESENT: string = '5000-12-31'
 
@@ -49,7 +50,18 @@ export class GeoObjectType {
 	geometryType: string;
 	isLeaf: boolean;
 	isGeometryEditable: boolean;
+	organizationCode: string;
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
+}
+
+export class Task {
+  id: string;
+  templateKey: string;
+  msg: string;
+  title: string;
+  status: string;
+  createDate: number;
+  completedDate: number;
 }
 
 // export class Attribute {

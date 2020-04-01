@@ -11,6 +11,7 @@ import { DataPageComponent } from './component/data-page/data-page.component';
 import { ChangeRequestPageComponent } from './component/change-request-page/change-request-page.component';
 import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
 import { JobComponent } from './component/scheduled-jobs/job.component';
+import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
 
 import { MaintainerGuard, ContributerGuard } from '../shared/service/guard.service';
 
@@ -63,6 +64,11 @@ const routes: Routes = [
     {
         path: 'change-request',
         component: SubmitChangeRequestComponent,
+        canActivate: [ContributerGuard]
+    },
+    {
+        path: 'tasks',
+        component: TaskViewerComponent,
         canActivate: [ContributerGuard]
     }
 ];

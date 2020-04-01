@@ -15,7 +15,6 @@
           
           <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
           
-          <hr>        
           <div class="row-holder">
             <div class="label-holder">
               <label><localize key="organization.code"></localize></label>
@@ -35,7 +34,7 @@
 
                 <div class="form-group" *ngFor="let localeValue of organization.label.localeValues">
                   <!-- <label> {{localeValue.locale}}</label> -->
-                  <input  [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
+                  <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
                 </div>
                 <!-- <input type="text" [(ngModel)]="organization.label" name="name" required> -->
               </span>

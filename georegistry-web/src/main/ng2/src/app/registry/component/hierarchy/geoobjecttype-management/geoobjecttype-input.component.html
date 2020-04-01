@@ -1,4 +1,3 @@
-<!-- <form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons"> -->
 
 <div class="modal-body" *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
     <error-message [message]="message"></error-message>
@@ -41,16 +40,6 @@
                 </div>
             </div>
 
-<!-- 
-            <div class="row-holder">
-                <div class="label-holder">
-                    <label><localize key="hierarchy.management.manage.attributes.label.leafnode"></localize></label>
-                </div>
-                <div class="holder">
-                    <i *ngIf="editGeoObjectType.isLeaf === 'true'" class="fa fa-check-square" style="color: #6BA542; font-size: 18px; cursor: auto; line-height: 38px;" aria-hidden="true"></i> <i *ngIf="editGeoObjectType.isLeaf === 'false'" class="fa fa-square-o" style="font-size: 18px; cursor: auto; line-height: 38px;" aria-hidden="true"></i>
-                </div>
-            </div>
- -->
 
             <div class="row-holder">
                 <div class="label-holder">
@@ -82,55 +71,7 @@
                 </div>
             </div>
 
-
-            <!-- <div class="row-holder">
-                    <div class="label-holder">
-                    </div>                    
-                    <div class="holder">
-                      <div class="button-holder">
-                        <button type="button" class="btn btn-primary" (click)="manageAttributes()">
-                            <localize key="modal.button.manageAttributes"></localize>
-                        </button>
-                    </div>
-                    </div>
-                </div>  -->
-
-            <!-- <div>
-                    <div class="label-holder">
-                    <label><localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize></label>
-                    </div>          
-                    <div class="holder dataset-attr-holder" >
-                    <table class="list-table table table-bordered table-striped">
-                        <tbody>
-                        <tr *ngFor="let attr of geoObjectType.attributes" class="fade-ngRepeat-item">
-                            <td class="button-column">
-                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)" title="<localize key='modal.button.edit'></localize>"></a>                             
-                            <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)" title="<localize key='modal.button.remove'></localize>"></a>
-                            </td>                  
-                            <td class="submit-form">
-                            <dl>
-                                <dd>
-                                <h4 class="disabled" >{{attr.label}}</h4>
-                                </dd>
-                            </dl>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    </div>
-                </div>       -->
-
-
-            <!-- <div class="row-holder">
-                    <div class="label-holder">
-                    </div>                    
-                    <div class="holder">
-                    <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()"><localize key="modal.button.add"></localize></i>
-                    </div>
-                </div>           -->
             <div class="row-holder">
-                <div class="label-holder"></div>
-                <div class="holder">
                     <div class="button-holder">
                         <button type="button" class="btn btn-default" (click)="close()">
                             <localize key="modal.button.cancel"></localize>
@@ -140,7 +81,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
         </fieldset>
     </form>
 </div>

@@ -7,6 +7,7 @@ import { GeoObjectType } from '../../../model/registry';
 
 import { RegistryService } from '../../../service/registry.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
+import { Organization } from '../../../../admin/model/settings';
 
 
 @Component( {
@@ -17,7 +18,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 export class CreateGeoObjTypeModalComponent implements OnInit {
 
     geoObjectType: GeoObjectType;
-
+    organizations: any = [];
     message: string = null;
 
     /*
@@ -37,8 +38,15 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
             "geometryType": "POINT",
             "isLeaf": false,
             "isGeometryEditable": true,
+            "organizationCode": "",
             "attributes": []
         };
+
+        this.registryService.getOrganizations().then(orgs => {
+            this.organizations = orgs;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     handleOnSubmit(): void {

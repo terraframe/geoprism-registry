@@ -36,6 +36,7 @@ import { LocalizationManagerService } from './service/localization-manager.servi
 
 
 import { AccountsComponent } from './component/account/accounts.component';
+import { RoleManagementComponent } from './component/account/role-management.component';
 import { AccountInviteComponent } from './component/account/account-invite.component';
 import { AccountInviteCompleteComponent } from './component/account/account-invite-complete.component';
 import { AccountComponent } from './component/account/account.component';
@@ -78,7 +79,8 @@ import '../rxjs-extensions';
         EmailComponent,
         SettingsComponent,
         OrganizationModalComponent,
-        NewLocaleModalComponent
+        NewLocaleModalComponent,
+        RoleManagementComponent
     ],
     exports: [
         SystemLogoComponent,
@@ -95,7 +97,8 @@ import '../rxjs-extensions';
         AccountInviteComponent,
         AccountComponent,
         OrganizationModalComponent,
-        NewLocaleModalComponent
+        NewLocaleModalComponent,
+        RoleManagementComponent
     ]
 } )
 export class AdminModule { }

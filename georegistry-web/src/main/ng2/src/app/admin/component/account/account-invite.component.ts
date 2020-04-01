@@ -54,19 +54,19 @@ export class AccountInviteComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.invite = new UserInvite();
+        // this.invite = new UserInvite();
 
-        this.service.newInvite().then(( account: Account ) => {
-            this.invite.groups = account.groups;
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        // this.service.newInvite().then(( account: Account ) => {
+        //     this.invite.groups = account.groups;
+        // } ).catch(( err: HttpErrorResponse ) => {
+        //     this.error( err );
+        // } );
 
-        this.settingsService.getOrganizations().then(orgs => {
-            this.organizations = orgs
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+        // this.settingsService.getOrganizations().then(orgs => {
+        //     this.organizations = orgs
+        // }).catch((err: HttpErrorResponse) => {
+        //     this.error(err);
+        // });
     }
 
     cancel(): void {
