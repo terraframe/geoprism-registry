@@ -102,7 +102,7 @@
 
         <div *ngIf="!account.user.newInstance" class="heading">
           <h4>
-            Password
+            <localize key="account.user.password"></localize>
           </h4>
         </div>
         <div *ngIf="!account.user.newInstance" class="row-holder">
@@ -114,9 +114,9 @@
           <div class="holder"> -->
           <!-- <boolean-field [(value)]="account.changePassword"></boolean-field> -->
           <div class="button-holder" style="text-align: left;">
-            <input type="button" *ngIf="!account.changePassword" [value]="'Change Password'" class="btn btn-primary"
+            <input type="button" *ngIf="!account.changePassword" [value]="'account.user.change.password.button' | localize" class="btn btn-primary"
               (click)="onChangePassword()" />
-            <input type="button" *ngIf="account.changePassword" [value]="'Cancel'" class="btn btn-default"
+            <input type="button" *ngIf="account.changePassword" [value]="'dataset.cancel' | localize" class="btn btn-default"
               (click)="onChangePassword()" />
           </div>
           <!-- </div> -->
@@ -157,7 +157,7 @@
 
         <div class="heading">
           <h4>
-            User Status
+            <localize key="account.user.status"></localize>
           </h4>
         </div>
         <div *ngIf="!(!account.user.newInstance && account.user.username === 'admin')">
@@ -165,12 +165,12 @@
             <label class="radio-inline radio">
               <input class="inline-radio-input" type="radio" name="userActive" [value]="false"
                 [(ngModel)]="account.user.inactive">
-              <span>Active</span>
+              <span><localize key="account.user.status.active"></localize></span>
             </label>
             <label class="radio-inline radio">
               <input class="inline-radio-input" type="radio" name="userActive" [value]="true"
                 [(ngModel)]="account.user.inactive">
-              <span>Inactive</span>
+              <span><localize key="account.user.status.inactive"></localize></span>
             </label>
           </div>
         </div>
