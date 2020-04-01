@@ -1,0 +1,54 @@
+<div>
+  <!-- <header></header> -->
+
+  <message></message>
+
+  <loading-bar></loading-bar>
+  <form>
+    <fieldset>
+      {{newInstance}}
+      <!-- Organization Member -->
+      <div *ngIf="newInstance && _roles">
+
+        <div *ngFor="let org of _roles.ORGANIZATIONS" class="row-holder">
+
+          <div class="heading">
+            <h4>{{org.ORGANIZATION}}</h4>
+          </div>
+
+
+          <!-- Organization administrator -->
+          <div class="row" style="padding: 20px;">
+            <div class="col-sm-12">
+              <boolean-field [(value)]="org.RA.isEnabled" (change)="onToggleOrgRA($event, org.RA)"
+                [label]="org.RA.label.localizedValue"></boolean-field>
+            </div>
+          </div>
+
+          <!-- Organization GeoObjectTypes -->
+          <div class="row">
+            <div class="col-sm-12" style="padding-left:50px;padding-right:50px;">
+
+              <button (click)="showData()">Show data</button>
+
+              <div *ngFor="let roleGroup of org.GEOOBJECTTYPEROLES; let i = index">
+
+                <div class="heading">
+                  <h4>{{roleGroup.GEOOBJECTTYPEID}}</h4>
+                </div>
+
+                <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
+                  <input type="radio" [value]="role.name" (change)="onChangeRole()" [(ngModel)]="roleGroup.ENABLEDROLE"
+                    [name]="role.orgCode + role.geoObjectTypeCode" [disabled]="org.RA.isEnabled">
+                  <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
+                </label>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+  </form>
+</div>

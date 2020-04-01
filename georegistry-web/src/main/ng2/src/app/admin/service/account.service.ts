@@ -58,14 +58,14 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>( acp + '/account/edit', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post<Account>( acp + '/registryaccount/edit', JSON.stringify( { oid: oid } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
             .toPromise();
     }
 
-    newInstance(): Promise<Account> {
+    newInstance(organizationCodes: string): Promise<Account> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -74,7 +74,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>( acp + '/account/newInstance', JSON.stringify( {} ), { headers: headers } )
+            .post<Account>( acp + '/registryaccount/newInstance', JSON.stringify( {"organizationCodes": organizationCodes} ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -200,7 +200,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .get<any>( acp + '/account/get-roles-for-user', { params: params } )
+            .get<any>( acp + '/cgr/account/get-roles-for-user', { params: params } )
             .finally(() => {
                 this.eventService.complete();
             } )

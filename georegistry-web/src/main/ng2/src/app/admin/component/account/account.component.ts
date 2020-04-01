@@ -25,24 +25,31 @@ import 'rxjs/add/operator/switchMap';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 
-import { Account, User } from '../../model/account';
+import { RoleManagementComponent } from './role-management.component'
+
+import { Account, User, Role } from '../../model/account';
 import { AccountService } from '../../service/account.service';
 
 @Component( {
     selector: 'account',
     templateUrl: './account.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+    styleUrls: ['./account.css']
 } )
 export class AccountComponent implements OnInit {
 
     message: string = null;
     account: Account;
+    roles: Role[];
+    roleIds: string[] = [];
 
     @Input()
     set oid( oid: string ) {
         if ( oid === 'NEW' ) {
-            this.service.newInstance().then( data => {
+            this.service.newInstance("").then( data => {
                 this.account = data;
+                this.account.roles = JSON.parse(data.roles);
+
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
             } );
@@ -51,11 +58,11 @@ export class AccountComponent implements OnInit {
             this.service.edit( oid ).then( data => {
                 this.account = data;
 
-                // this.service.getRolesForUser( oid ).then( roles => {
-                //     console.log(roles);
-                // } ).catch(( err: HttpErrorResponse ) => {
-                //     this.error( err );
-                // } );
+                this.service.getRolesForUser( oid ).then( roles => {
+                    this.roles = roles
+                } ).catch(( err: HttpErrorResponse ) => {
+                    this.error( err );
+                } );
                 
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
@@ -73,10 +80,13 @@ export class AccountComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        // this.account = this.route.snapshot.data['account'];
-
         this.onEdit = new Subject();
     }
+
+    onRoleIdsUpdate(event): void {
+        console.log(event)
+    }
+
 
     cancel(): void {
         if ( this.account.user.newInstance === true ) {
@@ -89,33 +99,24 @@ export class AccountComponent implements OnInit {
         }
     }
 
+    onChangePassword(): void {
+        this.account.changePassword = !this.account.changePassword;
+    }
+
     onSubmit(): void {
-        let roleIds: string[] = [];
-
-        for ( let i = 0; i < this.account.groups.length; i++ ) {
-            let group = this.account.groups[i];
-
-            roleIds.push( group.assigned );
-            //      for(let j = 0; j < group.roles.length; j++) {
-            //        let role = group.roles[j];
-            //        
-            //        if(role.assigned) {
-            //          roleIds.push(role.roleId);
-            //        }      
-            //      }    
-        }
 
         if ( !this.account.changePassword && !this.account.user.newInstance ) {
             delete this.account.user.password;
         }
 
-        this.service.apply( this.account.user, roleIds ).then( data => {
+        this.service.apply( this.account.user, this.roleIds ).then( data => {
             this.onEdit.next( data );
             this.bsModalRef.hide();
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
     }
+
 
     public error( err: HttpErrorResponse ): void {
         // Handle error
