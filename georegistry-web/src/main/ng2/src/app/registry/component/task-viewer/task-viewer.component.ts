@@ -115,7 +115,6 @@ export class TaskViewerComponent implements OnInit {
 
       this.taskService.getMyTasks( pageNumber, this.inProgressTasks.pageSize, 'UNRESOLVED').then( page => {
         this.inProgressTasks = page;
-        console.log("In Progress Tasks", page);
       } );
     }
     
@@ -124,7 +123,6 @@ export class TaskViewerComponent implements OnInit {
 
       this.taskService.getMyTasks( pageNumber, this.completedTasks.pageSize, 'RESOLVED').then( page => {
         this.completedTasks = page;
-        console.log("Completed Tasks", page);
       } );
     }
     

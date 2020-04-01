@@ -55,8 +55,6 @@ export class ReuploadModalComponent {
       url: acp + '/etl/reimport'
     };
     
-    console.log("job = ", this.job);
-    
     this.uploader = new FileUploader( options );
     this.uploader.onBuildItemForm = ( fileItem: any, form: any ) => {
         form.append( 'json', JSON.stringify(this.job.configuration) );
