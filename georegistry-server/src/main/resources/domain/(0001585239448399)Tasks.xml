@@ -39,6 +39,13 @@
         </attributeStruct>
       </object>
       
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.viewCompletedTasksButton">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.viewCompletedTasksButton" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View Completed Tasks" />
+        </attributeStruct>
+      </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.openTasksTitle">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="tasks.openTasksTitle" />
