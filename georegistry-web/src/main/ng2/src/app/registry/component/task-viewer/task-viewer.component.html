@@ -29,9 +29,9 @@
 	             </div>
 	             <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
 	              <input style="height:auto;" type="radio" checked id="{{task.id}}-inProgress" name="{{task.id}}-inProgress" value="true">
-	                <span><localize key="tasks.open"></localize></span>
-	                <input style="margin-left:15px;height:auto;" (click)="onCompleteTask(task)" type="radio" id="{{task.id}}-completed" name="{{task.id}}-completed" value="false">
-	                <span><localize key="tasks.complete"></localize></span>
+                <span><localize key="tasks.open"></localize></span>
+                <input style="margin-left:15px;height:auto;" (click)="onCompleteTask(task)" type="radio" id="{{task.id}}-completed" name="{{task.id}}-completed" value="false">
+                <span><localize key="tasks.complete"></localize></span>
 	             </div>
 	            </div>
 	          </div>
@@ -69,6 +69,12 @@
                 <p style="margin-bottom:20px;">{{task.msg}}</p>
                 <label style="margin-right:20px;"><localize key="tasks.createDateLabel"></localize></label><span style="margin-right:30px;">{{task.createDate}}</span>
                 <label style="margin-right:20px;"><localize key="tasks.completeDateLabel"></localize></label><span>{{task.completedDate}}</span>
+               </div>
+               <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
+                <input style="height:auto;" type="radio" (click)="onMoveTaskToInProgress(task)" id="{{task.id}}-inProgress" name="{{task.id}}-inProgress" value="true">
+                <span><localize key="tasks.open"></localize></span>
+                <input style="margin-left:15px;height:auto;" checked type="radio" id="{{task.id}}-completed" name="{{task.id}}-completed" value="false">
+                <span><localize key="tasks.complete"></localize></span>
                </div>
               </div>
             </div>

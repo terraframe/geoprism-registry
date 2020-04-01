@@ -7,6 +7,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
+import { TaskService } from '../../service/task.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
@@ -54,6 +55,7 @@ export class TaskViewerComponent implements OnInit {
     pollingData: any;
 
     constructor( private registryService: RegistryService,
+                 private taskService: TaskService,
                  private localizeService: LocalizationService,
                  private date: DatePipe,
                  private toEpochDateTimePipe: ToEpochDateTimePipe,
@@ -111,7 +113,7 @@ export class TaskViewerComponent implements OnInit {
     onInProgressTasksPageChange( pageNumber: any ): void {
       this.message = null;
 
-      this.registryService.getMyTasks( pageNumber, this.inProgressTasks.pageSize, 'UNRESOLVED').then( page => {
+      this.taskService.getMyTasks( pageNumber, this.inProgressTasks.pageSize, 'UNRESOLVED').then( page => {
         this.inProgressTasks = page;
         console.log("In Progress Tasks", page);
       } );
@@ -120,7 +122,7 @@ export class TaskViewerComponent implements OnInit {
     onCompletedTasksPageChange( pageNumber: any ): void {
       this.message = null;
 
-      this.registryService.getMyTasks( pageNumber, this.completedTasks.pageSize, 'RESOLVED').then( page => {
+      this.taskService.getMyTasks( pageNumber, this.completedTasks.pageSize, 'RESOLVED').then( page => {
         this.completedTasks = page;
         console.log("Completed Tasks", page);
       } );
@@ -129,10 +131,20 @@ export class TaskViewerComponent implements OnInit {
     onCompleteTask(task: any): void {
       this.isViewAllOpen = true;
     
-      this.registryService.completeTask(task.id).then( () => {
+      this.taskService.completeTask(task.id).then( () => {
         this.inProgressTasks.results.splice(this.inProgressTasks.results.indexOf(task), 1);
         this.completedTasks.results.push(task);
         this.onCompletedTasksPageChange(1);
+      } );
+    }
+    
+    onMoveTaskToInProgress(task: any): void {
+      this.isViewAllOpen = true;
+    
+      this.taskService.setTaskStatus(task.id, 'UNRESOLVED').then( () => {
+        this.completedTasks.results.splice(this.completedTasks.results.indexOf(task), 1);
+        this.inProgressTasks.results.push(task);
+        this.onInProgressTasksPageChange(1);
       } );
     }
     

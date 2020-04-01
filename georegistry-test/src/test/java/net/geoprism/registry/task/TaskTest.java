@@ -23,7 +23,9 @@ import com.runwaysdk.ClientSession;
 import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizedValueStore;
+import com.runwaysdk.localization.LocalizedValueStoreQuery;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -35,6 +37,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.Task.TaskType;
+import net.geoprism.registry.task.Task.TaskTypeIF;
 import net.geoprism.registry.test.TestDataSet;
 
 public class TaskTest
@@ -46,6 +49,41 @@ public class TaskTest
   public ClientSession canadaSession = null;
   
   public ClientSession italianSession = null;
+  
+  public static enum TestTaskType implements TaskTypeIF
+  {
+    TestGeoObjectSplitOrphanedChildren("tasks.test.geoObjectSplitOrphanedChildren.title", "tasks.test.geoObjectSplitOrphanedChildren.template");
+    
+    private String titleKey;
+    
+    private String templateKey;
+    
+    private TestTaskType(String titleKey, String templateKey)
+    {
+      this.titleKey = titleKey;
+      this.templateKey = templateKey;
+    }
+
+    public String getTitleKey()
+    {
+      return titleKey;
+    }
+
+    public void setTitleKey(String titleKey)
+    {
+      this.titleKey = titleKey;
+    }
+
+    public String getTemplateKey()
+    {
+      return templateKey;
+    }
+
+    public void setMsgKey(String msgKey)
+    {
+      this.templateKey = msgKey;
+    }
+  }
   
   public static void main(String[] args)
   {
@@ -90,8 +128,6 @@ public class TaskTest
   @Request
   public static void setUpClass()
   {
-    deleteAllTasks();
-    
     List<Locale> installed = LocalizationFacade.getInstalledLocales();
     
     if (!installed.contains(Locale.CHINESE))
@@ -114,8 +150,6 @@ public class TaskTest
   @Request
   public static void tearDownClass()
   {
-    deleteAllTasks();
-    
     LocalizationFacade.uninstall(Locale.CHINESE);
     LocalizationFacade.uninstall(Locale.KOREAN);
     LocalizationFacade.uninstall(Locale.CANADA);
@@ -124,19 +158,45 @@ public class TaskTest
   @Request
   private static void deleteAllTasks()
   {
-    TaskHasRoleQuery tq = new TaskHasRoleQuery(new QueryFactory());
+    deleteAllTasksInTrans();
+  }
+  
+  @Transaction
+  private static void deleteAllTasksInTrans()
+  {
+    TaskHasRoleQuery query = new TaskHasRoleQuery(new QueryFactory());
     
-    OIterator<? extends TaskHasRole> it = tq.getIterator();
+    OIterator<? extends TaskHasRole> it = query.getIterator();
     
     while (it.hasNext())
     {
       TaskHasRole thr = it.next();
       
-      String taskId = thr.getParent().getOid();
-      
-      thr.delete();
-      
-      Task.get(taskId).delete();
+      if (thr.getParent().getKey().equals(TestTaskType.TestGeoObjectSplitOrphanedChildren.templateKey))
+      {
+        thr.delete();
+      }
+    }
+    
+    
+    TaskQuery tq = new TaskQuery(new QueryFactory());
+    tq.WHERE(tq.getKeyName().EQ(TestTaskType.TestGeoObjectSplitOrphanedChildren.templateKey));
+    
+    OIterator<? extends Task> it2 = tq.getIterator();
+    
+    while (it2.hasNext())
+    {
+      it2.next().delete();
+    }
+    
+    
+    LocalizedValueStoreQuery lvsq = new LocalizedValueStoreQuery(new QueryFactory());
+    lvsq.WHERE(lvsq.getStoreKey().EQ(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey()).OR(lvsq.getStoreKey().EQ(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey())));
+    OIterator<? extends LocalizedValueStore> lvsit = lvsq.getIterator();
+    
+    while (lvsit.hasNext())
+    {
+      lvsit.next().delete();
     }
   }
   
@@ -147,6 +207,8 @@ public class TaskTest
     koreanSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { Locale.KOREAN });
     canadaSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { Locale.CANADA });
     italianSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { Locale.ITALIAN });
+    
+    deleteAllTasks();
   }
 
   @After
@@ -171,6 +233,8 @@ public class TaskTest
     {
       italianSession.logout();
     }
+    
+    deleteAllTasks();
   }
   
   private Date parseDate(String sDate)
@@ -203,7 +267,7 @@ public class TaskTest
     createInstanceData(chineseSession.getSessionId());
     
     JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), chinaJO.getString("templateKey"));
+    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), chinaJO.getString("templateKey"));
     Assert.assertNotNull(chinaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(chinaJO.getString("createDate"))));
@@ -213,12 +277,12 @@ public class TaskTest
         "区 D1 Chinese已拆分。 您必须将孩子重新分配给新父母。",
         chinaJO.getString("msg")
     );
-    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CHINESE), chinaJO.getString("title"));
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CHINESE), chinaJO.getString("title"));
     
     System.out.println(chinaJO);
     
     JSONObject koreaJO = TaskService.getTasksForCurrentUser(koreanSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), koreaJO.getString("templateKey"));
+    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), koreaJO.getString("templateKey"));
     Assert.assertNotNull(koreaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(koreaJO.getString("createDate"))));
@@ -228,10 +292,10 @@ public class TaskTest
         "지구 D1 Korean이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.",
         koreaJO.getString("msg")
     );
-    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.getString("title"));
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.getString("title"));
     
     JSONObject canadaJO = TaskService.getTasksForCurrentUser(canadaSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), canadaJO.getString("templateKey"));
+    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), canadaJO.getString("templateKey"));
     Assert.assertNotNull(canadaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(canadaJO.getString("createDate"))));
@@ -241,10 +305,10 @@ public class TaskTest
         "Oh no! The district eh D1 Canada has split. You must reassign the children with new parents eh.",
         canadaJO.getString("msg")
     );
-    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.getString("title"));
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.getString("title"));
     
     JSONObject italianJO = TaskService.getTasksForCurrentUser(italianSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey(), italianJO.getString("templateKey"));
+    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), italianJO.getString("templateKey"));
     Assert.assertNotNull(italianJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(italianJO.getString("createDate"))));
@@ -254,7 +318,7 @@ public class TaskTest
         "The district D1 has split. You must reassign the children with new parents.",
         italianJO.getString("msg")
     );
-    Assert.assertEquals(LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), italianJO.getString("title"));
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), italianJO.getString("title"));
   }
   
   @Test
@@ -314,16 +378,18 @@ public class TaskTest
     roles.add(Roles.findRoleByName(DefaultConfiguration.ADMIN));
     
     
-    LocalizedValueStore lv = LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTitleKey());
-    lv.lock();
+    LocalizedValueStore lv = new LocalizedValueStore();
+    lv.setStoreKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey());
+    lv.setStoreTag("UIText");
     lv.setStructValue(LocalizedValueStore.STOREVALUE, MdAttributeLocalInfo.DEFAULT_LOCALE, "Split Has Orphaned Children");
     lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CHINESE.toString(), "斯普利特有孤儿");
     lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.KOREAN.toString(), "스 플리트는 고아를 낳았다");
     lv.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CANADA.toString(), "Oh no! Split Has Orphaned Children eh.");
     lv.apply();
     
-    LocalizedValueStore lv2 = LocalizedValueStore.getByKey(TaskType.GeoObjectSplitOrphanedChildren.getTemplateKey());
-    lv2.lock();
+    LocalizedValueStore lv2 = new LocalizedValueStore();
+    lv2.setStoreKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey());
+    lv2.setStoreTag("UIText");
     lv2.setStructValue(LocalizedValueStore.STOREVALUE, MdAttributeLocalInfo.DEFAULT_LOCALE, "The {typeName} {oldParentName} has split. You must reassign the children with new parents.");
     lv2.setStructValue(LocalizedValueStore.STOREVALUE, Locale.CHINESE.toString(), "{typeName} {oldParentName}已拆分。 您必须将孩子重新分配给新父母。");
     lv2.setStructValue(LocalizedValueStore.STOREVALUE, Locale.KOREAN.toString(), "{typeName} {oldParentName}이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.");
@@ -347,6 +413,6 @@ public class TaskTest
     lvOldParentName.setValue(Locale.CANADA, "D1 Canada");
     values.put("oldParentName", lvOldParentName);
     
-    Task.createNewTask(roles, TaskType.GeoObjectSplitOrphanedChildren, values);
+    Task.createNewTask(roles, TestTaskType.TestGeoObjectSplitOrphanedChildren, values);
   }
 }

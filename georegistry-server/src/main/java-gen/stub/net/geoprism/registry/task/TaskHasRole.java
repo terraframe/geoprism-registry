@@ -16,4 +16,10 @@ public class TaskHasRole extends TaskHasRoleBase
     this(parent.getOid(), child.getOid());
   }
   
+  @Override
+  protected String buildKey()
+  {
+    return this.getParent().getKey() + "." + this.getChild().getKey();
+  }
+  
 }
