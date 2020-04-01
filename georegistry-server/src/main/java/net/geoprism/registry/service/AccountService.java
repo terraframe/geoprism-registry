@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.geoprism.ConfigurationIF;
@@ -29,8 +30,10 @@ import net.geoprism.ConfigurationService;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -41,6 +44,8 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Roles;
 
 public class AccountService
@@ -150,30 +155,44 @@ public class AccountService
   }
   
   private void addRolesForOrganization(List<RegistryRole> registryRoleList, Organization organization)
-  {
+  { 
+    LocalizedValue orgDisplayLabel = LocalizedValueConverter.convert(organization.getDisplayLabel());
+    
+    // Add the RA role
     Roles adminRole = organization.getRegistryAdminiRole();
+    RegistryRole adminRegistryRole = new RegistryRoleConverter().build(adminRole);
+    adminRegistryRole.setOrganizationLabel(orgDisplayLabel);
+    registryRoleList.add(adminRegistryRole);
+    
+    Map<String, LocalizedValue> geoObjectTypeInfo = organization.getGeoObjectTypes();
    
-    registryRoleList.add(new RegistryRoleConverter().build(adminRole));
-   
-    String[] geoRegistryTypes = organization.getGeoObjectTypes();
-   
-    for (String typeCode : geoRegistryTypes)
+    for (String typeCode : geoObjectTypeInfo.keySet())
     {
+      LocalizedValue geoObjectTypeDisplayLabel = geoObjectTypeInfo.get(typeCode);
+
       // Add the RM role
       String rmRoleName = RegistryRole.Type.getRM_RoleName(organization.getCode(), typeCode);
       Roles rmRole = Roles.findRoleByName(rmRoleName);
-      registryRoleList.add(new RegistryRoleConverter().build(rmRole));
+      RegistryRole rmRegistryRole = new RegistryRoleConverter().build(rmRole);
+      rmRegistryRole.setOrganizationLabel(orgDisplayLabel);
+      rmRegistryRole.setGeoObjectTypeLabel(geoObjectTypeDisplayLabel);
+      registryRoleList.add(rmRegistryRole);
     
       // Add the RC role
       String rcRoleName = RegistryRole.Type.getRC_RoleName(organization.getCode(), typeCode);
       Roles rcRole = Roles.findRoleByName(rcRoleName);
-      registryRoleList.add(new RegistryRoleConverter().build(rcRole));
+      RegistryRole rcRegistryRole = new RegistryRoleConverter().build(rcRole);
+      rcRegistryRole.setOrganizationLabel(orgDisplayLabel);
+      rcRegistryRole.setGeoObjectTypeLabel(geoObjectTypeDisplayLabel);
+      registryRoleList.add(rcRegistryRole);
 
       // Add the AC role
       String acRoleName = RegistryRole.Type.getAC_RoleName(organization.getCode(), typeCode);
       Roles acRole = Roles.findRoleByName(acRoleName);
-      registryRoleList.add(new RegistryRoleConverter().build(acRole));
+      RegistryRole acRegistryRole = new RegistryRoleConverter().build(acRole);
+      acRegistryRole.setOrganizationLabel(orgDisplayLabel);
+      acRegistryRole.setGeoObjectTypeLabel(geoObjectTypeDisplayLabel);
+      registryRoleList.add(acRegistryRole);
     }
   }   
-  
 }

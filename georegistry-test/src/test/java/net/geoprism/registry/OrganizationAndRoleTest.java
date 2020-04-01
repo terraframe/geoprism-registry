@@ -2,6 +2,7 @@ package net.geoprism.registry;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
@@ -277,14 +278,12 @@ public class OrganizationAndRoleTest
     
     try
     {
-      String[] geoObjectTypeCodes = organization.getGeoObjectTypes();
+      Map<String, LocalizedValue> geoObjectTypeInfo = organization.getGeoObjectTypes();
       
-      Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", 2, geoObjectTypeCodes.length);
-
-      java.util.Arrays.sort(geoObjectTypeCodes);
+      Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", 2, geoObjectTypeInfo.size());
       
-      Assert.assertEquals(districtCode, geoObjectTypeCodes[0]);
-      Assert.assertEquals(villageCode, geoObjectTypeCodes[1]);
+      Assert.assertEquals(true, geoObjectTypeInfo.containsKey(districtCode));
+      Assert.assertEquals(true, geoObjectTypeInfo.containsKey(villageCode));
     }
     finally
     {      
@@ -337,7 +336,7 @@ public class OrganizationAndRoleTest
   public static void createGeoObjectType(String organizationCode, String geoObjectTypeCode)
   {    
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-    GeoObjectType province = MetadataFactory.newGeoObjectType(geoObjectTypeCode, GeometryType.POLYGON, new LocalizedValue(geoObjectTypeCode), new LocalizedValue(""), true, organizationCode, registry);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(geoObjectTypeCode, GeometryType.POLYGON, new LocalizedValue(geoObjectTypeCode+" DisplayLabel"), new LocalizedValue(""), true, organizationCode, registry);
 
     ServerGeoObjectType serverGeoObjectType = new ServerGeoObjectTypeConverter().create(province.toJSON().toString());
     
