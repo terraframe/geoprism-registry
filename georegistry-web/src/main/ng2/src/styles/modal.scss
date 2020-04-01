@@ -1,0 +1,625 @@
+/* modal style */
+.modal-backdrop.in{
+	background:#fff;
+	opacity:0.9;
+}
+
+/* .modal .modal-dialog .modal-content .modal-body */
+.modal-dialog{
+	/* width:1000px; */
+	/* margin:0 auto 30px; */
+	/* background:none; */
+	/* border-radius:0; */
+	/* box-shadow:none; */
+}
+.modal-content{
+	background: white;
+    border: 1px solid #aaa;
+	/* border-radius:0; */
+	/* box-shadow:none; */
+	color:#333;
+    overflow-x:hidden;
+    overflow: visible;
+}
+.modal-content.wide{
+	width: 900px;
+}
+.modal-content .heading{
+	padding: 15px;
+	border-bottom: 1px solid #e5e5e5;
+	margin-bottom: 15px;
+	font-weight: bold;
+	color: #999;
+}
+.modal-content h1{
+	font-size:24px;
+	line-height:28px;
+	margin:0;
+	color:#333;
+}
+
+.modal-body {
+	word-break: break-word;
+}
+
+
+.modal-form{
+    overflow:hidden;
+}
+.modal-form .row-holder{
+	position:relative;
+	overflow:hidden;
+	width:100%;
+}
+.modal-form .row-holder .row-holder{padding:0 0 0 12px;}
+.modal-form .label-holder{
+	float:left;
+	/* width:236px;
+	margin:0 18px 0 0; */
+	width: 30%;
+	margin: 0;
+	text-align:right;
+	min-height:2px;
+	position:relative;
+}
+.modal-form .label-holder label,
+.modal-form .label-holder strong{
+	float:none;
+	display:inline-block;
+	vertical-align:top;
+	font-size:14px;
+	line-height:18px;
+	font-weight:bold;
+	margin:10px 0 0;
+	color:#999;
+	padding:0;
+}
+.modal-form .holder.dataset-attr-holder{
+	overflow-y: auto;
+  max-height: 50vh;
+}
+
+.modal-form .holder{
+	float:left;
+	width: 70%;
+    border-left: none;
+	padding:0 11px 18px 12px;
+	position:relative;
+}
+.modal-form .wide-holder{
+	float:left;
+	width: 100%;
+	border-left:1px solid #ccc;
+	padding:0 11px 18px 12px;
+	position:relative;
+}
+
+.modal-form ::-webkit-input-placeholder{color:darkgrey !important;}
+.modal-form :-ms-input-placeholder{color:darkgrey !important;}
+.modal-form :-moz-placeholder{color:darkgrey !important;}
+.modal-form ::-moz-placeholder{
+	color:darkgrey !important;
+	opacity:1 !important;
+}
+.modal-form :focus::-webkit-input-placeholder{opacity:0 !important;}
+.modal-form :focus:-ms-input-placeholder{opacity:0 !important;}
+.modal-form :focus:-moz-placeholder{opacity:0 !important;}
+.modal-form :focus::-moz-placeholder{opacity:0 !important;}
+
+input ::-webkit-input-placeholder{color:darkgrey !important;}
+input :-ms-input-placeholder{color:darkgrey !important;}
+input :-moz-placeholder{color:darkgrey !important;}
+input ::-moz-placeholder{
+	color:darkgrey !important;
+	opacity:1 !important;
+}
+input :focus::-webkit-input-placeholder{opacity:0 !important;}
+input :focus:-ms-input-placeholder{opacity:0 !important;}
+input :focus:-moz-placeholder{opacity:0 !important;}
+input :focus::-moz-placeholder{opacity:0 !important;}
+	
+.modal-form .text{
+	float:left;
+	position:relative;
+	width:100%;
+}
+
+.modal-form .text textarea{
+	background:white;
+    border:1px solid #aaa;
+    border-radius: 8px;
+	width:100%;
+	padding:5px 10px;
+	margin:0;
+	float:left;
+	font-size:14px;
+	line-height:24px;
+	color:#333;
+	box-shadow:none;
+	outline:none;
+	word-wrap: break-word;
+    word-break: break-word;
+    height: 75px;
+    resize: none;
+    max-height: 150px;
+    resize: none;    
+}
+.modal-form .text textarea::-moz-placeholder{
+	color:#333;
+	opacity:1;
+}
+.modal-form .text textarea:-ms-input-placeholder{color:#333;}
+.modal-form .text textarea::-webkit-input-placeholder{color:#333;}
+.modal-form .text textarea:-moz-placeholder{color:#333;}
+.modal-form .text textarea:focus{border-color:#6BA542;}
+.modal-form .text textarea:disabled {
+    color: #999;
+}
+
+
+.modal-form .check-block{
+	float:left;
+	position:relative;
+	margin:0 7px 0 0;
+	padding:0 0 0 2px;
+	white-space: nowrap;
+}
+.modal-form .vertical-checkbox-container .check-block{ 
+	min-width: 0;
+}
+
+
+.modal-form .check-block .chk-area{
+	/* margin:25px 0px 0 0; */
+}
+.modal-form .check-block label{
+	float:left;
+	font-size:13px;
+	line-height:16px;
+	font-weight:normal;
+	color:#333;
+}
+.modal-form .cell{
+	float:left;
+	position:relative;
+	margin:0 0 0 12px;
+	width:62px;
+	overflow:hidden;
+}
+.modal-form .cell.style02{
+	width: 250px;
+	margin:0;
+}
+.modal-form .select-holder{
+	float:left;
+	position:relative;
+	width:100%;
+	overflow:hidden;
+}
+.modal-form .select-holder select{
+	float:left;
+	font-size:13px;
+	line-height:16px;
+	color:#333;
+}
+.modal-form .font-select{width:92px;}
+.modal-form .font-select{width:62px;}
+.modal-form .cell label,
+.modal-form .cell>span{
+	float:left;
+	font-size:12px;
+	line-height:15px;
+	font-weight:normal;
+	color:#666;
+	margin:0 0 5px;
+	width:100%;
+}
+
+.disabled{
+	color: #999;
+	font-weight: bold;
+}
+
+.select-font-select.select-area{
+	width: 100% !important;
+	height:28px;
+	margin:0;
+	font-size:13px;
+	line-height:16px;
+	background:#ddd;
+}
+
+.select-size-select.select-area{
+	width:62px !important;
+	height:28px;
+	margin:0;
+	font-size:13px;
+	line-height:16px;
+	background:#ddd;
+}
+.select-font-select.select-area .center,
+.select-size-select.select-area .center{
+	width:100%;
+	padding:5px 25px 5px 9px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	color:#333;
+}
+.select-font-select.select-area .select-opener,
+.select-size-select.select-area .select-opener{
+	top:10px;
+	right:7px;
+}
+
+.font-select{
+	width: 100% !important;
+}
+	
+.font-select .select-area{
+	height:28px;
+	margin:0;
+	font-size:13px;
+	line-height:16px;
+	background:#ddd;
+}
+
+.size-select{
+	width:62px !important;
+}
+
+.size-select .select-area{
+	height:28px;
+	margin:0;
+	font-size:13px;
+	line-height:16px;
+	background:#ddd;
+}
+.font-select .select-area .center,
+.size-select .select-area .center{
+	width:100%;
+	padding:5px 25px 5px 9px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	color:#333;
+}
+.font-select .select-area .opener,
+.size-select .select-area .opener{
+	top:10px;
+	right:7px;
+}
+
+.select-font-select.select-area{
+	width: 100% !important;
+	height:28px;
+	margin:0;
+	font-size:13px;
+	line-height:16px;
+	background:#ddd;
+}
+
+.select-size-select.select-area{
+	width:62px !important;
+	height:28px;
+	margin:0;
+	font-size:13px;
+	line-height:16px;
+	background:#ddd;
+}
+.select-font-select.select-area .center,
+.select-size-select.select-area .center{
+	width:100%;
+	padding:5px 25px 5px 9px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	color:#333;
+}
+.select-font-select.select-area .select-opener,
+.select-size-select.select-area .select-opener{
+	top:10px;
+	right:7px;
+}
+.select-options.drop-size-select,
+.select-options.drop-font-select{
+	font-size:12px;
+	line-height:15px;
+}
+.select-options.drop-size-select ul a,
+.select-options.drop-font-select ul a{
+	padding:2px 8px;
+}
+.select-options.drop-size-select .drop-holder,
+.select-options.drop-font-select .drop-holder{padding:4px 0;}
+.modal-form .color-holder{
+	float:left;
+	position:relative;
+	width:100%;
+	height: 31px;
+}
+.modal-form .color-choice{float:left;}
+.color-choice{
+	display:inline-block;
+	vertical-align:top;
+	width:62px;
+	height:100%;
+	padding:3px;
+	border:1px solid #aaa;
+	position:relative;
+	background:#ddd;
+}
+.color-choice:hover{
+	text-decoration:none;
+	border-color:#ccc;
+}
+.color-choice:focus,
+.color-choice:active{
+	background:#ddd;
+	border-color:#6BA542;
+}
+.color-choice:after{
+	content:'';
+	display:block;
+	clear:both;
+}
+.color-choice .ico{
+	float:left;
+	width:30px;
+	height:100%;
+	text-indent:-9999px;
+	overflow:hidden;
+	background:#000;
+}
+.color-choice .arrow{
+	position:absolute;
+	top:11px;
+	right:7px;
+	width:0;
+	height:0;
+	border:solid transparent;
+	border-width:8px 6px 0;
+	border-top-color:#999;
+	text-indent:-9999px;
+	overflow:hidden;
+}
+.modal-form .box{
+	float:left;
+	position:relative;
+	margin:0 27px 0 0;
+	overflow:hidden;
+	
+	height: 34px;
+    padding: 1px;
+}
+.modal-form .box label{
+	float:left;
+	font-size:13px;
+	line-height:16px;
+	font-weight:normal;
+	color:#333;
+	margin:7px 19px 0 0;
+}
+.modal-form .select-box{
+	float:left;
+	min-width:100px;
+	position:relative;
+	overflow:hidden;
+	padding: 1px;
+}
+
+select:-moz-focusring {
+    color: transparent !important;
+    text-shadow: 0 0 0 #000;
+}
+select{
+	float:left;
+	width:100%;
+	font-size:12px;
+	line-height:15px;
+	cursor: pointer;
+    border: 1px solid #767676;
+    border-radius: 8px;
+    background-color: white !important;
+    padding-left: 5px;
+    
+    	/* reset */
+	/* border-radius: 0; */
+	margin: 0;      
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance:none;
+	-moz-appearance:none;
+	
+	background:
+	    linear-gradient(45deg, transparent 50%, #999 50%),
+	    linear-gradient(135deg, #999 50%, transparent 50%),
+	    linear-gradient(to right, white, white);
+	background-size:
+	    8px 6px, 
+	    8px 6px, 
+	    100% 100%;
+	background-repeat: no-repeat;
+	height: 40px !important;
+	background-position:
+	    calc(100% - 10px) calc(1em + 1px), 
+	    calc(100% - 3px) calc(1em + 1px), 
+	    100% 0;
+}
+select:focus,
+select:active {
+    outline: none;
+}
+select[disabled] {
+    color: #999;
+}
+
+option[selected]{ font-weight:bold}
+
+
+
+
+/* .universal-select-container{ */
+/* 	width: 95%; */
+/* } */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.modal-form .select-box select:focus{
+	border-color: #6BA542;
+}
+
+.modal-form .select-holder select:focus{
+	border-color: #6BA542;
+}
+
+
+.modal-form .holder.add{padding-top:14px;}
+
+.modal-form .cell-holder .cell{
+	float:left;
+	width:62px;
+	margin:0 0 0 9px;
+	position:relative;
+}
+.modal-form .cell-holder .cell:first-child{margin:0;}
+.modal-form .cell-holder{overflow:hidden;}
+.modal-form .tab-pane .title{
+	display:block;
+	font-size:13px;
+	line-height:16px;
+	font-weight:normal;
+	color:#333;
+	padding:0 0 2px;
+	border-bottom:1px solid #ccc;
+	margin:0 0 6px;
+}
+.modal-form .tab-content>.tab-pane{padding:9px 0 22px 2px;}
+.modal-form .tab-pane .cell label{margin-bottom:5px;}
+.modal-form .tab-pane .text input[type="text"]{
+	height:31px;
+	font-size:12px;
+	line-height:15px;
+	color:#333;
+	padding: 5px 7px;
+}
+.modal-form .tab-pane .text input[type="text"]::-moz-placeholder{
+	color:#bababa;
+	opacity:1;
+}
+.modal-form .tab-pane .text input[type="text"]:-ms-input-placeholder{color:#bababa;}
+.modal-form .tab-pane .text input[type="text"]::-webkit-input-placeholder{color:#bababa;}
+.modal-form .tab-pane .text input[type="text"]:-moz-placeholder{color:#bababa;}
+.modal-form .button-holder{
+	overflow:hidden;
+	/* padding:0 0 0 1px; */
+	text-align: right;
+	margin: 10px;
+}
+.modal-form .button-holder .btn,
+.modal-form .button-holder .btn:hover,
+.modal-form .button-holder .btn:active,
+.modal-form .button-holder .btn:focus{
+	min-width:77px;
+	padding:4px 10px;
+	/* margin:0 11px 0 0; */
+	outline:none;
+	border-width:1px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+This forces the JCF library to limit the size of its select inputs,
+otherwise they will overrun the page when there's too many options.
+This MUST override the inline styles on the DOM hence !important.
+*/
+div.drop-holder {
+	max-height: 100px;
+	overflow: auto !important;
+}
+
+
+/*
+This is a hack to force the width of the SELECT input as
+the JCF library doesn't apply a pixel width if the element is hidden,
+which is often the case when showing/hiding based on conditions.
+This MUST override the inline styles on the DOM hence !important.
+*/
+span.select-area span.center {
+	width: 233px !important;
+}
+
+
+/** 
+* 
+* BUSY MODAL 
+*
+*/
+div.standby-overlay {
+	background-color: #CCCCCC;
+	background-image: url('../images/loading_spinner_splitring.gif');
+	background-repeat: no-repeat;
+	background-position: center center;
+	position: absolute;
+	display: block;
+	opacity: 0.8;
+	z-index: 99999 !important;
+}
+
+div.gdb-maincontent-busy {
+	background-color: #CCCCCC;
+	background-image: url('../images/loading_spinner_splitring.gif');
+	background-repeat: no-repeat;
+	background-position: center center;
+	position: absolute;
+	display: block;
+	top: 0px;
+	left: 275px;
+	right: 0px;
+	height: 100%;
+	opacity: 0.8;
+	z-index: 9999999 !important;
+}
+
+
+/*
+* Generic form layout
+*/
+.row-holder .col{
+	float:right;
+	max-width:45.6%;
+	position:relative;
+}
+.row-holder .col:first-child{
+	float:left;
+	max-width:52%;
+}
+
+.modal-form .table.table-bordered {
+    font-size: 12px;
+}
+

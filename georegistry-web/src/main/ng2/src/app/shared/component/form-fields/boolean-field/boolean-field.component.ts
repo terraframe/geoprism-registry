@@ -9,11 +9,14 @@ declare var acp:string;
 })
 export class BooleanFieldComponent {
 
-  @Input() value:boolean = false;  
+  @Input() value:boolean = false;
+  @Output() public valueChange = new EventEmitter<boolean>();
+
   @Input() localizeLabelKey:string = ""; // localization key used to localize in the component template
   @Input() label:string = ""; // raw string input
-  
-  @Output() public valueChange = new EventEmitter<boolean>();
+
+  /* You can pass a function in with (change)='function()' */
+  @Output() public change = new EventEmitter<any>();
 
   constructor(){}
   
@@ -21,5 +24,6 @@ export class BooleanFieldComponent {
     this.value = !this.value;
     
     this.valueChange.emit(this.value);
+    this.change.emit(this.value)
   }
 }
