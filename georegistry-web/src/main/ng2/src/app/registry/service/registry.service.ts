@@ -44,34 +44,6 @@ export class RegistryService {
             .toPromise();
     }
     
-    getMyTasks( pageNum: number, pageSize: number, whereStatus: string ): Promise<any> {
-      let params: HttpParams = new HttpParams();
-      
-      params = params.set( 'orderBy', 'createDate' );
-      params = params.set( 'pageNum', pageNum.toString() );
-      params = params.set( 'pageSize', pageSize.toString() );
-      params = params.set( 'whereStatus', whereStatus );
-    
-      return this.http
-          .get<any>( acp + '/tasks/get', { params: params } )
-          .toPromise();
-    }
-    
-    completeTask( taskId: string ): Promise<Response> {
-      let headers = new HttpHeaders( {
-        'Content-Type': 'application/json'
-      } );
-      
-      //this.eventService.start();
-      
-      return this.http
-        .post<any>( acp + '/tasks/complete', JSON.stringify( { 'id': taskId } ), { headers: headers } )
-        .finally(() => {
-            //this.eventService.complete();
-        } )
-        .toPromise();
-    }
-    
     // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
     getGeoObjectTypes( types: any ): Promise<GeoObjectType[]> {
         let params: HttpParams = new HttpParams();

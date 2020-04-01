@@ -1,0 +1,56 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  	<createOrUpdate>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.password">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.password" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Password" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.change.password.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.change.password.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Change Password" />
+	        </attributeStruct>
+	      </object>
+	  
+	  
+	  	  <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.status">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.status" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="User Status" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.status.active">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.status.active" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Active" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.status.inactive">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.status.inactive" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Inactive" />
+	        </attributeStruct>
+	      </object>
+	      
+	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

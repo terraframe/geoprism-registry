@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.localization.LocalizedValueStoreQuery;
 import com.runwaysdk.query.Condition;
@@ -128,6 +129,20 @@ public class TaskService
   {
     Task t = Task.lock(id);
     t.setStatus(TaskStatus.RESOLVED.name());
+    t.apply();
+  }
+  
+  @Request(RequestType.SESSION)
+  public static void setTaskStatus(String sessionId, String id, String status)
+  {
+    if (!(status.equals(TaskStatus.RESOLVED.name())
+        || status.equals(TaskStatus.UNRESOLVED.name())))
+    {
+      throw new ProgrammingErrorException("Invalid task status [" + status + "].");
+    }
+    
+    Task t = Task.lock(id);
+    t.setStatus(status);
     t.apply();
   }
 }

@@ -20,7 +20,14 @@ public class Task extends TaskBase
 {
   private static final long serialVersionUID = 508070126;
   
-  public static enum TaskType
+  public static interface TaskTypeIF
+  {
+    public String getTitleKey();
+    
+    public String getTemplateKey();
+  }
+  
+  public static enum TaskType implements TaskTypeIF
   {
     GeoObjectSplitOrphanedChildren("tasks.geoObjectSplitOrphanedChildren.title", "tasks.geoObjectSplitOrphanedChildren.template");
     
@@ -66,7 +73,7 @@ public class Task extends TaskBase
     super();
   }
   
-  public static Task createNewTask(Collection<Roles> roles, TaskType taskType, Map<String, LocalizedValue> values)
+  public static Task createNewTask(Collection<Roles> roles, TaskTypeIF taskType, Map<String, LocalizedValue> values)
   {
     LocalizedValueStore lvsTitle = LocalizedValueStore.getByKey(taskType.getTitleKey());
     LocalizedValueStore lvsTemplate = LocalizedValueStore.getByKey(taskType.getTemplateKey());
@@ -121,6 +128,12 @@ public class Task extends TaskBase
     }
     
     task.getMessage().setValue(locale, sb.toString());
+  }
+  
+  @Override
+  protected String buildKey()
+  {
+    return this.getTemplate().getStoreKey();
   }
   
   @Override

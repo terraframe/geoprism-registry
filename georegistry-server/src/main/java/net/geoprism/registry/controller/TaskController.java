@@ -72,4 +72,12 @@ public class TaskController
     
     return new RestResponse();
   }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF setTaskStatus(ClientRequestIF request, @RequestParamter(name = "id") String id, @RequestParamter(name = "status") String status) throws JSONException
+  {
+    TaskService.setTaskStatus(request.getSessionId(), id, status);
+    
+    return new RestResponse();
+  }
 }
