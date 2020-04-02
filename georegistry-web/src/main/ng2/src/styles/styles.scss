@@ -582,6 +582,15 @@ div.row-holder .rad-area {
   color: lightgrey;
 }
 
+.inline-radio-input {
+	height: auto;
+}
+
+.radio-inline+.radio-inline {
+  margin-top: 15px;
+}
+
+
 
 /* 
 *
