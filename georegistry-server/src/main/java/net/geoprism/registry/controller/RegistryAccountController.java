@@ -3,11 +3,7 @@ package net.geoprism.registry.controller;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.geoprism.AccountController;
-import net.geoprism.GeoprismUserDTO;
-import net.geoprism.account.UserInviteDTO;
-import net.geoprism.registry.service.AccountService;
-
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +20,11 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.request.ServletRequestIF;
+
+import net.geoprism.AccountController;
+import net.geoprism.GeoprismUserDTO;
+import net.geoprism.account.UserInviteDTO;
+import net.geoprism.registry.service.AccountService;
 
 @Controller(url = "registryaccount")
 public class RegistryAccountController
@@ -80,10 +81,10 @@ public class RegistryAccountController
     GeoprismUserDTO user = UserInviteDTO.newUserInst(request);
     RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(request.getSessionId(), orgCodeArray);
     JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
-    
+
     RestResponse response = new RestResponse();
     response.set("user", user);
-    response.set("roles", rolesJSONArray);
+    response.set("roles", new JSONArray(rolesJSONArray.toString()));
     
     return response;
   }

@@ -48,7 +48,7 @@ export class AccountComponent implements OnInit {
         if ( oid === 'NEW' ) {
             this.service.newInstance("").then( data => {
                 this.account = data;
-                this.account.roles = JSON.parse(data.roles);
+                //this.account.roles = JSON.parse(data.roles);
 
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
