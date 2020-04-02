@@ -58,7 +58,9 @@ export class Role {
   name:string;
   label:any;
   orgCode:string;
+  orgLabel:any;
   geoObjectTypeCode:string;
+  geoObjectTypeLabel: any;
   isEnabled?: boolean;
 }
 
@@ -68,14 +70,14 @@ export class FormattedRoles {
 }
 
 export class FormattedOrganization {
-  ORGANIZATION: string;
+  ORGANIZATIONLABEL: any;
   RA: Role;
   GEOOBJECTTYPEROLES: FormattedGeoObjectTypeRoleGroup[];
 }
 
 export class FormattedGeoObjectTypeRoleGroup {
   ENABLEDROLE: string;
-  GEOOBJECTTYPEID: string;
+  GEOOBJECTTYPELABEL: any;
   GEOOBJECTTYPEROLESGROUP: Role[];
 }
 

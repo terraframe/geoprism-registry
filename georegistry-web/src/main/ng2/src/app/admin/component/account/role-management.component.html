@@ -12,7 +12,7 @@
         <div *ngFor="let org of _roles.ORGANIZATIONS" class="row-holder">
 
           <div class="heading">
-            <h4>{{org.ORGANIZATION}}</h4>
+            <h4>{{org.ORGANIZATIONLABEL}}</h4>
           </div>
 
 
@@ -26,12 +26,12 @@
 
           <!-- Organization GeoObjectTypes -->
           <div class="row">
-            <div class="col-sm-12" style="padding-left:50px;padding-right:50px;">
+            <div class="col-sm-12 org-container" style="padding-left:50px;padding-right:50px;">
 
               <div *ngFor="let roleGroup of org.GEOOBJECTTYPEROLES; let i = index">
 
                 <div class="heading">
-                  <h4>{{roleGroup.GEOOBJECTTYPEID}}</h4>
+                  <h4>{{roleGroup.GEOOBJECTTYPELABEL}}</h4>
                 </div>
 
                 <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">

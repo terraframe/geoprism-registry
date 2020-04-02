@@ -76,9 +76,9 @@ export class RoleManagementComponent implements OnInit {
 
                 formattedObj.ORGANIZATIONS.forEach(orgGroup => {
 
-                    if(orgGroup.ORGANIZATION && orgGroup.ORGANIZATION.length > 0){
+                    if(orgGroup.ORGANIZATIONLABEL && orgGroup.ORGANIZATIONLABEL.length > 0){
 
-                        if(orgGroup.ORGANIZATION === role.orgCode){
+                        if(orgGroup.ORGANIZATIONLABEL === role.orgLabel.localizedValue){
 
                             if(role.type === "RA"){
                                 orgGroup.RA = role;
@@ -87,14 +87,14 @@ export class RoleManagementComponent implements OnInit {
 
                                 let exists = false;
                                 orgGroup.GEOOBJECTTYPEROLES.forEach(rg => {
-                                    if (rg.GEOOBJECTTYPEID === role.geoObjectTypeCode) {
+                                    if (rg.GEOOBJECTTYPELABEL === role.geoObjectTypeLabel.localizedValue) {
                                         rg.GEOOBJECTTYPEROLESGROUP.push(role);
                                         exists = true;
                                     }
                                 });
 
                                 if (!exists) {
-                                    let roleGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPEID": role.geoObjectTypeCode };
+                                    let roleGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
                                     orgGroup.GEOOBJECTTYPEROLES.push(roleGroup);
                                 }
                             }
@@ -126,10 +126,10 @@ export class RoleManagementComponent implements OnInit {
 
                 if(!addedToGroup){
 
-                    let newObj: FormattedOrganization = { "ORGANIZATION" : null, "RA" : null, "GEOOBJECTTYPEROLES" : [] };
+                    let newObj: FormattedOrganization = { "ORGANIZATIONLABEL" : null, "RA" : null, "GEOOBJECTTYPEROLES" : [] };
 
                     if(role.type === "RA"){
-                        newObj.ORGANIZATION = role.orgCode;
+                        newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
                         newObj.RA = role;
                     }
                     // else{
@@ -154,6 +154,19 @@ export class RoleManagementComponent implements OnInit {
         role.isEnabled = event;
 
         this.onChangeRole()
+
+        // Disable all GeoObjectType radio buttons in this organization
+        if(role.isEnabled){
+            let orgContainters = document.getElementsByClassName("org-container");
+            Array.prototype.forEach.call(orgContainters, function(el) {
+
+                let inputs = el.querySelectorAll("input");
+
+                inputs.forEach(input => {
+                    input.checked = false;
+                })
+            })
+        }
     }
 
     onChangeRole(): void {
