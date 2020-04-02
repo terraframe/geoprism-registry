@@ -15,66 +15,94 @@
     </h3>
     -->
     <form class="modal-form" #form="ngForm">
-      <div class="form-group row">
-        <label class="col-sm-2">
-          <localize key="io.modal.hierarchy"></localize>
-        </label>
-        <div class="col-sm-10">
-          <select name="hierarchy" class="select-area" [(ngModel)]="configuration.hierarchy" required>
-            <option></option>
-            <option *ngFor="let hierarchy of configuration.hierarchies" value={{hierarchy.code}}>{{hierarchy.label}}</option>
-          </select>
-        </div>
-      </div>
-      <hr />
-      <div class="form-group row" *ngFor="let attribute of configuration.type.attributes">
-        <label class="col-sm-2">{{attribute.label.localizedValue}}</label>
-        <div class="col-sm-10">
-          <select [name]="attribute.code + (attribute.locale != null ? attribute.locale : '')" class="select-area" [(ngModel)]="attribute.target" [required]="attribute.required">
-            <option></option>
-            <option *ngFor="let attr of configuration.sheet.attributes[attribute.baseType]" value={{attr}}>{{attr}}</option>
-          </select>
-        </div>
-      </div>
-      <hr />
-      <div *ngIf="configuration.hasPostalCode" class="form-group row">
-        <label class="col-sm-2">
-          <localize key="io.modal.postalCode"></localize>
-        </label>
-        <div class="form-check">
-          <div class="check-block">
-            <div (click)="configuration.postalCode = !configuration.postalCode" [ngClass]="{'chk-checked' : configuration.postalCode}" style="margin:0;" class="jcf-unselectable chk-area" name="postalCode">
-                <span></span>
-            </div>
+      
+      <div class="form-group">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class="">
+              <localize key="io.modal.hierarchy"></localize>
+            </label>
           </div>
-            <!-- <input type="checkbox" class="form-check-input" name="postalCode" [(ngModel)]="configuration.postalCode"> -->
+          <div class="holder">
+            <select name="hierarchy" class="select-area" [(ngModel)]="configuration.hierarchy" required>
+              <option></option>
+              <option *ngFor="let hierarchy of configuration.hierarchies" value={{hierarchy.code}}>{{hierarchy.label}}</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div *ngIf="!configuration.hasPostalCode || !configuration.postalCode" class="form-group row">
-        <label class="col-sm-2">
-          <localize key="io.modal.parentLookupType"></localize>
-        </label>
-        <div class="col-sm-10">
-          <select name="parentLookupType" class="select-area" [(ngModel)]="configuration.parentLookupType" required>
-            <option></option>
-            <option value="ALL"><localize key="io.modal.all"></localize></option>
-            <option value="CODE"><localize key="io.modal.code"></localize></option>
-          </select>
+
+      <hr />
+
+      <div class="form-group" *ngFor="let attribute of configuration.type.attributes">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class="">{{attribute.label.localizedValue}}</label>
+          </div>
+          <div class="holder">
+            <select [name]="attribute.code + (attribute.locale != null ? attribute.locale : '')" class="select-area"
+              [(ngModel)]="attribute.target" [required]="attribute.required">
+              <option></option>
+              <option *ngFor="let attr of configuration.sheet.attributes[attribute.baseType]" value={{attr}}>{{attr}}</option>
+            </select>
+          </div>
         </div>
-      </div>           
-      <div class="form-group row">
-        <div class="col-sm-12 text-right">
-          <button type="button" (click)="onCancel()" class="btn" role="button">
-            <span class="ui-button-text">
-              <localize key="io.cancel"></localize>
-            </span>
-          </button>
-          <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-            <span class="ui-button-text">
-              <localize *ngIf="!configuration.postalCode" key="io.next"></localize>
-              <localize *ngIf="configuration.postalCode" key="io.ok"></localize>
-            </span>
-          </button>
+      </div>
+
+      <hr />
+
+      <div *ngIf="configuration.hasPostalCode" class="form-group">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class="">
+              <localize key="io.modal.postalCode"></localize>
+            </label>
+          </div>
+          <div class="form-check">
+            <div class="check-block">
+              <div (click)="configuration.postalCode = !configuration.postalCode"
+                [ngClass]="{'chk-checked' : configuration.postalCode}" style="margin:0;" class="jcf-unselectable chk-area"
+                name="postalCode">
+                <span></span>
+              </div>
+            </div>
+            <!-- <input type="checkbox" class="form-check-input" name="postalCode" [(ngModel)]="configuration.postalCode"> -->
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!configuration.hasPostalCode || !configuration.postalCode" class="form-group">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class="">
+              <localize key="io.modal.parentLookupType"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <select name="parentLookupType" class="select-area" [(ngModel)]="configuration.parentLookupType" required>
+              <option></option>
+              <option value="ALL">
+                <localize key="io.modal.all"></localize>
+              </option>
+              <option value="CODE">
+                <localize key="io.modal.code"></localize>
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="row-holder">
+          <div class="button-holder">
+            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                <localize key="io.cancel"></localize>
+            </button>
+            <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+                <localize *ngIf="!configuration.postalCode" key="io.next"></localize>
+                <localize *ngIf="configuration.postalCode" key="io.ok"></localize>
+            </button>
+          </div>
         </div>
       </div>
     </form>

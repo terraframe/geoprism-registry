@@ -43,12 +43,11 @@
 
             <div class="row-holder">
                 <div class="label-holder">
-                    <label><localize key="hierarchy.management.option.label.isGeometryEditable"></localize></label>
+                    <label><localize key="hierarchy.management.option.label.geometryEditable"></localize></label>
                 </div>
                 <div class="holder">
-                    <div (click)="toggleIsGeometryEditable()" [ngClass]="{'chk-checked' : editGeoObjectType.isGeometryEditable}" style="margin: 0;" class="jcf-unselectable chk-area">
-                        <span></span>
-                    </div>
+
+                    <boolean-field [(value)]="editGeoObjectType.isGeometryEditable" [localizeLabelKey]="'hierarchy.management.option.label.isGeometryEditable'"></boolean-field>
                 </div>
             </div>
 
