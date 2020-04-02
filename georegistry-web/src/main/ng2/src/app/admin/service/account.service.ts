@@ -106,7 +106,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>( acp + '/account/newInvite', JSON.stringify( {} ), { headers: headers } )
+            .post<Account>( acp + '/registryaccount/newInvite', JSON.stringify( {} ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

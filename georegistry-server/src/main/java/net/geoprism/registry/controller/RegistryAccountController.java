@@ -7,6 +7,7 @@ import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -23,6 +24,7 @@ import com.runwaysdk.request.ServletRequestIF;
 
 import net.geoprism.AccountController;
 import net.geoprism.GeoprismUserDTO;
+import net.geoprism.RoleViewDTO;
 import net.geoprism.account.UserInviteDTO;
 import net.geoprism.registry.service.AccountService;
 
@@ -157,9 +159,30 @@ public class RegistryAccountController
    * @throws JSONException
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF newInvite(ClientRequestIF request) throws JSONException
+  public ResponseIF newInvite(ClientRequestIF request, @RequestParamter(name = "organizationCodes") String organizationCodes) throws JSONException
   {        
-    return new AccountController().newInvite(request) ;
+    String[] orgCodeArray = null;
+    
+    if (organizationCodes != null)
+    {
+      orgCodeArray = organizationCodes.split("\\,");
+    }
+    else
+    {
+      orgCodeArray = new String[0];
+    }
+
+    JSONObject user = new JSONObject();
+    user.put("newInstance", true);
+
+    RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(request.getSessionId(), orgCodeArray);
+    JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
+
+    RestResponse response = new RestResponse();
+    response.set("user", user);
+    response.set("roles", new JSONArray(rolesJSONArray.toString()));
+    
+    return response;
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)

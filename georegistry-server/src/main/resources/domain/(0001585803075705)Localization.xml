@@ -37,7 +37,7 @@
 	        </attributeStruct>
 	      </object>
 
-		<object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.constraints">
+		    <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.constraints">
 	        <attribute name="storeTag" value="UIText" />
 	        <attribute name="storeKey" value="data.property.label.constraints" />
 	        <attributeStruct name="storeValue">
@@ -53,6 +53,14 @@
 	          <attribute name="defaultLocale" value="Organizations" />
 	        </attributeStruct>
 	      </object>
+        
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.invite.createTitle">
+          <attribute name="storeTag" value="UIText" />
+          <attribute name="storeKey" value="account.invite.createTitle" />
+          <attributeStruct name="storeValue">
+            <attribute name="defaultLocale" value="Create Your Account" />
+          </attributeStruct>
+        </object>
 	      
 	      
 	</createOrUpdate>

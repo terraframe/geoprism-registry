@@ -84,7 +84,7 @@ export class AccountComponent implements OnInit {
     }
 
     onRoleIdsUpdate(event): void {
-        console.log(event)
+      this.roleIds = event;
     }
 
 

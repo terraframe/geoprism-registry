@@ -24,6 +24,8 @@ export class CgrHeaderComponent {
     isMaintainer: boolean;
     isContributor: boolean;
     bsModalRef: BsModalRef;
+    
+    @Input() loggedIn: boolean = true;
 
     constructor(
         private sessionService: SessionService,
