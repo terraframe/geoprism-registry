@@ -48,8 +48,6 @@ export class AccountComponent implements OnInit {
         if ( oid === 'NEW' ) {
             this.service.newInstance("").then( data => {
                 this.account = data;
-                //this.account.roles = JSON.parse(data.roles);
-
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
             } );
@@ -63,7 +61,7 @@ export class AccountComponent implements OnInit {
                 } ).catch(( err: HttpErrorResponse ) => {
                     this.error( err );
                 } );
-                
+
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
             } );
@@ -84,7 +82,7 @@ export class AccountComponent implements OnInit {
     }
 
     onRoleIdsUpdate(event): void {
-      this.roleIds = event;
+        this.roleIds = event;
     }
 
 
