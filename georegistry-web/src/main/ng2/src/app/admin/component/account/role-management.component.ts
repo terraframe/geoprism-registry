@@ -27,6 +27,7 @@ import { Subject } from 'rxjs/Subject';
 
 import { Account, User, Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '../../model/account';
 import { AccountService } from '../../service/account.service';
+import { Organization } from '../../model/settings';
 
 @Component( {
     selector: 'role-management',
@@ -102,25 +103,6 @@ export class RoleManagementComponent implements OnInit {
                             addedToGroup = true;
                         }
                     }
-                    // This is an SRA if no ORGANIZATION
-                    // else{
-                    //     let groupOrgCode;
-                    //     orgGroup.GEOOBJECTTYPEROLEGROUPS.forEach(geoObjTypeRole => {
-                    //         groupOrgCode = geoObjTypeRole.orgCode;
-                    //     });
-
-                    //     if(groupOrgCode === role.orgCode){
-
-                    //         if(role.type === "RA"){
-                    //             orgGroup.RA = role;
-                    //         }
-                    //         else{
-                    //             orgGroup.GEOOBJECTTYPEROLEGROUPS.push(role);
-                    //         }
-
-                    //         addedToGroup = true;
-                    //     }
-                    // }
 
                 });
 
@@ -132,10 +114,6 @@ export class RoleManagementComponent implements OnInit {
                         newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
                         newObj.RA = role;
                     }
-                    // else{
-                    //     let geoObjTypeGroup = {"GEOOBJECTTYPE" : role.geoObjectTypeCode, "ROLES": [role]}
-                    //     newObj.GEOOBJECTTYPEROLES.push(geoObjTypeGroup);
-                    // }
 
                     formattedObj.ORGANIZATIONS.push(newObj)
                 }
@@ -149,24 +127,18 @@ export class RoleManagementComponent implements OnInit {
     }
 
 
-    onToggleOrgRA(event: any, role: Role): void {
+    onToggleOrgRA(event: any, organization: FormattedOrganization): void {
 
-        role.isEnabled = event;
-
-        this.onChangeRole()
+        organization.RA.isEnabled = event;
 
         // Disable all GeoObjectType radio buttons in this organization
-        if(role.isEnabled){
-            let orgContainters = document.getElementsByClassName("org-container");
-            Array.prototype.forEach.call(orgContainters, function(el) {
-
-                let inputs = el.querySelectorAll("input");
-
-                inputs.forEach(input => {
-                    input.checked = false;
-                })
-            })
+        if(organization.RA.isEnabled){
+            organization.GEOOBJECTTYPEROLES.forEach(rg => {
+                rg.ENABLEDROLE = "";
+            });
         }
+
+        this.onChangeRole();
     }
 
     onChangeRole(): void {
