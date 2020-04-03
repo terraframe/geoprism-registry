@@ -24,7 +24,7 @@
                         <th class="label-column"><localize key='account.lastname'></localize></th>
                         <th class="label-column"><localize key='account.phonenumber'></localize></th>
                         <th class="label-column"><localize key='account.email'></localize></th>
-                        <th class="label-column"><localize key='account.roles'></localize></th>
+                        <!-- <th class="label-column"><localize key='account.roles'></localize></th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -35,7 +35,7 @@
                         <td class="label-column lastname-col">{{ account.lastName }}</td>
                         <td class="label-column phone-col">{{ account.phoneNumber | phone }}</td>
                         <td class="label-column email-col">{{ account.email }}</td>
-                        <td class="label-column role-col">{{ account.roles }}</td>
+                        <!-- <td class="label-column role-col">{{ account.roles }}</td> -->
                     </tr>
                     <tr>
                         <td class="button-column"><a class="fa fa-plus" (click)="newInstance()" [title]="'account.newTooltip' | localize"></a></td>
