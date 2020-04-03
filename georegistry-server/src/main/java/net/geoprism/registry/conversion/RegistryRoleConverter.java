@@ -35,13 +35,11 @@ public class RegistryRoleConverter
   }
   
   /**
-   * Returns the {@link RegistryRole} object converted from the {@link Roles} object, 
-   * 
-   * Precondition: assumes the role is a registry role
+   * Returns the {@link RegistryRole} object converted from the {@link Roles} object, or NULL if it is not a registry role. 
    * 
    * @param role RunwaySDK role.
    * 
-   * @return the {@link RegistryRole} object converted from the {@link Roles} object.
+   * @return the {@link RegistryRole} object converted from the {@link Roles} object, or NULL if it is not a registry role. 
    */
   public RegistryRole build(Roles role)
   {

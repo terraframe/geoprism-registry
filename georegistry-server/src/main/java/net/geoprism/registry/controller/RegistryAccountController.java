@@ -1,20 +1,19 @@
 package net.geoprism.registry.controller;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import net.geoprism.AccountController;
+import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.account.UserInviteDTO;
 import net.geoprism.registry.service.AccountService;
 
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.facade.FacadeUtil;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -24,6 +23,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.request.ServletRequestIF;
+import com.runwaysdk.session.Request;
 
 @Controller(url = "registryaccount")
 public class RegistryAccountController
@@ -45,7 +45,17 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
   {
-    return new AccountController().edit(request, oid) ;
+    GeoprismUserDTO user = GeoprismUserDTO.lock(request, oid);
+   
+    RegistryRole[] registryRoles = this.accountService.getRolesForUser(request.getSessionId(), user.getOid());
+
+    JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
+    
+    RestResponse response = new RestResponse();
+    response.set("user", user);
+    response.set("roles", rolesJSONArray);
+    
+    return response;
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
@@ -76,8 +86,9 @@ public class RegistryAccountController
     {
       orgCodeArray = new String[0];
     }
-
+    
     GeoprismUserDTO user = UserInviteDTO.newUserInst(request);
+
     RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(request.getSessionId(), orgCodeArray);
     JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
     
@@ -87,18 +98,7 @@ public class RegistryAccountController
     
     return response;
   }
-  
-  private JsonArray createRoleMap(RegistryRole[] roles) 
-  {
-    JsonArray roleJSONArray = new JsonArray();
-    
-    for (RegistryRole role : roles)
-    {
-      roleJSONArray.add(role.toJSON());
-    }
-    
-    return roleJSONArray;
-  }
+
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF newUserInstance(ClientRequestIF request) throws JSONException
@@ -119,26 +119,30 @@ public class RegistryAccountController
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "account", parser = ParseType.BASIC_JSON) GeoprismUserDTO account, @RequestParamter(name = "roleIds") String roleIds) throws JSONException
-  {
-    List<String> list = new LinkedList<String>();
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "account", parser = ParseType.BASIC_JSON) GeoprismUserDTO account, @RequestParamter(name = "roleNames") String roleNames) throws JSONException
+  {    
+    String[] roleNameArray = null;
     
-    if (roleIds != null)
+    if (roleNames != null)
     {
-      JSONArray array = new JSONArray(roleIds);
-
-      for (int i = 0; i < array.length(); i++)
-      {
-        list.add(array.getString(i));
-      }
+      roleNameArray = roleNames.split("\\,");
     }
-    
-    String[] roleIdArray = list.toArray((new String[list.size()]));
-       
-    GeoprismUserDTO returnAccount = this.accountService.apply(request.getSessionId(), account, roleIdArray);
+    else
+    {
+      roleNameArray = new String[0];
+    }    
+    GeoprismUserDTO user = this.accountService.apply(request.getSessionId(), account, roleNameArray);
+   
+    RegistryRole[] registryRoles = this.accountService.getRolesForUser(request.getSessionId(), user.getOid());
 
-    return new RestBodyResponse(returnAccount);
-  }
+    JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
+    
+    RestResponse response = new RestResponse();
+    response.set("user", user);
+    response.set("roles", rolesJSONArray);
+    
+    return response;
+  }  
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF inviteUser(ClientRequestIF request, ServletRequestIF sr, @RequestParamter(name = "invite") String sInvite, @RequestParamter(name = "roleIds") String roleIds) throws JSONException
@@ -165,5 +169,18 @@ public class RegistryAccountController
   public ResponseIF inviteComplete(ClientRequestIF request, @RequestParamter(name = "user", parser = ParseType.BASIC_JSON) GeoprismUserDTO user, @RequestParamter(name = "token") String token) throws JSONException
   {
     return new AccountController().inviteComplete(request, user, token);
+  }
+  
+  
+  private JsonArray createRoleMap(RegistryRole[] roles) 
+  {
+    JsonArray roleJSONArray = new JsonArray();
+    
+    for (RegistryRole role : roles)
+    {
+      roleJSONArray.add(role.toJSON());
+    }
+    
+    return roleJSONArray;
   }
 }
