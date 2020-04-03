@@ -1,0 +1,16 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdTree name="net.geoprism.registry.OrganizationUser" label="Organization User" generateController="false" publish="false">
+        <parent cardinality="*" name="net.geoprism.registry.Organization" method="Organizations" />
+        <child cardinality="*" name="net.geoprism.GeoprismUser" method="Users" />
+      </mdTree>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdTree" key="net.geoprism.registry.OrganizationUser"/> 
+    </delete>
+  </undoIt>
+</version>

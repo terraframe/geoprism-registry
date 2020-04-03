@@ -63,15 +63,8 @@ public class AccountService
   {     
     BusinessDTO genericBusinessDTO = (BusinessDTO) ConversionFacade.createGenericCopy(geoprismUserDTO);
     GeoprismUser geoprismUser = (GeoprismUser)FacadeUtil.populateMutable(sessionId, genericBusinessDTO);
-    
-    Set<String> roleIdSet = new HashSet<String>();
-    for (String roleName : roleNameArray)
-    {
-      RoleDAOIF findRole = RoleDAO.findRole(roleName);
-      roleIdSet.add(findRole.getOid());
-    }
 
-    geoprismUser = this.applyInTransaction(geoprismUser, roleIdSet);
+    geoprismUser = this.applyInTransaction(geoprismUser, roleNameArray);
     
     genericBusinessDTO = (BusinessDTO)FacadeUtil.populateComponentDTOIF(sessionId, geoprismUser, true);
     ConversionFacade.typeSafeCopy(geoprismUserDTO.getRequest(), genericBusinessDTO, geoprismUserDTO);
@@ -80,9 +73,21 @@ public class AccountService
   }
 
   @Transaction
-  public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, Set<String> roleIdSet)
+  public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, String[] roleNameArray)
   {
     geoprismUser.apply();
+    
+    List<Roles> newRoles = new LinkedList<Roles>();
+    
+    Set<String> roleIdSet = new HashSet<String>();
+    for (String roleName : roleNameArray)
+    {
+      Roles role = Roles.findRoleByName(roleName);
+      roleIdSet.add(role.getOid());
+      
+      newRoles.add(role);
+    }
+    
 
     List<ConfigurationIF> configurations = ConfigurationService.getConfigurations();
 
@@ -107,11 +112,11 @@ public class AccountService
     }
 
     /*
-     * Assign roles
+     * Assign roles and associate with the user
      */
-    for (String roleId : roleIdSet)
-    {
-      RoleDAO roleDAO = RoleDAO.get(roleId).getBusinessDAO();
+    for (Roles role : newRoles)
+    {      
+      RoleDAO roleDAO = (RoleDAO)BusinessFacade.getEntityDAO(role);
       roleDAO.assignMember(user);
     }
     
@@ -120,7 +125,7 @@ public class AccountService
   
   private boolean excludedRole(String roleId)
   {
-    Roles adminRole = Roles.getByKey(DefaultConfiguration.ADMIN);
+    Roles adminRole = Roles.findRoleByName(DefaultConfiguration.ADMIN);
     
     if (adminRole.getOid().equals(roleId))
     {
@@ -156,15 +161,8 @@ public class AccountService
       {
         registryRole.setAssigned(true);
         
-        // Organization display label
-        String organizationCode = registryRole.getOrganizationCode();
-        Organization organization = Organization.getByCode(organizationCode);
-        registryRole.setOrganizationLabel(LocalizedValueConverter.convert(organization.getDisplayLabel()));
-        
-        // GeoObjectType display label
-        String geoObjectTypeCode = registryRole.getGeoObjectTypeCode();
-        Universal universal = Universal.getByKey(geoObjectTypeCode);
-        registryRole.setGeoObjectTypeLabel(LocalizedValueConverter.convert(universal.getDisplayLabel()));
+        LocalizedValueConverter.populateOrganizationDisplayLabel(registryRole);
+        LocalizedValueConverter.populateGeoObjectTypeLabel(registryRole);
         
         registryRoles.add(registryRole);
       }

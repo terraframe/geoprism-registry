@@ -23,9 +23,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.service.ServiceFactory;
+
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
@@ -38,10 +44,7 @@ import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
-
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.service.ServiceFactory;
+import com.runwaysdk.system.gis.geo.Universal;
 
 public class LocalizedValueConverter
 {
@@ -217,4 +220,29 @@ public class LocalizedValueConverter
     }
   }
 
+
+  /**
+   * Populates the {@link Organization} display label on the given {@link RegistryRole} object.
+   * 
+   * @param registryRole
+   */
+  public static void populateOrganizationDisplayLabel(RegistryRole registryRole)
+  {
+    String organizationCode = registryRole.getOrganizationCode();
+    Organization organization = Organization.getByCode(organizationCode);
+    registryRole.setOrganizationLabel(LocalizedValueConverter.convert(organization.getDisplayLabel()));
+  }
+  
+  /**
+   * Populates the {@link GeoObjectType} display label on the given {@link RegistryRole} object.
+   * 
+   * @param registryRole
+   */
+  public static void populateGeoObjectTypeLabel(RegistryRole registryRole)
+  {
+    String geoObjectTypeCode = registryRole.getGeoObjectTypeCode();
+    Universal universal = Universal.getByKey(geoObjectTypeCode);
+    registryRole.setGeoObjectTypeLabel(LocalizedValueConverter.convert(universal.getDisplayLabel()));
+  }
+  
 }

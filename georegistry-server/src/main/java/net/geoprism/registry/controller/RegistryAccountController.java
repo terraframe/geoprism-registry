@@ -52,7 +52,7 @@ public class RegistryAccountController
     
     RestResponse response = new RestResponse();
     response.set("user", user);
-    response.set("roles", rolesJSONArray);
+    response.set("roles", new JSONArray(rolesJSONArray.toString()));
     
     return response;
   }
