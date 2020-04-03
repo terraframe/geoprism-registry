@@ -19,7 +19,7 @@
 
 export class UserInvite {
   email: string;
-  groups:Group[];
+  roles: any;
 }
 
 export class User {

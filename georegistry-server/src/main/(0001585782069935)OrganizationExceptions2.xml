@@ -1,13 +1,12 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-    <create> 
+    <create>
+      <!--  
       <mdException name="net.geoprism.registry.SRAException" label="Super Registry Administrator Exception" message="You must be a Registry Adminstrator of the organization in order to perfome this action.">
       </mdException> 
       <mdException name="net.geoprism.registry.OrganizationRAException" label="Organization Registry Administrator Exception" message="You must be a Registry Adminstrator of the organization in order to perfome this action.">
-        <attributes>
-          <char name="organizationLabel" label="Organization Label" size="1024"/>
-        </attributes>
       </mdException> 
+      -->
       <mdException name="net.geoprism.registry.OrganizationRMException" label="Organization Registry Maintainer Exception" message="You must be a Registry Maintainer of the {organizationLabel} for {geoObjectType} in order to perfome this action.">
         <attributes>
           <char name="organizationLabel" label="Organization Label" size="1024"/>
@@ -33,11 +32,22 @@
         </attributes>
       </mdException>
     </create>
+    <update>
+      <mdException name="net.geoprism.registry.OrganizationRAException" label="Organization Registry Administrator Exception" message="You must be a Registry Adminstrator of the {organizationLabel} in order to perfome this action.">
+        <create>
+          <attributes>
+            <char name="organizationLabel" label="Organization Label" size="1024"/>
+          </attributes>
+        </create>
+      </mdException> 
+    </update>
   </doIt>
   <undoIt>
     <delete>
+    <!--  
       <object key="net.geoprism.registry.SRAException" type="com.runwaysdk.system.metadata.MdException"/>
       <object key="net.geoprism.registry.OrganizationRAException" type="com.runwaysdk.system.metadata.MdException"/>
+    -->
       <object key="net.geoprism.registry.OrganizationRMException" type="com.runwaysdk.system.metadata.MdException"/>
       <object key="net.geoprism.registry.OrganizationRCException" type="com.runwaysdk.system.metadata.MdException"/> 
       <object key="net.geoprism.registry.OrganizationACException" type="com.runwaysdk.system.metadata.MdException"/> 

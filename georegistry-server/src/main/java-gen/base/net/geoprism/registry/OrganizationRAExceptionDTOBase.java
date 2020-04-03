@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 532103379)
+@com.runwaysdk.business.ClassSignature(hash = -66775576)
 public abstract class OrganizationRAExceptionDTOBase extends com.runwaysdk.business.SmartExceptionDTO
 {
   public final static String CLASS = "net.geoprism.registry.OrganizationRAException";
-  private static final long serialVersionUID = 532103379;
+  private static final long serialVersionUID = -66775576;
   
   public OrganizationRAExceptionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequestIF)
   {
@@ -52,6 +52,44 @@ public abstract class OrganizationRAExceptionDTOBase extends com.runwaysdk.busin
   }
   
   public static java.lang.String OID = "oid";
+  public static java.lang.String ORGANIZATIONLABEL = "organizationLabel";
+  public String getOrganizationLabel()
+  {
+    return getValue(ORGANIZATIONLABEL);
+  }
+  
+  public void setOrganizationLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(ORGANIZATIONLABEL, "");
+    }
+    else
+    {
+      setValue(ORGANIZATIONLABEL, value);
+    }
+  }
+  
+  public boolean isOrganizationLabelWritable()
+  {
+    return isWritable(ORGANIZATIONLABEL);
+  }
+  
+  public boolean isOrganizationLabelReadable()
+  {
+    return isReadable(ORGANIZATIONLABEL);
+  }
+  
+  public boolean isOrganizationLabelModified()
+  {
+    return isModified(ORGANIZATIONLABEL);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getOrganizationLabelMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(ORGANIZATIONLABEL).getAttributeMdDTO();
+  }
+  
   /**
    * Overrides java.lang.Throwable#getMessage() to retrieve the localized
    * message from the exceptionDTO, instead of from a class variable.
@@ -61,6 +99,7 @@ public abstract class OrganizationRAExceptionDTOBase extends com.runwaysdk.busin
     java.lang.String template = super.getMessage();
     
     template = template.replace("{oid}", this.getOid().toString());
+    template = template.replace("{organizationLabel}", this.getOrganizationLabel().toString());
     
     return template;
   }

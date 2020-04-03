@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.service;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +26,7 @@ import java.util.Set;
 
 import net.geoprism.ConfigurationIF;
 import net.geoprism.ConfigurationService;
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.registry.Organization;
@@ -36,17 +36,20 @@ import net.geoprism.registry.conversion.RegistryRoleConverter;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.runwaysdk.business.BusinessDTO;
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.transport.conversion.ConversionFacade;
 
 public class AccountService
 {
@@ -56,29 +59,36 @@ public class AccountService
   }
 
   @Request(RequestType.SESSION)
-  public GeoprismUserDTO apply(String sessionId, GeoprismUserDTO account, String[] roleIds)
-  {    
-    GeoprismUser geoprismUser = (GeoprismUser)FacadeUtil.populateMutable(sessionId, account);
+  public GeoprismUserDTO apply(String sessionId, GeoprismUserDTO geoprismUserDTO, String[] roleNameArray)
+  {     
+    BusinessDTO genericBusinessDTO = (BusinessDTO) ConversionFacade.createGenericCopy(geoprismUserDTO);
+    GeoprismUser geoprismUser = (GeoprismUser)FacadeUtil.populateMutable(sessionId, genericBusinessDTO);
     
-    geoprismUser = this.applyInTransaction(geoprismUser, roleIds);
+    Set<String> roleIdSet = new HashSet<String>();
+    for (String roleName : roleNameArray)
+    {
+      RoleDAOIF findRole = RoleDAO.findRole(roleName);
+      roleIdSet.add(findRole.getOid());
+    }
+
+    geoprismUser = this.applyInTransaction(geoprismUser, roleIdSet);
     
-    GeoprismUserDTO returnAccount = (GeoprismUserDTO)FacadeUtil.convertTypeToDTO(sessionId, geoprismUser);
-    
-    return returnAccount;
+    genericBusinessDTO = (BusinessDTO)FacadeUtil.populateComponentDTOIF(sessionId, geoprismUser, true);
+    ConversionFacade.typeSafeCopy(geoprismUserDTO.getRequest(), genericBusinessDTO, geoprismUserDTO);
+   
+    return geoprismUserDTO;
   }
-  
+
   @Transaction
-  public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, String[] roleIds)
+  public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, Set<String> roleIdSet)
   {
     geoprismUser.apply();
-
-    Set<String> set = new HashSet<String>(Arrays.asList(roleIds));
 
     List<ConfigurationIF> configurations = ConfigurationService.getConfigurations();
 
     for (ConfigurationIF configuration : configurations)
     {
-      configuration.configureUserRoles(set);
+      configuration.configureUserRoles(roleIdSet);
     }
 
     UserDAOIF user = UserDAO.get(geoprismUser.getOid());
@@ -88,19 +98,79 @@ public class AccountService
     for (RoleDAOIF roleDAOIF : userRoles)
     {
       RoleDAO roleDAO = RoleDAO.get(roleDAOIF.getOid()).getBusinessDAO();
-      roleDAO.deassignMember(user);
+      
+      // Don't remove things like the root admin role
+      if (!excludedRole(roleDAOIF.getOid()))
+      {
+        roleDAO.deassignMember(user);
+      }
     }
 
     /*
      * Assign roles
      */
-    for (String roleId : set)
+    for (String roleId : roleIdSet)
     {
       RoleDAO roleDAO = RoleDAO.get(roleId).getBusinessDAO();
       roleDAO.assignMember(user);
     }
     
     return geoprismUser;
+  }
+  
+  private boolean excludedRole(String roleId)
+  {
+    Roles adminRole = Roles.getByKey(DefaultConfiguration.ADMIN);
+    
+    if (adminRole.getOid().equals(roleId))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  
+  
+  /**
+   * 
+   * @param organizationCodes comma delimited list of registry codes. Returns all registry roles if empty.
+   * 
+   * @return all of the roles are set to assigned equals false
+   */
+  @Request(RequestType.SESSION)
+  public RegistryRole[] getRolesForUser(String sessionId, String userOID)
+  {    
+    GeoprismUser geoPrismUser = GeoprismUser.get(userOID);
+    
+    List<RegistryRole> registryRoles = new LinkedList<RegistryRole>();
+    
+    OIterator<? extends com.runwaysdk.system.Roles> i = geoPrismUser.getAllAssignedRole();
+    
+    for (Roles role : i)
+    {
+      RegistryRole registryRole = new RegistryRoleConverter().build(role);
+      
+      if (registryRole != null)
+      {
+        registryRole.setAssigned(true);
+        
+        // Organization display label
+        String organizationCode = registryRole.getOrganizationCode();
+        Organization organization = Organization.getByCode(organizationCode);
+        registryRole.setOrganizationLabel(LocalizedValueConverter.convert(organization.getDisplayLabel()));
+        
+        // GeoObjectType display label
+        String geoObjectTypeCode = registryRole.getGeoObjectTypeCode();
+        Universal universal = Universal.getByKey(geoObjectTypeCode);
+        registryRole.setGeoObjectTypeLabel(LocalizedValueConverter.convert(universal.getDisplayLabel()));
+        
+        registryRoles.add(registryRole);
+      }
+    }
+
+    return registryRoles.toArray(new RegistryRole[registryRoles.size()]);
   }
   
   /**

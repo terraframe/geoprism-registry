@@ -1,123 +1,125 @@
-<div>
-<!-- 
-  <header [loggedIn]=false></header>
- -->
-  <header ></header>
+<div class="new-admin-design-main">
+  <cgr-header [loggedIn]=false></cgr-header>
   
-  <message></message>
-  <loading-bar></loading-bar>
-
-  <form #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-    <div class="modal-dialog" style="height: 100%;">
-      <div class="modal-content" style="height: 100%;overflow-y: auto;">
-        <fieldset>            
-          <div class="heading">
-            <h3><localize key="user.heading"></localize></h3>
-          </div>      
-          <hr>        
-          
-          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.firstname"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="user.firstName" name="firstname" required>
-              </span>
-            </div>
-          </div>          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.lastname"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="user.lastName" name="lastname" required>
-              </span>
-            </div>
-          </div>  
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.phonenumber"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="user.phoneNumber" name="phoneNumber" >
-              </span>
-<!--               <div *ngIf="aphone.errors?.phone" class="inline-error-message"> -->
-<!--                 <localize key="account.phone.validation"></localize> -->
-<!--               </div>                                           -->
-            </div>
-          </div>           
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.email"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="user.email" name="email" required #aemail="ngModel" email>
-              </span>
-              <div *ngIf="aemail.errors?.email && user.email && user.email.length > 0" class="inline-error-message">
-                <localize key="account.email.validation"></localize>
-              </div>                                          
-            </div>
-          </div>          
-          <div class="heading">
-            <h3><localize key="account.info.heading"></localize></h3>
-          </div>      
-          <hr>          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.username"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [disabled]="!user.newInstance && user.username === 'admin'" [(ngModel)]="user.username" name="username" required>
-              </span>
-            </div>
-          </div>
-          <div>
-            <div class="row-holder">
-              <div class="label-holder">
-                <label><localize key="account.password"></localize></label>
-              </div>          
-              <div class="holder" >
-                <span class="text">
-                  <input type="password" [(ngModel)]="user.password" name="password" #password="ngModel" required minlength="5" maxlength="50" >
-                  <ng2-password-strength-bar
-                    [passwordToCheck]="user.password">
-                  </ng2-password-strength-bar>                              
-                </span>
-              </div>
-            </div>  
-            <div class="row-holder">
-              <div class="label-holder">
-                <label><localize key="account.certainPassword"></localize></label>
-              </div>          
-              <div class="holder" >
-                <span class="text">
-                  <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" [value]="password"/>
-                </span>
-                <div *ngIf="certainPassword.errors?.equalTo" class="inline-error-message">
-                  <localize key="account.certainPassword.validation"></localize>
-                </div>                                                       
-              </div>
-            </div>  
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-            </div>                    
-            <div class="holder">
-              <div class="button-holder">
-                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
-              </div>
-            </div>
-          </div>
-        </fieldset>
-      </div>
-    </div>
-  </form>
+  <div id="app-container" class="container">
+  
+	  <message></message>
+	  <loading-bar></loading-bar>
+	  
+	  <h2><localize key="account.invite.createTitle"></localize></h2>
+	
+	  <form *ngIf="user != null" #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
+	    <!-- <div class="modal-dialog" style="height: 100%;"> -->
+	      <!--  <div class="modal-content" style="height: 100%;overflow-y: auto;"> -->
+	        <fieldset>            
+	          <div class="heading">
+	            <h3><localize key="account.user.heading"></localize></h3>
+	          </div>      
+	          <hr>        
+	          
+	          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+	          
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label><localize key="account.firstname"></localize></label>
+	            </div>          
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [(ngModel)]="user.firstName" name="firstname" required>
+	              </span>
+	            </div>
+	          </div>          
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label><localize key="account.lastname"></localize></label>
+	            </div>          
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [(ngModel)]="user.lastName" name="lastname" required>
+	              </span>
+	            </div>
+	          </div>  
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label><localize key="account.phonenumber"></localize></label>
+	            </div>          
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [(ngModel)]="user.phoneNumber" name="phoneNumber" >
+	              </span>
+	<!--               <div *ngIf="aphone.errors?.phone" class="inline-error-message"> -->
+	<!--                 <localize key="account.phone.validation"></localize> -->
+	<!--               </div>                                           -->
+	            </div>
+	          </div>           
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label><localize key="account.email"></localize></label>
+	            </div>          
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [(ngModel)]="user.email" name="email" required #aemail="ngModel" email>
+	              </span>
+	              <div *ngIf="aemail.errors?.email && user.email && user.email.length > 0" class="inline-error-message">
+	                <localize key="account.email.validation"></localize>
+	              </div>                                          
+	            </div>
+	          </div>          
+	          <div class="heading">
+	            <h3><localize key="account.info.heading"></localize></h3>
+	          </div>      
+	          <hr>          
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label><localize key="account.username"></localize></label>
+	            </div>          
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [disabled]="!user.newInstance && user.username === 'admin'" [(ngModel)]="user.username" name="username" required>
+	              </span>
+	            </div>
+	          </div>
+	          <div>
+	            <div class="row-holder">
+	              <div class="label-holder">
+	                <label><localize key="account.password"></localize></label>
+	              </div>          
+	              <div class="holder" >
+	                <span class="text">
+	                  <input type="password" [(ngModel)]="user.password" name="password" #password="ngModel" required minlength="5" maxlength="50" >
+	                  <ng2-password-strength-bar
+	                    [passwordToCheck]="user.password">
+	                  </ng2-password-strength-bar>                              
+	                </span>
+	              </div>
+	            </div>  
+	            <div class="row-holder">
+	              <div class="label-holder">
+	                <label><localize key="account.certainPassword"></localize></label>
+	              </div>          
+	              <div class="holder" >
+	                <span class="text">
+	                  <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" [value]="password"/>
+	                </span>
+	                <div *ngIf="certainPassword.errors?.equalTo" class="inline-error-message">
+	                  <localize key="account.certainPassword.validation"></localize>
+	                </div>                                                       
+	              </div>
+	            </div>  
+	          </div>
+	          <div class="row-holder">
+	            <div class="label-holder">
+	            </div>                    
+	            <div class="holder">
+	              <div class="button-holder">
+	                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
+	                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+	              </div>
+	            </div>
+	          </div>
+	        </fieldset>
+	      <!-- </div> -->
+	    <!-- </div> -->
+	  </form>
+  </div>
 </div>

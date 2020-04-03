@@ -1,0 +1,37 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update></update>
+    <permissions>
+      <role roleName="cgr.SRA">
+        <grant>
+          <mdRelationshipPermission type="com.runwaysdk.system.Assignments">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+      <!--  
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.GeoprismUser">
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      -->
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+    <permissions>
+      <role roleName="cgr.SRA">
+        <revoke>
+          <mdRelationshipPermission type="com.runwaysdk.system.Assignments">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </revoke>
+      </role>
+    </permissions>
+  </undoIt>
+</version>

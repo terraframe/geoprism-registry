@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -250326445)
+@com.runwaysdk.business.ClassSignature(hash = -471734424)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,7 +12,8 @@ public abstract class OrganizationRAExceptionBase extends com.runwaysdk.business
 {
   public final static String CLASS = "net.geoprism.registry.OrganizationRAException";
   public static java.lang.String OID = "oid";
-  private static final long serialVersionUID = -250326445;
+  public static java.lang.String ORGANIZATIONLABEL = "organizationLabel";
+  private static final long serialVersionUID = -471734424;
   
   public OrganizationRAExceptionBase()
   {
@@ -50,6 +51,34 @@ public abstract class OrganizationRAExceptionBase extends com.runwaysdk.business
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
+  public String getOrganizationLabel()
+  {
+    return getValue(ORGANIZATIONLABEL);
+  }
+  
+  public void validateOrganizationLabel()
+  {
+    this.validateAttribute(ORGANIZATIONLABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getOrganizationLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.OrganizationRAException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(ORGANIZATIONLABEL);
+  }
+  
+  public void setOrganizationLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(ORGANIZATIONLABEL, "");
+    }
+    else
+    {
+      setValue(ORGANIZATIONLABEL, value);
+    }
+  }
+  
   protected String getDeclaredType()
   {
     return CLASS;
@@ -59,6 +88,7 @@ public abstract class OrganizationRAExceptionBase extends com.runwaysdk.business
   {
     java.lang.String message = super.localize(locale);
     message = replace(message, "{oid}", this.getOid());
+    message = replace(message, "{organizationLabel}", this.getOrganizationLabel());
     return message;
   }
   
