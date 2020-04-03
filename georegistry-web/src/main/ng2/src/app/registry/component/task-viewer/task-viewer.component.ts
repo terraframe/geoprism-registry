@@ -68,35 +68,41 @@ export class TaskViewerComponent implements OnInit {
     ngOnInit(): void {
       this.onInProgressTasksPageChange( 1 );
       
-      this.pollingData = Observable.interval(1000).subscribe(() => {
-        this.activeTimeCounter++
-        this.completeTimeCounter++
+      ////
+      //
+      // We don't need polling on this page. It's better to save bandwidth for low resource environments.
+      //
+      ////
+
+      // this.pollingData = Observable.interval(1000).subscribe(() => {
+      //   this.activeTimeCounter++
+      //   this.completeTimeCounter++
       
-        if (this.isViewAllOpen)
-        {
-          if (this.activeTimeCounter >= 4)
-          {
-            this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
+      //   if (this.isViewAllOpen)
+      //   {
+      //     if (this.activeTimeCounter >= 4)
+      //     {
+      //       this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
             
-            this.activeTimeCounter = 0;
-          }
-          if (this.completeTimeCounter >= 7)
-          {
-            this.onCompletedTasksPageChange(this.completedTasks.pageNumber);
+      //       this.activeTimeCounter = 0;
+      //     }
+      //     if (this.completeTimeCounter >= 7)
+      //     {
+      //       this.onCompletedTasksPageChange(this.completedTasks.pageNumber);
             
-            this.completeTimeCounter = 0;
-          }
-        }
-        else
-        {
-          if (this.activeTimeCounter >= 2)
-          {
-            this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
+      //       this.completeTimeCounter = 0;
+      //     }
+      //   }
+      //   else
+      //   {
+      //     if (this.activeTimeCounter >= 2)
+      //     {
+      //       this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
             
-            this.activeTimeCounter = 0;
-          }
-        }
-      });
+      //       this.activeTimeCounter = 0;
+      //     }
+      //   }
+      // });
     }
     
     upper(str: string): string {
@@ -115,7 +121,6 @@ export class TaskViewerComponent implements OnInit {
 
       this.taskService.getMyTasks( pageNumber, this.inProgressTasks.pageSize, 'UNRESOLVED').then( page => {
         this.inProgressTasks = page;
-        console.log("In Progress Tasks", page);
       } );
     }
     
@@ -124,17 +129,16 @@ export class TaskViewerComponent implements OnInit {
 
       this.taskService.getMyTasks( pageNumber, this.completedTasks.pageSize, 'RESOLVED').then( page => {
         this.completedTasks = page;
-        console.log("Completed Tasks", page);
       } );
     }
     
     onCompleteTask(task: any): void {
-      this.isViewAllOpen = true;
+      // this.isViewAllOpen = true;
     
       this.taskService.completeTask(task.id).then( () => {
         this.inProgressTasks.results.splice(this.inProgressTasks.results.indexOf(task), 1);
         this.completedTasks.results.push(task);
-        this.onCompletedTasksPageChange(1);
+        // this.onCompletedTasksPageChange(1);
       } );
     }
     

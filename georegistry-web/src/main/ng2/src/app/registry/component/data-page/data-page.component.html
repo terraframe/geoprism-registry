@@ -4,7 +4,6 @@
 
     <div id="app-container" class="container-fluid">
 
-		<!-- <div id="app-container" class="container-fluid"> -->
         <!-- <div class="heading text-center">
             <h2>
                 <localize key="spreadsheet.title"></localize>
@@ -27,17 +26,16 @@
 				<div>
 					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SPREADSHEET'}" (click)="renderContent('SPREADSHEET')">Import spreadsheet</a> 
 					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SHAPEFILE'}" (click)="renderContent('SHAPEFILE')">Import shapefile</a> 
-					<a style="font-size:20px;" [routerLink]="" [ngClass]="{'active': content === 'EXPORT'}" (click)="renderContent('EXPORT')">Export data</a>
+					<!-- <a style="font-size:20px;" [routerLink]="" [ngClass]="{'active': content === 'EXPORT'}" (click)="renderContent('EXPORT')">Export data</a> -->
 				</div>
 
 				<div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
 					<spreadsheet *ngIf="content === 'SPREADSHEET'"></spreadsheet>
 					<shapefile *ngIf="content === 'SHAPEFILE'"></shapefile>
-					<data-export *ngIf="content === 'EXPORT'"></data-export>
+					<!-- <data-export *ngIf="content === 'EXPORT'"></data-export> -->
 				</div>
 				
             </div>
             <div class="col-md-1"></div>
         </div>
-    <!-- </div> -->
 </div>

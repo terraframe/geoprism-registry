@@ -1,3 +1,7 @@
+.step-indicator {
+    margin-top: 5px;
+}
+
 .step-indicator .nav-item {
     /* height: 50px; */
     background-color: white;

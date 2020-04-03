@@ -28,36 +28,8 @@
               </div>                                          
             </div>
           </div>   
-
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="account.organization.label"></localize>
-              </label>
-            </div>
-            <div class="holder">
-              <select id="org-select" name="org-select" class="select-area" style="float:none;" (change)="onOrgChange($event)" [(ngModel)]="organization" required>
-                <option value=""></option>
-                <option *ngFor="let option of organizations" [value]="option.code">
-                  {{option.label.localizedValue}}</option>
-              </select>
-            </div>
-          </div>
-
-          <div *ngFor="let group of invite.groups">
-            <div class="heading">
-              <h3><localize [key]="'com.runwaysdk.ui.userstable.UsersTable.' + group.name"></localize></h3>
-            </div>                          
-            <hr>
-            <div *ngFor="let role of group.roles" class="row-holder">
-              <div class="label-holder">
-                <label>{{role.displayLabel}}</label>
-              </div>
-              <div class="holder" style="padding: 0 0 0 12px" >
-                <input style="margin: 0 0 0 0; padding: 0 0 0 0" type="radio" [value]="role.roleId" [(ngModel)]="group.assigned" [name]="group.name">
-              </div>
-            </div>              
-          </div>
+          
+          <role-management *ngIf="invite.roles" [newInstance]="true" [roles]="invite.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
 
           <div class="row-holder">
             <div class="label-holder">
@@ -65,7 +37,7 @@
             <div class="holder">
               <div class="button-holder">
                 <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid && this.isRoleValid())" />
+                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid && roleIds.length > 0)" />
               </div>
             </div>
           </div>

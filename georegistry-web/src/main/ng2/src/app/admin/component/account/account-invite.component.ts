@@ -42,6 +42,7 @@ import { AccountComponent } from './account.component';
 export class AccountInviteComponent implements OnInit {
     invite: UserInvite;
     message: string = null;
+    roleIds: string[] = [];
     organization: Organization;
     organizations: Organization[];
 
@@ -54,51 +55,31 @@ export class AccountInviteComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        // this.invite = new UserInvite();
-
-        // this.service.newInvite().then(( account: Account ) => {
-        //     this.invite.groups = account.groups;
-        // } ).catch(( err: HttpErrorResponse ) => {
-        //     this.error( err );
-        // } );
-
-        // this.settingsService.getOrganizations().then(orgs => {
-        //     this.organizations = orgs
-        // }).catch((err: HttpErrorResponse) => {
-        //     this.error(err);
-        // });
+      this.invite = new UserInvite();
+  
+      this.service.newInvite().then(( account: Account ) => {
+        this.invite.roles = account.roles;
+      } ).catch(( err: HttpErrorResponse ) => {
+        this.error( err );
+      } );
+  
+      // this.settingsService.getOrganizations().then(orgs => {
+      //     this.organizations = orgs
+      // }).catch((err: HttpErrorResponse) => {
+      //     this.error(err);
+      // });
     }
 
     cancel(): void {
         this.bsModalRef.hide();
     }
-
-    isRoleValid(): boolean {
-        return this.getAssignedRoleId() != null;
-    }
-
-    getAssignedRoleId(): string {
-        if ( this.invite != null && this.invite.groups != null ) {
-            for ( let i = 0; i < this.invite.groups.length; i++ ) {
-                let group = this.invite.groups[i];
-
-                return group.assigned;
-            }
-        }
-
-        return null;
-    }
-
-    onOrgChange(event: any): void {
-        console.log("change the geoobjecttypes")
+    
+    onRoleIdsUpdate(event): void {
+      this.roleIds = event;
     }
 
     onSubmit(): void {
-        let roleIds: string[] = [];
-
-        roleIds.push( this.getAssignedRoleId() );
-
-        this.service.inviteUser( this.invite, roleIds ).then( response => {
+        this.service.inviteUser( this.invite, this.roleIds ).then( response => {
             this.bsModalRef.hide();
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );

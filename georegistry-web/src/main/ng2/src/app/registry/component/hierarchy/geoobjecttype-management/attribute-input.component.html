@@ -18,41 +18,18 @@
   <div class="row-holder">
     <div class="label-holder">
       <label>
-        <localize key="data.property.label.required"></localize>
+        <localize key="data.property.label.constraints"></localize>
       </label>
     </div>
     <div class="holder">
 
         <div class="check-block">
-         <div (click)="toggleIsRequired()" [ngClass]="{'chk-checked' : attribute.required}" style="margin:0;" class="jcf-unselectable chk-area" name="unique">
-          <span></span>
-         </div>
-    
-         <!-- <label class="checkbox-label"> <localize key="hierarchy.management.option.label.isLeafNode"></localize></label> -->
+          <boolean-field [(value)]="attribute.required" [localizeLabelKey]="'data.property.label.required'"></boolean-field>
         </div>
 
-      <!-- <span>
-        <input type="checkbox" [(ngModel)]="attribute.required" [disabled]="disableCodeField" name="required">
-      </span> -->
     </div>
   </div>
 
-<!--
-  <div class="row-holder">
-    <div class="label-holder">
-      <label>
-        <localize key="data.property.label.unique"></localize>
-      </label>
-    </div>
-    <div class="holder">
-        <div class="check-block">
-         <div (click)="toggleIsUnique()" [ngClass]="{'chk-checked' : attribute.unique}" style="margin:0;" class="jcf-unselectable chk-area" name="unique">
-          <span></span>
-         </div>
-        </div>
-    </div>
-  </div>
-  -->
 
   <div class="row-holder" *ngIf="isDecimal">
     <div class="label-holder">

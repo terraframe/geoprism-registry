@@ -1,4 +1,4 @@
-<form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
+<form >
   
   <div class="modal-body">
     
@@ -17,8 +17,8 @@
       <input  [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input" class="form-control"  >
     </div>
 	
-	<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
-		<div class="ui-dialog-buttonset">
+	<div>
+		<div class="text-right">
 			<div class="button-holder">
 				<button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
 					<localize key="modal.button.cancel"></localize>

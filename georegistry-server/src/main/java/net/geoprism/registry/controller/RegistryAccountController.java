@@ -1,29 +1,28 @@
 package net.geoprism.registry.controller;
 
 import net.geoprism.AccountController;
-import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.account.UserInviteDTO;
 import net.geoprism.registry.service.AccountService;
 
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.facade.FacadeUtil;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.ParseType;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.request.ServletRequestIF;
-import com.runwaysdk.session.Request;
+
 
 @Controller(url = "registryaccount")
 public class RegistryAccountController
@@ -91,10 +90,10 @@ public class RegistryAccountController
 
     RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(request.getSessionId(), orgCodeArray);
     JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
-    
+
     RestResponse response = new RestResponse();
     response.set("user", user);
-    response.set("roles", rolesJSONArray);
+    response.set("roles", new JSONArray(rolesJSONArray.toString()));
     
     return response;
   }
@@ -139,7 +138,7 @@ public class RegistryAccountController
     
     RestResponse response = new RestResponse();
     response.set("user", user);
-    response.set("roles", rolesJSONArray);
+    response.set("roles", new JSONArray(rolesJSONArray.toString()));
     
     return response;
   }  
@@ -160,9 +159,30 @@ public class RegistryAccountController
    * @throws JSONException
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF newInvite(ClientRequestIF request) throws JSONException
+  public ResponseIF newInvite(ClientRequestIF request, @RequestParamter(name = "organizationCodes") String organizationCodes) throws JSONException
   {        
-    return new AccountController().newInvite(request) ;
+    String[] orgCodeArray = null;
+    
+    if (organizationCodes != null)
+    {
+      orgCodeArray = organizationCodes.split("\\,");
+    }
+    else
+    {
+      orgCodeArray = new String[0];
+    }
+
+    JSONObject user = new JSONObject();
+    user.put("newInstance", true);
+
+    RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(request.getSessionId(), orgCodeArray);
+    JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
+
+    RestResponse response = new RestResponse();
+    response.set("user", user);
+    response.set("roles", new JSONArray(rolesJSONArray.toString()));
+    
+    return response;
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)

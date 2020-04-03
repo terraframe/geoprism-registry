@@ -1,0 +1,74 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+      	<createOrUpdate>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.no.completed.tasks.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="tasks.no.completed.tasks.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="There are no completed tasks at this time." />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.data.option">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="header.data.option" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Import" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.option.label.isGeometryEditable">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchy.management.option.label.isGeometryEditable" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Enable geometry editing" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.option.label.geometryEditable">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchy.management.option.label.geometryEditable" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="GeoObject Editing" />
+	        </attributeStruct>
+	      </object>
+
+		    <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.constraints">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="data.property.label.constraints" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Constraints" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlists.manager.organizations">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlists.manager.organizations" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Organizations" />
+	        </attributeStruct>
+	      </object>
+        
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.invite.createTitle">
+          <attribute name="storeTag" value="UIText" />
+          <attribute name="storeKey" value="account.invite.createTitle" />
+          <attributeStruct name="storeValue">
+            <attribute name="defaultLocale" value="Create Your Account" />
+          </attributeStruct>
+        </object>
+	      
+	      
+	</createOrUpdate>
+	
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

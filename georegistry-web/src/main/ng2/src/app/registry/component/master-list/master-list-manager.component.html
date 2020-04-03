@@ -2,7 +2,15 @@
     <cgr-header></cgr-header>
     <loading-bar></loading-bar>
 
+
     <div id="app-container" class="container-fluid">
+
+        <div class="heading">
+            <h2>
+                <localize key="masterlists.manager.organizations"></localize>
+            </h2>
+        </div>
+
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
         <div class="row" *ngFor="let org of orgs;">
@@ -10,7 +18,7 @@
                 <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
                     <div class="col-md-6">
                         <div class="py-5">
-                            <h2>{{org.label}}</h2>
+                            <h3>{{org.label}}</h3>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -29,7 +37,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let list of org.lists; let i = index;">
+                            <tr *ngFor="let list of org.lists; let i = index;" class="clickable">
                                 <td style="width: 70%; vertical-align: middle;">
                                   <a [routerLink]="'/registry/master-list-view/' + list.oid" routerLinkActive="active">
                                     {{list.label}}

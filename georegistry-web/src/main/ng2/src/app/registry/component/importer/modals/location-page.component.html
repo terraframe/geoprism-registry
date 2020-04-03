@@ -9,28 +9,37 @@
   </div>
   <div class="col-md-12 order-md-1">
     <form #form="ngForm">
-      <div class="form-group row" *ngFor="let location of configuration.locations; let i = index;">
-        <label class="col-sm-2"> {{location.label}} </label>
-        <div class="col-sm-10">
-          <select class="select-area" [(ngModel)]="location.target" [name]="i + '-location'">
-            <option value=""></option>
-            <option *ngFor="let attr of configuration.sheet.attributes.text" [value]="attr">{{attr}}</option>
-          </select>
+      
+      <div class="form-group" *ngFor="let location of configuration.locations; let i = index;">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label> {{location.label}} </label>
+          </div>
+          <div class="holder">
+            <select class="select-area" [(ngModel)]="location.target" [name]="i + '-location'">
+              <option value=""></option>
+              <option *ngFor="let attr of configuration.sheet.attributes.text" [value]="attr">{{attr}}</option>
+            </select>
+          </div>
         </div>
       </div>
+
       <div class="form-group row">
-        <div class="col-sm-12 text-right">
-          <button type="submit" (click)="onBack()" class="btn btn-info" role="button">
-            <span class="ui-button-text"><localize key="io.back"></localize></span>
-          </button>
-          <button type="button" (click)="onCancel()" class="btn" role="button">
-            <span class="ui-button-text"><localize key="io.cancel"></localize></span>
-          </button>
-          <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-            <span class="ui-button-text"><localize key="io.submit"></localize></span>
-          </button>
+        <div class="row-holder">
+          <div class="button-holder">
+            <button type="submit" (click)="onBack()" class="btn btn-default" role="button">
+                <localize key="io.back"></localize>
+            </button>
+            <button type="btn" (click)="onCancel()" class="btn btn-default" role="button">
+                <localize key="io.cancel"></localize>
+            </button>
+            <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+                <localize key="io.submit"></localize>
+            </button>
+          </div>
         </div>
       </div>
+      
     </form>
   </div>
 </form>

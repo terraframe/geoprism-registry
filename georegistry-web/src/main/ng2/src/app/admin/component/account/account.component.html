@@ -162,12 +162,12 @@
         </div>
         <div *ngIf="!(!account.user.newInstance && account.user.username === 'admin')">
           <div class="row-holder">
-            <label class="radio-inline radio">
+            <label class="radio radio-inline">
               <input class="inline-radio-input" type="radio" name="userActive" [value]="false"
                 [(ngModel)]="account.user.inactive">
               <span><localize key="account.user.status.active"></localize></span>
             </label>
-            <label class="radio-inline radio">
+            <label class="radio radio-inline">
               <input class="inline-radio-input" type="radio" name="userActive" [value]="true"
                 [(ngModel)]="account.user.inactive">
               <span><localize key="account.user.status.inactive"></localize></span>

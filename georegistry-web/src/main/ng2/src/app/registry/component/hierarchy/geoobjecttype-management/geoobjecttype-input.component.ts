@@ -88,10 +88,6 @@ export class GeoObjectTypeInputComponent implements OnInit {
         // this.resetGeoObjectType();
         this.bsModalRef.hide();
     }
-    
-    toggleIsGeometryEditable(): void {
-        this.editGeoObjectType.isGeometryEditable = !this.editGeoObjectType.isGeometryEditable;
-    }
 
 
     isValid(): boolean {
