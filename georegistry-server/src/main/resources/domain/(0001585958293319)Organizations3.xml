@@ -3,25 +3,28 @@
     <create></create>
     <update></update>
     <permissions>
-      <role roleName="cgr.SRA">
+      <role roleName="geoprism.admin.Administrator">
         <grant>
-          <mdRelationshipPermission type="com.runwaysdk.system.Assignments">
+          <mdRelationshipPermission type="net.geoprism.registry.OrganizationUser">
             <operation name="ALL" />
           </mdRelationshipPermission>
         </grant>
       </role>
+      <role roleName="cgr.SRA">
+        <superRole roleName="geoprism.admin.Administrator" />
+      </role>
     </permissions>
   </doIt>
   <undoIt>
-    <delete></delete>
     <permissions>
-      <role roleName="cgr.SRA">
+      <role roleName="geoprism.admin.Administrator">
         <revoke>
-          <mdRelationshipPermission type="com.runwaysdk.system.Assignments">
+          <mdRelationshipPermission type="net.geoprism.registry.OrganizationUser">
             <operation name="ALL" />
           </mdRelationshipPermission>
         </revoke>
       </role>
     </permissions>
+    <delete></delete>
   </undoIt>
 </version>

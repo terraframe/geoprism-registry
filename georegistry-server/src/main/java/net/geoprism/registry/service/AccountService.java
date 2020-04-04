@@ -30,6 +30,8 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationUser;
+import net.geoprism.registry.OrganizationUserQuery;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 
@@ -42,13 +44,15 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
+import com.runwaysdk.dataaccess.DuplicateGraphPathException;
+import com.runwaysdk.dataaccess.TreeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.Roles;
-import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.transport.conversion.ConversionFacade;
 
 public class AccountService
@@ -60,15 +64,20 @@ public class AccountService
 
   @Request(RequestType.SESSION)
   public GeoprismUserDTO apply(String sessionId, GeoprismUserDTO geoprismUserDTO, String[] roleNameArray)
-  {     
-    BusinessDTO genericBusinessDTO = (BusinessDTO) ConversionFacade.createGenericCopy(geoprismUserDTO);
-    GeoprismUser geoprismUser = (GeoprismUser)FacadeUtil.populateMutable(sessionId, genericBusinessDTO);
+  {
+System.out.println("Heads up: debug: "+geoprismUserDTO.getOid());
+    
+    GeoprismUser geoprismUser = convertToBusiness(sessionId, geoprismUserDTO);
+System.out.println("Heads up: debug: "+geoprismUser.getOid());
 
     geoprismUser = this.applyInTransaction(geoprismUser, roleNameArray);
     
-    genericBusinessDTO = (BusinessDTO)FacadeUtil.populateComponentDTOIF(sessionId, geoprismUser, true);
-    ConversionFacade.typeSafeCopy(geoprismUserDTO.getRequest(), genericBusinessDTO, geoprismUserDTO);
-   
+System.out.println("Heads up: debug: "+geoprismUser.getOid());    
+
+    geoprismUserDTO = convertToDTO(sessionId, geoprismUserDTO, geoprismUser);
+    
+System.out.println("Heads up: debug: "+geoprismUser.getOid());
+
     return geoprismUserDTO;
   }
 
@@ -87,7 +96,6 @@ public class AccountService
       
       newRoles.add(role);
     }
-    
 
     List<ConfigurationIF> configurations = ConfigurationService.getConfigurations();
 
@@ -105,38 +113,59 @@ public class AccountService
       RoleDAO roleDAO = RoleDAO.get(roleDAOIF.getOid()).getBusinessDAO();
       
       // Don't remove things like the root admin role
-      if (!excludedRole(roleDAOIF.getOid()))
+      if (!excludedRole(roleDAOIF.getRoleName()))
       {
         roleDAO.deassignMember(user);
       }
     }
 
+    // Delete existing relationships with Organizations.
+    QueryFactory qf = new QueryFactory();
+    OrganizationUserQuery q = new OrganizationUserQuery(qf);
+    q.WHERE(q.childOid().EQ(geoprismUser.getOid()));
+    
+    OIterator<? extends OrganizationUser> i = q.getIterator(); 
+    i.forEach(r -> r.delete());
+    
     /*
      * Assign roles and associate with the user
      */
+    Set<String> organizationSet = new HashSet<String>();
     for (Roles role : newRoles)
     {      
       RoleDAO roleDAO = (RoleDAO)BusinessFacade.getEntityDAO(role);
       roleDAO.assignMember(user);
+      
+      RegistryRole registryRole = new RegistryRoleConverter().build(role);
+      if (registryRole != null)
+      {
+        String organizationCode = registryRole.getOrganizationCode();
+
+        if (organizationCode != null && !organizationCode.equals("") && !organizationSet.contains(organizationCode))
+        {
+          Organization organization = Organization.getByCode(organizationCode);
+          
+          try
+          {
+//            TreeDAO treeDAO = TreeDAO.newInstance(organization.getOid(), geoprismUser.getOid(), OrganizationUser.CLASS);
+//            treeDAO.apply();
+            organization.addUsers(geoprismUser).apply();
+            organizationSet.add(organizationCode);
+          }
+          // User can only be added to the Organization once
+          catch (DuplicateGraphPathException e) {}
+          catch (RuntimeException e)
+          {
+            e.printStackTrace();
+          }
+        }
+      }
     }
+    
+    geoprismUser.apply();
     
     return geoprismUser;
   }
-  
-  private boolean excludedRole(String roleId)
-  {
-    Roles adminRole = Roles.findRoleByName(DefaultConfiguration.ADMIN);
-    
-    if (adminRole.getOid().equals(roleId))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-  
   
   /**
    * 
@@ -263,4 +292,33 @@ public class AccountService
       registryRoleList.add(acRegistryRole);
     }
   }   
+  
+  
+  private boolean excludedRole(String roleName)
+  {    
+    if (roleName.equals(DefaultConfiguration.ADMIN))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  private GeoprismUser convertToBusiness(String sessionId, GeoprismUserDTO geoprismUserDTO)
+  {
+    BusinessDTO genericBusinessDTO = (BusinessDTO) ConversionFacade.createGenericCopy(geoprismUserDTO);
+    GeoprismUser geoprismUser = (GeoprismUser)FacadeUtil.populateMutable(sessionId, genericBusinessDTO);
+    return geoprismUser;
+  }
+  
+  private GeoprismUserDTO convertToDTO(String sessionId, GeoprismUserDTO geoprismUserDTO, GeoprismUser geoprismUser)
+  {
+    BusinessDTO genericBusinessDTO = (BusinessDTO)FacadeUtil.populateComponentDTOIF(sessionId, geoprismUser, true);
+    ConversionFacade.typeSafeCopy(geoprismUserDTO.getRequest(), genericBusinessDTO, geoprismUserDTO);
+    
+    return geoprismUserDTO; 
+  }
+  
 }
