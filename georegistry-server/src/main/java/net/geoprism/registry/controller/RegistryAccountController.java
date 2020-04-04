@@ -120,16 +120,24 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "account", parser = ParseType.BASIC_JSON) GeoprismUserDTO account, @RequestParamter(name = "roleNames") String roleNames) throws JSONException
   {    
-    String[] roleNameArray = null;
+//    String[] roleNameArray = null;
     
-    if (roleNames != null)
-    {
-      roleNameArray = roleNames.split("\\,");
+//    if (roleNames != null)
+//    {
+//      roleNameArray = roleNames.split("\\,");
+//    }
+//    else
+//    {
+//      roleNameArray = new String[0];
+//    }   
+    
+    
+    JSONArray arr = new JSONArray(roleNames);
+    String[] roleNameArray = new String[arr.length()];
+    for(int i = 0; i < arr.length(); i++){
+      roleNameArray[i] = arr.getString(i);
     }
-    else
-    {
-      roleNameArray = new String[0];
-    }    
+    
     GeoprismUserDTO user = this.accountService.apply(request.getSessionId(), account, roleNameArray);
    
     RegistryRole[] registryRoles = this.accountService.getRolesForUser(request.getSessionId(), user.getOid());
