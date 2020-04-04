@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +39,7 @@ import net.geoprism.registry.conversion.RegistryRoleConverter;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessDTO;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -45,7 +47,6 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
 import com.runwaysdk.dataaccess.DuplicateGraphPathException;
-import com.runwaysdk.dataaccess.TreeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
 import com.runwaysdk.query.OIterator;
@@ -64,19 +65,12 @@ public class AccountService
 
   @Request(RequestType.SESSION)
   public GeoprismUserDTO apply(String sessionId, GeoprismUserDTO geoprismUserDTO, String[] roleNameArray)
-  {
-System.out.println("Heads up: debug: "+geoprismUserDTO.getOid());
-    
+  {    
     GeoprismUser geoprismUser = convertToBusiness(sessionId, geoprismUserDTO);
-System.out.println("Heads up: debug: "+geoprismUser.getOid());
 
-    geoprismUser = this.applyInTransaction(geoprismUser, roleNameArray);
-    
-System.out.println("Heads up: debug: "+geoprismUser.getOid());    
+    geoprismUser = this.applyInTransaction(geoprismUser, roleNameArray);  
 
     geoprismUserDTO = convertToDTO(sessionId, geoprismUserDTO, geoprismUser);
-    
-System.out.println("Heads up: debug: "+geoprismUser.getOid());
 
     return geoprismUserDTO;
   }
@@ -177,12 +171,14 @@ System.out.println("Heads up: debug: "+geoprismUser.getOid());
   public RegistryRole[] getRolesForUser(String sessionId, String userOID)
   {    
     GeoprismUser geoPrismUser = GeoprismUser.get(userOID);
-    
+
     List<RegistryRole> registryRoles = new LinkedList<RegistryRole>();
     
-    OIterator<? extends com.runwaysdk.system.Roles> i = geoPrismUser.getAllAssignedRole();
+    Set<String> roleNameSet = new HashSet<String>();
     
-    for (Roles role : i)
+    OIterator<? extends com.runwaysdk.system.Roles> roleIterator = geoPrismUser.getAllAssignedRole();
+    
+    for (Roles role : roleIterator)
     {
       RegistryRole registryRole = new RegistryRoleConverter().build(role);
       
@@ -194,10 +190,28 @@ System.out.println("Heads up: debug: "+geoprismUser.getOid());
         LocalizedValueConverter.populateGeoObjectTypeLabel(registryRole);
         
         registryRoles.add(registryRole);
+        roleNameSet.add(registryRole.getName());
+      }
+    }
+    
+    // Add the registry roles that the user can be a member of based on their organization affiliation 
+    OIterator<? extends Business> organizationIterators = geoPrismUser.getParents(OrganizationUser.CLASS);
+    
+    for (Business business : organizationIterators)
+    {
+      Organization organization = (Organization)business;
+      List<RegistryRole> orgRoleIterator = this.getRolesForOrganization(organization.getCode());
+      
+      for (RegistryRole registryRole : orgRoleIterator)
+      {
+        if (!roleNameSet.contains(registryRole.getName()))
+        {
+          registryRoles.add(registryRole);
+        }
       }
     }
 
-    return registryRoles.toArray(new RegistryRole[registryRoles.size()]);
+    return registryRoles.stream().sorted(Comparator.comparing(RegistryRole::getOrganizationCode).thenComparing(RegistryRole::getGeoObjectTypeCode)).toArray(size -> new RegistryRole[size]);
   }
   
   /**
@@ -208,6 +222,13 @@ System.out.println("Heads up: debug: "+geoprismUser.getOid());
    */
   @Request(RequestType.SESSION)
   public RegistryRole[] getRolesForOrganization(String sessionId, String[] organizationCodes)
+  {    
+    List<RegistryRole> registryRoles = this.getRolesForOrganization(organizationCodes);
+    
+    return registryRoles.stream().sorted(Comparator.comparing(RegistryRole::getOrganizationCode).thenComparing(RegistryRole::getGeoObjectTypeCode)).toArray(size -> new RegistryRole[size]);
+  }
+  
+  private List<RegistryRole> getRolesForOrganization(String... organizationCodes)
   {
     List<RegistryRole> registryRoleList = new LinkedList<RegistryRole>();
     
@@ -244,11 +265,10 @@ System.out.println("Heads up: debug: "+geoprismUser.getOid());
     
     for (Organization organization : organizationList)
     {
-      addRolesForOrganization(registryRoleList, organization);
+      this.addRolesForOrganization(registryRoleList, organization);
     }
-
     
-    return registryRoleList.toArray(new RegistryRole[registryRoleList.size()]);
+    return registryRoleList;
   }
   
   private void addRolesForOrganization(List<RegistryRole> registryRoleList, Organization organization)

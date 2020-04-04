@@ -439,9 +439,24 @@ public abstract class OrganizationBase extends com.runwaysdk.business.Business
   }
   
   @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.OrganizationUser> getUsersRel(net.geoprism.GeoprismUser geoprismUser)
+  public net.geoprism.registry.OrganizationUser getUsersRel(net.geoprism.GeoprismUser geoprismUser)
   {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.OrganizationUser>) getRelationshipsWithChild(geoprismUser, net.geoprism.registry.OrganizationUser.CLASS);
+    com.runwaysdk.query.OIterator<? extends net.geoprism.registry.OrganizationUser> iterator = (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.OrganizationUser>) getRelationshipsWithChild(geoprismUser, net.geoprism.registry.OrganizationUser.CLASS);
+    try
+    {
+      if (iterator.hasNext())
+      {
+        return iterator.next();
+      }
+      else
+      {
+        return null;
+      }
+    }
+    finally
+    {
+      iterator.close();
+    }
   }
   
   public static Organization get(String oid)
