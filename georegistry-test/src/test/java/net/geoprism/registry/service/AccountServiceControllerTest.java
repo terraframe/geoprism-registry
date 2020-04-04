@@ -38,7 +38,11 @@ public class AccountServiceControllerTest
   
   public static String                              TEST_USER_PASSWORD              = "abc123";
   
+  public static String                              ORG_MOH                         = "MOH";
+  
   public static String                              ORG_MOI                         = "MOI";
+  
+  public static String                              HEALTH_FACILITY                 = "HealthFacility";
   
   public static String                              DISTRICT                        = "District";
   
@@ -69,6 +73,9 @@ public class AccountServiceControllerTest
     OrganizationAndRoleTest.createOrganization(ORG_MOI);
     OrganizationAndRoleTest.createGeoObjectType(ORG_MOI, DISTRICT);
     OrganizationAndRoleTest.createGeoObjectType(ORG_MOI, VILLAGE);
+    
+    OrganizationAndRoleTest.createOrganization(ORG_MOH);
+    OrganizationAndRoleTest.createGeoObjectType(ORG_MOH, HEALTH_FACILITY);
   }
   
   @AfterClass
@@ -91,6 +98,9 @@ public class AccountServiceControllerTest
     OrganizationAndRoleTest.deleteGeoObjectType(DISTRICT);
     OrganizationAndRoleTest.deleteGeoObjectType(VILLAGE);
     OrganizationAndRoleTest.deleteOrganization(ORG_MOI);
+    
+    OrganizationAndRoleTest.deleteGeoObjectType(HEALTH_FACILITY);
+    OrganizationAndRoleTest.deleteOrganization(ORG_MOH);
   }
   
   /** 
@@ -126,13 +136,22 @@ public class AccountServiceControllerTest
     {
       Pair rolePair = (Pair)response.getAttribute("roles");
       roleJSONArray = (JSONArray)rolePair.getFirst();
-      Assert.assertEquals(2, roleJSONArray.length());
+      Assert.assertEquals(7, roleJSONArray.length());
   
       Set<String> rolesFoundSet = new HashSet<String>();
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
-  
-      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet);
+      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, true);
+      Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
+      
+      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
       
       // Edit
@@ -142,12 +161,22 @@ public class AccountServiceControllerTest
       
       rolesPair = (Pair)response.getAttribute("roles");
       roleJSONArray = (JSONArray)rolesPair.getFirst();
-      Assert.assertEquals(2, roleJSONArray.length());
+      Assert.assertEquals(7, roleJSONArray.length());
       
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
+      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, true);
+      Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
       
-      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet);
+      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+      
+      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
       
       
@@ -160,15 +189,25 @@ public class AccountServiceControllerTest
       user = (GeoprismUserDTO)userPair.getFirst();
       Assert.assertEquals("Dwayne", user.getLastName());
       
-      rolesFoundSet = new HashSet<String>();
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
-      
       rolePair = (Pair)response.getAttribute("roles");
       roleJSONArray = (JSONArray)rolePair.getFirst();
-      Assert.assertEquals(2, roleJSONArray.length());
+      Assert.assertEquals(7, roleJSONArray.length());
       
-      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet);
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
+      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, true);
+      Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
+      
+      rolesFoundSet = new HashSet<String>();
+      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+
+      this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
       
     }
@@ -194,7 +233,7 @@ public class AccountServiceControllerTest
     Assert.assertEquals(7, roleJSONArray.length());
     
     Set<String> rolesFoundSet = new HashSet<String>();
-    
+
     rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
     rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
     rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
@@ -203,7 +242,7 @@ public class AccountServiceControllerTest
     rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
     rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
     
-    this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet);
+    this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
     
     Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
   }
@@ -237,10 +276,14 @@ public class AccountServiceControllerTest
     
     JSONArray roleJSONArray = (JSONArray)pair.getFirst();
     
-    Assert.assertEquals(8, roleJSONArray.length());
+    Assert.assertEquals(12, roleJSONArray.length());
     
     Set<String> rolesFoundSet = new HashSet<String>();
     rolesFoundSet.add(RegistryRole.Type.getSRA_RoleName());
+    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOH));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOH, HEALTH_FACILITY));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOH, HEALTH_FACILITY));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOH, HEALTH_FACILITY));
     rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
     rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
     rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
@@ -249,19 +292,24 @@ public class AccountServiceControllerTest
     rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
     rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
     
-    this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet);
+    this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
     
     Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
   }
   
 
-  private void iterateOverReturnedRoles(JSONArray roleJSONArray, Set<String> rolesFoundSet)
+  private void iterateOverReturnedRoles(JSONArray roleJSONArray, Set<String> rolesFoundSet, boolean assignedCheck)
   {
     for (int i = 0; i < roleJSONArray.length(); i++)
     {
       JSONObject json = (JSONObject)roleJSONArray.get(i);
-      RegistryRole registryRole = RegistryRole.fromJSON(json.toString());     
-      rolesFoundSet.remove(registryRole.getName());
+      RegistryRole registryRole = RegistryRole.fromJSON(json.toString()); 
+      if (!assignedCheck || registryRole.isAssigned())
+      {
+        rolesFoundSet.remove(registryRole.getName());
+      }
+// System.out.println(registryRole.getName()+" "+registryRole.isAssigned());
     }
+// System.out.println("");
   }
 }

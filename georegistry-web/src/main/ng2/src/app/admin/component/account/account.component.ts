@@ -56,11 +56,11 @@ export class AccountComponent implements OnInit {
             this.service.edit( oid ).then( data => {
                 this.account = data;
 
-                this.service.getRolesForUser( oid ).then( roles => {
-                    this.roles = roles
-                } ).catch(( err: HttpErrorResponse ) => {
-                    this.error( err );
-                } );
+                // this.service.getRolesForUser( oid ).then( roles => {
+                //     this.roles = roles
+                // } ).catch(( err: HttpErrorResponse ) => {
+                //     this.error( err );
+                // } );
 
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );

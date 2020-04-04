@@ -7,7 +7,7 @@
     <fieldset>
       
       <!-- Organization Member -->
-      <div *ngIf="newInstance && _roles">
+      <div *ngIf="_roles">
 
         <div *ngFor="let org of _roles.ORGANIZATIONS" class="row-holder">
 
@@ -17,7 +17,7 @@
 
 
           <!-- Organization administrator -->
-          <div class="row" style="padding: 20px;">
+          <div *ngIf="org.RA" class="row" style="padding: 20px;">
             <div class="col-sm-12">
               <boolean-field [(value)]="org.RA.isEnabled" (change)="onToggleOrgRA($event, org)"
                 [label]="org.RA.label.localizedValue"></boolean-field>
@@ -35,7 +35,7 @@
                 </div>
 
                 <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
-                  <input type="radio" [value]="role.name" (change)="onChangeRole()" [(ngModel)]="roleGroup.ENABLEDROLE"
+                  <input *ngIf="org.RA" type="radio" [value]="role.name" (change)="onChangeRole()" [(ngModel)]="roleGroup.ENABLEDROLE"
                     [name]="role.orgCode + role.geoObjectTypeCode" [disabled]="org.RA.isEnabled">
                   <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
                 </label>

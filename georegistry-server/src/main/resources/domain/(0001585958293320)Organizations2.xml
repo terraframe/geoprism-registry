@@ -1,0 +1,34 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdGraph name="net.geoprism.registry.OrganizationUser" label="Organization User" generateController="false" publish="false">
+        <parent cardinality="*" name="net.geoprism.registry.Organization" method="Organizations" />
+        <child cardinality="*" name="net.geoprism.GeoprismUser" method="Users" />
+      </mdGraph>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.OrganizationUser">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <revoke>
+          <mdRelationshipPermission type="net.geoprism.registry.OrganizationUser">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </revoke>
+      </role>
+    </permissions>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdGraph" key="net.geoprism.registry.OrganizationUser"/> 
+    </delete>
+  </undoIt>
+</version>

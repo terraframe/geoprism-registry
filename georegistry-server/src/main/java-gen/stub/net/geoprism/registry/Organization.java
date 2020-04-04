@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -247,6 +248,10 @@ public class Organization extends OrganizationBase
 
     RoleDAO raOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(raOrgRole);
     orgRoleDAO.addInheritance(raOrgRoleDAO);
+
+    // Inherit the permissions from the root RA role
+    RoleDAO rootRA_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(DefaultConfiguration.ADMIN));
+    rootRA_DAO.addInheritance(raOrgRoleDAO);
   }
 
   /**

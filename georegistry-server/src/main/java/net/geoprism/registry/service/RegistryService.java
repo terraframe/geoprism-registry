@@ -323,46 +323,6 @@ public class RegistryService
 
     return new GeoObjectQuery(type);
   }
-
-  ///////////////////// User/Role Management /////////////////////
-  
-  @Request(RequestType.SESSION)
-  public RegistryRole[] getRolesForUser(String sessionId, String userOID)
-  {
-    GeoprismUser geoPrismUser = GeoprismUser.get(userOID);
-    
-    OIterator<? extends Roles> i = geoPrismUser.getAllAssignedRole();
-    
-    ArrayList<RegistryRole> registryRoles = new ArrayList<RegistryRole>();
-    
-    for (Roles role : i)
-    {
-      String roleName = role.getRoleName();
-      
-      if (RegistryRole.Type.isOrgRole(roleName))
-      {
-        RegistryRole registryRole = new RegistryRoleConverter().build(role);
-        registryRoles.add(registryRole);
-      }
-    }
-    
-    RegistryRole[] registryRoleArray = registryRoles.toArray(new RegistryRole[registryRoles.size()]);
-    
-    return registryRoleArray;
-  }
-  
-  @Request(RequestType.SESSION)
-  public GeoprismUser[] getUsersForOrganization(String sessionId, String organizationCode)
-  {
-//    Organization organization = Organization.getByCode(organizationCode);
-//    
-//    Roles role = null;
-//    
-//    role.getAllSingleActor();
-    
-    return new GeoprismUser[]{};
-  }
-  
   
   ///////////////////// Hierarchy Management /////////////////////
 

@@ -139,7 +139,7 @@ public class RegistryAccountController
     }
     
     GeoprismUserDTO user = this.accountService.apply(request.getSessionId(), account, roleNameArray);
-   
+
     RegistryRole[] registryRoles = this.accountService.getRolesForUser(request.getSessionId(), user.getOid());
 
     JsonArray rolesJSONArray = this.createRoleMap(registryRoles);

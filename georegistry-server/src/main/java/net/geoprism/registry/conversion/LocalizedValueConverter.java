@@ -229,8 +229,11 @@ public class LocalizedValueConverter
   public static void populateOrganizationDisplayLabel(RegistryRole registryRole)
   {
     String organizationCode = registryRole.getOrganizationCode();
-    Organization organization = Organization.getByCode(organizationCode);
-    registryRole.setOrganizationLabel(LocalizedValueConverter.convert(organization.getDisplayLabel()));
+    if (organizationCode != null && !organizationCode.trim().equals(""))
+    {
+      Organization organization = Organization.getByCode(organizationCode);
+      registryRole.setOrganizationLabel(LocalizedValueConverter.convert(organization.getDisplayLabel()));
+    }
   }
   
   /**
@@ -241,8 +244,11 @@ public class LocalizedValueConverter
   public static void populateGeoObjectTypeLabel(RegistryRole registryRole)
   {
     String geoObjectTypeCode = registryRole.getGeoObjectTypeCode();
-    Universal universal = Universal.getByKey(geoObjectTypeCode);
-    registryRole.setGeoObjectTypeLabel(LocalizedValueConverter.convert(universal.getDisplayLabel()));
+    if (geoObjectTypeCode != null && !geoObjectTypeCode.trim().equals(""))
+    {
+      Universal universal = Universal.getByKey(geoObjectTypeCode);
+      registryRole.setGeoObjectTypeLabel(LocalizedValueConverter.convert(universal.getDisplayLabel()));
+    }
   }
   
 }
