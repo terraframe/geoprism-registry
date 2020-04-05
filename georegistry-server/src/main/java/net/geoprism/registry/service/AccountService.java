@@ -30,7 +30,10 @@ import net.geoprism.ConfigurationService;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserDTO;
+import net.geoprism.GeoprismUserQuery;
+import net.geoprism.account.GeoprismUserViewQuery;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.OrganizationUser;
 import net.geoprism.registry.OrganizationUserQuery;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -38,6 +41,7 @@ import net.geoprism.registry.conversion.RegistryRoleConverter;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.json.JSONException;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessDTO;
@@ -49,6 +53,8 @@ import com.runwaysdk.business.rbac.UserDAOIF;
 import com.runwaysdk.dataaccess.DuplicateGraphPathException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
+import com.runwaysdk.mvc.ResponseIF;
+import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -61,6 +67,44 @@ public class AccountService
   public static AccountService getInstance()
   {
     return ServiceFactory.getAccountService();
+  }
+  
+  @Request(RequestType.SESSION)
+  public String page(String sessionId, String[] organizationCodes, Integer number) throws JSONException
+  {
+    QueryFactory qf = new QueryFactory();
+    
+    GeoprismUserViewQuery userViewQuery = new GeoprismUserViewQuery(qf);
+
+    List<Condition> conditions = new LinkedList<Condition>();
+    if (organizationCodes.length > 0)
+    {
+      // restrict by org code
+      OrganizationQuery orgQuery = new OrganizationQuery(qf);
+      for (String orgCode : organizationCodes)
+      {
+        conditions.add(orgQuery.getCode().EQ(orgCode));
+        
+        orgQuery.OR(orgQuery.getCode().EQ(orgCode));
+      }
+      
+      OrganizationUserQuery relQuery = new OrganizationUserQuery(qf);
+      relQuery.WHERE(relQuery.parentOid().EQ(orgQuery.getOid()));
+
+            
+      GeoprismUserQuery uq = new GeoprismUserQuery(qf);
+      uq.WHERE(uq.getOid().EQ(relQuery.childOid()));
+      
+      userViewQuery.WHERE(userViewQuery.getUsername().EQ(uq.getUsername()));
+    }
+   
+    
+    userViewQuery.restrictRows(10, number);
+    userViewQuery.ORDER_BY_ASC(userViewQuery.getUsername());
+    
+    String json =  userViewQuery.toJSON().toString();
+    
+    return json;
   }
 
   @Request(RequestType.SESSION)

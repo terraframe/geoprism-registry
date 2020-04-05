@@ -20,6 +20,7 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.ParseType;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
+import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.request.ServletRequestIF;
 
@@ -36,9 +37,20 @@ public class RegistryAccountController
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "number") Integer number) throws JSONException
+  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "organizationCodes") String organizationCodes, @RequestParamter(name = "number")  Integer number) throws JSONException
   {
-    return new AccountController().page(request, number);
+    JSONArray codeArray = new JSONArray(organizationCodes);
+    
+    String[] orgCodeArray = new String[codeArray.length()];
+    
+    for (int i=0; i < codeArray.length(); i++)
+    {
+      orgCodeArray[i] = ((String)codeArray.get(i)).trim();
+    }
+    
+    String json = this.accountService.page(request.getSessionId(), orgCodeArray, number);  
+    
+    return new RestBodyResponse(json);
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
