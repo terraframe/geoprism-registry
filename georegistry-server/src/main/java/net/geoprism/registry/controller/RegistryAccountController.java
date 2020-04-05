@@ -120,17 +120,6 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "account", parser = ParseType.BASIC_JSON) GeoprismUserDTO account, @RequestParamter(name = "roleNames") String roleNames) throws JSONException
   {    
-//    String[] roleNameArray = null;
-    
-//    if (roleNames != null)
-//    {
-//      roleNameArray = roleNames.split("\\,");
-//    }
-//    else
-//    {
-//      roleNameArray = new String[0];
-//    }   
-    
     
     JSONArray arr = new JSONArray(roleNames);
     String[] roleNameArray = new String[arr.length()];
