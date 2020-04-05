@@ -69,7 +69,6 @@ export class RoleManagementComponent implements OnInit {
         let formattedObj: FormattedRoles = { "SRA":null, "ORGANIZATIONS":[] };
 
         roles.forEach(role => {
-            role.isEnabled = false;
             
             // If orgCode exists this is NOT an SRA
             if(role.orgCode){
@@ -89,6 +88,11 @@ export class RoleManagementComponent implements OnInit {
 
                             if (!added) {
                                 let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
+                                
+                                if(role.assigned){
+                                    geoObjectTypeGroup.ENABLEDROLE = role.name
+                                }
+                                
                                 orgGroup.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
                             }
                         }
@@ -113,6 +117,10 @@ export class RoleManagementComponent implements OnInit {
 
                         let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
 
+                        if (role.assigned) {
+                            geoObjectTypeGroup.ENABLEDROLE = role.name
+                        }
+
                         newObj.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
                     }
 
@@ -132,6 +140,10 @@ export class RoleManagementComponent implements OnInit {
         organization.GEOOBJECTTYPEROLES.forEach(rg => {
             if (rg.GEOOBJECTTYPELABEL === role.geoObjectTypeLabel.localizedValue) {
 
+                if (role.assigned) {
+                    rg.ENABLEDROLE = role.name
+                }
+
                 rg.GEOOBJECTTYPEROLESGROUP.push(role);
 
                 exists = true;
@@ -143,10 +155,10 @@ export class RoleManagementComponent implements OnInit {
 
     onToggleOrgRA(event: any, organization: FormattedOrganization): void {
 
-        organization.RA.isEnabled = event;
+        organization.RA.assigned = event;
 
         // Disable all GeoObjectType radio buttons in this organization
-        if(organization.RA.isEnabled){
+        if(organization.RA.assigned){
             organization.GEOOBJECTTYPEROLES.forEach(rg => {
                 rg.ENABLEDROLE = "";
             });
@@ -161,7 +173,7 @@ export class RoleManagementComponent implements OnInit {
 
         this._roles.ORGANIZATIONS.forEach(orgGroup => {
 
-            if (orgGroup.RA && orgGroup.RA.isEnabled) {
+            if (orgGroup.RA && orgGroup.RA.assigned) {
                 newRoleIds.push(orgGroup.RA.name);
             }
             // If organization RA is enabled we don't add GeoObjectType level roles

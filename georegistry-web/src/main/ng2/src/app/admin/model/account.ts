@@ -61,7 +61,7 @@ export class Role {
   orgLabel:any;
   geoObjectTypeCode:string;
   geoObjectTypeLabel: any;
-  isEnabled?: boolean;
+  assigned: boolean;
 }
 
 export class FormattedRoles {

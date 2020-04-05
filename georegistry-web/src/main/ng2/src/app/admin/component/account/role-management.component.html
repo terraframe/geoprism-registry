@@ -19,7 +19,7 @@
           <!-- Organization administrator -->
           <div *ngIf="org.RA" class="row" style="padding: 20px;">
             <div class="col-sm-12">
-              <boolean-field [(value)]="org.RA.isEnabled" (change)="onToggleOrgRA($event, org)"
+              <boolean-field [(value)]="org.RA.assigned" (change)="onToggleOrgRA($event, org)"
                 [label]="org.RA.label.localizedValue"></boolean-field>
             </div>
           </div>
@@ -36,7 +36,7 @@
 
                 <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
                   <input *ngIf="org.RA" type="radio" [value]="role.name" (change)="onChangeRole()" [(ngModel)]="roleGroup.ENABLEDROLE"
-                    [name]="role.orgCode + role.geoObjectTypeCode" [disabled]="org.RA.isEnabled">
+                    [name]="role.orgCode + role.geoObjectTypeCode" [disabled]="org.RA.assigned">
                   <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
                 </label>
 
