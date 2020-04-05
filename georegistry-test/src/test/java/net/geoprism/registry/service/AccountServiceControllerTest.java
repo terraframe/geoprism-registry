@@ -17,12 +17,12 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.Pair;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.session.Request;
 
@@ -101,6 +101,69 @@ public class AccountServiceControllerTest
     
     OrganizationAndRoleTest.deleteGeoObjectType(HEALTH_FACILITY);
     OrganizationAndRoleTest.deleteOrganization(ORG_MOH);
+  }
+  
+  /** 
+   * Test returning possible roles that can be assigned to a person for a given organization.
+   */
+  @Test
+  public void queryUsers()
+  {
+    String rmDistrictRole = RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT);
+    String rmVillageRole = RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE);
+    
+    String rcDistrictRole = RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT);
+    String rcVillageRole = RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE);
+    
+    GeoprismUserDTO johny = createUser("johny@gmail.com", rmDistrictRole+","+rmVillageRole);
+    GeoprismUserDTO sally = createUser("sallyy@gmail.com", rcDistrictRole+","+rcVillageRole);
+    
+    String rmHealthFacilityRole = RegistryRole.Type.getRM_RoleName(ORG_MOH, HEALTH_FACILITY);
+    String rcHealthFacilityRole = RegistryRole.Type.getRC_RoleName(ORG_MOH, HEALTH_FACILITY);
+    
+    GeoprismUserDTO franky = createUser("franky@gmail.com", rmHealthFacilityRole);
+    GeoprismUserDTO becky = createUser("beckyy@gmail.com", rcHealthFacilityRole);
+    
+    try
+    {
+      JSONArray orgCodeArray = new JSONArray();
+      orgCodeArray.put(ORG_MOI);
+//      orgCodeArray.put(ORG_MOH);
+//      orgCodeArray.put("TEST1");
+//      orgCodeArray.put("TEST2");
+    
+      RestBodyResponse response = (RestBodyResponse)controller.page(clientRequest, orgCodeArray.toString(), 1);
+    }
+    finally
+    {
+      controller.remove(clientRequest, johny.getOid());
+      controller.remove(clientRequest, sally.getOid());
+      
+      controller.remove(clientRequest, franky.getOid());
+      controller.remove(clientRequest, becky.getOid());
+    }
+  }
+  
+  private GeoprismUserDTO createUser(String userName, String roleNames)
+  {
+    RestResponse response = (RestResponse)controller.newInstance(clientRequest, ORG_MOI);
+    Pair userPair = (Pair)response.getAttribute("user");
+    GeoprismUserDTO user = (GeoprismUserDTO)userPair.getFirst();
+
+    Pair rolesPair = (Pair)response.getAttribute("roles");
+    JSONArray roleJSONArray = (JSONArray)rolesPair.getFirst();
+
+    user.setFirstName("Some Firstname");
+    user.setLastName("Some Lastame");
+    user.setUsername(userName);
+    user.setEmail(userName);
+    user.setPassword("123456");
+    
+    response = (RestResponse)controller.apply(clientRequest, user, roleNames);
+    userPair = (Pair)response.getAttribute("user");
+    user = (GeoprismUserDTO)userPair.getFirst();
+    
+    return user;
   }
   
   /** 
