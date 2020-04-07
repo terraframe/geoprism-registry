@@ -61,6 +61,15 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     }
     if (hasSRA)
     {
+      GeoprismApplication tasks = new GeoprismApplication();
+      tasks.setId("tasks");
+      tasks.setLabel(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
+      tasks.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
+      tasks.setUrl("cgr/manage#/registry/tasks");
+      tasks.setDescription(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
+      tasks.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+      applications.add(tasks);
+      
       GeoprismApplication settings = new GeoprismApplication();
       settings.setId("settings");
       settings.setLabel(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
