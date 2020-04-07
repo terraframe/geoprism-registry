@@ -25,27 +25,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.geoprism.ConfigurationIF;
-import net.geoprism.ConfigurationService;
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.GeoprismUser;
-import net.geoprism.GeoprismUserDTO;
-import net.geoprism.GeoprismUserQuery;
-import net.geoprism.account.GeoprismUserViewQuery;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.OrganizationQuery;
-import net.geoprism.registry.OrganizationUser;
-import net.geoprism.registry.OrganizationUserQuery;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.RegistryRoleConverter;
-
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessDTO;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
@@ -53,17 +43,37 @@ import com.runwaysdk.business.rbac.UserDAOIF;
 import com.runwaysdk.dataaccess.DuplicateGraphPathException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
-import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.transport.conversion.ConversionFacade;
 
+import net.geoprism.ConfigurationIF;
+import net.geoprism.ConfigurationService;
+import net.geoprism.DefaultConfiguration;
+import net.geoprism.GeoprismProperties;
+import net.geoprism.GeoprismUser;
+import net.geoprism.GeoprismUserDTO;
+import net.geoprism.GeoprismUserQuery;
+import net.geoprism.account.GeoprismUserViewQuery;
+import net.geoprism.account.InvalidUserInviteToken;
+import net.geoprism.account.UserInvite;
+import net.geoprism.account.UserInviteQuery;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationQuery;
+import net.geoprism.registry.OrganizationUser;
+import net.geoprism.registry.OrganizationUserQuery;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryRoleConverter;
+
 public class AccountService
 {
+  private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
+  
   public static AccountService getInstance()
   {
     return ServiceFactory.getAccountService();
@@ -106,7 +116,7 @@ public class AccountService
     
     return json;
   }
-
+  
   @Request(RequestType.SESSION)
   public GeoprismUserDTO apply(String sessionId, GeoprismUserDTO geoprismUserDTO, String[] roleNameArray)
   {    

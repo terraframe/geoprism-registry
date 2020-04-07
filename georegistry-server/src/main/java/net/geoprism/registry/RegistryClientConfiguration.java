@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.json.JSONArray;
+
 import com.runwaysdk.constants.ClientRequestIF;
 
 import net.geoprism.ClientConfigurationIF;
@@ -29,6 +31,7 @@ import net.geoprism.DefaultClientConfiguration;
 import net.geoprism.GeoprismApplication;
 import net.geoprism.GeoprismPatcher;
 import net.geoprism.RoleConstants;
+import net.geoprism.RoleViewDTO;
 import net.geoprism.localization.LocalizationFacadeDTO;
 
 public class RegistryClientConfiguration extends DefaultClientConfiguration implements ClientConfigurationIF
@@ -42,6 +45,48 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
   @Override
   public List<GeoprismApplication> getApplications(ClientRequestIF request)
   {
+    List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();
+    
+    
+    boolean hasSRA = false;
+    JSONArray jaRoles = new JSONArray(RoleViewDTO.getCurrentRoles(request));
+    for (int i = 0; i < jaRoles.length(); ++i)
+    {
+      String roleName = jaRoles.getString(i);
+      
+      if (roleName.equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE))
+      {
+        hasSRA = true;
+      }
+    }
+    if (hasSRA)
+    {
+      GeoprismApplication settings = new GeoprismApplication();
+      settings.setId("settings");
+      settings.setLabel(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
+      settings.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
+      settings.setUrl("cgr/manage#/admin/settings");
+      settings.setDescription(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
+      settings.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+      applications.add(settings);
+      
+      GeoprismApplication hierarchies = new GeoprismApplication();
+      hierarchies.setId("hierarchies");
+      hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
+      hierarchies.setSrc("net/geoprism/images/hierarchy-icon-modified.svg");
+      hierarchies.setUrl("cgr/manage#/registry/hierarchies");
+      hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
+      hierarchies.addRole(RoleConstants.ADIM_ROLE);
+//      hierarchies.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+      hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+      hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+      hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
+      applications.add(hierarchies);
+      
+      return applications;
+    }
+    
+
     GeoprismApplication hierarchies = new GeoprismApplication();
     hierarchies.setId("hierarchies");
     hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
@@ -49,7 +94,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.setUrl("cgr/manage#/registry/hierarchies");
     hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
-    hierarchies.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+//    hierarchies.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
@@ -61,7 +106,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     masterLists.setUrl("cgr/manage#/registry/master-lists");
     masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADIM_ROLE);
-    masterLists.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+//    masterLists.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
@@ -74,7 +119,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setUrl("cgr/manage#/registry/change-requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
-    requests.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+//    requests.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
@@ -87,7 +132,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.setUrl("cgr/manage#/registry/data");
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
     uploads.addRole(RoleConstants.ADIM_ROLE);
-    uploads.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+//    uploads.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     uploads.addRole(RegistryConstants.API_CONSUMER_ROLE);
@@ -113,7 +158,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     management.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
 
-    List<GeoprismApplication> applications = new LinkedList<GeoprismApplication>();
     applications.add(hierarchies);
     applications.add(management);
     applications.add(masterLists);
@@ -132,6 +176,8 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
   {
     Set<String> endpoints = super.getPublicEndpoints();
     endpoints.add("cgr/manage");
+    endpoints.add("registryaccount/inviteComplete");
+    endpoints.add("registryaccount/newUserInstance");
     return endpoints;
   }
 
