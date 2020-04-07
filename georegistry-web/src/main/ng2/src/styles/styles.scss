@@ -126,12 +126,12 @@ form legend{
     font-size: 18px;
 }
 .fa-stack:hover .fa {
-	color: #00bfff;
+	color: #6BA542;
 }
 
-.fa > p {
-	color: black;
-}
+// .fa > p {
+// 	color: black;
+// }
 
 i {
 	font-style: normal;
@@ -140,7 +140,10 @@ i {
 a.fa:hover, 
 a.fa:focus, 
 i.clickable.fa:hover, 
-i.clickable.fa:focus {
+i.clickable.fa:focus,
+.clickable:hover,
+.clickable:focus,
+.clickable:hover * {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
     cursor: pointer;

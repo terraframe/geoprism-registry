@@ -16,20 +16,13 @@
         <div class="row" *ngFor="let org of orgs;">
             <div class="col-md-12 order-md-1">
                 <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="py-5">
                             <h3>{{org.label}}</h3>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div *ngIf="org.admin">
-                            <button type="submit" (click)="onCreate(org)" class="btn btn-primary" role="button">
-                                <localize key="hierarchy.management.button.create"></localize>
-                            </button>
-                        </div>
-                    </div>
                 </div>
-                <ul class="list-group">
+                <ul *ngIf="org.lists && org.lists.length > 0" class="list-group" style="border-bottom: 2px solid lightgrey;">
                     <table class="table">
                         <thead>
                             <tr>
@@ -59,7 +52,15 @@
                         </tbody>
                     </table>
                 </ul>
-
+                <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                    <div class="col-md-6">
+                        <div *ngIf="org.admin">
+                            <button type="submit" (click)="onCreate(org)" class="btn btn-primary" role="button">
+                                <localize key="hierarchy.management.button.create"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

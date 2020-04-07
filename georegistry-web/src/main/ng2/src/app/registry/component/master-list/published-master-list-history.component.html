@@ -2,19 +2,9 @@
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
 
-    <div *ngIf="list && (list.admin)" style="margin-top: 30px; margin-bottom: 30px;" class="row">
-        <div class="col-md-12">
-            <form #myForm="ngForm">
-                <div class="form-group">
-                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">Publish versions</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div class="row form-group">
         <div *ngIf="list" class="col-md-12 table-responsive" style="">
-            <table class="list-table table">
+            <table class="list-table table" style="border-bottom: solid lightgrey 3px;">
                 <thead>
                     <tr>
                         <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
@@ -29,7 +19,7 @@
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">
                                     <localize key="modal.button.view"></localize>
                                 </button>
-                                <button *ngIf="list && (list.admin)" type="submit" (click)="onPublishShapefile(version)" class="btn btn-primary" role="button">
+                                <button *ngIf="list && (list.admin)" type="submit" (click)="onPublishShapefile(version)" class="btn btn-default" role="button">
                                     <localize key="masterlist.publish-shapefile"></localize>
                                 </button>                                
                                 <button *ngIf="version.shapefile" type="submit" (click)="onDownloadShapefile(version)" class="btn btn-primary" role="button">
@@ -44,6 +34,17 @@
             </table>
         </div>
     </div>
+
+    <div *ngIf="list && (list.admin)" style="margin-bottom: 30px;" class="row">
+        <div class="col-md-12">
+            <form #myForm="ngForm">
+                <div class="form-group">
+                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">Publish versions</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-12 order-md-1">
             <ul class="list-group">
