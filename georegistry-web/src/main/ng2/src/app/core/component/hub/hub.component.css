@@ -44,6 +44,8 @@
     background-image: url(../net/geoprism/images/homebackground.jpg);
     background-size: 100%;
     background-repeat: no-repeat;
+    
+    min-height:100%;
 }
 
 h1 {
