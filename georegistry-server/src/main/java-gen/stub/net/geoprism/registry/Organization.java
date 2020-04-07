@@ -250,7 +250,7 @@ public class Organization extends OrganizationBase
     orgRoleDAO.addInheritance(raOrgRoleDAO);
 
     // Inherit the permissions from the root RA role
-    RoleDAO rootRA_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(DefaultConfiguration.ADMIN));
+    RoleDAO rootRA_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(RegistryConstants.REGISTRY_ADMIN_ROLE));
     rootRA_DAO.addInheritance(raOrgRoleDAO);
   }
 

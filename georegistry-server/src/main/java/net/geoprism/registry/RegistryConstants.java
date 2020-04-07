@@ -56,6 +56,8 @@ public interface RegistryConstants
 
   public static final String REGISTRY_ROLE_PREFIX             = RegistryRole.Type.REGISTRY_ROLE_PREFIX+".";
 
+  public static final String REGISTRY_SUPER_ADMIN_ROLE        = REGISTRY_ROLE_PREFIX + "SRA";
+  
   public static final String REGISTRY_MAINTAINER_PREFIX       = REGISTRY_ROLE_PREFIX + "registry.maintainer.";
 
   public static final String REGISTRY_ADMIN_ROLE              = REGISTRY_ROLE_PREFIX + "RegistryAdministrator";

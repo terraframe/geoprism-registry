@@ -17,7 +17,7 @@
       <object key="Roles.cgr.SRA" type="com.runwaysdk.system.Roles">
         <attribute name="roleName" value="cgr.SRA" />
         <attributeStruct name="displayLabel">
-          <attribute name="defaultLocale" value="Root Organization" />
+          <attribute name="defaultLocale" value="Super Registry Administrator" />
         </attributeStruct>
       </object>
     </create>
