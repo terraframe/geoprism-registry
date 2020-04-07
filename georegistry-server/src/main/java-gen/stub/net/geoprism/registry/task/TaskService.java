@@ -1,10 +1,11 @@
 package net.geoprism.registry.task;
 
-import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
@@ -19,6 +20,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.RolesQuery;
 
+import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.task.Task.TaskStatus;
 
@@ -51,10 +53,19 @@ public class TaskService
     
     
     Condition cond = null;
-    Map<String, String> roles = Session.getCurrentSession().getUserRoles();
+//    Map<String, String> roles = Session.getCurrentSession().getUserRoles();
+    Set<RoleDAOIF> roles = Session.getCurrentSession().getUser().assignedRoles();
     
-    for (String roleName : roles.keySet())
+//    for (String roleName : roles.keySet())
+    for (RoleDAOIF role : roles)
     {
+      String roleName = role.getRoleName();
+      
+      if (roleName.equals(DefaultConfiguration.ADMIN))
+      {
+        continue;
+      }
+      
       if (cond == null)
       {
         cond = rq.getRoleName().EQ(roleName);

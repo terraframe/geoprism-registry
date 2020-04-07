@@ -95,7 +95,17 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
       return applications;
     }
     
-
+    GeoprismApplication tasks = new GeoprismApplication();
+    tasks.setId("tasks");
+    tasks.setLabel(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
+    tasks.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
+    tasks.setUrl("cgr/manage#/registry/tasks");
+    tasks.setDescription(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
+    tasks.addRole(RoleConstants.ADIM_ROLE);
+    tasks.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    tasks.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    applications.add(tasks);
+    
     GeoprismApplication hierarchies = new GeoprismApplication();
     hierarchies.setId("hierarchies");
     hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
@@ -103,7 +113,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.setUrl("cgr/manage#/registry/hierarchies");
     hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
-//    hierarchies.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
@@ -115,7 +124,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     masterLists.setUrl("cgr/manage#/registry/master-lists");
     masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADIM_ROLE);
-//    masterLists.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
@@ -128,7 +136,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setUrl("cgr/manage#/registry/change-requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RoleConstants.ADIM_ROLE);
-//    requests.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
@@ -141,7 +148,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.setUrl("cgr/manage#/registry/data");
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
     uploads.addRole(RoleConstants.ADIM_ROLE);
-//    uploads.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     uploads.addRole(RegistryConstants.API_CONSUMER_ROLE);
@@ -162,7 +168,6 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.setUrl("nav/management#locations");
     management.setDescription(LocalizationFacadeDTO.getFromBundles(request, "navigator.landing.description"));
     management.addRole(RoleConstants.ADIM_ROLE);
-    management.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     management.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     management.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     management.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);

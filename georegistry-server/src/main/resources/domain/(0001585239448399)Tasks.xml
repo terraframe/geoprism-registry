@@ -153,7 +153,9 @@
         <attribute name="status" value="UNRESOLVED"/>
       </object>
       <relationship parentKey="tasks.sysinit.createHierarchies.template" key="tasks.sysinit.createHierarchies.template.Roles.cgr.SRA" type="net.geoprism.registry.task.TaskHasRole" childKey="Roles.cgr.SRA"></relationship>
+      <!--
       <relationship parentKey="tasks.sysinit.createHierarchies.template" key="tasks.sysinit.createHierarchies.template.Roles.geoprism.admin.Administrator" type="net.geoprism.registry.task.TaskHasRole" childKey="Roles.geoprism.admin.Administrator"></relationship>
+      -->
     </createOrUpdate>
     <update></update>
     <permissions>
