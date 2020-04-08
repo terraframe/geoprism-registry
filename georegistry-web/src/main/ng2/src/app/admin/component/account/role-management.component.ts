@@ -167,6 +167,11 @@ export class RoleManagementComponent implements OnInit {
         this.onChangeRole();
     }
 
+    onToggleSRA(event: any, role: Role): void {
+
+        role.assigned = !role.assigned;
+    }
+
     onChangeRole(): void {
 
         let newRoleIds: string[] = [];

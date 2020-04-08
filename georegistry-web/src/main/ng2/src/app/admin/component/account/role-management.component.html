@@ -6,8 +6,15 @@
   <form>
     <fieldset>
       
-      <!-- Organization Member -->
       <div *ngIf="_roles">
+
+        <!-- SRA -->
+        <div *ngIf="_roles.SRA" class="row" style="padding: 20px;">
+          <div class="col-sm-12">
+            <boolean-field [(value)]="_roles.SRA.assigned" (change)="onToggleSRA($event, _roles.SRA)"
+              [label]="_roles.SRA.label.localizedValue"></boolean-field>
+          </div>
+        </div>
 
         <div *ngFor="let org of _roles.ORGANIZATIONS" class="row-holder">
 
@@ -28,22 +35,27 @@
           <div class="row">
             <div class="col-sm-12 org-container" style="padding-left:50px;padding-right:50px;">
 
-              <div *ngFor="let roleGroup of org.GEOOBJECTTYPEROLES; let i = index">
-
-                <div class="heading">
-                  <h4>{{roleGroup.GEOOBJECTTYPELABEL}}</h4>
+              <fieldset [disabled]="org.RA && org.RA.assigned">
+                <div *ngFor="let roleGroup of org.GEOOBJECTTYPEROLES; let i = index">
+              
+                  <div class="heading">
+                    <h4>{{roleGroup.GEOOBJECTTYPELABEL}}</h4>
+                  </div>
+              
+                  <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
+                    <input type="radio" [value]="role.name" (change)="onChangeRole()" [(ngModel)]="roleGroup.ENABLEDROLE"
+                      [name]="role.orgCode + role.geoObjectTypeCode" >
+                    <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
+                  </label>
+              
                 </div>
+              </fieldset>
 
-                <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
-                  <input *ngIf="org.RA" type="radio" [value]="role.name" (change)="onChangeRole()" [(ngModel)]="roleGroup.ENABLEDROLE"
-                    [name]="role.orgCode + role.geoObjectTypeCode" [disabled]="org.RA.assigned">
-                  <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
-                </label>
-
-              </div>
             </div>
           </div>
-        </div>
+
+        </div> <!-- End organizations row -->
+
       </div>
 
     </fieldset>
