@@ -2,7 +2,7 @@
   <doIt>
     <create>
       <mdException name="net.geoprism.registry.DuplicateGeoObjectException"
-        message="A {geoObjectType} with the {attributeName} [{value}] already exists. Please choose a different value."
+        message="A GeoObject with the {attributeName} [{value}] already exists. Please choose a different value."
       >
         <attributes>
           <text name="geoObjectType" required="true" label="district" />
