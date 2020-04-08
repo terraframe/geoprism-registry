@@ -56,7 +56,7 @@
     </div>
 
     <div class="form-group">   
-      <label for="geometryType">Organization</label>
+      <label for="organization"><localize key="attribute.organization.label"></localize></label>
       <select  class="select-area" name="organization" [(ngModel)]="geoObjectType.organizationCode" required>
         <option></option>
         <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
