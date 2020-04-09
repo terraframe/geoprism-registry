@@ -69,9 +69,6 @@ import { ReuploadModalComponent } from './component/scheduled-jobs/conflict-widg
 import { ParentReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/parent-reference-problem-widget.component';
 import { TermReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/term-reference-problem-widget.component';
 import { RowValidationProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/row-validation-problem-widget.component';
-import { RequiredValueProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/requiredvalue-problem-widget.component';
-import { SpatialReferenceProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/spatialreference-problem-widget.component';
-import { DuplicateProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/duplicate-problem-widget.component';
 import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicator.component';
 import { ImportProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/import-problem-widget.component';
 import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
@@ -179,9 +176,6 @@ import '../rxjs-extensions';
 		ParentReferenceProblemWidgetComponent,
 		TermReferenceProblemWidgetComponent,
 		RowValidationProblemWidgetComponent,
-		RequiredValueProblemWidgetComponent,
-		SpatialReferenceProblemWidgetComponent,
-		DuplicateProblemWidgetComponent,
 		StepIndicatorComponent,
 		ImportProblemWidgetComponent,
 		TaskViewerComponent

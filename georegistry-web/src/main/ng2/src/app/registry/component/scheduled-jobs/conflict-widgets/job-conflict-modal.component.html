@@ -10,29 +10,6 @@
     <form #form="ngForm" class="modal-form">
 
         <fieldset>
-            <!-- <div class="row-holder" *ngFor="let localeValue of master.displayLabel.localeValues">
-                <div class="label-holder">
-                    <label> <localize key="masterlist.label"></localize> ({{localeValue.locale}})
-                    </label>
-                </div>
-                <div class="holder">
-                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
-                </div>
-            </div> -->
-
-            
-            <!-- <div *ngIf="problem && problem.exception.type === 'net.geoprism.registry.io.ParentCodeException'">
-                <relationship-problem-widget [problem]="problem" [job]="job"></relationship-problem-widget>
-            </div>
-            <div *ngIf="problem && problem.exception.type === 'REQUIREDVALUE'">
-                <relationship-problem-widget [problem]="problem" ></relationship-problem-widget>
-            </div>
-            <div *ngIf="problem && problem.exception.type === 'SPATIALREFERENCE'">
-                <relationship-problem-widget [problem]="problem"></relationship-problem-widget>
-            </div>
-            <div *ngIf="problem && problem.exception.type === 'DUPLICATE'">
-                <relationship-problem-widget [problem]="problem"></relationship-problem-widget>
-            </div> -->
             
             <div *ngIf="problem && job && job.stage === 'IMPORT_RESOLVE'">
                 <import-problem-widget (onProblemResolved)="onProblemResolvedListener($event, problem)" [problem]="problem" [job]="job"></import-problem-widget>

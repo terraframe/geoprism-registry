@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
 import { SuccessModalComponent } from '../../../../shared/component/modals/success-modal.component';
+import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
 
 import { ImportConfiguration } from '../../../model/io';
 
@@ -91,10 +92,17 @@ export class ShapefileModalComponent implements OnInit {
             else {
                 this.bsModalRef.hide()
 
-                this.router.navigate(['/registry/scheduled-jobs']);
+                this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+                    animated: true,
+                    backdrop: true,
+                    ignoreBackdropClick: true,
+                } );
+                this.bsModalRef.content.message = this.localizeService.decode( "data.import.go.to.scheduled.jobs.confirm.message" );
+                this.bsModalRef.content.submitText = this.localizeService.decode( "data.import.go.to.scheduled.jobs.button" );
 
-                //this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
-                //this.bsModalRef.content.message = this.localizeService.decode( "upload.success.message" );
+                ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
+                    this.router.navigate(['/registry/scheduled-jobs']);
+                } );
             }
         } ).catch(( response: HttpErrorResponse ) => {
             this.error( response );
