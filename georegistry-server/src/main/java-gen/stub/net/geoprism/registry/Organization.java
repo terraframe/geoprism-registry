@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.geoprism.DefaultConfiguration;
@@ -17,6 +18,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.EntityDAOIF;
 import com.runwaysdk.dataaccess.cache.ObjectCache;
 import com.runwaysdk.query.OIterator;
@@ -383,6 +385,50 @@ public class Organization extends OrganizationBase
       }).collect(Collectors.toList());
 
       return result;
+    }
+  }
+  
+  /**
+   * Returns true if the provided actor has permission to this organization. 
+   */
+  public boolean doesActorHavePermission(SingleActorDAOIF actor)
+  {
+    Set<RoleDAOIF> roles = actor.authorizedRoles();
+    
+    for (RoleDAOIF role : roles)
+    {
+      String roleName = role.getRoleName();
+      
+      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+      {
+        String orgCode = RegistryRole.Type.parseOrgCode(roleName);
+        
+        if (orgCode.equals(this.getCode()))
+        {
+          return true;
+        }
+      }
+      else if (RegistryRole.Type.isSRA_Role(roleName))
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Throws an exception if the provided actor does not have permissions to this
+   * organization. Uses {{Organization.doesActorHavePermission}} to check permissions.
+   * 
+   * @param actor
+   */
+  public void enforceActorHasPermission(SingleActorDAOIF actor)
+  {
+    if (!this.doesActorHavePermission(actor))
+    {
+      OrganizationRAException ex = new OrganizationRAException();
+      throw ex;
     }
   }
 

@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +34,10 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessDTO;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
-import com.runwaysdk.dataaccess.DuplicateGraphPathException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
 import com.runwaysdk.query.Condition;
@@ -55,18 +52,16 @@ import com.runwaysdk.transport.conversion.ConversionFacade;
 import net.geoprism.ConfigurationIF;
 import net.geoprism.ConfigurationService;
 import net.geoprism.DefaultConfiguration;
-import net.geoprism.GeoprismProperties;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.GeoprismUserQuery;
 import net.geoprism.account.GeoprismUserViewQuery;
-import net.geoprism.account.InvalidUserInviteToken;
-import net.geoprism.account.UserInvite;
-import net.geoprism.account.UserInviteQuery;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
+import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationUser;
 import net.geoprism.registry.OrganizationUserQuery;
+import net.geoprism.registry.SRAException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 
@@ -132,6 +127,66 @@ public class AccountService
   @Transaction
   public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, String[] roleNameArray)
   {
+    /*
+     * Make sure they have permissions to all these new roles they want to assign
+     */
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      Set<RoleDAOIF> myRoles = Session.getCurrentSession().getUser().authorizedRoles();
+      
+      boolean hasSRA = false;
+      for (RoleDAOIF myRole : myRoles)
+      {
+        if (RegistryRole.Type.isSRA_Role(myRole.getRoleName()))
+        {
+          hasSRA = true;
+        }
+      }
+      
+      if (!hasSRA)
+      {
+        for (String roleName : roleNameArray)
+        {
+          boolean hasPermission = false;
+          
+          if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+          {
+            String orgCodeArg = RegistryRole.Type.parseOrgCode(roleName);
+            
+            for (RoleDAOIF myRole : myRoles)
+            {
+              if (RegistryRole.Type.isRA_Role(myRole.getRoleName()))
+              {
+                String myOrgCode = RegistryRole.Type.parseOrgCode(myRole.getRoleName());
+                
+                if (myOrgCode.equals(orgCodeArg))
+                {
+                  hasPermission = true;
+                  break;
+                } 
+              }
+            }
+          }
+          else if (RegistryRole.Type.isSRA_Role(roleName))
+          {
+            SRAException ex = new SRAException();
+            throw ex;
+          }
+          else
+          {
+            hasPermission = true;
+          }
+          
+          if (!hasPermission)
+          {
+            OrganizationRAException ex = new OrganizationRAException();
+            throw ex;
+          }
+        }
+      }
+    }
+    
+    
     geoprismUser.apply();
     
     List<Roles> newRoles = new LinkedList<Roles>();
@@ -140,8 +195,8 @@ public class AccountService
     for (String roleName : roleNameArray)
     {
       Roles role = Roles.findRoleByName(roleName);
-      roleIdSet.add(role.getOid());
       
+      roleIdSet.add(role.getOid());
       newRoles.add(role);
     }
 

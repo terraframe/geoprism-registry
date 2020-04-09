@@ -43,7 +43,11 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
         };
 
         this.registryService.getOrganizations().then(orgs => {
-            this.organizations = orgs;
+          if (orgs.length == 1)
+          {
+            this.geoObjectType.organizationCode = orgs[0].code;
+          }
+          this.organizations = orgs;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

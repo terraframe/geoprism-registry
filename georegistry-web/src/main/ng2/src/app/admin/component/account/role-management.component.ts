@@ -169,7 +169,8 @@ export class RoleManagementComponent implements OnInit {
 
     onToggleSRA(event: any, role: Role): void {
 
-        role.assigned = !role.assigned;
+      role.assigned = !role.assigned;
+      this.onChangeRole();
     }
 
     onChangeRole(): void {
@@ -183,7 +184,6 @@ export class RoleManagementComponent implements OnInit {
             }
             // If organization RA is enabled we don't add GeoObjectType level roles
             else {
-
                 orgGroup.GEOOBJECTTYPEROLES.forEach(rg => {
                     if (rg.ENABLEDROLE && rg.ENABLEDROLE.length > 0) {
                         // add GeoObjectType level role selected
@@ -192,6 +192,11 @@ export class RoleManagementComponent implements OnInit {
                 });
             }
         });
+        
+        if (this._roles.SRA.assigned)
+        {
+          newRoleIds.push(this._roles.SRA.name);
+        }
 
         this._roleIds = newRoleIds;
         this.onRoleIdsUpdate.emit(this._roleIds);

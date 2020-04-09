@@ -158,6 +158,25 @@ export class AuthService {
     return false;
   }
   
+  // Returns all organization codes that the current user participates in.
+  // If the user is an SRA then this method will return an empty string array.
+  getMyOrganizations(): string[] {
+    let orgCodes: string[] = [];
+  
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.type === RegistryRoleType.RC
+          || role.type === RegistryRoleType.RM
+          || role.type === RegistryRoleType.RA) {
+        orgCodes.push(role.orgCode);
+      }
+    }
+    
+    return orgCodes;
+  }
+  
   getUsername(): string {
     return this.user.userName;
   }

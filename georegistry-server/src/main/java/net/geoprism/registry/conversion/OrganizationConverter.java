@@ -1,11 +1,17 @@
 package net.geoprism.registry.conversion;
 
-import net.geoprism.registry.Organization;
+import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Session;
+
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.SRAException;
 
 public class OrganizationConverter extends LocalizedValueConverter
 {
@@ -29,8 +35,7 @@ public class OrganizationConverter extends LocalizedValueConverter
     return this.create(organizationDTO);
   }
   
-  @Transaction
-  public Organization create(OrganizationDTO organizationDTO)
+  public Organization fromDTO(OrganizationDTO organizationDTO)
   {
     Organization organization = new Organization();
     
@@ -38,6 +43,38 @@ public class OrganizationConverter extends LocalizedValueConverter
  
     populate(organization.getDisplayLabel(), organizationDTO.getLabel());
     populate(organization.getContactInfo(), organizationDTO.getContactInfo());
+    
+    return organization;
+  }
+  
+  @Transaction
+  public Organization create(OrganizationDTO organizationDTO)
+  {
+    final Organization organization = this.fromDTO(organizationDTO);
+    
+    // They must be SRA role to perform this
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      boolean hasSRA = false;
+      
+      Set<RoleDAOIF> roles = Session.getCurrentSession().getUser().authorizedRoles();
+      
+      for (RoleDAOIF role : roles)
+      {
+        String roleName = role.getRoleName();
+        
+        if (RegistryRole.Type.isSRA_Role(roleName))
+        {
+          hasSRA = true;
+        }
+      }
+      
+      if (!hasSRA)
+      {
+        SRAException ex = new SRAException();
+        throw ex;
+      }
+    }
     
     organization.apply();
     
@@ -47,7 +84,6 @@ public class OrganizationConverter extends LocalizedValueConverter
   @Transaction
   public Organization update(OrganizationDTO organizationDTO)
   {
-   
     Organization organization = Organization.getByKey(organizationDTO.getCode());
     
     organization.lock();
