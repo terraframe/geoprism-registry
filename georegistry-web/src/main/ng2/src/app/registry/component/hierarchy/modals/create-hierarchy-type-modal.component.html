@@ -19,12 +19,12 @@
     
     <div class="form-group">   
       <label for="organization"><localize key="attribute.organization.label"></localize></label>
-      <select *ngIf="organizations.length > 1" class="select-area" name="organization" [(ngModel)]="hierarchyType.organizationCode" required>
+      <select *ngIf="!edit && organizations.length > 1" class="select-area" name="organization" [(ngModel)]="hierarchyType.organizationCode" required>
         <option></option>
         <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
       </select>
       <span *ngIf="!edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="organizations[0].label.localizedValue" name="organization" disabled required></span>
-      <span *ngIf="edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
+      <span *ngIf="edit" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
     </div>
 	
 	<div>
