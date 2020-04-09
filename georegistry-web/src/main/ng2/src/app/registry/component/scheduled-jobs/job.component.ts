@@ -116,6 +116,15 @@ export class JobComponent implements OnInit {
         if(probType === "net.geoprism.registry.DataNotFoundException"){
           return this.localizeService.decode( "scheduledjobs.job.problem.type.required.value.lookup" );
         }
+        
+        if(
+            probType === "net.geoprism.registry.roles.CreateGeoObjectPermissionException"
+            || probType === "net.geoprism.registry.roles.WriteGeoObjectPermissionException"
+            || probType === "net.geoprism.registry.roles.DeleteGeoObjectPermissionException"
+            || probType === "net.geoprism.registry.roles.ReadGeoObjectPermissionException"
+          ){
+          return this.localizeService.decode( "scheduledjobs.job.problem.type.permission" );
+        }
 
         // if(probType === "net.geoprism.registry.io.TermValueException"){
         //   return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
