@@ -1,15 +1,21 @@
 <div class="modal-body text-center">
     
     <form class="modal-form" style="overflow: visible;" #goForm="ngForm">
-        <div class="row-holder">
+        <!-- <div class="row-holder">
             <div class="label-holder"><label><localize key="masterlist.forDate"></localize></label></div>
             <div class="holder">
                 <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
             </div>
+        </div> -->
+
+        <div class="row">
+            <div class="col-md-12">
+            <error-message *ngIf="!areParentsValid" [message]="'geoobject.editor.modal.parents.must.be.assigned.message' | localize"></error-message>
+            </div>
         </div>
-        <div class="row-holder">
-            <div class="label-holder"></div>
-            <div class="holder">
+        <div class="row">
+            <!-- <div class="label-holder"></div> -->
+            <div class="col-md-12">
                 <div class="btn-group geobject-editor-tab-holder">
                     <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.changePage(0);">
                         <localize key="geoobject.editor.tabZero"></localize>
@@ -23,6 +29,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- Attributes tab -->
         <geoobject-shared-attribute-editor 
@@ -63,10 +70,17 @@
               <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="notes" name="notes" required></textarea>
             </div>
         </div>
-        
-        <div class="row-holder">
-            <div class="label-holder"></div>
+
+         <div class="row-holder" style="margin-bottom: 20px;">
+            <div class="label-holder"><label><localize key="masterlist.forDate"></localize></label></div>
             <div class="holder">
+                <input style="width:100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- <div class="label-holder"></div> -->
+            <div class="col-md-12">
                 <div class="button-holder text-left">
                     <button type="button" class="btn btn-default" (click)="cancel()">
                         <localize key="modal.button.cancel"></localize>
@@ -74,9 +88,6 @@
                     <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="goForm.invalid || !this.isValid">
                         <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
                     </button>
-                    <span *ngIf="!areParentsValid" class="error-message" style="float: none;">
-                        Parents must be assigned.
-                    </span>
                 </div>
             </div>
         </div>

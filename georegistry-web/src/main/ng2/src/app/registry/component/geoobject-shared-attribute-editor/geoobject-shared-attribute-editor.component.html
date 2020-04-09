@@ -2,13 +2,13 @@
     <fieldset>
         <!-- <div class="col-md-12"> -->
             <div *ngIf="preGeoObject">
-                <div *ngIf="!this.isEditingGeometries" class="row-holder"> 
-                    <div class="label-holder">
+                <div *ngIf="!this.isEditingGeometries" class="row"> 
+                    <!-- <div class="label-holder">
                         <label>
                             <localize key="change.request.geoobject.update.form.label"></localize>
                         </label>
-                    </div>
-                    <div class="holder">
+                    </div> -->
+                    <div class="col-md-12">
                         <span class="text"></span>
                             <div class="panel" style="box-shadow: none;">
                                 <div class="panel-body">
@@ -150,12 +150,12 @@
                     </div>
                  </div>
                  <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined">
-                   <div class="label-holder">
+                   <!-- <div class="label-holder">
                      <label>
                       <localize key="shared.attributes.attribute.geometry.label"></localize>
                      </label>
-                   </div>
-                   <div class="holder">
+                   </div> -->
+                   <div class="">
                      <geoobject-editor-map #geometryEditor 
                        [geometryType]="this.geoObjectType.geometryType"
                        [readOnly]="true"
