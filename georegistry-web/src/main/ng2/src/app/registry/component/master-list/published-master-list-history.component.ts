@@ -67,12 +67,30 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		this.pollingData.unsubscribe();
 	}
 
+	onDeleteMasterListVersion( oid: string ): void {
+		this.service.deleteMasterListVersion( oid ).then(data =>{
+			this.updateList();
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
+	updateList(): void {
+		// update the list of versions. 
+		this.service.getMasterListHistory(this.oid, "PUBLISHED").then(list => {
+			this.list = list;
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
 	onPublish(): void {
 		this.message = null;
 
 		this.service.publishMasterListVersions(this.list.oid).then((data: { job: string }) => {
 			// Refresh the page
 			this.onPageChange(this.page.pageNumber);
+
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -90,6 +108,8 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});
+
+			this.updateList();
 		}
 	}
 
@@ -109,7 +129,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	onView(version: MasterListVersion): void {
 		event.preventDefault();
 
-		this.router.navigate(['/registry/master-list/', version.oid])
+		this.router.navigate(['/registry/master-list/', version.oid, true])
 	}
 
 	onPublishShapefile(version: MasterListVersion): void {

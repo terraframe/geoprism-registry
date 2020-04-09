@@ -41,6 +41,7 @@ export class MasterListComponent implements OnInit {
         results: []
     };
     sort = { attribute: 'code', order: 'ASC' };
+    isPublished: boolean = true;
 
     /*
      * Reference to the modal current showing
@@ -66,6 +67,7 @@ export class MasterListComponent implements OnInit {
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get( 'oid' );
+        this.isPublished = (this.route.snapshot.paramMap.get( 'published' ) == "true");
 
         this.service.getMasterListVersion( oid ).then( version => {
             this.list = version;

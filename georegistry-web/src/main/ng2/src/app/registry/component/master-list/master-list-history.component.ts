@@ -80,7 +80,7 @@ export class MasterListHistoryComponent implements OnInit {
 	onView(version: MasterListVersion): void {
 		event.preventDefault();
 
-		this.router.navigate(['/registry/master-list/', version.oid])
+		this.router.navigate(['/registry/master-list/', version.oid, false])
 	}
 
 	onDelete(version: MasterListVersion): void {

@@ -52,7 +52,7 @@ const routes: Routes = [
         canActivate: [ContributerGuard]
     },
     {
-        path: 'master-list/:oid',
+        path: 'master-list/:oid/:published',
         component: MasterListComponent,
         canActivate: [ContributerGuard]
     },

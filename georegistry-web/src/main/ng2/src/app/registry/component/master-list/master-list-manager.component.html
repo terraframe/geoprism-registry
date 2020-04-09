@@ -41,7 +41,7 @@
                                     <button type="submit" (click)="onView(list.oid)" class="btn btn-primary" role="button">
                                         <localize key="modal.button.view"></localize>
                                     </button>
-                                    <button *ngIf="org.admin" type="submit" (click)="onEdit(list)" class="btn btn-primary" role="button">
+                                    <button *ngIf="org.admin" type="submit" (click)="onEdit(list)" class="btn btn-default" role="button">
                                         <localize key="masterlist.button.metadata"></localize>
                                     </button>
                                     <button *ngIf="org.admin" type="submit" (click)="onDelete(org, list)" class="btn btn-danger" role="button">
