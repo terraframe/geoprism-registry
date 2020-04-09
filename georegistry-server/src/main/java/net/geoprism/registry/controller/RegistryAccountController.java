@@ -1,10 +1,5 @@
 package net.geoprism.registry.controller;
 
-import net.geoprism.AccountController;
-import net.geoprism.GeoprismUserDTO;
-import net.geoprism.account.UserInviteDTO;
-import net.geoprism.registry.service.AccountService;
-
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
@@ -23,6 +18,12 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.request.ServletRequestIF;
+
+import net.geoprism.AccountController;
+import net.geoprism.GeoprismUserDTO;
+import net.geoprism.account.UserInviteDTO;
+import net.geoprism.registry.account.RegistryAccountUtilDTO;
+import net.geoprism.registry.service.AccountService;
 
 
 @Controller(url = "registryaccount")
@@ -87,11 +88,16 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF newInstance(ClientRequestIF request, @RequestParamter(name = "organizationCodes") String organizationCodes) throws JSONException
   {
-    String[] orgCodeArray = null;
     
-    if (organizationCodes != null)
+    String[] orgCodeArray = null;
+        
+    if(organizationCodes != null)
     {
-      orgCodeArray = organizationCodes.split("\\,");
+      JSONArray arr = new JSONArray(organizationCodes);
+      orgCodeArray = new String[arr.length()];
+      for(int i = 0; i < arr.length(); i++){
+        orgCodeArray[i] = arr.getString(i);
+      }
     }
     else
     {
@@ -132,16 +138,23 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "account", parser = ParseType.BASIC_JSON) GeoprismUserDTO account, @RequestParamter(name = "roleNames") String roleNames) throws JSONException
   {    
-    String[] roleNameArray = null;
     
+    String[] roleNameArray = null;
+
     if (roleNames != null)
     {
-      roleNameArray = roleNames.split("\\,");
+      JSONArray arr = new JSONArray(roleNames);
+      roleNameArray = new String[arr.length()];
+      for (int i = 0; i < arr.length(); i++)
+      {
+        roleNameArray[i] = arr.getString(i);
+      }
     }
     else
     {
       roleNameArray = new String[0];
-    }  
+    }
+    
     
     GeoprismUserDTO user = this.accountService.apply(request.getSessionId(), account, roleNameArray);
 
@@ -201,7 +214,11 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF inviteComplete(ClientRequestIF request, @RequestParamter(name = "user", parser = ParseType.BASIC_JSON) GeoprismUserDTO user, @RequestParamter(name = "token") String token) throws JSONException
   {
-    return new AccountController().inviteComplete(request, user, token);
+//    this.accountService.inviteComplete(request.getSessionId(), token, user);
+    
+    RegistryAccountUtilDTO.inviteComplete(request, token, user);
+    
+    return new RestResponse();
   }
   
   

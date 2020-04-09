@@ -69,43 +69,41 @@ export class RoleManagementComponent implements OnInit {
         let formattedObj: FormattedRoles = { "SRA":null, "ORGANIZATIONS":[] };
 
         roles.forEach(role => {
-            role.isEnabled = false;
             
+            // If orgCode exists this is NOT an SRA
             if(role.orgCode){
 
                 let addedToGroup = false;
 
                 formattedObj.ORGANIZATIONS.forEach(orgGroup => {
 
-                    if(orgGroup.ORGANIZATIONLABEL && orgGroup.ORGANIZATIONLABEL.length > 0){
+                    if (orgGroup.ORGANIZATIONLABEL === role.orgLabel.localizedValue) {
 
-                        if(orgGroup.ORGANIZATIONLABEL === role.orgLabel.localizedValue){
-
-                            if(role.type === "RA"){
-                                orgGroup.RA = role;
-                            }
-                            else{
-
-                                let exists = false;
-                                orgGroup.GEOOBJECTTYPEROLES.forEach(rg => {
-                                    if (rg.GEOOBJECTTYPELABEL === role.geoObjectTypeLabel.localizedValue) {
-                                        rg.GEOOBJECTTYPEROLESGROUP.push(role);
-                                        exists = true;
-                                    }
-                                });
-
-                                if (!exists) {
-                                    let roleGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
-                                    orgGroup.GEOOBJECTTYPEROLES.push(roleGroup);
-                                }
-                            }
-
-                            addedToGroup = true;
+                        if (role.type === "RA") {
+                            orgGroup.RA = role;
                         }
+                        else {
+
+                            let added = this.addToGeoObjectTypeGroup(orgGroup, role);
+
+                            if (!added) {
+                                let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
+                                
+                                if(role.assigned){
+                                    geoObjectTypeGroup.ENABLEDROLE = role.name
+                                }
+                                
+                                orgGroup.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
+                            }
+                        }
+
+                        addedToGroup = true;
                     }
 
                 });
 
+
+                // The organization hasn't been created yet
                 if(!addedToGroup){
 
                     let newObj: FormattedOrganization = { "ORGANIZATIONLABEL" : null, "RA" : null, "GEOOBJECTTYPEROLES" : [] };
@@ -113,6 +111,17 @@ export class RoleManagementComponent implements OnInit {
                     if(role.type === "RA"){
                         newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
                         newObj.RA = role;
+                    }
+                    else{
+                        newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
+
+                        let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
+
+                        if (role.assigned) {
+                            geoObjectTypeGroup.ENABLEDROLE = role.name
+                        }
+
+                        newObj.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
                     }
 
                     formattedObj.ORGANIZATIONS.push(newObj)
@@ -126,13 +135,30 @@ export class RoleManagementComponent implements OnInit {
         return formattedObj;
     }
 
+    addToGeoObjectTypeGroup(organization: FormattedOrganization, role: Role): boolean {
+        let exists = false;
+        organization.GEOOBJECTTYPEROLES.forEach(rg => {
+            if (rg.GEOOBJECTTYPELABEL === role.geoObjectTypeLabel.localizedValue) {
+
+                if (role.assigned) {
+                    rg.ENABLEDROLE = role.name
+                }
+
+                rg.GEOOBJECTTYPEROLESGROUP.push(role);
+
+                exists = true;
+            }
+        });
+
+        return exists;
+    }
 
     onToggleOrgRA(event: any, organization: FormattedOrganization): void {
 
-        organization.RA.isEnabled = event;
+        organization.RA.assigned = event;
 
         // Disable all GeoObjectType radio buttons in this organization
-        if(organization.RA.isEnabled){
+        if(organization.RA.assigned){
             organization.GEOOBJECTTYPEROLES.forEach(rg => {
                 rg.ENABLEDROLE = "";
             });
@@ -141,13 +167,18 @@ export class RoleManagementComponent implements OnInit {
         this.onChangeRole();
     }
 
+    onToggleSRA(event: any, role: Role): void {
+
+        role.assigned = !role.assigned;
+    }
+
     onChangeRole(): void {
 
         let newRoleIds: string[] = [];
 
         this._roles.ORGANIZATIONS.forEach(orgGroup => {
 
-            if (orgGroup.RA && orgGroup.RA.isEnabled) {
+            if (orgGroup.RA && orgGroup.RA.assigned) {
                 newRoleIds.push(orgGroup.RA.name);
             }
             // If organization RA is enabled we don't add GeoObjectType level roles

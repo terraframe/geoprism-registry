@@ -153,62 +153,6 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     objStatusNdAttrEnum.setSelectMultiple(false);
     objStatusNdAttrEnum.setDefiningMdClass(definingMdBusiness);
     objStatusNdAttrEnum.apply();
-
-// Heads up: clean up
-//    if (universal.getIsLeafType())
-//    {
-//      // DefaultAttribute.DISPLAY_LABEL
-//      MdAttributeLocalCharacter labelMdAttr = new MdAttributeLocalCharacter();
-//      labelMdAttr.setAttributeName(DefaultAttribute.DISPLAY_LABEL.getName());
-//      labelMdAttr.getDisplayLabel().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultLocalizedName());
-//      labelMdAttr.getDescription().setValue(DefaultAttribute.DISPLAY_LABEL.getDefaultDescription());
-//      labelMdAttr.setDefiningMdClass(definingMdBusiness);
-//      labelMdAttr.setRequired(true);
-//      labelMdAttr.apply();
-//
-//      com.runwaysdk.system.gis.geo.GeometryType geometryType = universal.getGeometryType().get(0);
-//
-//      MdAttributeGeometry mdAttributeGeometry;
-//
-//      if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POINT))
-//      {
-//        mdAttributeGeometry = new MdAttributePoint();
-//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POINT_ATTRIBUTE_LABEL);
-//      }
-//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.LINE))
-//      {
-//        mdAttributeGeometry = new MdAttributeLineString();
-//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_LINE_ATTRIBUTE_LABEL);
-//      }
-//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.POLYGON))
-//      {
-//        mdAttributeGeometry = new MdAttributePolygon();
-//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_POLYGON_ATTRIBUTE_LABEL);
-//      }
-//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOINT))
-//      {
-//        mdAttributeGeometry = new MdAttributeMultiPoint();
-//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOINT_ATTRIBUTE_LABEL);
-//
-//      }
-//      else if (geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTILINE))
-//      {
-//        mdAttributeGeometry = new MdAttributeMultiLineString();
-//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTILINE_ATTRIBUTE_LABEL);
-//
-//      }
-//      else // geometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON
-//      {
-//        mdAttributeGeometry = new MdAttributeMultiPolygon();
-//        mdAttributeGeometry.getDisplayLabel().setValue(RegistryConstants.GEO_MULTIPOLYGON_ATTRIBUTE_LABEL);
-//      }
-//
-//      mdAttributeGeometry.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-//      mdAttributeGeometry.setRequired(false);
-//      mdAttributeGeometry.setDefiningMdClass(definingMdBusiness);
-//      mdAttributeGeometry.setSrid(GeoserverFacade.SRS_CODE);
-//      mdAttributeGeometry.apply();
-//    }
   }
 
   @Transaction
@@ -308,18 +252,6 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     universal.apply();
 
-    // Create the permissions for the new MdBusiness
-//    assignDefaultRolePermissions(mdBusiness);
-// Heads up: clean up
-//    if (geoObjectType.isLeaf())
-//    {
-//      MdBusinessDAOIF mdBusinessDAO = MdBusinessDAO.get(mdBusiness.getOid());
-//      MdAttributeLocalDAOIF displayLabel = (MdAttributeLocalDAOIF) mdBusinessDAO.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName());
-//      MdLocalStructDAOIF mdStruct = displayLabel.getMdStructDAOIF();
-//
-//      assignDefaultRolePermissions(mdStruct);
-//    }
-
     // Create the MdGeoVertexClass
     MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid());
     this.createDefaultAttributes(universal, mdVertex);
@@ -327,7 +259,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 //    Organization organization = Organization.getByKey(geoObjectType.getCode());
 //    mdVertex.setValue(DefaultAttribute.ORGANIZATION.getName(), organization.getOid());
 
-//    assignDefaultRolePermissions(mdVertex);
+    assignSRAPermissions(mdVertex, mdBusiness);
     
     assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
     create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
@@ -476,7 +408,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
   }
   
   /**
-   * Assigns all permissions to the 
+   * Assigns all permissions to the Organization's RA
    * 
    * @param mdGeoVertexDAO
    * @param mdBusiness
@@ -511,37 +443,12 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     roleDAO.grantPermission(Operation.WRITE_ALL, component.getOid());
   }
   
-  public void assignDefaultRolePermissions(ComponentIF component)
+  public void assignSRAPermissions(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness)
   {
-    // These permissions should be granted to the RA role for the given object
-    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
-    adminRole.grantPermission(Operation.CREATE, component.getOid());
-    adminRole.grantPermission(Operation.DELETE, component.getOid());
-    adminRole.grantPermission(Operation.WRITE, component.getOid());
-    adminRole.grantPermission(Operation.WRITE_ALL, component.getOid());
-
-    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
-    maintainer.grantPermission(Operation.CREATE, component.getOid());
-    maintainer.grantPermission(Operation.DELETE, component.getOid());
-    maintainer.grantPermission(Operation.WRITE, component.getOid());
-    maintainer.grantPermission(Operation.WRITE_ALL, component.getOid());
-
-    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
-    consumer.grantPermission(Operation.READ, component.getOid());
-    consumer.grantPermission(Operation.READ_ALL, component.getOid());
-
-    RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-    contributor.grantPermission(Operation.READ, component.getOid());
-    contributor.grantPermission(Operation.READ_ALL, component.getOid());
-
-    // // TODO: Actual hierarchy role
-    // RoleDAO hierarchyRole =
-    // RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_PREFIX +
-    // "LocatedIn").getBusinessDAO();
-    // hierarchyRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-    // hierarchyRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
-    // hierarchyRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
-    // hierarchyRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
+    Roles sraRole = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+    
+    this.assignAllPermissions(mdBusiness, sraRole);
+    this.assignAllPermissions(mdGeoVertexDAO, sraRole);
   }
 
   public ServerGeoObjectType build(Universal universal)

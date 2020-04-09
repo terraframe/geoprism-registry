@@ -20,6 +20,10 @@
         </grant>
       </role>
       -->
+      
+      <user userName="admin">
+        <assignedRole roleName="cgr.SRA" />
+      </user>
     </permissions>
   </doIt>
   <undoIt>

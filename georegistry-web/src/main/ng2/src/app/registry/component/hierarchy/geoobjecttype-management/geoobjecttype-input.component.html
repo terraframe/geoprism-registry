@@ -50,6 +50,15 @@
                     <boolean-field [(value)]="editGeoObjectType.isGeometryEditable" [localizeLabelKey]="'hierarchy.management.option.label.isGeometryEditable'"></boolean-field>
                 </div>
             </div>
+            
+            <div class="row-holder">
+              <div class="label-holder">
+                <label><localize key="attribute.organization.label"></localize></label>
+              </div>
+              <div class="holder">
+                <span class="text"> <input type="text" [(ngModel)]="editGeoObjectType.organizationCode" name="organization" disabled required></span>
+              </div>
+            </div>
 
             <div class="row-holder">
                 <div class="label-holder">

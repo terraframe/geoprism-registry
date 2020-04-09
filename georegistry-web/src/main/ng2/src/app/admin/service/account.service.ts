@@ -90,7 +90,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<User>( acp + '/account/newUserInstance', JSON.stringify( {} ), { headers: headers } )
+            .post<User>( acp + '/registryaccount/newUserInstance', JSON.stringify( {} ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -129,7 +129,7 @@ export class AccountService {
             .toPromise();
     }
 
-    apply( user: User, roleIds: string[] ): Promise<User> {
+    apply( user: User, roleNames: string[] ): Promise<User> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -138,7 +138,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<User>( acp + '/account/apply', JSON.stringify( { account: user, roleIds: roleIds } ), { headers: headers } )
+            .post<User>( acp + '/registryaccount/apply', JSON.stringify( { account: user, roleNames: roleNames } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -171,7 +171,7 @@ export class AccountService {
 //        console.log( "Submitting to inviteUser : ", JSON.stringify( { invite: invite, roleIds: roleIds } ) );
 
         return this.http
-            .post<void>( acp + '/account/inviteUser', JSON.stringify( { invite: invite, roleIds: roleIds } ), { headers: headers } )
+            .post<void>( acp + '/registryaccount/inviteUser', JSON.stringify( { invite: invite, roleIds: roleIds } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )
@@ -186,7 +186,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/account/inviteComplete', JSON.stringify( { user: user, token: token } ), { headers: headers } )
+            .post<void>( acp + '/registryaccount/inviteComplete', JSON.stringify( { user: user, token: token } ), { headers: headers } )
             .finally(() => {
                 this.eventService.complete();
             } )

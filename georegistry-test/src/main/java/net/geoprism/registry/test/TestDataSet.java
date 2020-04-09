@@ -163,6 +163,7 @@ abstract public class TestDataSet
 
     setUpMetadataInTrans();
 
+    // TODO : Logging in inside of a request isn't good practice
     adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
     adminClientRequest = adminSession.getRequest();
     adapter.setClientRequest(this.adminClientRequest);

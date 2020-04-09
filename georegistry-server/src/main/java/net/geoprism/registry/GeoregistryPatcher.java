@@ -61,40 +61,42 @@ public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatch
   protected void importLocationData()
   {
     super.importLocationData();
-
-    QueryFactory qf = new QueryFactory();
-    UniversalQuery mbq = new UniversalQuery(qf);
-
-//    mbq.WHERE(mbq.getPackageName().EQ(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE));
-    mbq.WHERE(mbq.getKeyName().NE("ROOT"));
-
-    OIterator<? extends Universal> it = mbq.getIterator();
-
-    while (it.hasNext())
-    {
-      Universal universal = it.next();
-      MdBusiness mdBusiness = universal.getMdBusiness();
-      ServerGeoObjectTypeConverter builder = new ServerGeoObjectTypeConverter();
-      
-      // Create the MdGeoVertexClass
-      MdVertex mdv = (MdVertex) getMdClassIfExist(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE, universal.getUniversalId());
-      
-      if (mdv == null)
-      {
-        logger.info("Creating Vertex objects for [" + mdBusiness.definesType() + "].");
-
-        MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid());
-        builder.createDefaultAttributes(universal, mdVertex);
-  
-        logger.info("Assigning default role permissions for [" + mdBusiness.definesType() + "].");
-  
-        builder.assignDefaultRolePermissions(mdBusiness);
-  
-        // Build the parent class term root if it does not exist.
-        TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
-      }
-    }
   }
+  
+//  private void patchInGraphMetadata()
+//  {
+//    QueryFactory qf = new QueryFactory();
+//    UniversalQuery mbq = new UniversalQuery(qf);
+//
+//    mbq.WHERE(mbq.getKeyName().NE("ROOT"));
+//
+//    OIterator<? extends Universal> it = mbq.getIterator();
+//
+//    while (it.hasNext())
+//    {
+//      Universal universal = it.next();
+//      MdBusiness mdBusiness = universal.getMdBusiness();
+//      ServerGeoObjectTypeConverter builder = new ServerGeoObjectTypeConverter();
+//      
+//      // Create the MdGeoVertexClass
+//      MdVertex mdv = (MdVertex) getMdClassIfExist(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE, universal.getUniversalId());
+//      
+//      if (mdv == null)
+//      {
+//        logger.info("Creating Vertex objects for [" + mdBusiness.definesType() + "].");
+//
+//        MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid());
+//        builder.createDefaultAttributes(universal, mdVertex);
+//  
+//        logger.info("Assigning default role permissions for [" + mdBusiness.definesType() + "].");
+//  
+//        builder.assignSRAPermissions(mdBusiness);
+//  
+//        // Build the parent class term root if it does not exist.
+//        TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
+//      }
+//    }
+//  }
 
   @Override
   protected void configureStrategies()

@@ -1,0 +1,55 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdUtil name="net.geoprism.registry.account.RegistryAccountUtil">
+        <mdMethod name="inviteComplete" label="inviteComplete" static="true" returnType="void">
+          <mdParameter name="token" label="token" order="0" type="java.lang.String"/>
+          <mdParameter name="user" label="user" order="1" type="net.geoprism.GeoprismUser"/>
+        </mdMethod>
+        
+        <mdMethod name="newUserInst" label="newUserInst" static="true" returnType="net.geoprism.GeoprismUser">
+        </mdMethod>
+      </mdUtil>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="PUBLIC">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.account.RegistryAccountUtil">
+            <mdMethodPermission methodName="inviteComplete">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+            <mdMethodPermission methodName="newUserInst">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.GeoprismUser">
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <method methodName="newUserInst" type="net.geoprism.registry.account.RegistryAccountUtil">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.GeoprismUser">
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+        </grant>
+      </method>
+      <method methodName="inviteComplete" type="net.geoprism.registry.account.RegistryAccountUtil">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.account.UserInvite">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.GeoprismUser">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </method>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.account.RegistryAccountUtil" type="com.runwaysdk.system.metadata.MdUtil"></object>
+    </delete>
+  </undoIt>
+</version>
