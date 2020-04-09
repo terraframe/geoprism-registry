@@ -25,25 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import net.geoprism.dashboard.GeometryUpdateException;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.DuplicateGeoObjectException;
-import net.geoprism.registry.DuplicateGeoObjectMultipleException;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.GeometryTypeException;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.model.ServerChildTreeNode;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
@@ -74,7 +55,11 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.CreatePermissionException;
+import com.runwaysdk.session.DeletePermissionException;
+import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.session.WritePermissionException;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -83,6 +68,29 @@ import com.runwaysdk.system.ontology.TermUtil;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
+
+import net.geoprism.dashboard.GeometryUpdateException;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.DuplicateGeoObjectException;
+import net.geoprism.registry.DuplicateGeoObjectMultipleException;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.ServerChildTreeNode;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
+import net.geoprism.registry.roles.DeleteGeoObjectPermissionException;
+import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
+import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
+import net.geoprism.registry.service.RegistryIdService;
+import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class TreeServerGeoObject extends RelationalServerGeoObject implements ServerGeoObjectIF
 {
@@ -341,7 +349,31 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       this.getBusiness().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME, this.geoEntity.getOid());
     }
 
-    this.getBusiness().apply();
+    try
+    {
+      this.getBusiness().apply();
+    }
+    catch (CreatePermissionException ex)
+    {
+      CreateGeoObjectPermissionException goex = new CreateGeoObjectPermissionException();
+      goex.setGeoObjectType(this.getType().getLabel().getValue());
+      goex.setOrganization(this.getType().getOrganization().getDisplayLabel().getValue());
+      throw goex;
+    }
+    catch (WritePermissionException ex)
+    {
+      WriteGeoObjectPermissionException goex = new WriteGeoObjectPermissionException();
+      goex.setGeoObjectType(this.getType().getLabel().getValue());
+      goex.setOrganization(this.getType().getOrganization().getDisplayLabel().getValue());
+      throw goex;
+    }
+    catch (ReadPermissionException ex)
+    {
+      ReadGeoObjectPermissionException goex = new ReadGeoObjectPermissionException();
+      goex.setGeoObjectType(this.getType().getLabel().getValue());
+      goex.setOrganization(this.getType().getOrganization().getDisplayLabel().getValue());
+      throw goex;
+    }
   }
   
   public String getAttributeLabel(AttributeIF attr)

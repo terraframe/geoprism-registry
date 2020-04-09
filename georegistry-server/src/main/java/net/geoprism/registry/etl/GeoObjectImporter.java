@@ -48,11 +48,13 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -75,6 +77,7 @@ import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.query.ServerCodeRestriction;
@@ -225,6 +228,17 @@ public class GeoObjectImporter implements ObjectImporterIF
       // int beforeProbCount =
       // this.progressListener.getValidationProblems().size();
 
+      /*
+       * Check permissions
+       */
+      ServerGeoObjectType type = this.configuration.getType();
+      if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+      {
+        Operation op = (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY) ? Operation.CREATE : Operation.WRITE;
+        
+        type.enforceActorHasPermission(Session.getCurrentSession().getUser(), op);
+      }
+      
       /*
        * 1. Check for location problems
        */
