@@ -15,21 +15,6 @@
   <localized-input [(value)]="attribute.label" key="data.property.label.label"></localized-input>
   <localized-text *ngIf="!excludeDescription" [(value)]="attribute.description" key="data.property.label.description"></localized-text>
 
-  <div class="row-holder">
-    <div class="label-holder">
-      <label>
-        <localize key="data.property.label.constraints"></localize>
-      </label>
-    </div>
-    <div class="holder">
-
-        <div class="check-block">
-          <boolean-field [(value)]="attribute.required" [localizeLabelKey]="'data.property.label.required'"></boolean-field>
-        </div>
-
-    </div>
-  </div>
-
 
   <div class="row-holder" *ngIf="isDecimal">
     <div class="label-holder">

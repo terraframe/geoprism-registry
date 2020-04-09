@@ -1,9 +1,20 @@
-<div class="modal-body text-center">
-    <h3>{{message}}</h3>
+<div class="modal-body">
+	<form class="modal-form">
 
-    <div class="modal-footer">
-    	<div class="button-holder">
-  			<button type="button" class="btn btn-default" (click)="bsModalRef.hide()" ><localize key="modal.button.close"></localize></button>
-  		</div>
-  	</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<h3>{{message}}</h3>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="button-holder">
+					<button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+						<localize key="modal.button.close"></localize>
+					</button>
+				</div>
+			</div>
+		</div>
+	</form>
 </div>

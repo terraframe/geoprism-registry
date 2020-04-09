@@ -1,15 +1,25 @@
-<div class="confirm-modal modal-body text-center">
-  
-    <h3>{{message}}</h3>
-    
-   <div class="modal-footer">
-    	<div class="button-holder">
-      <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false" style="padding: 4px 18px;">
-        <span class="ui-button-text">{{cancelText}}</span>
-      </button>
-      <button type="button" (click)="confirm()" [ngClass]="type.toUpperCase() === 'DANGER' ? 'btn-danger' : 'btn-primary'" class="btn" role="button" aria-disabled="false" style="padding: 4px 18px;">
-        <span class="ui-button-text">{{submitText}}</span>
-      </button>
+<div class="modal-body">
+  <form class="modal-form">
+
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h3>{{message}}</h3>
+      </div>
     </div>
-  </div>
-</div>  
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false">
+            <span>{{cancelText}}</span>
+          </button>
+          <button type="button" (click)="confirm()"
+            [ngClass]="type.toUpperCase() === 'DANGER' ? 'btn-danger' : 'btn-primary'" class="btn" role="button"
+            aria-disabled="false">
+            <span>{{submitText}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

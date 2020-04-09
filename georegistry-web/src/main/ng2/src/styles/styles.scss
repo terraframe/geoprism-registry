@@ -260,7 +260,8 @@ input[type=submit].btn.btn-primary:disabled,
 button.btn-primary:disabled, 
 button.btn.btn-primary:disabled  {
     background: #EDF4E8; /* IE fallback */
-    background: var(--theme-submit-button-color-light);
+	background: var(--theme-submit-button-color-light);
+	cursor: not-allowed;
 }
 
 input[type=button].btn.btn-default, 
@@ -325,7 +326,9 @@ li.list-group-item i.fa {
 li.list-group-item {
     font-size: 18px;
     background-color: rgba(255,255,255,0.75);
-    border-radius: 0;
+	border-radius: 0;
+	border:none;
+	border-bottom: 2px solid #ddd;
     color: #767676; /* IE fallback */
     color: var(--theme-text-dark);
 }

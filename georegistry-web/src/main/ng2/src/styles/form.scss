@@ -61,8 +61,8 @@ input.form-control:active{
     border-color: #6BA542; /* IE fallback */
     border-color: var(--theme-input-text-border-active);
     outline: 0;
-    /* -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6); */
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6); 
 }
 
 
@@ -135,11 +135,20 @@ textarea:focus {
 }
 
 
-
+// used for file upload input buttons
 input.ghost-input,
 input.ghost-input:hover,
 input.ghost-input:active {
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
+}
+
+input.ng-invalid:required,
+select.ng-invalid:required {
+    border-color: #ac2925;
+    /*
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(172,41,37,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(172,41,37,.6); 
+    */
 }

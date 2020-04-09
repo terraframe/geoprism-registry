@@ -5,8 +5,6 @@
         </h2>
 	</div> -->
 
-    <!-- <form class="modal-form" name="export-form"> -->
-    <!-- <fieldset> -->
     <div class="row">
         <div class="col-md-12">
             <crtable-detail-create-geo-object #cuDetail *ngIf="action && (action.actionType.endsWith('CreateGeoObjectAction') || action.actionType.endsWith('UpdateGeoObjectAction'))" [(action)]="action"> </crtable-detail-create-geo-object>
@@ -14,16 +12,13 @@
             <set-parent-detail #spDetail *ngIf="action && (action.actionType.endsWith('SetParentAction'))" [(action)]="action"> </set-parent-detail>
         </div>
     </div>
-    <!-- </fieldset> -->
-    <!-- </form> -->
 
     <hr>
-    <div class="row-holder">
-        <div class="label-holder"></div>
-        <div class="holder">
-            <div class="button-holder" style="text-align: right;">
-                <button type="button" (click)="cancel();" class="btn btn-default" role="button" aria-disabled="false" style="padding: 4px 18px;">
-                    <span class="ui-button-text"> <localize key="modal.button.close"></localize>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="button-holder text-right">
+                <button type="button" (click)="cancel();" class="btn btn-default" role="button" aria-disabled="false">
+                    <span> <localize key="modal.button.close"></localize>
                     </span>
                 </button>
             </div>

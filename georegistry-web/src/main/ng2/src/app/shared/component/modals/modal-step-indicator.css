@@ -6,6 +6,7 @@
     border-bottom: 4px solid lightgrey;
     font-size: 18px;
     color: lightgrey;
+    padding: 10px;
 }
 .step-indicator .nav-item.active{
     /* background: darkgrey; */
@@ -16,4 +17,8 @@
     border-bottom: 4px solid black;
     font-weight: bold;
     color: black;
+}
+
+.nav.nav-justified {
+    margin-top: 5px;
 }
