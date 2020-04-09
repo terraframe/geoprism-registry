@@ -36,6 +36,7 @@ import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.attributes.AttributeValueException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDateTimeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
@@ -43,7 +44,6 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.AssociationType;
@@ -65,6 +65,12 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
   @Transaction
   public ServerHierarchyType createHierarchyType(HierarchyType hierarchyType)
   {
+    if (hierarchyType.getOrganizationCode() == null || hierarchyType.getOrganizationCode().equals(""))
+    {
+      // TODO : A better exception
+      throw new AttributeValueException("Organization code cannot be null.", hierarchyType.getOrganizationCode());
+    }
+    
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();

@@ -19,12 +19,14 @@
 package net.geoprism.registry.model;
 
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.ontology.TermHacker;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
@@ -35,6 +37,9 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.system.Actor;
+import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
@@ -51,6 +56,8 @@ import com.runwaysdk.system.ontology.TermUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
@@ -194,6 +201,11 @@ public class ServerHierarchyType
 
   public void addToHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      this.enforceActorHasPermission(Session.getCurrentSession().getUser());
+    }
+    
     Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
 
     if (parentUniversal.getIsLeafType())
@@ -209,12 +221,53 @@ public class ServerHierarchyType
 
       throw exception;
     }
-
+    
     this.addToHierarchyTransaction(parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
     this.refresh();
+  }
+  
+  /**
+   * @return The organization associated with this HierarchyType. If this HierarchyType
+   * is AllowedIn (or constructed incorrectly) this method will return null.
+   */
+  public Organization getOrganization()
+  {
+    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS)
+        || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
+    {
+      return null; // AllowedIn is deprecated and should not be used by the end-user.
+    }
+    
+    Actor uniRelActor = this.getUniversalRelationship().getOwner();
+    if (!(uniRelActor instanceof Roles))
+    {
+      return null; // If we get here, then the HierarchyType was not created correctly.
+    }
+    else
+    {
+      Roles uniRelRole = (Roles) uniRelActor;
+      String myOrgCode = RegistryRole.Type.parseOrgCode(uniRelRole.getRoleName());
+      
+      return Organization.getByCode(myOrgCode);
+    }
+  }
+  
+  /**
+   * Throws an exception if the provided actor does not have permissions to this HierarchyType.
+   * 
+   * @param actor
+   */
+  public void enforceActorHasPermission(SingleActorDAOIF actor)
+  {
+    Organization myOrg = this.getOrganization();
+    
+    if (myOrg != null)
+    {
+      myOrg.enforceActorHasPermission(actor);
+    }
   }
 
   @Transaction
@@ -336,6 +389,11 @@ public class ServerHierarchyType
   @Transaction
   private void removeFromHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      this.enforceActorHasPermission(Session.getCurrentSession().getUser());
+    }
+    
     Universal parent;
 
     if (parentGeoObjectTypeCode == null)

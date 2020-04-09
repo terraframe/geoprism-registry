@@ -18,34 +18,11 @@
  */
 package net.geoprism.registry.service;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-
-import net.geoprism.GeoprismUser;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AdapterUtilities;
-import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.OrganizationQuery;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.OrganizationConverter;
-import net.geoprism.registry.conversion.RegistryRoleConverter;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.ServerLookupRestriction;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.query.postgres.GeoObjectIterator;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.LookupRestriction;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -62,7 +39,6 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -70,6 +46,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
@@ -79,7 +56,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.IsARelationship;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
@@ -89,6 +65,27 @@ import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
+
+import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationQuery;
+import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.OrganizationConverter;
+import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.query.ServerLookupRestriction;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.query.postgres.GeoObjectIterator;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.LookupRestriction;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class RegistryService
 {
@@ -339,30 +336,52 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public OrganizationDTO[] getOrganizations(String sessionId, String[] codes)
   {
+    List<OrganizationDTO> orgs = new LinkedList<OrganizationDTO>();
+    
     if (codes == null || codes.length == 0)
     {
-      return adapter.getMetadataCache().getAllOrganizations();
+      OrganizationDTO[] cachedOrgs = adapter.getMetadataCache().getAllOrganizations();
+      
+      for (OrganizationDTO cachedOrg : cachedOrgs)
+      {
+        orgs.add(cachedOrg);
+      }
     }
-
-    OrganizationDTO[] orgs = new OrganizationDTO[codes.length];
-
-    for (int i = 0; i < codes.length; ++i)
+    else
     {
-      Optional<OrganizationDTO> optional = adapter.getMetadataCache().getOrganization(codes[i]);
-
-      if (optional.isPresent())
+      for (int i = 0; i < codes.length; ++i)
       {
-        orgs[i] = optional.get();
+        Optional<OrganizationDTO> optional = adapter.getMetadataCache().getOrganization(codes[i]);
+  
+        if (optional.isPresent())
+        {
+          orgs.add(optional.get());
+        }
+        else
+        {
+          DataNotFoundException ex = new DataNotFoundException();
+          ex.setDataIdentifier(codes[i]);
+          throw ex;
+        }
       }
-      else
+    }
+    
+    // Filter out orgs based on permissions
+    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+    Iterator<OrganizationDTO> it = orgs.iterator();
+    while (it.hasNext())
+    {
+      OrganizationDTO orgDTO = it.next();
+      
+      Organization org = Organization.getByKey(orgDTO.getCode());
+      
+      if (!org.doesActorHavePermission(actor))
       {
-        DataNotFoundException ex = new DataNotFoundException();
-        ex.setDataIdentifier(codes[i]);
-        throw ex;
+        it.remove();
       }
     }
 
-    return orgs;
+    return orgs.toArray(new OrganizationDTO[orgs.size()]);
   }
   
   /**

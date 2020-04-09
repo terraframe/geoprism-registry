@@ -4,6 +4,7 @@ import { Subject } from 'rxjs/Subject';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { HierarchyType } from '../../../model/hierarchy';
+import { RegistryService } from '../../../service/registry.service';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
@@ -17,6 +18,8 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
 
     hierarchyType: HierarchyType;
 
+    organizations: any = [];
+
     message: string = null;
 
     edit: boolean = false;
@@ -26,7 +29,7 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
      */
     public onHierarchytTypeCreate: Subject<HierarchyType>;
 
-    constructor( private lService: LocalizationService, private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
+    constructor( private lService: LocalizationService, private registryService: RegistryService, private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
         this.onHierarchytTypeCreate = new Subject();
@@ -37,6 +40,16 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
             "description": this.lService.create(),
             "rootGeoObjectTypes": []
         };
+        
+        this.registryService.getOrganizations().then(orgs => {
+          if (!this.edit && orgs.length == 1)
+          {
+            this.hierarchyType.organizationCode = orgs[0].code;
+          }
+          this.organizations = orgs;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     handleOnSubmit(): void {

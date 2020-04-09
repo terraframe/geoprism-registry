@@ -16,6 +16,16 @@
       <label for="descriptionInput"><localize key="data.property.label.description"></localize> ({{localeValue.locale}})</label>
       <input  [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input" class="form-control"  >
     </div>
+    
+    <div class="form-group">   
+      <label for="organization"><localize key="attribute.organization.label"></localize></label>
+      <select *ngIf="organizations.length > 1" class="select-area" name="organization" [(ngModel)]="hierarchyType.organizationCode" required>
+        <option></option>
+        <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
+      </select>
+      <span *ngIf="!edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="organizations[0].label.localizedValue" name="organization" disabled required></span>
+      <span *ngIf="edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
+    </div>
 	
 	<div>
 		<div class="text-right">
