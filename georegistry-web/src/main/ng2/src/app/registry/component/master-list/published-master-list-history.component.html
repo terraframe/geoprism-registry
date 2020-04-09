@@ -42,7 +42,9 @@
         <div class="col-md-12">
             <form #myForm="ngForm">
                 <div class="form-group">
-                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">Publish versions</button>
+                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
+                        <localize key="masterlist.publish.versions"></localize>
+                    </button>
                 </div>
             </form>
         </div>
