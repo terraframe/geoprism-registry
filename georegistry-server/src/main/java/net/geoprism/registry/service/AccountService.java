@@ -182,20 +182,8 @@ public class AccountService
         if (organizationCode != null && !organizationCode.equals("") && !organizationSet.contains(organizationCode))
         {
           Organization organization = Organization.getByCode(organizationCode);
-          
-          try
-          {
-//            TreeDAO treeDAO = TreeDAO.newInstance(organization.getOid(), geoprismUser.getOid(), OrganizationUser.CLASS);
-//            treeDAO.apply();
-            organization.addUsers(geoprismUser).apply();
-            organizationSet.add(organizationCode);
-          }
-          // User can only be added to the Organization once
-          catch (DuplicateGraphPathException e) {}
-          catch (RuntimeException e)
-          {
-            e.printStackTrace();
-          }
+          organization.addUsers(geoprismUser).apply();
+          organizationSet.add(organizationCode);
         }
       }
     }
