@@ -17,11 +17,8 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 export class CreateHierarchyTypeModalComponent implements OnInit {
 
     hierarchyType: HierarchyType;
-
     organizations: any = [];
-
     message: string = null;
-
     edit: boolean = false;
 
     /*
@@ -38,11 +35,12 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
             "code": "",
             "label": this.lService.create(),
             "description": this.lService.create(),
-            "rootGeoObjectTypes": []
+            "rootGeoObjectTypes": [],
+            "organizationCode": ""
         };
         
         this.registryService.getOrganizations().then(orgs => {
-          if (!this.edit && orgs.length == 1)
+          if (!this.edit && orgs.length === 1)
           {
             this.hierarchyType.organizationCode = orgs[0].code;
           }

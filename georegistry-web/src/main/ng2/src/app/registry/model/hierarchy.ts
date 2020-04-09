@@ -5,6 +5,7 @@ export class HierarchyType {
   description: LocalizedValue;
   label: LocalizedValue;
   rootGeoObjectTypes: HierarchyNode[];
+  organizationCode: string;
 }
 
 export class Hierarchy {
