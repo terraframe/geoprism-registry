@@ -141,9 +141,9 @@ a.fa:hover,
 a.fa:focus, 
 i.clickable.fa:hover, 
 i.clickable.fa:focus,
+// .clickable:hover *
 .clickable:hover,
-.clickable:focus,
-.clickable:hover * {
+.clickable:focus {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
     cursor: pointer;
