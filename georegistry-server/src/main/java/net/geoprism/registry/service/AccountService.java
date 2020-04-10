@@ -61,6 +61,7 @@ import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationUser;
 import net.geoprism.registry.OrganizationUserQuery;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SRAException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
@@ -186,6 +187,12 @@ public class AccountService
       }
     }
     
+    // They're not allowed to change the admin username
+    if (GeoprismUser.get(geoprismUser.getOid()).getUsername().equals(RegistryConstants.ADMIN_USER_NAME)
+        && !geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME))
+    {
+      throw new RuntimeException("You are not allowed to change the username of the admin user.");
+    }
     
     geoprismUser.apply();
     
@@ -215,8 +222,8 @@ public class AccountService
     {
       RoleDAO roleDAO = RoleDAO.get(roleDAOIF.getOid()).getBusinessDAO();
       
-      // Don't remove things like the root admin role
-      if (!excludedRole(roleDAOIF.getRoleName()))
+      if (!( geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME)
+          && (roleDAO.getRoleName().equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE) || roleDAO.getRoleName().equals(DefaultConfiguration.ADMIN)) ))
       {
         roleDAO.deassignMember(user);
       }
@@ -407,19 +414,6 @@ public class AccountService
       acRegistryRole.setOrganizationLabel(orgDisplayLabel);
       acRegistryRole.setGeoObjectTypeLabel(geoObjectTypeDisplayLabel);
       registryRoleList.add(acRegistryRole);
-    }
-  }   
-  
-  
-  private boolean excludedRole(String roleName)
-  {    
-    if (roleName.equals(DefaultConfiguration.ADMIN))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
     }
   }
 
