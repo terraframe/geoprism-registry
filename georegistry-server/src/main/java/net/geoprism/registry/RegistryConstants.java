@@ -69,4 +69,6 @@ public interface RegistryConstants
   public static final String API_CONSUMER_ROLE                = REGISTRY_ROLE_PREFIX + "APIConsumer";
 
   public final static String TERM_CLASS                       = "CLASS";
+
+  public static final Object ADMIN_USER_NAME                  = "admin";
 }
