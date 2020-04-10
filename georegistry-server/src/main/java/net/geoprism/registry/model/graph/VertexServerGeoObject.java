@@ -54,6 +54,7 @@ import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -64,6 +65,7 @@ import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Envelope;
@@ -763,6 +765,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
   {
     final Collection<ServerHierarchyType> hierarchyTypes = parentsOverTime.getHierarchies();
+    
+    /*
+     * Permissions Check
+     */
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+      
+      for (ServerHierarchyType hierarchyType : hierarchyTypes)
+      {
+        final List<ServerParentTreeNode> entries = parentsOverTime.getEntries(hierarchyType);
+
+        for (ServerParentTreeNode entry : entries)
+        {
+          final ServerGeoObjectIF parent = entry.getGeoObject();
+          
+          hierarchyType.enforceActorHasPermission(actor, parent.getCode(), this.getCode());
+        }
+      }
+    }
 
     for (ServerHierarchyType hierarchyType : hierarchyTypes)
     {
@@ -775,7 +797,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       for (ServerParentTreeNode entry : entries)
       {
         final ServerGeoObjectIF parent = entry.getGeoObject();
-
+        
         EdgeObject newEdge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
         newEdge.setValue(GeoVertex.START_DATE, entry.getDate());
 

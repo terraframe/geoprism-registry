@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.model;
 
+import java.util.Set;
+
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -26,6 +28,7 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.ontology.TermHacker;
+import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -57,10 +60,10 @@ import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType
@@ -203,7 +206,7 @@ public class ServerHierarchyType
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      this.enforceActorHasPermission(Session.getCurrentSession().getUser());
+      this.enforceActorHasPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode);
     }
     
     Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
@@ -255,18 +258,65 @@ public class ServerHierarchyType
     }
   }
   
+  public boolean doesActorHavePermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  {
+    Organization thisOrg = this.getOrganization();
+    
+    if (thisOrg != null)
+    {
+      String thisOrgCode = thisOrg.getCode();
+      
+      Set<RoleDAOIF> roles = actor.authorizedRoles();
+      
+      for (RoleDAOIF role : roles)
+      {
+        String roleName = role.getRoleName();
+        
+        if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+        {
+          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
+          
+          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(thisOrgCode))
+          {
+            return true;
+          }
+          else if ( RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(thisOrgCode) )
+          {
+            String gotCode = RegistryRole.Type.parseGotCode(roleName);
+            
+            if (gotCode.equals(parentGeoObjectTypeCode) || gotCode.equals(childGeoObjectTypeCode))
+            {
+              return true;
+            }
+          }
+        }
+        else if (RegistryRole.Type.isSRA_Role(roleName))
+        {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+  
   /**
    * Throws an exception if the provided actor does not have permissions to this HierarchyType.
    * 
    * @param actor
    */
-  public void enforceActorHasPermission(SingleActorDAOIF actor)
+  public void enforceActorHasPermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    Organization myOrg = this.getOrganization();
-    
-    if (myOrg != null)
+    if (!this.doesActorHavePermission(actor, parentGeoObjectTypeCode, childGeoObjectTypeCode))
     {
-      myOrg.enforceActorHasPermission(actor);
+      String parentLabel = ServerGeoObjectType.get(parentGeoObjectTypeCode).getLabel().getValue();
+      String childLabel = ServerGeoObjectType.get(childGeoObjectTypeCode).getLabel().getValue();
+      
+      HierarchyRelationshipPermissionException ex = new HierarchyRelationshipPermissionException();
+      ex.setParentGeoObjectType(parentLabel);
+      ex.setChildGeoObjectType(childLabel);
+      ex.setOrganization(this.getOrganization().getDisplayLabel().getValue());
+      throw ex;
     }
   }
 
@@ -391,7 +441,7 @@ public class ServerHierarchyType
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      this.enforceActorHasPermission(Session.getCurrentSession().getUser());
+      this.enforceActorHasPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode);
     }
     
     Universal parent;
