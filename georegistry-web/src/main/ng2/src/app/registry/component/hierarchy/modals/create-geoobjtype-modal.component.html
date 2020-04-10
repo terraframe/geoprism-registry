@@ -117,7 +117,7 @@
           <label for="organization">
             <localize key="attribute.organization.label"></localize>
           </label>
-          <select [disabled]="edit" class="select-area" name="organization" [(ngModel)]="geoObjectType.organizationCode" required>
+          <select class="select-area" name="organization" [(ngModel)]="geoObjectType.organizationCode" required>
             <option></option>
             <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
           </select>

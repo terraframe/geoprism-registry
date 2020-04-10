@@ -135,8 +135,6 @@ input :focus::-moz-placeholder{opacity:0 !important;}
 	font-size:14px;
 	line-height:24px;
 	color:#333;
-	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6); 
 	word-wrap: break-word;
     word-break: break-word;
     height: 75px;
@@ -151,45 +149,15 @@ input :focus::-moz-placeholder{opacity:0 !important;}
 .modal-form .text textarea:-ms-input-placeholder{color:#333;}
 .modal-form .text textarea::-webkit-input-placeholder{color:#333;}
 .modal-form .text textarea:-moz-placeholder{color:#333;}
-.modal-form .text textarea:focus{border-color:#6BA542;}
+.modal-form .text textarea:focus{
+	border-color:#6BA542;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6); 
+}
 .modal-form .text textarea:disabled {
     color: #999;
 }
 
-
-.modal-form .check-block{
-	float:left;
-	position:relative;
-	margin:0 7px 0 0;
-	padding:0 0 0 2px;
-	white-space: nowrap;
-}
-.modal-form .vertical-checkbox-container .check-block{ 
-	min-width: 0;
-}
-
-
-.modal-form .check-block .chk-area{
-	/* margin:25px 0px 0 0; */
-}
-.modal-form .check-block label{
-	float:left;
-	font-size:13px;
-	line-height:16px;
-	font-weight:normal;
-	color:#333;
-}
-.modal-form .cell{
-	float:left;
-	position:relative;
-	margin:0 0 0 12px;
-	width:62px;
-	overflow:hidden;
-}
-.modal-form .cell.style02{
-	width: 250px;
-	margin:0;
-}
 .modal-form .select-holder{
 	float:left;
 	position:relative;
@@ -443,9 +411,9 @@ select{
 	background-repeat: no-repeat;
 	height: 40px !important;
 	background-position:
-	    calc(100% - 10px) calc(1em + 1px), 
-	    calc(100% - 3px) calc(1em + 1px), 
-	    100% 0;
+	    calc(100% - 13px) calc(1em + 4px), 
+     	calc(100% - 6px) calc(1em + 4px), 
+     	100% 0;
 }
 select:focus,
 select:active {

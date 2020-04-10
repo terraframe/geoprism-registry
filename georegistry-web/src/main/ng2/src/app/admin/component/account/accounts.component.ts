@@ -37,7 +37,7 @@ declare let acp: string;
 @Component( {
     selector: 'accounts',
     templateUrl: './accounts.component.html',
-    styles: ['./accounts.css']
+    styleUrls: ['./accounts.css']
 } )
 export class AccountsComponent implements OnInit {
     res: PageResult = {

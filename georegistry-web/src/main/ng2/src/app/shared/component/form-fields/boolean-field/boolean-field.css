@@ -1,3 +1,11 @@
 .modal-form .holder .check-block .chk-area {
     margin: 10px 0px 0 0;
 }
+
+.disabled{
+    cursor: not-allowed;
+}
+
+label.disabled{
+    color: lightgrey;
+}
