@@ -56,7 +56,9 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.IsARelationship;
+import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
@@ -154,7 +156,7 @@ public class RegistryService
 
         // Ignore the IsARelationship class between universals. It should be
         // deprecated
-        if (mdTermRel.definesType().equals(IsARelationship.CLASS))
+        if (mdTermRel.definesType().equals(IsARelationship.CLASS) || mdTermRel.getKey().equals(AllowedIn.CLASS) || mdTermRel.getKey().equals(LocatedIn.CLASS))
         {
           continue;
         }
