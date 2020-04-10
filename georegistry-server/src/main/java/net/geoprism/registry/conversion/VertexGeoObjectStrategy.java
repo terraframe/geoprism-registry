@@ -24,6 +24,8 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -107,6 +109,11 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
   @Override
   public VertexServerGeoObject getGeoObjectByCode(String code)
   {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      this.getType().enforceActorHasPermission(Session.getCurrentSession().getUser(), Operation.READ, true);
+    }
+    
     VertexObject vertex = VertexServerGeoObject.getVertexByCode(type, code);
 
     if (vertex != null)

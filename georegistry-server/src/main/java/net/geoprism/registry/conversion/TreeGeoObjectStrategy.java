@@ -24,6 +24,8 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 
 import net.geoprism.registry.InvalidRegistryIdException;
@@ -121,6 +123,11 @@ public class TreeGeoObjectStrategy extends LocalizedValueConverter implements Se
   @Override
   public TreeServerGeoObject getGeoObjectByCode(String code)
   {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      this.getType().enforceActorHasPermission(Session.getCurrentSession().getUser(), Operation.READ, true);
+    }
+    
     Business business = TreeServerGeoObject.getByCode(type, code);
 
     if (business != null)
