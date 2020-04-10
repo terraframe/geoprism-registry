@@ -169,7 +169,12 @@ export class RoleManagementComponent implements OnInit {
 
     onToggleSRA(event: any, role: Role): void {
 
-      role.assigned = !role.assigned;
+      this._roles.ORGANIZATIONS.forEach(org => {
+            org.GEOOBJECTTYPEROLES.forEach(rg => {
+                rg.ENABLEDROLE = "";
+            });
+      })
+
       this.onChangeRole();
     }
 
