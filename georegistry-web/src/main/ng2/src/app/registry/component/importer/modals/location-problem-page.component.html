@@ -45,12 +45,12 @@
       <div class="row">
         <div class="col-sm-12 text-right" style="margin-top: 20px;">
           <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
-            <span class="ui-button-text">
+            <span>
               <localize key="io.cancel"></localize>
             </span>
           </button>
           <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="hasProblems()">
-            <span class="ui-button-text">
+            <span>
               <localize *ngIf="configuration.termProblems != null" key="io.next"></localize>
               <localize *ngIf="configuration.termProblems == null" key="io.ok"></localize>
             </span>

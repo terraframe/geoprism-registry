@@ -1,44 +1,57 @@
-<form >
-  
-  <div class="modal-body">
-    
-    <error-message [message]="message"></error-message>
+<form>
 
-    <div class="form-group">
-      <label for="codeInput"><localize key="data.property.label.code"></localize></label>
-      <input  [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput" [disabled]="edit" required>
-    </div>
-    <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues">
-      <label for="labelInput"><localize key="data.property.label.label"></localize> ({{localeValue.locale}})</label>
-      <input  [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
-    </div>
-    <div class="form-group"  *ngFor="let localeValue of hierarchyType.description.localeValues">
-      <label for="descriptionInput"><localize key="data.property.label.description"></localize> ({{localeValue.locale}})</label>
-      <input  [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input" class="form-control"  >
-    </div>
-    
-    <div class="form-group">   
-      <label for="organization"><localize key="attribute.organization.label"></localize></label>
-      <select *ngIf="!edit && organizations.length > 1" class="select-area" name="organization" [(ngModel)]="hierarchyType.organizationCode" required>
-        <option></option>
-        <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
-      </select>
-      <span *ngIf="!edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="organizations[0].label.localizedValue" name="organization" disabled required></span>
-      <span *ngIf="edit" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
-    </div>
-	
-	<div>
-		<div class="text-right">
-			<div class="button-holder">
-				<button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
-					<localize key="modal.button.cancel"></localize>
-				</button>
-				<button type="submit" [disabled]="hierarchyType.code.length < 1" class="btn btn-primary" (click)="handleOnSubmit()" style="padding: 4px 18px;">
-					<localize key="modal.button.ok"></localize>
-				</button>
-			</div>
-		</div>
-	</div>
-					
+  <div class="modal-body">
+    <form class="modal-form">
+
+      <error-message [message]="message"></error-message>
+
+      <div class="form-group">
+        <label for="codeInput">
+          <localize key="data.property.label.code"></localize>
+        </label>
+        <input [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput"
+          [disabled]="edit" required>
+      </div>
+      <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues">
+        <label for="labelInput">
+          <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
+        </label>
+        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control"
+          required>
+      </div>
+      <div class="form-group" *ngFor="let localeValue of hierarchyType.description.localeValues">
+        <label for="descriptionInput">
+          <localize key="data.property.label.description"></localize> ({{localeValue.locale}})
+        </label>
+        <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input"
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="organization">
+          <localize key="attribute.organization.label"></localize>
+        </label>
+        <select [disabled]="edit" class="select-area" name="organization"
+          [(ngModel)]="hierarchyType.organizationCode" required>
+          <option></option>
+          <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="button-holder">
+            <button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
+              <localize key="modal.button.cancel"></localize>
+            </button>
+            <button type="submit" [disabled]="hierarchyType.code.length < 1" class="btn btn-primary"
+              (click)="handleOnSubmit()" style="padding: 4px 18px;">
+              <localize key="modal.button.ok"></localize>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </form>
   </div>
 </form>

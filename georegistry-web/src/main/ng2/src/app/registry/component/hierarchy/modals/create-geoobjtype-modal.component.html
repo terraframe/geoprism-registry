@@ -1,37 +1,85 @@
-<form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
-  
+<form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="modal-form">
+
   <div class="modal-body">
     <error-message [message]="message"></error-message>
-    
-    <div class="form-group">
-      <div>
-         <label for="codeInput"><localize key="data.property.label.code"></localize></label>
-         <input  [(ngModel)]="geoObjectType.code" name="code" type="text" class="form-control" id="codeInput" required>
+
+    <!-- <div class="heading">
+      <h1>
+        <localize key="hierarchy.management.manage.attributes.title"></localize> {{geoObjectType.label.localizedValue}}
+      </h1>
+    </div> -->
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <div>
+            <label for="codeInput">
+              <localize key="data.property.label.code"></localize>
+            </label>
+            <input [(ngModel)]="geoObjectType.code" name="code" type="text" class="form-control" id="codeInput"
+              required>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="form-group" *ngFor="let localeValue of geoObjectType.label.localeValues">
-      <label><localize key="data.property.label.label"></localize> ({{localeValue.locale}})</label>
-      <input  [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group" *ngFor="let localeValue of geoObjectType.label.localeValues">
+          <label>
+            <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
+          </label>
+          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
+            class="form-control" required>
+        </div>
+      </div>
     </div>
-    <div class="form-group" *ngFor="let localeValue of geoObjectType.description.localeValues">
-      <div >
-         <label><localize key="data.property.label.description"></localize> ({{localeValue.locale}})</label>
-        <input  [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input" class="form-control" >
-       </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group" *ngFor="let localeValue of geoObjectType.description.localeValues">
+          <div>
+            <label>
+              <localize key="data.property.label.description"></localize> ({{localeValue.locale}})
+            </label>
+            <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input"
+              class="form-control">
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="form-group">   
-      <label for="geometryType"><localize key="data.property.label.geometryType"></localize></label>
-      <select  class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required>
-        <option></option>
-        <option value="POINT"><localize key="georegistry.geometry.point"></localize></option>
-        <option value="LINE"><localize key="georegistry.geometry.line"></localize></option>
-        <option value="POLYGON"><localize key="georegistry.geometry.polygon"></localize></option>
-        <option value="MULTIPOINT"><localize key="georegistry.geometry.multipoint"></localize></option>
-        <option value="MULTILINE"><localize key="georegistry.geometry.multiline"></localize></option>
-        <option value="MULTIPOLYGON"><localize key="georegistry.geometry.multipolygon"></localize></option>
-      </select>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="geometryType">
+            <localize key="data.property.label.geometryType"></localize>
+          </label>
+          <select class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required>
+            <option></option>
+            <option value="POINT">
+              <localize key="georegistry.geometry.point"></localize>
+            </option>
+            <option value="LINE">
+              <localize key="georegistry.geometry.line"></localize>
+            </option>
+            <option value="POLYGON">
+              <localize key="georegistry.geometry.polygon"></localize>
+            </option>
+            <option value="MULTIPOINT">
+              <localize key="georegistry.geometry.multipoint"></localize>
+            </option>
+            <option value="MULTILINE">
+              <localize key="georegistry.geometry.multiline"></localize>
+            </option>
+            <option value="MULTIPOLYGON">
+              <localize key="georegistry.geometry.multipolygon"></localize>
+            </option>
+          </select>
+        </div>
+      </div>
     </div>
-<!-- 
+    <!-- 
     <div class="form-group">
       <div >
         <div class="check-block" style="display:inline-block;">
@@ -43,40 +91,52 @@
         </div>
        </div>
     </div>
- -->    
-	
-    <div class="form-group">
-        <div class="check-block" style="display:inline-block;">
-         <div (click)="toggleIsGeometryEditable()" [ngClass]="{'chk-checked' : geoObjectType.isGeometryEditable}" style="margin:0;" class="jcf-unselectable chk-area">
-          <span></span>
-         </div>
-    
-         <label class="checkbox-label" style="line-height: normal;"> <localize key="hierarchy.management.option.label.isGeometryEditable"></localize></label>
+ -->
+
+    <div class="row">
+      <div class="col-md-12" style="margin-bottom: 15px;">
+        <div class="form-group">
+          <div class="check-block">
+            <div (click)="toggleIsGeometryEditable()" [ngClass]="{'chk-checked' : geoObjectType.isGeometryEditable}"
+              style="margin:0;" class="jcf-unselectable chk-area">
+              <span></span>
+            </div>
+
+            <label class="checkbox-label">
+              <localize key="hierarchy.management.option.label.isGeometryEditable"></localize>
+            </label>
+          </div>
         </div>
+      </div>
     </div>
 
-    <div class="form-group">   
-      <label for="organization"><localize key="attribute.organization.label"></localize></label>
-      <select *ngIf="organizations.length > 1" class="select-area" name="organization" [(ngModel)]="geoObjectType.organizationCode" required>
-        <option></option>
-        <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
-      </select>
-      <span *ngIf="organizations.length == 1" class="text"><input type="text" [(ngModel)]="organizations[0].label.localizedValue" name="organization" disabled required></span>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="organization">
+            <localize key="attribute.organization.label"></localize>
+          </label>
+          <select class="select-area" name="organization" [(ngModel)]="geoObjectType.organizationCode" required>
+            <option></option>
+            <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
+          </select>
+        </div>
+      </div>
     </div>
-	
-	
-	<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
-		<div class="ui-dialog-buttonset">
-			<div class="button-holder">
-				<button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
-					<localize key="modal.button.cancel"></localize>
-				</button>
-				<button type="submit" [disabled]="form.invalid" class="btn btn-primary" style="padding: 4px 18px;">
-					<localize key="modal.button.ok"></localize>
-				</button>
-			</div>
-		</div>
-	</div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+            <localize key="modal.button.cancel"></localize>
+          </button>
+          <button type="submit" [disabled]="form.invalid" class="btn btn-primary">
+            <localize key="modal.button.ok"></localize>
+          </button>
+        </div>
+      </div>
+    </div>
 
   </div>
 </form>

@@ -13,7 +13,7 @@
                             <div class="panel" style="box-shadow: none;">
                                 <div class="panel-body">
                                     <ul class="list-group">
-                                        <li class="list-group-item" style="text-align:left;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
+                                        <li class="list-group-item" style="text-align:left; border: 1px solid #ddd;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
                                             <h5 *ngIf="attr.code !== 'geometry'">
 
                                               <span *ngIf="attr.code === 'code'">
@@ -138,7 +138,7 @@
                                               </geoobject-editor-map>
                                             </div>
                                             
-                                            <div *ngIf="attr.isChangeOverTime" class="button-holder" style="padding: 20px 0 20px 0;">
+                                            <div *ngIf="attr.isChangeOverTime" class="button-holder" style="text-align:left;" >
                                               <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
                                                 <localize key="changeovertime.manageVersions.button.label"></localize>
                                               </button>

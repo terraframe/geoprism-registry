@@ -18,9 +18,8 @@
                     </h1>
                 </div>
 
-                <div class="row-holder">
-                    <div class="label-holder"></div>
-                    <div class="holder">
+                <div class="row">
+                    <div class="col-md-12" style="margin-bottom: 20px;">
                         <div class="btn-group define-attribute-btns">
                             <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'character'}" (click)="setAttribute('character')">
                                 <localize key="data.type.label.text"></localize>
@@ -48,10 +47,11 @@
 
                     <attribute-input [disableCodeField]="false" [excludeDescription]="false" [isDecimal]="newAttribute.type === 'float' ? true : false" [(attribute)]="newAttribute"></attribute-input>
 
-                    <div class="row-holder">
-                        <div class="label-holder"> 
-                        </div>
-                        <div class="holder">
+                    <div class="row">
+                        <div class="col-md-12">
+                        <!-- <div class="label-holder"> 
+                        </div> -->
+                        <!-- <div class="holder"> -->
                             <div class="button-holder">
                                 <button type="button" class="btn btn-default" (click)="cancel()">
                                     <localize key="modal.button.cancel"></localize>

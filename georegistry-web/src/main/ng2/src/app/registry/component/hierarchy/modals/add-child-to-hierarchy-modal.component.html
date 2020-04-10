@@ -1,35 +1,41 @@
-<form class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable com-runwaysdk-ui-factory-jquery-Dialog com-runwaysdk-ui-factory-runway-Widget ui-dialog-buttons">
-  
+<form class="modal-form">
+
   <div *ngIf="parent != null" class="modal-body">
-    
+
     <error-message [message]="message"></error-message>
-    
-    <div class="form-group">
-    
-      <select *ngIf="allGeoObjectTypes" (change)="onSelect($event.target.value)">
-        <option disabled hidden [value]="selectUndefinedOptionValue">-- <localize key="hierarchy.management.create.child.option.label.selectType"></localize> --</option>
-        <!-- to filter out all geoobjecttypes that are already in hierarchies use this pip in the iterator > | geoobjecttype:nodes -->
-        <option *ngFor="let geoObjType of allGeoObjectTypes" value={{geoObjType.code}}>
-          {{geoObjType.label.localizedValue}}
-        </option>
-      </select>
-    
+
+    <div class="heading">
+      <h1>
+        <localize key="hierarchy.management.button.addRelationship"></localize>
+      </h1>
     </div>
-    
-      <div class="button-holder text-right">
-        <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false"
-          style="padding: 4px 18px;">
-          <span class="ui-button-text">
+    <fieldset>
+
+      <div class="form-group">
+
+        <select *ngIf="allGeoObjectTypes" (change)="onSelect($event.target.value)">
+          <option disabled hidden [value]="selectUndefinedOptionValue">-- <localize
+              key="hierarchy.management.create.child.option.label.selectType"></localize> --</option>
+          <!-- to filter out all geoobjecttypes that are already in hierarchies use this pip in the iterator > | geoobjecttype:nodes -->
+          <option *ngFor="let geoObjType of allGeoObjectTypes" value={{geoObjType.code}}>
+            {{geoObjType.label.localizedValue}}
+          </option>
+        </select>
+
+      </div>
+
+      <div class="button-holder">
+        <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false">
+          <span>
             <localize key="modal.button.cancel"></localize>
           </span>
         </button>
-        <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary" role="button" aria-disabled="false"
-          style="padding: 4px 18px;">
-          <span class="ui-button-text">
+        <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary" role="button" aria-disabled="false">
+          <span>
             <localize key="modal.button.ok"></localize>
           </span>
         </button>
       </div>
-  
+    </fieldset>
   </div>
 </form>

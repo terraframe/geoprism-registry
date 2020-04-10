@@ -7,13 +7,12 @@
 
     <form class="modal-form" name="export-form">
         <fieldset>
-            <div class="row-holder">
-                <div class="label-holder">
+            <div class="row">
+                <div class="col-md-12">
                     <label>
                         <localize key="export-modal.message"></localize>
                     </label>
-                </div>
-                <div class="holder">
+
                     <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
                         <option></option>
                         <option value="EXCEL">
@@ -26,19 +25,18 @@
                 </div>
             </div>
 
-            <div class="row-holder">
-                <div class="label-holder"></div>
-                <div class="holder">
+            <div class="row">
+                <div class="col-md-12">
                     <div class="button-holder">
-                        <button type="button" (click)="bsModalRef.hide()" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                            role="button" aria-disabled="false" style="padding: 4px 18px;">
-                            <span class="ui-button-text">
+                        <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button"
+                            aria-disabled="false">
+                            <span>
                                 <localize key="modal.button.cancel"></localize>
                             </span>
                         </button>
-                        <button type="button" (click)="confirm()" [disabled]="format == null || format == ''" class="btn btn-primary ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                            role="button" style="padding: 4px 18px;">
-                            <span class="ui-button-text">
+                        <button type="button" (click)="confirm()" [disabled]="format == null || format == ''"
+                            class="btn btn-primary" role="button">
+                            <span>
                                 <localize key="modal.button.submit"></localize>
                             </span>
                         </button>

@@ -28,7 +28,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let account of res.resultSet | paginate: { itemsPerPage: res.pageSize, currentPage: res.pageNumber, totalItems: res.count }" class="fade-ngRepeat-item">
+                    <tr *ngFor="let account of res.resultSet | paginate: { itemsPerPage: res.pageSize, currentPage: res.pageNumber, totalItems: res.count }" class="fade-ngRepeat-item" [ngClass]="{'inactive': account.inactive}">
                         <td class="button-column"><a class="fa fa-pencil ico-edit" (click)="edit(account, $event)" [title]="'account.editTooltip' | localize"></a> 
                         <td class="label-column username-col">{{ account.username }}</td>
                         <td class="label-column firstname-col">{{ account.firstName }}</td>
