@@ -35,7 +35,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.ontology.GeoEntityUtil;
@@ -118,6 +120,28 @@ public class ServerParentTreeNodeOverTime
   public List<ServerParentTreeNode> getEntries(ServerHierarchyType type)
   {
     return this.hierarchies.get(type.getCode()).getNodes();
+  }
+  
+  public void enforceUserHasPermissionSetParents(String childCode)
+  {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      final Collection<ServerHierarchyType> hierarchyTypes = this.getHierarchies();
+      
+      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+      
+      for (ServerHierarchyType hierarchyType : hierarchyTypes)
+      {
+        final List<ServerParentTreeNode> entries = this.getEntries(hierarchyType);
+
+        for (ServerParentTreeNode entry : entries)
+        {
+          final ServerGeoObjectIF parent = entry.getGeoObject();
+          
+          hierarchyType.enforceActorHasPermission(actor, parent.getCode(), childCode, false);
+        }
+      }
+    }
   }
 
   public JsonArray toJSON()

@@ -25,11 +25,13 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
 
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -105,5 +107,24 @@ public class RemoveChildAction extends RemoveChildActionBase
     message = message.replaceAll("\\{4\\}", hierarchyType.getLabel().getValue(Session.getCurrentLocale()));
 
     return message;
+  }
+  
+  @Override
+  public void apply()
+  {
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    
+    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
+    
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+      
+      ht.enforceActorHasPermission(actor, parent.getType().getCode(), child.getType().getCode(), true);
+    }
+    
+    super.apply();
   }
 }

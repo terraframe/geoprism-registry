@@ -74,25 +74,6 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     return hierarchyType.getCode();
   }
 
-  @Transaction
-  public static void submitChangeRequest(String sJson)
-  {
-    ChangeRequest cr = new ChangeRequest();
-    cr.addApprovalStatus(AllGovernanceStatus.PENDING);
-    cr.apply();
-
-    List<AbstractActionDTO> actionDTOs = AbstractActionDTO.parseActions(sJson);
-
-    for (AbstractActionDTO actionDTO : actionDTOs)
-    {
-      AbstractAction ra = AbstractAction.dtoToRegistry(actionDTO);
-      ra.addApprovalStatus(AllGovernanceStatus.PENDING);
-      ra.apply();
-
-      cr.addAction(ra).apply();
-    }
-  }
-
   @Authenticate
   @Transaction
   public static InputStream exportShapefile(String code, String hierarchyCode)

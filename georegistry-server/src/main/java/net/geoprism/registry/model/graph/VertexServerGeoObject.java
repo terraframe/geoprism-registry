@@ -760,32 +760,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return internalGetParentOverTime(this, parentTypes, recursive);
   }
-
+  
   @Override
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
   {
+    parentsOverTime.enforceUserHasPermissionSetParents(this.getCode());
+    
     final Collection<ServerHierarchyType> hierarchyTypes = parentsOverTime.getHierarchies();
     
-    /*
-     * Permissions Check
-     */
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-      
-      for (ServerHierarchyType hierarchyType : hierarchyTypes)
-      {
-        final List<ServerParentTreeNode> entries = parentsOverTime.getEntries(hierarchyType);
-
-        for (ServerParentTreeNode entry : entries)
-        {
-          final ServerGeoObjectIF parent = entry.getGeoObject();
-          
-          hierarchyType.enforceActorHasPermission(actor, parent.getCode(), this.getCode());
-        }
-      }
-    }
-
     for (ServerHierarchyType hierarchyType : hierarchyTypes)
     {
       final List<ServerParentTreeNode> entries = parentsOverTime.getEntries(hierarchyType);

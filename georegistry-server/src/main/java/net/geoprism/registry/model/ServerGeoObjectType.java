@@ -758,9 +758,19 @@ public class ServerGeoObjectType
     return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
   }
 
-  public void enforceActorHasPermission(SingleActorDAOIF actor, Operation op)
+  /**
+   * Operation must be one of:
+   * - WRITE (Update)
+   * - READ
+   * - DELETE
+   * - CREATE
+   * 
+   * @param actor
+   * @param op
+   */
+  public void enforceActorHasPermission(SingleActorDAOIF actor, Operation op, boolean allowRC)
   {
-    if (!this.doesActorHavePermission(actor, op))
+    if (!this.doesActorHavePermission(actor, op, allowRC))
     {
       Organization org = this.getOrganization();
       
@@ -795,7 +805,7 @@ public class ServerGeoObjectType
     }
   }
   
-  public boolean doesActorHavePermission(SingleActorDAOIF actor, Operation op)
+  public boolean doesActorHavePermission(SingleActorDAOIF actor, Operation op, boolean allowRC)
   {
     Organization thisOrg = this.getOrganization();
     
@@ -817,7 +827,7 @@ public class ServerGeoObjectType
           {
             return true;
           }
-          else if ( (RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isRM_Role(roleName)) && orgCode.equals(thisOrgCode) )
+          else if ( ( (allowRC && RegistryRole.Type.isRC_Role(roleName)) || RegistryRole.Type.isRM_Role(roleName)) && orgCode.equals(thisOrgCode) )
           {
             String gotCode = RegistryRole.Type.parseGotCode(roleName);
             
@@ -826,7 +836,7 @@ public class ServerGeoObjectType
               return true;
             }
           }
-          else if (RegistryRole.Type.isAC_Role(roleName) && op.equals(Operation.READ) && orgCode.equals(thisOrgCode))
+          else if ( (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName)) && op.equals(Operation.READ) && orgCode.equals(thisOrgCode))
           {
             String gotCode = RegistryRole.Type.parseGotCode(roleName);
             

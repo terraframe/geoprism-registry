@@ -26,6 +26,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -47,6 +48,19 @@ public class SetParentAction extends SetParentActionBase
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
 
     child.setParents(ptnOt);
+  }
+  
+  @Override
+  public void apply()
+  {
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
+
+    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
+    
+    ptnOt.enforceUserHasPermissionSetParents(child.getCode());
+    
+    super.apply();
   }
 
   @Override

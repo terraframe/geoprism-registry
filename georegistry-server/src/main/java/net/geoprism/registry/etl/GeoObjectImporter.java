@@ -236,7 +236,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         Operation op = (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY) ? Operation.CREATE : Operation.WRITE;
         
-        type.enforceActorHasPermission(Session.getCurrentSession().getUser(), op);
+        type.enforceActorHasPermission(Session.getCurrentSession().getUser(), op, false);
       }
       
       /*

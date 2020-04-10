@@ -19,7 +19,9 @@
 package net.geoprism.registry.service;
 
 import java.util.Iterator;
+import java.util.List;
 
+import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -216,6 +218,37 @@ public class ChangeRequestService
     finally
     {
       it.close();
+    }
+  }
+  
+  /**
+   * 
+   * @param sessionId
+   * @param sJson
+   *          - serialized array of AbstractActions
+   */
+  @Request(RequestType.SESSION)
+  public void submitChangeRequest(String sessionId, String sJson)
+  {
+    new ChangeRequestService().submitChangeRequest(sJson);
+  }
+  
+  @Transaction
+  public void submitChangeRequest(String sJson)
+  {
+    ChangeRequest cr = new ChangeRequest();
+    cr.addApprovalStatus(AllGovernanceStatus.PENDING);
+    cr.apply();
+
+    List<AbstractActionDTO> actionDTOs = AbstractActionDTO.parseActions(sJson);
+
+    for (AbstractActionDTO actionDTO : actionDTOs)
+    {
+      AbstractAction ra = AbstractAction.dtoToRegistry(actionDTO);
+      ra.addApprovalStatus(AllGovernanceStatus.PENDING);
+      ra.apply();
+
+      cr.addAction(ra).apply();
     }
   }
 

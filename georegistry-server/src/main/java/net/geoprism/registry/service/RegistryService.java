@@ -302,18 +302,6 @@ public class RegistryService
     parent.removeChild(child, hierarchyCode);
   }
 
-  /**
-   * 
-   * @param sessionId
-   * @param sJson
-   *          - serialized array of AbstractActions
-   */
-  @Request(RequestType.SESSION)
-  public void submitChangeRequest(String sessionId, String sJson)
-  {
-    GeoRegistryUtil.submitChangeRequest(sJson);
-  }
-
   public GeoObjectQuery createQuery(String typeCode)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);

@@ -24,9 +24,11 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONObject;
 
+import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -48,6 +50,23 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
     ServerGeoObjectService builder = new ServerGeoObjectService();
     builder.apply(geoObject, true, false);
+  }
+  
+  @Override
+  public void apply()
+  {
+    String sJson = this.getGeoObjectJson();
+
+    GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
+    
+    ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
+    
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      type.enforceActorHasPermission(Session.getCurrentSession().getUser(), Operation.CREATE, true);
+    }
+    
+    super.apply();
   }
 
   @Override

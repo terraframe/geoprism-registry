@@ -206,7 +206,7 @@ public class ServerHierarchyType
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      this.enforceActorHasPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode);
+      this.enforceActorHasPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode, false);
     }
     
     Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
@@ -258,8 +258,14 @@ public class ServerHierarchyType
     }
   }
   
-  public boolean doesActorHavePermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public boolean doesActorHavePermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean allowRC)
   {
+    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS)
+        || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
+    {
+      return true; // AllowedIn is deprecated and should not be used by the end-user.
+    }
+    
     Organization thisOrg = this.getOrganization();
     
     if (thisOrg != null)
@@ -289,6 +295,15 @@ public class ServerHierarchyType
               return true;
             }
           }
+          else if ( allowRC && RegistryRole.Type.isRC_Role(roleName) && orgCode.equals(thisOrgCode) )
+          {
+            String gotCode = RegistryRole.Type.parseGotCode(roleName);
+            
+            if (gotCode.equals(parentGeoObjectTypeCode) || gotCode.equals(childGeoObjectTypeCode))
+            {
+              return true;
+            }
+          }
         }
         else if (RegistryRole.Type.isSRA_Role(roleName))
         {
@@ -305,9 +320,9 @@ public class ServerHierarchyType
    * 
    * @param actor
    */
-  public void enforceActorHasPermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public void enforceActorHasPermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean allowRC)
   {
-    if (!this.doesActorHavePermission(actor, parentGeoObjectTypeCode, childGeoObjectTypeCode))
+    if (!this.doesActorHavePermission(actor, parentGeoObjectTypeCode, childGeoObjectTypeCode, allowRC))
     {
       String parentLabel = ServerGeoObjectType.get(parentGeoObjectTypeCode).getLabel().getValue();
       String childLabel = ServerGeoObjectType.get(childGeoObjectTypeCode).getLabel().getValue();
@@ -441,7 +456,7 @@ public class ServerHierarchyType
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      this.enforceActorHasPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode);
+      this.enforceActorHasPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode, false);
     }
     
     Universal parent;

@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import net.geoprism.registry.service.RegistryService;
-
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -39,7 +37,6 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -55,6 +52,9 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
+
+import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.service.RegistryService;
 
 @Controller(url = RegistryUrls.REGISTRY_CONTROLLER_URL)
 public class RegistryController
@@ -89,7 +89,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.SUBMIT_CHANGE_REQUEST)
   public ResponseIF submitChangeRequest(ClientRequestIF request, @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS) String actions) throws JSONException
   {
-    this.registryService.submitChangeRequest(request.getSessionId(), actions);
+    new ChangeRequestService().submitChangeRequest(request.getSessionId(), actions);
 
     return new RestResponse();
   }
