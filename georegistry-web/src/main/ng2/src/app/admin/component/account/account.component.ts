@@ -29,6 +29,8 @@ import { RoleManagementComponent } from './role-management.component'
 
 import { Account, User, Role } from '../../model/account';
 import { AccountService } from '../../service/account.service';
+import { LocalizationService } from '../../../shared/service/localization.service';
+import { Localization } from '../../model/settings';
 
 @Component( {
     selector: 'account',
@@ -67,7 +69,8 @@ export class AccountComponent implements OnInit {
     constructor(
         private service: AccountService,
         private location: Location,
-        public bsModalRef: BsModalRef
+        public bsModalRef: BsModalRef,
+        private localizeService: LocalizationService
     ) {
     }
 
@@ -101,12 +104,17 @@ export class AccountComponent implements OnInit {
             delete this.account.user.password;
         }
 
-        this.service.apply( this.account.user, this.roleIds ).then( data => {
-            this.onEdit.next( data );
-            this.bsModalRef.hide();
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+        if (this.roleIds.length > 0) {
+            this.service.apply(this.account.user, this.roleIds).then(data => {
+                this.onEdit.next(data);
+                this.bsModalRef.hide();
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        }
+        else{
+            this.message = this.localizeService.decode("account.role.management.roles.required.message");
+        }
     }
 
 
