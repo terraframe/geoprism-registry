@@ -123,7 +123,7 @@ public class AddChildAction extends AddChildActionBase
     {
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       
-      ht.enforceActorHasPermission(actor, parent.getType().getCode(), child.getType().getCode(), true);
+      ht.enforceActorHasRelationshipPermission(actor, parent.getType().getCode(), child.getType().getCode(), true);
     }
     
     super.apply();

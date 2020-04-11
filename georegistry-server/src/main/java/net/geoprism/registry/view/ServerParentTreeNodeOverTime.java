@@ -138,7 +138,7 @@ public class ServerParentTreeNodeOverTime
         {
           final ServerGeoObjectIF parent = entry.getGeoObject();
           
-          hierarchyType.enforceActorHasPermission(actor, parent.getCode(), childCode, false);
+          hierarchyType.enforceActorHasRelationshipPermission(actor, parent.getCode(), childCode, false);
         }
       }
     }
