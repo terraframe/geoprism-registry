@@ -15,10 +15,28 @@
           <text name="organization" required="true" label="organization" />
         </attributes>
       </mdException>
+      
+      <mdException name="net.geoprism.registry.roles.CreateListPermissionException"
+        message="You do not have permissions to create a List in the organization [{organization}]."
+      >
+        <attributes>
+          <text name="organization" required="true" label="organization" />
+        </attributes>
+      </mdException>
+      <mdException name="net.geoprism.registry.roles.UpdateListPermissionException"
+        message="You do not have permissions to update a List in the organization [{organization}]."
+      >
+        <attributes>
+          <text name="organization" required="true" label="organization" />
+        </attributes>
+      </mdException>
     </create>
     <update></update>
   </doIt>
   <undoIt>
-    <delete></delete>
+    <delete>
+      <object key="net.geoprism.registry.roles.CreateHierarchyPermissionException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.roles.UpdateHierarchyPermissionException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
   </undoIt>
 </version>

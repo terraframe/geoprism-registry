@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
@@ -36,11 +37,15 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
@@ -56,6 +61,8 @@ import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.roles.CreateListPermissionException;
+import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -637,11 +644,63 @@ public class MasterList extends MasterListBase
       throw new ProgrammingErrorException(e);
     }
   }
+  
+  public void enforceActorHasPermission(SingleActorDAOIF actor, Operation op)
+  {
+    if (!doesActorHavePermission(actor, op))
+    {
+      if (op.equals(Operation.CREATE))
+      {
+        CreateListPermissionException ex = new CreateListPermissionException();
+        ex.setOrganization(this.getOrganization().getDisplayLabel().getValue());
+        throw ex;
+      }
+      else if (op.equals(Operation.WRITE))
+      {
+        UpdateListPermissionException ex = new UpdateListPermissionException();
+        ex.setOrganization(this.getOrganization().getDisplayLabel().getValue());
+        throw ex;
+      }
+    }
+  }
+  
+  public boolean doesActorHavePermission(SingleActorDAOIF actor, Operation op)
+  {
+    Set<RoleDAOIF> roles = actor.authorizedRoles();
+    
+    String thisOrgCode = this.getOrganization().getCode();
+    
+    for (RoleDAOIF role : roles)
+    {
+      String roleName = role.getRoleName();
+      
+      if (RegistryRole.Type.isRA_Role(roleName))
+      {
+        String orgCode = RegistryRole.Type.parseOrgCode(roleName);
+        
+        if (orgCode.equals(thisOrgCode))
+        {
+          return true;
+        }
+      }
+      else if (RegistryRole.Type.isSRA_Role(roleName))
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
 
   @Transaction
   public static MasterList create(JsonObject object)
   {
     MasterList list = MasterList.fromJSON(object);
+    
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      list.enforceActorHasPermission(Session.getCurrentSession().getUser(), Operation.CREATE);
+    }
 
     MasterListQuery query = new MasterListQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(list.getUniversal()));
