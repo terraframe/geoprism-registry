@@ -1,3 +1,5 @@
+import { Role } from "../../admin/model/account";
+
 ///
 /// Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
 ///

@@ -1,0 +1,64 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  <createOrUpdate>
+  	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlists.no.lists.in.org.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlists.no.lists.in.org.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="There are no lists available for this organization." />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.role.management.roles.required.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.role.management.roles.required.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="This user must be assigned to at least one role." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="profile.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="profile.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Your Profile" />
+	        </attributeStruct>
+	      </object>
+	      
+	        <object type="com.runwaysdk.localization.LocalizedValueStore" key="profile.roles.organization.table.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="profile.roles.organization.table.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Organization" />
+	        </attributeStruct>
+	      </object>
+	      
+	        <object type="com.runwaysdk.localization.LocalizedValueStore" key="profile.roles.role.table.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="profile.roles.role.table.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Role" />
+	        </attributeStruct>
+	      </object>
+	      
+	        <object type="com.runwaysdk.localization.LocalizedValueStore" key="profile.roles.geoobjecttype.table.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="profile.roles.geoobjecttype.table.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="GeoObjectType" />
+	        </attributeStruct>
+	      </object>
+	 
+	      
+	      
+	      
+	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

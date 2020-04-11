@@ -55,6 +55,16 @@ public class RegistryAccountController
   }
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF getRolesForUser(ClientRequestIF request, @RequestParamter(name = "userOID") String userOID) throws JSONException
+  {
+    RegistryRole[] roles = this.accountService.getRolesForUser(request.getSessionId(), userOID);
+    
+    JsonArray rolesJSONArray = this.createRoleMap(roles);
+    
+    return new RestBodyResponse(rolesJSONArray);
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
   {
     GeoprismUserDTO user = GeoprismUserDTO.lock(request, oid);

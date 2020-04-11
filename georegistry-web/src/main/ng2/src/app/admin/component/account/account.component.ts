@@ -25,7 +25,7 @@ import 'rxjs/add/operator/switchMap';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 
-import { RoleManagementComponent } from './role-management.component'
+import { RoleManagementComponent } from './role-management.component';
 
 import { Account, User, Role } from '../../model/account';
 import { AccountService } from '../../service/account.service';

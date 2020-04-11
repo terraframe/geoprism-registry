@@ -52,7 +52,7 @@ export class ProfileService {
         } );
 
         return this.http
-            .post<Profile>( acp + '/account/apply', JSON.stringify( { account: profile } ), { headers: headers } )
+            .post<Profile>( acp + '/registryaccount/apply', JSON.stringify( { account: profile } ), { headers: headers } )
             .toPromise();
     }
 
@@ -65,5 +65,17 @@ export class ProfileService {
         return this.http
             .post<void>( acp + '/account/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
             .toPromise()
+    }
+
+    getRolesForUser( userOID: string ): Promise<any> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+
+        return this.http
+            .post<Profile>( acp + '/registryaccount/getRolesForUser', {userOID: userOID}, { headers: headers } )
+            .toPromise();
+
     }
 }

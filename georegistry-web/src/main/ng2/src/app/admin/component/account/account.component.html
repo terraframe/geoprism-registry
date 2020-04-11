@@ -106,20 +106,12 @@
           </h4>
         </div>
         <div *ngIf="!account.user.newInstance" class="row-holder">
-          <!-- <div class="label-holder">
-            <label>
-              <localize key="account.changePassword"></localize>
-            </label>
-          </div>
-          <div class="holder"> -->
-          <!-- <boolean-field [(value)]="account.changePassword"></boolean-field> -->
           <div class="button-holder" style="text-align: left;">
             <input type="button" *ngIf="!account.changePassword" [value]="'account.user.change.password.button' | localize" class="btn btn-primary"
               (click)="onChangePassword()" />
             <input type="button" *ngIf="account.changePassword" [value]="'dataset.cancel' | localize" class="btn btn-default"
               (click)="onChangePassword()" />
           </div>
-          <!-- </div> -->
         </div>
         <div *ngIf="account.changePassword || account.user.newInstance">
           <div class="row-holder">
