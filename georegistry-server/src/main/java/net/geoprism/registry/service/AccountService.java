@@ -38,6 +38,7 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
+import com.runwaysdk.dataaccess.attributes.AttributeValueException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.facade.FacadeUtil;
 import com.runwaysdk.query.Condition;
@@ -128,6 +129,11 @@ public class AccountService
   @Transaction
   public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, String[] roleNameArray)
   {
+    if (roleNameArray == null || roleNameArray.length == 0)
+    {
+      throw new AttributeValueException("You're attempting to apply a user with zero roles?", ""); // TODO : Better Error
+    }
+    
     /*
      * Make sure they have permissions to all these new roles they want to assign
      */
@@ -188,10 +194,14 @@ public class AccountService
     }
     
     // They're not allowed to change the admin username
-    if (GeoprismUser.get(geoprismUser.getOid()).getUsername().equals(RegistryConstants.ADMIN_USER_NAME)
-        && !geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME))
+    if (!geoprismUser.isNew())
     {
-      throw new RuntimeException("You are not allowed to change the username of the admin user.");
+      GeoprismUser adminUser = this.getAdminUser();
+      if (adminUser != null && adminUser.getOid().equals(geoprismUser.getOid())
+          && !geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME))
+      {
+        throw new AttributeValueException("You can't change the admin username", RegistryConstants.ADMIN_USER_NAME); // TODO : Better Error
+      }
     }
     
     geoprismUser.apply();
@@ -263,6 +273,29 @@ public class AccountService
     geoprismUser.apply();
     
     return geoprismUser;
+  }
+  
+  private GeoprismUser getAdminUser()
+  {
+    GeoprismUserQuery guq = new GeoprismUserQuery(new QueryFactory());
+    guq.WHERE(guq.getUsername().EQ(RegistryConstants.ADMIN_USER_NAME));
+    OIterator<? extends GeoprismUser> it = guq.getIterator();
+    
+    try
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+      else
+      {
+        return null;
+      }
+    }
+    finally
+    {
+      it.close();
+    }
   }
   
   /**
