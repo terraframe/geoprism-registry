@@ -347,6 +347,15 @@ public class AccountService
         }
       }
     }
+    
+    if (!roleNameSet.contains(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE))
+    {
+      Roles sra = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+      RegistryRole rrSRA = new RegistryRoleConverter().build(sra);
+      rrSRA.setAssigned(false);
+      
+      registryRoles.add(rrSRA);
+    }
 
     return registryRoles.stream().sorted(Comparator.comparing(RegistryRole::getOrganizationCode).thenComparing(RegistryRole::getGeoObjectTypeCode)).toArray(size -> new RegistryRole[size]);
   }

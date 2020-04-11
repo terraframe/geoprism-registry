@@ -45,6 +45,7 @@ export class RoleManagementComponent implements OnInit {
     set roles(data: any){
         if(data){
             this._roles = this.formatRoles(data);
+            this.onChangeRole();
         }
     }
 
