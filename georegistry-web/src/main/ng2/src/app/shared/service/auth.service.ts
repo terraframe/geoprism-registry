@@ -180,6 +180,14 @@ export class AuthService {
   getUsername(): string {
     return this.user.userName;
   }
+
+  getRoles(): any {
+    return this.user.roles;
+  }
+
+  getRoleDisplayLabelsArray(): any {
+    return this.user.roleDisplayLabels;
+  }
   
   getRoleDisplayLabels(): string {
     let str = "";

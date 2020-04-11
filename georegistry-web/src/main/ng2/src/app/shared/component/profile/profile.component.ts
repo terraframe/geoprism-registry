@@ -17,13 +17,14 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component} from '@angular/core';
+import { Component, OnInit, Input} from '@angular/core';
 
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { Profile } from '../../model/profile';
 import { ProfileService } from '../../service/profile.service';
 import { AuthService } from '../../service/auth.service';
+import { Role } from '../../../admin/model/account';
 
 
 @Component({  
@@ -32,34 +33,60 @@ import { AuthService } from '../../service/auth.service';
   styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
 })
 export class ProfileComponent {
-  public profile:Profile = {
+  public _profile:Profile = {
     oid: '',
     username: '',
     password: '',
     firstName: '',
     lastName: '',
     email: '',
-    changePassword:false    
+    changePassword:false
   };
+  
+  @Input('profile')
+  set profile(value: Profile) {
+    this._profile = value;
+    this.getRoles();
+  }
+  roles: Role[] = [];
   
   constructor(private service:ProfileService, public bsModalRef: BsModalRef, private authService: AuthService) {}
   
-  onSubmit():void {
-    if(!this.profile.changePassword) {
-      delete this.profile.password;
-    }
-	  
-    this.service.apply(this.profile).then(profile => {
-      this.bsModalRef.hide();
+
+  getRoles(): void {
+    this.service.getRolesForUser(this._profile.oid).then(roles => {
+      this.roles = roles;
     });
   }
   
-  getRoles():string {
-    return this.authService.getRoleDisplayLabels();
+  onSubmit():void {
+    if(!this._profile.changePassword) {
+      delete this._profile.password;
+    }
+	  
+    this.service.apply(this._profile).then(profile => {
+      this.bsModalRef.hide();
+    });
+  }
+
+  onChangePassword(): void {
+    this._profile.changePassword = !this._profile.changePassword;
+  }
+  
+  // getRoles():string {
+  //   return this.authService.getRoleDisplayLabels();
+  // }
+
+  getRolesArray(): any {
+    return this.authService.getRoles();
+  }
+
+  onRoleIdsUpdate(event: any): void {
+    console.log(event)
   }
   
   cancel():void {
-    this.service.unlock(this.profile.oid).then(profile => {
+    this.service.unlock(this._profile.oid).then(profile => {
       this.bsModalRef.hide();
     });
   }  

@@ -1,117 +1,188 @@
-<div>
-  <message ></message>  
+<div *ngIf="_profile">
+  <message></message>
 
-  <form #form="ngForm" class="modal-form" style="background: none;border: none;" (ngSubmit)="form.valid && onSubmit()">    
-    <!-- <div class="modal-dialog" style="background: none;border: none;"> -->
-      <!-- <div class="modal-content" style="background: none;border: none;"> -->
-        <fieldset>            
-          <div class="heading">
-            <h3><localize key="profile.heading"></localize></h3>
-          </div>      
-          <hr>        
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.firstname"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="profile.firstName" name="firstname" required>
-              </span>
-            </div>
-          </div>          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.lastname"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="profile.lastName" name="lastname" required>
-              </span>
-            </div>
-          </div>          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.email"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="profile.email" name="email" required #aemail="ngModel" email>
-              </span>
-              <div *ngIf="aemail.errors?.email" class="inline-error-message">
-                <localize key="account.email.validation"></localize>
-              </div>                                          
-            </div>
-          </div>          
-          <div class="heading">
-            <h3><localize key="account.info.heading"></localize></h3>
-          </div>      
-          <hr>          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="profilename"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="profile.username" name="username" required>
-              </span>
+  <form #form="ngForm" class="modal-form" style="background: none;border: none;" (ngSubmit)="form.valid && onSubmit()">
+    <fieldset>
+      <div class="heading">
+        <h3>
+          <localize key="profile.heading"></localize>
+        </h3>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="account.firstname"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="_profile.firstName" name="firstname" required>
+          </span>
+        </div>
+      </div>
+      
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="account.lastname"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="_profile.lastName" name="lastname" required>
+          </span>
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="account.email"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="_profile.email" name="email" required #aemail="ngModel" email>
+          </span>
+          <div *ngIf="aemail.errors?.email" class="inline-error-message">
+            <localize key="account.email.validation"></localize>
+          </div>
+        </div>
+      </div>
+
+      <div class="heading">
+        <h3>
+          <localize key="account.info.heading"></localize>
+        </h3>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="profilename"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="_profile.username" name="username" required>
+          </span>
+        </div>
+      </div>
+
+
+      <div class="row-holder">
+        <div class="label-holder">
+        </div>
+        <div class="holder">
+          <!-- <boolean-field [(value)]="profile.changePassword"></boolean-field> -->
+          <div style="text-align: left;">
+            <input type="button" *ngIf="!_profile.changePassword" [value]="'account.user.change.password.button' | localize" class="btn btn-primary"
+              (click)="onChangePassword()" />
+            <input type="button" *ngIf="_profile.changePassword" [value]="'dataset.cancel' | localize" class="btn btn-default"
+              (click)="onChangePassword()" />
+          </div>
+        </div>
+      </div>
+      <div *ngIf="_profile.changePassword">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.password"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="password" [(ngModel)]="_profile.password" name="password" #password="ngModel" required
+                minlength="5" maxlength="50">
+              <ng2-password-strength-bar [passwordToCheck]="_profile.password">
+              </ng2-password-strength-bar>
+            </span>
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.certainPassword"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" [equalTo]="password" />
+            </span>
+            <div *ngIf="certainPassword.errors?.equalTo" class="inline-error-message">
+              <localize key="account.certainPassword.validation"></localize>
             </div>
           </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="account.changePassword"></localize></label>
-            </div>          
-            <div class="holder" >
-              <boolean-field [(value)]="profile.changePassword"></boolean-field>
-            </div>
-          </div>                        
-          <div *ngIf="profile.changePassword">
-            <div class="row-holder">
-              <div class="label-holder">
-                <label><localize key="account.password"></localize></label>
-              </div>          
-              <div class="holder" >
-                <span class="text">
-                  <input type="password" [(ngModel)]="profile.password" name="password" #password="ngModel" required minlength="5" maxlength="50" >
-                  <ng2-password-strength-bar
-                    [passwordToCheck]="profile.password">
-                  </ng2-password-strength-bar>                              
-                </span>
-              </div>
-            </div>  
-            <div class="row-holder">
-              <div class="label-holder">
-                <label><localize key="account.certainPassword"></localize></label>
-              </div>          
-              <div class="holder" >
-                <span class="text">
-                  <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" [equalTo]="password"/>
-                </span>
-                <div *ngIf="certainPassword.errors?.equalTo" class="inline-error-message">
-                  <localize key="account.certainPassword.validation"></localize>
-                </div>                                                       
-              </div>
-            </div>  
+        </div>
+      </div>
+
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="com.runwaysdk.ui.userstable.UsersTable.adminRoles"></localize>
+          </label>
+        </div>
+        <div class="holder">
+
+          <table class="table">
+            <thead>
+              <tr>
+                  <th><localize key="profile.roles.role.table.heading"></localize></th>
+                  <th><localize key="profile.roles.organization.table.heading"></localize></th>
+                  <th><localize key="profile.roles.geoobjecttype.table.heading"></localize></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let role of roles">
+                <td *ngIf="role.type === 'SRA' && role.assigned">
+                  {{role.label.localizedValue}}
+                </td>
+                <td *ngIf="role.type === 'SRA' && role.assigned">
+                  
+                </td>
+                <td *ngIf="role.type === 'SRA' && role.assigned">
+                  
+                </td>
+
+                <td *ngIf="role.type === 'RA' && role.assigned">
+                  {{role.label.localizedValue}}
+                </td>
+                <td *ngIf="role.type === 'RA' && role.assigned">
+                  {{role.orgLabel.localizedValue}}
+                </td>
+                <td *ngIf="role.type === 'RA' && role.assigned">
+                  
+                </td>
+
+                <td *ngIf="role.type !== 'RA' && role.orgCode.length > 0 && role.assigned">
+                  {{role.label.localizedValue}}
+                </td>
+                <td *ngIf="role.type !== 'RA' && role.orgCode.length > 0 && role.assigned">
+                  {{role.orgLabel.localizedValue}}
+                </td>
+                <td *ngIf="role.type !== 'RA' && role.orgCode.length > 0 && role.assigned">
+                  {{role.geoObjectTypeLabel.localizedValue}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <ul>
+            <li *ngFor="let role of getRolesArray()">{{role}}</li>
+          </ul> -->
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="button-holder">
+            <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
+            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary"
+              [disabled]="!(form.valid)" />
           </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="com.runwaysdk.ui.userstable.UsersTable.adminRoles"></localize></label>
-            </div>                    
-            <div class="holder">
-              <label style="margin-top:10px;">{{getRoles()}}</label>
-            </div>
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-            </div>                    
-            <div class="holder">
-              <div class="button-holder">
-                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
-              </div>
-            </div>
-          </div>
-        </fieldset>
-      <!-- </div> -->
-    <!-- </div> -->
+        </div>
+      </div>
+    </fieldset>
   </form>
+
 </div>
