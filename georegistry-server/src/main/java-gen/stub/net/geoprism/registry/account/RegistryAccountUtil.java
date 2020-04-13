@@ -78,7 +78,7 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
         list.add(array.getString(i));
       }
 
-      new AccountService().applyInTransaction(user, list.toArray(new String[list.size()]));
+      new AccountService().applyInTransaction(user, list.toArray(new String[list.size()]), true);
     }
     else
     {

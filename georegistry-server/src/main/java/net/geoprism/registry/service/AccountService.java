@@ -119,7 +119,7 @@ public class AccountService
   {    
     GeoprismUser geoprismUser = convertToBusiness(sessionId, geoprismUserDTO);
 
-    geoprismUser = this.applyInTransaction(geoprismUser, roleNameArray);  
+    geoprismUser = this.applyInTransaction(geoprismUser, roleNameArray, false);  
 
     geoprismUserDTO = convertToDTO(sessionId, geoprismUserDTO, geoprismUser);
 
@@ -127,7 +127,7 @@ public class AccountService
   }
 
   @Transaction
-  public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, String[] roleNameArray)
+  public GeoprismUser applyInTransaction(GeoprismUser geoprismUser, String[] roleNameArray, boolean isUserInvite)
   {
     if (roleNameArray == null || roleNameArray.length == 0)
     {
@@ -137,7 +137,7 @@ public class AccountService
     /*
      * Make sure they have permissions to all these new roles they want to assign
      */
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    if (!isUserInvite && Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       Set<RoleDAOIF> myRoles = Session.getCurrentSession().getUser().authorizedRoles();
       
