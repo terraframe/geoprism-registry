@@ -25,9 +25,12 @@ import 'rxjs/add/operator/switchMap';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { Subject } from 'rxjs/Subject';
 
-import { Account, User, Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '../../model/account';
 import { AccountService } from '../../service/account.service';
+import { AuthService } from '../../../shared/service/auth.service';
+
+import { Account, User, Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '../../model/account';
 import { Organization } from '../../model/settings';
+import { RegistryRoleType } from '../../../shared/model/core';
 
 @Component( {
     selector: 'role-management',
@@ -38,6 +41,10 @@ import { Organization } from '../../model/settings';
 export class RoleManagementComponent implements OnInit {
 
     message: string = null;
+    isAdmin: boolean;
+    isMaintainer: boolean;
+    isContributor: boolean;
+    isSRA: boolean;
 
     _roles: FormattedRoles;
 
@@ -56,8 +63,13 @@ export class RoleManagementComponent implements OnInit {
 
 
     constructor(
-        public bsModalRef: BsModalRef
+        public bsModalRef: BsModalRef, private authService: AuthService
     ) {
+
+        this.isSRA = authService.isSRA();
+        this.isAdmin = authService.isAdmin();
+        this.isMaintainer = this.isAdmin || authService.isMaintainer();
+		this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
 
     }
 
@@ -133,7 +145,24 @@ export class RoleManagementComponent implements OnInit {
             }
         })
 
+        this.sortRoles(formattedObj);
+
         return formattedObj;
+    }
+
+    sortRoles(roles: FormattedRoles): void {
+        roles.ORGANIZATIONS.forEach(org => {
+            org.GEOOBJECTTYPEROLES.forEach(gotrole => {
+                gotrole.GEOOBJECTTYPEROLESGROUP.sort((a, b) => {
+                    console.log(RegistryRoleType[a.type])
+                    if (RegistryRoleType[a.type] < RegistryRoleType[b.type]) return -1;
+                    if (RegistryRoleType[a.type] > RegistryRoleType[b.type]) return 1;
+                    return 0;
+                });
+            })
+        });
+
+
     }
 
     addToGeoObjectTypeGroup(organization: FormattedOrganization, role: Role): boolean {

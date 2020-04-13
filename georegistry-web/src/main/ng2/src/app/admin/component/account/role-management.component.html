@@ -12,7 +12,7 @@
         <div *ngIf="_roles.SRA" class="row" style="padding: 20px;">
           <div class="col-sm-12">
             <boolean-field [(value)]="_roles.SRA.assigned" (change)="onToggleSRA($event, _roles.SRA)"
-              [label]="_roles.SRA.label.localizedValue"></boolean-field>
+              [label]="_roles.SRA.label.localizedValue" [disable]="!isSRA"></boolean-field>
           </div>
         </div>
 
