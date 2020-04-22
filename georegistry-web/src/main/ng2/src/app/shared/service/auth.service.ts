@@ -93,12 +93,6 @@ export class AuthService {
       if (role.type === RegistryRoleType.SRA) {
         return true;
       }
-      else if (role.roleName.indexOf('geoprism.admin.Administrator') !== -1
-               || role.roleName.indexOf( "commongeoregistry.RegistryAdministrator" ) !== -1
-               || role.roleName.indexOf( "cgr.RegistryAdministrator" ) !== -1) // Legacy support
-      {
-        return true;
-      }
     }
     
     return false;

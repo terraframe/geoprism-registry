@@ -24,7 +24,7 @@ export class LocalizedValue {
 
 export class RoleBuilder {
   static buildFromRoleName(roleName: string): RegistryRole {
-    if (roleName === "cgr.SRA" || roleName === "geoprism.admin.Administrator") {
+    if (roleName === "cgr.SRA") {
       return new RegistryRole(RegistryRoleType.SRA, "", "", "cgr.SRA");
     }
     
