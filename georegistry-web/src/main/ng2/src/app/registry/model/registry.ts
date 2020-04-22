@@ -149,6 +149,7 @@ export class Attribute {
 	label: LocalizedValue;
 	description: LocalizedValue;
 	isDefault: boolean;
+	required: boolean;
 	unique: boolean;
 	isChangeOverTime?: boolean;
 
@@ -159,6 +160,7 @@ export class Attribute {
 		this.label = label;
 		this.description = description;
 		this.isDefault = isDefault;
+		this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
 		this.unique = unique;
 		this.isChangeOverTime = isChangeOverTime;
 	}
