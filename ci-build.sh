@@ -46,11 +46,7 @@ cd $WORKSPACE/adapter/java
 mvn clean deploy -B
 
 ## Build angular source ##
-#cd $WORKSPACE/geoprism/geoprism-web/src/main/ng2
-#npm install
-#npm install typings
-#typings install lodash
-#npm run build
+nvm install lts/carbon
 cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
 npm install
 # npm install typings
