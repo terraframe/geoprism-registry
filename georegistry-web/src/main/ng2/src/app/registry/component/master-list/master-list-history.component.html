@@ -1,7 +1,7 @@
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div *ngIf="list && (list.admin)" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+    <div *ngIf="list && ((list.admin) || isMaintainer)" style="margin-top: 30px; margin-bottom: 30px;" class="row">
 
         <div class="col-md-12">
             <form #myForm="ngForm">
@@ -17,7 +17,7 @@
     </div>
 
     <div class="row form-group">
-        <div *ngIf="list" class="col-md-12 table-responsive" style="">
+        <div *ngIf="list" class="col-md-12 table-responsive">
             <table class="list-table table">
                 <thead>
                     <tr>
