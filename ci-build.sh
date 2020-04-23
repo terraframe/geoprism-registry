@@ -17,6 +17,10 @@
 # License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Stupid hack for the current geoprism 0.7.0 deploy
+sed -i -e 's/961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism:latest/961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism@sha256:7ac27a2ddf13313150e86409b79ca1fa14304e2a94307dd6208a5e67e1845a12/g' geoprism-platform/ansible/inventory/georegistry/$environment.ini
+
+
 # Replace external ips with internal ips since jenkins runs inside our VPC
 sed -i -e 's/georegistry.geoprism.net/172.31.30.53/g' geoprism-platform/ansible/inventory/georegistry/prod.ini
 sed -i -e 's/staging-georegistry.geoprism.net/172.31.23.142/g' geoprism-platform/ansible/inventory/georegistry/staging.ini
