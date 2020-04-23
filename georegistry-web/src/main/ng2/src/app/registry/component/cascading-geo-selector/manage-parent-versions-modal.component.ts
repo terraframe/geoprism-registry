@@ -150,6 +150,10 @@ export class ManageParentVersionsModalComponent implements OnInit {
         this.bsModalRef.hide();
     }
 
+    onCancel(): void {
+        this.bsModalRef.hide();
+    }
+
     onDateChange( event: any ): any {
         this.snapDates();
     }

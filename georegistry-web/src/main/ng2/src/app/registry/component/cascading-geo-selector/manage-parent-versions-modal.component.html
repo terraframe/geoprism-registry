@@ -42,7 +42,8 @@
                                                       [typeaheadOptionsLimit]="7"
                                                       typeaheadOptionField="name" 
                                                       [typeaheadMinLength]="0"
-                                                      [typeaheadWaitMs]="300">
+                                                      [typeaheadWaitMs]="300"
+                                                      required>
                                                   </div>
                                                 
                                                 </td>
@@ -74,6 +75,9 @@
                 <!-- <div class="label-holder"></div> -->
                 <div class="holder" style="border: none; width: 100%;">
                     <div class="button-holder pull-right">
+                        <!-- <button type="button" (click)="onCancel()" class="btn btn-default" role="button" >
+                            <localize key="io.cancel"></localize>
+                        </button> -->
                         <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid || hasDuplicateDate">
                             <localize key="io.ok"></localize>
                         </button>
