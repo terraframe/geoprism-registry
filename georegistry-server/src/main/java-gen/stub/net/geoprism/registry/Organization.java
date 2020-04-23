@@ -255,7 +255,7 @@ public class Organization extends OrganizationBase
   {
     String registryAdminRoleName = this.getRegistryAdminRoleName();
 
-    String defaultDisplayLabel = this.getDisplayLabel().getDefaultValue() + " Registry Admin";
+    String defaultDisplayLabel = this.getDisplayLabel().getDefaultValue() + " Registry Administrator";
 
     // Heads up: clean up move to Roles.java?
     Roles raOrgRole = new Roles();
