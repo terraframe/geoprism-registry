@@ -18,7 +18,7 @@
 #
 
 # Stupid hack for the current geoprism 0.7.0 deploy
-sed -i -e 's/961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism:latest/961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism@sha256:7ac27a2ddf13313150e86409b79ca1fa14304e2a94307dd6208a5e67e1845a12/g' geoprism-platform/ansible/inventory/georegistry/$environment.ini
+sed -i -e 's|961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism:latest|961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism@sha256:7ac27a2ddf13313150e86409b79ca1fa14304e2a94307dd6208a5e67e1845a12|g' geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
 
 # Replace external ips with internal ips since jenkins runs inside our VPC
