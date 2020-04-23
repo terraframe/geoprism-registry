@@ -28,6 +28,7 @@ sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" geoprism-platform/a
 sed -i -e "s/clean_orientdb=false/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
+source /home/ec2-user/.bashrc
 source /home/ec2-user/ansible/hacking/env-setup
 
 export M2_HOME=/usr/local/apache-maven
