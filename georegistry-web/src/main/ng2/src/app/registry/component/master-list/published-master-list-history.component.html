@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <div *ngIf="list && ((list.admin) || isMaintainer)" style="margin-bottom: 30px;" class="row">
+    <div *ngIf="list && ((list.admin) || isAdmin)" style="margin-bottom: 30px;" class="row">
         <div class="col-md-12">
             <form #myForm="ngForm">
                 <div class="form-group">
