@@ -149,3 +149,8 @@ select.ng-invalid:required {
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(172,41,37,.6); 
     */
 }
+
+.error-message {
+    color: #e30000; /* IE fallback */
+    color: var(--theme-alert-color);
+}
