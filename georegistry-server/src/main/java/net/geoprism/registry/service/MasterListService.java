@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -42,6 +43,7 @@ import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRAException;
+import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
@@ -96,9 +98,12 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
-    if (!Organization.isRegistryAdmin(masterList.getOrganization()))
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+      if (!masterList.getGeoObjectType().doesActorHavePermission(Session.getCurrentSession().getUser(), Operation.WRITE, false))
+      {
+        throw new OrganizationRMException("You do not have permissions to publish a masterlist.");
+      }
     }
 
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
@@ -189,9 +194,12 @@ public class MasterListService
     MasterListVersion version = MasterListVersion.get(oid);
     final MasterList masterlist = version.getMasterlist();
 
-    if (!Organization.isRegistryAdmin(masterlist.getOrganization()))
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
+      if (!masterlist.getGeoObjectType().doesActorHavePermission(Session.getCurrentSession().getUser(), Operation.WRITE, false))
+      {
+        throw new OrganizationRMException("You do not have permissions to generate a masterlist shapefile.");
+      }
     }
 
     QueryFactory factory = new QueryFactory();
