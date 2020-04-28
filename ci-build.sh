@@ -25,7 +25,7 @@ sed -i -e 's|961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism:latest|961902
 sed -i -e 's/georegistry.geoprism.net/172.31.30.53/g' geoprism-platform/ansible/inventory/georegistry/prod.ini
 sed -i -e 's/staging-georegistry.geoprism.net/172.31.23.142/g' geoprism-platform/ansible/inventory/georegistry/staging.ini
 sed -i -e 's/dev-georegistry.geoprism.net/172.31.25.93/g' geoprism-platform/ansible/inventory/georegistry/dev.ini
-sed -i -e 's/demo-georegistry.geoprism.net/172.31.19.126/g' geoprism-platform/ansible/inventory/georegistry/demo.ini
+sed -i -e 's/demo-georegistry.geoprism.net/172.31.22.3/g' geoprism-platform/ansible/inventory/georegistry/demo.ini
 sed -i -e "s/clean_db=true/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_db=false/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
