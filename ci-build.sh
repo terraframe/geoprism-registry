@@ -17,9 +17,6 @@
 # License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Stupid hack for the current geoprism 0.7.0 deploy
-sed -i -e 's|961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism:latest|961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism@sha256:7ac27a2ddf13313150e86409b79ca1fa14304e2a94307dd6208a5e67e1845a12|g' geoprism-platform/ansible/inventory/georegistry/$environment.ini
-
 
 # Replace external ips with internal ips since jenkins runs inside our VPC
 sed -i -e 's/georegistry.geoprism.net/172.31.30.53/g' geoprism-platform/ansible/inventory/georegistry/prod.ini
@@ -32,7 +29,7 @@ sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" geoprism-platform/a
 sed -i -e "s/clean_orientdb=false/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
-source /home/ec2-user/.bashrc
+#source /home/ec2-user/.bashrc
 source /home/ec2-user/ansible/hacking/env-setup
 
 export M2_HOME=/usr/local/apache-maven
@@ -51,7 +48,8 @@ cd $WORKSPACE/adapter/java
 mvn clean deploy -B
 
 ## Build angular source ##
-nvm install lts/carbon
+npm version
+#nvm install lts/carbon # If you change this, make sure to also update it in the georegistry formal release script
 cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
 npm install
 # npm install typings
