@@ -18,14 +18,9 @@
  */
 package com.runwaysdk.patcher.domain;
 
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.ServiceFactory;
-
-import org.apache.log4j.Logger;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
@@ -47,6 +42,12 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
+import net.geoprism.DefaultConfiguration;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.service.ServiceFactory;
+
 /**
  * Fixes https://github.com/terraframe/geoprism-registry/issues/134
  * 
@@ -54,7 +55,7 @@ import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
  */
 public class AddWritePermissions
 {
-  private static Logger logger = Logger.getLogger(AddWritePermissions.class);
+  private static Logger logger = LoggerFactory.getLogger(AddWritePermissions.class);
   
   public static void main(String[] args)
   {
