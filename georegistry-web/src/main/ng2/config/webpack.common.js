@@ -21,8 +21,13 @@ module.exports = {
           loader: '@ngtools/webpack'
       },
       {
-        test: /\.html$/,
-        loader: 'html-loader'
+          test: /\.html$/,
+          use: [ {
+              loader: 'html-loader',
+              options: {
+                minimize: false
+              }
+            }]    	
       },
       {
         test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
