@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { StepConfig,ModalTypes } from '../../../../shared/model/modal';

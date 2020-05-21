@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { JobConflictModalComponent } from './conflict-widgets/job-conflict-modal.component';
 import { ReuploadModalComponent } from './conflict-widgets/reupload-modal.component';
-
-import Utils from '../../utility/Utils'
 
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
@@ -18,318 +16,301 @@ import { ScheduledJob } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
 import { IOService } from '../../service/io.service';
 
-import {Observable} from 'rxjs/Rx';
+import { interval } from 'rxjs';
 
-@Component( {
-    selector: 'job',
-    templateUrl: './job.component.html',
-    styleUrls: ['./scheduled-jobs.css']
-} )
+@Component({
+	selector: 'job',
+	templateUrl: './job.component.html',
+	styleUrls: ['./scheduled-jobs.css']
+})
 export class JobComponent implements OnInit {
-    message: string = null;
-    job: ScheduledJob;
-    allSelected: boolean = false;
-    historyId: string = "";
-    
-    page: any = {
-        count: 0,
-        pageNumber: 1,
-        pageSize: 10,
-        results: []
-    };
-    
-    timeCounter: number = 0;
-    
+	message: string = null;
+	job: ScheduledJob;
+	allSelected: boolean = false;
+	historyId: string = "";
+
+	page: any = {
+		count: 0,
+		pageNumber: 1,
+		pageSize: 10,
+		results: []
+	};
+
+	timeCounter: number = 0;
+
     /*
      * Reference to the modal current showing
     */
-    bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
-    isAdmin: boolean;
-    isMaintainer: boolean;
-    isContributor: boolean;
-    
-    pollingData: any;
-    isPolling: boolean = false;
-    hasRowValidationProblem: boolean = false;
+	isAdmin: boolean;
+	isMaintainer: boolean;
+	isContributor: boolean;
 
-    constructor( public service: RegistryService, private modalService: BsModalService,
-        private router: Router, private route: ActivatedRoute,
-        private localizeService: LocalizationService, authService: AuthService, public ioService: IOService ) {
-        this.isAdmin = authService.isAdmin();
-        this.isMaintainer = this.isAdmin || authService.isMaintainer();
-        this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-    }
+	pollingData: any;
+	isPolling: boolean = false;
+	hasRowValidationProblem: boolean = false;
 
-    ngOnInit(): void {
+	constructor(public service: RegistryService, private modalService: BsModalService,
+		private router: Router, private route: ActivatedRoute,
+		private localizeService: LocalizationService, authService: AuthService, public ioService: IOService) {
+		this.isAdmin = authService.isAdmin();
+		this.isMaintainer = this.isAdmin || authService.isMaintainer();
+		this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
+	}
 
-        this.historyId = this.route.snapshot.params["oid"];
+	ngOnInit(): void {
 
-        this.onPageChange(1);
-        
-    }
-    
-    ngOnDestroy() {
-      this.stopPolling();
-    }
-    
-    formatAffectedRows(rows: string)
-    {
-      return rows.replace(/,/g, ", ");
-    }
-    
-    formatValidationResolve(obj: any)
-    {
-      return JSON.stringify(obj);
-    }
+		this.historyId = this.route.snapshot.params["oid"];
 
-    onProblemResolved(problem: any): void {
-      for (let i = 0; i < this.page.results.length; ++i)
-      {
-        let pageConflict = this.page.results[i];
-        
-        if (pageConflict.id === problem.id)
-        {
-          this.page.results.splice(i, 1);
-        }
-      }
-    }
+		this.onPageChange(1);
 
-    getFriendlyProblemType(probType: string): string {
+	}
 
-        if(probType === "net.geoprism.registry.io.ParentCodeException"){
-            return this.localizeService.decode( "scheduledjobs.job.problem.type.parent.lookup" );
-        }
+	ngOnDestroy() {
+		this.stopPolling();
+	}
 
-        if(probType === "net.geoprism.registry.io.PostalCodeLocationException"){
-            return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
-        }
+	formatAffectedRows(rows: string) {
+		return rows.replace(/,/g, ", ");
+	}
 
-        if(probType === "net.geoprism.registry.io.AmbiguousParentException"){
-          return this.localizeService.decode( "scheduledjobs.job.problem.type.multi.parent.lookup" );
-        }
+	formatValidationResolve(obj: any) {
+		return JSON.stringify(obj);
+	}
 
-        if(probType === "net.geoprism.registry.io.InvalidGeometryException"){
-          return this.localizeService.decode( "scheduledjobs.job.problem.type.invalid.geom.lookup" );
-        }
+	onProblemResolved(problem: any): void {
+		for (let i = 0; i < this.page.results.length; ++i) {
+			let pageConflict = this.page.results[i];
 
-        if(probType === "net.geoprism.registry.DataNotFoundException"){
-          return this.localizeService.decode( "scheduledjobs.job.problem.type.required.value.lookup" );
-        }
-        
-        if(
-            probType === "net.geoprism.registry.roles.CreateGeoObjectPermissionException"
-            || probType === "net.geoprism.registry.roles.WriteGeoObjectPermissionException"
-            || probType === "net.geoprism.registry.roles.DeleteGeoObjectPermissionException"
-            || probType === "net.geoprism.registry.roles.ReadGeoObjectPermissionException"
-          ){
-          return this.localizeService.decode( "scheduledjobs.job.problem.type.permission" );
-        }
+			if (pageConflict.id === problem.id) {
+				this.page.results.splice(i, 1);
+			}
+		}
+	}
 
-        // if(probType === "net.geoprism.registry.io.TermValueException"){
-        //   return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
-        // }
-        
-        if(
-          probType === "com.runwaysdk.dataaccess.DuplicateDataException"
-          || probType === "net.geoprism.registry.DuplicateGeoObjectException"
-          ){
-          return this.localizeService.decode( "scheduledjobs.job.problem.type.duplicate.data.lookup" );
-        }
+	getFriendlyProblemType(probType: string): string {
 
-        return probType;
-    }
+		if (probType === "net.geoprism.registry.io.ParentCodeException") {
+			return this.localizeService.decode("scheduledjobs.job.problem.type.parent.lookup");
+		}
+
+		if (probType === "net.geoprism.registry.io.PostalCodeLocationException") {
+			return this.localizeService.decode("scheduledjobs.job.problem.type.postal.code.lookup");
+		}
+
+		if (probType === "net.geoprism.registry.io.AmbiguousParentException") {
+			return this.localizeService.decode("scheduledjobs.job.problem.type.multi.parent.lookup");
+		}
+
+		if (probType === "net.geoprism.registry.io.InvalidGeometryException") {
+			return this.localizeService.decode("scheduledjobs.job.problem.type.invalid.geom.lookup");
+		}
+
+		if (probType === "net.geoprism.registry.DataNotFoundException") {
+			return this.localizeService.decode("scheduledjobs.job.problem.type.required.value.lookup");
+		}
+
+		if (
+			probType === "net.geoprism.registry.roles.CreateGeoObjectPermissionException"
+			|| probType === "net.geoprism.registry.roles.WriteGeoObjectPermissionException"
+			|| probType === "net.geoprism.registry.roles.DeleteGeoObjectPermissionException"
+			|| probType === "net.geoprism.registry.roles.ReadGeoObjectPermissionException"
+		) {
+			return this.localizeService.decode("scheduledjobs.job.problem.type.permission");
+		}
+
+		// if(probType === "net.geoprism.registry.io.TermValueException"){
+		//   return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
+		// }
+
+		if (
+			probType === "com.runwaysdk.dataaccess.DuplicateDataException"
+			|| probType === "net.geoprism.registry.DuplicateGeoObjectException"
+		) {
+			return this.localizeService.decode("scheduledjobs.job.problem.type.duplicate.data.lookup");
+		}
+
+		return probType;
+	}
 
 
-    onEdit( problem: any ): void {
-        // this.router.navigate( ['/registry/master-list-history/', code] )
+	onEdit(problem: any): void {
+		// this.router.navigate( ['/registry/master-list-history/', code] )
 
-         this.bsModalRef = this.modalService.show( JobConflictModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
-        this.bsModalRef.content.problem = problem;
-        this.bsModalRef.content.job = this.job;
-        this.bsModalRef.content.onConflictAction.subscribe( data => {
-          if (data.action === 'RESOLVED')
-          {
-            this.onProblemResolved(data.data);
-          }
-        } );
-    }
+		this.bsModalRef = this.modalService.show(JobConflictModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.bsModalRef.content.problem = problem;
+		this.bsModalRef.content.job = this.job;
+		this.bsModalRef.content.onConflictAction.subscribe(data => {
+			if (data.action === 'RESOLVED') {
+				this.onProblemResolved(data.data);
+			}
+		});
+	}
 
-    onPageChange( pageNumber: any ): void {
+	onPageChange(pageNumber: any): void {
 
-        this.message = null;
+		this.message = null;
 
-        this.service.getScheduledJob(this.historyId, this.page.pageSize, pageNumber, true).then( response => {
+		this.service.getScheduledJob(this.historyId, this.page.pageSize, pageNumber, true).then(response => {
 
-            this.job = response;
-            
-            if (this.job.stage === 'IMPORT_RESOLVE')
-            {
-              this.page = this.job.importErrors;
-            }
-            else if (this.job.stage === 'VALIDATION_RESOLVE')
-            {
-              this.page = this.job.problems;
-              
-              for (let i = 0; i < this.page.results.length; ++i)
-              {
-                let problem = this.page.results[i];
-                
-                if (problem.type === 'RowValidationProblem')
-                {
-                  this.hasRowValidationProblem = true;
-                }
-              }
-            }
-            
-            if (!this.isPolling && this.job.status === 'RUNNING')
-            {
-              this.startPolling();
-            }
-            else if (this.isPolling && this.job.status != 'RUNNING')
-            {
-              this.stopPolling();
-            }
+			this.job = response;
 
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+			if (this.job.stage === 'IMPORT_RESOLVE') {
+				this.page = this.job.importErrors;
+			}
+			else if (this.job.stage === 'VALIDATION_RESOLVE') {
+				this.page = this.job.problems;
 
-    }
-    
-    stopPolling(): void {
-      if (this.isPolling && this.pollingData != null)
-      {
-        this.pollingData.unsubscribe();
-      }
-    }
-    
-    startPolling(): void {
-      this.timeCounter = 0;
-    
-      this.pollingData = Observable.interval(1000).subscribe(() => {
-        this.timeCounter++
-        
-        if (this.timeCounter >= 2)
-        {
-          this.onPageChange(this.page.pageNumber);
-          
-          this.timeCounter = 0;
-        }
-      });
-      
-      this.isPolling = true;
-    }
+				for (let i = 0; i < this.page.results.length; ++i) {
+					let problem = this.page.results[i];
 
-    onViewAllActiveJobs(): void {
+					if (problem.type === 'RowValidationProblem') {
+						this.hasRowValidationProblem = true;
+					}
+				}
+			}
 
-    }
+			if (!this.isPolling && this.job.status === 'RUNNING') {
+				this.startPolling();
+			}
+			else if (this.isPolling && this.job.status != 'RUNNING') {
+				this.stopPolling();
+			}
 
-    onViewAllCompleteJobs(): void {
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 
-    }
+	}
 
-    toggleAll(): void {
-        this.allSelected = !this.allSelected;
+	stopPolling(): void {
+		if (this.isPolling && this.pollingData != null) {
+			this.pollingData.unsubscribe();
+		}
+	}
 
-        this.job.importErrors.results.forEach(row => {
-            row.selected = this.allSelected;
-        })
-    }
+	startPolling(): void {
+		this.timeCounter = 0;
 
-    onReuploadAndResume(historyId: string): void {
-      this.bsModalRef = this.modalService.show( ReuploadModalComponent, {
-          animated: true,
-          backdrop: true,
-          ignoreBackdropClick: true,
-      } );
-      
-      this.bsModalRef.content.job = this.job;
-  
-      this.bsModalRef.content.onConfirm.subscribe( data => {
-        this.router.navigate( ['/registry/scheduled-jobs'] )
-      } );
-    }
+		this.pollingData = interval(1000).subscribe(() => {
+			this.timeCounter++
 
-    onResolveScheduledJob(historyId: string): void {
-      if (this.page.results.length == 0)
-      {
-        this.service.resolveScheduledJob( historyId ).then( response => {
-          this.router.navigate( ['/registry/scheduled-jobs'] );
-        } ).catch(( err: HttpErrorResponse ) => {
-          this.error( err );
-        } );
-      }
-      else
-      {
-        this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
-        
-        if (this.job.stage === 'VALIDATION_RESOLVE')
-        {
-          this.bsModalRef.content.message =  this.localizeService.decode( "etl.import.resume.modal.validationDescription" );
-          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.validationButton" );
-        }
-        else
-        {
-          this.bsModalRef.content.message = this.localizeService.decode( "etl.import.resume.modal.importDescription" );
-          this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.resume.modal.importButton" );
-        }
-        
-        this.bsModalRef.content.type = ModalTypes.danger;
-    
-        this.bsModalRef.content.onConfirm.subscribe( data => {
-    
-          this.service.resolveScheduledJob( historyId ).then( response => {
-    
-              this.router.navigate( ['/registry/scheduled-jobs'] )
-              
-           } ).catch(( err: HttpErrorResponse ) => {
-               this.error( err );
-           } );
-    
-        } );
-      }
-    }
-    
-    onCancelScheduledJob(historyId: string): void {
-      this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-          animated: true,
-          backdrop: true,
-          ignoreBackdropClick: true,
-      } );
-      
-      this.bsModalRef.content.message = this.localizeService.decode( "etl.import.cancel.modal.description" );
-      this.bsModalRef.content.submitText = this.localizeService.decode( "etl.import.cancel.modal.button" );
-      
-      this.bsModalRef.content.type = ModalTypes.danger;
-      
-      this.bsModalRef.content.onConfirm.subscribe( data => {
-      
-        this.ioService.cancelImport( this.job.configuration ).then( response => {
-          //this.bsModalRef.hide()
-          this.router.navigate( ['/registry/scheduled-jobs'] )
-        } ).catch(( err: HttpErrorResponse ) => {
-          this.error( err );
-        } );
-  
-      } );
-    }
+			if (this.timeCounter >= 2) {
+				this.onPageChange(this.page.pageNumber);
 
-    error( err: HttpErrorResponse ): void {
-      console.log("Encountered error", err);
-    
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
-    }
+				this.timeCounter = 0;
+			}
+		});
+
+		this.isPolling = true;
+	}
+
+	onViewAllActiveJobs(): void {
+
+	}
+
+	onViewAllCompleteJobs(): void {
+
+	}
+
+	toggleAll(): void {
+		this.allSelected = !this.allSelected;
+
+		this.job.importErrors.results.forEach(row => {
+			row.selected = this.allSelected;
+		})
+	}
+
+	onReuploadAndResume(historyId: string): void {
+		this.bsModalRef = this.modalService.show(ReuploadModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+
+		this.bsModalRef.content.job = this.job;
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+			this.router.navigate(['/registry/scheduled-jobs'])
+		});
+	}
+
+	onResolveScheduledJob(historyId: string): void {
+		if (this.page.results.length == 0) {
+			this.service.resolveScheduledJob(historyId).then(response => {
+				this.router.navigate(['/registry/scheduled-jobs']);
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
+		else {
+			this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
+			});
+
+			if (this.job.stage === 'VALIDATION_RESOLVE') {
+				this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.validationDescription");
+				this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.validationButton");
+			}
+			else {
+				this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.importDescription");
+				this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.importButton");
+			}
+
+			this.bsModalRef.content.type = ModalTypes.danger;
+
+			this.bsModalRef.content.onConfirm.subscribe(data => {
+
+				this.service.resolveScheduledJob(historyId).then(response => {
+
+					this.router.navigate(['/registry/scheduled-jobs'])
+
+				}).catch((err: HttpErrorResponse) => {
+					this.error(err);
+				});
+
+			});
+		}
+	}
+
+	onCancelScheduledJob(historyId: string): void {
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+
+		this.bsModalRef.content.message = this.localizeService.decode("etl.import.cancel.modal.description");
+		this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.cancel.modal.button");
+
+		this.bsModalRef.content.type = ModalTypes.danger;
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+
+			this.ioService.cancelImport(this.job.configuration).then(response => {
+				//this.bsModalRef.hide()
+				this.router.navigate(['/registry/scheduled-jobs'])
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+
+		});
+	}
+
+	error(err: HttpErrorResponse): void {
+		console.log("Encountered error", err);
+
+		// Handle error
+		if (err !== null) {
+			this.message = (err.error.localizedMessage || err.error.message || err.message);
+		}
+	}
 
 }

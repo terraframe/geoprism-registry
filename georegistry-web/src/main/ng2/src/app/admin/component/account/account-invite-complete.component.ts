@@ -22,8 +22,8 @@ import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSna
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
+import { Observable } from 'rxjs';
+
 
 import { User, PageResult, Account } from '../../model/account';
 import { AccountService } from '../../service/account.service';

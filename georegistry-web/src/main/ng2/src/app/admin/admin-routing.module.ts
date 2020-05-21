@@ -1,7 +1,7 @@
 import { NgModule, Injectable, Inject } from '@angular/core';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { Routes, RouterModule, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from '../shared/service/guard.service';
 import { PendingChangesGuard } from "../shared/service/pending-changes-guard";

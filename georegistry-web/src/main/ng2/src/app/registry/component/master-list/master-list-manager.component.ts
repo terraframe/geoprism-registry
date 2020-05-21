@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterListByOrg } from '../../model/registry';
@@ -59,7 +59,7 @@ export class MasterListManagerComponent implements OnInit {
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.init(org);
-		this.bsModalRef.content.onMasterListChange.subscribe(list => {
+		this.bsModalRef.content.onMasterListChange.subscribe((list: any) => {
 			const obj = {
 				label: list.displayLabel.localizedValue,
 				oid: list.oid,

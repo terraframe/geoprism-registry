@@ -1,9 +1,6 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
-import { Action } from 'rxjs/scheduler/Action';
-import { GeoObject, GeoObjectType } from '../../../model/registry';
-import { CreateUpdateGeoObjectDetailComponent } from './create-update-geo-object/detail.component';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
 
 export interface ActionDetailComponent {
     endEdit(): void;

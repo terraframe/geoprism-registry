@@ -1,10 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subscription, Observable } from 'rxjs';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subscription, interval } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PublishModalComponent } from './publish-modal.component';
@@ -58,7 +56,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 			this.onPageChange(1);
 		});
 
-		this.pollingData = Observable.interval(5000).subscribe(() => {
+		this.pollingData = interval(5000).subscribe(() => {
 			this.onPageChange(this.page.pageNumber);
 		});
 	}

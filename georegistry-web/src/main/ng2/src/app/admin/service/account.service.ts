@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { EventService } from '../../shared/service/event.service'
 import { MessageContainer } from '../../shared/model/core';
@@ -43,9 +43,9 @@ export class AccountService {
 
         return this.http
             .get<PageResult>( acp + '/account/page', { params: params } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -59,9 +59,9 @@ export class AccountService {
 
         return this.http
             .post<Account>( acp + '/registryaccount/edit', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -75,9 +75,9 @@ export class AccountService {
 
         return this.http
             .post<Account>( acp + '/registryaccount/newInstance', JSON.stringify( {"organizationCodes": organizationCodes} ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -91,9 +91,9 @@ export class AccountService {
 
         return this.http
             .post<User>( acp + '/registryaccount/newUserInstance', JSON.stringify( {} ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -107,9 +107,9 @@ export class AccountService {
 
         return this.http
             .post<Account>( acp + '/registryaccount/newInvite', JSON.stringify( {} ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -123,9 +123,9 @@ export class AccountService {
 
         return this.http
             .post<void>( acp + '/account/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -139,9 +139,9 @@ export class AccountService {
 
         return this.http
             .post<User>( acp + '/registryaccount/apply', JSON.stringify( { account: user, roleNames: roleNames } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -155,9 +155,9 @@ export class AccountService {
 
         return this.http
             .post<void>( acp + '/account/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -172,9 +172,9 @@ export class AccountService {
 
         return this.http
             .post<void>( acp + '/registryaccount/inviteUser', JSON.stringify( { invite: invite, roleIds: roleIds } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -187,9 +187,9 @@ export class AccountService {
 
         return this.http
             .post<void>( acp + '/registryaccount/inviteComplete', JSON.stringify( { user: user, token: token } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -201,9 +201,9 @@ export class AccountService {
 
         return this.http
             .get<any>( acp + '/cgr/account/get-roles-for-user', { params: params } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 

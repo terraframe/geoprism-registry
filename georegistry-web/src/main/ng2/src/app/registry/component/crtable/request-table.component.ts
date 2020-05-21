@@ -1,8 +1,8 @@
 import { Component, OnInit, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { ChangeRequest, PageEvent, AbstractAction, AddChildAction, SetParentAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from '../../model/crtable';

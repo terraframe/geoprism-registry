@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '../model/user';
-import { Locale } from '../../admin/model/localization-manager';
 import { RoleBuilder, RegistryRole, RegistryRoleType } from '../model/core';
 
 @Injectable()
@@ -20,7 +19,7 @@ export class AuthService {
 
     if ( this.service.check( "user" ) && cookie != null && cookie.length > 0 ) {
       let cookieData: string = this.service.get( "user" )
-      let cookieDataJSON: any = JSON.parse( JSON.parse( cookieData ) );
+      let cookieDataJSON: any = JSON.parse( cookieData );
       
       this.buildFromCookieJson(cookieDataJSON);
     }

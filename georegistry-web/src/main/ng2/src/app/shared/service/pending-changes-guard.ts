@@ -1,12 +1,12 @@
 import { CanDeactivate } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 // Thanks to : https://stackoverflow.com/a/41187919/219843
 
 export interface ComponentCanDeactivate {
   canDeactivate: () => boolean | Observable<boolean>;
-  afterDeactivate: (boolean) => void;
+  afterDeactivate: (arg:boolean) => void;
 }
 
 @Injectable()

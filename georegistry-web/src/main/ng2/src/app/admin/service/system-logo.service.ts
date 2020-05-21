@@ -18,9 +18,9 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { EventService } from '../../shared/service/event.service'
 
@@ -31,32 +31,32 @@ declare var acp: any;
 @Injectable()
 export class SystemLogoService {
 
-    constructor( private http: HttpClient, private eventService: EventService ) { }
+	constructor(private http: HttpClient, private eventService: EventService) { }
 
-    getIcons(): Promise<{ icons: SystemLogo[] }> {
-        this.eventService.start();
+	getIcons(): Promise<{ icons: SystemLogo[] }> {
+		this.eventService.start();
 
-        return this.http
-            .get<{ icons: SystemLogo[] }>( acp + '/logo/getAll' )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-    }
+		return this.http
+			.get<{ icons: SystemLogo[] }>(acp + '/logo/getAll')
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
-    remove( oid: string ): Promise<void> {
+	remove(oid: string): Promise<void> {
 
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        this.eventService.start();
+		this.eventService.start();
 
-        return this.http
-            .post<void>( acp + '/logo/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-    }
+		return this.http
+			.post<void>(acp + '/logo/remove', JSON.stringify({ oid: oid }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 }

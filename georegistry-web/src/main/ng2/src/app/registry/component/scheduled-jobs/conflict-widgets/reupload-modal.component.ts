@@ -1,9 +1,9 @@
 import { Component, Input, ViewChild, ElementRef } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 import { ModalTypes } from '../../../../shared/model/modal';
-import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
+import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { EventService } from '../../../../shared/service/event.service'
 import { ScheduledJob } from '../../../model/registry';
 

@@ -21,13 +21,13 @@ import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, View
 import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 
 import { Email } from '../../model/email';
 import { EmailService } from '../../service/email.service';
 
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 
 @Component({

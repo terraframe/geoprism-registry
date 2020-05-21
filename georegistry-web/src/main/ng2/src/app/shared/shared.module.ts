@@ -9,11 +9,10 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { CookieService } from 'ngx-cookie-service';
-import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
+import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
-import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
 import { CustomFormsModule } from 'ng2-validation'
 
 import { ErrorModalComponent } from './component/modals/error-modal.component';
@@ -24,6 +23,7 @@ import { MessageComponent } from './component/message/message.component';
 import { ValidationComponent } from './component/form-fields/base/validation.component';
 import { BooleanFieldComponent } from './component/form-fields/boolean-field/boolean-field.component';
 import { LoadingBarComponent } from './component/loading-bar/loading-bar.component';
+import { PasswordStrengthBarComponent } from './component/password-strength-bar/password-strength-bar.component';
 
 import { AdminGuard, MaintainerGuard, ContributerGuard, AuthGuard } from './service/guard.service';
 import { PendingChangesGuard } from './service/pending-changes-guard';
@@ -65,7 +65,6 @@ import '../rxjs-extensions';
         ProgressbarModule,
         CollapseModule,
         NgxPaginationModule,
-        PasswordStrengthBarModule,
         CustomFormsModule
     ],
     declarations: [
@@ -77,6 +76,7 @@ import '../rxjs-extensions';
         ConfirmModalComponent,
         ErrorModalComponent,
         SuccessModalComponent,
+		PasswordStrengthBarComponent,
         OnlyNumber,
         ValidationComponent,
         ProgressBarComponent,
@@ -95,6 +95,7 @@ import '../rxjs-extensions';
         ConfirmModalComponent,
         ErrorModalComponent,
         SuccessModalComponent,
+		PasswordStrengthBarComponent,
         OnlyNumber,
         ValidationComponent,
         ProgressBarComponent,

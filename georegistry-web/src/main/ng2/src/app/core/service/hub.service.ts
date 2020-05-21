@@ -18,11 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-
-import 'rxjs/add/operator/toPromise';
-
-import { EventService } from '../../shared/service/event.service';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
 
 import { Application } from '../../shared/model/application';
 
@@ -31,7 +27,7 @@ declare var acp: any;
 @Injectable()
 export class HubService {
   
-  constructor(service: EventService, private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
   
   applications(): Promise<Application[]> {
 

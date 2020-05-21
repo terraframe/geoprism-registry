@@ -19,8 +19,8 @@
 
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { HierarchyType } from '../model/hierarchy';
 import { TreeEntity } from '../model/registry';
@@ -52,9 +52,9 @@ export class HierarchyService {
 
        return this.http
            .post<HierarchyType>( acp + '/cgr/hierarchytype/add', JSON.stringify( { hierarchyCode : hierarchyCode, parentGeoObjectTypeCode : parentGeoObjectTypeCode, childGeoObjectTypeCode : childGeoObjectTypeCode } ), { headers: headers } )
-           .finally(() => {
-               this.eventService.complete();
-           } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
            .toPromise();
     }
     
@@ -68,9 +68,9 @@ export class HierarchyService {
 
         return this.http
             .post<HierarchyType>( acp + '/cgr/hierarchytype/remove', JSON.stringify( { hierarchyCode : hierarchyCode, parentGeoObjectTypeCode : parentGeoObjectTypeCode, childGeoObjectTypeCode : childGeoObjectTypeCode } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
      }
     
@@ -84,9 +84,9 @@ export class HierarchyService {
 
         return this.http
             .post<HierarchyType>( acp + '/cgr/hierarchytype/create', JSON.stringify({ 'htJSON': htJSON }), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
     
@@ -100,9 +100,9 @@ export class HierarchyService {
 
         return this.http
             .post<HierarchyType>( acp + '/cgr/hierarchytype/update', JSON.stringify({ 'htJSON': htJSON }), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
     
@@ -116,9 +116,9 @@ export class HierarchyService {
 
         return this.http
             .post<TreeEntity>( acp + '/cgr/hierarchytype/delete', { 'code': code }, { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 

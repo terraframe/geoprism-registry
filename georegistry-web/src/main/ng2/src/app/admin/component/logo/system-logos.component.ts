@@ -23,7 +23,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { LocalizationService } from '../../../shared/service/localization.service';

@@ -4,7 +4,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
 import { CreateHierarchyTypeModalComponent } from './modals/create-hierarchy-type-modal.component';

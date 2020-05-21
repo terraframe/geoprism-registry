@@ -2,8 +2,8 @@ import { Input, Component, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef
 import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Observable } from 'rxjs/Observable';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Observable } from 'rxjs';
 
 import { HierarchyOverTime } from '../../../../model/registry';
 import { AbstractAction } from '../../../../model/crtable';

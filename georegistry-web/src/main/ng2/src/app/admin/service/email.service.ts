@@ -18,9 +18,9 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { EventService } from '../../shared/service/event.service'
 
@@ -30,34 +30,33 @@ declare var acp: any;
 
 @Injectable()
 export class EmailService {
-  
-  constructor(private http: HttpClient, private eventService: EventService) {
-  }
-  
-  getInstance(): Promise<Email> {
-    
-    this.eventService.start();
-    
-    return this.http
-      .get<Email>(acp + '/email/getInstance')
-      .finally(() => {
-        this.eventService.complete();
-      } )
-      .toPromise();
-  }  
-  
-  apply(email:Email): Promise<Email> {
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-    
-    this.eventService.start();
-  
-    return this.http
-      .post<Email>(acp + '/email/apply', JSON.stringify({setting:email}), {headers: headers})
-      .finally(() => {
-        this.eventService.complete();
-      } )
-      .toPromise();
-  }  
+
+	constructor(private http: HttpClient, private eventService: EventService) {
+	}
+
+	getInstance(): Promise<Email> {
+
+		this.eventService.start();
+
+		return this.http.get<Email>(acp + '/email/getInstance')
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
+
+	apply(email: Email): Promise<Email> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
+
+		this.eventService.start();
+
+		return this.http
+			.post<Email>(acp + '/email/apply', JSON.stringify({ setting: email }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 }

@@ -19,9 +19,9 @@
 
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-import { Observable, TestScheduler } from 'rxjs';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+
+import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, 
     ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage, MasterListByOrg } from '../model/registry';
@@ -94,9 +94,9 @@ export class RegistryService {
 
         return this.http
             .post<any>( acp + '/cgr/geoobject/newGeoObjectInstance', JSON.stringify( { 'typeCode': typeCode } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -110,9 +110,9 @@ export class RegistryService {
 
         return this.http
             .post<GeoObjectType>( acp + '/cgr/geoobjecttype/create', JSON.stringify( { 'gtJSON': gtJSON } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -125,9 +125,9 @@ export class RegistryService {
 
         return this.http
             .post<GeoObjectType>( acp + '/cgr/geoobjecttype/update', JSON.stringify( { "gtJSON": gtJSON } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -140,9 +140,9 @@ export class RegistryService {
 
         return this.http
             .post<void>( acp + '/cgr/geoobjecttype/delete', JSON.stringify( { code: code } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 
@@ -156,9 +156,9 @@ export class RegistryService {
 
         return this.http
             .post<Attribute>( acp + '/cgr/geoobjecttype/addattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -173,9 +173,9 @@ export class RegistryService {
 
         return this.http
             .post<Attribute>( acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -190,9 +190,9 @@ export class RegistryService {
 
         return this.http
             .post<boolean>( acp + '/cgr/geoobjecttype/deleteattribute', JSON.stringify( { 'geoObjTypeId': geoObjTypeId, 'attributeName': attributeName } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -207,9 +207,9 @@ export class RegistryService {
 
         return this.http
             .post<Term>( acp + '/cgr/geoobjecttype/addterm', JSON.stringify( { 'parentTermCode': parentTermCode, 'termJSON': term } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -224,9 +224,9 @@ export class RegistryService {
 
         return this.http
             .post<Term>( acp + '/cgr/geoobjecttype/updateterm', JSON.stringify( { 'termJSON': termJSON } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -241,9 +241,9 @@ export class RegistryService {
 
         return this.http
             .post<Attribute>( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { 'termCode': termCode } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -301,9 +301,9 @@ export class RegistryService {
 
         return this.http
             .get<HierarchyOverTime[]>( acp + '/cgr/geoobject/get-hierarchies-over-time', { params: params } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 
@@ -396,9 +396,9 @@ export class RegistryService {
 
         return this.http
             .post<void>( acp + '/etl/import-resolve', JSON.stringify( { historyId: historyId } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
     
@@ -411,9 +411,9 @@ export class RegistryService {
   
       return this.http
         .post<MasterList>( acp + '/etl/validation-resolve', JSON.stringify( { config: config } ), { headers: headers } )
-        .finally(() => {
-            this.eventService.complete();
-        } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
         .toPromise();
     }
     
@@ -426,9 +426,9 @@ export class RegistryService {
       
       return this.http
         .post<MasterList>( acp + '/etl/error-resolve', JSON.stringify( { config: config } ), { headers: headers } )
-        .finally(() => {
-            this.eventService.complete();
-        } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
         .toPromise();
     }
 
@@ -501,9 +501,9 @@ export class RegistryService {
 
         return this.http
             .post<any>( acp + '/cgr/geoobject-time/newGeoObjectInstance', JSON.stringify( { 'typeCode': typeCode } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -539,9 +539,9 @@ export class RegistryService {
 
         return this.http
             .post<Response>( acp + '/cgr/geoobject/setAttributeVersions', JSON.stringify( params ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -554,9 +554,9 @@ export class RegistryService {
 
         return this.http
             .post<MasterList>( acp + '/master-list/create', JSON.stringify( { list: list } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -569,9 +569,9 @@ export class RegistryService {
 
         return this.http
             .post<MasterListVersion>( acp + '/master-list/create-version', JSON.stringify( { oid: oid, forDate: forDate } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -584,9 +584,9 @@ export class RegistryService {
 
         return this.http
             .post<{ job: string }>( acp + '/master-list/publish-versions', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -599,9 +599,9 @@ export class RegistryService {
 
         return this.http
             .post<void>( acp + '/master-list/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 
@@ -614,9 +614,9 @@ export class RegistryService {
 
         return this.http
             .post<void>( acp + '/master-list/remove-version', JSON.stringify( { oid: oid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 
@@ -655,9 +655,9 @@ export class RegistryService {
 
         return this.http
             .post<void>( acp + '/geoobject-editor/apply', JSON.stringify( params ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -766,9 +766,9 @@ export class RegistryService {
 
         return this.http
             .get<Organization[]>(acp + '/cgr/organizations/get-all')
-            .finally(() => {
-                this.eventService.complete();
-            })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 

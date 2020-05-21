@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
-import { Observable } from 'rxjs/Observable';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 import { ChangeRequest, AbstractAction } from '../model/crtable';
 import { EventService } from '../../shared/service/event.service';
@@ -26,9 +26,9 @@ export class ChangeRequestService {
 
         return this.http
             .get<AbstractAction[]>( acp + '/changerequest/getAllActions', { params: params } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
 	}
 	
@@ -64,9 +64,9 @@ export class ChangeRequestService {
 
         return this.http
             .post<void>( acp + '/changerequest/applyAction', JSON.stringify( { action: action } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
 	}
 	
@@ -79,9 +79,9 @@ export class ChangeRequestService {
 
         return this.http
             .post<void>( acp + '/changerequest/applyActionStatusProperties', JSON.stringify( { action: action } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
 	}
 	
@@ -95,9 +95,9 @@ export class ChangeRequestService {
 
         return this.http
             .post<void>( acp + '/changerequest/lockAction', JSON.stringify( { actionId: actionId } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -110,9 +110,9 @@ export class ChangeRequestService {
 
         return this.http
             .post<void>( acp + '/changerequest/unlockAction', JSON.stringify( { actionId: actionId } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -132,9 +132,9 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http.get<ChangeRequest>( acp + '/changerequest/get-request-details', { params: params } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -146,9 +146,9 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http.post<ChangeRequest>( acp + '/changerequest/confirm-change-request', JSON.stringify( { requestId: requestId } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
 	}
 	
@@ -160,9 +160,9 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http.post<ChangeRequest>( acp + '/changerequest/execute-actions', JSON.stringify( { requestId: requestId } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -174,9 +174,9 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http.post<AbstractAction[]>( acp + '/changerequest/reject-all-actions', JSON.stringify( { requestId: requestId, actions: actions } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -188,9 +188,9 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http.post<AbstractAction[]>( acp + '/changerequest/approve-all-actions', JSON.stringify( { requestId: requestId, actions: actions } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -205,9 +205,9 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http.post<GeoObject>( acp + '/cgr/submitChangeRequest', {actions: actions}, { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 

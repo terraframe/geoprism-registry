@@ -18,19 +18,17 @@
 ///
 
 import { Component, Input, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { Location } from '@angular/common';
-import 'rxjs/add/operator/switchMap';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
 
-import { RoleManagementComponent } from './role-management.component';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+
 
 import { Account, User, Role } from '../../model/account';
 import { AccountService } from '../../service/account.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
-import { Localization } from '../../model/settings';
 
 @Component( {
     selector: 'account',

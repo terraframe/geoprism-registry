@@ -17,15 +17,13 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
 
-import { ForgotPasswordCompleteService } from '../../service/forgotpassword-complete.service';
+
+import { ForgotPasswordService } from '../../service/forgotpassword.service';
 
 
 @Component({
@@ -40,10 +38,9 @@ export class ForgotPasswordCompleteComponent implements OnInit {
   message: string = null;
 
   constructor(
-    private service: ForgotPasswordCompleteService,
+    private service: ForgotPasswordService,
     private router: Router,      
-    private route: ActivatedRoute,
-    private location: Location) {
+    private route: ActivatedRoute) {
   }
   
   ngOnInit() {
@@ -63,7 +60,7 @@ export class ForgotPasswordCompleteComponent implements OnInit {
   
   onSubmit(): void {
     this.service.complete(this.newPassword, this.token)
-      .then(response => {
+      .then(() => {
         this.passwordIsReset = true;
       })
       .catch(( err: HttpErrorResponse ) => {

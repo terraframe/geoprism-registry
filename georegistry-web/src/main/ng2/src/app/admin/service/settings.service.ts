@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { EventService } from '../../shared/service/event.service'
 import { MessageContainer } from '../../shared/model/core';
@@ -34,67 +34,67 @@ declare var acp: any;
 @Injectable()
 export class SettingsService {
 
-    constructor( private http: HttpClient, private eventService: EventService ) { }
+	constructor(private http: HttpClient, private eventService: EventService) { }
 
-    getOrganizations(): Promise<Organization[]> {
+	getOrganizations(): Promise<Organization[]> {
 
-        this.eventService.start();
-    
-        return this.http
-            .get<Organization[]>(acp + '/cgr/organizations/get-all')
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-    }
+		this.eventService.start();
 
-    updateOrganization( json: any ): Promise<Organization> {
+		return this.http
+			.get<Organization[]>(acp + '/cgr/organizations/get-all')
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	updateOrganization(json: any): Promise<Organization> {
 
-        this.eventService.start();
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        return this.http
-            .post<Organization>( acp + '/cgr/orgainization/update', JSON.stringify( { json: json } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-    }
+		this.eventService.start();
 
-    newOrganization(json: any ): Promise<any> {
+		return this.http
+			.post<Organization>(acp + '/cgr/orgainization/update', JSON.stringify({ json: json }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	newOrganization(json: any): Promise<any> {
 
-        this.eventService.start();
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        return this.http
-            .post<any>( acp + '/cgr/orgainization/create', JSON.stringify( { json: json } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-    }
+		this.eventService.start();
 
-    removeOrganization(code: any ): Promise<void> {
+		return this.http
+			.post<any>(acp + '/cgr/orgainization/create', JSON.stringify({ json: json }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	removeOrganization(code: any): Promise<void> {
 
-        this.eventService.start();
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        return this.http
-            .post<any>( acp + '/cgr/orgainization/delete', JSON.stringify( { code: code } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
-            .toPromise();
-    }
+		this.eventService.start();
+
+		return this.http
+			.post<any>(acp + '/cgr/orgainization/delete', JSON.stringify({ code: code }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
 
 

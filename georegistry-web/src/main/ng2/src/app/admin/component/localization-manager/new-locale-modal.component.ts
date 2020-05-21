@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { Subject } from 'rxjs';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { LocalizationManagerService } from '../../service/localization-manager.service';
