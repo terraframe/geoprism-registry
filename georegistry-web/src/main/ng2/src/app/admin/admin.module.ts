@@ -22,7 +22,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { FileUploadModule } from 'ng2-file-upload';
-import { CustomFormsModule } from 'ng2-validation'
 import { NgxPaginationModule } from 'ngx-pagination';
 
 import { SystemLogoService } from './service/system-logo.service';
@@ -58,7 +57,6 @@ import '../rxjs-extensions';
         ReactiveFormsModule,
         FileUploadModule,
         NgxPaginationModule,
-        CustomFormsModule,
         SharedModule,
         AdminRoutingModule
     ],

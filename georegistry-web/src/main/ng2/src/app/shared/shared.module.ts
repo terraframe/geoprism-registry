@@ -13,7 +13,6 @@ import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
-import { CustomFormsModule } from 'ng2-validation'
 
 import { ErrorModalComponent } from './component/modals/error-modal.component';
 import { SuccessModalComponent } from './component/modals/success-modal.component';
@@ -40,6 +39,7 @@ import { LocalizePipe } from './pipe/localize.pipe';
 import { PhonePipe } from './pipe/phone.pipe';
 
 import { OnlyNumber } from './directive/number-only.directive';
+import { MustMatchDirective } from './directive/must-match.directive';
 
 import { CgrHeaderComponent } from './component/header/header.component';
 import { ProgressBarComponent } from './component/progress-bar/progress-bar.component';
@@ -49,94 +49,95 @@ import { ProfileComponent } from './component/profile/profile.component';
 
 import '../rxjs-extensions';
 
-@NgModule( {
-    imports: [
-        CommonModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FileUploadModule,
-        ModalModule.forRoot(),
-        TreeModule,
-        ContextMenuModule,
-        BsDropdownModule,
-        ButtonsModule,
-        TypeaheadModule,
-        ProgressbarModule,
-        CollapseModule,
-        NgxPaginationModule,
-        CustomFormsModule
-    ],
-    declarations: [
-        LocalizeComponent,
-        BooleanFieldComponent,
-        LoadingBarComponent,
-        ErrorMessageComponent,
-        MessageComponent,
-        ConfirmModalComponent,
-        ErrorModalComponent,
-        SuccessModalComponent,
+@NgModule({
+	imports: [
+		CommonModule,
+		RouterModule,
+		FormsModule,
+		ReactiveFormsModule,
+		FileUploadModule,
+		ModalModule.forRoot(),
+		TreeModule,
+		ContextMenuModule,
+		BsDropdownModule,
+		ButtonsModule,
+		TypeaheadModule,
+		ProgressbarModule,
+		CollapseModule,
+		NgxPaginationModule
+	],
+	declarations: [
+		LocalizeComponent,
+		BooleanFieldComponent,
+		LoadingBarComponent,
+		ErrorMessageComponent,
+		MessageComponent,
+		ConfirmModalComponent,
+		ErrorModalComponent,
+		SuccessModalComponent,
 		PasswordStrengthBarComponent,
-        OnlyNumber,
-        ValidationComponent,
-        ProgressBarComponent,
-        ModalStepIndicatorComponent,
-        CgrHeaderComponent,
-        ProfileComponent,
-        LocalizePipe,
-        PhonePipe
-    ],
-    exports: [
-        LocalizeComponent,
-        BooleanFieldComponent,
-        LoadingBarComponent,
-        ErrorMessageComponent,
-        MessageComponent,
-        ConfirmModalComponent,
-        ErrorModalComponent,
-        SuccessModalComponent,
+		OnlyNumber,
+		MustMatchDirective,
+		ValidationComponent,
+		ProgressBarComponent,
+		ModalStepIndicatorComponent,
+		CgrHeaderComponent,
+		ProfileComponent,
+		LocalizePipe,
+		PhonePipe
+	],
+	exports: [
+		LocalizeComponent,
+		BooleanFieldComponent,
+		LoadingBarComponent,
+		ErrorMessageComponent,
+		MessageComponent,
+		ConfirmModalComponent,
+		ErrorModalComponent,
+		SuccessModalComponent,
 		PasswordStrengthBarComponent,
-        OnlyNumber,
-        ValidationComponent,
-        ProgressBarComponent,
-        ModalStepIndicatorComponent,
-        CgrHeaderComponent,
-        ProfileComponent,
-        LocalizePipe,
-        PhonePipe,
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule
-    ],
-    entryComponents: [
-        ErrorModalComponent,
-        SuccessModalComponent,
-        ConfirmModalComponent,
-        ModalStepIndicatorComponent,
-        ErrorMessageComponent,
-        LoadingBarComponent,
-        ProfileComponent
-    ]
-} )
+		OnlyNumber,
+		MustMatchDirective,
+		ValidationComponent,
+		ProgressBarComponent,
+		ModalStepIndicatorComponent,
+		CgrHeaderComponent,
+		ProfileComponent,
+		LocalizePipe,
+		PhonePipe,
+		CommonModule,
+		FormsModule,
+		ReactiveFormsModule
+	],
+	entryComponents: [
+		ErrorModalComponent,
+		SuccessModalComponent,
+		ConfirmModalComponent,
+		ModalStepIndicatorComponent,
+		ErrorMessageComponent,
+		LoadingBarComponent,
+		ProfileComponent
+	]
+})
 export class SharedModule {
-    static forRoot(): ModuleWithProviders {
-        return {
-            ngModule: SharedModule,
-            providers: [
-                CookieService,
-                AuthService,
-                SessionService,
-                ProfileService,
-                LocalizationService,
-                ModalStepIndicatorService,
-                EventService,
-                ProgressService,
-                AdminGuard,
-                MaintainerGuard,
-                ContributerGuard,
-                AuthGuard,
-                PendingChangesGuard
-            ]
-        };
-    }
+	static forRoot(): ModuleWithProviders {
+		return {
+			ngModule: SharedModule,
+			providers: [
+				CookieService,
+				AuthService,
+				SessionService,
+				ProfileService,
+				LocalizationService,
+				ModalStepIndicatorService,
+				EventService,
+				ProgressService,
+				AdminGuard,
+				MaintainerGuard,
+				ContributerGuard,
+				AuthGuard,
+				PendingChangesGuard
+			]
+		};
+	}
 }

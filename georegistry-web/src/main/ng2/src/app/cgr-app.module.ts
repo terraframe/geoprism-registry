@@ -12,7 +12,6 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CustomFormsModule } from 'ng2-validation'
 
 import { CgrAppComponent } from './cgr-app.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
@@ -51,7 +50,6 @@ import './rxjs-extensions';
         CollapseModule.forRoot(),
         NgxPaginationModule,
         BrowserAnimationsModule,
-        CustomFormsModule,
         SharedModule.forRoot(),
     ],
     declarations: [

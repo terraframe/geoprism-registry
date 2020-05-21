@@ -25,7 +25,6 @@
     "mapbox-gl": "1.10.1",
     "moment": "^2.26.0",
     "ng2-file-upload": "1.4.0",
-    "ng2-validation": "4.2.0",
     "ngx-bootstrap": "5.6.1",
     "ngx-contextmenu": "5.4.0",
     "ngx-cookie-service": "3.0.4",
