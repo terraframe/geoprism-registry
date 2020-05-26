@@ -43,7 +43,7 @@
                   </div>
               
                   <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
-                    <input type="radio" [value]="role.name" (change)="onChangeRole()" [(ngModel)]="roleGroup.ENABLEDROLE"
+                    <input type="checkbox" [value]="role.name" [checked]="roleGroup.ENABLEDROLE === role.name" (change)="setGroupRole(roleGroup, role, $event)"
                       [name]="role.orgCode + role.geoObjectTypeCode" >
                     <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
                   </label>
