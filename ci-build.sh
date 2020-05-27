@@ -18,18 +18,13 @@
 #
 
 
-# Replace external ips with internal ips since jenkins runs inside our VPC
-#sed -i -e 's/georegistry.geoprism.net/172.31.30.53/g' geoprism-platform/ansible/inventory/georegistry/prod.ini
-#sed -i -e 's/staging-georegistry.geoprism.net/172.31.23.142/g' geoprism-platform/ansible/inventory/georegistry/staging.ini
-#sed -i -e 's/dev-georegistry.geoprism.net/172.31.25.93/g' geoprism-platform/ansible/inventory/georegistry/dev.ini
-#sed -i -e 's/demo-georegistry.geoprism.net/172.31.22.3/g' geoprism-platform/ansible/inventory/georegistry/demo.ini
+# Replace build params in our ansible inventory files (TODO : Should this be passed along as a param to the ansible-playbook command?)
 sed -i -e "s/clean_db=true/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_db=false/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_orientdb=false/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
-#source /home/ec2-user/.bashrc
 source /home/ec2-user/ansible/hacking/env-setup
 
 export M2_HOME=/usr/local/apache-maven
@@ -49,11 +44,8 @@ mvn clean deploy -B
 
 ## Build angular source ##
 npm version
-#nvm install lts/carbon # If you change this, make sure to also update it in the georegistry formal release script
 cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
 npm install
-# npm install typings
-# typings install lodash
 node -v && npm -v
 node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
 
