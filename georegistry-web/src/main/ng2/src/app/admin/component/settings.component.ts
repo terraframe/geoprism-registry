@@ -17,8 +17,7 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -27,9 +26,6 @@ import { ConfirmModalComponent } from '../../shared/component/modals/confirm-mod
 import { ErrorModalComponent } from '../../shared/component/modals/error-modal.component';
 import { LocalizationService } from '../../shared/service/localization.service';
 
-import { User, PageResult, Account } from '../model/account';
-import { AccountService } from '../service/account.service';
-import { AccountComponent } from './account/account.component';
 import { AccountInviteComponent } from './account/account-invite.component';
 import { EmailComponent } from './email/email.component'
 import { OrganizationModalComponent } from './organization/organization-modal.component'
@@ -37,10 +33,8 @@ import { NewLocaleModalComponent } from './localization-manager/new-locale-modal
 
 import { SettingsService } from '../service/settings.service';
 import { Settings, Organization } from '../model/settings';
-import { LocaleInfo, AllLocaleInfo, Locale } from '../model/localization-manager';
+import { Locale } from '../model/localization-manager';
 
-import { SystemLogo } from '../model/system-logo';
-import { SystemLogoService } from '../service/system-logo.service';
 import { AuthService } from '../../shared/service/auth.service';
 import { ModalTypes } from '../../shared/model/modal';
 
@@ -58,21 +52,17 @@ export class SettingsComponent implements OnInit {
     organizations: Organization[] = [];
     installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
     isAdmin: boolean;
-    isMaintainer: boolean;
-    isContributor: boolean;
+    isSRA: boolean;
     settings: Settings = {email: {isConfigured: false}}
 
     constructor(
-        private router: Router,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
         private settingsService:  SettingsService,
         private authService: AuthService,
-        private brandingService: SystemLogoService
     ) {
         this.isAdmin = authService.isAdmin();
-        this.isMaintainer = this.isAdmin || authService.isMaintainer();
-        this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
+        this.isSRA = authService.isSRA();
      }
 
     ngOnInit(): void {

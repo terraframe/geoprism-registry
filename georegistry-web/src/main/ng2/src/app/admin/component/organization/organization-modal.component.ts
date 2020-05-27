@@ -17,72 +17,64 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-
-import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { Account, User } from '../../model/account';
 import { Organization } from '../../model/settings';
 import { SettingsService } from '../../service/settings.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
-@Component( {
-    selector: 'organization-modal',
-    templateUrl: './organization-modal.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
-} )
+@Component({
+	selector: 'organization-modal',
+	templateUrl: './organization-modal.component.html',
+	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+})
 export class OrganizationModalComponent implements OnInit {
 
-    message: string = null;
-    organization: Organization = {code: "", label: this.lService.create(), contactInfo: this.lService.create()};
-    isNewOrganization: boolean = true;
+	message: string = null;
+	organization: Organization = { code: "", label: this.lService.create(), contactInfo: this.lService.create() };
+	isNewOrganization: boolean = true;
 
-    public onSuccess: Subject<Organization>;
+	public onSuccess: Subject<Organization>;
 
-    constructor(
-        private service: SettingsService,
-        public bsModalRef: BsModalRef,
-        private lService: LocalizationService
-    ) {
-    }
+	constructor(private service: SettingsService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
 
-    ngOnInit(): void {
-        this.onSuccess = new Subject();
-    }
+	ngOnInit(): void {
+		this.onSuccess = new Subject();
+	}
 
-    cancel(): void {
-        this.bsModalRef.hide();
-    }
+	cancel(): void {
+		this.bsModalRef.hide();
+	}
 
-    onSubmit(): void {
-        if(this.isNewOrganization){
-            this.service.newOrganization( this.organization ).then( data => {
-                this.onSuccess.next( data );
-                this.bsModalRef.hide();
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
-        }
-        else {
-            this.service.updateOrganization( this.organization ).then( data => {
-                this.onSuccess.next( data );
-                this.bsModalRef.hide();
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
-        }
-    }
+	onSubmit(): void {
+		if (this.isNewOrganization) {
+			this.service.newOrganization(this.organization).then(data => {
+				this.onSuccess.next(data);
+				this.bsModalRef.hide();
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
+		else {
+			this.service.updateOrganization(this.organization).then(data => {
+				this.onSuccess.next(data);
+				this.bsModalRef.hide();
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
+	}
 
-    public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+	public error(err: HttpErrorResponse): void {
+		// Handle error
+		if (err !== null) {
+			this.message = (err.error.localizedMessage || err.error.message || err.message);
+		}
 
-    }
+	}
 
 }

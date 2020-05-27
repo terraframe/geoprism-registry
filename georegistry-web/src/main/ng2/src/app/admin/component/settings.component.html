@@ -56,7 +56,7 @@
 
                                         
                                     </tr>
-                                    <tr>
+                                    <tr *ngIf="isSRA">
                                         <td class="button-column">
                                             <a class="fa fa-plus" (click)="newOrganization()" [title]="'account.newTooltip' | localize"></a>
                                         </td>

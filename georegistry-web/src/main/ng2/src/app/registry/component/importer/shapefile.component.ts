@@ -15,111 +15,113 @@ import { ImportStrategy } from '../../model/registry';
 
 declare var acp: string;
 
-@Component( {
+@Component({
 
-    selector: 'shapefile',
-    templateUrl: './shapefile.component.html',
-    styleUrls: []
-} )
+	selector: 'shapefile',
+	templateUrl: './shapefile.component.html',
+	styleUrls: []
+})
 export class ShapefileComponent implements OnInit {
 
     /*
      * List of geo object types from the system
      */
-    types: { label: string, code: string }[]
-    
-    importStrategy: ImportStrategy;
-    importStrategies: any[] = [
-        {"strategy": ImportStrategy.NEW_AND_UPDATE, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE")},
-        {"strategy": ImportStrategy.NEW_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY")},
-        {"strategy": ImportStrategy.UPDATE_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY")}
-    ]
+	types: { label: string, code: string }[]
+
+	importStrategy: ImportStrategy;
+	importStrategies: any[] = [
+		{ "strategy": ImportStrategy.NEW_AND_UPDATE, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE") },
+		{ "strategy": ImportStrategy.NEW_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY") },
+		{ "strategy": ImportStrategy.UPDATE_ONLY, "label": this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY") }
+	]
 
     /*
      * Currently selected code
      */
-    code: string = null;
+	code: string = null;
 
     /*
      * Currently start date
      */
-    startDate: string = null;
+	startDate: string = null;
 
     /*
      * Reference to the modal current showing
      */
-    bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
     /*
      * File uploader
      */
-    uploader: FileUploader;
+	uploader: FileUploader;
 
-    @ViewChild( 'myFile' )
-    fileRef: ElementRef;
+	@ViewChild('myFile')
+	fileRef: ElementRef;
 
-    constructor( private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService, private router: Router ) { }
+	constructor(private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService, private router: Router) { }
 
-    ngOnInit(): void {
-        this.service.listGeoObjectTypes( true ).then( types => {
-            this.types = types;
+	ngOnInit(): void {
+		this.service.listGeoObjectTypes(true).then(types => {
+			this.types = types;
 
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 
-        let options: FileUploaderOptions = {
-            queueLimit: 1,
-            removeAfterUpload: true,
-            url: acp + '/shapefile/get-shapefile-configuration'
-        };
+		let options: FileUploaderOptions = {
+			queueLimit: 1,
+			removeAfterUpload: true,
+			url: acp + '/shapefile/get-shapefile-configuration'
+		};
 
-        this.uploader = new FileUploader( options );
-        this.uploader.onBuildItemForm = ( fileItem: any, form: any ) => {
-            form.append( 'type', this.code );
+		this.uploader = new FileUploader(options);
+		this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+			form.append('type', this.code);
 
-            if ( this.startDate != null ) {
-                form.append( 'startDate', this.startDate );
-            }
-            
-            if (this.importStrategy) {
-                form.append( 'strategy', this.importStrategy)
-            }
-        };
-        this.uploader.onBeforeUploadItem = ( fileItem: any ) => {
-            this.eventService.start();
-        };
-        this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
-            this.fileRef.nativeElement.value = "";
-            this.eventService.complete();
-        };
-        this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
-            const configuration = JSON.parse( response );
+			if (this.startDate != null) {
+				form.append('startDate', this.startDate);
+			}
 
-            this.bsModalRef = this.modalService.show( ShapefileModalComponent, { backdrop: true } );
-            this.bsModalRef.content.configuration = configuration;
-        };
-        this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
-            this.error( JSON.parse( response ) );
-        }
-    }
+			if (this.importStrategy) {
+				form.append('strategy', this.importStrategy)
+			}
+		};
+		this.uploader.onBeforeUploadItem = (fileItem: any) => {
+			this.eventService.start();
+		};
+		this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+			this.fileRef.nativeElement.value = "";
+			this.eventService.complete();
+		};
+		this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+			const configuration = JSON.parse(response);
 
-    onClick(): void {
+			this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true });
+			this.bsModalRef.content.configuration = configuration;
+		};
+		this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+			const error = JSON.parse(response)
 
-        if ( this.uploader.queue != null && this.uploader.queue.length > 0 ) {
-            this.uploader.uploadAll();
-        }
-        else {
-            this.error( { message: this.localizationService.decode( 'io.missing.file' ), error: {} } );
-        }
-    }
+			this.error({ error: error });
+		}
+	}
 
-    public error( err: any ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
-    }
+	onClick(): void {
+
+		if (this.uploader.queue != null && this.uploader.queue.length > 0) {
+			this.uploader.uploadAll();
+		}
+		else {
+			this.error({ message: this.localizationService.decode('io.missing.file'), error: {} });
+		}
+	}
+
+	public error(err: any): void {
+		// Handle error
+		if (err !== null) {
+			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+			this.bsModalRef.content.message = (err.error.localizedMessage || err.error.message || err.message);
+		}
+	}
 
 }
