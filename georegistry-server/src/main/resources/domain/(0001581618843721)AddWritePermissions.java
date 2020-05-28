@@ -17,5 +17,5 @@
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * This file is just a placeholder. The actual source exists in : src/main/java/com/runwaysdk/patcher/domain
+ * This file is just a placeholder. The actual source exists in : src/main/java/com/runwaysdk/build/domain
  */

@@ -33,11 +33,6 @@
 	<description>The back-end database server for the georegistry project</description>
 
 	<properties>
-		<!-- Specify your development root database credentials here. -->
-		<root.db>postgres</root.db>
-		<root.user>postgres</root.user>
-		<root.pass>postgres</root.pass>
-		
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
 		<cgr.adapter.version>0.8.0-SNAPSHOT</cgr.adapter.version>
 	</properties>
@@ -261,10 +256,10 @@
 			</build>
 		</profile>
 		<profile>
-			<id>patch</id>
+			<id>database</id>
 			<activation>
 				<property>
-					<name>patch</name>
+					<name>database</name>
 				</property>
 			</activation>
 			<build>
@@ -275,7 +270,7 @@
 						<version>1.2.1</version>
 						<executions>
 							<execution>
-								<id>patch</id>
+								<id>database</id>
 								<phase>install</phase>
 								<goals>
 									<goal>java</goal>
@@ -286,13 +281,14 @@
 										<argument>-Xdebug</argument>
 										<argument>-Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=y</argument>
 									</arguments>
-									<mainClass>net.geoprism.GeoprismPatcher</mainClass>
+									<mainClass>net.geoprism.build.GeoprismDatabaseBuilder</mainClass>
 									<arguments>
 										<argument>--metadataDir=${project.basedir}/target/classes/metadata</argument>
-										<argument>--rootUser=${root.user}</argument>
-										<argument>--rootPass=${root.pass}</argument>
-										<argument>--templateDb=${root.db}</argument>
-										<argument>--clean=${root.clean}</argument>
+										<argument>--rootUser=${db.rootUser}</argument>
+										<argument>--rootPass=${db.rootPass}</argument>
+										<argument>--templateDb=${db.rootDb}</argument>
+                    <argument>--clean=${db.clean}</argument>
+                    <argument>--patch=${db.patch}</argument>
 									</arguments>
 									<systemProperties>
 										<systemProperty>
