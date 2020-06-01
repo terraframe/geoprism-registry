@@ -38,7 +38,7 @@ public class CloseableDelegateFile extends CloseableFile
   
   public void close()
   {
-    if (this.isTemporary())
+    if (this.isDeleteOnClose())
     {
       FileUtils.deleteQuietly(this.delegate);
     }
