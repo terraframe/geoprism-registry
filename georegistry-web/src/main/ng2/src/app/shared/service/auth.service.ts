@@ -132,6 +132,21 @@ export class AuthService {
     
     return false;
   }
+
+  isGeoObjectTypeRM(type: string): boolean {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.roleName.indexOf(type) !== -1
+               || role.roleName.indexOf( "cgr.RegistryMaintainer" ) !== -1) // Legacy support
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
   
   isRC(): boolean {
     for (let i = 0; i < this.user.roles.length; ++i)

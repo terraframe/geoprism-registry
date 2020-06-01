@@ -42,7 +42,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	isContributor: boolean;
 
 
-	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, authService: AuthService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, private authService: AuthService) {
 
 		this.isAdmin = authService.isAdmin();
 		this.isMaintainer = this.isAdmin || authService.isMaintainer();
@@ -63,6 +63,10 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 
 	ngOnDestroy() {
 		this.pollingData.unsubscribe();
+	}
+
+	isGeoObjectTypeRM(type: string): boolean {
+		return this.authService.isGeoObjectTypeRM(type);
 	}
 
 	onDeleteMasterListVersion( oid: string ): void {
