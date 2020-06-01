@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
@@ -64,22 +65,22 @@ public class ExcelService
     try
     {
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
-      
+
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
       try (InputStream is = vf.openNewStream())
       {
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
+
         ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
         ExcelDataFormatter formatter = new ExcelDataFormatter();
-    
+
         ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
         reader.process(is);
-    
+
         JSONArray hierarchies = new JSONArray(ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false).toString());
-    
+
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
         object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
@@ -90,17 +91,17 @@ public class ExcelService
         object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
         object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
         object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
-    
+
         if (startDate != null)
         {
           object.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
         }
-    
+
         if (endDate != null)
         {
           object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
         }
-    
+
         return object;
       }
     }
@@ -123,7 +124,10 @@ public class ExcelService
 
   private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
-    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), true, SupportedLocaleDAO.getSupportedLocales())).toString());
+    final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT);
+    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, SupportedLocaleDAO.getSupportedLocales());
+
+    JSONObject type = new JSONObject(geoObjectType.toJSON(serializer).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)

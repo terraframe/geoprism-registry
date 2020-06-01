@@ -62,10 +62,6 @@ public class ExcelFieldContentsHandler implements SheetHandler
 
     private Set<String>      values;
 
-    private String           categoryId;
-
-    private String           label;
-
     public Field()
     {
       this.dataTypes = new TreeSet<ColumnType>();
@@ -77,11 +73,6 @@ public class ExcelFieldContentsHandler implements SheetHandler
     public void setName(String name)
     {
       this.name = name.trim();
-    }
-
-    public void setLabel(String label)
-    {
-      this.label = label.trim();
     }
 
     public String getName()
@@ -120,11 +111,6 @@ public class ExcelFieldContentsHandler implements SheetHandler
       {
         this.values.add(value);
       }
-    }
-
-    public void setCategoryId(String oid)
-    {
-      this.categoryId = oid;
     }
 
     public String getBaseType()
