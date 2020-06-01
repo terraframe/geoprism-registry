@@ -20,7 +20,6 @@ package net.geoprism.registry;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.geoprism.GeoprismPatcher;
 import net.geoprism.context.ProjectDataConfiguration;
 import net.geoprism.data.LocationImporter;
 import net.geoprism.data.XMLEndpoint;
@@ -43,14 +42,11 @@ import com.runwaysdk.system.metadata.MdBusiness;
 public class CambodiaHierarchyGenerator
 {
   public static void main(String[] args) {
-//    GeoprismPatcher.main(args);
 
 //    updateBusObjKeyValueToCode();
 
 //    generateHierarchyInXML();
     
-//    GeoprismPatcher.checkDuplicateClasspathResources();
-   
     importHierarchies();
   }
   
