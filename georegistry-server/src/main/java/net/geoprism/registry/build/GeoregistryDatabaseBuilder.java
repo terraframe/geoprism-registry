@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry;
+package net.geoprism.registry.build;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,27 +25,19 @@ import com.runwaysdk.business.ontology.OntologyStrategyBuilderIF;
 import com.runwaysdk.business.ontology.OntologyStrategyFactory;
 import com.runwaysdk.business.ontology.OntologyStrategyIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.gis.geo.UniversalQuery;
-import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
-import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
-import net.geoprism.GeoprismPatcher;
-import net.geoprism.GeoprismPatcherIF;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.build.GeoprismDatabaseBuilder;
+import net.geoprism.build.GeoprismDatabaseBuilderIF;
 
-public class GeoregistryPatcher extends GeoprismPatcher implements GeoprismPatcherIF
+public class GeoregistryDatabaseBuilder extends GeoprismDatabaseBuilder implements GeoprismDatabaseBuilderIF
 {
-  private static final Logger logger = LoggerFactory.getLogger(GeoregistryPatcher.class);
+  private static final Logger logger = LoggerFactory.getLogger(GeoregistryDatabaseBuilder.class);
   
   @Override
   @Transaction

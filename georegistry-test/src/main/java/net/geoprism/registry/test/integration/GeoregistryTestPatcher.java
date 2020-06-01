@@ -18,10 +18,10 @@
  */
 package net.geoprism.registry.test.integration;
 
-import net.geoprism.GeoprismPatcher;
-import net.geoprism.GeoprismPatcherIF;
+import net.geoprism.build.GeoprismDatabaseBuilder;
+import net.geoprism.build.GeoprismDatabaseBuilderIF;
 
-public class GeoregistryTestPatcher extends GeoprismPatcher implements GeoprismPatcherIF
+public class GeoregistryTestPatcher extends GeoprismDatabaseBuilder implements GeoprismDatabaseBuilderIF
 {
   @Override
   protected void runWithRequest()
