@@ -18,18 +18,13 @@
 ///
 
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-
-import { Location } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs';
 
-import { AccountService } from '../../service/account.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
-import { Account, User, Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '../../model/account';
-import { Organization } from '../../model/settings';
+import { Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '../../model/account';
 import { RegistryRoleType } from '../../../shared/model/core';
 
 @Component({
@@ -154,15 +149,12 @@ export class RoleManagementComponent implements OnInit {
 		roles.ORGANIZATIONS.forEach(org => {
 			org.GEOOBJECTTYPEROLES.forEach(gotrole => {
 				gotrole.GEOOBJECTTYPEROLESGROUP.sort((a, b) => {
-					console.log(RegistryRoleType[a.type])
 					if (RegistryRoleType[a.type] < RegistryRoleType[b.type]) return -1;
 					if (RegistryRoleType[a.type] > RegistryRoleType[b.type]) return 1;
 					return 0;
 				});
 			})
 		});
-
-
 	}
 
 	addToGeoObjectTypeGroup(organization: FormattedOrganization, role: Role): boolean {
