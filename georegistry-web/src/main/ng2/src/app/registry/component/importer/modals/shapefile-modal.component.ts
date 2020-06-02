@@ -99,6 +99,7 @@ export class ShapefileModalComponent implements OnInit {
                 } );
                 this.bsModalRef.content.message = this.localizeService.decode( "data.import.go.to.scheduled.jobs.confirm.message" );
                 this.bsModalRef.content.submitText = this.localizeService.decode( "data.import.go.to.scheduled.jobs.button" );
+                this.bsModalRef.content.cancelText = this.localizeService.decode( "modal.button.close" );
 
                 ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
                     this.router.navigate(['/registry/scheduled-jobs']);

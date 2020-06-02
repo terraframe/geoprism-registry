@@ -42,7 +42,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	isContributor: boolean;
 
 
-	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, private authService: AuthService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService) {
 
 		this.isAdmin = authService.isAdmin();
 		this.isMaintainer = this.isAdmin || authService.isMaintainer();
