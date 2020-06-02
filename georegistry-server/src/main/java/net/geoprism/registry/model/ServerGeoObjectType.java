@@ -672,7 +672,7 @@ public class ServerGeoObjectType
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
-    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     Universal root = Universal.getRoot();
 
     for (HierarchyType hierarchyType : hierarchyTypes)

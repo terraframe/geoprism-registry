@@ -38,7 +38,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
   {
     ServerGeoObjectType geoObjectType = this.getType();
 
-    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
 

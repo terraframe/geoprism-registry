@@ -96,7 +96,7 @@ public class AdapterUtilities
 
   public JsonArray getHierarchiesForType(ServerGeoObjectType type, Boolean includeTypes)
   {
-    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
 

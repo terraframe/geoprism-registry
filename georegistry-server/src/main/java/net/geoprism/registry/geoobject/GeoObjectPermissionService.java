@@ -67,6 +67,11 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
   
   protected boolean doesActorHavePermission(SingleActorDAOIF actor, ServerGeoObjectType got, Operation op, boolean allowRC)
   {
+    if (actor == null) // null actor is assumed to be SYSTEM
+    {
+      return true;
+    }
+    
     Organization thisOrg = got.getOrganization();
     
     if (thisOrg != null)

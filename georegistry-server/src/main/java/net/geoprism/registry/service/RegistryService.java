@@ -81,6 +81,7 @@ import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -332,7 +333,7 @@ public class RegistryService
     
     if (codes == null || codes.length == 0)
     {
-      OrganizationDTO[] cachedOrgs = adapter.getMetadataCache().getAllOrganizations();
+      List<OrganizationDTO> cachedOrgs = adapter.getMetadataCache().getAllOrganizations();
       
       for (OrganizationDTO cachedOrg : cachedOrgs)
       {
@@ -456,30 +457,9 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes)
   {
-    if (codes == null || codes.length == 0)
-    {
-      return adapter.getMetadataCache().getAllGeoObjectTypes();
-    }
-
-    GeoObjectType[] gots = new GeoObjectType[codes.length];
-
-    for (int i = 0; i < codes.length; ++i)
-    {
-      Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(codes[i]);
-
-      if (optional.isPresent())
-      {
-        gots[i] = optional.get();
-      }
-      else
-      {
-    	DataNotFoundException ex = new DataNotFoundException();
-    	ex.setDataIdentifier(codes[i]);
-        throw ex;
-      }
-    }
-
-    return gots;
+    List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes);
+    
+    return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }
 
   /**
@@ -776,7 +756,9 @@ public class RegistryService
   {
     if (codes == null || codes.length == 0)
     {
-      return adapter.getMetadataCache().getAllHierarchyTypes();
+      List<HierarchyType> lHt = adapter.getMetadataCache().getAllHierarchyTypes();
+      
+      return lHt.toArray(new HierarchyType[lHt.size()]);
     }
 
     List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();

@@ -18,6 +18,8 @@
  */
 package com.runwaysdk.build.domain;
 
+import java.util.List;
+
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +69,7 @@ public class AddWritePermissions
   {
     initializeStrategies();
     
-    HierarchyType[] htypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<HierarchyType> htypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     
     for (HierarchyType ht : htypes)
     {

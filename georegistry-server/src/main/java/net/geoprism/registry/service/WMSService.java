@@ -18,11 +18,12 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.List;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.MdEntityInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdLocalStructDAOIF;
@@ -30,8 +31,6 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MetadataDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.Attribute;
-import com.runwaysdk.query.AttributeCharacter;
-import com.runwaysdk.query.AttributeLocal;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.SelectableChar;
 import com.runwaysdk.query.SelectableGeometry;
@@ -57,7 +56,7 @@ public class WMSService
   @Request
   public void createAllWMSLayers(boolean forceGeneration)
   {
-    GeoObjectType[] types = ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes();
+    List<GeoObjectType> types = ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes();
 
     for (GeoObjectType type : types)
     {
@@ -70,7 +69,7 @@ public class WMSService
 
   public void deleteAllWMSLayers()
   {
-    GeoObjectType[] types = ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes();
+    List<GeoObjectType> types = ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes();
 
     for (GeoObjectType type : types)
     {

@@ -27,6 +27,4 @@ public interface GeoObjectPermissionServiceIF
   
   public void enforceCanCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got);
   
-//  boolean doesActorHavePermission(SingleActorDAOIF user, ServerGeoObjectType geoObjectType, Operation write, boolean b);
-  
 }
