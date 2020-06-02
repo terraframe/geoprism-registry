@@ -57,7 +57,7 @@
           </label>
           <select class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required>
             <option></option>
-            <option value="POINT">
+            <!-- <option value="POINT">
               <localize key="georegistry.geometry.point"></localize>
             </option>
             <option value="LINE">
@@ -74,6 +74,15 @@
             </option>
             <option value="MULTIPOLYGON">
               <localize key="georegistry.geometry.multipolygon"></localize>
+            </option> -->
+             <option value="MULTIPOINT">
+              <localize key="georegistry.geometry.point"></localize>
+            </option>
+            <option value="MULTILINE">
+              <localize key="georegistry.geometry.line"></localize>
+            </option>
+            <option value="MULTIPOLYGON">
+              <localize key="georegistry.geometry.polygon"></localize>
             </option>
           </select>
         </div>

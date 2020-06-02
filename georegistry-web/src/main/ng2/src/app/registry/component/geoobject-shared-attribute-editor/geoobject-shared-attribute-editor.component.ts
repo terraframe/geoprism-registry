@@ -97,11 +97,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.postGeoObject = new GeoObjectOverTime( this.geoObjectType, JSON.parse( JSON.stringify( this.postGeoObject ) ).attributes ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
         }
 
-        this.attributeForm.statusChanges.subscribe( result => {
-            this.isValid = ( result === "VALID" || result === "DISABLED" );
+        // this.attributeForm.statusChanges.subscribe( result => {
+        //     this.isValid = ( result === "VALID" || result === "DISABLED" );
 
-            this.valid.emit( this.isValid );
-        } );
+        //     this.valid.emit( this.isValid );
+        // } );
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
@@ -123,6 +123,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         this.calculate();
+    }
+
+    ngAfterViewInit() {
+         this.attributeForm.statusChanges.subscribe( result => {
+            this.isValid = ( result === "VALID" || result === "DISABLED" );
+
+            this.valid.emit( this.isValid );
+        } );
     }
 
     ngOnChanges( changes: SimpleChanges ) {
