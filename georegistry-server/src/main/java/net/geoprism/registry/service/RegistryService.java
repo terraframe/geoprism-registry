@@ -79,6 +79,8 @@ import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -97,7 +99,7 @@ public class RegistryService
 
   protected RegistryService()
   {
-    this.service = new ServerGeoObjectService();
+    this.service = new ServerGeoObjectService(new GeoObjectPermissionService());
   }
 
   public static RegistryService getInstance()

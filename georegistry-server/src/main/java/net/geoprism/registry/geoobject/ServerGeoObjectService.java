@@ -16,10 +16,18 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service;
+package net.geoprism.registry.geoobject;
 
 import java.util.Date;
 import java.util.List;
+
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+
+import com.runwaysdk.business.Business;
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.conversion.CompositeGeoObjectStrategy;
@@ -32,19 +40,18 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.view.GeoObjectSplitView;
-
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-
-import com.runwaysdk.business.Business;
-import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
+  private GeoObjectPermissionServiceIF permissionService;
+  
+  public ServerGeoObjectService(GeoObjectPermissionServiceIF permissionService)
+  {
+    this.permissionService = permissionService;
+  }
+  
   @Transaction
   public ServerGeoObjectIF apply(GeoObject object, boolean isNew, boolean isImport)
   {
@@ -145,6 +152,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
     
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type);
+    }
+    
     if (type == null)
     {
       DataNotFoundException ex = new DataNotFoundException();
@@ -159,6 +171,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type)
   {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type);
+    }
+    
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
     return strategy.getGeoObjectByCode(code);

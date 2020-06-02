@@ -28,13 +28,17 @@ import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 {
   private static final long serialVersionUID = 154658500;
+  
+  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
 
   public CreateGeoObjectAction()
   {
@@ -48,7 +52,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
     GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
-    ServerGeoObjectService builder = new ServerGeoObjectService();
+    ServerGeoObjectService builder = new ServerGeoObjectService(new GeoObjectPermissionService());
     builder.apply(geoObject, true, false);
   }
   
@@ -61,10 +65,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
     
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      type.enforceActorHasPermission(Session.getCurrentSession().getUser(), Operation.CREATE, true);
-    }
+    geoObjectPermissionService.enforceCanCreateCR(Session.getCurrentSession().getUser(), type);
     
     super.apply();
   }

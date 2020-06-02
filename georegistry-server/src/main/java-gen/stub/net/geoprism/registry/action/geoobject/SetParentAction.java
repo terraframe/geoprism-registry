@@ -24,10 +24,11 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class SetParentAction extends SetParentActionBase
@@ -42,7 +43,7 @@ public class SetParentAction extends SetParentActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
     ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
@@ -53,7 +54,7 @@ public class SetParentAction extends SetParentActionBase
   @Override
   public void apply()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
     ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());

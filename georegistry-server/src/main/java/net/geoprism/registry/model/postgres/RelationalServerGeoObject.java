@@ -21,9 +21,7 @@ package net.geoprism.registry.model.postgres;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -39,10 +37,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -57,10 +52,11 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.model.AbstractServerGeoObject;
 import net.geoprism.registry.model.LocationInfo;
@@ -69,7 +65,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ConversionService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public abstract class RelationalServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF
@@ -424,7 +419,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
 
   protected static ServerParentTreeNode internalGetParentGeoObjects(ServerGeoObjectIF child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn)
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
 
     ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, null);
 // Heads up: Clean up

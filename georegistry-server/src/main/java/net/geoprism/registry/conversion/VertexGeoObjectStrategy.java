@@ -109,11 +109,6 @@ public class VertexGeoObjectStrategy extends LocalizedValueConverter implements 
   @Override
   public VertexServerGeoObject getGeoObjectByCode(String code)
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      this.getType().enforceActorHasPermission(Session.getCurrentSession().getUser(), Operation.READ, true);
-    }
-    
     VertexObject vertex = VertexServerGeoObject.getVertexByCode(type, code);
 
     if (vertex != null)

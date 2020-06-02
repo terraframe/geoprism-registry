@@ -43,8 +43,9 @@ import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**
@@ -100,7 +101,7 @@ public class ChangeRequestTestDataGenerator
   @Transaction
   private static void genChangeRequest(String genKey, Instant when, boolean includeRemove, boolean includeAdd)
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
 
     GeoObject goNewChild = ServiceFactory.getAdapter().newGeoObjectInstance("Cambodia_District");
     goNewChild.setCode(genKey + "_CODE");

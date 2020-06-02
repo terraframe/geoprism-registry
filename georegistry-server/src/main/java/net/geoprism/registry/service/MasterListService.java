@@ -41,8 +41,6 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.MasterListJob;
@@ -51,11 +49,14 @@ import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.etl.PublishMasterListJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.progress.ProgressService;
 
 public class MasterListService
 {
-
+  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
+  
   @Request(RequestType.SESSION)
   public JsonArray listAll(String sessionId)
   {
@@ -100,7 +101,7 @@ public class MasterListService
 
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      if (!masterList.getGeoObjectType().doesActorHavePermission(Session.getCurrentSession().getUser(), Operation.WRITE, false))
+      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterList.getGeoObjectType()))
       {
         throw new OrganizationRMException("You do not have permissions to publish a masterlist.");
       }
@@ -196,7 +197,7 @@ public class MasterListService
 
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      if (!masterlist.getGeoObjectType().doesActorHavePermission(Session.getCurrentSession().getUser(), Operation.WRITE, false))
+      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterlist.getGeoObjectType()))
       {
         throw new OrganizationRMException("You do not have permissions to generate a masterlist shapefile.");
       }

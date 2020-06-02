@@ -29,10 +29,12 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class AddChildAction extends AddChildActionBase
@@ -42,10 +44,8 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-
-    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     parent.addChild(child, ht);
@@ -113,10 +113,8 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void apply()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    
-    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
     
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)

@@ -64,6 +64,10 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -86,7 +90,6 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.NonUniqueResultException;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -107,12 +110,14 @@ public class GeoObjectImporter implements ObjectImporterIF
   protected ImportProgressListenerIF       progressListener;
 
   protected FormatSpecificImporterIF       formatImporter;
+  
+  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
 
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
-    this.service = new ServerGeoObjectService();
+    this.service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
     this.parentCache = new HashMap<String, ServerGeoObjectIF>();
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
@@ -234,9 +239,14 @@ public class GeoObjectImporter implements ObjectImporterIF
       ServerGeoObjectType type = this.configuration.getType();
       if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
       {
-        Operation op = (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY) ? Operation.CREATE : Operation.WRITE;
-        
-        type.enforceActorHasPermission(Session.getCurrentSession().getUser(), op, false);
+        if (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY)
+        {
+          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type);
+        }
+        else
+        {
+          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type);
+        }
       }
       
       /*
