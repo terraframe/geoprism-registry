@@ -25,7 +25,7 @@
                                 <button *ngIf="version.shapefile" type="submit" (click)="onDownloadShapefile(version)" class="btn btn-primary" role="button">
                                     <localize key="masterlist.download"></localize>
                                 </button>   
-                                <button *ngIf="list && (list.admin)" type="submit" (click)="onDeleteMasterListVersion( version.oid )" class="btn btn-danger" role="button">
+                                <button *ngIf="list && ((list.admin) || isMaintainer)" type="submit" (click)="onDeleteMasterListVersion( version.oid )" class="btn btn-danger" role="button">
                                     Delete
                                 </button>  
                             </div>
