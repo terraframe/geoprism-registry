@@ -412,51 +412,6 @@ public class Organization extends OrganizationBase
   }
 
   /**
-   * Returns true if the provided actor has permission to this organization.
-   */
-  public boolean doesActorHavePermission(SingleActorDAOIF actor)
-  {
-    Set<RoleDAOIF> roles = actor.authorizedRoles();
-
-    for (RoleDAOIF role : roles)
-    {
-      String roleName = role.getRoleName();
-
-      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
-      {
-        String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-
-        if (orgCode.equals(this.getCode()))
-        {
-          return true;
-        }
-      }
-      else if (RegistryRole.Type.isSRA_Role(roleName))
-      {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Throws an exception if the provided actor does not have permissions to this
-   * organization. Uses {{Organization.doesActorHavePermission}} to check
-   * permissions.
-   * 
-   * @param actor
-   */
-  public void enforceActorHasPermission(SingleActorDAOIF actor)
-  {
-    if (!this.doesActorHavePermission(actor))
-    {
-      OrganizationRAException ex = new OrganizationRAException();
-      throw ex;
-    }
-  }
-
-  /**
    * @param org
    * @return If the current user is part of the registry admin role for the
    *         given organization

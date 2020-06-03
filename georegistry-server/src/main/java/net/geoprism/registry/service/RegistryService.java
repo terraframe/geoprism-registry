@@ -368,7 +368,7 @@ public class RegistryService
       
       Organization org = Organization.getByKey(orgDTO.getCode());
       
-      if (!org.doesActorHavePermission(actor))
+      if (!ServiceFactory.getOrganizationPermissionService().doesActorHavePermission(actor, org))
       {
         it.remove();
       }
@@ -741,140 +741,6 @@ public class RegistryService
     }
   }
 
-  /**
-   * Returns the {@link HierarchyType}s with the given codes or all
-   * {@link HierarchyType}s if no codes are provided.
-   * 
-   * @param sessionId
-   * @param codes
-   *          codes of the {@link HierarchyType}s.
-   * @return the {@link HierarchyType}s with the given codes or all
-   *         {@link HierarchyType}s if no codes are provided.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes)
-  {
-    if (codes == null || codes.length == 0)
-    {
-      List<HierarchyType> lHt = adapter.getMetadataCache().getAllHierarchyTypes();
-      
-      return lHt.toArray(new HierarchyType[lHt.size()]);
-    }
-
-    List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
-    for (String code : codes)
-    {
-      Optional<HierarchyType> oht = adapter.getMetadataCache().getHierachyType(code);
-
-      if (oht.isPresent())
-      {
-        hierarchyTypeList.add(oht.get());
-      }
-    }
-
-    HierarchyType[] hierarchies = hierarchyTypeList.toArray(new HierarchyType[hierarchyTypeList.size()]);
-
-    return hierarchies;
-  }
-
-  /**
-   * Create the {@link HierarchyType} from the given JSON.
-   * 
-   * @param sessionId
-   * @param htJSON
-   *          JSON of the {@link HierarchyType} to be created.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType createHierarchyType(String sessionId, String htJSON)
-  {
-    String code = GeoRegistryUtil.createHierarchyType(htJSON);
-
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    return adapter.getMetadataCache().getHierachyType(code).get();
-  }
-
-  /**
-   * Updates the given {@link HierarchyType} represented as JSON.
-   * 
-   * @param sessionId
-   * @param gtJSON
-   *          JSON of the {@link HierarchyType} to be updated.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType updateHierarchyType(String sessionId, String htJSON)
-  {
-    HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
-
-    ServerHierarchyType type = ServerHierarchyType.get(hierarchyType);
-    type.update(hierarchyType);
-
-    return type.getType();
-  }
-
-  /**
-   * Deletes the {@link HierarchyType} with the given code.
-   * 
-   * @param sessionId
-   * @param code
-   *          code of the {@link HierarchyType} to delete.
-   */
-  @Request(RequestType.SESSION)
-  public void deleteHierarchyType(String sessionId, String code)
-  {
-    ServerHierarchyType type = ServerHierarchyType.get(code);
-    type.delete();
-
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    // No error at this point so the transaction completed successfully.
-    adapter.getMetadataCache().removeHierarchyType(code);
-  }
-
-  /**
-   * Adds the {@link GeoObjectType} with the given child code to the parent
-   * {@link GeoObjectType} with the given code for the given
-   * {@link HierarchyType} code.
-   * 
-   * @param sessionId
-   * @param hierarchyTypeCode
-   *          code of the {@link HierarchyType} the child is being added to.
-   * @param parentGeoObjectTypeCode
-   *          parent {@link GeoObjectType}.
-   * @param childGeoObjectTypeCode
-   *          child {@link GeoObjectType}.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
-    ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
-    type.addToHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode);
-
-    return type.getType();
-  }
-
-  /**
-   * Removes the {@link GeoObjectType} with the given child code from the parent
-   * {@link GeoObjectType} with the given code for the given
-   * {@link HierarchyType} code.
-   * 
-   * @param sessionId
-   * @param hierarchyCode
-   *          code of the {@link HierarchyType} the child is being added to.
-   * @param parentGeoObjectTypeCode
-   *          parent {@link GeoObjectType}.
-   * @param childGeoObjectTypeCode
-   *          child {@link GeoObjectType}.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
-    ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
-    type.removeChild(parentGeoObjectTypeCode, childGeoObjectTypeCode);
-
-    return type.getType();
-  }
-
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode, Date date)
   {
@@ -978,9 +844,7 @@ public class RegistryService
     JsonObject jsonObject = go.toJSON(serializer);
     joResp.put("geoObject", new JSONObject(jsonObject.toString()));
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(go.getType());
-
-    JsonArray hierarchies = AdapterUtilities.getInstance().getHierarchiesForType(type, true);
+    JsonArray hierarchies = ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, go.getType().getCode(), true);
 
     joResp.put("hierarchies", new JSONArray(hierarchies.toString()));
 
@@ -1024,28 +888,11 @@ public class RegistryService
   // }
 
   @Request(RequestType.SESSION)
-  public JsonArray getHierarchiesForType(String sessionId, String code, Boolean includeTypes)
-  {
-    ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(code);
-
-    return ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, includeTypes);
-  }
-
-  @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode)
   {
     ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
 
     return geoObject.getHierarchiesForGeoObject();
-  }
-
-  @Request(RequestType.SESSION)
-  public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
-  {
-    ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
-    ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
-
-    return pot.toJSON();
   }
 
   @Request(RequestType.SESSION)

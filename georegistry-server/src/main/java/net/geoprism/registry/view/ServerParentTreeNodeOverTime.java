@@ -106,6 +106,11 @@ public class ServerParentTreeNodeOverTime
 
     this.hierarchies.get(type.getCode()).add(node);
   }
+  
+  public Hierarchy remove(ServerHierarchyType type)
+  {
+    return this.hierarchies.remove(type.getCode());
+  }
 
   public Collection<ServerHierarchyType> getHierarchies()
   {
@@ -139,7 +144,7 @@ public class ServerParentTreeNodeOverTime
         {
           final ServerGeoObjectIF parent = entry.getGeoObject();
           
-          hierarchyType.enforceActorHasRelationshipPermission(actor, parent.getCode(), childCode, false);
+          ServiceFactory.getHierarchyPermissionService().enforceCanAddChild(actor, hierarchyType, parent.getCode(), childCode);
         }
       }
     }

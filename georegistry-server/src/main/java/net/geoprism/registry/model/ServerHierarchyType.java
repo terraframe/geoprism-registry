@@ -179,15 +179,6 @@ public class ServerHierarchyType
   @Transaction
   private void updateTransaction(HierarchyType hierarchyType)
   {
-    /*
-     * Permission check
-     */
-    Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      ServerHierarchyType.enforceActorHasOperationPermission(Session.getCurrentSession().getUser(), org, Operation.WRITE);
-    }
-    
     this.entityRelationship.lock();
 
     LocalizedValueConverter.populate(this.entityRelationship.getDisplayLabel(), hierarchyType.getLabel());
@@ -218,7 +209,7 @@ public class ServerHierarchyType
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      this.enforceActorHasRelationshipPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode, false);
+      ServiceFactory.getHierarchyPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), this, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     }
     
     Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
@@ -270,133 +261,6 @@ public class ServerHierarchyType
     }
   }
   
-  public static void enforceActorHasOperationPermission(SingleActorDAOIF actor, Organization org, Operation op)
-  {
-    if (actor != null && !doesActorHaveOperationPermission(actor, org, op))
-    {
-      if (op.equals(Operation.CREATE))
-      {
-        CreateHierarchyPermissionException ex = new CreateHierarchyPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        throw ex;
-      }
-      else if (op.equals(Operation.WRITE))
-      {
-        UpdateHierarchyPermissionException ex = new UpdateHierarchyPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        throw ex;
-      }
-    }
-  }
-  
-  public static boolean doesActorHaveOperationPermission(SingleActorDAOIF actor, Organization org, Operation op)
-  {
-    if (org != null && actor != null && op != null)
-    {
-      String thisOrgCode = org.getCode();
-      
-      Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
-      for (RoleDAOIF role : roles)
-      {
-        String roleName = role.getRoleName();
-        
-        if (RegistryRole.Type.isRA_Role(roleName))
-        {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
-          if (thisOrgCode.equals(orgCode))
-          {
-            return true;
-          }
-        }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
-        {
-          return true;
-        }
-      }
-    }
-    
-    return false;
-  }
-  
-  public boolean doesActorHaveRelationshipPermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean allowRC)
-  {
-    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS)
-        || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
-    {
-      return true; // AllowedIn is deprecated and should not be used by the end-user.
-    }
-    
-    Organization thisOrg = this.getOrganization();
-    
-    if (thisOrg != null)
-    {
-      String thisOrgCode = thisOrg.getCode();
-      
-      Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
-      for (RoleDAOIF role : roles)
-      {
-        String roleName = role.getRoleName();
-        
-        if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
-        {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
-          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(thisOrgCode))
-          {
-            return true;
-          }
-          else if ( RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(thisOrgCode) )
-          {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-            
-            if (gotCode.equals(parentGeoObjectTypeCode) || gotCode.equals(childGeoObjectTypeCode))
-            {
-              return true;
-            }
-          }
-          else if ( allowRC && RegistryRole.Type.isRC_Role(roleName) && orgCode.equals(thisOrgCode) )
-          {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-            
-            if (gotCode.equals(parentGeoObjectTypeCode) || gotCode.equals(childGeoObjectTypeCode))
-            {
-              return true;
-            }
-          }
-        }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
-        {
-          return true;
-        }
-      }
-    }
-    
-    return false;
-  }
-  
-  /**
-   * Throws an exception if the provided actor does not have permissions to this HierarchyType.
-   * 
-   * @param actor
-   */
-  public void enforceActorHasRelationshipPermission(SingleActorDAOIF actor, String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean allowRC)
-  {
-    if (!this.doesActorHaveRelationshipPermission(actor, parentGeoObjectTypeCode, childGeoObjectTypeCode, allowRC))
-    {
-      String parentLabel = ServerGeoObjectType.get(parentGeoObjectTypeCode).getLabel().getValue();
-      String childLabel = ServerGeoObjectType.get(childGeoObjectTypeCode).getLabel().getValue();
-      
-      HierarchyRelationshipPermissionException ex = new HierarchyRelationshipPermissionException();
-      ex.setParentGeoObjectType(parentLabel);
-      ex.setChildGeoObjectType(childLabel);
-      ex.setOrganization(this.getOrganization().getDisplayLabel().getValue());
-      throw ex;
-    }
-  }
-
   @Transaction
   private void addToHierarchyTransaction(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
@@ -516,11 +380,6 @@ public class ServerHierarchyType
   @Transaction
   private void removeFromHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      this.enforceActorHasRelationshipPermission(Session.getCurrentSession().getUser(), parentGeoObjectTypeCode, childGeoObjectTypeCode, false);
-    }
-    
     Universal parent;
 
     if (parentGeoObjectTypeCode == null)

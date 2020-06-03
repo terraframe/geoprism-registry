@@ -202,7 +202,10 @@ public class MasterListService
     {
       if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterlist.getGeoObjectType()))
       {
-        throw new OrganizationRMException("You do not have permissions to generate a masterlist shapefile.");
+        OrganizationRMException ex = new OrganizationRMException("You do not have permissions to generate a masterlist shapefile.");
+        ex.setOrganizationLabel(masterlist.getOrganization().getDisplayLabel().getValue());
+        ex.setGeoObjectTypeLabel(masterlist.getGeoObjectType().getLabel().getValue());
+        throw ex;
       }
     }
 

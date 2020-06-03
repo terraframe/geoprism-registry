@@ -55,6 +55,7 @@ import com.runwaysdk.mvc.ViewResponse;
 
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = RegistryUrls.REGISTRY_CONTROLLER_URL)
 public class RegistryController
@@ -683,7 +684,7 @@ public class RegistryController
       }
     }
 
-    HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), aTypes);
+    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), aTypes);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray jarray = new JsonArray();
@@ -705,7 +706,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_CREATE)
   public ResponseIF createHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
   {
-    HierarchyType hierarchyType = this.registryService.createHierarchyType(request.getSessionId(), htJSON);
+    HierarchyType hierarchyType = ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), htJSON);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
@@ -721,7 +722,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_UPDATE)
   public ResponseIF updateHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
   {
-    HierarchyType hierarchyType = this.registryService.updateHierarchyType(request.getSessionId(), htJSON);
+    HierarchyType hierarchyType = ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), htJSON);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
@@ -738,7 +739,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_DELETE)
   public RestResponse deleteHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
   {
-    this.registryService.deleteHierarchyType(request.getSessionId(), code);
+    ServiceFactory.getHierarchyService().deleteHierarchyType(request.getSessionId(), code);
 
     return new RestResponse();
   }
@@ -759,7 +760,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_ADD)
   public ResponseIF addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
   {
-    HierarchyType ht = this.registryService.addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    HierarchyType ht = ServiceFactory.getHierarchyService().addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(ht.toJSON(serializer));
@@ -781,7 +782,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_REMOVE)
   public ResponseIF removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
   {
-    HierarchyType ht = this.registryService.removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    HierarchyType ht = ServiceFactory.getHierarchyService().removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(ht.toJSON(serializer));
@@ -809,7 +810,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-hierarchies")
   public ResponseIF getHierarchiesForType(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "includeTypes") Boolean includeTypes)
   {
-    JsonArray response = this.registryService.getHierarchiesForType(request.getSessionId(), code, includeTypes);
+    JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForType(request.getSessionId(), code, includeTypes);
 
     return new RestBodyResponse(response);
   }
@@ -825,7 +826,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies-over-time")
   public ResponseIF getHierarchiesForGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode)
   {
-    JsonArray response = this.registryService.getHierarchiesForGeoObjectOverTime(request.getSessionId(), code, typeCode);
+    JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForGeoObjectOverTime(request.getSessionId(), code, typeCode);
 
     return new RestBodyResponse(response);
   }
@@ -871,7 +872,7 @@ public class RegistryController
   public ResponseIF init(ClientRequestIF request)
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null);
-    HierarchyType[] hts = this.registryService.getHierarchyTypes(request.getSessionId(), null);
+    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray types = new JsonArray();
@@ -908,7 +909,7 @@ public class RegistryController
     
     // TODO: set this method up
     
-    HierarchyType hierarchyType = this.registryService.createHierarchyType(request.getSessionId(), conflict);
+    HierarchyType hierarchyType = ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), conflict);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));

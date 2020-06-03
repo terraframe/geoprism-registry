@@ -46,7 +46,13 @@ public class RemoveChildAction extends RemoveChildActionBase
   {
     ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
     ServerGeoObjectIF child = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      ServiceFactory.getHierarchyPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), ht, parent.getType().getCode(), child.getType().getCode());
+    }
+    
     parent.removeChild(child, this.getHierarchyTypeCode());
   }
 
@@ -120,7 +126,7 @@ public class RemoveChildAction extends RemoveChildActionBase
     {
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       
-      ht.enforceActorHasRelationshipPermission(actor, parent.getType().getCode(), child.getType().getCode(), true);
+      ServiceFactory.getHierarchyPermissionService().enforceCanRemoveChildCR(actor, ht, parent.getType().getCode(), child.getType().getCode());
     }
     
     super.apply();

@@ -22,6 +22,13 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 
 import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.hierarchy.HierarchyPermissionService;
+import net.geoprism.registry.hierarchy.HierarchyPermissionServiceIF;
+import net.geoprism.registry.hierarchy.HierarchyService;
+import net.geoprism.registry.organization.OrganizationPermissionService;
 
 public class ServiceFactory
 {
@@ -39,6 +46,16 @@ public class ServiceFactory
   
   private AccountService accountService;
   
+  private HierarchyService hierarchyService;
+  
+  private GeoObjectPermissionServiceIF goPermissionServ;
+  
+  private HierarchyPermissionServiceIF hierarchyPermServ;
+  
+  private OrganizationPermissionService orgServ;
+  
+  private ServerGeoObjectService serverGoService;
+  
   private void initialize()
   {
     this.registryService = new RegistryService();
@@ -51,6 +68,16 @@ public class ServiceFactory
     this.accountService = new AccountService();
     
     this.registryService.initialize(this.adapter);
+    
+    this.goPermissionServ = new GeoObjectPermissionService();
+    
+    this.serverGoService = new ServerGeoObjectService(goPermissionServ);
+    
+    this.hierarchyService = new HierarchyService();
+    
+    this.orgServ = new OrganizationPermissionService();
+    
+    this.hierarchyPermServ = new HierarchyPermissionService();
   }
   
   public static synchronized ServiceFactory getInstance()
@@ -92,5 +119,30 @@ public class ServiceFactory
   public static RegistryIdService getIdService()
   {
     return ServiceFactory.getInstance().idService;
+  }
+  
+  public static HierarchyService getHierarchyService()
+  {
+    return ServiceFactory.getInstance().hierarchyService;
+  }
+  
+  public static ServerGeoObjectService getServerGeoObjectService()
+  {
+    return ServiceFactory.getInstance().serverGoService;
+  }
+  
+  public static GeoObjectPermissionServiceIF getGeoObjectPermissionService()
+  {
+    return ServiceFactory.getInstance().goPermissionServ;
+  }
+  
+  public static OrganizationPermissionService getOrganizationPermissionService()
+  {
+    return ServiceFactory.getInstance().orgServ;
+  }
+  
+  public static HierarchyPermissionServiceIF getHierarchyPermissionService()
+  {
+    return ServiceFactory.getInstance().hierarchyPermServ;
   }
 }

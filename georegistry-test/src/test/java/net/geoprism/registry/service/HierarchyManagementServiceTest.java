@@ -1194,9 +1194,9 @@ public class HierarchyManagementServiceTest
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
     String gtJSON = reportingDivision.toJSON().toString();
 
-    service.createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+    ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
 
-    HierarchyType[] hierarchies = service.getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
+    HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
 
     Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
 
@@ -1232,9 +1232,9 @@ public class HierarchyManagementServiceTest
       reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
       String gtJSON = reportingDivision.toJSON().toString();
 
-      service.createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+      ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
 
-      HierarchyType[] hierarchies = service.getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
+      HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
 
       Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
 
@@ -1259,7 +1259,7 @@ public class HierarchyManagementServiceTest
     {
       if (reportingDivision != null)
       {
-        service.deleteHierarchyType(testData.adminSession.getSessionId(), REPORTING_DIVISION.getCode());
+        ServiceFactory.getHierarchyService().deleteHierarchyType(testData.adminSession.getSessionId(), REPORTING_DIVISION.getCode());
       }
       
       this.deleteOrganization(organizationCode);
@@ -1279,7 +1279,7 @@ public class HierarchyManagementServiceTest
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
     String gtJSON = reportingDivision.toJSON().toString();
 
-    reportingDivision = service.createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+    reportingDivision = ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
 
     reportingDivision.setLabel(new LocalizedValue("Reporting Division 2"));
 
@@ -1287,7 +1287,7 @@ public class HierarchyManagementServiceTest
 
     gtJSON = reportingDivision.toJSON().toString();
 
-    reportingDivision = service.updateHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+    reportingDivision = ServiceFactory.getHierarchyService().updateHierarchyType(testData.adminSession.getSessionId(), gtJSON);
 
     Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
     Assert.assertEquals("Reporting Division 2", reportingDivision.getLabel().getValue());
@@ -1327,14 +1327,14 @@ public class HierarchyManagementServiceTest
     village = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
     String htJSON = reportingDivision.toJSON().toString();
-    reportingDivision = service.createHierarchyType(testData.adminSession.getSessionId(), htJSON);
+    reportingDivision = ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), htJSON);
 
     String htJSON2 = administrativeDivision.toJSON().toString();
-    administrativeDivision = service.createHierarchyType(testData.adminSession.getSessionId(), htJSON2);
+    administrativeDivision = ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), htJSON2);
 
     Assert.assertEquals("HierarchyType \"" + REPORTING_DIVISION.getCode() + "\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
 
-    reportingDivision = service.addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), Universal.ROOT, country.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), Universal.ROOT, country.getCode());
 
     Assert.assertEquals("HierarchyType \"" + REPORTING_DIVISION.getCode() + "\" should have one root type", 1, reportingDivision.getRootGeoObjectTypes().size());
 
@@ -1344,7 +1344,7 @@ public class HierarchyManagementServiceTest
 
     Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should have no child", 0, countryNode.getChildren().size());
 
-    reportingDivision = service.addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), country.getCode(), province.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), country.getCode(), province.getCode());
 
     countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
 
@@ -1354,7 +1354,7 @@ public class HierarchyManagementServiceTest
 
     Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should have a child of type", PROVINCE.getCode(), provinceNode.getGeoObjectType().getCode());
 
-    reportingDivision = service.addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), province.getCode(), district.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), province.getCode(), district.getCode());
 
     countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
     provinceNode = countryNode.getChildren().get(0);
@@ -1362,7 +1362,7 @@ public class HierarchyManagementServiceTest
 
     Assert.assertEquals("GeoObjectType \"" + PROVINCE.getCode() + "\" should have a child of type", DISTRICT.getCode(), districtNode.getGeoObjectType().getCode());
 
-    reportingDivision = service.addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), district.getCode(), village.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), district.getCode(), village.getCode());
 
     countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
     provinceNode = countryNode.getChildren().get(0);
@@ -1371,7 +1371,7 @@ public class HierarchyManagementServiceTest
 
     Assert.assertEquals("GeoObjectType \"" + DISTRICT.getCode() + "\" should have a child of type", VILLAGE.getCode(), villageNode.getGeoObjectType().getCode());
 
-    reportingDivision = service.removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), district.getCode(), village.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), district.getCode(), village.getCode());
 
     countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
     provinceNode = countryNode.getChildren().get(0);
@@ -1379,20 +1379,20 @@ public class HierarchyManagementServiceTest
 
     Assert.assertEquals("GeoObjectType \"" + DISTRICT.getCode() + "\" should have no child", 0, districtNode.getChildren().size());
 
-    reportingDivision = service.removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), province.getCode(), district.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), province.getCode(), district.getCode());
 
     countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
     provinceNode = countryNode.getChildren().get(0);
 
     Assert.assertEquals("GeoObjectType \"" + PROVINCE.getCode() + "\" should have no child", 0, provinceNode.getChildren().size());
 
-    reportingDivision = service.removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), country.getCode(), province.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), country.getCode(), province.getCode());
 
     countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
 
     Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should have no child", 0, countryNode.getChildren().size());
 
-    reportingDivision = service.removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), Universal.ROOT, country.getCode());
+    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), Universal.ROOT, country.getCode());
 
     Assert.assertEquals("HierarchyType \"" + REPORTING_DIVISION.getCode() + "\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
   }
@@ -1546,7 +1546,7 @@ public class HierarchyManagementServiceTest
   @Test
   public void testHierarchyType()
   {
-    HierarchyType[] hierarchyTypes = service.getHierarchyTypes(testData.adminSession.getSessionId(), null);
+    HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.adminSession.getSessionId(), null);
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
