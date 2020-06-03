@@ -24,7 +24,7 @@
 
 
           <!-- Organization administrator -->
-          <div *ngIf="org.RA" class="row" style="padding: 20px;">
+          <div *ngIf="org.RA && isSRA" class="row" style="padding: 20px;">
             <div class="col-sm-12">
               <boolean-field [(value)]="org.RA.assigned" (change)="onToggleOrgRA($event, org)"
                 [label]="org.RA.label.localizedValue" [disable]="_roles.SRA && _roles.SRA.assigned"></boolean-field>
