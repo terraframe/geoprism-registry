@@ -207,11 +207,6 @@ public class ServerHierarchyType
 
   public void addToHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      ServiceFactory.getHierarchyPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), this, parentGeoObjectTypeCode, childGeoObjectTypeCode);
-    }
-    
     Universal parentUniversal = Universal.getByKey(parentGeoObjectTypeCode);
 
     if (parentUniversal.getIsLeafType())

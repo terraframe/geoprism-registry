@@ -272,5 +272,17 @@ public class HierarchyPermissionService implements HierarchyPermissionServiceIF
   {
     this.enforceActorHasRelationshipPermission(actor, ht, parentGeoObjectTypeCode, childGeoObjectTypeCode, true);
   }
+
+  @Override
+  public boolean canDelete(SingleActorDAOIF actor, Organization org)
+  {
+    return this.doesActorHavePermission(actor, org, Operation.DELETE);
+  }
+
+  @Override
+  public void enforceCanDelete(SingleActorDAOIF actor, Organization org)
+  {
+    this.enforceActorHasPermission(actor, org, Operation.DELETE);
+  }
   
 }

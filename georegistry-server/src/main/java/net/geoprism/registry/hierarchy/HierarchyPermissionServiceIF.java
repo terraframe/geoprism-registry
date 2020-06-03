@@ -8,6 +8,10 @@ import net.geoprism.registry.model.ServerHierarchyType;
 public interface HierarchyPermissionServiceIF
 {
   
+  public boolean canDelete(SingleActorDAOIF actor, Organization org);
+  
+  public void enforceCanDelete(SingleActorDAOIF actor, Organization org);
+  
   public boolean canRead(SingleActorDAOIF actor, Organization org);
   
   public void enforceCanRead(SingleActorDAOIF actor, Organization org);

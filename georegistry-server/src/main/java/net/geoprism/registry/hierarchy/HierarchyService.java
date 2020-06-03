@@ -1,6 +1,7 @@
 package net.geoprism.registry.hierarchy;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -132,24 +134,41 @@ public class HierarchyService
   @Request(RequestType.SESSION)
   public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes)
   {
+    List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
+    
     if (codes == null || codes.length == 0)
     {
       List<HierarchyType> lHt = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
       
-      return lHt.toArray(new HierarchyType[lHt.size()]);
+      hierarchyTypeList = new LinkedList<HierarchyType>(lHt);
     }
-
-    List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
-    for (String code : codes)
+    else
     {
-      Optional<HierarchyType> oht = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code);
-
-      if (oht.isPresent())
+      for (String code : codes)
       {
-        hierarchyTypeList.add(oht.get());
+        Optional<HierarchyType> oht = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code);
+  
+        if (oht.isPresent())
+        {
+          hierarchyTypeList.add(oht.get());
+        }
       }
     }
-
+    
+    // Filter out what they're not allowed to see
+    Iterator<HierarchyType> it = hierarchyTypeList.iterator();
+    while (it.hasNext())
+    {
+      HierarchyType ht = it.next();
+      
+      Organization org = Organization.getByCode(ht.getOrganizationCode());
+      
+      if (!ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org))
+      {
+        it.remove();
+      }
+    }
+    
     HierarchyType[] hierarchies = hierarchyTypeList.toArray(new HierarchyType[hierarchyTypeList.size()]);
 
     return hierarchies;
@@ -185,10 +204,7 @@ public class HierarchyService
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, ServiceFactory.getAdapter());
     ServerHierarchyType type = ServerHierarchyType.get(hierarchyType);
     
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      ServiceFactory.getHierarchyPermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization());
-    }
+    ServiceFactory.getHierarchyPermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization());
     
     type.update(hierarchyType);
 
@@ -206,6 +222,9 @@ public class HierarchyService
   public void deleteHierarchyType(String sessionId, String code)
   {
     ServerHierarchyType type = ServerHierarchyType.get(code);
+    
+    ServiceFactory.getHierarchyPermissionService().enforceCanDelete(Session.getCurrentSession().getUser(), type.getOrganization());
+    
     type.delete();
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -231,6 +250,9 @@ public class HierarchyService
   public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
+    
+    ServiceFactory.getHierarchyPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), type, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    
     type.addToHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
     return type.getType();
@@ -254,10 +276,7 @@ public class HierarchyService
   {
     ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
     
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      ServiceFactory.getHierarchyPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), type, parentGeoObjectTypeCode, childGeoObjectTypeCode);
-    }
+    ServiceFactory.getHierarchyPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), type, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     
     type.removeChild(parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
