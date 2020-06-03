@@ -52,11 +52,12 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.model.postgres.TreeServerGeoObject;
-import net.geoprism.registry.service.ServerGeoObjectService;
 
 public class TestGeoObjectInfo
 {
@@ -510,7 +511,7 @@ public class TestGeoObjectInfo
   {
     // if (this.serverGO == null)
     // {
-    this.serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode());
+    this.serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode());
     // }
 
     return this.serverGO;
@@ -560,10 +561,10 @@ public class TestGeoObjectInfo
 
     if (date == null)
     {
-      return new ServerGeoObjectService().apply(this.asGeoObject(), this.isNew, false);
+      return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.asGeoObject(), this.isNew, false);
     }
 
-    return new ServerGeoObjectService().apply(this.asGeoObject(date), this.isNew, false);
+    return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.asGeoObject(date), this.isNew, false);
   }
 
   /**

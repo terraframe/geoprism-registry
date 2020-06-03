@@ -63,18 +63,12 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportConfiguration;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportErrorQuery;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
-import net.geoprism.registry.etl.ValidationProblem;
-import net.geoprism.registry.etl.ValidationProblemQuery;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
@@ -86,7 +80,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
 import net.geoprism.registry.test.USATestData;
@@ -478,7 +471,7 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
     geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
@@ -525,7 +518,7 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
     geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
@@ -579,7 +572,7 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
     geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
@@ -893,7 +886,7 @@ public class ShapefileServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label99");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGo = new ServerGeoObjectService().apply(geoObj, true, false);
+    ServerGeoObjectIF serverGo = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
     
     JSONObject valRes = new JSONObject();
     valRes.put("validationProblemId", results.getJSONObject(0).getString("id"));

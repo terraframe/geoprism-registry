@@ -75,19 +75,12 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.etl.DataImportJob;
-import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.etl.ImportConfiguration;
-import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportErrorQuery;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.etl.ValidationProblem;
-import net.geoprism.registry.etl.ValidationProblemQuery;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.DelegateShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
@@ -101,7 +94,6 @@ import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ExcelService;
 import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.USATestData;
 
@@ -633,7 +625,7 @@ public class ExcelServiceTest
       geoObj.setValue(this.testDate.getName(), calendar.getTime());
       geoObj.setValue(this.testBoolean.getName(), true);
 
-      ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+      ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
       geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
@@ -674,7 +666,7 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
     geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
@@ -749,7 +741,7 @@ public class ExcelServiceTest
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService().apply(geoObj, true, false);
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
     geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
