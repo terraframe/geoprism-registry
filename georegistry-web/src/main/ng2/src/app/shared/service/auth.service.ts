@@ -133,13 +133,40 @@ export class AuthService {
     return false;
   }
 
+  isOrganizationRA(orgCode: string): boolean {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.orgCode === orgCode && this.__getRoleFromRoleName(role.roleName) === "RA")
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
   isGeoObjectTypeRM(type: string): boolean {
     for (let i = 0; i < this.user.roles.length; ++i)
     {
       let role: RegistryRole = this.user.roles[i];
       
-      if (role.roleName.indexOf(type) !== -1
-               || role.roleName.indexOf( "cgr.RegistryMaintainer" ) !== -1) // Legacy support
+      if (role.roleName.indexOf(type) !== -1 && this.__getRoleFromRoleName(role.roleName) === "RM")
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  isGeoObjectTypeRC(type: string): boolean {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.roleName.indexOf(type) !== -1 && this.__getRoleFromRoleName(role.roleName) === "RC")
       {
         return true;
       }
@@ -183,6 +210,12 @@ export class AuthService {
     }
     
     return orgCodes;
+  }
+
+  __getRoleFromRoleName(roleName: string): string{
+    let nameArr = roleName.split(".");
+
+    return nameArr[nameArr.length - 1];
   }
   
   getUsername(): string {

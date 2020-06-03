@@ -15,13 +15,16 @@
           <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
           <li class="list-group-item" *ngFor="let type of geoObjectTypes">
             {{type.label.localizedValue}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" style="font-size:15px;cursor:auto;margin-left:5px;" aria-hidden="true"></i> 
-            <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type)"> </i> 
-            <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
+            
+            <span *ngIf="isOrganizationRA(type.organizationCode)">
+              <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
+              <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type)"> </i> 
+            </span>
           </li>
         </ul>
         
         <div>
-          <button type="submit" class="btn btn-primary" (click)="createGeoObjectType()"><localize key="hierarchy.management.button.create"></localize></button>
+          <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="createGeoObjectType()"><localize key="hierarchy.management.button.create"></localize></button>
         </div>
         
       </div>
@@ -31,15 +34,18 @@
         <h3><localize key="hierarchy.management.panel.title"></localize></h3>
         <hr>
         <ul class="list-group">
-          <li class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" *ngFor="let hierarchy of hierarchies;" (click)="hierarchyOnClick($event,hierarchy)">
+          <li *ngFor="let hierarchy of hierarchies;" class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
             <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
-            <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy)"> </i>            
-            <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
+
+            <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
+              <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
+              <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy)"> </i>            
+            </span>
           </li>
         </ul>
         
         <div>
-          <button type="submit" class="btn btn-primary" (click)="createHierarchy()"><localize key="hierarchy.management.button.create"></localize></button>
+          <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="createHierarchy()"><localize key="hierarchy.management.button.create"></localize></button>
         </div>
       </div>
       
@@ -54,7 +60,7 @@
         </div>
         <div *ngIf="currentHierarchy && nodes.length === 0">
           <div>
-            <button type="submit" class="btn btn-primary" (click)="addChildAndRootToHierarchy()"><localize key="hierarchy.current.management.panel.button.add"></localize></button>
+            <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="addChildAndRootToHierarchy()"><localize key="hierarchy.current.management.panel.button.add"></localize></button>
           </div>
         </div>
       </div>
