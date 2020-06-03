@@ -29,6 +29,7 @@ import { Subject } from 'rxjs';
 import { Account, User, Role } from '../../model/account';
 import { AccountService } from '../../service/account.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { AuthService } from '../../../shared/service/auth.service';
 
 @Component( {
     selector: 'account',
@@ -43,10 +44,19 @@ export class AccountComponent implements OnInit {
     roles: Role[];
     roleIds: string[] = [];
 
+    isSRA: boolean;
+	isRA: boolean;
+
     @Input()
     set oid( oid: string ) {
         if ( oid === 'NEW' ) {
-            this.service.newInstance("").then( data => {
+
+            let orgCodes = [];
+            if(this.isRA){
+                orgCodes = this.authService.getMyOrganizations();
+            }
+
+            this.service.newInstance(orgCodes).then( data => {
                 this.account = data;
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
@@ -66,10 +76,14 @@ export class AccountComponent implements OnInit {
 
     constructor(
         private service: AccountService,
+        private authService: AuthService,
         private location: Location,
         public bsModalRef: BsModalRef,
         private localizeService: LocalizationService
     ) {
+
+        this.isSRA = authService.isSRA();
+		this.isRA = authService.isRA();
     }
 
     ngOnInit(): void {

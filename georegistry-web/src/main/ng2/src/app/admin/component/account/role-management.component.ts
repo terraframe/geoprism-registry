@@ -225,7 +225,7 @@ export class RoleManagementComponent implements OnInit {
 			}
 		});
 
-		if (this._roles.SRA.assigned) {
+		if(this._roles.SRA && this._roles.SRA.assigned) {
 			newRoleIds.push(this._roles.SRA.name);
 		}
 
