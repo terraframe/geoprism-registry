@@ -175,9 +175,7 @@ export class AuthService {
     {
       let role: RegistryRole = this.user.roles[i];
       
-      if (role.type === RegistryRoleType.RC
-          || role.type === RegistryRoleType.RM
-          || role.type === RegistryRoleType.RA) {
+      if (role.type === RegistryRoleType.RC || role.type === RegistryRoleType.RM || role.type === RegistryRoleType.RA) {
         orgCodes.push(role.orgCode);
       }
     }

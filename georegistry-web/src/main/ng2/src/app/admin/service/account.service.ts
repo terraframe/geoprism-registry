@@ -65,7 +65,7 @@ export class AccountService {
             .toPromise();
     }
 
-    newInstance(organizationCodes: string): Promise<Account> {
+    newInstance(organizationCodes: string[]): Promise<Account> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
