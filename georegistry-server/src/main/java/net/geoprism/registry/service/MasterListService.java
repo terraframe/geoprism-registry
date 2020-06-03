@@ -103,7 +103,10 @@ public class MasterListService
     {
       if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterList.getGeoObjectType()))
       {
-        throw new OrganizationRMException("You do not have permissions to publish a masterlist.");
+        OrganizationRMException ex = new OrganizationRMException("You do not have permissions to publish a masterlist.");
+        ex.setOrganizationLabel(masterList.getOrganization().getDisplayLabel().getValue());
+        ex.setGeoObjectTypeLabel(masterList.getGeoObjectType().getLabel().getValue());
+        throw ex;
       }
     }
 
