@@ -352,9 +352,7 @@ public class RegistryService
     {
       OrganizationDTO orgDTO = it.next();
       
-      Organization org = Organization.getByKey(orgDTO.getCode());
-      
-      if (!ServiceFactory.getOrganizationPermissionService().doesActorHavePermission(actor, org))
+      if (!ServiceFactory.getOrganizationPermissionService().canActorRead(actor, orgDTO.getCode()))
       {
         it.remove();
       }
@@ -493,8 +491,11 @@ public class RegistryService
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(),geoObjectType.getOrganizationCode(), geoObjectType.getLabel().getValue());
 
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
+    
     serverGeoObjectType.update(geoObjectType);
 
     return serverGeoObjectType.getType();
@@ -517,6 +518,9 @@ public class RegistryService
   public AttributeType createAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
     return attrType;
@@ -538,6 +542,9 @@ public class RegistryService
   public AttributeType updateAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    
     AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
     return attrType;
@@ -560,6 +567,9 @@ public class RegistryService
   public void deleteAttributeType(String sessionId, String gtId, String attributeName)
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    
     got.removeAttribute(attributeName);
   }
 
@@ -723,6 +733,8 @@ public class RegistryService
   public void deleteGeoObjectType(String sessionId, String code)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getLabel().getValue());
     
     if (type != null)
     {

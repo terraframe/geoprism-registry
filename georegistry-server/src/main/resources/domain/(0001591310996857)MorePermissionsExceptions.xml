@@ -1,0 +1,20 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.roles.RAException" label="Registry Administrator Exception" message="You must be a Registry Adminstrator in order to perform this action.">
+      </mdException> 
+    </create>
+    <update>
+      <mdException name="net.geoprism.registry.OrganizationRAException" label="Organization Registry Administrator Exception" message="You must be a Registry Adminstrator of the [{organizationLabel}] organization in order to perform this action.">
+        <attributes>
+          <char name="organizationLabel" label="Organization Label" size="1024"/>
+        </attributes>
+      </mdException> 
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.roles.RAException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>

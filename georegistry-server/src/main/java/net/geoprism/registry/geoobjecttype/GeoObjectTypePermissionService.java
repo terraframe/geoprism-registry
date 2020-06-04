@@ -2,7 +2,6 @@ package net.geoprism.registry.geoobjecttype;
 
 import java.util.Set;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.rbac.Operation;
@@ -10,14 +9,9 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.CreateGeoObjectTypePermissionException;
-import net.geoprism.registry.roles.DeleteGeoObjectPermissionException;
 import net.geoprism.registry.roles.DeleteGeoObjectTypePermissionException;
-import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectTypePermissionException;
-import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
 
 public class GeoObjectTypePermissionService implements GeoObjectTypePermissionServiceIF
@@ -32,103 +26,51 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
    * @param actor
    * @param op
    */
-  protected void enforceActorHasPermission(SingleActorDAOIF actor, ServerGeoObjectType got, Operation op, boolean allowRC)
+  protected void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotLabel, Operation op)
   {
-    if (!this.doesActorHavePermission(actor, got, op, allowRC))
+    if (!this.doesActorHavePermission(actor, orgCode, op))
     {
-      Organization org = got.getOrganization();
-      
-      if (op.equals(Operation.WRITE))
-      {
-        WriteGeoObjectPermissionException ex = new WriteGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(got.getLabel().getValue());
-        throw ex;
-      }
-      else if (op.equals(Operation.READ))
-      {
-        ReadGeoObjectPermissionException ex = new ReadGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(got.getLabel().getValue());
-        throw ex;
-      }
-      else if (op.equals(Operation.DELETE))
-      {
-        DeleteGeoObjectPermissionException ex = new DeleteGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(got.getLabel().getValue());
-        throw ex;
-      }
-      else if (op.equals(Operation.CREATE))
-      {
-        CreateGeoObjectPermissionException ex = new CreateGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(got.getLabel().getValue());
-        throw ex;
-      }
-    }
-  }
-  
-  /**
-   * If create, write, and delete operation
-   * 
-   * Operation must be one of:
-   * - WRITE (Update)
-   * - READ
-   * - DELETE
-   * - CREATE
-   * 
-   * @param actor
-   * @param op
-   */
-  protected void enforceActorHasPermission(SingleActorDAOIF actor, String gotLabel, Organization organization, Operation op)
-  {
-    if (!this.doesActorHavePermission(actor, organization, op))
-    {
+      Organization org = Organization.getByCode(orgCode);
       
       if (op.equals(Operation.WRITE))
       {
         WriteGeoObjectTypePermissionException ex = new WriteGeoObjectTypePermissionException();
-        ex.setOrganization(organization.getDisplayLabel().getValue());
+        ex.setOrganization(org.getDisplayLabel().getValue());
         ex.setGeoObjectType(gotLabel);
         throw ex;
       }
       else if (op.equals(Operation.READ))
       {
         ReadGeoObjectTypePermissionException ex = new ReadGeoObjectTypePermissionException();
-        ex.setOrganization(organization.getDisplayLabel().getValue());
+        ex.setOrganization(org.getDisplayLabel().getValue());
         ex.setGeoObjectType(gotLabel);
         throw ex;
       }
       else if (op.equals(Operation.DELETE))
       {
         DeleteGeoObjectTypePermissionException ex = new DeleteGeoObjectTypePermissionException();
-        ex.setOrganization(organization.getDisplayLabel().getValue());
+        ex.setOrganization(org.getDisplayLabel().getValue());
         ex.setGeoObjectType(gotLabel);
         throw ex;
       }
       else if (op.equals(Operation.CREATE))
       {
         CreateGeoObjectTypePermissionException ex = new CreateGeoObjectTypePermissionException();
-        ex.setOrganization(organization.getDisplayLabel().getValue());
+        ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
     }
   }
   
-  protected boolean doesActorHavePermission(SingleActorDAOIF actor, ServerGeoObjectType got, Operation op, boolean allowRC)
+  protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
       return true;
     }
     
-    Organization thisOrg = got.getOrganization();
-    
-    if (thisOrg != null)
+    if (orgCode != null)
     {
-      String thisOrgCode = thisOrg.getCode();
-      
       Set<RoleDAOIF> roles = actor.authorizedRoles();
       
       for (RoleDAOIF role : roles)
@@ -137,29 +79,15 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
         
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
+          String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
           
-          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(thisOrgCode))
+          if (RegistryRole.Type.isRA_Role(roleName))
+          {
+            return orgCode.equals(roleOrgCode) || op.equals(Operation.READ);
+          }
+          else if ( op.equals(Operation.READ) && orgCode.equals(roleOrgCode) && (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isRM_Role(roleName)))
           {
             return true;
-          }
-          else if ( ( (allowRC && RegistryRole.Type.isRC_Role(roleName)) || RegistryRole.Type.isRM_Role(roleName)) && orgCode.equals(thisOrgCode) )
-          {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-            
-            if (gotCode.equals(got.getCode()))
-            {
-              return true;
-            }
-          }
-          else if ( (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName)) && op.equals(Operation.READ) && orgCode.equals(thisOrgCode))
-          {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-            
-            if (gotCode.equals(got.getCode()))
-            {
-              return true;
-            }
           }
         }
         else if (RegistryRole.Type.isSRA_Role(roleName))
@@ -170,109 +98,54 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
     }
     
     return false;
+  }
+
+  @Override
+  public boolean canRead(SingleActorDAOIF actor, String orgCode)
+  {
+    return this.doesActorHavePermission(actor, orgCode, Operation.READ);
+  }
+
+  @Override
+  public void enforceCanRead(SingleActorDAOIF actor, String orgCode, String gotLabel)
+  {
+    this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.READ);
+  }
+
+  @Override
+  public boolean canWrite(SingleActorDAOIF actor, String orgCode)
+  {
+    return this.doesActorHavePermission(actor, orgCode, Operation.WRITE);
+  }
+
+  @Override
+  public void enforceCanWrite(SingleActorDAOIF actor, String orgCode, String gotLabel)
+  {
+    this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.WRITE);
+  }
+
+  @Override
+  public boolean canCreate(SingleActorDAOIF actor, String orgCode)
+  {
+    return this.doesActorHavePermission(actor, orgCode, Operation.CREATE);
+  }
+
+  @Override
+  public void enforceCanCreate(SingleActorDAOIF actor, String orgCode)
+  {
+    this.enforceActorHasPermission(actor, orgCode, null, Operation.CREATE);
   }
   
-  /**
-   * If create, write, and delete operation.
-   * @param actor
-   * @param organization
-   * @param op
-   * @param allowRC
-   * @return
-   */
-  protected boolean doesActorHavePermission(SingleActorDAOIF actor, Organization organization, Operation op)
+  @Override
+  public boolean canDelete(SingleActorDAOIF actor, String orgCode)
   {
-    if (actor == null) // null actor is assumed to be SYSTEM
-    {
-      return true;
-    }
-    
-    if (organization != null)
-    {
-      String thisOrgCode = organization.getCode();
-      
-      Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
-      for (RoleDAOIF role : roles)
-      {
-        String roleName = role.getRoleName();
-        
-        if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
-        {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
-          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(thisOrgCode))
-          {
-            return true;
-          }
-        }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
-        {
-          return true;
-        }
-      }
-    }
-    
-    return false;
+    return this.doesActorHavePermission(actor, orgCode, Operation.DELETE);
   }
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanDelete(SingleActorDAOIF actor, String orgCode, String gotLabel)
   {
-    return this.doesActorHavePermission(actor, got, Operation.READ, true);
+    this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.DELETE);
   }
-
-  @Override
-  public void enforceCanRead(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    this.enforceActorHasPermission(actor, got, Operation.READ, true);
-  }
-
-  @Override
-  public boolean canWrite(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    return this.doesActorHavePermission(actor, got, Operation.WRITE, false);
-  }
-
-  @Override
-  public void enforceCanWrite(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    this.enforceActorHasPermission(actor, got, Operation.WRITE, false);
-  }
-
-  @Override
-  public boolean canCreate(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    return this.doesActorHavePermission(actor, got, Operation.CREATE, false);
-  }
-
-  @Override
-  public void enforceCanCreate(SingleActorDAOIF actor, String gotLabel, Organization organization)
-  {
-    this.enforceActorHasPermission(actor, gotLabel, organization, Operation.CREATE);
-  }
-
-  @Override
-  public boolean canWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    return this.doesActorHavePermission(actor, got, Operation.WRITE, true);
-  }
-
-  @Override
-  public void enforceCanWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    this.enforceActorHasPermission(actor, got, Operation.WRITE, true);
-  }
-
-  @Override
-  public boolean canCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    return this.doesActorHavePermission(actor, got, Operation.CREATE, true);
-  }
-
-  @Override
-  public void enforceCanCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got)
-  {
-    this.enforceActorHasPermission(actor, got, Operation.CREATE, true);
-  }
+  
 }

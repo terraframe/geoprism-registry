@@ -14,17 +14,15 @@ import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectTypeService
 {
   private RegistryAdapter adapter;
   
-  private GeoObjectPermissionServiceIF goPermServ;
-  
   public GeoObjectTypeService(RegistryAdapter adapter)
   {
     this.adapter = adapter;
-    this.goPermServ = new GeoObjectPermissionService();
   }
   
   /**
@@ -74,7 +72,7 @@ public class GeoObjectTypeService
       
       ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
       
-      if (!this.goPermServ.canRead(Session.getCurrentSession().getUser(), serverGot.getOrganization().getCode(), serverGot.getCode()))
+      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(Session.getCurrentSession().getUser(), serverGot.getOrganization().getCode()))
       {
         it.remove();
       }
@@ -82,4 +80,7 @@ public class GeoObjectTypeService
 
     return gots;
   }
+  
+  
+  
 }

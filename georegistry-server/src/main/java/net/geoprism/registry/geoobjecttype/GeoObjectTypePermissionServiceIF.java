@@ -8,24 +8,20 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 public interface GeoObjectTypePermissionServiceIF
 {
   
-  public boolean canRead(SingleActorDAOIF actor, ServerGeoObjectType got);
+  public boolean canRead(SingleActorDAOIF actor, String orgCode);
   
-  public void enforceCanRead(SingleActorDAOIF actor, ServerGeoObjectType got);
+  public void enforceCanRead(SingleActorDAOIF actor, String orgCode, String gotLabel);
 
-  public boolean canWrite(SingleActorDAOIF actor, ServerGeoObjectType got);
+  public boolean canWrite(SingleActorDAOIF actor, String orgCode);
   
-  public void enforceCanWrite(SingleActorDAOIF actor, ServerGeoObjectType got);
+  public void enforceCanWrite(SingleActorDAOIF actor, String orgCode, String gotLabel);
   
-  public boolean canCreate(SingleActorDAOIF actor, ServerGeoObjectType got);
+  public boolean canCreate(SingleActorDAOIF actor, String orgCode);
   
-  public void enforceCanCreate(SingleActorDAOIF actor, String gotLabel, Organization organization);
+  public void enforceCanCreate(SingleActorDAOIF actor, String orgCode);
   
-  public boolean canWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got);
+  public boolean canDelete(SingleActorDAOIF actor, String orgCode);
   
-  public void enforceCanWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got);
-  
-  public boolean canCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got);
-  
-  public void enforceCanCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got);
+  public void enforceCanDelete(SingleActorDAOIF actor, String orgCode, String gotLabel);
   
 }
