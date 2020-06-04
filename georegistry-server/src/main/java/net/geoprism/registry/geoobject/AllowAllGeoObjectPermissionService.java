@@ -8,63 +8,63 @@ public class AllowAllGeoObjectPermissionService implements GeoObjectPermissionSe
 {
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canRead(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     return true;
   }
 
   @Override
-  public void enforceCanRead(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanRead(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     
   }
 
   @Override
-  public boolean canWrite(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canWrite(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     return true;
   }
 
   @Override
-  public void enforceCanWrite(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanWrite(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     
   }
 
   @Override
-  public boolean canCreate(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canCreate(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     return true;
   }
 
   @Override
-  public void enforceCanCreate(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanCreate(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     
   }
 
   @Override
-  public boolean canWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canWriteCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     return true;
   }
 
   @Override
-  public void enforceCanWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanWriteCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     
   }
 
   @Override
-  public boolean canCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canCreateCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     return true;
   }
 
   @Override
-  public void enforceCanCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanCreateCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
     
   }
-  
+
 }

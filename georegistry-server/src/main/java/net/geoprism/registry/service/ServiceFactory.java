@@ -24,10 +24,14 @@ import org.commongeoregistry.adapter.RegistryAdapterServer;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.geoobject.GeoObjectRelationshipPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectRelationshipPermissionServiceIF;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.hierarchy.HierarchyPermissionService;
-import net.geoprism.registry.hierarchy.HierarchyPermissionServiceIF;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypeRelationshipPermissionService;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypeRelationshipPermissionServiceIF;
 import net.geoprism.registry.hierarchy.HierarchyService;
+import net.geoprism.registry.hierarchy.HierarchyTypePermissionService;
+import net.geoprism.registry.hierarchy.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.organization.OrganizationPermissionService;
 
 public class ServiceFactory
@@ -50,11 +54,15 @@ public class ServiceFactory
   
   private GeoObjectPermissionServiceIF goPermissionServ;
   
-  private HierarchyPermissionServiceIF hierarchyPermServ;
+  private HierarchyTypePermissionServiceIF hierarchyPermServ;
   
   private OrganizationPermissionService orgServ;
   
   private ServerGeoObjectService serverGoService;
+  
+  private GeoObjectRelationshipPermissionServiceIF goRelPermissionServ;
+  
+  private GeoObjectTypeRelationshipPermissionServiceIF goTypeRelPermissionServ;
   
   private void initialize()
   {
@@ -77,7 +85,11 @@ public class ServiceFactory
     
     this.orgServ = new OrganizationPermissionService();
     
-    this.hierarchyPermServ = new HierarchyPermissionService();
+    this.hierarchyPermServ = new HierarchyTypePermissionService();
+    
+    this.goRelPermissionServ = new GeoObjectRelationshipPermissionService();
+    
+    this.goTypeRelPermissionServ = new GeoObjectTypeRelationshipPermissionService();
   }
   
   public static synchronized ServiceFactory getInstance()
@@ -126,7 +138,7 @@ public class ServiceFactory
     return ServiceFactory.getInstance().hierarchyService;
   }
   
-  public static ServerGeoObjectService getServerGeoObjectService()
+  public static ServerGeoObjectService getGeoObjectService()
   {
     return ServiceFactory.getInstance().serverGoService;
   }
@@ -136,12 +148,22 @@ public class ServiceFactory
     return ServiceFactory.getInstance().goPermissionServ;
   }
   
+  public static GeoObjectRelationshipPermissionServiceIF getGeoObjectRelationshipPermissionService()
+  {
+    return ServiceFactory.getInstance().goRelPermissionServ;
+  }
+  
+  public static GeoObjectTypeRelationshipPermissionServiceIF getGeoObjectTypeRelationshipPermissionService()
+  {
+    return ServiceFactory.getInstance().goTypeRelPermissionServ;
+  }
+  
   public static OrganizationPermissionService getOrganizationPermissionService()
   {
     return ServiceFactory.getInstance().orgServ;
   }
   
-  public static HierarchyPermissionServiceIF getHierarchyPermissionService()
+  public static HierarchyTypePermissionServiceIF getHierarchyPermissionService()
   {
     return ServiceFactory.getInstance().hierarchyPermServ;
   }

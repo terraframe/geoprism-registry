@@ -50,7 +50,7 @@ public class AddChildAction extends AddChildActionBase
 
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      ServiceFactory.getHierarchyPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), ht, parent.getType().getCode(), child.getType().getCode());
+      ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
     }
     
     parent.addChild(child, ht);
@@ -126,7 +126,7 @@ public class AddChildAction extends AddChildActionBase
     {
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       
-      ServiceFactory.getHierarchyPermissionService().enforceCanAddChildCR(actor, ht, parent.getType().getCode(), child.getType().getCode());
+      ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChildCR(actor, ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
     }
     
     super.apply();

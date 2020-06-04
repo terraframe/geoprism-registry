@@ -28,11 +28,12 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
    * @param actor
    * @param op
    */
-  protected void enforceActorHasPermission(SingleActorDAOIF actor, ServerGeoObjectType got, Operation op, boolean allowRC)
+  protected void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotCode, Operation op, boolean allowRC)
   {
-    if (!this.doesActorHavePermission(actor, got, op, allowRC))
+    if (!this.doesActorHavePermission(actor, orgCode, gotCode, op, allowRC))
     {
-      Organization org = got.getOrganization();
+      Organization org = Organization.getByCode(orgCode);
+      ServerGeoObjectType got = ServerGeoObjectType.get(gotCode);
       
       if (op.equals(Operation.WRITE))
       {
@@ -65,19 +66,15 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
     }
   }
   
-  protected boolean doesActorHavePermission(SingleActorDAOIF actor, ServerGeoObjectType got, Operation op, boolean allowRC)
+  protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, String gotCode, Operation op, boolean isChangeRequest)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
       return true;
     }
     
-    Organization thisOrg = got.getOrganization();
-    
-    if (thisOrg != null)
+    if (orgCode != null)
     {
-      String thisOrgCode = thisOrg.getCode();
-      
       Set<RoleDAOIF> roles = actor.authorizedRoles();
       
       for (RoleDAOIF role : roles)
@@ -86,26 +83,26 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
         
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
+          String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
           
-          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(thisOrgCode))
+          if (RegistryRole.Type.isRA_Role(roleName) && roleOrgCode.equals(orgCode))
           {
             return true;
           }
-          else if ( ( (allowRC && RegistryRole.Type.isRC_Role(roleName)) || RegistryRole.Type.isRM_Role(roleName)) && orgCode.equals(thisOrgCode) )
+          else if ( ( (isChangeRequest && RegistryRole.Type.isRC_Role(roleName)) || RegistryRole.Type.isRM_Role(roleName)) && orgCode.equals(roleOrgCode) )
           {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
+            String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
             
-            if (gotCode.equals(got.getCode()))
+            if (gotCode.equals(roleGotCode))
             {
               return true;
             }
           }
-          else if ( (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName)) && op.equals(Operation.READ) && orgCode.equals(thisOrgCode))
+          else if ( (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName)) && op.equals(Operation.READ) && orgCode.equals(roleOrgCode))
           {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
+            String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
             
-            if (gotCode.equals(got.getCode()))
+            if (gotCode.equals(roleGotCode))
             {
               return true;
             }
@@ -122,62 +119,62 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
   }
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canRead(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    return this.doesActorHavePermission(actor, got, Operation.READ, true);
+    return this.doesActorHavePermission(actor, orgCode, gotCode, Operation.READ, true);
   }
 
   @Override
-  public void enforceCanRead(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanRead(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    this.enforceActorHasPermission(actor, got, Operation.READ, true);
+    this.enforceActorHasPermission(actor, orgCode, gotCode, Operation.READ, true);
   }
 
   @Override
-  public boolean canWrite(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canWrite(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    return this.doesActorHavePermission(actor, got, Operation.WRITE, false);
+    return this.doesActorHavePermission(actor, orgCode, gotCode, Operation.WRITE, false);
   }
 
   @Override
-  public void enforceCanWrite(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanWrite(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    this.enforceActorHasPermission(actor, got, Operation.WRITE, false);
+    this.enforceActorHasPermission(actor, orgCode, gotCode, Operation.WRITE, false);
   }
 
   @Override
-  public boolean canCreate(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canCreate(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    return this.doesActorHavePermission(actor, got, Operation.CREATE, false);
+    return this.doesActorHavePermission(actor, orgCode, gotCode, Operation.CREATE, false);
   }
 
   @Override
-  public void enforceCanCreate(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanCreate(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    this.enforceActorHasPermission(actor, got, Operation.CREATE, false);
+    this.enforceActorHasPermission(actor, orgCode, gotCode, Operation.CREATE, false);
   }
 
   @Override
-  public boolean canWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canWriteCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    return this.doesActorHavePermission(actor, got, Operation.WRITE, true);
+    return this.doesActorHavePermission(actor, orgCode, gotCode, Operation.WRITE, true);
   }
 
   @Override
-  public void enforceCanWriteCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanWriteCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    this.enforceActorHasPermission(actor, got, Operation.WRITE, true);
+    this.enforceActorHasPermission(actor, orgCode, gotCode, Operation.WRITE, true);
   }
 
   @Override
-  public boolean canCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public boolean canCreateCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    return this.doesActorHavePermission(actor, got, Operation.CREATE, true);
+    return this.doesActorHavePermission(actor, orgCode, gotCode, Operation.CREATE, true);
   }
 
   @Override
-  public void enforceCanCreateCR(SingleActorDAOIF actor, ServerGeoObjectType got)
+  public void enforceCanCreateCR(SingleActorDAOIF actor, String orgCode, String gotCode)
   {
-    this.enforceActorHasPermission(actor, got, Operation.CREATE, true);
+    this.enforceActorHasPermission(actor, orgCode, gotCode, Operation.CREATE, true);
   }
 }

@@ -65,7 +65,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
     
-    geoObjectPermissionService.enforceCanCreateCR(Session.getCurrentSession().getUser(), type);
+    geoObjectPermissionService.enforceCanCreateCR(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
     
     super.apply();
   }

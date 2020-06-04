@@ -74,7 +74,7 @@ public class GeoObjectTypeService
       
       ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
       
-      if (!this.goPermServ.canRead(Session.getCurrentSession().getUser(), serverGot))
+      if (!this.goPermServ.canRead(Session.getCurrentSession().getUser(), serverGot.getOrganization().getCode(), serverGot.getCode()))
       {
         it.remove();
       }
