@@ -101,7 +101,7 @@ public class MasterListService
 
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterList.getGeoObjectType()))
+      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterList.getGeoObjectType().getOrganization().getCode(), masterList.getGeoObjectType().getCode()))
       {
         OrganizationRMException ex = new OrganizationRMException("You do not have permissions to publish a masterlist.");
         ex.setOrganizationLabel(masterList.getOrganization().getDisplayLabel().getValue());
@@ -200,7 +200,7 @@ public class MasterListService
 
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterlist.getGeoObjectType()))
+      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterlist.getGeoObjectType().getOrganization().getCode(), masterlist.getGeoObjectType().getCode()))
       {
         OrganizationRMException ex = new OrganizationRMException("You do not have permissions to generate a masterlist shapefile.");
         ex.setOrganizationLabel(masterlist.getOrganization().getDisplayLabel().getValue());

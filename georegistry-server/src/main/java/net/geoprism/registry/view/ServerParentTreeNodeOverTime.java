@@ -144,7 +144,7 @@ public class ServerParentTreeNodeOverTime
         {
           final ServerGeoObjectIF parent = entry.getGeoObject();
           
-          ServiceFactory.getHierarchyPermissionService().enforceCanAddChild(actor, hierarchyType, parent.getCode(), childCode);
+          ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(actor, hierarchyType.getOrganization().getCode(), parent.getCode(), childCode);
         }
       }
     }

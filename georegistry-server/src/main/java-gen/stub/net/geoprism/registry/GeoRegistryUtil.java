@@ -68,7 +68,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
     
-    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), Organization.getByCode(hierarchyType.getOrganizationCode()));
+    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), hierarchyType.getOrganizationCode());
     
     ServerHierarchyType sType = new ServerHierarchyTypeBuilder().createHierarchyType(hierarchyType);
 

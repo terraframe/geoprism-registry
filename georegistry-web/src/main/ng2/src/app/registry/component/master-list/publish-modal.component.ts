@@ -40,6 +40,7 @@ export class PublishModalComponent implements OnInit {
      */
 	edit: boolean = false;
 
+  isNew: boolean = false;
 
 	constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef) { }
 

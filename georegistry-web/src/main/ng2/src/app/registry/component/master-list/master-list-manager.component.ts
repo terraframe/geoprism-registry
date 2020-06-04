@@ -59,6 +59,7 @@ export class MasterListManagerComponent implements OnInit {
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.init(org);
+		this.bsModalRef.content.isNew = true;
 		this.bsModalRef.content.onMasterListChange.subscribe((list: any) => {
 			const obj = {
 				label: list.displayLabel.localizedValue,
@@ -87,6 +88,7 @@ export class MasterListManagerComponent implements OnInit {
 			});
 			this.bsModalRef.content.edit = true;
 			this.bsModalRef.content.master = list;
+			this.bsModalRef.content.isNew = false;
 			this.bsModalRef.content.onMasterListChange.subscribe(ret => {
 				pair.label = ret.displayLabel.localizedValue;
 			});

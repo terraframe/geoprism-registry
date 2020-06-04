@@ -6,9 +6,11 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRAException;
+import net.geoprism.registry.SRAException;
 
 public class OrganizationPermissionService
 {
@@ -45,6 +47,37 @@ public class OrganizationPermissionService
 
     return false;
   }
+  
+  protected boolean isActorSRA(SingleActorDAOIF actor)
+  {
+    if (actor == null)
+    {
+      return true;
+    }
+    
+    Set<RoleDAOIF> roles = Session.getCurrentSession().getUser().authorizedRoles();
+    
+    for (RoleDAOIF role : roles)
+    {
+      String roleName = role.getRoleName();
+      
+      if (RegistryRole.Type.isSRA_Role(roleName))
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  protected void enforceActorSRA(SingleActorDAOIF actor)
+  {
+    if (!isActorSRA(actor))
+    {
+      SRAException ex = new SRAException();
+      throw ex;
+    }
+  }
 
   /**
    * Throws an exception if the provided actor does not have permissions to this
@@ -60,5 +93,35 @@ public class OrganizationPermissionService
       OrganizationRAException ex = new OrganizationRAException();
       throw ex;
     }
+  }
+
+  public void enforceActorCanCreate(SingleActorDAOIF user)
+  {
+    enforceActorSRA(user);
+  }
+
+  public void enforceActorCanUpdate(SingleActorDAOIF user)
+  {
+    enforceActorSRA(user);
+  }
+  
+  public boolean canActorCreate(SingleActorDAOIF user)
+  {
+    return isActorSRA(user);
+  }
+
+  public boolean canActorUpdate(SingleActorDAOIF user)
+  {
+    return isActorSRA(user);
+  }
+
+  public void enforceActorCanDelete(SingleActorDAOIF user)
+  {
+    enforceActorSRA(user);
+  }
+  
+  public boolean canActorDelete(SingleActorDAOIF user)
+  {
+    return isActorSRA(user);
   }
 }

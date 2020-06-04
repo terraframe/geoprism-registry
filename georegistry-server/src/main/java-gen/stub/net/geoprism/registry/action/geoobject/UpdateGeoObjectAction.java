@@ -65,7 +65,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
     
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
     
-    geoObjectPermissionService.enforceCanWriteCR(Session.getCurrentSession().getUser(), type);
+    geoObjectPermissionService.enforceCanWriteCR(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
     
     super.apply();
   }

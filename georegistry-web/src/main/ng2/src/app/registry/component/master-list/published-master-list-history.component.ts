@@ -125,6 +125,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		});
 		this.bsModalRef.content.readonly = true;
 		this.bsModalRef.content.master = this.list;
+		this.bsModalRef.content.isNew = false;
 	}
 
 

@@ -241,11 +241,11 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         if (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY)
         {
-          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type);
+          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
         }
         else
         {
-          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type);
+          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
         }
       }
       

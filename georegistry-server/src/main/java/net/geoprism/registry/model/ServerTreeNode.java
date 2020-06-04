@@ -64,6 +64,6 @@ public abstract class ServerTreeNode
     return endDate;
   }
 
-  public abstract TreeNode toNode();
+  public abstract TreeNode toNode(boolean enforcePermissions);
 
 }
