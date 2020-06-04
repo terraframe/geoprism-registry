@@ -83,9 +83,9 @@ public class HierarchyPermissionService implements HierarchyPermissionServiceIF
         {
           String orgCode = RegistryRole.Type.parseOrgCode(roleName);
           
-          if ( RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(thisOrgCode) )
+          if ( RegistryRole.Type.isRA_Role(roleName) )
           {
-            return true;
+            return orgCode.equals(thisOrgCode) || op.equals(Operation.READ);
           }
           else if ( RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(thisOrgCode) && op.equals(Operation.READ) )
           {
