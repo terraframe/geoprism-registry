@@ -47,6 +47,12 @@
                       [name]="role.orgCode + role.geoObjectTypeCode" >
                     <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
                   </label>
+
+                  <label class="radio">
+                    <input type="checkbox" [value]="" [checked]="roleGroup.ENABLEDROLE === ''" (change)="setGroupRole(roleGroup, null, $event)"
+                      [name]="roleGroup + '_none'" >
+                    <span style="font-weight: 400;">None</span>
+                  </label>
               
                 </div>
               </fieldset>
