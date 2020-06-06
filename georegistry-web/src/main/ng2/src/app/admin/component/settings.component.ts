@@ -53,6 +53,7 @@ export class SettingsComponent implements OnInit {
     installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
     isAdmin: boolean;
     isSRA: boolean;
+    isRA: boolean;
     settings: Settings = {email: {isConfigured: false}}
 
     constructor(
@@ -63,6 +64,7 @@ export class SettingsComponent implements OnInit {
     ) {
         this.isAdmin = authService.isAdmin();
         this.isSRA = authService.isSRA();
+        this.isRA = authService.isRA();
      }
 
     ngOnInit(): void {
