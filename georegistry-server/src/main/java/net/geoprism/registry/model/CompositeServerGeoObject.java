@@ -34,6 +34,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.model.postgres.TreeServerGeoObject;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 /**
@@ -55,12 +56,17 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
     this.rSGO = rSGO;
     this.vSGO = vSGO;
   }
+  
+  public TreeServerGeoObject getRelationalServerGeoObject()
+  {
+    return (TreeServerGeoObject) this.rSGO;
+  }
 
   public VertexServerGeoObject getVertexServerGeoObject()
   {
     return vSGO;
   }
-
+  
   @Override
   public VertexObject getVertex()
   {

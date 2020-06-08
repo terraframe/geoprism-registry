@@ -49,7 +49,7 @@ public class CompositeGeoObjectStrategy implements ServerGeoObjectStrategyIF
     this.bConverter = converter;
     this.vConverter = new VertexGeoObjectStrategy(converter.getType());
   }
-
+  
   @Override
   public ServerGeoObjectType getType()
   {

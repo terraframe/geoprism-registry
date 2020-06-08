@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.geoobject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -37,6 +39,8 @@ import net.geoprism.registry.conversion.CompositeGeoObjectStrategy;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
+import net.geoprism.registry.etl.export.GeoObjectExportFormat;
+import net.geoprism.registry.etl.export.GeoObjectRevealExporter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -54,6 +58,29 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public ServerGeoObjectService(GeoObjectPermissionServiceIF permissionService)
   {
     this.permissionService = permissionService;
+  }
+  
+  @Request(RequestType.SESSION)
+  public InputStream getAll(String sessionId, String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, Integer pageNumber, Integer pageSize)
+  {
+    GeoObjectExportFormat goef = null;
+    if (format != null && format.length() > 0)
+    {
+      goef = GeoObjectExportFormat.valueOf(format);
+    }
+    
+    GeoObjectRevealExporter exporter = new GeoObjectRevealExporter(gotCode, hierarchyCode, since, includeLevel, goef);
+    
+    exporter.paginate(pageSize, pageNumber);
+    
+    try
+    {
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
   
   @Request(RequestType.SESSION)

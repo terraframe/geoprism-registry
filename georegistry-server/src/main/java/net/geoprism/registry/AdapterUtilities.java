@@ -56,7 +56,28 @@ public class AdapterUtilities
    * @return
    */
   @Request
-  public List<GeoObjectType> getAncestors(ServerGeoObjectType child, String code)
+  public List<GeoObjectType> getTypeAncestors(ServerGeoObjectType child, String code)
+  {
+    List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(code);
+
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), child.getUniversal(), hierarchyType.getUniversalType());
+
+    list.forEach(term -> {
+      Universal parent = (Universal) term;
+
+      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(child.getUniversal().getOid()))
+      {
+        ancestors.add(ServerGeoObjectType.get(parent).getType());
+      }
+    });
+
+    return ancestors;
+  }
+  
+  @Request
+  public List<GeoObjectType> getTypeParents(ServerGeoObjectType child, String code)
   {
     List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
 

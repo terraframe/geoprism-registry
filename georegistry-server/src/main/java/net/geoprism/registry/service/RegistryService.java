@@ -267,7 +267,7 @@ public class RegistryService
   {
     ServerGeoObjectType child = ServerGeoObjectType.get(code);
 
-    return ServiceFactory.getUtilities().getAncestors(child, hierarchyCode);
+    return ServiceFactory.getUtilities().getTypeAncestors(child, hierarchyCode);
   }
 
   @Request(RequestType.SESSION)

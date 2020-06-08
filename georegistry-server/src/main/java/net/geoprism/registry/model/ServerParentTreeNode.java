@@ -108,7 +108,7 @@ public class ServerParentTreeNode extends ServerTreeNode
   {
     GeoObject geoObject = this.getGeoObject().toGeoObject();
     HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
-
+    
     ParentTreeNode node = new ParentTreeNode(geoObject, ht);
     
     SingleActorDAOIF actor = null;
@@ -116,11 +116,14 @@ public class ServerParentTreeNode extends ServerTreeNode
     {
       actor = Session.getCurrentSession().getUser();
     }
+    
+    String orgCode = geoObject.getType().getOrganizationCode();
+    String typeCode = geoObject.getType().getCode();
 
     for (ServerParentTreeNode parent : this.parents)
     {
       if (!enforcePermissions
-          || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, ht.getOrganizationCode(), parent.getGeoObject().getType().getCode(), geoObject.getType().getCode()))
+          || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, orgCode, parent.getGeoObject().getType().getCode(), typeCode))
       {
         node.addParent(parent.toNode(enforcePermissions));
       }
