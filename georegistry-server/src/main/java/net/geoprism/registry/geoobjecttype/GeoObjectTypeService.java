@@ -11,9 +11,8 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
-import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectTypeService
@@ -35,7 +34,7 @@ public class GeoObjectTypeService
    * @return the {@link GeoObjectType}s with the given codes or all
    *         {@link GeoObjectType}s if no codes are provided.
    */
-  public List<GeoObjectType> getGeoObjectTypes(String[] codes)
+  public List<GeoObjectType> getGeoObjectTypes(String[] codes, String[] hierarchies)
   {
     List<GeoObjectType> gots;
     
@@ -64,7 +63,6 @@ public class GeoObjectTypeService
       }
     }
     
-    // Filter ones that they can't see due to permissions
     Iterator<GeoObjectType> it = gots.iterator();
     while (it.hasNext())
     {
@@ -72,9 +70,34 @@ public class GeoObjectTypeService
       
       ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
       
+      // Filter ones that they can't see due to permissions
       if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(Session.getCurrentSession().getUser(), serverGot.getOrganization().getCode()))
       {
         it.remove();
+      }
+      
+      if (hierarchies != null && hierarchies.length > 0)
+      {
+        List<ServerHierarchyType> hts = serverGot.getHierarchies();
+        
+        boolean contains = false;
+        OuterLoop:
+        for (ServerHierarchyType ht : hts)
+        {
+          for (String hierarchy : hierarchies)
+          {
+            if (ht.getCode().equals(hierarchy))
+            {
+              contains = true;
+              break OuterLoop;
+            }
+          }
+        }
+        
+        if (!contains)
+        {
+          it.remove();
+        }
       }
     }
 

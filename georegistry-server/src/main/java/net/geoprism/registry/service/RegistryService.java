@@ -442,9 +442,9 @@ public class RegistryService
    *         {@link GeoObjectType}s if no codes are provided.
    */
   @Request(RequestType.SESSION)
-  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes)
+  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, String[] hierarchies)
   {
-    List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes);
+    List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes, hierarchies);
     
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }

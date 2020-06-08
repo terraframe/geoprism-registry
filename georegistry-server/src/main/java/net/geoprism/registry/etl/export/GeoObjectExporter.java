@@ -19,13 +19,15 @@ import com.google.gson.stream.JsonWriter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.LastUpdateRestriction;
+import net.geoprism.registry.service.ServiceFactory;
 
-public class GeoObjectRevealExporter
+public class GeoObjectExporter
 {
   public static void main(String[] args) throws IOException
   {
@@ -35,14 +37,13 @@ public class GeoObjectRevealExporter
   @Request
   public static void mainInReq() throws IOException
   {
-    GeoObjectRevealExporter exporter = new GeoObjectRevealExporter("test123MidGOT", "test123HR", null, true, GeoObjectExportFormat.JSON_REVEAL);
-//    exporter.paginate(2, 1);
+    GeoObjectExporter exporter = new GeoObjectExporter("test123MidGOT", "test123HR", null, true, GeoObjectExportFormat.JSON_REVEAL, 2, 1);
     InputStream is = exporter.export();
     
     IOUtils.copy(is, System.out);
   }
   
-  final private Logger logger = LoggerFactory.getLogger(GeoObjectRevealExporter.class);
+  final private Logger logger = LoggerFactory.getLogger(GeoObjectExporter.class);
   
   final private ServerGeoObjectType got;
   
@@ -60,19 +61,31 @@ public class GeoObjectRevealExporter
 
   private GeoObjectExportFormat format;
   
-  public GeoObjectRevealExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format)
+  public GeoObjectExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, Integer pageSize, Integer pageNumber)
   {
     this.got = ServerGeoObjectType.get(gotCode);
     this.hierarchyType = ServerHierarchyType.get(hierarchyCode);
     this.since = since;
     this.includeLevel = includeLevel == null ? Boolean.FALSE : includeLevel;
     this.format = format == null ? GeoObjectExportFormat.JSON_CGR : format;
-  }
-  
-  public void paginate(Integer pageSize, Integer pageNumber)
-  {
     this.pageSize = pageSize;
     this.pageNumber = pageNumber;
+    
+    init();
+  }
+  
+  public void init()
+  {
+    if (this.pageSize == null || this.pageNumber == null || this.pageNumber == 0 || this.pageSize == 0)
+    {
+      this.pageSize = 1000;
+      this.pageNumber = 1;
+    }
+    
+    if (Session.getCurrentSession() != null)
+    {
+      ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), this.got.getOrganization().getCode(), this.got.getCode());
+    }
   }
   
   private OIterator<GeoObject> postgresQuery()
@@ -95,12 +108,6 @@ public class GeoObjectRevealExporter
   
   public void write(OutputStream os)
   {
-    if (this.pageSize == null || this.pageNumber == null || this.pageNumber == 0 || this.pageSize == 0)
-    {
-      this.pageSize = 1000;
-      this.pageNumber = 1;
-    }
-    
     try (JsonWriter jw = new JsonWriter(new PrintWriter(os)))
     {
       jw.beginObject();
@@ -182,7 +189,7 @@ public class GeoObjectRevealExporter
       @Request
       public void runInReq()
       {
-        GeoObjectRevealExporter.this.write(pos);
+        GeoObjectExporter.this.write(pos);
       }
     });
     t.setDaemon(true);

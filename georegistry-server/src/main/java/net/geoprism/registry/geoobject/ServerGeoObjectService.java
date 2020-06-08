@@ -40,7 +40,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
-import net.geoprism.registry.etl.export.GeoObjectRevealExporter;
+import net.geoprism.registry.etl.export.GeoObjectExporter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -69,9 +69,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       goef = GeoObjectExportFormat.valueOf(format);
     }
     
-    GeoObjectRevealExporter exporter = new GeoObjectRevealExporter(gotCode, hierarchyCode, since, includeLevel, goef);
-    
-    exporter.paginate(pageSize, pageNumber);
+    GeoObjectExporter exporter = new GeoObjectExporter(gotCode, hierarchyCode, since, includeLevel, goef, pageSize, pageNumber);
     
     try
     {

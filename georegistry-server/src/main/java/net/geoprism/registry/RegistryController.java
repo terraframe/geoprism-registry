@@ -539,11 +539,14 @@ public class RegistryController
    * @param types
    *          A serialized json array of GeoObjectType codes. If blank then all
    *          GeoObjectType objects are returned.
+   * @param hierarchies
+   *          A serialized json array of HierarchyType codes. If blank then
+   *          GeoObjectTypes belonging to all hierarchies are returned.
    *
    * @returns @throws
    **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
-  public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types)
+  public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_HIERARCHIES) String hierarchies)
   {
 
     String[] aTypes = null;
@@ -557,8 +560,20 @@ public class RegistryController
         aTypes[i] = jaTypes.getString(i);
       }
     }
+    
+    String[] aHierarchies = null;
+    if (hierarchies != null)
+    {
+      JSONArray jaHierarchies = new JSONArray(hierarchies);
 
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes);
+      aHierarchies = new String[jaHierarchies.length()];
+      for (int i = 0; i < jaHierarchies.length(); i++)
+      {
+        aHierarchies[i] = jaHierarchies.getString(i);
+      }
+    }
+
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes, aHierarchies);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray jarray = new JsonArray();
@@ -583,7 +598,7 @@ public class RegistryController
   // Heads up: Cleanup includeLeafTypes parameter
   public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeLeafTypes") Boolean includeLeafTypes)
   {
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null);
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null);
 
     Arrays.sort(gots, new Comparator<GeoObjectType>()
     {
@@ -871,7 +886,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "init")
   public ResponseIF init(ClientRequestIF request)
   {
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null);
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null);
     HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
