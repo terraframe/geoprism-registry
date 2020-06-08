@@ -199,8 +199,14 @@ export class RoleManagementComponent implements OnInit {
 
 	}
 
-	setGroupRole(group: FormattedGeoObjectTypeRoleGroup, role: Role, event:any): void {		
-		group.ENABLEDROLE = (event.target.checked) ? role.name : "";
+	setGroupRole(group: FormattedGeoObjectTypeRoleGroup, role: Role, event:any): void {	
+		
+		if(role === null){
+			group.ENABLEDROLE = "";
+		}
+		else{
+			group.ENABLEDROLE = (event.target.checked) ? role.name : "";
+		}
 		
 		this.onChangeRole();
 	}
