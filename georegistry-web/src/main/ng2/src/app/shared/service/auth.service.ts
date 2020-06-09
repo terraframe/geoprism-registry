@@ -83,6 +83,20 @@ export class AuthService {
     return this.isRC();
   }
   
+  // Used to exactly identify a role. I.e. if we say we need RC, SRA doesn't count.
+  hasExactRole(roleType: RegistryRoleType)
+  {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.type === roleType) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
 
   isSRA(): boolean {
     for (let i = 0; i < this.user.roles.length; ++i)

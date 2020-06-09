@@ -10,6 +10,8 @@ import { AuthService } from '../../service/auth.service';
 import { SessionService } from '../../service/session.service';
 import { ProfileService } from '../../service/profile.service';
 
+import { RegistryRoleType } from '../../model/core';
+
 declare var acp: string;
 
 @Component( {
@@ -38,6 +40,46 @@ export class CgrHeaderComponent {
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+    }
+    
+    shouldShowMenuItem(item: string): boolean {
+      if (item === "HIERARCHIES")
+      {
+        return true;
+      }
+      else if (item === "LISTS")
+      {
+        //return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
+        return true;
+      }
+      else if (item === "IMPORT")
+      {
+        return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+      }
+      else if (item === "SCHEDULED-JOBS")
+      {
+        return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+      }
+      else if (item === "NAVIGATOR")
+      {
+        return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
+      }
+      else if (item === "CHANGE-REQUESTS")
+      {
+        return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
+      }
+      else if (item === "TASKS")
+      {
+        return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+      }
+      else if (item === "SETTINGS")
+      {
+        return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA);
+      }
+      else
+      {
+        return false;
+      }
     }
 
     logout(): void {
