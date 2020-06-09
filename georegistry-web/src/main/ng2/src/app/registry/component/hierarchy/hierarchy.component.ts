@@ -244,14 +244,21 @@ export class HierarchyComponent implements OnInit {
     }
 
     public handleOnMenu( node: any, $event: any ): void {
-
-        this.contextMenuService.show.next( {
-            contextMenu: ( node.data.childType !== null ? this.nodeMenuComponent : this.leafMenuComponent ),
-            event: $event,
-            item: node,
-        } );
-        $event.preventDefault();
-        $event.stopPropagation();
+        if (this.isOrganizationRA(this.currentHierarchy.organizationCode))
+        {
+          this.contextMenuService.show.next( {
+              contextMenu: ( node.data.childType !== null ? this.nodeMenuComponent : this.leafMenuComponent ),
+              event: $event,
+              item: node,
+          } );
+          $event.preventDefault();
+          $event.stopPropagation();
+        }
+        else
+        {
+          $event.preventDefault();
+          $event.stopPropagation();
+        }
     }
 
     public treeNodeOnClick( node: TreeNode, $event: any ): void {
