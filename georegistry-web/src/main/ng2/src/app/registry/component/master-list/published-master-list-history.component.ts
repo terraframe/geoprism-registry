@@ -65,9 +65,9 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		this.pollingData.unsubscribe();
 	}
 
-	isGeoObjectTypeRM(type: string): boolean {
-		return this.authService.isGeoObjectTypeRM(type);
-	}
+	//isGeoObjectTypeRM(type: string): boolean {
+	//	return this.authService.isGeoObjectTypeRM(type);
+	//}
 
 	onDeleteMasterListVersion( oid: string ): void {
 		this.service.deleteMasterListVersion( oid ).then(data =>{

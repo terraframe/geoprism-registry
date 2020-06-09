@@ -59,12 +59,12 @@ export class IOService {
             .toPromise()
     }
 
-    listGeoObjectTypes( includeLeafTypes: boolean ): Promise<{ label: string, code: string }[]> {
+    listGeoObjectTypes( includeLeafTypes: boolean ): Promise<{ label: string, code: string, orgCode: string }[]> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'includeLeafTypes', includeLeafTypes.toString() );
 
         return this.http
-            .get<{ label: string, code: string }[]>( acp + '/cgr/geoobjecttype/list-types', { params: params } )
+            .get<{ label: string, code: string, orgCode: string }[]>( acp + '/cgr/geoobjecttype/list-types', { params: params } )
             .toPromise();
     }
 

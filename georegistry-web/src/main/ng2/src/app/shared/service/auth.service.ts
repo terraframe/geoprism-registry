@@ -138,41 +138,41 @@ export class AuthService {
     {
       let role: RegistryRole = this.user.roles[i];
       
-      if (role.orgCode === orgCode && this.__getRoleFromRoleName(role.roleName) === "RA")
+      if (role.orgCode === orgCode && role.type === RegistryRoleType.RA)
       {
         return true;
       }
     }
     
-    return false;
+    return this.isSRA();
   }
 
-  isGeoObjectTypeRM(type: string): boolean {
+  isGeoObjectTypeRM(orgCode: string, gotCode: string): boolean {
     for (let i = 0; i < this.user.roles.length; ++i)
     {
       let role: RegistryRole = this.user.roles[i];
       
-      if (role.roleName.indexOf(type) !== -1 && this.__getRoleFromRoleName(role.roleName) === "RM")
+      if (role.type === RegistryRoleType.RM && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode)
       {
         return true;
       }
     }
     
-    return false;
+    return this.isOrganizationRA(orgCode);
   }
 
-  isGeoObjectTypeRC(type: string): boolean {
+  isGeoObjectTypeRC(orgCode: string, gotCode: string): boolean {
     for (let i = 0; i < this.user.roles.length; ++i)
     {
       let role: RegistryRole = this.user.roles[i];
       
-      if (role.roleName.indexOf(type) !== -1 && this.__getRoleFromRoleName(role.roleName) === "RC")
+      if (role.type === RegistryRoleType.RC && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode)
       {
         return true;
       }
     }
     
-    return false;
+    return this.isGeoObjectTypeRM(orgCode, gotCode);
   }
   
   isRC(): boolean {
