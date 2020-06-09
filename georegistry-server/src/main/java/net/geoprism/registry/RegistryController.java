@@ -621,6 +621,7 @@ public class RegistryController
         JsonObject type = new JsonObject();
         type.addProperty("label", geoObjectType.getLabel().getValue());
         type.addProperty("code", geoObjectType.getCode());
+        type.addProperty("orgCode", geoObjectType.getOrganizationCode());
 
         jarray.add(type);
       }

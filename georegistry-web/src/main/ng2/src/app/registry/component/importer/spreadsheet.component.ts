@@ -11,6 +11,7 @@ import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component'
 
 import { IOService } from '../../service/io.service';
 import { EventService } from '../../../shared/service/event.service';
+import { AuthService } from '../../../shared/service/auth.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { ImportStrategy } from '../../model/registry';
 
@@ -60,11 +61,20 @@ export class SpreadsheetComponent implements OnInit {
 	fileRef: ElementRef;
 
 
-	constructor(private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService, private router: Router) { }
+	constructor(private service: IOService, private eventService: EventService, private modalService: BsModalService, private localizationService: LocalizationService, private router: Router, private authService: AuthService) { }
 
 	ngOnInit(): void {
 		this.service.listGeoObjectTypes(true).then(types => {
-			this.types = types;
+			
+			var myOrgTypes = [];
+      for (var i = 0; i < types.length; ++i)
+      {
+        if (this.authService.isOrganizationRA(types[i].orgCode))
+        {
+          myOrgTypes.push(types[i]);
+        }
+      }
+      this.types = myOrgTypes;
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
