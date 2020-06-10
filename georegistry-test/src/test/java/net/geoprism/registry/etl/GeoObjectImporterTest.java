@@ -418,7 +418,7 @@ public class GeoObjectImporterTest
     state00.setDisplayLabel("Test Label");
     state00.setRegistryId(ServiceFactory.getIdService().getUids(1)[0]);
     state00.apply(new Date());
-    testData.USA.addChild(state00, testData.LocatedIn);
+    testData.USA.addChild(state00, testData.HIER_ADMIN);
 
     TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
     one.setCode("0001");
@@ -474,7 +474,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(1, parentsOverTime.getHierarchies().size());
 
-    List<ServerParentTreeNode> nodes = parentsOverTime.getEntries(testData.LocatedIn.getServerObject());
+    List<ServerParentTreeNode> nodes = parentsOverTime.getEntries(testData.HIER_ADMIN.getServerObject());
     Assert.assertEquals(1, nodes.size());
 
     // TODO The fromJSON doesn't seem to be reading the json correctly...

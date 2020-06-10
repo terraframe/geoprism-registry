@@ -24,15 +24,15 @@ public class CambodiaTestData extends TestDataSet
 {
   public final String                TEST_DATA_KEY    = "CAM";
   
-  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Cambodia");
-
-  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "Province");
-
-  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "District");
-
-  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Commune");
-
-  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "Village", GeometryType.POINT);
+//  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Cambodia");
+//
+//  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "Province");
+//
+//  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "District");
+//
+//  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Commune");
+//
+//  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "Village", GeometryType.POINT);
   
 //  public static CambodiaTestData buildForDev()
 //  {

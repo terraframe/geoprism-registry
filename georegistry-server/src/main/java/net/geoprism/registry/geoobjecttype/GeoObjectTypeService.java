@@ -8,6 +8,7 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.DataNotFoundException;
@@ -63,6 +64,12 @@ public class GeoObjectTypeService
       }
     }
     
+    SingleActorDAOIF actor = null;
+    if (Session.getCurrentSession() != null)
+    {
+      actor = Session.getCurrentSession().getUser();
+    }
+    
     Iterator<GeoObjectType> it = gots.iterator();
     while (it.hasNext())
     {
@@ -71,7 +78,7 @@ public class GeoObjectTypeService
       ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
       
       // Filter ones that they can't see due to permissions
-      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(Session.getCurrentSession().getUser(), serverGot.getOrganization().getCode()))
+      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(actor, serverGot.getOrganization().getCode()))
       {
         it.remove();
       }

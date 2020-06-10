@@ -194,7 +194,7 @@ public class GeoObjectShapefileExporterTest
 
     // Assert the value of the parent columns
     // Add the type ancestor fields
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(type, hierarchyType.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(type, hierarchyType.getCode());
 
     GeoObjectType ancestor = ancestors.get(0);
 

@@ -164,7 +164,7 @@ public class ServerHierarchyType
 
     this.type = updated.getType();
     this.universalRelationship = updated.getUniversalRelationship();
-    this.entityRelationship = updated.getUniversalRelationship();
+    this.entityRelationship = updated.getEntityRelationship();
 
     ServiceFactory.getAdapter().getMetadataCache().addHierarchyType(this.type);
   }

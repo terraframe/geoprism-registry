@@ -115,15 +115,15 @@ public class HierarchyManagementServiceTest
     testData = USATestData.newTestDataForClass();
     testData.setUpMetadata();
 
-    COUNTRY = testData.newTestGeoObjectTypeInfo("HMST_Country");
-    PROVINCE = testData.newTestGeoObjectTypeInfo("HMST_Province");
-    DISTRICT = testData.newTestGeoObjectTypeInfo("HMST_District");
-    VILLAGE = testData.newTestGeoObjectTypeInfo("HMST_Village");
-//    HOUSEHOLD = testData.newTestGeoObjectTypeInfo("HMST_Household");
-//    RIVER = testData.newTestGeoObjectTypeInfo("HMST_River");
+    COUNTRY = testData.newTestGeoObjectTypeInfo("HMST_Country", testData.ORG_NPS);
+    PROVINCE = testData.newTestGeoObjectTypeInfo("HMST_Province", testData.ORG_NPS);
+    DISTRICT = testData.newTestGeoObjectTypeInfo("HMST_District", testData.ORG_NPS);
+    VILLAGE = testData.newTestGeoObjectTypeInfo("HMST_Village", testData.ORG_NPS);
+//    HOUSEHOLD = testData.newTestGeoObjectTypeInfo("HMST_Household", testData.ORG_NPS);
+//    RIVER = testData.newTestGeoObjectTypeInfo("HMST_River", testData.ORG_NPS);
 
-    ADMINISTRATIVE_DIVISION = testData.newTestHierarchyTypeInfo("HMST_AdminDiv");
-    REPORTING_DIVISION = testData.newTestHierarchyTypeInfo("HMST_ReportDiv");
+    ADMINISTRATIVE_DIVISION = testData.newTestHierarchyTypeInfo("HMST_AdminDiv", testData.ORG_NPS);
+    REPORTING_DIVISION = testData.newTestHierarchyTypeInfo("HMST_ReportDiv", testData.ORG_NPS);
   }
 
   @AfterClass
@@ -851,7 +851,7 @@ public class HierarchyManagementServiceTest
     service.createTerm(testData.adminSession.getSessionId(), rootTerm.getCode(), childTerm1.toJSON().toString());
     service.createTerm(testData.adminSession.getSessionId(), rootTerm.getCode(), childTerm2.toJSON().toString());
 
-    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() })[0];
+    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() }, null)[0];
     AttributeTermType attributeTermType2 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     // Check to see if the cache was updated.
@@ -872,14 +872,14 @@ public class HierarchyManagementServiceTest
 
     service.updateTerm(testData.adminSession.getSessionId(), childTerm2.toJSON().toString());
 
-    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() })[0];
+    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() }, null)[0];
     AttributeTermType attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     checkTermsUpdate(attributeTermType3);
 
     service.deleteTerm(testData.adminSession.getSessionId(), "termValue2");
 
-    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() })[0];
+    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() }, null)[0];
     attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     System.out.println(attributeTermType3.getRootTerm().toString());
@@ -1166,7 +1166,7 @@ public class HierarchyManagementServiceTest
 
     service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
-    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() })[0];
+    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() }, null)[0];
 
     province.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Province Test 2");
     province.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Some Description 2");
@@ -1174,7 +1174,7 @@ public class HierarchyManagementServiceTest
     gtJSON = province.toJSON().toString();
     service.updateGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
-    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() })[0];
+    province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() }, null)[0];
 
     Assert.assertEquals("Display label was not updated on a GeoObjectType", "Province Test 2", province.getLabel().getValue());
     Assert.assertEquals("Description  was not updated on a GeoObjectType", "Some Description 2", province.getDescription().getValue());
