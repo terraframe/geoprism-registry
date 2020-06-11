@@ -7,8 +7,9 @@ assignees: ''
 
 ---
 
-**List the CGR version information**
+**List the CGR information**
 - CGR version:
+- CGR instance (e.g. a URL):
 
 **Describe the bug (clear and concise)**
 
