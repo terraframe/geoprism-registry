@@ -28,14 +28,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import junit.framework.Assert;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectUtilTest
@@ -81,7 +78,7 @@ public class GeoObjectUtilTest
   public void testGetAncestorMapForTreeType()
   {
     ServerGeoObjectType type = testData.AREA.getServerObject();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
 //    GeoObject object = ServiceFactory.getUtilities().getGeoObjectByCode(testData.CO_A_ONE.getCode(), type.getCode());
 //    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(Session.getCurrentSession().getOid(), testData.CO_A_ONE.getCode(), type.getCode());

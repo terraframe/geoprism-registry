@@ -95,7 +95,6 @@ export class CgrHeaderComponent {
         let role: string = this.service.getRoleDisplayLabels();
         let name: string = this.service.getUsername();
 
-        name = name + " (" + role + ")";
         return name;
     }
 

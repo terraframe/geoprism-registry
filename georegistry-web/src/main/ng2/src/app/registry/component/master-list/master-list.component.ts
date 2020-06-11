@@ -43,6 +43,8 @@ export class MasterListComponent implements OnInit {
 	};
 	sort = { attribute: 'code', order: 'ASC' };
 	isPublished: boolean = true;
+	
+	isRefreshing: boolean = false;
 
     /*
      * Reference to the modal current showing
@@ -241,6 +243,8 @@ export class MasterListComponent implements OnInit {
 
 	onPublish(): void {
 		this.message = null;
+		
+		this.isRefreshing = true;
 
 		let subscription = interval(1000).subscribe(() => {
 			this.service.progress(this.list.oid).then(progress => {
@@ -255,6 +259,7 @@ export class MasterListComponent implements OnInit {
 				this.pService.complete();
 			})).toPromise()
 			.then(list => {
+			  this.isRefreshing = false;
 				this.list = list;
 				this.list.attributes.forEach(attribute => {
 					attribute.isCollapsed = true;
