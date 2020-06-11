@@ -85,11 +85,14 @@ public class ServerChildTreeNode extends ServerTreeNode
     {
       actor = Session.getCurrentSession().getUser();
     }
+    
+    String orgCode = go.getType().getOrganizationCode();
+    String typeCode = go.getType().getCode();
 
     for (ServerChildTreeNode child : this.children)
     {
       if (!enforcePermissions
-          || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, ht.getOrganizationCode(), go.getType().getCode(), child.getGeoObject().getType().getCode()))
+          || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, orgCode, typeCode, child.getGeoObject().getType().getCode()))
       {
         node.addChild(child.toNode(enforcePermissions));
       }

@@ -48,6 +48,7 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
@@ -745,8 +746,13 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode, Date date)
   {
-    if (date != null)
+    if (date == null)
     {
+      date = ValueOverTime.INFINITY_END_DATE;
+    }
+    
+//    if (date != null)
+//    {
       final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
       ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
@@ -777,39 +783,39 @@ public class RegistryService
 
       return array;
 
-    }
-    else
-    {
-      GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
-      query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
-      query.setLimit(10);
-
-      GeoObjectIterator it = query.getIterator();
-
-      try
-      {
-        JsonArray results = new JsonArray();
-
-        while (it.hasNext())
-        {
-          GeoObject object = it.next();
-
-          JsonObject result = new JsonObject();
-          result.addProperty("id", it.currentOid());
-          result.addProperty("name", object.getLocalizedDisplayLabel());
-          result.addProperty(GeoObject.CODE, object.getCode());
-          result.addProperty(GeoObject.UID, object.getUid());
-
-          results.add(result);
-        }
-
-        return results;
-      }
-      finally
-      {
-        it.close();
-      }
-    }
+//    }
+//    else
+//    {
+//      GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
+//      query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
+//      query.setLimit(10);
+//
+//      GeoObjectIterator it = query.getIterator();
+//
+//      try
+//      {
+//        JsonArray results = new JsonArray();
+//
+//        while (it.hasNext())
+//        {
+//          GeoObject object = it.next();
+//
+//          JsonObject result = new JsonObject();
+//          result.addProperty("id", it.currentOid());
+//          result.addProperty("name", object.getLocalizedDisplayLabel());
+//          result.addProperty(GeoObject.CODE, object.getCode());
+//          result.addProperty(GeoObject.UID, object.getUid());
+//
+//          results.add(result);
+//        }
+//
+//        return results;
+//      }
+//      finally
+//      {
+//        it.close();
+//      }
+//    }
   }
 
   @Request(RequestType.SESSION)
