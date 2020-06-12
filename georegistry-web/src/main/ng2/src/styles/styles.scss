@@ -167,6 +167,10 @@ i.clickable.fa:focus,
     cursor: pointer;
 }
 
+.fa.fa-plus::before{
+	margin-right: 5px;
+}
+
 // .delete-btn{
 //   font-size: 20px;
 // }
