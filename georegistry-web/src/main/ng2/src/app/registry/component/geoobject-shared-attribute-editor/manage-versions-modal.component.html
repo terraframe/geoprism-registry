@@ -39,9 +39,9 @@
                                                             <td >
                                                                 <table style="width: 100%;">
                                                                     <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;" > 
-                                                                        <td style="vertical-align: bottom; width: 35%;padding: 5px;">
+                                                                        <td style="vertical-align: bottom; width: 35%;padding: 0; padding-top:5px;">
                                                                             <h5>{{loc.locale}}</h5>
-                                                                            <input type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event" [attr.required]="loc.locale === 'defaultLocale'">
+                                                                            <input type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event" [required]="loc.locale === 'defaultLocale'">
                                                                             <div class="form-input-validation-error-message-wrapper">
                                                                                 <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">Value is required.</p>
                                                                             </div>
@@ -50,17 +50,17 @@
                                                                 </table>
                                                             </td>
 
-                                                            <td style="vertical-align: middle; width: 35%;padding: 5px;">
+                                                            <td style="width: 35%;">
                                                                 <input style="width: 100%;" type="date" [name]="'startDate_' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                                 <div class="form-input-validation-error-message-wrapper">
                                                                     <p *ngIf="!vAttribute.startDate" class="error-message">Start date is required.</p>
                                                                 </div>
                                                             </td> 
-                                                            <td style="vertical-align: middle; width: 20%;padding: 5px;">
+                                                            <td style="width: 20%;">
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                             </td>
                                                             <td style="vertical-align: middle; width: 10%;padding: 5px; text-align: center;">
-                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                                <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                             </td>
                                                         </tr>  
                                                     </tbody> 
@@ -69,7 +69,7 @@
                                                     <!-- TODO: This isn't getting the options on load -->
                                                     <tbody *ngIf="attribute.type === 'term'"> 
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <!-- <h5>{{loc.locale}}</h5> -->
                                                                 <!-- <input type="text" class="form-control" id="loc-val-{{i}}" name="loc-val-{{i}}" [(ngModel)]="version.value" (ngModelChange)="version.value = $event"> -->
                                                                 <select id="mod-{{attribute.code}}" [name]="'mod-term-' + i + '-' + attribute.code" class="select-area" style="float:none;" [(ngModel)]="vAttribute.value">
@@ -78,14 +78,14 @@
                                                                 </select>
                                                             
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                             </td>
                                                             <td style="vertical-align: middle;">
-                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                                <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                             </td>
                                                         </tr>  
                                                     </tbody> 
@@ -93,19 +93,19 @@
                                                     
                                                     <tbody *ngIf="attribute.type === 'character'"> 
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 
                                                                 <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required>
                                                             
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                             </td>
                                                             <td style="vertical-align: middle;">
-                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                                <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                             </td>
                                                         </tr>  
                                                     </tbody> 
@@ -113,19 +113,19 @@
                                                     
                                                     <tbody *ngIf="attribute.type === 'date'">
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 
                                                                 <input type="date" class="form-control" [name]="'char-val-' + i" [ngModel]="vAttribute.value | date:'yyyy-MM-dd'" (ngModelChange)="setDateAttribute(vAttribute, $event)" required> 
                                                             
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                             </td>
                                                             <td style="vertical-align: middle;">
-                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                                <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                             </td>
                                                         </tr>  
                                                     </tbody>
@@ -134,7 +134,7 @@
                                                     <tbody *ngIf="attribute.type === 'boolean'">
 
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;"> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 
                                                                 <label>
                                                                     <input type="radio" [checked]="vAttribute.value === true" [value]="true" [(ngModel)]="vAttribute.value" id="mod-{{i}}-true" name="mod-{{i}}-true">
@@ -147,14 +147,14 @@
                                                                 </label>
                                                             
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                             </td>
                                                             <td style="vertical-align: middle;">
-                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                                <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                             </td>
                                                         </tr>  
 
@@ -163,19 +163,19 @@
 
                                                     <tbody *ngIf="attribute.type === 'float'">
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 
                                                                 <input type="number" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required>
                                                             
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                             </td>
                                                             <td style="vertical-align: middle;">
-                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                                <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                             </td>
                                                         </tr>  
                                                     </tbody>
@@ -183,19 +183,19 @@
 
                                                     <tbody *ngIf="attribute.type === 'integer'">
                                                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;"> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 
                                                                 <input type="number" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" required>
                                                             
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                                             </td> 
-                                                            <td style="vertical-align: bottom;">
+                                                            <td >
                                                                 <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                             </td>
                                                             <td style="vertical-align: middle;">
-                                                                <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                                <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                             </td>
                                                         </tr>  
                                                     </tbody>
@@ -223,7 +223,7 @@
                                                    <p style="font-size: 14px;"> {{vAttribute.endDate | date:'MM-dd-yyyy'}} </p>
                                                  </td>
                                                  <td style="vertical-align: middle;">
-                                                   <i class="fa fa-times delete-btn" (click)="remove(vAttribute)"></i>
+                                                   <i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i>
                                                  </td>
                                                </tr>
                                               </tbody>

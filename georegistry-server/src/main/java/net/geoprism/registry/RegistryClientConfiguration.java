@@ -99,6 +99,8 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     settings.addRole(RoleConstants.ADIM_ROLE);
     settings.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     settings.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     applications.add(settings);
     
     GeoprismApplication tasks = new GeoprismApplication();
