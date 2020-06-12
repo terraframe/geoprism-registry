@@ -250,7 +250,7 @@ export class ManageVersionsModalComponent implements OnInit {
                 // only remove status of the required status type
                 if ( attrOpts.length > 0 ) {
                     if ( attr.code === "status" ) {
-                        return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                        return Utils.removeStatuses(attrOpts);
                     }
                     else {
                         return attrOpts;
