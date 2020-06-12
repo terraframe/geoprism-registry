@@ -81,6 +81,15 @@ export class EditAttributeModalContentComponent implements OnInit {
     handleOnSubmit(): void {
         
         this.registryService.updateAttributeType( this.geoObjectType.code, this.attribute ).then( data => {
+
+            for(let i=0; i<this.geoObjectType.attributes.length; i++){
+                let attr = this.geoObjectType.attributes[i];
+                if(attr.code === data.code){
+                    Object.assign(attr, data);
+                    break;
+                }
+            }
+
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
