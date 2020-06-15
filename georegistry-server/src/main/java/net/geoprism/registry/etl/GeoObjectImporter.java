@@ -524,7 +524,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           go = serverGo.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
           
-          if (this.configuration.getParentLookupType().equals(LookupType.EXTERNAL))
+          if (this.configuration.getFunction(ImportConfiguration.EXTERNAL_ATTR_NAME) != null)
           {
             ShapefileFunction function = this.configuration.getFunction(ImportConfiguration.EXTERNAL_ATTR_NAME);
             
