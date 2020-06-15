@@ -8,6 +8,7 @@ import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.util.Date;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
@@ -37,7 +39,7 @@ public class GeoObjectExporter
   @Request
   public static void mainInReq() throws IOException
   {
-    GeoObjectExporter exporter = new GeoObjectExporter("test123MidGOT", "test123HR", null, true, GeoObjectExportFormat.JSON_REVEAL, 2, 1);
+    GeoObjectExporter exporter = new GeoObjectExporter("test123root", "test123hr", null, true, GeoObjectExportFormat.JSON_REVEAL, null, null);
     InputStream is = exporter.export();
     
     IOUtils.copy(is, System.out);
@@ -102,6 +104,8 @@ public class GeoObjectExporter
       goq.paginate(this.pageNumber, this.pageSize);
       this.total = goq.getCount();
     }
+    
+    goq.orderBy(DefaultAttribute.LAST_UPDATE_DATE.getName(), SortOrder.ASC);
     
     return goq.getIterator();
   }
