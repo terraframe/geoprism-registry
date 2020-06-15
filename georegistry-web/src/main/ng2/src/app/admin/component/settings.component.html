@@ -165,7 +165,7 @@
                                     <tr>
                                         <th></th>
                                         <th>
-                                            <localize key="external.system.id"></localize>
+                                            <localize key="external.system.type"></localize>
                                         </th>
                                         <th>
                                             <localize key="external.system.label"></localize>
@@ -177,9 +177,14 @@
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let system of systems.resultSet | paginate: { itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
-                                        <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"  [title]="'account.editTooltip' | localize"></a> 
-                                        <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)" [title]="'account.removeTooltip' | localize" ></a>
-                                        <td class="label-column">{{system.id}}</td>
+                                        <td>
+                                          <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"  [title]="'account.editTooltip' | localize"></a> 
+                                          <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)" [title]="'account.removeTooltip' | localize" ></a>
+                                        </td>
+                                        <td class="label-column">
+                                          <localize *ngIf="system.type === 'DHIS2ExternalSystem'" key="external.system.dhis2"></localize>
+                                          <localize *ngIf="system.type === 'RevealExternalSystem'" key="external.system.reveal"></localize>                                        
+                                        </td>
                                         <td class="label-column">{{system.label.localizedValue}}</td>
                                         <td class="label-column">{{system.description.localizedValue}}</td>
                                     </tr>
