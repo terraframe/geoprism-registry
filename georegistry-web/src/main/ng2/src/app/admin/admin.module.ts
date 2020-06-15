@@ -42,6 +42,7 @@ import { EmailComponent } from './component/email/email.component';
 import { SettingsComponent } from './component/settings.component';
 import { OrganizationModalComponent } from './component/organization/organization-modal.component';
 import { NewLocaleModalComponent } from './component/localization-manager/new-locale-modal.component'
+import { ExternalSystemModalComponent } from './component/external-system/external-system-modal.component';
 
 
 import { AdminRoutingModule } from './admin-routing.module';
@@ -74,7 +75,8 @@ import '../rxjs-extensions';
         SettingsComponent,
         OrganizationModalComponent,
         NewLocaleModalComponent,
-        RoleManagementComponent
+        RoleManagementComponent,
+        ExternalSystemModalComponent
     ],
     exports: [
         SystemLogoComponent,
@@ -92,7 +94,8 @@ import '../rxjs-extensions';
         AccountComponent,
         OrganizationModalComponent,
         NewLocaleModalComponent,
-        RoleManagementComponent
+        RoleManagementComponent,
+        ExternalSystemModalComponent
     ]
 } )
 export class AdminModule { }

@@ -29,10 +29,12 @@ import { LocalizationService } from '../../shared/service/localization.service';
 import { AccountInviteComponent } from './account/account-invite.component';
 import { EmailComponent } from './email/email.component'
 import { OrganizationModalComponent } from './organization/organization-modal.component'
+import { ExternalSystemModalComponent } from './external-system/external-system-modal.component'
 import { NewLocaleModalComponent } from './localization-manager/new-locale-modal.component';
 
 import { SettingsService } from '../service/settings.service';
-import { Settings, Organization } from '../model/settings';
+import { Settings, Organization, ExternalSystem } from '../model/settings';
+import { PageResult } from '../model/account';
 import { Locale } from '../model/localization-manager';
 
 import { AuthService } from '../../shared/service/auth.service';
@@ -41,167 +43,234 @@ import { ModalTypes } from '../../shared/model/modal';
 
 declare let acp: string;
 
-@Component( {
-    selector: 'settings',
-    templateUrl: './settings.component.html',
-    styleUrls: ['./settings.css']
-} )
+@Component({
+	selector: 'settings',
+	templateUrl: './settings.component.html',
+	styleUrls: ['./settings.css']
+})
 export class SettingsComponent implements OnInit {
-    bsModalRef: BsModalRef;
-    message: string = null;
-    organizations: Organization[] = [];
-    installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
-    isAdmin: boolean;
-    isSRA: boolean;
-    isRA: boolean;
-    settings: Settings = {email: {isConfigured: false}}
+	bsModalRef: BsModalRef;
+	message: string = null;
+	organizations: Organization[] = [];
+	installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
+	isAdmin: boolean;
+	isSRA: boolean;
+	isRA: boolean;
+	settings: Settings = { email: { isConfigured: false } }
+	systems: PageResult<ExternalSystem> = {
+		resultSet: [],
+		count: 0,
+		pageNumber: 1,
+		pageSize: 10
+	};
 
-    constructor(
-        private modalService: BsModalService,
-        private localizeService: LocalizationService,
-        private settingsService:  SettingsService,
-        private authService: AuthService,
-    ) {
-        this.isAdmin = authService.isAdmin();
-        this.isSRA = authService.isSRA();
-        this.isRA = authService.isRA();
-     }
+	constructor(
+		private modalService: BsModalService,
+		private localizeService: LocalizationService,
+		private settingsService: SettingsService,
+		private authService: AuthService,
+	) {
+		this.isAdmin = authService.isAdmin();
+		this.isSRA = authService.isSRA();
+		this.isRA = authService.isRA();
+	}
 
-    ngOnInit(): void {
+	ngOnInit(): void {
 
-        // this.registryService.getLocales().then( locales => {
-        //     this.localizeService.setLocales( locales );
-        // } ).catch(( err: HttpErrorResponse ) => {
-        //     this.error( err );
-        // } );
+		// this.registryService.getLocales().then( locales => {
+		//     this.localizeService.setLocales( locales );
+		// } ).catch(( err: HttpErrorResponse ) => {
+		//     this.error( err );
+		// } );
 
-        this.installedLocales = this.getLocales();
+		this.installedLocales = this.getLocales();
 
-        this.settingsService.getOrganizations().then(orgs => {
-            this.organizations = orgs
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+		this.settingsService.getOrganizations().then(orgs => {
+			this.organizations = orgs
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 
-    }
+		this.onSystemPageChange(1);
+	}
 
 
-    public getCGRVersion(): string {
-        return this.authService.getVersion();
-    }
+	public getCGRVersion(): string {
+		return this.authService.getVersion();
+	}
 
-    public getLocales(): Locale[] {
-        return this.authService.getLocales();
-    }
+	public getLocales(): Locale[] {
+		return this.authService.getLocales();
+	}
 
-    exportLocalization() {
-        //this.localizationManagerService.exportLocalization();
-        window.location.href = acp + "/localization/exportSpreadsheet";
-    }
+	exportLocalization() {
+		//this.localizationManagerService.exportLocalization();
+		window.location.href = acp + "/localization/exportSpreadsheet";
+	}
 
-    public onEditOrganization(org: Organization): void {
-        let bsModalRef = this.modalService.show( OrganizationModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
+	public onEditOrganization(org: Organization): void {
+		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
 
-        bsModalRef.content.organization = org;
-        bsModalRef.content.isNewOrganization = false;
+		bsModalRef.content.organization = org;
+		bsModalRef.content.isNewOrganization = false;
 
-        bsModalRef.content.onSuccess.subscribe( data => {
-            this.organizations.push(data);
-        })
-    }
+		bsModalRef.content.onSuccess.subscribe(data => {
+			this.organizations.push(data);
+		})
+	}
 
-    public onRemoveOrganization(code: string, name: string): void {
+	public onRemoveOrganization(code: string, name: string): void {
 
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
 			animated: true,
 			backdrop: true,
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + name + ']';
-        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = ModalTypes.danger;
+		this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+		this.bsModalRef.content.type = ModalTypes.danger;
 
 		this.bsModalRef.content.onConfirm.subscribe(data => {
-            // this.settingsService.removeOrganization(code);
-            
-            this.settingsService.removeOrganization(code).then(response => {
-				for(let i = this.organizations.length - 1; i >= 0; i--) {
-                    if(this.organizations[i].code === code){
-                        this.organizations.splice(i, 1);
-                    }
-                }
+			// this.settingsService.removeOrganization(code);
+
+			this.settingsService.removeOrganization(code).then(response => {
+				for (let i = this.organizations.length - 1; i >= 0; i--) {
+					if (this.organizations[i].code === code) {
+						this.organizations.splice(i, 1);
+					}
+				}
 
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
-            });
-            
-        });
-    }
+			});
 
-    public newOrganization(): void {
-        let bsModalRef = this.modalService.show( OrganizationModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
+		});
+	}
 
-        bsModalRef.content.isNewOrganization = true;
+	public newOrganization(): void {
+		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
 
-         bsModalRef.content.onSuccess.subscribe( data => {
-            this.organizations.push(data);
-         })
-    }
+		bsModalRef.content.isNewOrganization = true;
 
-    
-    public newLocalization(): void {
+		bsModalRef.content.onSuccess.subscribe(data => {
+			this.organizations.push(data);
+		})
+	}
 
-        let bsModalRef = this.modalService.show( NewLocaleModalComponent, { 
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
-        } );
+	public newLocalization(): void {
 
-        bsModalRef.content.onSuccess.subscribe( data => {
-            this.installedLocales.push(data);
-        })
-    }
+		let bsModalRef = this.modalService.show(NewLocaleModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true
+		});
 
-    public configureEmail(): void {
-        this.bsModalRef = this.modalService.show( EmailComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
+		bsModalRef.content.onSuccess.subscribe(data => {
+			this.installedLocales.push(data);
+		})
+	}
 
-         this.bsModalRef.content.onSuccess.subscribe( data => {
-            this.settings.email.isConfigured = data
-         })
-    }
+	public configureEmail(): void {
+		this.bsModalRef = this.modalService.show(EmailComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
 
-    inviteUsers(): void {
-        // this.router.navigate(['/admin/invite']);	  
+		this.bsModalRef.content.onSuccess.subscribe(data => {
+			this.settings.email.isConfigured = data
+		})
+	}
 
-        this.bsModalRef = this.modalService.show( AccountInviteComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
+	inviteUsers(): void {
+		// this.router.navigate(['/admin/invite']);	  
 
-        this.bsModalRef.content.organization = null;
-    }
+		this.bsModalRef = this.modalService.show(AccountInviteComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+
+		this.bsModalRef.content.organization = null;
+	}
 
 
-    public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            // TODO: add error modal
-            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+	/* EXTERNAL SYSTEM LOGIC */
+	
+	onSystemPageChange(pageNumber: number): void {
+		this.settingsService.getExternalSystems(pageNumber, this.systems.pageSize).then(systems => {
+			this.systems = systems;
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+	
+	newSystem(): void {
+		let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		bsModalRef.content.organizations = this.organizations;
+		bsModalRef.content.onSuccess.subscribe(data => {
+          this.onSystemPageChange(this.systems.pageNumber);
+		})
+	}	
 
-    }
+	onEditSystem(system: ExternalSystem): void {
+		
+	  this.settingsService.getExternalSystem(system.oid).then(system => {
+
+		let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		bsModalRef.content.system = system;
+		bsModalRef.content.organizations = this.organizations;
+		bsModalRef.content.onSuccess.subscribe(data => {
+          this.onSystemPageChange(this.systems.pageNumber);
+		})
+      });
+	}
+
+	onRemoveSystem(system: ExternalSystem): void {
+
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + system.label.localizedValue + ']';
+		this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+		this.bsModalRef.content.type = ModalTypes.danger;
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+			this.settingsService.removeExternalSystem(system.oid).then(response => {
+		      this.onSystemPageChange(this.systems.pageNumber);
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		});
+	}
+
+	/* ERROR HANDLING LOGIC */
+
+	public error(err: HttpErrorResponse): void {
+		// Handle error
+		if (err !== null) {
+			// TODO: add error modal
+			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+			this.bsModalRef.content.message = (err.error.localizedMessage || err.error.message || err.message);
+		}
+
+	}
 }

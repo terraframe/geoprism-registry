@@ -19,33 +19,20 @@ import net.geoprism.registry.view.Page;
 public class ExternalSystemService
 {
   @Request(RequestType.SESSION)
-  public JsonObject page(String sessionId, String orgCode, Integer pageNumber, Integer pageSize) throws JSONException
+  public JsonObject page(String sessionId, Integer pageNumber, Integer pageSize) throws JSONException
   {
-    Organization organization = Organization.getByCode(orgCode);
-
-    long count = ExternalSystem.getCount(organization);
-    List<ExternalSystem> results = ExternalSystem.getExternalSystemsForOrg(organization, pageNumber, pageSize);
+    long count = ExternalSystem.getCount();
+    List<ExternalSystem> results = ExternalSystem.getExternalSystemsForOrg(pageNumber, pageSize);
 
     return new Page<ExternalSystem>(count, pageNumber, pageSize, results).toJSON();
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject apply(String sessionId, String orgCode, String json) throws JSONException
+  public JsonObject apply(String sessionId, String json) throws JSONException
   {
-    Organization organization = Organization.getByCode(orgCode);
-    boolean isRA = ServiceFactory.getRolePermissionService().isRA(Session.getCurrentSession().getUser(), orgCode);
-
-    if (!isRA)
-    {
-      OrganizationRAException exception = new OrganizationRAException();
-      exception.setOrganizationLabel(organization.getDisplayLabel().getValue());
-      throw exception;
-    }
-
     JsonElement element = new JsonParser().parse(json);
 
     ExternalSystem system = ExternalSystem.desieralize(element.getAsJsonObject());
-    system.setOrganization(organization);
     system.apply();
 
     return system.toJSON();
