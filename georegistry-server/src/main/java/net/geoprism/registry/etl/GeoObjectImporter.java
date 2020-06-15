@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -64,6 +63,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.upload.ExternalParentReferenceProblem;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
@@ -520,9 +520,18 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
           }
-
+          
           go = serverGo.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
+          
+          if (this.configuration.getParentLookupType().equals(LookupType.EXTERNAL))
+          {
+            ShapefileFunction function = this.configuration.getFunction(ImportConfiguration.EXTERNAL_ATTR_NAME);
+            
+            Object value = function.getValue(row);
+            
+            this.mapExternalId((String) value, serverGo);
+          }
 
           /*
            * Try to get the parent and ensure that this row is not ignored. The
@@ -607,6 +616,11 @@ public class GeoObjectImporter implements ObjectImporterIF
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
   }
 
+  private void mapExternalId(String externalId, ServerGeoObjectIF go)
+  {
+    // JS TODO : map  go.getRunwayId() -> externalId
+  }
+  
   private boolean hasValue(LocalizedValue value)
   {
     String defaultLocale = value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
@@ -641,7 +655,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     return null;
   }
-
+  
   /**
    * Returns the entity as defined by the 'parent' and 'parentType' attributes
    * of the given feature. If an entity is not found then Earth is returned by
@@ -655,6 +669,7 @@ public class GeoObjectImporter implements ObjectImporterIF
    */
   private ServerGeoObjectIF getParent(FeatureRow feature)
   {
+    final LookupType lt = this.configuration.getParentLookupType();
     List<Location> locations = this.configuration.getLocations();
 
     ServerGeoObjectIF parent = null;
@@ -696,9 +711,13 @@ public class GeoObjectImporter implements ObjectImporterIF
         // Search
         ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
 
-        if (this.configuration.getParentLookupType().equals(LookupType.CODE))
+        if (lt.equals(LookupType.CODE))
         {
           query.setRestriction(new ServerCodeRestriction(label.toString()));
+        }
+        else if (lt.equals(LookupType.EXTERNAL))
+        {
+          // JS TODO
         }
         else
         {
@@ -738,7 +757,7 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
 
-            if (this.configuration.getParentLookupType().equals(LookupType.CODE))
+            if (lt.equals(LookupType.CODE))
             {
               final ParentCodeException ex = new ParentCodeException();
               ex.setParentCode(label.toString());
@@ -747,6 +766,15 @@ public class GeoObjectImporter implements ObjectImporterIF
 
               throw ex;
             }
+            // TODO : Delete this code if we decide not to use it
+//            else if (lt.equals(LookupType.EXTERNAL))
+//            {
+//              final ExternalParentReferenceProblem prp = new ExternalParentReferenceProblem(location.getType().getCode(), label.toString(), context);
+//              prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+//              prp.setHistoryId(this.configuration.historyId);
+//              
+//              this.progressListener.addReferenceProblem(prp);
+//            }
             else
             {
               String parentCode = ( parent == null ) ? null : parent.getCode();

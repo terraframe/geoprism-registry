@@ -43,6 +43,8 @@ abstract public class ImportConfiguration
   
   public static final String IMPORT_STRATEGY  = "importStrategy";
   
+  public static final String EXTERNAL_ATTR_NAME = "external";
+  
   protected String formatType;
   
   protected String objectType;
@@ -164,7 +166,7 @@ abstract public class ImportConfiguration
   {
     this.objectType = objectType;
   }
-
+  
   public void fromJSON(String json)
   {
     JSONObject jo = new JSONObject(json);
