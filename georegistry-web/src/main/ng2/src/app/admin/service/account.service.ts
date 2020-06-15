@@ -18,13 +18,12 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 
 // import 'rxjs/add/operator/toPromise';
 import { finalize } from 'rxjs/operators';
 
 import { EventService } from '../../shared/service/event.service'
-import { MessageContainer } from '../../shared/model/core';
 
 import { Account, User, PageResult, UserInvite } from '../model/account';
 
@@ -35,14 +34,14 @@ export class AccountService {
 
     constructor( private http: HttpClient, private eventService: EventService ) { }
 
-    page( p: number ): Promise<PageResult> {
+    page( p: number ): Promise<PageResult<User>> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'number', p.toString() );
 
         this.eventService.start();
 
         return this.http
-            .get<PageResult>( acp + '/account/page', { params: params } )
+            .get<PageResult<User>>( acp + '/account/page', { params: params } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

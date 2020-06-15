@@ -42,17 +42,17 @@ public class ExternalSystemController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")
-  public ResponseIF listOrg(ClientRequestIF request, @RequestParamter(name = "orgCode") String orgCode, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
+  public ResponseIF listOrg(ClientRequestIF request, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
   {
-    JsonObject response = this.service.page(request.getSessionId(), orgCode, pageNumber, pageSize);
+    JsonObject response = this.service.page(request.getSessionId(), pageNumber, pageSize);
 
     return new RestBodyResponse(response);
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "orgCode") String orgCode, @RequestParamter(name = "system") String systemJSON)
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "system") String systemJSON)
   {
-    JsonObject response = this.service.apply(request.getSessionId(), orgCode, systemJSON);
+    JsonObject response = this.service.apply(request.getSessionId(), systemJSON);
 
     return new RestBodyResponse(response);
   }

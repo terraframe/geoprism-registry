@@ -1,5 +1,92 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
+	<createOrUpdate>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.system.heading">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="settings.external.system.heading" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="External Systems" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.id">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.id" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="ID" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.label">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.label" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Label" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.description">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.description" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Description" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.type">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.type" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Type" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.organization">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.organization" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Organization" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.heading">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.heading" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="External System" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.dhis2">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.dhis2" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="DHIS2" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.reveal">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.reveal" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Reveal" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.username">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.username" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Username" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.password">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.password" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Password" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.url">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="external.system.url" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="URL" />
+			</attributeStruct>
+		</object>
+	</createOrUpdate>
+
     <create>
       <mdVertex name="net.geoprism.registry.graph.ExternalSystem" isAbstract="true" label="External System">
         <attributes>
@@ -42,6 +129,66 @@
           </mdRelationshipPermission>                    
         </grant>
       </role>      
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.ExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                    
+        </grant>
+      </role>      
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.ExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                    
+        </grant>
+      </role>      
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.ExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                    
+        </grant>
+      </role>      
+      
     </permissions>
   </doIt>
   <undoIt>

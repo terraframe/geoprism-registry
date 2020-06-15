@@ -53,8 +53,6 @@
                                         <td class="label-column">{{org.code}}</td>
                                         <td class="label-column">{{org.label.localizedValue}}</td>
                                         <td class="label-column">{{org.contactInfo.localizedValue}}</td>
-
-                                        
                                     </tr>
                                     <tr *ngIf="isSRA">
                                         <td class="button-column">
@@ -155,6 +153,51 @@
                     </div>
                 </div>
             </div>
+            
+            <div *ngIf="isRA && organizations.length > 0" class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.external.system.heading"></localize></h3>
+
+                    <div class="content-wrapper">
+                        <div class="list-table-wrapper">
+                            <table id="manage-systems-table" class="list-table table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>
+                                            <localize key="external.system.id"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="external.system.label"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="external.system.description"></localize>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let system of systems.resultSet | paginate: { itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
+                                        <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"  [title]="'account.editTooltip' | localize"></a> 
+                                        <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)" [title]="'account.removeTooltip' | localize" ></a>
+                                        <td class="label-column">{{system.id}}</td>
+                                        <td class="label-column">{{system.label.localizedValue}}</td>
+                                        <td class="label-column">{{system.description.localizedValue}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="button-column">
+                                            <a class="fa fa-plus" (click)="newSystem()" [title]="'account.newTooltip' | localize"></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <pagination-controls (pageChange)="onSystemPageChange($event)"></pagination-controls>
+                            
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
         </div>
     </div>
 </div>

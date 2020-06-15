@@ -34,7 +34,7 @@ import { AccountComponent } from './account.component';
     styleUrls: ['./accounts.css']
 } )
 export class AccountsComponent implements OnInit {
-    res: PageResult = {
+    res: PageResult<User> = {
         resultSet: [],
         count: 0,
         pageNumber: 1,

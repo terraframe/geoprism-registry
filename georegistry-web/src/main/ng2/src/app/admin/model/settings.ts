@@ -17,6 +17,8 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
+import { LocalizedValue } from "../../shared/model/core";
+
 export class Settings {
   email: Email;
 }
@@ -25,6 +27,18 @@ export class Organization {
   code: string;
   label: any;
   contactInfo: any;
+}
+
+export class ExternalSystem {
+  oid?: string;
+  id: string;
+  type: string;
+  organization: string;
+  label: LocalizedValue;
+  description: LocalizedValue;
+  username?:string;
+  password?:string;
+  url?:string;
 }
 
 export class Localization {
