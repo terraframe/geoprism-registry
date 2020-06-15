@@ -167,6 +167,10 @@ textarea.ng-invalid:required {
     */
 }
 
+.error-container{
+    text-align: center;
+}
+
 .error-message {
     color: #e30000; /* IE fallback */
     color: var(--theme-alert-color);
