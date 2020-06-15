@@ -1,0 +1,55 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdVertex name="net.geoprism.registry.graph.ExternalSystem" isAbstract="true" label="External System">
+        <attributes>
+          <localCharEmbedded name="label" label="Label" required="true" />        
+          <localCharEmbedded name="description" label="Label" required="true" />        
+          <char name="id" label="ID" required="true" size="255" />
+          <reference name="organization" label="Organization" required="true" type="net.geoprism.registry.Organization" />
+        </attributes>
+      </mdVertex>    
+      <mdVertex name="net.geoprism.registry.graph.RevealExternalSystem" label="Reveal"  extends="net.geoprism.registry.graph.ExternalSystem">
+      </mdVertex>    
+      <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem" label="DHIS2"  extends="net.geoprism.registry.graph.ExternalSystem">
+        <attributes>
+          <char name="username" label="Username" required="true" size="255" />
+          <char name="password" label="Password" required="true" size="255" />
+          <text name="url" label="URL" required="true" />
+        </attributes>
+      </mdVertex>   
+      <mdEdge name="net.geoprism.registry.graph.ExternalID" label="External ID" parent="net.geoprism.registry.graph.ExternalSystem" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
+        <attributes>
+          <text name="id" label="ID" required="true" size="255" />
+        </attributes>      
+      </mdEdge>
+       
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.ExternalSystem">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                    
+        </grant>
+      </role>      
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdEdge" key="net.geoprism.registry.graph.ExternalID"/>    
+      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.RevealExternalSystem"/>    
+      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.DHIS2ExternalSystem"/>    
+      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.ExternalSystem"/>    
+    </delete>
+  </undoIt>
+</version>
