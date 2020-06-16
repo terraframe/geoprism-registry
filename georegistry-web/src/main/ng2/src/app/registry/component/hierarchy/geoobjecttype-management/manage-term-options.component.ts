@@ -7,7 +7,7 @@ import {
     transition
 } from '@angular/animations'
 import { NgControl, Validators, FormBuilder } from '@angular/forms';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 

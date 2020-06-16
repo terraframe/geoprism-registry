@@ -31,28 +31,30 @@ import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.RegistryService;
 
 public class USATestData extends TestDataSet
 {
   public final String                TEST_DATA_KEY    = "USATestData";
+  
+  public final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(this, "NPS");
+  
+  public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(this, "Admin", ORG_NPS);
+  
+  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Country", GeometryType.MULTIPOLYGON);
+  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "State", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "State", GeometryType.MULTIPOLYGON);
+  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "County", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "County", GeometryType.MULTIPOLYGON);
+  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Area", GeometryType.POLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Area", GeometryType.POLYGON);
-
-  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "District", GeometryType.POINT);
+  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "District", GeometryType.POINT, ORG_NPS);
 
   public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(this, "USA", COUNTRY);
 
@@ -80,9 +82,9 @@ public class USATestData extends TestDataSet
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
 
-  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(this, "Mexico_City_GOT");
+  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(this, "Mexico_City_GOT", ORG_NPS);
 
-  public final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(this, "Mexico_State_GOT");
+  public final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(this, "Mexico_State_GOT", ORG_NPS);
 
   public final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(this, "Mexico", COUNTRY);
 
@@ -97,6 +99,10 @@ public class USATestData extends TestDataSet
   private Date                       date;
 
   {
+    managedOrganizationInfos.add(ORG_NPS);
+    
+    managedHierarchyTypeInfos.add(HIER_ADMIN);
+    
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(STATE);
     managedGeoObjectTypeInfos.add(DISTRICT);
@@ -193,31 +199,28 @@ public class USATestData extends TestDataSet
     this.date = date;
   }
 
-  @Transaction
-  @Override
-  protected void setUpMetadataInTrans()
-  {
-    for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
-    {
-      uni.apply();
-    }
-  }
+//  @Transaction
+//  @Override
+//  protected void setUpMetadataInTrans()
+//  {
+//    for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
+//    {
+//      uni.apply();
+//    }
+//  }
 
   @Transaction
   @Override
   public void setUpClassRelationships()
   {
-    COUNTRY.getUniversal().addLink(Universal.getRoot(), com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
-    COUNTRY.addChild(STATE, LocatedIn);
-    STATE.addChild(DISTRICT, LocatedIn);
-    STATE.addChild(COUNTY, LocatedIn);
-    COUNTY.addChild(AREA, LocatedIn);
+    COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_ADMIN.getServerObject().getUniversalType());
+    COUNTRY.addChild(STATE, HIER_ADMIN);
+    STATE.addChild(DISTRICT, HIER_ADMIN);
+    STATE.addChild(COUNTY, HIER_ADMIN);
+    COUNTY.addChild(AREA, HIER_ADMIN);
 
-    COUNTRY.addChild(MEXICO_STATE, LocatedIn);
-    MEXICO_STATE.addChild(MEXICO_CITY_GOT, LocatedIn);
-
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
-    hierarchyType.addParentReferenceToLeafType(STATE.getUniversal(), DISTRICT.getUniversal());
+    COUNTRY.addChild(MEXICO_STATE, HIER_ADMIN);
+    MEXICO_STATE.addChild(MEXICO_CITY_GOT, HIER_ADMIN);
   }
 
   @Transaction
@@ -242,23 +245,23 @@ public class USATestData extends TestDataSet
   {
     if (this.includeData)
     {
-      USA.getGeoEntity().addLink(GeoEntity.getRoot(), com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
+      USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
-      USA.addChild(COLORADO, LocatedIn);
-      COLORADO.addChild(CO_D_ONE, LocatedIn);
-      COLORADO.addChild(CO_D_TWO, LocatedIn);
-      COLORADO.addChild(CO_D_THREE, LocatedIn);
-      COLORADO.addChild(CO_C_ONE, LocatedIn);
-      CO_C_ONE.addChild(CO_A_ONE, LocatedIn);
+      USA.addChild(COLORADO, HIER_ADMIN);
+      COLORADO.addChild(CO_D_ONE, HIER_ADMIN);
+      COLORADO.addChild(CO_D_TWO, HIER_ADMIN);
+      COLORADO.addChild(CO_D_THREE, HIER_ADMIN);
+      COLORADO.addChild(CO_C_ONE, HIER_ADMIN);
+      CO_C_ONE.addChild(CO_A_ONE, HIER_ADMIN);
 
-      USA.addChild(WASHINGTON, LocatedIn);
-      WASHINGTON.addChild(WA_D_ONE, LocatedIn);
-      WASHINGTON.addChild(WA_D_TWO, LocatedIn);
+      USA.addChild(WASHINGTON, HIER_ADMIN);
+      WASHINGTON.addChild(WA_D_ONE, HIER_ADMIN);
+      WASHINGTON.addChild(WA_D_TWO, HIER_ADMIN);
 
-      MEXICO.addChild(MEXICO_STATE_ONE, LocatedIn);
-      MEXICO.addChild(MEXICO_STATE_TWO, LocatedIn);
-      MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, LocatedIn);
-      MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, LocatedIn);
+      MEXICO.addChild(MEXICO_STATE_ONE, HIER_ADMIN);
+      MEXICO.addChild(MEXICO_STATE_TWO, HIER_ADMIN);
+      MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, HIER_ADMIN);
+      MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, HIER_ADMIN);
     }
   }
 

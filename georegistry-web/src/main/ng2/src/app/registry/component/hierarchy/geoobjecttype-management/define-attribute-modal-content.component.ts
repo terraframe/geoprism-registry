@@ -7,7 +7,7 @@ import {
   transition
 } from '@angular/animations'
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -74,6 +74,10 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
 
     ngAfterViewInit() {
+
+        if(this.attributeInputComponent){
+            this.attributeInputComponent.animate();
+        }
    
     }
 
@@ -101,13 +105,15 @@ export class DefineAttributeModalContentComponent implements OnInit {
         else{
             this.newAttribute = new Attribute("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
         }
-
-        this.attributeInputComponent.animate();
     }
 
     isFormValid(): boolean {
         
-        let isAttrValid: boolean = this.attributeInputComponent.isValid();
+        let isAttrValid: boolean = false;
+        
+        if(this.attributeInputComponent){
+            isAttrValid = this.attributeInputComponent.isValid();
+        }
         
         if(isAttrValid){
             return true;

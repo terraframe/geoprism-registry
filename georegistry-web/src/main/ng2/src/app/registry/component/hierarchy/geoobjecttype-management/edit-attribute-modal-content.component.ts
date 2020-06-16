@@ -7,7 +7,7 @@ import {
   transition
 } from '@angular/animations'
 import {NgControl, Validators, FormBuilder} from '@angular/forms';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -81,6 +81,15 @@ export class EditAttributeModalContentComponent implements OnInit {
     handleOnSubmit(): void {
         
         this.registryService.updateAttributeType( this.geoObjectType.code, this.attribute ).then( data => {
+
+            for(let i=0; i<this.geoObjectType.attributes.length; i++){
+                let attr = this.geoObjectType.attributes[i];
+                if(attr.code === data.code){
+                    Object.assign(attr, data);
+                    break;
+                }
+            }
+
             this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageAttributes, "attribute":"", "termOption":""})
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );

@@ -1,24 +1,9 @@
-import { Component, OnInit, ViewChild, SimpleChanges, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, ViewChild, SimpleChanges, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
-
-import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
-import { ChangeRequestService } from '../../service/change-request.service';
 
-import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObject, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, ParentTreeNode } from '../../model/registry';
-
-import { SimpleEditControl } from './simple-edit-control/simple-edit-control.component';
-
-import { Observable } from 'rxjs';
-import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { mergeMap } from 'rxjs/operators';
-
-import { Map, LngLatBounds, NavigationControl, ImageSource } from 'mapbox-gl';
+import { Map, LngLatBounds, NavigationControl } from 'mapbox-gl';
 import * as MapboxDraw from '@mapbox/mapbox-gl-draw';
 import * as StaticMode from '@mapbox/mapbox-gl-draw-static-mode';
 import * as mapboxgl from 'mapbox-gl';

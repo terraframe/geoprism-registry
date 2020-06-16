@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
 import { HttpErrorResponse } from "@angular/common/http";

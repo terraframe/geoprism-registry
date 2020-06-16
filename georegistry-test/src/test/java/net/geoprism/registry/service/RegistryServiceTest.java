@@ -19,7 +19,6 @@
 package net.geoprism.registry.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,12 +44,10 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
-import net.geoprism.registry.RegistryController;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
@@ -195,7 +192,7 @@ public class RegistryServiceTest
   @Test
   public void testGetGeoObjectSuggestions()
   {
-    JSONArray results = testData.adapter.getGeoObjectSuggestions("Co", testData.STATE.getCode(), testData.USA.getCode(), LocatedIn.class.getSimpleName(), null);
+    JSONArray results = testData.adapter.getGeoObjectSuggestions("Co", testData.STATE.getCode(), testData.USA.getCode(), testData.HIER_ADMIN.getCode(), null);
 
     Assert.assertEquals(1, results.length());
 
@@ -256,7 +253,7 @@ public class RegistryServiceTest
   {
     String[] codes = new String[] { testData.STATE.getCode(), testData.DISTRICT.getCode() };
 
-    GeoObjectType[] gots = testData.adapter.getGeoObjectTypes(codes);
+    GeoObjectType[] gots = testData.adapter.getGeoObjectTypes(codes, null);
 
     Assert.assertEquals(codes.length, gots.length);
 
@@ -269,10 +266,10 @@ public class RegistryServiceTest
     testData.DISTRICT.assertEquals(district);
 
     // Test to make sure we can provide none
-    GeoObjectType[] gots2 = testData.adapter.getGeoObjectTypes(new String[] {});
+    GeoObjectType[] gots2 = testData.adapter.getGeoObjectTypes(new String[] {}, null);
     Assert.assertTrue(gots2.length > 0);
 
-    GeoObjectType[] gots3 = testData.adapter.getGeoObjectTypes(null);
+    GeoObjectType[] gots3 = testData.adapter.getGeoObjectTypes(null, null);
     Assert.assertTrue(gots3.length > 0);
   }
 
@@ -373,14 +370,14 @@ public class RegistryServiceTest
   @Test
   public void testGetHierarchyTypes()
   {
-    String[] types = new String[] { LocatedIn.class.getSimpleName() };
+    String[] types = new String[] { testData.HIER_ADMIN.getCode() };
 
     HierarchyType[] hts = testData.adapter.getHierarchyTypes(types);
 
     Assert.assertEquals(types.length, hts.length);
 
     HierarchyType locatedIn = hts[0];
-    USATestData.assertEqualsHierarchyType(LocatedIn.CLASS, locatedIn);
+//    USATestData.assertEqualsHierarchyType(LocatedIn.CLASS, locatedIn);
     Assert.assertEquals(locatedIn.toJSON().toString(), HierarchyType.fromJSON(locatedIn.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test to make sure we can provide no types and get everything back
@@ -397,7 +394,7 @@ public class RegistryServiceTest
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", testData.STATE);
     testAddChild.apply(null);
 
-    ParentTreeNode ptnTestState = testData.adapter.addChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), LocatedIn.class.getSimpleName());
+    ParentTreeNode ptnTestState = testData.adapter.addChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), testData.HIER_ADMIN.getCode());
 
     boolean found = false;
     for (ParentTreeNode ptnUSA : ptnTestState.getParents())
@@ -431,7 +428,7 @@ public class RegistryServiceTest
     /*
      * Remove Child
      */
-    testData.adapter.removeChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testData.COLORADO.getRegistryId(), testData.COLORADO.getGeoObjectType().getCode(), LocatedIn.class.getSimpleName());
+    testData.adapter.removeChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testData.COLORADO.getRegistryId(), testData.COLORADO.getGeoObjectType().getCode(), testData.HIER_ADMIN.getCode());
 
     /*
      * Fetch the children and validate ours was removed

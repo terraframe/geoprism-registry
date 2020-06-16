@@ -64,17 +64,19 @@ public class TestGeoObjectTypeInfo
     
     private ServerGeoObjectType         serverObject;
     
-    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey)
+    private TestOrganizationInfo        organization;
+    
+    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, TestOrganizationInfo organization)
     {
-      initialize(testDataSet, genKey, GeometryType.MULTIPOLYGON);
+      initialize(testDataSet, genKey, GeometryType.MULTIPOLYGON, organization);
     }
     
-    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, GeometryType geomType)
+    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, GeometryType geomType, TestOrganizationInfo organization)
     {
-      initialize(testDataSet, genKey, geomType);
+      initialize(testDataSet, genKey, geomType, organization);
     }
     
-    private void initialize(TestDataSet testDataSet, String genKey, GeometryType geomType)
+    private void initialize(TestDataSet testDataSet, String genKey, GeometryType geomType, TestOrganizationInfo organization)
     {
       this.testDataSet = testDataSet;
       this.code = this.testDataSet.getTestDataKey() + genKey;
@@ -83,6 +85,7 @@ public class TestGeoObjectTypeInfo
       this.children = new LinkedList<TestGeoObjectTypeInfo>();
       this.geomType = geomType;
       this.isLeaf = false; // Leaf types are not supported anymore
+      this.organization = organization;
     }
 
     public String getCode()
@@ -125,6 +128,11 @@ public class TestGeoObjectTypeInfo
       return this.universal;
     }
     
+    public TestOrganizationInfo getOrganization()
+    {
+      return this.organization;
+    }
+    
     public ServerGeoObjectType getServerObject()
     {
       if (this.serverObject != null)
@@ -139,8 +147,19 @@ public class TestGeoObjectTypeInfo
         {
           return ServerGeoObjectType.get(getCode());
         }
-        
-        return null;
+        else
+        {
+          Universal uni = this.testDataSet.getUniversalIfExist(getCode());
+          
+          if (uni == null)
+          {
+            return null;
+          }
+          
+          ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
+          
+          return type;
+        }
       }
     }
     
@@ -205,7 +224,7 @@ public class TestGeoObjectTypeInfo
         System.out.println("Applying TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
 
-      String organizationCode = null;
+      String organizationCode = this.getOrganization().getCode();
  
       GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, this.testDataSet.adapter);
 
@@ -229,27 +248,34 @@ public class TestGeoObjectTypeInfo
       {
         System.out.println("Deleting TestGeoObjectTypeInfo [" + this.getCode() + "].");
       }
+      
+      ServerGeoObjectType type = this.getServerObject();
+      
+      if (type != null)
+      {
+        type.delete();
+      }
 
-      Universal uni = this.testDataSet.getUniversalIfExist(this.getCode());
-      MdClass mdBiz = this.testDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
-      if (mdBiz != null)
-      {
-        AttributeHierarchy.deleteByMdBusiness(MdBusinessDAO.get(mdBiz.getOid()));
-      }
-      new WMSService().deleteDatabaseViewIfExists(this.getCode());
-      if (uni != null)
-      {
-        this.testDataSet.deleteUniversal(this.getCode());
-      }
-      if (mdBiz != null)
-      {
-        this.testDataSet.deleteMdClass(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
-      }
-      MdClass geoVertexType = this.testDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE, this.code);
-      if (geoVertexType != null)
-      {
-        this.testDataSet.deleteMdClass(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE, this.code);
-      }
+//      Universal uni = this.testDataSet.getUniversalIfExist(this.getCode());
+//      MdClass mdBiz = this.testDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
+//      if (mdBiz != null)
+//      {
+//        AttributeHierarchy.deleteByMdBusiness(MdBusinessDAO.get(mdBiz.getOid()));
+//      }
+//      new WMSService().deleteDatabaseViewIfExists(this.getCode());
+//      if (uni != null)
+//      {
+//        this.testDataSet.deleteUniversal(this.getCode());
+//      }
+//      if (mdBiz != null)
+//      {
+//        this.testDataSet.deleteMdClass(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
+//      }
+//      MdClass geoVertexType = this.testDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE, this.code);
+//      if (geoVertexType != null)
+//      {
+//        this.testDataSet.deleteMdClass(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE, this.code);
+//      }
 
       this.children.clear();
       this.universal = null;

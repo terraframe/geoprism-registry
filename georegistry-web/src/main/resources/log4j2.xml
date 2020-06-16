@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<Configuration status="error" strict="true" name="XMLConfigTest"
+               packages="org.apache.logging.log4j.test">
+  <Properties>
+    <Property name="logdir">${project.basedir}/../logs</Property>
+    <Property name="filename">${project.basedir}/../logs/log.log</Property>
+  </Properties>
+ 
+  <Appenders>
+    <Appender type="Console" name="STDOUT">
+      <Layout type="PatternLayout" pattern="[%p] %m%n"/>
+    </Appender>
+    
+    <RollingFile
+      name="rollingFile"
+      fileName="${logdir}/app.log"
+      filePattern="${logdir}/app.%d{dd-MMM}.log.gz"
+      ignoreExceptions="false">
+      <PatternLayout>
+          <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n</Pattern>
+      </PatternLayout>
+      <Policies>
+          <OnStartupTriggeringPolicy />
+          <SizeBasedTriggeringPolicy size="10 MB" />
+          <TimeBasedTriggeringPolicy />
+      </Policies>
+      <DefaultRolloverStrategy max="5" />
+  </RollingFile>
+  </Appenders>
+ 
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="rollingFile"/>
+    </Root>
+  </Loggers>
+ 
+</Configuration>

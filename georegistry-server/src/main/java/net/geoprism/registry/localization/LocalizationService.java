@@ -60,6 +60,11 @@ public class LocalizationService
   @Request(RequestType.SESSION)
   public void importSpreadsheetInRequest(String sessionId, MultipartFileParameter file)
   {
+    if (Session.getCurrentSession() != null)
+    {
+      ServiceFactory.getRolePermissionService().enforceSRA(Session.getCurrentSession().getUser());
+    }
+    
     try
     {
       LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), file.getInputStream());
@@ -74,6 +79,11 @@ public class LocalizationService
   @Request(RequestType.SESSION)
   public void installLocaleInRequest(String sessionId, String language, String country, String variant)
   {
+    if (Session.getCurrentSession() != null)
+    {
+      ServiceFactory.getRolePermissionService().enforceSRA(Session.getCurrentSession().getUser());
+    }
+    
     String localeString = language;
     if (country != null)
     {
@@ -100,6 +110,11 @@ public class LocalizationService
   @Request(RequestType.SESSION)
   public InputStreamResponse exportSpreadsheetInRequest(String sessionId)
   {
+    if (Session.getCurrentSession() != null)
+    {
+      ServiceFactory.getRolePermissionService().enforceSRA(Session.getCurrentSession().getUser());
+    }
+    
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     BufferedOutputStream buffer = new BufferedOutputStream(bytes);
 

@@ -41,6 +41,7 @@ import com.runwaysdk.query.LeftJoinEq;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayLabelQueryStructIF;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 
@@ -55,7 +56,15 @@ public class GeoObjectQuery
   private GeoObjectRestriction restriction;
 
   private Integer              limit;
-
+  
+  private Integer              pageSize;
+  
+  private Integer              pageNumber;
+  
+  private String orderByAttribute;
+  
+  private SortOrder sortOrder;
+  
   public GeoObjectQuery(ServerGeoObjectType type)
   {
     this.type = type;
@@ -90,30 +99,29 @@ public class GeoObjectQuery
   {
     this.limit = limit;
   }
+  
+  public void paginate(Integer pageNumber, Integer pageSize)
+  {
+    this.pageNumber = pageNumber;
+    this.pageSize = pageSize;
+  }
+  
+  public void orderBy(String orderByAttribute, SortOrder sortOrder)
+  {
+    this.orderByAttribute = orderByAttribute;
+    this.sortOrder = sortOrder;
+  }
 
   public ValueQuery getValueQuery()
   {
     QueryFactory factory = new QueryFactory();
     ValueQuery vQuery = new ValueQuery(factory);
-// Heads up: clean up
-//    if (this.type.isLeaf())
-//    {
-//      BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
-//
-//      configureLeafQuery(vQuery, bQuery);
-//    }
-//    else
-//    {
-      GeoEntityQuery geQuery = new GeoEntityQuery(vQuery);
-      BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
+    
+    GeoEntityQuery geQuery = new GeoEntityQuery(vQuery);
+    BusinessQuery bQuery = new BusinessQuery(vQuery, this.type.definesType());
 
-      configureEntityQuery(vQuery, geQuery, bQuery);
-//    }
+    configureEntityQuery(vQuery, geQuery, bQuery);
 
-    if (this.limit != null)
-    {
-      vQuery.restrictRows(this.limit, 1);
-    }
     return vQuery;
   }
 
@@ -160,8 +168,35 @@ public class GeoObjectQuery
     {
       this.restriction.restrict(vQuery, geQuery, bQuery);
     }
-
-    vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
+    
+    if (this.pageSize != null && this.pageNumber != null)
+    {
+      vQuery.restrictRows(pageSize, pageNumber);
+    }
+    else if (this.limit != null)
+    {
+      vQuery.restrictRows(this.limit, 1);
+    }
+    
+    if (this.orderByAttribute != null && this.sortOrder != null)
+    {
+      if (this.orderByAttribute.equals(DefaultAttribute.CODE.getName()))
+      {
+        vQuery.ORDER_BY(geQuery.getGeoId(DefaultAttribute.CODE.getName()), this.sortOrder);
+      }
+      else if (this.orderByAttribute.equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
+      {
+        vQuery.ORDER_BY(geQuery.getLastUpdateDate(DefaultAttribute.LAST_UPDATE_DATE.getName()), this.sortOrder);
+      }
+      else
+      {
+        throw new UnsupportedOperationException();
+      }
+    }
+    else
+    {
+      vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
+    }
   }
 // Heads up: Clean up
 //  protected void configureLeafQuery(ValueQuery vQuery, BusinessQuery bQuery)

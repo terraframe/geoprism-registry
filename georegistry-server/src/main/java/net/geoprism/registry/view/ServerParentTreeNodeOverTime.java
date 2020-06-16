@@ -41,11 +41,12 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerParentTreeNodeOverTime
@@ -105,6 +106,11 @@ public class ServerParentTreeNodeOverTime
 
     this.hierarchies.get(type.getCode()).add(node);
   }
+  
+  public Hierarchy remove(ServerHierarchyType type)
+  {
+    return this.hierarchies.remove(type.getCode());
+  }
 
   public Collection<ServerHierarchyType> getHierarchies()
   {
@@ -138,7 +144,7 @@ public class ServerParentTreeNodeOverTime
         {
           final ServerGeoObjectIF parent = entry.getGeoObject();
           
-          hierarchyType.enforceActorHasRelationshipPermission(actor, parent.getCode(), childCode, false);
+          ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(actor, hierarchyType.getOrganization().getCode(), parent.getCode(), childCode);
         }
       }
     }
@@ -293,7 +299,7 @@ public class ServerParentTreeNodeOverTime
         final JsonObject go = parent.get("geoObject").getAsJsonObject();
 
         GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), go.toString());
-        final ServerGeoObjectIF pSGO = new ServerGeoObjectService().getGeoObjectByCode(geoObject.getCode(), code);
+        final ServerGeoObjectIF pSGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(geoObject.getCode(), code);
 
         return new ServerParentTreeNode(pSGO, ht, date);
       }

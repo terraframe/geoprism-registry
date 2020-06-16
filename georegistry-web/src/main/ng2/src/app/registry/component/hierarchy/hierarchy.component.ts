@@ -4,7 +4,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { TreeNode, TreeComponent, TreeDropDirective } from 'angular-tree-component';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
 import { CreateHierarchyTypeModalComponent } from './modals/create-hierarchy-type-modal.component';
@@ -15,6 +15,7 @@ import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { AuthService } from '../../../shared/service/auth.service';
 
 import { HierarchyType, HierarchyNode } from '../../model/hierarchy';
 import { GeoObjectType } from '../../model/registry';
@@ -36,6 +37,11 @@ class Instance {
 } )
 
 export class HierarchyComponent implements OnInit {
+
+    // isAdmin: boolean;
+    // isMaintainer: boolean;
+    // isContributor: boolean;
+
     instance: Instance = new Instance();
     hierarchies: HierarchyType[];
     geoObjectTypes: GeoObjectType[] = [];
@@ -75,7 +81,11 @@ export class HierarchyComponent implements OnInit {
 
     constructor( private hierarchyService: HierarchyService, private modalService: BsModalService,
         private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
-        private localizeService: LocalizationService, private registryService: RegistryService ) {
+        private localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService ) {
+
+        // this.admin = authService.isAdmin();
+        // this.isMaintainer = this.isAdmin || service.isMaintainer();
+		// this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
     }
 
@@ -85,6 +95,14 @@ export class HierarchyComponent implements OnInit {
 
     ngAfterViewInit() {
 
+    }
+
+    isRA(): boolean {
+        return this.authService.isRA();
+    }
+
+    isOrganizationRA(orgCode: string): boolean {
+        return this.authService.isOrganizationRA(orgCode);
     }
 
     public refreshAll( desiredHierarchy ) {
@@ -226,14 +244,21 @@ export class HierarchyComponent implements OnInit {
     }
 
     public handleOnMenu( node: any, $event: any ): void {
-
-        this.contextMenuService.show.next( {
-            contextMenu: ( node.data.childType !== null ? this.nodeMenuComponent : this.leafMenuComponent ),
-            event: $event,
-            item: node,
-        } );
-        $event.preventDefault();
-        $event.stopPropagation();
+        if (this.isOrganizationRA(this.currentHierarchy.organizationCode))
+        {
+          this.contextMenuService.show.next( {
+              contextMenu: ( node.data.childType !== null ? this.nodeMenuComponent : this.leafMenuComponent ),
+              event: $event,
+              item: node,
+          } );
+          $event.preventDefault();
+          $event.stopPropagation();
+        }
+        else
+        {
+          $event.preventDefault();
+          $event.stopPropagation();
+        }
     }
 
     public treeNodeOnClick( node: TreeNode, $event: any ): void {

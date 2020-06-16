@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { EventService } from './event.service';
 
@@ -45,9 +45,9 @@ export class SessionService {
 
         return this.http
             .post<User>( acp + '/session/login', JSON.stringify( { username: username, password: password } ), { headers: headers } )
-            .finally(() => {
-                this.service.complete();
-            } )
+			.pipe(finalize(() => {
+				this.service.complete();
+			}))
             .toPromise()
             .then(( user: User ) => {
                 this.authService.setUser( user );
@@ -67,9 +67,9 @@ export class SessionService {
 
         return this.http
             .post<void>( acp + '/session/logout', { headers: headers } )
-            .finally(() => {
-                this.service.complete();
-            } )
+			.pipe(finalize(() => {
+				this.service.complete();
+			}))
             .toPromise()
             .then(( response: any ) => {
                 this.authService.setUser( null );

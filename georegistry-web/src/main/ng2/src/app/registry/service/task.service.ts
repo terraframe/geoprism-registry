@@ -20,8 +20,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { Task } from '../model/registry';
 import { Progress } from '../../shared/model/progress';
@@ -57,9 +57,9 @@ export class TaskService {
       
       return this.http
         .post<any>( acp + '/tasks/complete', JSON.stringify( { 'id': taskId } ), { headers: headers } )
-        .finally(() => {
-            this.eventService.complete();
-        } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
         .toPromise();
     }
     
@@ -72,9 +72,9 @@ export class TaskService {
       
       return this.http
         .post<any>( acp + '/tasks/setTaskStatus', JSON.stringify( { 'id': taskId, 'status': status } ), { headers: headers } )
-        .finally(() => {
-            this.eventService.complete();
-        } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
         .toPromise();
     }
 }

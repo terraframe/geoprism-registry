@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRe
 import { HttpErrorResponse } from "@angular/common/http";
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { AuthService } from '../../../shared/service/auth.service';
 
 import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';

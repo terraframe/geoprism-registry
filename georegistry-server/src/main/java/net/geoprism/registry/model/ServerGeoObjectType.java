@@ -22,9 +22,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -40,10 +40,8 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAOIF;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
@@ -58,6 +56,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Actor;
@@ -86,10 +85,6 @@ import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
-import net.geoprism.registry.roles.DeleteGeoObjectPermissionException;
-import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
-import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.WMSService;
 
@@ -104,7 +99,7 @@ public class ServerGeoObjectType
   private MdBusiness    mdBusiness;
 
   private MdVertexDAOIF mdVertex;
-
+  
   public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness, MdVertexDAOIF mdVertex)
   {
     this.type = go;
@@ -112,7 +107,7 @@ public class ServerGeoObjectType
     this.mdBusiness = mdBusiness;
     this.mdVertex = mdVertex;
   }
-
+  
   public GeoObjectType getType()
   {
     return type;
@@ -672,7 +667,7 @@ public class ServerGeoObjectType
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
-    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     Universal root = Universal.getRoot();
 
     for (HierarchyType hierarchyType : hierarchyTypes)
@@ -726,7 +721,11 @@ public class ServerGeoObjectType
     }
     else
     {
-      return null;
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(GeoObjectTypeMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(code);
+      ex.setAttributeLabel(GeoObjectTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+      throw ex;
     }
   }
 
@@ -756,104 +755,6 @@ public class ServerGeoObjectType
     MdBusiness mdBusiness = universal.getMdBusiness();
 
     return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
-  }
-
-  /**
-   * Operation must be one of:
-   * - WRITE (Update)
-   * - READ
-   * - DELETE
-   * - CREATE
-   * 
-   * @param actor
-   * @param op
-   */
-  public void enforceActorHasPermission(SingleActorDAOIF actor, Operation op, boolean allowRC)
-  {
-    if (!this.doesActorHavePermission(actor, op, allowRC))
-    {
-      Organization org = this.getOrganization();
-      
-      if (op.equals(Operation.WRITE))
-      {
-        WriteGeoObjectPermissionException ex = new WriteGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(this.getLabel().getValue());
-        throw ex;
-      }
-      else if (op.equals(Operation.READ))
-      {
-        ReadGeoObjectPermissionException ex = new ReadGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(this.getLabel().getValue());
-        throw ex;
-      }
-      else if (op.equals(Operation.DELETE))
-      {
-        DeleteGeoObjectPermissionException ex = new DeleteGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(this.getLabel().getValue());
-        throw ex;
-      }
-      else if (op.equals(Operation.CREATE))
-      {
-        CreateGeoObjectPermissionException ex = new CreateGeoObjectPermissionException();
-        ex.setOrganization(org.getDisplayLabel().getValue());
-        ex.setGeoObjectType(this.getLabel().getValue());
-        throw ex;
-      }
-    }
-  }
-  
-  public boolean doesActorHavePermission(SingleActorDAOIF actor, Operation op, boolean allowRC)
-  {
-    Organization thisOrg = this.getOrganization();
-    
-    if (thisOrg != null)
-    {
-      String thisOrgCode = thisOrg.getCode();
-      
-      Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
-      for (RoleDAOIF role : roles)
-      {
-        String roleName = role.getRoleName();
-        
-        if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
-        {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
-          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(thisOrgCode))
-          {
-            return true;
-          }
-          else if ( ( (allowRC && RegistryRole.Type.isRC_Role(roleName)) || RegistryRole.Type.isRM_Role(roleName)) && orgCode.equals(thisOrgCode) )
-          {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-            
-            if (gotCode.equals(this.getCode()))
-            {
-              return true;
-            }
-          }
-          else if ( (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName)) && op.equals(Operation.READ) && orgCode.equals(thisOrgCode))
-          {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-            
-            if (gotCode.equals(this.getCode()))
-            {
-              return true;
-            }
-          }
-        }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
-        {
-          return true;
-        }
-      }
-    }
-    
-    return false;
   }
 
 //  public String buildRMRoleName()

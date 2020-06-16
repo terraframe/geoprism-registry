@@ -10,7 +10,7 @@ import {
 } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/do';
+import { tap } from 'rxjs/operators';
 
 declare var acp: string;
 
@@ -19,7 +19,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
 
     intercept( request: HttpRequest<any>, next: HttpHandler ): Observable<HttpEvent<any>> {
 
-        return next.handle( request ).do(( event: HttpEvent<any> ) => {
+        return next.handle( request ).pipe(tap(( event: HttpEvent<any> ) => {
             if ( event instanceof HttpResponseBase ) {
                 const response = event as HttpResponseBase;
                 if ( response.status === 302 ) {
@@ -35,6 +35,6 @@ export class HttpErrorInterceptor implements HttpInterceptor {
                     window.location.href = acp + '/cgr/manage#/login';
                 }
             }
-        } );
+        } ));
     }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListByOrg } from '../../model/registry';
@@ -8,6 +8,7 @@ import { MasterList, MasterListByOrg } from '../../model/registry';
 import { RegistryService } from '../../service/registry.service';
 
 import { IOService } from '../../service/io.service';
+import { AuthService } from '../../../shared/service/auth.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
 @Component({
@@ -40,8 +41,9 @@ export class PublishModalComponent implements OnInit {
      */
 	edit: boolean = false;
 
+  isNew: boolean = false;
 
-	constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef) { }
+	constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService) { }
 
 	ngOnInit(): void {
 
@@ -49,7 +51,17 @@ export class PublishModalComponent implements OnInit {
 
 		if (this.master == null || !this.readonly) {
 			this.iService.listGeoObjectTypes(true).then(types => {
-				this.types = types;
+			
+			  var myOrgTypes = [];
+        for (var i = 0; i < types.length; ++i)
+        {
+          if (this.authService.isGeoObjectTypeRM(types[i].orgCode, types[i].code))
+          {
+            myOrgTypes.push(types[i]);
+          }
+        }
+        this.types = myOrgTypes;
+			
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});

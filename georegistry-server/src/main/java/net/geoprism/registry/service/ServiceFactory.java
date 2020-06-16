@@ -22,6 +22,19 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 
 import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.geoobject.GeoObjectRelationshipPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectRelationshipPermissionServiceIF;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypePermissionService;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypePermissionServiceIF;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypeRelationshipPermissionService;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypeRelationshipPermissionServiceIF;
+import net.geoprism.registry.hierarchy.HierarchyService;
+import net.geoprism.registry.hierarchy.HierarchyTypePermissionService;
+import net.geoprism.registry.hierarchy.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.organization.OrganizationPermissionService;
 
 public class ServiceFactory
 {
@@ -39,6 +52,24 @@ public class ServiceFactory
   
   private AccountService accountService;
   
+  private HierarchyService hierarchyService;
+  
+  private GeoObjectPermissionServiceIF goPermissionServ;
+  
+  private HierarchyTypePermissionServiceIF hierarchyPermServ;
+  
+  private OrganizationPermissionService orgServ;
+  
+  private ServerGeoObjectService serverGoService;
+  
+  private GeoObjectRelationshipPermissionServiceIF goRelPermissionServ;
+  
+  private GeoObjectTypeRelationshipPermissionServiceIF goTypeRelPermissionServ;
+  
+  private GeoObjectTypePermissionServiceIF goTypePermissionServ;
+  
+  private RolePermissionService rolePermissionServ;
+  
   private void initialize()
   {
     this.registryService = new RegistryService();
@@ -51,6 +82,24 @@ public class ServiceFactory
     this.accountService = new AccountService();
     
     this.registryService.initialize(this.adapter);
+    
+    this.goPermissionServ = new GeoObjectPermissionService();
+    
+    this.serverGoService = new ServerGeoObjectService(goPermissionServ);
+    
+    this.hierarchyService = new HierarchyService();
+    
+    this.orgServ = new OrganizationPermissionService();
+    
+    this.hierarchyPermServ = new HierarchyTypePermissionService();
+    
+    this.goRelPermissionServ = new GeoObjectRelationshipPermissionService();
+    
+    this.goTypeRelPermissionServ = new GeoObjectTypeRelationshipPermissionService();
+    
+    this.goTypePermissionServ = new GeoObjectTypePermissionService();
+    
+    this.rolePermissionServ = new RolePermissionService();
   }
   
   public static synchronized ServiceFactory getInstance()
@@ -92,5 +141,50 @@ public class ServiceFactory
   public static RegistryIdService getIdService()
   {
     return ServiceFactory.getInstance().idService;
+  }
+  
+  public static HierarchyService getHierarchyService()
+  {
+    return ServiceFactory.getInstance().hierarchyService;
+  }
+  
+  public static ServerGeoObjectService getGeoObjectService()
+  {
+    return ServiceFactory.getInstance().serverGoService;
+  }
+  
+  public static GeoObjectPermissionServiceIF getGeoObjectPermissionService()
+  {
+    return ServiceFactory.getInstance().goPermissionServ;
+  }
+  
+  public static GeoObjectRelationshipPermissionServiceIF getGeoObjectRelationshipPermissionService()
+  {
+    return ServiceFactory.getInstance().goRelPermissionServ;
+  }
+  
+  public static GeoObjectTypeRelationshipPermissionServiceIF getGeoObjectTypeRelationshipPermissionService()
+  {
+    return ServiceFactory.getInstance().goTypeRelPermissionServ;
+  }
+  
+  public static OrganizationPermissionService getOrganizationPermissionService()
+  {
+    return ServiceFactory.getInstance().orgServ;
+  }
+  
+  public static HierarchyTypePermissionServiceIF getHierarchyPermissionService()
+  {
+    return ServiceFactory.getInstance().hierarchyPermServ;
+  }
+  
+  public static GeoObjectTypePermissionServiceIF getGeoObjectTypePermissionService()
+  {
+    return ServiceFactory.getInstance().goTypePermissionServ;
+  }
+  
+  public static RolePermissionService getRolePermissionService()
+  {
+    return ServiceFactory.getInstance().rolePermissionServ;
   }
 }

@@ -46,7 +46,6 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -233,7 +232,7 @@ public class GeoObjectImporterTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
@@ -298,7 +297,7 @@ public class GeoObjectImporterTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.UPDATE_ONLY);
     config.setHierarchy(hierarchyType);
@@ -361,7 +360,7 @@ public class GeoObjectImporterTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
@@ -418,7 +417,7 @@ public class GeoObjectImporterTest
     state00.setDisplayLabel("Test Label");
     state00.setRegistryId(ServiceFactory.getIdService().getUids(1)[0]);
     state00.apply(new Date());
-    testData.USA.addChild(state00, testData.LocatedIn);
+    testData.USA.addChild(state00, testData.HIER_ADMIN);
 
     TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
     one.setCode("0001");
@@ -433,7 +432,7 @@ public class GeoObjectImporterTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
@@ -474,7 +473,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(1, parentsOverTime.getHierarchies().size());
 
-    List<ServerParentTreeNode> nodes = parentsOverTime.getEntries(testData.LocatedIn.getServerObject());
+    List<ServerParentTreeNode> nodes = parentsOverTime.getEntries(testData.HIER_ADMIN.getServerObject());
     Assert.assertEquals(1, nodes.size());
 
     // TODO The fromJSON doesn't seem to be reading the json correctly...
@@ -531,7 +530,7 @@ public class GeoObjectImporterTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);

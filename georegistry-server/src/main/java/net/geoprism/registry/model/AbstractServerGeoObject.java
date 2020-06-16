@@ -26,6 +26,8 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.ontology.GeoEntityUtil;
@@ -38,54 +40,63 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
   {
     ServerGeoObjectType geoObjectType = this.getType();
 
-    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
+    
+    SingleActorDAOIF actor = null;
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      actor = Session.getCurrentSession().getUser();
+    }
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
-
-      // Note: Ordered ancestors always includes self
-      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
-
-      ParentTreeNode ptnAncestors = this.getParentGeoObjects(null, true).toNode();
-
-      if (uniParents.size() > 1)
+      if (ServiceFactory.getHierarchyPermissionService().canRead(actor, hierarchyType.getOrganizationCode()))
       {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", hierarchyType.getCode());
-        object.addProperty("label", hierarchyType.getLabel().getValue());
-
-        JsonArray pArray = new JsonArray();
-
-        for (Object parent : uniParents)
+        ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
+  
+        // Note: Ordered ancestors always includes self
+        Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
+  
+        ParentTreeNode ptnAncestors = this.getParentGeoObjects(null, true).toNode(true);
+  
+        if (uniParents.size() > 1)
         {
-          ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
-
-          if (!pType.getCode().equals(geoObjectType.getCode()))
+          JsonObject object = new JsonObject();
+          object.addProperty("code", hierarchyType.getCode());
+          object.addProperty("label", hierarchyType.getLabel().getValue());
+  
+          JsonArray pArray = new JsonArray();
+  
+          for (Object parent : uniParents)
           {
-            JsonObject pObject = new JsonObject();
-            pObject.addProperty("code", pType.getCode());
-            pObject.addProperty("label", pType.getLabel().getValue());
-
-            List<ParentTreeNode> ptns = ptnAncestors.findParentOfType(pType.getCode());
-            for (ParentTreeNode ptn : ptns)
+            ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
+  
+            if (!pType.getCode().equals(geoObjectType.getCode()))
             {
-              if (ptn.getHierachyType().getCode().equals(hierarchyType.getCode()))
+              JsonObject pObject = new JsonObject();
+              pObject.addProperty("code", pType.getCode());
+              pObject.addProperty("label", pType.getLabel().getValue());
+  
+              List<ParentTreeNode> ptns = ptnAncestors.findParentOfType(pType.getCode());
+              for (ParentTreeNode ptn : ptns)
               {
-                pObject.add("ptn", ptn.toJSON());
-                break; // TODO Sibling ancestors
+                if (ptn.getHierachyType().getCode().equals(hierarchyType.getCode()))
+                {
+                  pObject.add("ptn", ptn.toJSON());
+                  break; // TODO Sibling ancestors
+                }
               }
+  
+              pArray.add(pObject);
             }
-
-            pArray.add(pObject);
           }
+  
+          object.add("parents", pArray);
+  
+          hierarchies.add(object);
         }
-
-        object.add("parents", pArray);
-
-        hierarchies.add(object);
       }
     }
 
@@ -97,12 +108,15 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 
       for (HierarchyType hierarchyType : hierarchyTypes)
       {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", hierarchyType.getCode());
-        object.addProperty("label", hierarchyType.getLabel().getValue());
-        object.add("parents", new JsonArray());
-
-        hierarchies.add(object);
+        if (ServiceFactory.getHierarchyPermissionService().canRead(actor, hierarchyType.getOrganizationCode()))
+        {
+          JsonObject object = new JsonObject();
+          object.addProperty("code", hierarchyType.getCode());
+          object.addProperty("label", hierarchyType.getLabel().getValue());
+          object.add("parents", new JsonArray());
+  
+          hierarchies.add(object);
+        }
       }
     }
 

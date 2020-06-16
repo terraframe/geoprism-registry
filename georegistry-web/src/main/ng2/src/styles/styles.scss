@@ -125,6 +125,14 @@ form legend{
     color: var(--theme-button-black);
     font-size: 18px;
 }
+
+.fa.disabled, 
+.button-column .fa.disabled {
+	color: #bdbdbd;
+	font-weight: normal;
+}
+
+
 .fa-stack:hover .fa {
 	color: #6BA542;
 }
@@ -141,7 +149,6 @@ a.fa:hover,
 a.fa:focus, 
 i.clickable.fa:hover, 
 i.clickable.fa:focus,
-// .clickable:hover *
 .clickable:hover,
 .clickable:focus {
     color: #6BA542; /* IE fallback */
@@ -157,6 +164,19 @@ i.clickable.fa:focus,
 .fa.ico-remove:hover{
     color: #e30000; /* IE fallback */
     color: var(--theme-alert-color);
+    cursor: pointer;
+}
+
+.fa.fa-plus::before{
+	margin-right: 5px;
+}
+
+// .delete-btn{
+//   font-size: 20px;
+// }
+.delete-btn.clickable:hover {
+    color: #e30000; /* IE fallback */
+    color: var(--theme-alert-color) !important;
     cursor: pointer;
 }
 
@@ -294,14 +314,14 @@ button.btn.btn-default:hover {
 	background-color: #f3aca9;
 }
 
-.delete-btn{
-  font-size: 20px;
-}
-.delete-btn:hover {
-    color: #e30000; /* IE fallback */
-    color: var(--theme-alert-color) !important;
-    cursor: pointer;
-}
+// .delete-btn{
+//   font-size: 20px;
+// }
+// .delete-btn:hover {
+//     color: #e30000; /* IE fallback */
+//     color: var(--theme-alert-color) !important;
+//     cursor: pointer;
+// }
 
 
 

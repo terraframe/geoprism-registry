@@ -20,8 +20,9 @@ package net.geoprism.registry.etl;
 
 import org.json.JSONObject;
 
+import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
-import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.runwaysdk.session.Session;
 
 public class RowValidationProblem extends RowValidationProblemBase
 {
@@ -52,7 +53,7 @@ public class RowValidationProblem extends RowValidationProblemBase
       joException.put("type", exception.getClass().getName());
     }
     
-    String message = ExecutableJob.getMessageFromException(exception);
+    String message = RunwayException.localizeThrowable(exception, Session.getCurrentLocale());
     joException.put("message", message);
     
     return joException;

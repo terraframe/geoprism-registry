@@ -16,16 +16,3 @@
 /// You should have received a copy of the GNU Lesser General Public
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
-
-// // Observable class extensions
-// import 'rxjs/add/observable/of';
-// import 'rxjs/add/observable/throw';
-
-// // Observable operators
-// import 'rxjs/add/operator/catch';
-// import 'rxjs/add/operator/debounceTime';
-// import 'rxjs/add/operator/distinctUntilChanged';
-// import 'rxjs/add/operator/do';
-// import 'rxjs/add/operator/filter';
-// import 'rxjs/add/operator/map';
-// import 'rxjs/add/operator/switchMap';

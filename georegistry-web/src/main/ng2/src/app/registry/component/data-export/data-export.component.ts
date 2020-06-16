@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 
 import { IOService } from '../../service/io.service';
+import { AuthService } from '../../../shared/service/auth.service';
 
 declare var acp: string;
 
@@ -49,11 +50,22 @@ export class DataExportComponent implements OnInit {
     bsModalRef: BsModalRef;
 
 
-    constructor( private service: IOService, private modalService: BsModalService ) { }
+    constructor( private service: IOService, private modalService: BsModalService, private authService: AuthService ) { }
 
     ngOnInit(): void {
         this.service.listGeoObjectTypes( false ).then( types => {
-            this.types = types;
+        
+            //this.types = types;
+            
+            var myOrgTypes = [];
+            for (var i = 0; i < types.length; ++i)
+            {
+              if (this.authService.isOrganizationRA(types[i].orgCode))
+              {
+                myOrgTypes.push(types[i]);
+              }
+            }
+            this.types = myOrgTypes;
 
         } ).catch(( err: HttpErrorResponse) => {
             this.error( err );

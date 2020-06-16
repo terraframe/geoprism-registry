@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 
 import { ImportConfiguration, Synonym, Location, Term } from '../model/io';
 import { EventService } from '../../shared/service/event.service';
@@ -23,9 +23,9 @@ export class IOService {
 
         return this.http
             .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -38,9 +38,9 @@ export class IOService {
 
         return this.http
             .post<void>( acp + '/etl/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 
@@ -53,18 +53,18 @@ export class IOService {
 
         return this.http
             .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 
-    listGeoObjectTypes( includeLeafTypes: boolean ): Promise<{ label: string, code: string }[]> {
+    listGeoObjectTypes( includeLeafTypes: boolean ): Promise<{ label: string, code: string, orgCode: string }[]> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'includeLeafTypes', includeLeafTypes.toString() );
 
         return this.http
-            .get<{ label: string, code: string }[]>( acp + '/cgr/geoobjecttype/list-types', { params: params } )
+            .get<{ label: string, code: string, orgCode: string }[]>( acp + '/cgr/geoobjecttype/list-types', { params: params } )
             .toPromise();
     }
 
@@ -87,9 +87,9 @@ export class IOService {
 
         return this.http
             .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>( acp + '/cgr/geoobjecttype/get-hierarchies', { params: params } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -123,9 +123,9 @@ export class IOService {
 
         return this.http
             .post<Synonym>( acp + '/geo-synonym/createGeoEntitySynonym', JSON.stringify( { entityId: entityId, label: label } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise();
     }
 
@@ -138,9 +138,9 @@ export class IOService {
 
         return this.http
             .post<void>( acp + '/geo-synonym/deleteGeoEntitySynonym', JSON.stringify( { synonymId: synonymId, vOid: vOid } ), { headers: headers } )
-            .finally(() => {
-                this.eventService.complete();
-            } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
             .toPromise()
     }
 

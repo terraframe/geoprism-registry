@@ -15,7 +15,7 @@
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses />.
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -32,7 +32,7 @@
   <name>GeoRegistry Web</name>
 
   <properties>
-    <geoserver.version>2.9.1</geoserver.version>
+    <geoserver.version>2.14.2</geoserver.version>
     <db.name>georegistry</db.name>
     <db.user>georegistry</db.user>
     <db.port>5432</db.port>
@@ -74,6 +74,29 @@
       <type>war</type>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>net.jawr</groupId>
+      <artifactId>jawr-core</artifactId>
+      <version>3.7</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.1</version>
+      <scope>provided</scope> <!-- This dependency is NOT transitive because scope=provided -->
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/javax.servlet/jstl -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
+    </dependency>
   </dependencies>
 
   <profiles>
@@ -95,14 +118,14 @@
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
-            <version>1.4.15</version>
+            <version>1.7.11</version>
             <configuration>
               <container>
                 <containerId>tomcat8x</containerId>
                 <artifactInstaller>
                   <groupId>org.apache.tomcat</groupId>
                   <artifactId>tomcat</artifactId>
-                  <version>8.0.23</version>
+                  <version>8.5.53</version>
                 </artifactInstaller>
                 <timeout>4800000</timeout>
               </container>
@@ -251,7 +274,7 @@
               <groupId>net.geoprism</groupId>
               <artifactId>geoprism-web</artifactId>
               <excludes>
-                <exclude>WEB-INF/lib/aspectjtools*.jar</exclude>
+                <exclude>WEB-INF/lib/*.jar</exclude>
               </excludes>
             </overlay>
           </overlays>

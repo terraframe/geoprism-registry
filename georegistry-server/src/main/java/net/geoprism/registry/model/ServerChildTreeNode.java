@@ -27,6 +27,11 @@ import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.session.Session;
+
+import net.geoprism.registry.service.ServiceFactory;
+
 public class ServerChildTreeNode extends ServerTreeNode
 {
   private List<ServerChildTreeNode> children;
@@ -68,16 +73,29 @@ public class ServerChildTreeNode extends ServerTreeNode
     this.children.add(child);
   }
 
-  public ChildTreeNode toNode()
+  public ChildTreeNode toNode(boolean enforcePermissions)
   {
     GeoObject go = this.getGeoObject().toGeoObject();
     HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
 
     ChildTreeNode node = new ChildTreeNode(go, ht);
+    
+    SingleActorDAOIF actor = null;
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      actor = Session.getCurrentSession().getUser();
+    }
+    
+    String orgCode = go.getType().getOrganizationCode();
+    String typeCode = go.getType().getCode();
 
     for (ServerChildTreeNode child : this.children)
     {
-      node.addChild(child.toNode());
+      if (!enforcePermissions
+          || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, orgCode, typeCode, child.getGeoObject().getType().getCode()))
+      {
+        node.addChild(child.toNode(enforcePermissions));
+      }
     }
 
     return node;

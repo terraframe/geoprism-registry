@@ -46,10 +46,11 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.CompositeServerGeoObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -125,7 +126,7 @@ public class GeoObjectEditorController
     }
     else
     {
-      ServerGeoObjectService service = new ServerGeoObjectService();
+      ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
 
       GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
 

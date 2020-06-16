@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 import { Router } from '@angular/router';
@@ -99,6 +99,7 @@ export class ShapefileModalComponent implements OnInit {
                 } );
                 this.bsModalRef.content.message = this.localizeService.decode( "data.import.go.to.scheduled.jobs.confirm.message" );
                 this.bsModalRef.content.submitText = this.localizeService.decode( "data.import.go.to.scheduled.jobs.button" );
+                this.bsModalRef.content.cancelText = this.localizeService.decode( "modal.button.close" );
 
                 ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
                     this.router.navigate(['/registry/scheduled-jobs']);

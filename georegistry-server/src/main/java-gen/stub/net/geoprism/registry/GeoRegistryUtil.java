@@ -30,6 +30,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.rbac.Authenticate;
+import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -37,6 +38,7 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -65,7 +67,9 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     RegistryAdapter adapter = ServiceFactory.getAdapter();
 
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
-
+    
+    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), hierarchyType.getOrganizationCode());
+    
     ServerHierarchyType sType = new ServerHierarchyTypeBuilder().createHierarchyType(hierarchyType);
 
     // The transaction did not error out, so it is safe to put into the cache.

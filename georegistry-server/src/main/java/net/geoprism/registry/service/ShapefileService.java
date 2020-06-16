@@ -78,7 +78,7 @@ public class ShapefileService
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
   
-        JSONArray hierarchies = new JSONArray(ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, false).toString());
+        JSONArray hierarchies = new JSONArray(ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, geoObjectType.getCode(), false).toString());
   
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));

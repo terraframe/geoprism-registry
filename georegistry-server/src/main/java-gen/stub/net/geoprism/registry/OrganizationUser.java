@@ -18,18 +18,30 @@
  */
 package net.geoprism.registry;
 
+import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.system.SingleActor;
+
 public class OrganizationUser extends OrganizationUserBase
 {
   private static final long serialVersionUID = -1551724541;
-  
+
   public OrganizationUser(String parentOid, String childOid)
   {
     super(parentOid, childOid);
   }
-  
+
   public OrganizationUser(net.geoprism.registry.Organization parent, net.geoprism.GeoprismUser child)
   {
     this(parent.getOid(), child.getOid());
   }
-  
+
+  public static boolean exists(Organization org, SingleActor user)
+  {
+    OrganizationUserQuery query = new OrganizationUserQuery(new QueryFactory());
+    query.WHERE(query.parentOid().EQ(org.getOid()));
+    query.AND(query.childOid().EQ(user.getOid()));
+
+    return ( query.getCount() > 0 );
+  }
+
 }

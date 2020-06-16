@@ -215,6 +215,11 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     {
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
+    
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), geoObjectType.getOrganizationCode());
+    }
    
     Universal universal = new Universal();
     universal.setUniversalId(geoObjectType.getCode());

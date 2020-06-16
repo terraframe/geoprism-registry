@@ -18,19 +18,18 @@
 ///
 
 import { Component, Input, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { Location } from '@angular/common';
-import 'rxjs/add/operator/switchMap';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
 
-import { RoleManagementComponent } from './role-management.component';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+
 
 import { Account, User, Role } from '../../model/account';
 import { AccountService } from '../../service/account.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
-import { Localization } from '../../model/settings';
+import { AuthService } from '../../../shared/service/auth.service';
 
 @Component( {
     selector: 'account',
@@ -45,10 +44,19 @@ export class AccountComponent implements OnInit {
     roles: Role[];
     roleIds: string[] = [];
 
+    isSRA: boolean;
+	isRA: boolean;
+
     @Input()
     set oid( oid: string ) {
         if ( oid === 'NEW' ) {
-            this.service.newInstance("").then( data => {
+
+            let orgCodes = [];
+            if(this.isRA){
+                orgCodes = this.authService.getMyOrganizations();
+            }
+
+            this.service.newInstance(orgCodes).then( data => {
                 this.account = data;
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
@@ -68,10 +76,14 @@ export class AccountComponent implements OnInit {
 
     constructor(
         private service: AccountService,
+        private authService: AuthService,
         private location: Location,
         public bsModalRef: BsModalRef,
         private localizeService: LocalizationService
     ) {
+
+        this.isSRA = authService.isSRA();
+		this.isRA = authService.isRA();
     }
 
     ngOnInit(): void {

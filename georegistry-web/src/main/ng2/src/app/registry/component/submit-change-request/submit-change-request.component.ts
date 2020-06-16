@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';
@@ -15,6 +15,7 @@ import { ChangeRequestService } from '../../service/change-request.service';
 import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { AuthService } from '../../../shared/service/auth.service';
 
 import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
@@ -73,7 +74,8 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     constructor( private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, private localizeService: LocalizationService ) {
+        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, private localizeService: LocalizationService,
+        private authService: AuthService ) {
 
         this.dataSource = Observable.create(( observer: any ) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead( this.geoObjectId, this.geoObjectType.code ).then( results => {
@@ -84,7 +86,16 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     ngOnInit(): void {
         this.registryService.getGeoObjectTypes( [] ).then( types => {
-            this.geoObjectTypes = types;
+            
+            var myOrgTypes = [];
+            for (var i = 0; i < types.length; ++i)
+            {
+              if (this.authService.isGeoObjectTypeRC(types[i].organizationCode, types[i].code))
+              {
+                myOrgTypes.push(types[i]);
+              }
+            }
+            this.geoObjectTypes = myOrgTypes;
 
             this.geoObjectTypes.sort(( a, b ) => {
                 if ( a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase() ) return -1;

@@ -1,13 +1,13 @@
 import {
-    AnimationEntryMetadata,
+    AnimationTriggerMetadata,
     animate,
     state,
     style,
     transition,
     trigger,
-} from '@angular/core';
+} from '@angular/animations';
 
-export const animations: Array<AnimationEntryMetadata> = [
+export const animations: Array<AnimationTriggerMetadata> = [
     trigger('flyInOut', [
         state('in', style({ transform: 'translateX(0)' })),
         transition('void => *', [

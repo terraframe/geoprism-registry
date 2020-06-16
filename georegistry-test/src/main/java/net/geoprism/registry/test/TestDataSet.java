@@ -26,14 +26,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.action.AbstractAction;
-import net.geoprism.registry.action.AbstractActionQuery;
-import net.geoprism.registry.action.ChangeRequest;
-import net.geoprism.registry.action.ChangeRequestQuery;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.WMSService;
-
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -56,14 +48,22 @@ import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
 import com.runwaysdk.system.metadata.MdRelationship;
 
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AbstractActionQuery;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.WMSService;
+
 abstract public class TestDataSet
 {
   protected int                              debugMode                       = 0;
 
-  public final TestHierarchyTypeInfo         AllowedIn                       = new TestHierarchyTypeInfo(this, "AllowedIn", "AllowedIn");
-
-  public final TestHierarchyTypeInfo         LocatedIn                       = new TestHierarchyTypeInfo(this, "LocatedIn", "LocatedIn");
-
+  protected ArrayList<TestOrganizationInfo>  managedOrganizationInfos        = new ArrayList<TestOrganizationInfo>();
+  
+  protected ArrayList<TestOrganizationInfo>  managedOrganizationInfosExtras  = new ArrayList<TestOrganizationInfo>();
+  
   protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos           = new ArrayList<TestGeoObjectInfo>();
 
   protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos       = new ArrayList<TestGeoObjectTypeInfo>();
@@ -72,6 +72,8 @@ abstract public class TestDataSet
 
   protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfosExtras = new ArrayList<TestGeoObjectTypeInfo>();
 
+  protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfos       = new ArrayList<TestHierarchyTypeInfo>();
+  
   protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfosExtras = new ArrayList<TestHierarchyTypeInfo>();
 
   public TestRegistryAdapterClient           adapter;
@@ -98,6 +100,16 @@ abstract public class TestDataSet
     checkDuplicateClasspathResources();
   }
 
+  public ArrayList<TestOrganizationInfo> getManagedOrganizations()
+  {
+    ArrayList<TestOrganizationInfo> all = new ArrayList<TestOrganizationInfo>();
+
+    all.addAll(managedOrganizationInfos);
+    all.addAll(managedOrganizationInfosExtras);
+
+    return all;
+  }
+  
   public ArrayList<TestGeoObjectInfo> getManagedGeoObjects()
   {
     ArrayList<TestGeoObjectInfo> all = new ArrayList<TestGeoObjectInfo>();
@@ -127,7 +139,7 @@ abstract public class TestDataSet
   {
     ArrayList<TestHierarchyTypeInfo> all = new ArrayList<TestHierarchyTypeInfo>();
 
-    // all.addAll(managedGeoObjectTypeInfos);
+    all.addAll(managedHierarchyTypeInfos);
     all.addAll(managedHierarchyTypeInfosExtras);
 
     return all;
@@ -161,6 +173,7 @@ abstract public class TestDataSet
     // bug in Runway which relates to transactions and MdAttributeLocalStructs
     tearDownMetadata();
 
+    setUpOrgsInTrans();
     setUpMetadataInTrans();
 
     // TODO : Logging in inside of a request isn't good practice
@@ -172,6 +185,8 @@ abstract public class TestDataSet
     adapter.refreshMetadataCache();
 
     setUpClassRelationships();
+    
+    Assert.assertTrue(Universal.getByKey("USATestDataState").getAllAncestors("com.runwaysdk.system.gis.geo.USATestDataAdminCodeMetadata").getAll().size() > 0);
 
     RegistryService.getInstance().refreshMetadataCache();
     adapter.refreshMetadataCache();
@@ -183,8 +198,22 @@ abstract public class TestDataSet
   }
 
   @Transaction
+  protected void setUpOrgsInTrans()
+  {
+    for (TestOrganizationInfo org : managedOrganizationInfos)
+    {
+      org.apply();
+    }
+  }
+  
+  @Transaction
   protected void setUpMetadataInTrans()
   {
+    for (TestHierarchyTypeInfo ht : managedHierarchyTypeInfos)
+    {
+      ht.apply();
+    }
+    
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
       uni.apply();
@@ -268,6 +297,16 @@ abstract public class TestDataSet
     for (TestGeoObjectTypeInfo got : list)
     {
       got.delete();
+    }
+    
+    for (TestHierarchyTypeInfo ht : this.getManagedHierarchyTypes())
+    {
+      ht.delete();
+    }
+    
+    for (TestOrganizationInfo org : this.getManagedOrganizations())
+    {
+      org.delete();
     }
 
     if (adminSession != null)
@@ -364,11 +403,11 @@ abstract public class TestDataSet
   @Request
   public static void assertEqualsHierarchyType(String relationshipType, HierarchyType compare)
   {
-    MdRelationship allowedIn = MdRelationship.getMdRelationship(relationshipType);
-
-    Assert.assertEquals(allowedIn.getTypeName(), compare.getCode());
-    Assert.assertEquals(allowedIn.getDescription().getValue(), compare.getDescription().getValue());
-    Assert.assertEquals(allowedIn.getDisplayLabel().getValue(), compare.getLabel().getValue());
+//    MdRelationship mdr = MdRelationship.getMdRelationship(relationshipType);
+//
+//    Assert.assertEquals(mdr.getTypeName(), compare.getCode());
+//    Assert.assertEquals(mdr.getDescription().getValue(), compare.getDescription().getValue());
+//    Assert.assertEquals(mdr.getDisplayLabel().getValue(), compare.getLabel().getValue());
 
     // compare.getRootGeoObjectTypes() // TODO
   }
@@ -395,9 +434,9 @@ abstract public class TestDataSet
     return info;
   }
 
-  public TestGeoObjectTypeInfo newTestGeoObjectTypeInfo(String genKey)
+  public TestGeoObjectTypeInfo newTestGeoObjectTypeInfo(String genKey, TestOrganizationInfo organization)
   {
-    TestGeoObjectTypeInfo info = new TestGeoObjectTypeInfo(this, genKey);
+    TestGeoObjectTypeInfo info = new TestGeoObjectTypeInfo(this, genKey, organization);
 
     info.delete();
 
@@ -406,9 +445,9 @@ abstract public class TestDataSet
     return info;
   }
 
-  public TestHierarchyTypeInfo newTestHierarchyTypeInfo(String genKey)
+  public TestHierarchyTypeInfo newTestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
-    TestHierarchyTypeInfo info = new TestHierarchyTypeInfo(this, genKey);
+    TestHierarchyTypeInfo info = new TestHierarchyTypeInfo(this, genKey, org);
 
     info.delete();
 

@@ -17,22 +17,16 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { LocalizationService } from '../../../shared/service/localization.service';
 
-import { User, PageResult, Account } from '../../model/account';
+import { User, PageResult } from '../../model/account';
 import { AccountService } from '../../service/account.service';
 import { AccountComponent } from './account.component';
-import { AccountInviteComponent } from './account-invite.component';
-
-declare let acp: string;
 
 @Component( {
     selector: 'accounts',
@@ -50,10 +44,8 @@ export class AccountsComponent implements OnInit {
     message: string = null;
 
     constructor(
-        private router: Router,
         private service: AccountService,
-        private modalService: BsModalService,
-        private localizeService: LocalizationService
+        private modalService: BsModalService
     ) { }
 
     ngOnInit(): void {
@@ -97,7 +89,6 @@ export class AccountsComponent implements OnInit {
         } );
         this.bsModalRef.content.oid = 'NEW';
 
-        let that = this;
         this.bsModalRef.content.onEdit.subscribe( data => {
             this.onPageChange( this.res.pageNumber );
         } );

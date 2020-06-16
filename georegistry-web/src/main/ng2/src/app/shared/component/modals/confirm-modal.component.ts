@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
 import { LocalizationService } from '../../service/localization.service';
 import { ModalTypes } from '../../model/modal';
 

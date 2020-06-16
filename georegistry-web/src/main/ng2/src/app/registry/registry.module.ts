@@ -7,12 +7,11 @@ import { ContextMenuModule } from 'ngx-contextmenu';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
-import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
+import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { DatePipe } from '@angular/common';
-import { CustomFormsModule } from 'ng2-validation'
 
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './component/form-fields/localized-text/localized-text.component';
@@ -109,7 +108,6 @@ import '../rxjs-extensions';
 		ProgressbarModule,
 		CollapseModule,
 		NgxPaginationModule,
-		CustomFormsModule,
 		SharedModule,
 		RegistryRoutingModule
 	],

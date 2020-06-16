@@ -17,22 +17,14 @@
 # License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Stupid hack for the current geoprism 0.7.0 deploy
-sed -i -e 's|961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism:latest|961902606948.dkr.ecr.us-west-2.amazonaws.com/geoprism@sha256:7ac27a2ddf13313150e86409b79ca1fa14304e2a94307dd6208a5e67e1845a12|g' geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
-
-# Replace external ips with internal ips since jenkins runs inside our VPC
-sed -i -e 's/georegistry.geoprism.net/172.31.30.53/g' geoprism-platform/ansible/inventory/georegistry/prod.ini
-sed -i -e 's/staging-georegistry.geoprism.net/172.31.23.142/g' geoprism-platform/ansible/inventory/georegistry/staging.ini
-sed -i -e 's/dev-georegistry.geoprism.net/172.31.25.93/g' geoprism-platform/ansible/inventory/georegistry/dev.ini
-sed -i -e 's/demo-georegistry.geoprism.net/172.31.19.126/g' geoprism-platform/ansible/inventory/georegistry/demo.ini
+# Replace build params in our ansible inventory files (TODO : Should this be passed along as a param to the ansible-playbook command?)
 sed -i -e "s/clean_db=true/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_db=false/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/clean_orientdb=false/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
-source /home/ec2-user/.bashrc
 source /home/ec2-user/ansible/hacking/env-setup
 
 export M2_HOME=/usr/local/apache-maven
@@ -51,11 +43,9 @@ cd $WORKSPACE/adapter/java
 mvn clean deploy -B
 
 ## Build angular source ##
-nvm install lts/carbon
+npm version
 cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
 npm install
-# npm install typings
-# typings install lodash
 node -v && npm -v
 node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
 

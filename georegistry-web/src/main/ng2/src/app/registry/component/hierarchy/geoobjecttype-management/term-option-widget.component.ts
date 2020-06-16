@@ -6,7 +6,7 @@ import {
   animate,
   transition
 } from '@angular/animations'
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, Term} from '../../../model/registry';
 import { HierarchyService } from '../../../service/hierarchy.service';

@@ -123,7 +123,7 @@ public class GeoObjectExcelExporter
     Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(this.type, this.hierarchy.getCode());
 
     this.writeHeader(boldStyle, header, attributes, ancestors, locales);
 

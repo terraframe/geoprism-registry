@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectorRef, HostBinding } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subject } from 'rxjs/Subject';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
     trigger,
@@ -22,7 +22,7 @@ import Utils from '../../utility/Utils';
 @Component( {
     selector: 'manage-versions-modal',
     templateUrl: './manage-versions-modal.component.html',
-    styleUrls: [],
+    styleUrls: ['./manage-versions-modal.css'],
     host: { '[@fadeInOut]': 'true' },
     animations: [
         [
@@ -250,7 +250,7 @@ export class ManageVersionsModalComponent implements OnInit {
                 // only remove status of the required status type
                 if ( attrOpts.length > 0 ) {
                     if ( attr.code === "status" ) {
-                        return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                        return Utils.removeStatuses(attrOpts);
                     }
                     else {
                         return attrOpts;

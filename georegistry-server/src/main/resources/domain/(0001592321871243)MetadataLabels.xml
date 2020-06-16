@@ -1,0 +1,189 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.code">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.code" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.status">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.status" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Status" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.uid">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.uid" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="UID" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.displayLabel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.displayLabel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Display Label" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.sequence">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.sequence" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Sequence" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.createDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.createDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Date" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.lastUpdateDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.lastUpdateDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Last Update Date" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.geometry">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.geometry" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geometry" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo Object" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.attr.code">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.attr.code" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchy Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.attr.uid">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.attr.uid" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="UID" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.attr.displayLabel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.attr.displayLabel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Display Label" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.attr.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.attr.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.attr.sequence">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.attr.sequence" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Sequence" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.attr.createDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.attr.createDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Date" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchyType.attr.lastUpdateDate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchyType.attr.lastUpdateDate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Last Update Date" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObject.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObject.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo Object" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="organization.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Organization" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.attr.code">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="organization.attr.code" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Code" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <update>
+      <mdException name="net.geoprism.registry.DataNotFoundException" label="Data Not Found Exception" description="Thrown when a user requests data which does not exist." message="The system could not find a {typeLabel} with a {attributeLabel} of {dataIdentifier}.">
+        <create>
+          <attributes>
+            <text name="typeLabel" label="TypeLabel" required="true" />
+            <text name="attributeLabel" label="Attribute Label" required="true" />
+          </attributes>
+        </create>
+      </mdException>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.DataNotFoundException.typeLabel" type="com.runwaysdk.system.metadata.MdAttribute" />
+      <object key="net.geoprism.registry.DataNotFoundException.attributeLabel" type="com.runwaysdk.system.metadata.MdAttribute" />
+    </delete>
+  </undoIt>
+</version>

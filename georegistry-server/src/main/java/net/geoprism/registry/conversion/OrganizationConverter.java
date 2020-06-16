@@ -30,6 +30,7 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SRAException;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class OrganizationConverter extends LocalizedValueConverter
 {
@@ -70,28 +71,9 @@ public class OrganizationConverter extends LocalizedValueConverter
   {
     final Organization organization = this.fromDTO(organizationDTO);
     
-    // They must be SRA role to perform this
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      boolean hasSRA = false;
-      
-      Set<RoleDAOIF> roles = Session.getCurrentSession().getUser().authorizedRoles();
-      
-      for (RoleDAOIF role : roles)
-      {
-        String roleName = role.getRoleName();
-        
-        if (RegistryRole.Type.isSRA_Role(roleName))
-        {
-          hasSRA = true;
-        }
-      }
-      
-      if (!hasSRA)
-      {
-        SRAException ex = new SRAException();
-        throw ex;
-      }
+      ServiceFactory.getOrganizationPermissionService().enforceActorCanCreate(Session.getCurrentSession().getUser());
     }
     
     organization.apply();
@@ -103,6 +85,11 @@ public class OrganizationConverter extends LocalizedValueConverter
   public Organization update(OrganizationDTO organizationDTO)
   {
     Organization organization = Organization.getByKey(organizationDTO.getCode());
+    
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      ServiceFactory.getOrganizationPermissionService().enforceActorCanUpdate(Session.getCurrentSession().getUser());
+    }
     
     organization.lock();
     organization.setCode(organizationDTO.getCode());

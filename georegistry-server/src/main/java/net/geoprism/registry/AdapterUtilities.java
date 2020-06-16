@@ -56,7 +56,28 @@ public class AdapterUtilities
    * @return
    */
   @Request
-  public List<GeoObjectType> getAncestors(ServerGeoObjectType child, String code)
+  public List<GeoObjectType> getTypeAncestors(ServerGeoObjectType child, String code)
+  {
+    List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(code);
+
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), child.getUniversal(), hierarchyType.getUniversalType());
+
+    list.forEach(term -> {
+      Universal parent = (Universal) term;
+
+      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(child.getUniversal().getOid()))
+      {
+        ancestors.add(ServerGeoObjectType.get(parent).getType());
+      }
+    });
+
+    return ancestors;
+  }
+  
+  @Request
+  public List<GeoObjectType> getTypeParents(ServerGeoObjectType child, String code)
   {
     List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
 
@@ -93,68 +114,4 @@ public class AdapterUtilities
   // return
   // ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(uni.getKey()).get();
   // }
-
-  public JsonArray getHierarchiesForType(ServerGeoObjectType type, Boolean includeTypes)
-  {
-    HierarchyType[] hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-    JsonArray hierarchies = new JsonArray();
-    Universal root = Universal.getRoot();
-
-    for (HierarchyType hierarchyType : hierarchyTypes)
-    {
-      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
-
-      // Note: Ordered ancestors always includes self
-      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, type.getUniversal(), sType.getUniversalType());
-
-      if (parents.size() > 1)
-      {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", hierarchyType.getCode());
-        object.addProperty("label", hierarchyType.getLabel().getValue());
-
-        if (includeTypes)
-        {
-          JsonArray pArray = new JsonArray();
-
-          for (Object parent : parents)
-          {
-            ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
-
-            if (!pType.getCode().equals(type.getCode()))
-            {
-              JsonObject pObject = new JsonObject();
-              pObject.addProperty("code", pType.getCode());
-              pObject.addProperty("label", pType.getLabel().getValue());
-
-              pArray.add(pObject);
-            }
-          }
-
-          object.add("parents", pArray);
-        }
-
-        hierarchies.add(object);
-      }
-    }
-
-    if (hierarchies.size() == 0)
-    {
-      /*
-       * This is a root type so include all hierarchies
-       */
-
-      for (HierarchyType hierarchyType : hierarchyTypes)
-      {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", hierarchyType.getCode());
-        object.addProperty("label", hierarchyType.getLabel().getValue());
-        object.add("parents", new JsonArray());
-
-        hierarchies.add(object);
-      }
-    }
-
-    return hierarchies;
-  }
 }

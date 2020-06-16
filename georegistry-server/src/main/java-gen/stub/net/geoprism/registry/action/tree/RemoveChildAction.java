@@ -29,10 +29,12 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class RemoveChildAction extends RemoveChildActionBase
@@ -42,11 +44,15 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
-    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
-
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+    }
+    
     parent.removeChild(child, this.getHierarchyTypeCode());
   }
 
@@ -112,17 +118,15 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   public void apply()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    
-    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
+    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
     
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       
-      ht.enforceActorHasRelationshipPermission(actor, parent.getType().getCode(), child.getType().getCode(), true);
+      ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChildCR(actor, ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
     }
     
     super.apply();

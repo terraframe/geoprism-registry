@@ -23,16 +23,16 @@
            
               <ul *dropdownMenu class="dropdown-menu">
                 <!-- GeoRegistry specific links -->
-                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
-                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
-                <li *ngIf="isMaintainer" role="menuitem"><a class="dropdown-item" routerLink="/registry/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
-                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/scheduled-jobs" routerLinkActive="active"><localize key="scheduledjobs.menu"></localize> </a></li>
-                <li role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
-                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
-                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/registry/tasks" routerLinkActive="active"><localize key="header.tasks"></localize></a></li>
+                <li *ngIf="shouldShowMenuItem('HIERARCHIES')" role="menuitem"><a class="dropdown-item" routerLink="/registry/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
+                <li *ngIf="shouldShowMenuItem('LISTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
+                <li *ngIf="shouldShowMenuItem('IMPORT')" role="menuitem"><a class="dropdown-item" routerLink="/registry/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+                <li *ngIf="shouldShowMenuItem('SCHEDULED-JOBS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/scheduled-jobs" routerLinkActive="active"><localize key="scheduledjobs.menu"></localize> </a></li>
+                <li *ngIf="shouldShowMenuItem('NAVIGATOR')" role="menuitem"><a class="dropdown-item" href="{{context}}/nav/management#/locations"><localize key=navigator.menu></localize> </a></li>
+                <li *ngIf="shouldShowMenuItem('CHANGE-REQUESTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
+                <li *ngIf="shouldShowMenuItem('TASKS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/tasks" routerLinkActive="active"><localize key="header.tasks"></localize></a></li>
                 
                 <hr>
-                <li *ngIf="isContributor" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>
+                <li *ngIf="shouldShowMenuItem('SETTINGS')" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>
 
 
                 <!-- <hr *ngIf="isAdmin">

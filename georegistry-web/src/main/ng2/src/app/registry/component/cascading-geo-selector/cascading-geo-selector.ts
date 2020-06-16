@@ -1,9 +1,9 @@
 import { Component, OnInit, Input, EventEmitter, Output, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ParentTreeNode, GeoObject, HierarchyOverTime } from '../../model/registry';
 import { RegistryService } from '../../service/registry.service';
 

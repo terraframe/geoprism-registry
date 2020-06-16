@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '../model/user';
-import { Locale } from '../../admin/model/localization-manager';
 import { RoleBuilder, RegistryRole, RegistryRoleType } from '../model/core';
 
 @Injectable()
@@ -20,7 +19,7 @@ export class AuthService {
 
     if ( this.service.check( "user" ) && cookie != null && cookie.length > 0 ) {
       let cookieData: string = this.service.get( "user" )
-      let cookieDataJSON: any = JSON.parse( JSON.parse( cookieData ) );
+      let cookieDataJSON: any = JSON.parse( cookieData );
       
       this.buildFromCookieJson(cookieDataJSON);
     }
@@ -84,6 +83,20 @@ export class AuthService {
     return this.isRC();
   }
   
+  // Used to exactly identify a role. I.e. if we say we need RC, SRA doesn't count.
+  hasExactRole(roleType: RegistryRoleType)
+  {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.type === roleType) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
 
   isSRA(): boolean {
     for (let i = 0; i < this.user.roles.length; ++i)
@@ -133,6 +146,48 @@ export class AuthService {
     
     return false;
   }
+
+  isOrganizationRA(orgCode: string): boolean {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.orgCode === orgCode && role.type === RegistryRoleType.RA)
+      {
+        return true;
+      }
+    }
+    
+    return this.isSRA();
+  }
+
+  isGeoObjectTypeRM(orgCode: string, gotCode: string): boolean {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.type === RegistryRoleType.RM && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode)
+      {
+        return true;
+      }
+    }
+    
+    return this.isOrganizationRA(orgCode);
+  }
+
+  isGeoObjectTypeRC(orgCode: string, gotCode: string): boolean {
+    for (let i = 0; i < this.user.roles.length; ++i)
+    {
+      let role: RegistryRole = this.user.roles[i];
+      
+      if (role.type === RegistryRoleType.RC && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode)
+      {
+        return true;
+      }
+    }
+    
+    return this.isGeoObjectTypeRM(orgCode, gotCode);
+  }
   
   isRC(): boolean {
     for (let i = 0; i < this.user.roles.length; ++i)
@@ -161,14 +216,18 @@ export class AuthService {
     {
       let role: RegistryRole = this.user.roles[i];
       
-      if (role.type === RegistryRoleType.RC
-          || role.type === RegistryRoleType.RM
-          || role.type === RegistryRoleType.RA) {
+      if (role.type === RegistryRoleType.RC || role.type === RegistryRoleType.RM || role.type === RegistryRoleType.RA) {
         orgCodes.push(role.orgCode);
       }
     }
     
     return orgCodes;
+  }
+
+  __getRoleFromRoleName(roleName: string): string{
+    let nameArr = roleName.split(".");
+
+    return nameArr[nameArr.length - 1];
   }
   
   getUsername(): string {

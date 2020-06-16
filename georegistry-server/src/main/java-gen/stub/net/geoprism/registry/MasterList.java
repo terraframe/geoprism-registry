@@ -230,7 +230,7 @@ public class MasterList extends MasterListBase
         String hCode = hierarchy.get("code").getAsString();
         HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
 
-        map.put(hierarchyType, ServiceFactory.getUtilities().getAncestors(type, hCode));
+        map.put(hierarchyType, ServiceFactory.getUtilities().getTypeAncestors(type, hCode));
       }
     }
 

@@ -49,10 +49,11 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ExcludeConfiguration;
 import net.geoprism.ontology.GeoEntityUtilDTO;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**
@@ -64,7 +65,7 @@ import net.geoprism.registry.service.ServiceFactory;
 @Controller(url = "registrylocation")
 public class RegistryLocationController
 {
-  private ServerGeoObjectService service = new ServerGeoObjectService();
+  private ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF fetchGeoObjectFromGeoEntity(ClientRequestIF request, @RequestParamter(name = "entityId") String entityId) throws JSONException
@@ -301,7 +302,7 @@ public class RegistryLocationController
 
       if (shouldRemove)
       {
-        RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
       }
     }
 
@@ -321,7 +322,7 @@ public class RegistryLocationController
       if (!alreadyExists)
       {
         GeoObject parent = ptnParent.getGeoObject();
-        RegistryService.getInstance().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
       }
     }
   }

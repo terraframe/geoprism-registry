@@ -18,14 +18,16 @@
  */
 package net.geoprism.registry.test;
 
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
-
 import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
+
+import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class TestHierarchyTypeInfo
 {
@@ -37,23 +39,29 @@ public class TestHierarchyTypeInfo
   
   private String                  oid;
   
-  protected TestHierarchyTypeInfo(TestDataSet testDataSet, String genKey)
+  private TestOrganizationInfo    org;
+  
+  private ServerHierarchyType     serverObj;
+  
+  protected TestHierarchyTypeInfo(TestDataSet testDataSet, String genKey, TestOrganizationInfo org)
   {
     this.testDataSet = testDataSet;
-    initialize(genKey);
+    initialize(genKey, org);
   }
   
-  protected TestHierarchyTypeInfo(TestDataSet testDataSet, String code, String displayLabel)
+  protected TestHierarchyTypeInfo(TestDataSet testDataSet, String code, String displayLabel, TestOrganizationInfo org)
   {
     this.testDataSet = testDataSet;
     this.code = code;
     this.displayLabel = displayLabel;
+    this.org = org;
   }
   
-  private void initialize(String genKey)
+  private void initialize(String genKey, TestOrganizationInfo org)
   {
     this.code = this.testDataSet.getTestDataKey() + genKey + "Code";
     this.displayLabel = this.testDataSet.getTestDataKey() + " " + genKey + " Display Label";
+    this.org = org;
   }
 
   public String getCode()
@@ -88,14 +96,48 @@ public class TestHierarchyTypeInfo
   
   public ServerHierarchyType getServerObject()
   {
+    return this.getServerObject(false);
+  }
+  
+  public ServerHierarchyType getServerObject(boolean forceFetch)
+  {
+    if (this.serverObj != null && !forceFetch)
+    {
+      return this.serverObj;
+    }
+    
     Optional<HierarchyType> hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code);
     
     if (hierarchyType.isPresent())
     {
-      return ServerHierarchyType.get(getCode());
+      this.serverObj = ServerHierarchyType.get(getCode());
+      return this.serverObj;
     }
     
     return null;
+  }
+  
+  public TestOrganizationInfo getOrganization()
+  {
+    return this.org;
+  }
+  
+  public HierarchyType toDTO()
+  {
+    LocalizedValue displayLabel = new LocalizedValue(this.displayLabel);
+    LocalizedValue description = new LocalizedValue(this.displayLabel);
+    
+    HierarchyType ht = new HierarchyType(this.code, displayLabel, description, this.getOrganization().getCode());
+    
+    return ht;
+  }
+  
+  @Request
+  public void apply()
+  {
+    HierarchyType dto = this.toDTO();
+    
+    this.serverObj = new ServerHierarchyTypeBuilder().createHierarchyType(dto);
   }
   
   @Request

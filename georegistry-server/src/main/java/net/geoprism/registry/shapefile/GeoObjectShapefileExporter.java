@@ -265,7 +265,7 @@ public class GeoObjectShapefileExporter
     List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
 
     // Add the type ancestor fields
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(this.type, this.hierarchy.getCode());
 
     String[] types = new String[ancestors.size()];
 
@@ -358,7 +358,7 @@ public class GeoObjectShapefileExporter
     }
 
     // Add the type ancestor fields
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(this.type, this.hierarchy.getCode());
+    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(this.type, this.hierarchy.getCode());
 
     ancestors.forEach(ancestor -> {
 

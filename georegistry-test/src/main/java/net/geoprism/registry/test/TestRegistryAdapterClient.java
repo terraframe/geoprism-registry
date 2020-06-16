@@ -77,7 +77,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     this.getMetadataCache().rebuild();
     
-    GeoObjectType[] gots = this.getGeoObjectTypes(new String[]{});
+    GeoObjectType[] gots = this.getGeoObjectTypes(new String[]{}, new String[]{});
 
     for (GeoObjectType got : gots)
     {
@@ -146,11 +146,12 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObject(this.controller.updateGeoObject(this.clientRequest, jGeoObj));
   }
   
-  public GeoObjectType[] getGeoObjectTypes(String[] codes)
+  public GeoObjectType[] getGeoObjectTypes(String[] codes, String[] hierarchies)
   {
     String saCodes = this.serialize(codes);
+    String saHierarchies = this.serialize(hierarchies);
     
-    return responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.clientRequest, saCodes));
+    return responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.clientRequest, saCodes, saHierarchies));
   }
   
   public HierarchyType[] getHierarchyTypes(String[] codes)

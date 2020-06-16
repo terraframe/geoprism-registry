@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.GeoprismUser;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -33,6 +34,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -45,8 +47,8 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.gis.geo.Universal;
-
 
 public class Organization extends OrganizationBase
 {
@@ -192,20 +194,22 @@ public class Organization extends OrganizationBase
   }
 
   /**
-   * Return a map of {@link GeoObjectType} codes and labels for this {@link Organization}.
+   * Return a map of {@link GeoObjectType} codes and labels for this
+   * {@link Organization}.
    * 
-   * @return a map of {@link GeoObjectType} codes and labels for this {@link Organization}.
+   * @return a map of {@link GeoObjectType} codes and labels for this
+   *         {@link Organization}.
    */
   public Map<String, LocalizedValue> getGeoObjectTypes()
   {
     // For performance, get all of the universals defined
-    List<? extends EntityDAOIF> universalList =  ObjectCache.getCachedEntityDAOs(Universal.CLASS);
-    
+    List<? extends EntityDAOIF> universalList = ObjectCache.getCachedEntityDAOs(Universal.CLASS);
+
     Map<String, LocalizedValue> typeCodeMap = new HashMap<String, LocalizedValue>();
-    
+
     for (EntityDAOIF entityDAOIF : universalList)
     {
-      Universal universal = (Universal)BusinessFacade.get(entityDAOIF);
+      Universal universal = (Universal) BusinessFacade.get(entityDAOIF);
 
       // Check to see if the universal is owned by the organization role.
       String ownerId = universal.getOwnerOid();
@@ -217,10 +221,10 @@ public class Organization extends OrganizationBase
         typeCodeMap.put(geoObjectTypeCode, LocalizedValueConverter.convert(universal.getDisplayLabel()));
       }
     }
-    
+
     return typeCodeMap;
   }
-  
+
   /**
    * Creates a {@link RoleDAOIF} for this {@link Organization}.
    * 
@@ -356,7 +360,7 @@ public class Organization extends OrganizationBase
   }
 
   public static List<? extends Organization> getOrganizations()
-  {    
+  {
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getDisplayLabel().localize());
 
@@ -364,26 +368,27 @@ public class Organization extends OrganizationBase
   }
 
   /**
-   * Returns all of the organizations as {@link Organization} objects from the cache unsorted
-   * instead of fetching from the database.
+   * Returns all of the organizations as {@link Organization} objects from the
+   * cache unsorted instead of fetching from the database.
+   * 
    * @return
    */
   public static List<Organization> getOrganizationsFromCache()
   {
     // For performance, get all of the universals defined
-    List<? extends EntityDAOIF> organizationDAOs =  ObjectCache.getCachedEntityDAOs(Organization.CLASS);
-    
+    List<? extends EntityDAOIF> organizationDAOs = ObjectCache.getCachedEntityDAOs(Organization.CLASS);
+
     List<Organization> organizationList = new LinkedList<Organization>();
-    
+
     for (EntityDAOIF entityDAOIF : organizationDAOs)
     {
-      Organization organization = (Organization)BusinessFacade.get(entityDAOIF);
+      Organization organization = (Organization) BusinessFacade.get(entityDAOIF);
       organizationList.add(organization);
     }
-    
+
     return organizationList;
   }
-  
+
   public OrganizationDTO toDTO()
   {
     return new OrganizationDTO(this.getCode(), LocalizedValueConverter.convert(this.getDisplayLabel()), LocalizedValueConverter.convert(this.getContactInfo()));
@@ -405,50 +410,6 @@ public class Organization extends OrganizationBase
       return result;
     }
   }
-  
-  /**
-   * Returns true if the provided actor has permission to this organization. 
-   */
-  public boolean doesActorHavePermission(SingleActorDAOIF actor)
-  {
-    Set<RoleDAOIF> roles = actor.authorizedRoles();
-    
-    for (RoleDAOIF role : roles)
-    {
-      String roleName = role.getRoleName();
-      
-      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
-      {
-        String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-        
-        if (orgCode.equals(this.getCode()))
-        {
-          return true;
-        }
-      }
-      else if (RegistryRole.Type.isSRA_Role(roleName))
-      {
-        return true;
-      }
-    }
-    
-    return false;
-  }
-  
-  /**
-   * Throws an exception if the provided actor does not have permissions to this
-   * organization. Uses {{Organization.doesActorHavePermission}} to check permissions.
-   * 
-   * @param actor
-   */
-  public void enforceActorHasPermission(SingleActorDAOIF actor)
-  {
-    if (!this.doesActorHavePermission(actor))
-    {
-      OrganizationRAException ex = new OrganizationRAException();
-      throw ex;
-    }
-  }
 
   /**
    * @param org
@@ -457,7 +418,7 @@ public class Organization extends OrganizationBase
    */
   public static boolean isRegistryAdmin(Organization org)
   {
-    String roleName = RegistryRole.Type.getRA_RoleName((org.getCode()));
+    String roleName = RegistryRole.Type.getRA_RoleName( ( org.getCode() ));
 
     final SessionIF session = Session.getCurrentSession();
 
@@ -475,6 +436,15 @@ public class Organization extends OrganizationBase
    */
   public static boolean isMember(Organization org)
   {
-    return true;
+    final SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      final SingleActor user = GeoprismUser.getCurrentUser();
+
+      return OrganizationUser.exists(org, user);
+    }
+
+    return false;
   }
 }

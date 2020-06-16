@@ -1,10 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import { Subscription, Observable } from 'rxjs';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subscription, interval } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PublishModalComponent } from './publish-modal.component';
@@ -44,7 +42,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	isContributor: boolean;
 
 
-	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, authService: AuthService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService) {
 
 		this.isAdmin = authService.isAdmin();
 		this.isMaintainer = this.isAdmin || authService.isMaintainer();
@@ -58,7 +56,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 			this.onPageChange(1);
 		});
 
-		this.pollingData = Observable.interval(5000).subscribe(() => {
+		this.pollingData = interval(5000).subscribe(() => {
 			this.onPageChange(this.page.pageNumber);
 		});
 	}
@@ -66,6 +64,10 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	ngOnDestroy() {
 		this.pollingData.unsubscribe();
 	}
+
+	//isGeoObjectTypeRM(type: string): boolean {
+	//	return this.authService.isGeoObjectTypeRM(type);
+	//}
 
 	onDeleteMasterListVersion( oid: string ): void {
 		this.service.deleteMasterListVersion( oid ).then(data =>{
@@ -123,6 +125,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		});
 		this.bsModalRef.content.readonly = true;
 		this.bsModalRef.content.master = this.list;
+		this.bsModalRef.content.isNew = false;
 	}
 
 

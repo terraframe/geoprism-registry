@@ -32,7 +32,7 @@
                             <table id="manage-organizations-table" class="list-table table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th></th>
+                                        <th *ngIf="isSRA"></th>
                                         <th>
                                             <localize key="settings.manage.orgs.table.code.header"></localize>
                                         </th>
@@ -46,7 +46,7 @@
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let org of organizations">
-                                        <td class="button-column">
+                                        <td *ngIf="isSRA" class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"  [title]="'account.editTooltip' | localize"></a> 
                                             <a class="fa fa-trash-o ico-remove" (click)="onRemoveOrganization(org.code, org.code)" [title]="'account.removeTooltip' | localize" ></a>
                                         </td>
@@ -56,7 +56,7 @@
 
                                         
                                     </tr>
-                                    <tr>
+                                    <tr *ngIf="isSRA">
                                         <td class="button-column">
                                             <a class="fa fa-plus" (click)="newOrganization()" [title]="'account.newTooltip' | localize"></a>
                                         </td>
@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isAdmin" class="row">
+            <div *ngIf="isSRA || isRA" class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.accounts.heading"></localize></h3>
 
@@ -95,7 +95,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isAdmin" class="row">
+            <div *ngIf="isSRA" class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.localization.heading"></localize></h3>
 
@@ -134,7 +134,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isAdmin" class="row">
+            <div *ngIf="isSRA" class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.branding.heading"></localize></h3>
 
@@ -144,7 +144,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isAdmin" class="row" style="margin-bottom: 30px;">
+            <div *ngIf="isSRA" class="row" style="margin-bottom: 30px;">
                 <div class="col-md-12">
                     <h3><localize key="settings.email.heading"></localize></h3>
                      

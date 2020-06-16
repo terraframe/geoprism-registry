@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/finally';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+// import 'rxjs/add/operator/toPromise';
+import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListVersion } from '../../model/registry';
@@ -74,6 +74,7 @@ export class MasterListHistoryComponent implements OnInit {
 		});
 		this.bsModalRef.content.readonly = true;
 		this.bsModalRef.content.master = this.list;
+		this.bsModalRef.content.isNew = false;
 	}
 
 

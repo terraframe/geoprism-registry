@@ -21,12 +21,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { FileUploadModule } from 'ng2-file-upload/ng2-file-upload';
-import { CustomFormsModule } from 'ng2-validation'
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { ModalModule } from 'ngx-bootstrap/modal'
+import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
 
 import { SystemLogoService } from './service/system-logo.service';
 import { EmailService } from './service/email.service';
@@ -61,8 +57,6 @@ import '../rxjs-extensions';
         ReactiveFormsModule,
         FileUploadModule,
         NgxPaginationModule,
-        PasswordStrengthBarModule,
-        CustomFormsModule,
         SharedModule,
         AdminRoutingModule
     ],

@@ -23,22 +23,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
-
-import net.geoprism.DataUploader;
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.GeoprismUser;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.GeoObjectEditorController;
-import net.geoprism.registry.etl.ImportError.ErrorResolution;
-import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.service.GeoSynonymService;
-import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.json.JSONArray;
@@ -56,8 +40,23 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
+
+import net.geoprism.DataUploader;
+import net.geoprism.DefaultConfiguration;
+import net.geoprism.GeoprismUser;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.controller.GeoObjectEditorController;
+import net.geoprism.registry.etl.ImportError.ErrorResolution;
+import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.service.GeoSynonymService;
+import net.geoprism.registry.service.RegistryIdService;
+import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ETLService
 {
@@ -568,7 +567,7 @@ public class ETLService
         String typeCode = config.getString("typeCode");
         String label = config.getString("label");
         
-        ServerGeoObjectIF go = new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
+        ServerGeoObjectIF go = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObjectByCode(code, typeCode);
         
         response = new GeoSynonymService().createGeoEntitySynonym(sessionId, go.getRunwayId(), label);
       }

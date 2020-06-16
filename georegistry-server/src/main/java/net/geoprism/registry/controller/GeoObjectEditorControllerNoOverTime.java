@@ -49,9 +49,10 @@ import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectEditorControllerNoOverTime
@@ -131,7 +132,7 @@ public class GeoObjectEditorControllerNoOverTime
       // Update the master list record
       if (masterListId != null)
       {
-        ServerGeoObjectService service = new ServerGeoObjectService();
+        ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
         ServerGeoObjectIF geoObject = service.getGeoObject(go);
 
         if (!isNew)
@@ -171,7 +172,7 @@ public class GeoObjectEditorControllerNoOverTime
 
       if (shouldRemove)
       {
-        RegistryService.getInstance().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
       }
     }
 
@@ -191,7 +192,7 @@ public class GeoObjectEditorControllerNoOverTime
       if (!alreadyExists)
       {
         GeoObject parent = ptnParent.getGeoObject();
-        RegistryService.getInstance().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
       }
     }
   }

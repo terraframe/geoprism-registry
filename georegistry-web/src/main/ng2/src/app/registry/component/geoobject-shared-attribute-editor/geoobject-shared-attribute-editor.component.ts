@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { DatePipe } from '@angular/common';
 
 import { LocalizedValue } from '../../../shared/model/core';
@@ -97,11 +97,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.postGeoObject = new GeoObjectOverTime( this.geoObjectType, JSON.parse( JSON.stringify( this.postGeoObject ) ).attributes ); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
         }
 
-        this.attributeForm.statusChanges.subscribe( result => {
-            this.isValid = ( result === "VALID" || result === "DISABLED" );
+        // this.attributeForm.statusChanges.subscribe( result => {
+        //     this.isValid = ( result === "VALID" || result === "DISABLED" );
 
-            this.valid.emit( this.isValid );
-        } );
+        //     this.valid.emit( this.isValid );
+        // } );
 
         if ( this.attributeExcludes != null ) {
             this.geoObjectAttributeExcludes.push.apply( this.geoObjectAttributeExcludes, this.attributeExcludes );
@@ -123,6 +123,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         this.calculate();
+    }
+
+    ngAfterViewInit() {
+         this.attributeForm.statusChanges.subscribe( result => {
+            this.isValid = ( result === "VALID" || result === "DISABLED" );
+
+            this.valid.emit( this.isValid );
+        } );
     }
 
     ngOnChanges( changes: SimpleChanges ) {
@@ -282,7 +290,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 let attrOpts = attr.rootTerm.children;
 
                 if ( attr.code === "status" ) {
-                    return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                    return Utils.removeStatuses(attrOpts);
                 }
                 else {
                     return attrOpts;

@@ -13,18 +13,18 @@ import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-job
 import { JobComponent } from './component/scheduled-jobs/job.component';
 import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
 
-import { MaintainerGuard, ContributerGuard } from '../shared/service/guard.service';
+import { MaintainerGuard, ContributerGuard, AuthGuard } from '../shared/service/guard.service';
 
 const routes: Routes = [
     {
         path: '',
         component: HierarchyComponent,
-        canActivate: [MaintainerGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: 'hierarchies',
         component: HierarchyComponent,
-        canActivate: [MaintainerGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: 'data',
@@ -39,27 +39,27 @@ const routes: Routes = [
     {
         path: 'master-lists',
         component: MasterListManagerComponent,
-        canActivate: [ContributerGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: 'scheduled-jobs',
         component: ScheduledJobsComponent,
-        canActivate: [ContributerGuard]
+        canActivate: [MaintainerGuard]
     },
     {
         path: 'job/:oid',
         component: JobComponent,
-        canActivate: [ContributerGuard]
+        canActivate: [MaintainerGuard]
     },
     {
         path: 'master-list/:oid/:published',
         component: MasterListComponent,
-        canActivate: [ContributerGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: 'master-list-view/:oid',
         component: MasterListViewComponent,
-        canActivate: [ContributerGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: 'change-request',
@@ -69,7 +69,7 @@ const routes: Routes = [
     {
         path: 'tasks',
         component: TaskViewerComponent,
-        canActivate: [ContributerGuard]
+        canActivate: [MaintainerGuard]
     }
 ];
 

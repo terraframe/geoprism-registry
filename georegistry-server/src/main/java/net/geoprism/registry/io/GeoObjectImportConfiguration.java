@@ -383,7 +383,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       String hCode = config.getString(HIERARCHY);
 
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-      List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getAncestors(got, hCode);
+      List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(got, hCode);
 
       this.setHierarchy(hierarchyType);
 

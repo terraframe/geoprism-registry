@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -64,6 +63,10 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -76,6 +79,8 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -86,7 +91,6 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.NonUniqueResultException;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -107,12 +111,14 @@ public class GeoObjectImporter implements ObjectImporterIF
   protected ImportProgressListenerIF       progressListener;
 
   protected FormatSpecificImporterIF       formatImporter;
+  
+  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
 
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
-    this.service = new ServerGeoObjectService();
+    this.service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
     this.parentCache = new HashMap<String, ServerGeoObjectIF>();
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
@@ -234,9 +240,14 @@ public class GeoObjectImporter implements ObjectImporterIF
       ServerGeoObjectType type = this.configuration.getType();
       if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
       {
-        Operation op = (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY) ? Operation.CREATE : Operation.WRITE;
-        
-        type.enforceActorHasPermission(Session.getCurrentSession().getUser(), op, false);
+        if (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY)
+        {
+          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        }
+        else
+        {
+          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        }
       }
       
       /*
@@ -438,8 +449,10 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY))
           {
-            DataNotFoundException ex = new DataNotFoundException();
+            net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+            ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
             ex.setDataIdentifier(geoId);
+            ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
             throw ex;
           }
 

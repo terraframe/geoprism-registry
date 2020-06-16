@@ -20,7 +20,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { Application } from '../../../shared/model/application';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';

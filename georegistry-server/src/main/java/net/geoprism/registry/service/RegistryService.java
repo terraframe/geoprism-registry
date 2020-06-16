@@ -37,7 +37,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,6 +48,7 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
@@ -69,9 +69,7 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
@@ -79,14 +77,19 @@ import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
+import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
+import net.geoprism.registry.model.OrganizationMetadata;
+import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.LookupRestriction;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class RegistryService
@@ -97,7 +100,7 @@ public class RegistryService
 
   protected RegistryService()
   {
-    this.service = new ServerGeoObjectService();
+    this.service = new ServerGeoObjectService(new GeoObjectPermissionService());
   }
 
   public static RegistryService getInstance()
@@ -208,10 +211,14 @@ public class RegistryService
     
     if (object == null)
     {
-	  DataNotFoundException ex = new DataNotFoundException();
-	  ex.setDataIdentifier(uid);
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(uid);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
       throw ex;
     }
+    
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType().getCode());
 
     return object.toGeoObject();
   }
@@ -223,10 +230,18 @@ public class RegistryService
     
     if (object == null)
     {
-	  DataNotFoundException ex = new DataNotFoundException();
-	  ex.setDataIdentifier(code);
+//	  DataNotFoundException ex = new DataNotFoundException();
+//	  ex.setDataIdentifier(code);
+//      throw ex;
+      
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(code);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
       throw ex;
     }
+    
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType().getCode());
 
     return object.toGeoObject();
   }
@@ -235,7 +250,7 @@ public class RegistryService
   public GeoObject createGeoObject(String sessionId, String jGeoObj)
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
-
+    
     ServerGeoObjectIF object = service.apply(geoObject, true, false);
 
     return object.toGeoObject();
@@ -262,14 +277,17 @@ public class RegistryService
   {
     ServerGeoObjectType child = ServerGeoObjectType.get(code);
 
-    return ServiceFactory.getUtilities().getAncestors(child, hierarchyCode);
+    return ServiceFactory.getUtilities().getTypeAncestors(child, hierarchyCode);
   }
 
   @Request(RequestType.SESSION)
   public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
-    return object.getChildGeoObjects(childrenTypes, recursive).toNode();
+    
+    ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive);
+    
+    return node.toNode(true);
   }
 
   @Request(RequestType.SESSION)
@@ -282,26 +300,7 @@ public class RegistryService
       object.setDate(forDate);
     }
 
-    return object.getParentGeoObjects(parentTypes, recursive).toNode();
-  }
-
-  @Request(RequestType.SESSION)
-  public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
-  {
-    ServerGeoObjectIF parent = this.service.getGeoObject(parentId, parentGeoObjectTypeCode);
-    ServerGeoObjectIF child = this.service.getGeoObject(childId, childGeoObjectTypeCode);
-    ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
-
-    return parent.addChild(child, ht).toNode();
-  }
-
-  @Request(RequestType.SESSION)
-  public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
-  {
-    ServerGeoObjectIF parent = this.service.getGeoObject(parentId, parentGeoObjectTypeCode);
-    ServerGeoObjectIF child = this.service.getGeoObject(childId, childGeoObjectTypeCode);
-
-    parent.removeChild(child, hierarchyCode);
+    return object.getParentGeoObjects(parentTypes, recursive).toNode(true);
   }
 
   public GeoObjectQuery createQuery(String typeCode)
@@ -330,7 +329,7 @@ public class RegistryService
     
     if (codes == null || codes.length == 0)
     {
-      OrganizationDTO[] cachedOrgs = adapter.getMetadataCache().getAllOrganizations();
+      List<OrganizationDTO> cachedOrgs = adapter.getMetadataCache().getAllOrganizations();
       
       for (OrganizationDTO cachedOrg : cachedOrgs)
       {
@@ -349,8 +348,10 @@ public class RegistryService
         }
         else
         {
-          DataNotFoundException ex = new DataNotFoundException();
+          net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+          ex.setTypeLabel(OrganizationMetadata.get().getClassDisplayLabel());
           ex.setDataIdentifier(codes[i]);
+          ex.setAttributeLabel(OrganizationMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
       }
@@ -363,9 +364,7 @@ public class RegistryService
     {
       OrganizationDTO orgDTO = it.next();
       
-      Organization org = Organization.getByKey(orgDTO.getCode());
-      
-      if (!org.doesActorHavePermission(actor))
+      if (!ServiceFactory.getOrganizationPermissionService().canActorRead(actor, orgDTO.getCode()))
       {
         it.remove();
       }
@@ -431,6 +430,9 @@ public class RegistryService
   public void deleteOrganization(String sessionId, String code)
   {
     Organization organization = Organization.getByKey(code);
+    
+    ServiceFactory.getOrganizationPermissionService().enforceActorCanDelete(Session.getCurrentSession().getUser());
+    
     organization.delete();
     
     // If this did not error out then remove from the cache
@@ -452,32 +454,11 @@ public class RegistryService
    *         {@link GeoObjectType}s if no codes are provided.
    */
   @Request(RequestType.SESSION)
-  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes)
+  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, String[] hierarchies)
   {
-    if (codes == null || codes.length == 0)
-    {
-      return adapter.getMetadataCache().getAllGeoObjectTypes();
-    }
-
-    GeoObjectType[] gots = new GeoObjectType[codes.length];
-
-    for (int i = 0; i < codes.length; ++i)
-    {
-      Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(codes[i]);
-
-      if (optional.isPresent())
-      {
-        gots[i] = optional.get();
-      }
-      else
-      {
-    	DataNotFoundException ex = new DataNotFoundException();
-    	ex.setDataIdentifier(codes[i]);
-        throw ex;
-      }
-    }
-
-    return gots;
+    List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes, hierarchies);
+    
+    return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }
 
   /**
@@ -522,8 +503,11 @@ public class RegistryService
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(),geoObjectType.getOrganizationCode(), geoObjectType.getLabel().getValue());
 
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
+    
     serverGeoObjectType.update(geoObjectType);
 
     return serverGeoObjectType.getType();
@@ -546,6 +530,9 @@ public class RegistryService
   public AttributeType createAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
     return attrType;
@@ -567,6 +554,9 @@ public class RegistryService
   public AttributeType updateAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    
     AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
     return attrType;
@@ -589,6 +579,9 @@ public class RegistryService
   public void deleteAttributeType(String sessionId, String gtId, String attributeName)
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
+    
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    
     got.removeAttribute(attributeName);
   }
 
@@ -753,149 +746,24 @@ public class RegistryService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
     
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getLabel().getValue());
+    
     if (type != null)
     {
       type.delete();
     }
   }
 
-  /**
-   * Returns the {@link HierarchyType}s with the given codes or all
-   * {@link HierarchyType}s if no codes are provided.
-   * 
-   * @param sessionId
-   * @param codes
-   *          codes of the {@link HierarchyType}s.
-   * @return the {@link HierarchyType}s with the given codes or all
-   *         {@link HierarchyType}s if no codes are provided.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes)
-  {
-    if (codes == null || codes.length == 0)
-    {
-      return adapter.getMetadataCache().getAllHierarchyTypes();
-    }
-
-    List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
-    for (String code : codes)
-    {
-      Optional<HierarchyType> oht = adapter.getMetadataCache().getHierachyType(code);
-
-      if (oht.isPresent())
-      {
-        hierarchyTypeList.add(oht.get());
-      }
-    }
-
-    HierarchyType[] hierarchies = hierarchyTypeList.toArray(new HierarchyType[hierarchyTypeList.size()]);
-
-    return hierarchies;
-  }
-
-  /**
-   * Create the {@link HierarchyType} from the given JSON.
-   * 
-   * @param sessionId
-   * @param htJSON
-   *          JSON of the {@link HierarchyType} to be created.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType createHierarchyType(String sessionId, String htJSON)
-  {
-    String code = GeoRegistryUtil.createHierarchyType(htJSON);
-
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    return adapter.getMetadataCache().getHierachyType(code).get();
-  }
-
-  /**
-   * Updates the given {@link HierarchyType} represented as JSON.
-   * 
-   * @param sessionId
-   * @param gtJSON
-   *          JSON of the {@link HierarchyType} to be updated.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType updateHierarchyType(String sessionId, String htJSON)
-  {
-    HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
-
-    ServerHierarchyType type = ServerHierarchyType.get(hierarchyType);
-    type.update(hierarchyType);
-
-    return type.getType();
-  }
-
-  /**
-   * Deletes the {@link HierarchyType} with the given code.
-   * 
-   * @param sessionId
-   * @param code
-   *          code of the {@link HierarchyType} to delete.
-   */
-  @Request(RequestType.SESSION)
-  public void deleteHierarchyType(String sessionId, String code)
-  {
-    ServerHierarchyType type = ServerHierarchyType.get(code);
-    type.delete();
-
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    // No error at this point so the transaction completed successfully.
-    adapter.getMetadataCache().removeHierarchyType(code);
-  }
-
-  /**
-   * Adds the {@link GeoObjectType} with the given child code to the parent
-   * {@link GeoObjectType} with the given code for the given
-   * {@link HierarchyType} code.
-   * 
-   * @param sessionId
-   * @param hierarchyTypeCode
-   *          code of the {@link HierarchyType} the child is being added to.
-   * @param parentGeoObjectTypeCode
-   *          parent {@link GeoObjectType}.
-   * @param childGeoObjectTypeCode
-   *          child {@link GeoObjectType}.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
-    ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
-    type.addToHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode);
-
-    return type.getType();
-  }
-
-  /**
-   * Removes the {@link GeoObjectType} with the given child code from the parent
-   * {@link GeoObjectType} with the given code for the given
-   * {@link HierarchyType} code.
-   * 
-   * @param sessionId
-   * @param hierarchyCode
-   *          code of the {@link HierarchyType} the child is being added to.
-   * @param parentGeoObjectTypeCode
-   *          parent {@link GeoObjectType}.
-   * @param childGeoObjectTypeCode
-   *          child {@link GeoObjectType}.
-   */
-  @Request(RequestType.SESSION)
-  public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
-  {
-    ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
-    type.removeChild(parentGeoObjectTypeCode, childGeoObjectTypeCode);
-
-    return type.getType();
-  }
-
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode, Date date)
   {
-    if (date != null)
+    if (date == null)
     {
+      date = ValueOverTime.INFINITY_END_DATE;
+    }
+    
+//    if (date != null)
+//    {
       final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
       ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
@@ -907,53 +775,58 @@ public class RegistryService
       final List<ServerGeoObjectIF> results = query.getResults();
 
       JsonArray array = new JsonArray();
+      
+      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
 
       for (ServerGeoObjectIF object : results)
       {
-        JsonObject result = new JsonObject();
-        result.addProperty("id", object.getRunwayId());
-        result.addProperty("name", object.getDisplayLabel().getValue());
-        result.addProperty(GeoObject.CODE, object.getCode());
-        result.addProperty(GeoObject.UID, object.getUid());
-
-        array.add(result);
+        if (ServiceFactory.getGeoObjectPermissionService().canRead(actor, object.getType().getOrganization().getCode(), object.getType().getCode()))
+        {
+          JsonObject result = new JsonObject();
+          result.addProperty("id", object.getRunwayId());
+          result.addProperty("name", object.getDisplayLabel().getValue());
+          result.addProperty(GeoObject.CODE, object.getCode());
+          result.addProperty(GeoObject.UID, object.getUid());
+  
+          array.add(result);
+        }
       }
 
       return array;
 
-    }
-    else
-    {
-      GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
-      query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
-      query.setLimit(10);
-
-      GeoObjectIterator it = query.getIterator();
-
-      try
-      {
-        JsonArray results = new JsonArray();
-
-        while (it.hasNext())
-        {
-          GeoObject object = it.next();
-
-          JsonObject result = new JsonObject();
-          result.addProperty("id", it.currentOid());
-          result.addProperty("name", object.getLocalizedDisplayLabel());
-          result.addProperty(GeoObject.CODE, object.getCode());
-          result.addProperty(GeoObject.UID, object.getUid());
-
-          results.add(result);
-        }
-
-        return results;
-      }
-      finally
-      {
-        it.close();
-      }
-    }
+//    }
+//    else
+//    {
+//      GeoObjectQuery query = ServiceFactory.getRegistryService().createQuery(typeCode);
+//      query.setRestriction(new LookupRestriction(text, parentCode, hierarchyCode));
+//      query.setLimit(10);
+//
+//      GeoObjectIterator it = query.getIterator();
+//
+//      try
+//      {
+//        JsonArray results = new JsonArray();
+//
+//        while (it.hasNext())
+//        {
+//          GeoObject object = it.next();
+//
+//          JsonObject result = new JsonObject();
+//          result.addProperty("id", it.currentOid());
+//          result.addProperty("name", object.getLocalizedDisplayLabel());
+//          result.addProperty(GeoObject.CODE, object.getCode());
+//          result.addProperty(GeoObject.UID, object.getUid());
+//
+//          results.add(result);
+//        }
+//
+//        return results;
+//      }
+//      finally
+//      {
+//        it.close();
+//      }
+//    }
   }
 
   @Request(RequestType.SESSION)
@@ -994,9 +867,7 @@ public class RegistryService
     JsonObject jsonObject = go.toJSON(serializer);
     joResp.put("geoObject", new JSONObject(jsonObject.toString()));
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(go.getType());
-
-    JsonArray hierarchies = AdapterUtilities.getInstance().getHierarchiesForType(type, true);
+    JsonArray hierarchies = ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, go.getType().getCode(), true);
 
     joResp.put("hierarchies", new JSONArray(hierarchies.toString()));
 
@@ -1040,28 +911,11 @@ public class RegistryService
   // }
 
   @Request(RequestType.SESSION)
-  public JsonArray getHierarchiesForType(String sessionId, String code, Boolean includeTypes)
-  {
-    ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(code);
-
-    return ServiceFactory.getUtilities().getHierarchiesForType(geoObjectType, includeTypes);
-  }
-
-  @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode)
   {
     ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
 
     return geoObject.getHierarchiesForGeoObject();
-  }
-
-  @Request(RequestType.SESSION)
-  public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
-  {
-    ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
-    ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
-
-    return pot.toJSON();
   }
 
   @Request(RequestType.SESSION)
@@ -1112,6 +966,8 @@ public class RegistryService
   public GeoObjectOverTime updateGeoObjectOverTime(String sessionId, String jGeoObj)
   {
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
+    
+    ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), goTime.getType().getCode());
 
     ServerGeoObjectIF object = service.apply(goTime, false, false);
 
@@ -1122,6 +978,8 @@ public class RegistryService
   public GeoObjectOverTime createGeoObjectOverTime(String sessionId, String jGeoObj)
   {
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
+    
+    ServiceFactory.getGeoObjectPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), goTime.getType().getCode());
 
     ServerGeoObjectIF object = service.apply(goTime, true, false);
 
@@ -1135,10 +993,14 @@ public class RegistryService
     
     if (object == null)
     {
-      DataNotFoundException ex = new DataNotFoundException();
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
       ex.setDataIdentifier(id);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
       throw ex;
     }
+    
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType().getCode());
 
     return object.toGeoObjectOverTime();
   }

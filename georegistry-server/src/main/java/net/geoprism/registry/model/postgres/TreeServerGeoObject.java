@@ -56,7 +56,6 @@ import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.CreatePermissionException;
-import com.runwaysdk.session.DeletePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.WritePermissionException;
@@ -78,6 +77,8 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -85,11 +86,9 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
-import net.geoprism.registry.roles.DeleteGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class TreeServerGeoObject extends RelationalServerGeoObject implements ServerGeoObjectIF
@@ -529,7 +528,7 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
 
     ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn, null);
 
-    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
 
     /*
      * Handle leaf node children

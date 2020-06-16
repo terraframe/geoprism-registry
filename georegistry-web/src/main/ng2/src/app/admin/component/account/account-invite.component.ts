@@ -17,79 +17,72 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { Account, UserInvite } from '../../model/account';
 import { Organization } from '../../model/settings';
 
 import { SettingsService } from '../../service/settings.service'
 import { AccountService } from '../../service/account.service';
-import { AccountComponent } from './account.component';
 
 
-@Component( {
-    selector: 'account-invite',
-    templateUrl: './account-invite.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
-} )
+@Component({
+	selector: 'account-invite',
+	templateUrl: './account-invite.component.html',
+	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+})
 export class AccountInviteComponent implements OnInit {
-    invite: UserInvite;
-    message: string = null;
-    roleIds: string[] = [];
-    organization: Organization;
-    organizations: Organization[];
+	invite: UserInvite;
+	message: string = null;
+	roleIds: string[] = [];
+	organization: Organization;
+	organizations: Organization[];
 
-    constructor(
-        private service: AccountService,
-        private route: ActivatedRoute,
-        private location: Location,
-        public bsModalRef: BsModalRef,
-        public settingsService: SettingsService ) {
-    }
+	constructor(
+		private service: AccountService,
+		public bsModalRef: BsModalRef,
+		public settingsService: SettingsService) {
+	}
 
-    ngOnInit(): void {
-      this.invite = new UserInvite();
-  
-      this.service.newInvite().then(( account: Account ) => {
-        this.invite.roles = account.roles;
-      } ).catch(( err: HttpErrorResponse ) => {
-        this.error( err );
-      } );
-  
-      // this.settingsService.getOrganizations().then(orgs => {
-      //     this.organizations = orgs
-      // }).catch((err: HttpErrorResponse) => {
-      //     this.error(err);
-      // });
-    }
+	ngOnInit(): void {
+		this.invite = new UserInvite();
 
-    cancel(): void {
-        this.bsModalRef.hide();
-    }
-    
-    onRoleIdsUpdate(event): void {
-      this.roleIds = event;
-    }
+		this.service.newInvite().then((account: Account) => {
+			this.invite.roles = account.roles;
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 
-    onSubmit(): void {
-        this.service.inviteUser( this.invite, this.roleIds ).then( response => {
-            this.bsModalRef.hide();
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
-    }
+		// this.settingsService.getOrganizations().then(orgs => {
+		//     this.organizations = orgs
+		// }).catch((err: HttpErrorResponse) => {
+		//     this.error(err);
+		// });
+	}
 
-    error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
-    }
+	cancel(): void {
+		this.bsModalRef.hide();
+	}
+
+	onRoleIdsUpdate(roleIds: string[]): void {
+		this.roleIds = roleIds;
+	}
+
+	onSubmit(): void {
+		this.service.inviteUser(this.invite, this.roleIds).then(() => {
+			this.bsModalRef.hide();
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
+	error(err: HttpErrorResponse): void {
+		// Handle error
+		if (err !== null) {
+			this.message = (err.error.localizedMessage || err.error.message || err.message);
+		}
+	}
 }

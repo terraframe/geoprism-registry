@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { MasterList } from '../../model/registry';
 import { RegistryService } from '../../service/registry.service';
@@ -49,6 +49,7 @@ export class MasterListViewComponent implements OnInit {
 		});
 		this.bsModalRef.content.readonly = true;
 		this.bsModalRef.content.master = this.list;
+		this.bsModalRef.content.isNew = false;
 	}
 
 
