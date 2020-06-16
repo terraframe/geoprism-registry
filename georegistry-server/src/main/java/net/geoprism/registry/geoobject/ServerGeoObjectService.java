@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -41,6 +42,8 @@ import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectExporter;
+import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -216,13 +219,6 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public ServerGeoObjectIF getGeoObjectByCode(String code, String typeCode)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-    
-    if (type == null)
-    {
-      DataNotFoundException ex = new DataNotFoundException();
-      ex.setDataIdentifier(typeCode);
-      throw ex;
-    }
     
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {

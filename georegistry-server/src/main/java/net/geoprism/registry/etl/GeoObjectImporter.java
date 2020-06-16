@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -80,6 +79,8 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -448,8 +449,10 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY))
           {
-            DataNotFoundException ex = new DataNotFoundException();
+            net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+            ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
             ex.setDataIdentifier(geoId);
+            ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
             throw ex;
           }
 

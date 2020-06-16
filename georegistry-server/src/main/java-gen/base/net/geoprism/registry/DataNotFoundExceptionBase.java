@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1836869847)
+@com.runwaysdk.business.ClassSignature(hash = -1172561813)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,9 +11,11 @@ package net.geoprism.registry;
 public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.DataNotFoundException";
+  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
   public static java.lang.String DATAIDENTIFIER = "dataIdentifier";
   public static java.lang.String OID = "oid";
-  private static final long serialVersionUID = 1836869847;
+  public static java.lang.String TYPELABEL = "typeLabel";
+  private static final long serialVersionUID = -1172561813;
   
   public DataNotFoundExceptionBase()
   {
@@ -51,6 +35,34 @@ public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.S
   public DataNotFoundExceptionBase(java.lang.Throwable cause)
   {
     super(cause);
+  }
+  
+  public String getAttributeLabel()
+  {
+    return getValue(ATTRIBUTELABEL);
+  }
+  
+  public void validateAttributeLabel()
+  {
+    this.validateAttribute(ATTRIBUTELABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAttributeLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.DataNotFoundException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ATTRIBUTELABEL);
+  }
+  
+  public void setAttributeLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(ATTRIBUTELABEL, "");
+    }
+    else
+    {
+      setValue(ATTRIBUTELABEL, value);
+    }
   }
   
   public String getDataIdentifier()
@@ -97,6 +109,34 @@ public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.S
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
+  public String getTypeLabel()
+  {
+    return getValue(TYPELABEL);
+  }
+  
+  public void validateTypeLabel()
+  {
+    this.validateAttribute(TYPELABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypeLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.DataNotFoundException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPELABEL);
+  }
+  
+  public void setTypeLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(TYPELABEL, "");
+    }
+    else
+    {
+      setValue(TYPELABEL, value);
+    }
+  }
+  
   protected String getDeclaredType()
   {
     return CLASS;
@@ -105,8 +145,10 @@ public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.S
   public java.lang.String localize(java.util.Locale locale)
   {
     java.lang.String message = super.localize(locale);
+    message = replace(message, "{attributeLabel}", this.getAttributeLabel());
     message = replace(message, "{dataIdentifier}", this.getDataIdentifier());
     message = replace(message, "{oid}", this.getOid());
+    message = replace(message, "{typeLabel}", this.getTypeLabel());
     return message;
   }
   

@@ -6,12 +6,13 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
@@ -57,8 +58,10 @@ public class GeoObjectTypeService
         }
         else
         {
-          DataNotFoundException ex = new DataNotFoundException();
+          net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+          ex.setTypeLabel(GeoObjectTypeMetadata.get().getClassDisplayLabel());
           ex.setDataIdentifier(codes[i]);
+          ex.setAttributeLabel(GeoObjectTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
       }
