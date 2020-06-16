@@ -29,6 +29,8 @@ import { PendingChangesGuard } from './service/pending-changes-guard';
 
 import { AuthService } from './service/auth.service';
 import { ProfileService } from './service/profile.service';
+import { OrganizationService } from './service/organization.service';
+import { ExternalSystemService } from './service/external-system.service';
 import { LocalizationService } from './service/localization.service';
 import { ProgressService } from './service/progress.service';
 import { EventService } from './service/event.service';
@@ -128,6 +130,8 @@ export class SharedModule {
 				AuthService,
 				SessionService,
 				ProfileService,
+				OrganizationService,
+				ExternalSystemService,
 				LocalizationService,
 				ModalStepIndicatorService,
 				EventService,

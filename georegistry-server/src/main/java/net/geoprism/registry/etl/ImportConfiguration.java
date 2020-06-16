@@ -21,11 +21,12 @@ package net.geoprism.registry.etl;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-
-import org.json.JSONObject;
 
 abstract public class ImportConfiguration
 {
@@ -45,6 +46,8 @@ abstract public class ImportConfiguration
   
   public static final String EXTERNAL_ATTR_NAME = "external";
   
+  public static final String EXTERNAL_SYSTEM_ID = "externalSystemId";
+  
   protected String formatType;
   
   protected String objectType;
@@ -56,6 +59,8 @@ abstract public class ImportConfiguration
   protected String vaultFileId;
   
   protected String fileName;
+  
+  protected String externalSystemId;
   
   protected LinkedList<RecordedErrorException> errors = new LinkedList<RecordedErrorException>();
   
@@ -167,6 +172,21 @@ abstract public class ImportConfiguration
     this.objectType = objectType;
   }
   
+  public ExternalSystem getExternalSystem()
+  {
+    return ExternalSystem.get(externalSystemId);
+  }
+  
+  public String getExternalSystemId()
+  {
+    return externalSystemId;
+  }
+
+  public void setExternalSystemId(String externalSystemId)
+  {
+    this.externalSystemId = externalSystemId;
+  }
+
   public void fromJSON(String json)
   {
     JSONObject jo = new JSONObject(json);
@@ -189,6 +209,8 @@ abstract public class ImportConfiguration
     this.importStrategy = ImportStrategy.valueOf(jo.getString(IMPORT_STRATEGY));
     
     this.fileName = jo.getString(FILE_NAME);
+    
+    this.externalSystemId = jo.getString(EXTERNAL_SYSTEM_ID);
   }
   
   protected void toJSON(JSONObject jo)
@@ -200,6 +222,7 @@ abstract public class ImportConfiguration
     jo.put(VAULT_FILE_ID, this.vaultFileId);
     jo.put(IMPORT_STRATEGY, this.importStrategy.name());
     jo.put(FILE_NAME, this.fileName);
+    jo.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
   }
   
   abstract public JSONObject toJSON();

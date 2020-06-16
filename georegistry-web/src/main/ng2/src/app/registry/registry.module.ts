@@ -54,8 +54,7 @@ import { SimpleEditControl } from './component/geoobject-editor-map/simple-edit-
 import { CascadingGeoSelector } from './component/cascading-geo-selector/cascading-geo-selector';
 import { ManageParentVersionsModalComponent } from './component/cascading-geo-selector/manage-parent-versions-modal.component';
 import { ActionDetailModalComponent } from './component/crtable/action-detail/action-detail-modal.component';
-import { ShapefileComponent } from './component/importer/shapefile.component';
-import { SpreadsheetComponent } from './component/importer/spreadsheet.component';
+import { DataImporterComponent } from './component/importer/dataimporter.component';
 import { DataExportComponent } from './component/data-export/data-export.component';
 import { MasterListComponent } from './component/master-list/master-list.component';
 import { PublishedMasterListHistoryComponent } from './component/master-list/published-master-list-history.component';
@@ -155,8 +154,7 @@ import '../rxjs-extensions';
 		ManageParentVersionsModalComponent,
 		ActionDetailModalComponent,
 		HierarchyComponent,
-		ShapefileComponent,
-		SpreadsheetComponent,
+		DataImporterComponent,
 		DataExportComponent,
 		// Master List screens
 		MasterListManagerComponent,

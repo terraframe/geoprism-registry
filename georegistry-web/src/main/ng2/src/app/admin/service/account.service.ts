@@ -25,7 +25,9 @@ import { finalize } from 'rxjs/operators';
 
 import { EventService } from '../../shared/service/event.service'
 
-import { Account, User, PageResult, UserInvite } from '../model/account';
+import { Account, User, UserInvite } from '../model/account';
+
+import { PageResult } from '../../shared/model/core'
 
 declare var acp: any;
 

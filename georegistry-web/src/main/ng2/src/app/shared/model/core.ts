@@ -12,6 +12,31 @@ export class LocaleValue {
   }
 }
 
+export class Organization {
+  code: string;
+  label: any;
+  contactInfo: any;
+}
+
+export class ExternalSystem {
+  oid?: string;
+  id: string;
+  type: string;
+  organization: string;
+  label: LocalizedValue;
+  description: LocalizedValue;
+  username?:string;
+  password?:string;
+  url?:string;
+}
+
+export class PageResult<T> {
+  count: number;
+  pageNumber: number;
+  pageSize: number;
+  resultSet: T[];
+}
+
 export class LocalizedValue {
   localizedValue: string;
   localeValues: LocaleValue[];

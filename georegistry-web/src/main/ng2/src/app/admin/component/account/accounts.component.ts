@@ -24,7 +24,9 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 
-import { User, PageResult } from '../../model/account';
+import { PageResult } from '../../../shared/model/core';
+
+import { User } from '../../model/account';
 import { AccountService } from '../../service/account.service';
 import { AccountComponent } from './account.component';
 

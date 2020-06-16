@@ -1,3 +1,4 @@
+
 <form #form="ngForm">
     <div class="form-group row" *ngIf="types">
         <label class="col-md-3 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
@@ -8,17 +9,26 @@
             </select>
         </div>
     </div>
+    <div *ngIf="isExternal" class="form-group row">
+        <label class="col-md-3 text-right" for="externalSystem">
+            <localize key="io.import.externalSystems"></localize>
+        </label>
+        <div class="col-md-9">
+            <select id="externalSystem" name="externalSystem" class="select-area" [(ngModel)]="externalSystemId" required>
+                <option *ngFor="let externalSystem of externalSystems" value={{externalSystem.oid}}>{{externalSystem.label.localizedValue}}</option>
+            </select>
+        </div>
+    </div>
     <div class="form-group row">
-        <!-- <div class="col-md-12"> -->
         <label class="col-md-3 text-right" for="strategy">
-            <localize key="shapefile.import.import.strategy"></localize>
+            <localize *ngIf="this.format === 'EXCEL'" key="spreadsheet.import.import.strategy"></localize>
+            <localize *ngIf="this.format === 'SHAPEFILE'" key="shapefile.import.import.strategy"></localize>
         </label>
         <div class="col-md-9">
             <select id="strategy" name="strategy" class="select-area" [(ngModel)]="importStrategy" required>
                 <option *ngFor="let strategy of importStrategies" value={{strategy.strategy}}>{{strategy.label}}</option>
             </select>
         </div>
-        <!-- </div> -->
     </div>
     <div class="form-group row">
         <label class="col-md-3 text-right" for="startDate"><localize key="io.startDate"></localize></label>
@@ -26,11 +36,14 @@
             <input class="ghost-input" name="startDate" [(ngModel)]="startDate" type="date" required />
         </div>
     </div>
-    <div class="form-group row"></div>
     <div class="form-group row">
-        <label class="col-md-3 text-right" for="file"> <localize key="io.shapefile"></localize></label>
+        <label class="col-md-3 text-right" for="file">
+          <localize *ngIf="this.format === 'EXCEL'" key="io.spreadsheet"></localize>
+          <localize *ngIf="this.format === 'SHAPEFILE'" key="io.shapefile"></localize>
+        </label>
         <div class="col-md-9">
-            <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".zip" required />
+          <input *ngIf="this.format === 'EXCEL'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".xls, .xlsx" required />
+          <input *ngIf="this.format === 'SHAPEFILE'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".zip" required />
         </div>
     </div>
     <div class="form-group row">
@@ -41,3 +54,4 @@
         </div>
     </div>
 </form>
+

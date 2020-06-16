@@ -30,8 +30,8 @@
 				</div>
 
 				<div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
-					<spreadsheet *ngIf="content === 'SPREADSHEET'"></spreadsheet>
-					<shapefile *ngIf="content === 'SHAPEFILE'"></shapefile>
+					<dataimporter *ngIf="content === 'SPREADSHEET'" [format]="'EXCEL'" [isExternal]=true></dataimporter>
+					<dataimporter *ngIf="content === 'SHAPEFILE'" [format]="'SHAPEFILE'" [isExternal]=true></dataimporter>
 					<!-- <data-export *ngIf="content === 'EXPORT'"></data-export> -->
 				</div>
 				

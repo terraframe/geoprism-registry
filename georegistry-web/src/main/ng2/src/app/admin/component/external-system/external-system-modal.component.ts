@@ -23,8 +23,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { ExternalSystem, Organization } from '../../model/settings';
+import { ExternalSystem, Organization } from '../../../shared/model/core';
 import { SettingsService } from '../../service/settings.service';
+import { ExternalSystemService } from '../../../shared/service/external-system.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
 @Component({
@@ -49,7 +50,7 @@ export class ExternalSystemModalComponent implements OnInit {
 
 	public onSuccess: Subject<ExternalSystem>;
 
-	constructor(private service: SettingsService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
+	constructor(private service: SettingsService, private systemService: ExternalSystemService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
 
 	ngOnInit(): void {
 		this.onSuccess = new Subject();
@@ -60,7 +61,7 @@ export class ExternalSystemModalComponent implements OnInit {
 	}
 
 	onSubmit(): void {
-			this.service.applyExternalSystem(this.system).then(data => {
+			this.systemService.applyExternalSystem(this.system).then(data => {
 				this.onSuccess.next(data);
 				this.bsModalRef.hide();
 			}).catch((err: HttpErrorResponse) => {

@@ -29,7 +29,7 @@ import { HierarchyNode, HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
 import { templateJitUrl } from '@angular/compiler';
-import { Organization } from '../../admin/model/settings';
+import { Organization } from '../../shared/model/core';
 
 declare var acp: any;
 
