@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.postgres;
 
@@ -79,6 +79,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -289,7 +290,7 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       this.getBusiness().appLock();
     }
   }
-  
+
   @Override
   public void unlock()
   {
@@ -331,12 +332,12 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       else
       {
         List<String> attrLabels = new ArrayList<String>();
-        
+
         for (AttributeIF attr : e.getAttributes())
         {
           attrLabels.add(this.getAttributeLabel(attr));
         }
-        
+
         DuplicateGeoObjectMultipleException ex = new DuplicateGeoObjectMultipleException();
         ex.setAttributeLabels(StringUtils.join(attrLabels, ", "));
         throw ex;
@@ -374,19 +375,19 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       throw goex;
     }
   }
-  
+
   public String getAttributeLabel(AttributeIF attr)
   {
     if (attr.getName().equals(ElementInfo.KEY) || attr.getName().equals(ElementInfo.OID) || attr.getName().equals(GeoEntity.GEOID))
     {
       return this.getType().getAttribute(DefaultAttribute.CODE.getName()).get().getLabel().getValue();
     }
-    
+
     if (this.getType().getAttribute(attr.getName()).isPresent())
     {
       return this.getType().getAttribute(attr.getName()).get().getLabel().getValue();
     }
-    
+
     return attr.getDisplayLabel(Session.getCurrentLocale());
   }
 
@@ -533,61 +534,66 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
     /*
      * Handle leaf node children
      */
-// Heads up: Clean up
-//    if (childrenTypes != null)
-//    {
-//      for (int i = 0; i < childrenTypes.length; ++i)
-//      {
-//        ServerGeoObjectType childType = ServerGeoObjectType.get(childrenTypes[i]);
-//
-//        if (childType.isLeaf())
-//        {
-//          if (ArrayUtils.contains(childrenTypes, childType.getCode()))
-//          {
-//            List<MdAttributeDAOIF> mdAttributes = childType.definesAttributes().stream().filter(mdAttribute -> {
-//              if (mdAttribute instanceof MdAttributeReferenceDAOIF)
-//              {
-//                MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
-//
-//                if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
-//                {
-//                  return true;
-//                }
-//              }
-//
-//              return false;
-//            }).collect(Collectors.toList());
-//
-//            for (MdAttributeDAOIF mdAttribute : mdAttributes)
-//            {
-//              ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
-//
-//              BusinessQuery query = new QueryFactory().businessQuery(childType.definesType());
-//              query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parent.getRunwayId()));
-//
-//              OIterator<Business> it = query.getIterator();
-//
-//              try
-//              {
-//                List<Business> children = it.getAll();
-//
-//                for (Business child : children)
-//                {
-//                  // Do something
-//                  ServerGeoObjectIF goChild = service.build(childType, child);
-//
-//                  tnRoot.addChild(new ServerChildTreeNode(goChild, ht, null));
-//                }
-//              }
-//              finally
-//              {
-//                it.close();
-//              }
-//            }
-//          }
-//        }
-//      }
-//    }
+    // Heads up: Clean up
+    // if (childrenTypes != null)
+    // {
+    // for (int i = 0; i < childrenTypes.length; ++i)
+    // {
+    // ServerGeoObjectType childType =
+    // ServerGeoObjectType.get(childrenTypes[i]);
+    //
+    // if (childType.isLeaf())
+    // {
+    // if (ArrayUtils.contains(childrenTypes, childType.getCode()))
+    // {
+    // List<MdAttributeDAOIF> mdAttributes =
+    // childType.definesAttributes().stream().filter(mdAttribute -> {
+    // if (mdAttribute instanceof MdAttributeReferenceDAOIF)
+    // {
+    // MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF)
+    // mdAttribute ).getReferenceMdBusinessDAO();
+    //
+    // if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
+    // {
+    // return true;
+    // }
+    // }
+    //
+    // return false;
+    // }).collect(Collectors.toList());
+    //
+    // for (MdAttributeDAOIF mdAttribute : mdAttributes)
+    // {
+    // ServerHierarchyType ht =
+    // AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
+    //
+    // BusinessQuery query = new
+    // QueryFactory().businessQuery(childType.definesType());
+    // query.WHERE(query.get(mdAttribute.definesAttribute()).EQ(parent.getRunwayId()));
+    //
+    // OIterator<Business> it = query.getIterator();
+    //
+    // try
+    // {
+    // List<Business> children = it.getAll();
+    //
+    // for (Business child : children)
+    // {
+    // // Do something
+    // ServerGeoObjectIF goChild = service.build(childType, child);
+    //
+    // tnRoot.addChild(new ServerChildTreeNode(goChild, ht, null));
+    // }
+    // }
+    // finally
+    // {
+    // it.close();
+    // }
+    // }
+    // }
+    // }
+    // }
+    // }
 
     /*
      * Handle tree node children

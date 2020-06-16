@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -54,7 +54,6 @@ import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -64,8 +63,8 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Envelope;
@@ -83,6 +82,7 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
 import net.geoprism.registry.io.TermValueException;
@@ -760,14 +760,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return internalGetParentOverTime(this, parentTypes, recursive);
   }
-  
+
   @Override
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
   {
     parentsOverTime.enforceUserHasPermissionSetParents(this.getCode());
-    
+
     final Collection<ServerHierarchyType> hierarchyTypes = parentsOverTime.getHierarchies();
-    
+
     for (ServerHierarchyType hierarchyType : hierarchyTypes)
     {
       final List<ServerParentTreeNode> entries = parentsOverTime.getEntries(hierarchyType);
@@ -779,7 +779,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       for (ServerParentTreeNode entry : entries)
       {
         final ServerGeoObjectIF parent = entry.getGeoObject();
-        
+
         EdgeObject newEdge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
         newEdge.setValue(GeoVertex.START_DATE, entry.getDate());
 
@@ -1213,6 +1213,48 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.vertex.addChild(synonym, GeoVertex.HAS_SYNONYM).apply();
 
     return synonym.getOid();
+  }
+
+  private EdgeObject getExternalIdEdge(ExternalSystem system)
+  {
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+
+    String statement = "SELECT FROM " + mdEdge.getDBClassName();
+    statement += " WHERE out = :parent";
+    statement += " AND in = :child";
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
+    query.setParameter("parent", system.getRID());
+    query.setParameter("child", this.getVertex().getRID());
+
+    return query.getSingleResult();
+  }
+
+  @Override
+  public void createExternalId(ExternalSystem system, String id)
+  {
+    EdgeObject edge = this.getExternalIdEdge(system);
+
+    if (edge == null)
+    {
+      edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
+    }
+
+    edge.setValue("id", id);
+    edge.apply();
+  }
+
+  @Override
+  public String getExternalId(ExternalSystem system)
+  {
+    EdgeObject edge = this.getExternalIdEdge(system);
+
+    if (edge != null)
+    {
+      return edge.getObjectValue("id");
+    }
+
+    return null;
   }
 
   public static VertexObject getVertex(ServerGeoObjectType type, String uuid)

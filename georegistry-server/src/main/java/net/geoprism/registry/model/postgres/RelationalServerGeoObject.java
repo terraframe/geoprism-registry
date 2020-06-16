@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.postgres;
 
@@ -57,6 +57,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.model.AbstractServerGeoObject;
 import net.geoprism.registry.model.LocationInfo;
@@ -119,7 +120,7 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     {
       oid = status.getOid();
     }
-    
+
     this.getBusiness().setValue(DefaultAttribute.STATUS.getName(), oid);
   }
 
@@ -412,6 +413,18 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
   }
 
   @Override
+  public void createExternalId(ExternalSystem system, String id)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getExternalId(ExternalSystem system)
+  {
+    throw new UnsupportedOperationException("External Ids only supported with Vertex GeoObjects.");
+  }
+
+  @Override
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
   {
     return GeoObjectUtil.getAncestorMap(this.toGeoObject(), hierarchy);
@@ -422,85 +435,91 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
     ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
 
     ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, null);
-// Heads up: Clean up
-//    if (child.getType().isLeaf())
-//    {
-//      List<MdAttributeDAOIF> mdAttributes = child.getMdAttributeDAOs().stream().filter(mdAttribute -> {
-//        if (mdAttribute instanceof MdAttributeReferenceDAOIF)
-//        {
-//          MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF) mdAttribute ).getReferenceMdBusinessDAO();
-//
-//          if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
-//          {
-//            return true;
-//          }
-//        }
-//
-//        return false;
-//      }).collect(Collectors.toList());
-//
-//      mdAttributes.forEach(mdAttribute -> {
-//
-//        String parentRunwayId = (String) child.getValue(mdAttribute.definesAttribute());
-//
-//        if (parentRunwayId != null && parentRunwayId.length() > 0)
-//        {
-//          GeoEntity geParent = GeoEntity.get(parentRunwayId);
-//          ServerGeoObjectIF parent = service.build(geParent);
-//          Universal uni = parent.getType().getUniversal();
-//
-//          if (parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()))
-//          {
-//            ServerParentTreeNode tnParent;
-//
-//            ServerHierarchyType ht = AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
-//
-//            if (recursive)
-//            {
-//              tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
-//            }
-//            else
-//            {
-//              tnParent = new ServerParentTreeNode(parent, ht, null);
-//            }
-//
-//            tnRoot.addParent(tnParent);
-//          }
-//        }
-//      });
-//
-//    }
-//    else
-//    {
-      String[] relationshipTypes = TermUtil.getAllChildRelationships(child.getRunwayId());
+    // Heads up: Clean up
+    // if (child.getType().isLeaf())
+    // {
+    // List<MdAttributeDAOIF> mdAttributes =
+    // child.getMdAttributeDAOs().stream().filter(mdAttribute -> {
+    // if (mdAttribute instanceof MdAttributeReferenceDAOIF)
+    // {
+    // MdBusinessDAOIF referenceMdBusiness = ( (MdAttributeReferenceDAOIF)
+    // mdAttribute ).getReferenceMdBusinessDAO();
+    //
+    // if (referenceMdBusiness.definesType().equals(GeoEntity.CLASS))
+    // {
+    // return true;
+    // }
+    // }
+    //
+    // return false;
+    // }).collect(Collectors.toList());
+    //
+    // mdAttributes.forEach(mdAttribute -> {
+    //
+    // String parentRunwayId = (String)
+    // child.getValue(mdAttribute.definesAttribute());
+    //
+    // if (parentRunwayId != null && parentRunwayId.length() > 0)
+    // {
+    // GeoEntity geParent = GeoEntity.get(parentRunwayId);
+    // ServerGeoObjectIF parent = service.build(geParent);
+    // Universal uni = parent.getType().getUniversal();
+    //
+    // if (parentTypes == null || parentTypes.length == 0 ||
+    // ArrayUtils.contains(parentTypes, uni.getKey()))
+    // {
+    // ServerParentTreeNode tnParent;
+    //
+    // ServerHierarchyType ht =
+    // AttributeHierarchy.getHierarchyType(mdAttribute.getKey());
+    //
+    // if (recursive)
+    // {
+    // tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent,
+    // parentTypes, recursive, ht);
+    // }
+    // else
+    // {
+    // tnParent = new ServerParentTreeNode(parent, ht, null);
+    // }
+    //
+    // tnRoot.addParent(tnParent);
+    // }
+    // }
+    // });
+    //
+    // }
+    // else
+    // {
+    String[] relationshipTypes = TermUtil.getAllChildRelationships(child.getRunwayId());
 
-      Map<String, ServerHierarchyType> htMap = child.getHierarchyTypeMap(relationshipTypes);
+    Map<String, ServerHierarchyType> htMap = child.getHierarchyTypeMap(relationshipTypes);
 
-      TermAndRel[] tnrParents = TermUtil.getDirectAncestors(child.getRunwayId(), relationshipTypes);
-      for (TermAndRel tnrParent : tnrParents)
+    TermAndRel[] tnrParents = TermUtil.getDirectAncestors(child.getRunwayId(), relationshipTypes);
+    for (TermAndRel tnrParent : tnrParents)
+    {
+      GeoEntity geParent = (GeoEntity) tnrParent.getTerm();
+      Universal uni = geParent.getUniversal();
+
+      if (!geParent.getOid().equals(GeoEntity.getRoot().getOid()) && ( parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()) ))
       {
-        GeoEntity geParent = (GeoEntity) tnrParent.getTerm();
-        Universal uni = geParent.getUniversal();
+        ServerGeoObjectIF parent = service.build(geParent);
+        ServerHierarchyType ht = htMap.get(tnrParent.getRelationshipType());
 
-        if (!geParent.getOid().equals(GeoEntity.getRoot().getOid()) && ( parentTypes == null || parentTypes.length == 0 || ArrayUtils.contains(parentTypes, uni.getKey()) ))
+        ServerParentTreeNode tnParent;
+        if (recursive)
         {
-          ServerGeoObjectIF parent = service.build(geParent);
-          ServerHierarchyType ht = htMap.get(tnrParent.getRelationshipType());
-
-          ServerParentTreeNode tnParent;
-          if (recursive)
-          {
-            tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
-          }
-          else
-          {
-            tnParent = new ServerParentTreeNode(parent, ht, null);
-          }
-
-          tnRoot.addParent(tnParent);
+          tnParent = RelationalServerGeoObject.internalGetParentGeoObjects(parent, parentTypes, recursive, ht);
         }
+        else
+        {
+          tnParent = new ServerParentTreeNode(parent, ht, null);
+        }
+
+        tnRoot.addParent(tnParent);
       }
-//    }
+    }
+    // }
 
     return tnRoot;
   }
