@@ -30,6 +30,7 @@ import com.runwaysdk.constants.ClientRequestIF;
 import net.geoprism.ClientConfigurationIF;
 import net.geoprism.DefaultClientConfiguration;
 import net.geoprism.GeoprismApplication;
+import net.geoprism.GeoprismVersionProperties;
 import net.geoprism.RoleConstants;
 import net.geoprism.RoleViewDTO;
 import net.geoprism.localization.LocalizationFacadeDTO;
@@ -98,6 +99,8 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     settings.addRole(RoleConstants.ADIM_ROLE);
     settings.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     settings.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     applications.add(settings);
     
     GeoprismApplication tasks = new GeoprismApplication();
@@ -209,6 +212,12 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
   public String getLoginUrl()
   {
     return "/cgr/manage#login";
+  }
+  
+  @Override
+  public String getServerVersion()
+  {
+    return RegistryVersionProperties.getInstance().getVersion();
   }
 
 }

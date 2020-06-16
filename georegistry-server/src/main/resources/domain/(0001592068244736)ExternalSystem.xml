@@ -107,7 +107,7 @@
       </mdVertex>   
       <mdEdge name="net.geoprism.registry.graph.ExternalID" label="External ID" parent="net.geoprism.registry.graph.ExternalSystem" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
         <attributes>
-          <text name="id" label="ID" required="true" size="255" />
+          <text name="id" label="ID" required="true" />
         </attributes>      
       </mdEdge>
        

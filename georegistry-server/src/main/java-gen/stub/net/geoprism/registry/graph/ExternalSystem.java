@@ -3,21 +3,18 @@ package net.geoprism.registry.graph;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
@@ -39,13 +36,11 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     if (organization != null)
     {
-      boolean isRA = ServiceFactory.getRolePermissionService().isRA(Session.getCurrentSession().getUser(), organization.getCode());
+      SessionIF session = Session.getCurrentSession();
 
-      if (!isRA)
+      if (session != null)
       {
-        OrganizationRAException exception = new OrganizationRAException();
-        exception.setOrganizationLabel(organization.getDisplayLabel().getValue());
-        throw exception;
+        ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), organization.getCode());
       }
     }
 

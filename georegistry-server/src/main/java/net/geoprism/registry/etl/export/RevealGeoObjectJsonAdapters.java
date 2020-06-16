@@ -2,6 +2,7 @@ package net.geoprism.registry.etl.export;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Locale;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -73,7 +74,11 @@ public class RevealGeoObjectJsonAdapters
           
           props.addProperty("externalId", go.getCode());
           
-          props.addProperty("name_en", go.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+          props.addProperty("name_en", go.getDisplayLabel().getValue(Locale.ENGLISH.toString()));
+          
+          props.addProperty("createDate", go.getCreateDate().getTime());
+          
+          props.addProperty("lastUpdateDate", go.getLastUpdateDate().getTime());
           
           if (this.includeLevel)
           {

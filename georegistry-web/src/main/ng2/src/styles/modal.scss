@@ -498,6 +498,7 @@ option[selected]{ font-weight:bold}
 	margin: 20px 0 0 0;
 	padding: 10px;
 }
+.button-holder .btn,
 .modal-form .button-holder .btn,
 .modal-form .button-holder .btn:hover,
 .modal-form .button-holder .btn:active,
@@ -507,6 +508,7 @@ option[selected]{ font-weight:bold}
 	/* margin:0 11px 0 0; */
 	outline:none;
 	border-width:1px;
+	margin-left: 5px;
 }
 
 

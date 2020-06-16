@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.postgres;
 
@@ -58,6 +58,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.AbstractServerGeoObject;
@@ -165,6 +166,18 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   }
 
   @Override
+  public void createExternalId(ExternalSystem system, String id)
+  {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public String getExternalId(ExternalSystem system)
+  {
+    throw new UnsupportedOperationException("External Ids only supported with Vertex GeoObjects.");
+  }
+
+  @Override
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
   {
     return GeoObjectUtil.getAncestorMap(this.toGeoObject(), hierarchy);
@@ -253,7 +266,7 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   {
     throw new UnsupportedOperationException();
   }
-  
+
   @Override
   public void unlock()
   {

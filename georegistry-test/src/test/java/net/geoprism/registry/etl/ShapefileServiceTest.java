@@ -51,7 +51,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -355,7 +354,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
     config.setHierarchy(hierarchyType);
@@ -387,7 +386,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
     config.setHierarchy(hierarchyType);
@@ -439,7 +438,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setFunction(this.testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setHierarchy(hierarchyType);
@@ -482,7 +481,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
     config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD")));
@@ -529,7 +528,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setParentLookupType(LookupType.CODE);
     config.setHierarchy(hierarchyType);
@@ -583,7 +582,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setParentLookupType(LookupType.CODE);
     config.setHierarchy(hierarchyType);
@@ -627,7 +626,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 
@@ -663,7 +662,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 
@@ -708,7 +707,7 @@ public class ShapefileServiceTest
 
       GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, testTerm);
 
-      ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
       config.setHierarchy(hierarchyType);
 
@@ -747,7 +746,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, testTerm);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 
@@ -789,7 +788,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
@@ -854,7 +853,7 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(LocatedIn.class.getSimpleName());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 

@@ -10,6 +10,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRAException;
@@ -52,13 +53,11 @@ public class ExternalSystemService
     ExternalSystem system = ExternalSystem.get(oid);
     Organization organization = system.getOrganization();
 
-    boolean isRA = ServiceFactory.getRolePermissionService().isRA(Session.getCurrentSession().getUser(), organization.getCode());
+    SessionIF session = Session.getCurrentSession();
 
-    if (!isRA)
+    if (session != null)
     {
-      OrganizationRAException exception = new OrganizationRAException();
-      exception.setOrganizationLabel(organization.getDisplayLabel().getValue());
-      throw exception;
+      ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), organization.getCode());
     }
 
     system.delete();

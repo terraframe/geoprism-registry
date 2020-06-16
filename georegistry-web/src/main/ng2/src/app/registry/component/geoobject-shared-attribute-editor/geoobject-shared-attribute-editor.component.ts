@@ -290,7 +290,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 let attrOpts = attr.rootTerm.children;
 
                 if ( attr.code === "status" ) {
-                    return Utils.removeStatuses( JSON.parse( JSON.stringify( attrOpts ) ) );
+                    return Utils.removeStatuses(attrOpts);
                 }
                 else {
                     return attrOpts;
