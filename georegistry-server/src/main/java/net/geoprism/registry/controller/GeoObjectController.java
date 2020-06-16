@@ -23,7 +23,7 @@ public class GeoObjectController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")
   public ResponseIF getAll(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode,
       @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "updatedSince") Long updatedSince,
-      @RequestParamter(name = "includeLevel") Boolean includeLevel, @RequestParamter(name = "format") String format,
+      @RequestParamter(name = "includeGeographicLevel") Boolean includeLevel, @RequestParamter(name = "format") String format,
       @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
   {
     Date dUpdatedSince = null;

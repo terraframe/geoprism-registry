@@ -30,6 +30,7 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.gis.geoserver.GeoserverFacade;
@@ -244,7 +245,7 @@ public class USATestData extends TestDataSet
   {
     if (this.includeData)
     {
-//      USA.getGeoEntity().addLink(GeoEntity.getRoot(), com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
+      USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
       USA.addChild(COLORADO, HIER_ADMIN);
       COLORADO.addChild(CO_D_ONE, HIER_ADMIN);

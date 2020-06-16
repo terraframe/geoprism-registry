@@ -42,7 +42,7 @@
 
 #app-container {
     background-image: url(../net/geoprism/images/homebackground.jpg);
-    background-size: 100%;
+    background-size: cover;
     background-repeat: no-repeat;
     
     min-height:100%;

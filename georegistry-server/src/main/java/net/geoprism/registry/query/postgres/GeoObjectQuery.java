@@ -61,6 +61,10 @@ public class GeoObjectQuery
   
   private Integer              pageNumber;
   
+  private String orderByAttribute;
+  
+  private SortOrder sortOrder;
+  
   public GeoObjectQuery(ServerGeoObjectType type)
   {
     this.type = type;
@@ -100,6 +104,12 @@ public class GeoObjectQuery
   {
     this.pageNumber = pageNumber;
     this.pageSize = pageSize;
+  }
+  
+  public void orderBy(String orderByAttribute, SortOrder sortOrder)
+  {
+    this.orderByAttribute = orderByAttribute;
+    this.sortOrder = sortOrder;
   }
 
   public ValueQuery getValueQuery()
@@ -168,7 +178,25 @@ public class GeoObjectQuery
       vQuery.restrictRows(this.limit, 1);
     }
     
-    vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
+    if (this.orderByAttribute != null && this.sortOrder != null)
+    {
+      if (this.orderByAttribute.equals(DefaultAttribute.CODE.getName()))
+      {
+        vQuery.ORDER_BY(geQuery.getGeoId(DefaultAttribute.CODE.getName()), this.sortOrder);
+      }
+      else if (this.orderByAttribute.equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
+      {
+        vQuery.ORDER_BY(geQuery.getLastUpdateDate(DefaultAttribute.LAST_UPDATE_DATE.getName()), this.sortOrder);
+      }
+      else
+      {
+        throw new UnsupportedOperationException();
+      }
+    }
+    else
+    {
+      vQuery.ORDER_BY_ASC(geQuery.getGeoId(DefaultAttribute.CODE.getName()));
+    }
   }
 // Heads up: Clean up
 //  protected void configureLeafQuery(ValueQuery vQuery, BusinessQuery bQuery)

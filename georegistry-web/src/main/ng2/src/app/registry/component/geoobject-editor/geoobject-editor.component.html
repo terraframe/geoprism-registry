@@ -1,4 +1,4 @@
-<div class="modal-body text-center">
+<div class="modal-body">
     
     <form class="modal-form" style="overflow: visible;" #goForm="ngForm">
         <!-- <div class="row-holder">
@@ -10,7 +10,7 @@
 
         <div class="row">
             <div class="col-md-12">
-            <error-message *ngIf="!areParentsValid" [message]="'geoobject.editor.modal.parents.must.be.assigned.message' | localize"></error-message>
+                <error-message *ngIf="!areParentsValid" [message]="'geoobject.editor.modal.parents.must.be.assigned.message' | localize"></error-message>
             </div>
         </div>
         <div class="row">
@@ -64,10 +64,13 @@
         </div>
         -->
 
-        <div *ngIf="!isMaintainer" class="row-holder">
+        <div *ngIf="!isMaintainer" class="row-holder" style="padding-top: 10px;">
             <div class="label-holder"><label><localize key="change.request.action.detail.contributorNotes"></localize></label></div>
-            <div class="holder">
-              <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="notes" name="notes" required></textarea>
+            <div class="holder text-left">
+              <textarea style="width: 100%;border-radius: 8px;height: 70px; padding:5px;" class="detail-value" [(ngModel)]="notes" name="notes" required></textarea>
+              <div class="form-input-validation-error-message-wrapper">
+                <p *ngIf="!notes" class="error-message">Notes are required.</p>
+              </div>
             </div>
         </div>
 

@@ -30,7 +30,7 @@
             <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
           </label>
           <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
-            class="form-control" required>
+            class="form-control" [required]="localeValue.locale === 'defaultLocale'">
         </div>
       </div>
     </div>

@@ -13,8 +13,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 
 
 import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, Attribute, 
-    AttributeTerm, AttributeDecimal, Term, ParentTreeNode, ImportError } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, ParentTreeNode, ImportError } from '../../model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 

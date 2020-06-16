@@ -74,7 +74,7 @@ export class CgrHeaderComponent {
       }
       else if (item === "SETTINGS")
       {
-        return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA);
+        return true;
       }
       else
       {
@@ -95,7 +95,6 @@ export class CgrHeaderComponent {
         let role: string = this.service.getRoleDisplayLabels();
         let name: string = this.service.getUsername();
 
-        name = name + " (" + role + ")";
         return name;
     }
 
