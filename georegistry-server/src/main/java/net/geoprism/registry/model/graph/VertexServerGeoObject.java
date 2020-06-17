@@ -1333,27 +1333,31 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (EdgeObject edge : edges)
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
-      VertexObject childVertex = edge.getChild();
-
-      MdVertexDAOIF mdVertex = (MdVertexDAOIF) childVertex.getMdClass();
-
-      ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
-      ServerGeoObjectType childType = ServerGeoObjectType.get(mdVertex);
-
-      VertexServerGeoObject child = new VertexServerGeoObject(childType, childVertex, date);
-
-      ServerChildTreeNode tnChild;
-
-      if (recursive)
+      
+      if(!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
       {
-        tnChild = internalGetChildGeoObjects(child, childrenTypes, recursive, ht, date);
+        VertexObject childVertex = edge.getChild();
+  
+        MdVertexDAOIF mdVertex = (MdVertexDAOIF) childVertex.getMdClass();
+  
+        ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
+        ServerGeoObjectType childType = ServerGeoObjectType.get(mdVertex);
+  
+        VertexServerGeoObject child = new VertexServerGeoObject(childType, childVertex, date);
+  
+        ServerChildTreeNode tnChild;
+  
+        if (recursive)
+        {
+          tnChild = internalGetChildGeoObjects(child, childrenTypes, recursive, ht, date);
+        }
+        else
+        {
+          tnChild = new ServerChildTreeNode(child, ht, date);
+        }
+  
+        tnRoot.addChild(tnChild);
       }
-      else
-      {
-        tnChild = new ServerChildTreeNode(child, ht, date);
-      }
-
-      tnRoot.addChild(tnChild);
     }
 
     return tnRoot;
@@ -1422,27 +1426,31 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (EdgeObject edge : edges)
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
-      VertexObject parentVertex = edge.getParent();
-
-      MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
-
-      ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
-      ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
-
-      VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
-
-      ServerParentTreeNode tnParent;
-
-      if (recursive)
+      
+      if(!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
       {
-        tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
+        VertexObject parentVertex = edge.getParent();
+  
+        MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
+  
+        ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
+        ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
+  
+        VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
+  
+        ServerParentTreeNode tnParent;
+  
+        if (recursive)
+        {
+          tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
+        }
+        else
+        {
+          tnParent = new ServerParentTreeNode(parent, ht, date);
+        }
+  
+        tnRoot.addParent(tnParent);
       }
-      else
-      {
-        tnParent = new ServerParentTreeNode(parent, ht, date);
-      }
-
-      tnRoot.addParent(tnParent);
     }
 
     return tnRoot;
@@ -1497,36 +1505,40 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (EdgeObject edge : edges)
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
-      ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
-
-      VertexObject parentVertex = edge.getParent();
-
-      MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
-
-      ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
-
-      Date date = edge.getObjectValue(GeoVertex.START_DATE);
-      Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
-
-      ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date);
-      tnRoot.setEndDate(endDate);
-
-      VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
-
-      ServerParentTreeNode tnParent;
-
-      if (recursive)
+      
+      if(!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
       {
-        tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
+        ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
+  
+        VertexObject parentVertex = edge.getParent();
+  
+        MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
+  
+        ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
+  
+        Date date = edge.getObjectValue(GeoVertex.START_DATE);
+        Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
+  
+        ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date);
+        tnRoot.setEndDate(endDate);
+  
+        VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
+  
+        ServerParentTreeNode tnParent;
+  
+        if (recursive)
+        {
+          tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
+        }
+        else
+        {
+          tnParent = new ServerParentTreeNode(parent, ht, date);
+        }
+  
+        tnRoot.addParent(tnParent);
+  
+        response.add(ht, tnRoot);
       }
-      else
-      {
-        tnParent = new ServerParentTreeNode(parent, ht, date);
-      }
-
-      tnRoot.addParent(tnParent);
-
-      response.add(ht, tnRoot);
     }
 
     return response;
