@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.etl.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class Location
@@ -29,11 +30,14 @@ public class Location
   private ServerGeoObjectType type;
 
   private ShapefileFunction   function;
+  
+  private ParentMatchStrategy          matchStrategy;
 
-  public Location(ServerGeoObjectType type, ShapefileFunction function)
+  public Location(ServerGeoObjectType type, ShapefileFunction function, ParentMatchStrategy matchStrategy)
   {
     this.type = type;
     this.function = function;
+    this.matchStrategy = matchStrategy;
   }
 
   public ServerGeoObjectType getType()
@@ -55,6 +59,16 @@ public class Location
   {
     this.function = function;
   }
+  
+  public ParentMatchStrategy getMatchStrategy()
+  {
+    return matchStrategy;
+  }
+
+  public void setMatchStrategy(ParentMatchStrategy matchStrategy)
+  {
+    this.matchStrategy = matchStrategy;
+  }
 
   public JSONObject toJSON()
   {
@@ -62,6 +76,7 @@ public class Location
     object.put("label", this.type.getLabel().getValue());
     object.put("code", this.type.getCode());
     object.put("target", this.function.toJson());
+    object.put(GeoObjectImportConfiguration.MATCH_STRATEGY, this.matchStrategy);
 
     return object;
   }

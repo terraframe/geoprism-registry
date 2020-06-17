@@ -88,8 +88,6 @@ export class DataImporterComponent implements OnInit {
    ) { }
 
 	ngOnInit(): void {
-	  console.log("format", this.format);
-	  
 	  this.sysService.getExternalSystems(1, 100).then(paginatedSystems => {
       
       this.externalSystems = paginatedSystems.resultSet;
@@ -147,15 +145,18 @@ export class DataImporterComponent implements OnInit {
 		};
 		this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
 			const configuration = JSON.parse(response);
-
-            if (this.format === "SHAPEFILE")
-		    {
-		      this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true });
-		    }
-		    else
-		    {
-		      this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-		    }
+			
+			configuration.isExternal = this.isExternal;
+			configuration.externalSystemId = this.externalSystemId;
+			
+      if (this.format === "SHAPEFILE")
+	    {
+	      this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true });
+	    }
+	    else
+	    {
+	      this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
+	    }
 
 			this.bsModalRef.content.configuration = configuration;
 		};

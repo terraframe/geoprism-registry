@@ -63,6 +63,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.upload.ExternalParentReferenceException;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
@@ -73,8 +74,8 @@ import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
-import net.geoprism.registry.io.LookupType;
 import net.geoprism.registry.io.ParentCodeException;
+import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
@@ -87,7 +88,6 @@ import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.NonUniqueResultException;
@@ -259,10 +259,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
       else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
       {
-        if (!this.configuration.getParentLookupType().equals(LookupType.CODE))
-        {
-          this.getParent(row);
-        }
+        this.getParent(row);
       }
 
       /*
@@ -525,15 +522,6 @@ public class GeoObjectImporter implements ObjectImporterIF
           go = serverGo.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
           
-          if (this.configuration.getFunction(ImportConfiguration.EXTERNAL_ATTR_NAME) != null)
-          {
-            ShapefileFunction function = this.configuration.getFunction(ImportConfiguration.EXTERNAL_ATTR_NAME);
-            
-            Object value = function.getValue(row);
-            
-            this.mapExternalId((String) value, serverGo);
-          }
-
           /*
            * Try to get the parent and ensure that this row is not ignored. The
            * getParent method will throw a IgnoreRowException if the parent is
@@ -557,6 +545,17 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
 
           serverGo.apply(true);
+          
+          
+          if (this.configuration.isExternalImport())
+          {
+            ShapefileFunction function = this.configuration.getExternalIdFunction();
+            
+            Object value = function.getValue(row);
+            
+            serverGo.createExternalId(this.configuration.getExternalSystem(), (String) value);
+          }
+          
 
           if (parent != null)
           {
@@ -616,11 +615,6 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
   }
-
-  private void mapExternalId(String externalId, ServerGeoObjectIF serverGO)
-  {
-    serverGO.createExternalId(this.configuration.getExternalSystem(), externalId);
-  }
   
   private boolean hasValue(LocalizedValue value)
   {
@@ -670,7 +664,6 @@ public class GeoObjectImporter implements ObjectImporterIF
    */
   private ServerGeoObjectIF getParent(FeatureRow feature)
   {
-    final LookupType lt = this.configuration.getParentLookupType();
     List<Location> locations = this.configuration.getLocations();
 
     ServerGeoObjectIF parent = null;
@@ -708,15 +701,17 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           continue;
         }
-
+        
+        final ParentMatchStrategy ms = location.getMatchStrategy();
+        
         // Search
         ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
 
-        if (lt.equals(LookupType.CODE))
+        if (ms.equals(ParentMatchStrategy.CODE))
         {
           query.setRestriction(new ServerCodeRestriction(label.toString()));
         }
-        else if (lt.equals(LookupType.EXTERNAL))
+        else if (ms.equals(ParentMatchStrategy.EXTERNAL))
         {
           query.setRestriction(new ServerExternalIdRestriction(this.getConfiguration().getExternalSystem(), label.toString()));
         }
@@ -758,7 +753,7 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
 
-            if (lt.equals(LookupType.CODE))
+            if (ms.equals(ParentMatchStrategy.CODE))
             {
               final ParentCodeException ex = new ParentCodeException();
               ex.setParentCode(label.toString());
@@ -767,15 +762,15 @@ public class GeoObjectImporter implements ObjectImporterIF
 
               throw ex;
             }
-            // TODO : Delete this code if we decide not to use it
-//            else if (lt.equals(LookupType.EXTERNAL))
-//            {
-//              final ExternalParentReferenceProblem prp = new ExternalParentReferenceProblem(location.getType().getCode(), label.toString(), context);
-//              prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
-//              prp.setHistoryId(this.configuration.historyId);
-//              
-//              this.progressListener.addReferenceProblem(prp);
-//            }
+            else if (ms.equals(ParentMatchStrategy.EXTERNAL))
+            {
+              final ExternalParentReferenceException ex = new ExternalParentReferenceException();
+              ex.setExternalId(label.toString());
+              ex.setParentType(location.getType().getLabel().getValue());
+              ex.setContext(context.toString());
+
+              throw ex;
+            }
             else
             {
               String parentCode = ( parent == null ) ? null : parent.getCode();

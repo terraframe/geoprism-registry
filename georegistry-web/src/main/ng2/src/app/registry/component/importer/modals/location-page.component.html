@@ -12,14 +12,30 @@
       
       <div class="form-group" *ngFor="let location of configuration.locations; let i = index;">
         <div class="row-holder">
-          <div class="label-holder">
-            <label> {{location.label}} </label>
-          </div>
-          <div class="holder">
-            <select class="select-area" [(ngModel)]="location.target" [name]="i + '-location'">
-              <option value=""></option>
-              <option *ngFor="let attr of configuration.sheet.attributes.text" [value]="attr">{{attr}}</option>
-            </select>
+          <div class="panel panel-default">
+            <div class="panel-heading"><label> {{location.label}} </label></div>
+            <div class="panel-body">
+              <div class="label-holder">
+                <label><localize key="io.import.modal.parent.source"></localize></label>
+              </div>
+              <div class="holder">
+                <select class="select-area" [(ngModel)]="location.target" [name]="i + '-location'">
+                  <option value=""></option>
+                  <option *ngFor="let attr of configuration.sheet.attributes.text" [value]="attr">{{attr}}</option>
+                </select>
+              </div>
+              <div class="label-holder">
+                <label><localize key="io.import.modal.parent.matchStrategy"></localize></label>
+              </div>
+              <div class="holder">
+                <select name="matchStrategy" class="select-area" [(ngModel)]="location.matchStrategy" required>
+			            <option></option>
+			            <option value="ALL"><localize key="io.modal.all"></localize></option>
+			            <option value="CODE"><localize key="io.modal.code"></localize></option>
+			            <option value="EXTERNAL"><localize key="io.modal.external"></localize></option>
+			          </select>
+              </div>
+            </div>
           </div>
         </div>
       </div>

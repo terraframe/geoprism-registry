@@ -14,6 +14,7 @@ export class Location {
 	label: string;
 	code: string;
 	target: string;
+	matchStrategy: string;
 }
 
 export class Term {
@@ -69,6 +70,8 @@ export class ImportConfiguration {
 	hierarchies: { code: string, label: string }[];
 	startDate: string;
 	endDate: string;
-	parentLookupType: string;
+	isExternal: string;
+	externalSystemId: string;
+	externalIdAttributeTarget: string;
 }
 

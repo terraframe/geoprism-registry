@@ -70,7 +70,23 @@
           </div>
         </div>
       </div>
+      
+      <div *ngIf="configuration.isExternal" class="form-group">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class=""><localize key="io.modal.external"></localize></label>
+          </div>
+          <div class="holder">
+            <select name="externalId" class="select-area"
+              [(ngModel)]="configuration.externalIdAttributeTarget" [required]="true">
+              <option></option>
+              <option *ngFor="let attr of configuration.sheet.attributes['text']" value={{attr}}>{{attr}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
+      <!--
       <div *ngIf="!configuration.hasPostalCode || !configuration.postalCode" class="form-group">
         <div class="row-holder">
           <div class="label-holder">
@@ -94,6 +110,7 @@
           </div>
         </div>
       </div>
+      -->
 
       <div class="form-group">
         <div class="row-holder">

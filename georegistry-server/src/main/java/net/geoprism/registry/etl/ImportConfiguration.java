@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -44,9 +45,11 @@ abstract public class ImportConfiguration
   
   public static final String IMPORT_STRATEGY  = "importStrategy";
   
-  public static final String EXTERNAL_ATTR_NAME = "external";
-  
   public static final String EXTERNAL_SYSTEM_ID = "externalSystemId";
+
+  private static final String IS_EXTERNAL = "isExternal";
+  
+  public static final String EXTERNAL_ID_ATTRIBUTE_TARGET = "externalIdAttributeTarget";
   
   protected String formatType;
   
@@ -60,7 +63,11 @@ abstract public class ImportConfiguration
   
   protected String fileName;
   
-  protected String externalSystemId;
+  protected Boolean isExternal;
+  
+  protected String externalSystemId = null;
+  
+  protected ShapefileFunction externalIdFunction = null;
   
   protected LinkedList<RecordedErrorException> errors = new LinkedList<RecordedErrorException>();
   
@@ -172,6 +179,11 @@ abstract public class ImportConfiguration
     this.objectType = objectType;
   }
   
+  public Boolean isExternalImport()
+  {
+    return this.isExternal;
+  }
+  
   public ExternalSystem getExternalSystem()
   {
     return ExternalSystem.get(externalSystemId);
@@ -185,6 +197,11 @@ abstract public class ImportConfiguration
   public void setExternalSystemId(String externalSystemId)
   {
     this.externalSystemId = externalSystemId;
+  }
+  
+  public ShapefileFunction getExternalIdFunction()
+  {
+    return this.externalIdFunction;
   }
 
   public void fromJSON(String json)
@@ -210,7 +227,20 @@ abstract public class ImportConfiguration
     
     this.fileName = jo.getString(FILE_NAME);
     
-    this.externalSystemId = jo.getString(EXTERNAL_SYSTEM_ID);
+    if (jo.has(EXTERNAL_SYSTEM_ID))
+    {
+      this.externalSystemId = jo.getString(EXTERNAL_SYSTEM_ID);
+    }
+    
+    if (jo.has(IS_EXTERNAL))
+    {
+      this.isExternal = jo.getBoolean(IS_EXTERNAL);
+    }
+    
+    if (jo.has(EXTERNAL_ID_ATTRIBUTE_TARGET))
+    {
+      this.externalIdFunction = new BasicColumnFunction(jo.getString(EXTERNAL_ID_ATTRIBUTE_TARGET));
+    }
   }
   
   protected void toJSON(JSONObject jo)
@@ -223,6 +253,12 @@ abstract public class ImportConfiguration
     jo.put(IMPORT_STRATEGY, this.importStrategy.name());
     jo.put(FILE_NAME, this.fileName);
     jo.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
+    jo.put(IS_EXTERNAL, this.isExternal);
+    
+    if (this.externalIdFunction != null)
+    {
+      jo.put(EXTERNAL_ID_ATTRIBUTE_TARGET, this.externalIdFunction.toJson());
+    }
   }
   
   abstract public JSONObject toJSON();

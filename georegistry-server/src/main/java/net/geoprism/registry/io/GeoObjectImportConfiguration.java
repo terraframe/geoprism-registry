@@ -100,8 +100,8 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public static final String       LATITUDE_KEY       = "georegistry.latitude.label";
 
   public static final String       DATE_FORMAT        = "yyyy-MM-dd";
-
-  public static final String       PARENT_LOOKUP_TYPE = "parentLookupType";
+  
+  public static final String       MATCH_STRATEGY = "matchStrategy";
 
   private ServerGeoObjectType      type;
 
@@ -121,8 +121,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private Date                     endDate;
 
-  private LookupType               parentLookupType;
-
   public GeoObjectImportConfiguration()
   {
     this.includeCoordinates = false;
@@ -130,7 +128,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
     this.postalCode = false;
-    this.parentLookupType = LookupType.ALL;
   }
 
   public boolean isIncludeCoordinates()
@@ -243,16 +240,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.postalCode = postalCode;
   }
 
-  public LookupType getParentLookupType()
-  {
-    return parentLookupType;
-  }
-
-  public void setParentLookupType(LookupType parentLookupType)
-  {
-    this.parentLookupType = parentLookupType;
-  }
-
   @Request
   @Override
   public JSONObject toJSON()
@@ -304,7 +291,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     config.put(GeoObjectImportConfiguration.TYPE, type);
     config.put(GeoObjectImportConfiguration.LOCATIONS, locations);
     config.put(GeoObjectImportConfiguration.POSTAL_CODE, this.isPostalCode());
-    config.put(GeoObjectImportConfiguration.PARENT_LOOKUP_TYPE, this.getParentLookupType().name());
 
     if (this.getStartDate() != null)
     {
@@ -359,7 +345,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.setType(got);
     this.setIncludeCoordinates(includeCoordinates);
     this.setPostalCode(config.has(POSTAL_CODE) && config.getBoolean(POSTAL_CODE));
-    this.setParentLookupType(config.has(PARENT_LOOKUP_TYPE) ? LookupType.valueOf(config.getString(PARENT_LOOKUP_TYPE)) : LookupType.ALL);
 
     try
     {
@@ -426,7 +411,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       if (attribute.has(TARGET))
       {
         String attributeName = attribute.getString(AttributeType.JSON_CODE);
-        String target = attribute.getString(TARGET);
+        String target = attribute.getString(TARGET); // In the case of a spreadsheet, this ends up being the column header
 
         if (attribute.has("locale"))
         {
@@ -451,20 +436,22 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     {
       JSONObject location = locations.getJSONObject(i);
 
-      if (location.has(TARGET))
+      if (location.has(TARGET) && location.getString(TARGET).length() > 0
+          && location.has(MATCH_STRATEGY) && location.getString(MATCH_STRATEGY).length() > 0)
       {
         String pCode = location.getString(AttributeType.JSON_CODE);
         ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
 
         String target = location.getString(TARGET);
+        ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
 
-        this.addParent(new Location(pType, new BasicColumnFunction(target)));
+        this.addParent(new Location(pType, new BasicColumnFunction(target), matchStrategy));
       }
     }
-
+    
     return this;
   }
-
+  
   @Override
   public void validate()
   {
