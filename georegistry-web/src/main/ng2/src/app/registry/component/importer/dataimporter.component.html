@@ -1,14 +1,44 @@
 
-<form #form="ngForm">
-    <div class="form-group row" *ngIf="types">
-        <label class="col-md-3 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
-        <div class="col-md-9">
-            <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
-                <option></option>
-                <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
-            </select>
-        </div>
-    </div>
+<div *ngIf="isExternal === null">
+  <div class="container">
+	  <div class="row" style="margin-top:20px;">
+	
+	    <div (click)="onClickImportFile()" class="col-xs-6" style="
+		    width: 200px;
+		    height: 170px;
+		    border: 2px solid black;
+		    text-align: center;
+		    display: inline-block;
+		    margin-right:100px;
+		    margin-left:100px;
+		    line-height: 150px;
+		    font-weight:bold;
+		    cursor: pointer;
+		  ">
+		    <span style="display: inline-block; vertical-align: middle; line-height: normal;">
+		      <localize key="io.import.importFile"></localize>
+        </span>
+		  </div>
+		  <div (click)="onClickImportExternalSystem()" class="col-xs-6" style="
+		    width: 200px;
+		    height: 170px;
+		    border: 2px solid black;
+		    text-align: center;
+		    display: inline-block;
+		    line-height: 150px;
+		    font-weight:bold;
+		    cursor: pointer;
+		  ">
+		    <span style="display: inline-block; vertical-align: middle; line-height: normal;">
+		      <localize key="io.import.importExternalSystem"></localize>
+		    </span>
+		  </div>
+	
+	  </div>
+  </div>
+</div>
+
+<form *ngIf="isExternal !== null" #form="ngForm">
     <div *ngIf="isExternal" class="form-group row">
         <label class="col-md-3 text-right" for="externalSystem">
             <localize key="io.import.externalSystems"></localize>
@@ -16,6 +46,15 @@
         <div class="col-md-9">
             <select id="externalSystem" name="externalSystem" class="select-area" [(ngModel)]="externalSystemId" required>
                 <option *ngFor="let externalSystem of externalSystems" value={{externalSystem.oid}}>{{externalSystem.label.localizedValue}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row" *ngIf="types">
+        <label class="col-md-3 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
+        <div class="col-md-9">
+            <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
+                <option></option>
+                <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
             </select>
         </div>
     </div>

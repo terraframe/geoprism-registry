@@ -12,7 +12,22 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="io.import.externalSystems" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="External Systems" />
+          <attribute name="defaultLocale" value="System" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.import.importFile">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.import.importFile" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import file" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.import.importExternalSystem">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.import.importExternalSystem" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import from external system" />
         </attributeStruct>
       </object>
     </createOrUpdate>

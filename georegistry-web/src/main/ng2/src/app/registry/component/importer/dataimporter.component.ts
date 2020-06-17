@@ -66,8 +66,7 @@ export class DataImporterComponent implements OnInit {
   @Input()
   format: string; // Can be SHAPEFILE or EXCEL
   
-  @Input()
-  isExternal: boolean;
+  isExternal: boolean = null;
   
   /*
    * List of available external systems (filtered based on user's org)
@@ -166,6 +165,14 @@ export class DataImporterComponent implements OnInit {
 			this.error({ error: error });
 		}
 	}
+	
+	onClickImportFile(): void {
+	  this.isExternal = false;
+	}
+	
+	onClickImportExternalSystem(): void {
+	  this.isExternal = true;
+  }
 
 	onClick(): void {
 
