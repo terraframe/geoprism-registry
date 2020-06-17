@@ -23,7 +23,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { Organization } from '../../model/settings';
+import { Organization } from '../../../shared/model/core';
+import { OrganizationService } from '../../../shared/service/organization.service';
 import { SettingsService } from '../../service/settings.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
@@ -40,7 +41,7 @@ export class OrganizationModalComponent implements OnInit {
 
 	public onSuccess: Subject<Organization>;
 
-	constructor(private service: SettingsService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
+	constructor(private service: SettingsService, private orgService: OrganizationService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
 
 	ngOnInit(): void {
 		this.onSuccess = new Subject();
@@ -52,7 +53,7 @@ export class OrganizationModalComponent implements OnInit {
 
 	onSubmit(): void {
 		if (this.isNewOrganization) {
-			this.service.newOrganization(this.organization).then(data => {
+			this.orgService.newOrganization(this.organization).then(data => {
 				this.onSuccess.next(data);
 				this.bsModalRef.hide();
 			}).catch((err: HttpErrorResponse) => {
@@ -60,7 +61,7 @@ export class OrganizationModalComponent implements OnInit {
 			});
 		}
 		else {
-			this.service.updateOrganization(this.organization).then(data => {
+			this.orgService.updateOrganization(this.organization).then(data => {
 				this.onSuccess.next(data);
 				this.bsModalRef.hide();
 			}).catch((err: HttpErrorResponse) => {

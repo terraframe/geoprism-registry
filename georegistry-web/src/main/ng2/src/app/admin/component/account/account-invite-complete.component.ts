@@ -25,7 +25,8 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Observable } from 'rxjs';
 
 
-import { User, PageResult, Account } from '../../model/account';
+import { User, Account } from '../../model/account';
+import { PageResult } from '../../../shared/model/core';
 import { AccountService } from '../../service/account.service';
 
 declare let acp: string;

@@ -33,8 +33,10 @@ import { ExternalSystemModalComponent } from './external-system/external-system-
 import { NewLocaleModalComponent } from './localization-manager/new-locale-modal.component';
 
 import { SettingsService } from '../service/settings.service';
-import { Settings, Organization, ExternalSystem } from '../model/settings';
-import { PageResult } from '../model/account';
+import { ExternalSystemService } from '../../shared/service/external-system.service';
+import { OrganizationService } from '../../shared/service/organization.service';
+import { Settings } from '../model/settings';
+import { PageResult, Organization, ExternalSystem } from '../../shared/model/core';
 import { Locale } from '../model/localization-manager';
 
 import { AuthService } from '../../shared/service/auth.service';
@@ -69,6 +71,8 @@ export class SettingsComponent implements OnInit {
 		private localizeService: LocalizationService,
 		private settingsService: SettingsService,
 		private authService: AuthService,
+		private externalSystemService: ExternalSystemService,
+		private orgService: OrganizationService
 	) {
 		this.isAdmin = authService.isAdmin();
 		this.isSRA = authService.isSRA();
@@ -85,7 +89,7 @@ export class SettingsComponent implements OnInit {
 
 		this.installedLocales = this.getLocales();
 
-		this.settingsService.getOrganizations().then(orgs => {
+		this.orgService.getOrganizations().then(orgs => {
 			this.organizations = orgs
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -135,9 +139,9 @@ export class SettingsComponent implements OnInit {
 		this.bsModalRef.content.type = ModalTypes.danger;
 
 		this.bsModalRef.content.onConfirm.subscribe(data => {
-			// this.settingsService.removeOrganization(code);
+			// this.orgService.removeOrganization(code);
 
-			this.settingsService.removeOrganization(code).then(response => {
+			this.orgService.removeOrganization(code).then(response => {
 				for (let i = this.organizations.length - 1; i >= 0; i--) {
 					if (this.organizations[i].code === code) {
 						this.organizations.splice(i, 1);
@@ -206,7 +210,7 @@ export class SettingsComponent implements OnInit {
 	/* EXTERNAL SYSTEM LOGIC */
 	
 	onSystemPageChange(pageNumber: number): void {
-		this.settingsService.getExternalSystems(pageNumber, this.systems.pageSize).then(systems => {
+		this.externalSystemService.getExternalSystems(pageNumber, this.systems.pageSize).then(systems => {
 			this.systems = systems;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -227,7 +231,7 @@ export class SettingsComponent implements OnInit {
 
 	onEditSystem(system: ExternalSystem): void {
 		
-	  this.settingsService.getExternalSystem(system.oid).then(system => {
+	  this.externalSystemService.getExternalSystem(system.oid).then(system => {
 
 		let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
 			animated: true,
@@ -254,7 +258,7 @@ export class SettingsComponent implements OnInit {
 		this.bsModalRef.content.type = ModalTypes.danger;
 
 		this.bsModalRef.content.onConfirm.subscribe(data => {
-			this.settingsService.removeExternalSystem(system.oid).then(response => {
+			this.externalSystemService.removeExternalSystem(system.oid).then(response => {
 		      this.onSystemPageChange(this.systems.pageNumber);
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);

@@ -84,8 +84,10 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.query.ServerCodeRestriction;
+import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.NonUniqueResultException;
@@ -523,7 +525,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           go = serverGo.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
           
-          if (this.configuration.getParentLookupType().equals(LookupType.EXTERNAL))
+          if (this.configuration.getFunction(ImportConfiguration.EXTERNAL_ATTR_NAME) != null)
           {
             ShapefileFunction function = this.configuration.getFunction(ImportConfiguration.EXTERNAL_ATTR_NAME);
             
@@ -615,9 +617,9 @@ public class GeoObjectImporter implements ObjectImporterIF
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
   }
 
-  private void mapExternalId(String externalId, ServerGeoObjectIF go)
+  private void mapExternalId(String externalId, ServerGeoObjectIF serverGO)
   {
-    // JS TODO : map  go.getRunwayId() -> externalId
+    serverGO.createExternalId(this.configuration.getExternalSystem(), externalId);
   }
   
   private boolean hasValue(LocalizedValue value)
@@ -716,7 +718,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
         else if (lt.equals(LookupType.EXTERNAL))
         {
-          // JS TODO
+          query.setRestriction(new ServerExternalIdRestriction(this.getConfiguration().getExternalSystem(), label.toString()));
         }
         else
         {

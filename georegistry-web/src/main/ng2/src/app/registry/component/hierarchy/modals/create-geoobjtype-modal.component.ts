@@ -7,7 +7,7 @@ import { GeoObjectType } from '../../../model/registry';
 
 import { RegistryService } from '../../../service/registry.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
-import { Organization } from '../../../../admin/model/settings';
+import { Organization } from '../../../../shared/model/core';
 
 
 @Component( {

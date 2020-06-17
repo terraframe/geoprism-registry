@@ -23,7 +23,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { Account, UserInvite } from '../../model/account';
-import { Organization } from '../../model/settings';
+import { Organization } from '../../../shared/model/core';
 
 import { SettingsService } from '../../service/settings.service'
 import { AccountService } from '../../service/account.service';
