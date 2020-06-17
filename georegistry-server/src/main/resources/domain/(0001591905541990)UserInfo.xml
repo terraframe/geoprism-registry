@@ -1,0 +1,95 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+	<createOrUpdate>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="account.altFirstname">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="account.altFirstname" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="First name (local)" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="account.altLastname">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="account.altLastname" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Last name (local)" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="account.altPhonenumber">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="account.altPhonenumber" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Phone number 2" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="account.position">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="account.position" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Position/Function" />
+			</attributeStruct>
+		</object>
+		<object type="com.runwaysdk.localization.LocalizedValueStore" key="account.department">
+			<attribute name="storeTag" value="UIText" />
+			<attribute name="storeKey" value="account.department" />
+			<attributeStruct name="storeValue">
+				<attribute name="defaultLocale" value="Department" />
+			</attributeStruct>
+		</object>
+	</createOrUpdate>
+  
+    <create>
+      <mdBusiness name="net.geoprism.registry.UserInfo" publish="true">
+        <attributes>
+          <reference name="geoprismUser" label="user" required="true" type="net.geoprism.GeoprismUser" />
+          <char name="altFirstName" label="First name (local)" required="false" size="255" />
+          <char name="altLastName" label="Last name (local)" required="false" size="255" />
+          <char name="altPhoneNumber" label="Phone number 2" required="false" size="255" />
+          <text name="position" label="Position/Function" required="false" />
+          <text name="department" label="Department" required="false" />
+        </attributes>
+      </mdBusiness>    
+    </create>
+    
+    <update>
+      <mdUtil name="net.geoprism.registry.account.RegistryAccountUtil">
+        <mdMethod name="inviteComplete">
+          <mdParameter name="user" type="java.lang.String"/>
+        </mdMethod>
+      </mdUtil>
+    </update>
+    
+    <permissions>
+      <method methodName="inviteComplete" type="net.geoprism.registry.account.RegistryAccountUtil">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.UserInfo">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+        </grant>
+      </method>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.UserInfo">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+        </grant>
+      </role>      
+      <role roleName="OWNER">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.UserInfo">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>     
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.UserInfo" type="com.runwaysdk.system.metadata.MdBusiness" />
+    </delete>
+  </undoIt>
+</version>

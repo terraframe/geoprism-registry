@@ -63,7 +63,6 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.etl.upload.ExternalParentReferenceProblem;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;

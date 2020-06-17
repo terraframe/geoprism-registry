@@ -33,6 +33,11 @@ export class User {
   inactive: boolean;
   newInstance: boolean;
   roles: string[];
+  altFirstName?: string;
+  altLastName?: string;
+  altPhoneNumber?: string;
+  position?: string;
+  department?: string;
 }
 
 // export class Role {

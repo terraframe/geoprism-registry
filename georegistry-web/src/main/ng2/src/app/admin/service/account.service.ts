@@ -41,7 +41,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .get<PageResult<User>>( acp + '/account/page', { params: params } )
+            .get<PageResult<User>>( acp + '/registryaccount/page', { params: params } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -121,7 +121,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/account/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post<void>( acp + '/registryaccount/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -153,7 +153,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<void>( acp + '/account/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post<void>( acp + '/registryaccount/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
