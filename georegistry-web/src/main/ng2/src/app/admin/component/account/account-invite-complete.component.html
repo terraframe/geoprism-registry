@@ -39,6 +39,32 @@
 	              </span>
 	            </div>
 	          </div>  
+            
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.altFirstname"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="user.altFirstName" name="altFirstname">
+            </span>
+          </div>
+        </div>        
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.altLastname"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="user.altLastName" name="altLastname">
+            </span>
+          </div>
+        </div>
+            
 	          <div class="row-holder">
 	            <div class="label-holder">
 	              <label><localize key="account.phonenumber"></localize></label>
@@ -51,7 +77,22 @@
 	<!--                 <localize key="account.phone.validation"></localize> -->
 	<!--               </div>                                           -->
 	            </div>
-	          </div>           
+	          </div>  
+
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.altPhonenumber"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="user.altPhoneNumber" name="altPhoneNumber">
+            </span>
+          </div>
+        </div>
+            
+                     
 	          <div class="row-holder">
 	            <div class="label-holder">
 	              <label><localize key="account.email"></localize></label>
@@ -65,6 +106,33 @@
 	              </div>                                          
 	            </div>
 	          </div>          
+            
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.position"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="user.position" name="position">
+            </span>
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.department"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="user.department" name="department">
+            </span>
+          </div>
+        </div>
+            
+            
 	          <div class="heading">
 	            <h3><localize key="account.info.heading"></localize></h3>
 	          </div>      

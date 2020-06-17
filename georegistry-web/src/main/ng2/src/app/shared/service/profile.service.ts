@@ -40,7 +40,7 @@ export class ProfileService {
         } );
 
         return this.http
-            .post<Profile>( acp + '/account/get', { headers: headers } )
+            .post<Profile>( acp + '/registryaccount/get', { headers: headers } )
             .toPromise();
     }
 
@@ -63,7 +63,7 @@ export class ProfileService {
         } );
 
         return this.http
-            .post<void>( acp + '/account/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
+            .post<void>( acp + '/registryaccount/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
             .toPromise()
     }
 

@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.account;
 
-@com.runwaysdk.business.ClassSignature(hash = -1307232547)
+@com.runwaysdk.business.ClassSignature(hash = -687324754)
 public abstract class RegistryAccountUtilDTOBase extends com.runwaysdk.business.UtilDTO
 {
   public final static String CLASS = "net.geoprism.registry.account.RegistryAccountUtil";
-  private static final long serialVersionUID = -1307232547;
+  private static final long serialVersionUID = -687324754;
   
   protected RegistryAccountUtilDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -35,9 +17,9 @@ public abstract class RegistryAccountUtilDTOBase extends com.runwaysdk.business.
   }
   
   public static java.lang.String OID = "oid";
-  public static final void inviteComplete(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String token, net.geoprism.GeoprismUserDTO user)
+  public static final void inviteComplete(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String token, java.lang.String user)
   {
-    String[] _declaredTypes = new String[]{"java.lang.String", "net.geoprism.GeoprismUser"};
+    String[] _declaredTypes = new String[]{"java.lang.String", "java.lang.String"};
     Object[] _parameters = new Object[]{token, user};
     com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.account.RegistryAccountUtilDTO.CLASS, "inviteComplete", _declaredTypes);
     clientRequest.invokeMethod(_metadata, null, _parameters);
