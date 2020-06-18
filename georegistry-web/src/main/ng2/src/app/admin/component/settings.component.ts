@@ -69,7 +69,6 @@ export class SettingsComponent implements OnInit {
 	constructor(
 		private modalService: BsModalService,
 		private localizeService: LocalizationService,
-		private settingsService: SettingsService,
 		private authService: AuthService,
 		private externalSystemService: ExternalSystemService,
 		private orgService: OrganizationService
@@ -88,7 +87,7 @@ export class SettingsComponent implements OnInit {
 		// } );
 
 		this.installedLocales = this.getLocales();
-
+		
 		this.orgService.getOrganizations().then(orgs => {
 			this.organizations = orgs
 		}).catch((err: HttpErrorResponse) => {
@@ -177,8 +176,8 @@ export class SettingsComponent implements OnInit {
 			ignoreBackdropClick: true
 		});
 
-		bsModalRef.content.onSuccess.subscribe(data => {
-			this.installedLocales.push(data);
+		bsModalRef.content.onSuccess.subscribe((locale:string) => {			
+			this.localizeService.addLocale(locale);
 		})
 	}
 
