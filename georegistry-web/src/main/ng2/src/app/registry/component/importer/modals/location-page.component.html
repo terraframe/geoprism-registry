@@ -32,7 +32,7 @@
 			            <option></option>
 			            <option value="ALL"><localize key="io.modal.all"></localize></option>
 			            <option value="CODE"><localize key="io.modal.code"></localize></option>
-			            <option value="EXTERNAL"><localize key="io.modal.external"></localize></option>
+			            <option *ngIf="configuration.isExternal" value="EXTERNAL"><localize key="io.modal.external"></localize></option>
 			          </select>
               </div>
             </div>
