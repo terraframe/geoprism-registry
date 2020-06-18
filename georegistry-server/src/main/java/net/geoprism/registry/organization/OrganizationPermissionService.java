@@ -57,13 +57,18 @@ public class OrganizationPermissionService
   
   public boolean canActorRead(SingleActorDAOIF actor, String orgCode)
   {
-//    return ServiceFactory.getRolePermissionService().isRA(actor, orgCode);
+    // People need to be able to read all organizations so that we can display them in a read-only format
+    // See comments at the bottom of ticket 206 for a specific usecase (hierarchy manager read-only)
+    
+    // It's OK to return true here because the PUBLIC user won't actually have Runway-level object
+    // permissions on Organization.
+    
     return true;
   }
   
   public void enforceActorCanRead(SingleActorDAOIF actor, String orgCode)
   {
-    ServiceFactory.getRolePermissionService().enforceRA(actor, orgCode);
+    return;
   }
   
 }
