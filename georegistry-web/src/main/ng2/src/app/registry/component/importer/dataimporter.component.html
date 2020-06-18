@@ -1,5 +1,5 @@
 
-<div *ngIf="isExternal === null">
+<div *ngIf="!isLoading && isExternal === null">
   <div class="container">
 	  <div class="row" style="margin-top:20px;">
 	
@@ -38,7 +38,7 @@
   </div>
 </div>
 
-<form *ngIf="isExternal !== null" #form="ngForm">
+<form *ngIf="!isLoading && isExternal !== null" #form="ngForm">
     <div *ngIf="isExternal" class="form-group row">
         <label class="col-md-3 text-right" for="externalSystem">
             <localize key="io.import.externalSystems"></localize>
