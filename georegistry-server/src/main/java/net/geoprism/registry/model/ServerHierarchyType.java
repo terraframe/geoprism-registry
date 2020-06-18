@@ -20,6 +20,8 @@ package net.geoprism.registry.model;
 
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -58,6 +60,7 @@ import com.runwaysdk.system.ontology.ImmutableRootException;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.Organization;
@@ -476,9 +479,18 @@ public class ServerHierarchyType
 
   public static ServerHierarchyType get(String hierarchyTypeCode)
   {
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyTypeCode).get();
+    Optional<HierarchyType> hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyTypeCode);
+    
+    if (!hierarchyType.isPresent())
+    {
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(HierarchyTypeMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(hierarchyTypeCode);
+      ex.setAttributeLabel(HierarchyTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+      throw ex;
+    }
 
-    return ServerHierarchyType.get(hierarchyType);
+    return ServerHierarchyType.get(hierarchyType.get());
   }
 
   public static ServerHierarchyType get(HierarchyType hierarchyType)

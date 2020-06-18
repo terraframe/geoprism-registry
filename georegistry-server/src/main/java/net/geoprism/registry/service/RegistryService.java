@@ -80,15 +80,16 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
+import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
+import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.LookupRestriction;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class RegistryService
@@ -210,8 +211,10 @@ public class RegistryService
     
     if (object == null)
     {
-	  DataNotFoundException ex = new DataNotFoundException();
-	  ex.setDataIdentifier(uid);
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(uid);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
       throw ex;
     }
     
@@ -227,8 +230,14 @@ public class RegistryService
     
     if (object == null)
     {
-	  DataNotFoundException ex = new DataNotFoundException();
-	  ex.setDataIdentifier(code);
+//	  DataNotFoundException ex = new DataNotFoundException();
+//	  ex.setDataIdentifier(code);
+//      throw ex;
+      
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(code);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
       throw ex;
     }
     
@@ -339,8 +348,10 @@ public class RegistryService
         }
         else
         {
-          DataNotFoundException ex = new DataNotFoundException();
+          net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+          ex.setTypeLabel(OrganizationMetadata.get().getClassDisplayLabel());
           ex.setDataIdentifier(codes[i]);
+          ex.setAttributeLabel(OrganizationMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
       }
@@ -982,8 +993,10 @@ public class RegistryService
     
     if (object == null)
     {
-      DataNotFoundException ex = new DataNotFoundException();
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
       ex.setDataIdentifier(id);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
       throw ex;
     }
     

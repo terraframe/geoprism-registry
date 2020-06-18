@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1836869847)
+@com.runwaysdk.business.ClassSignature(hash = -1172561813)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,9 +29,11 @@ package net.geoprism.registry;
 public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.DataNotFoundException";
+  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
   public static java.lang.String DATAIDENTIFIER = "dataIdentifier";
   public static java.lang.String OID = "oid";
-  private static final long serialVersionUID = 1836869847;
+  public static java.lang.String TYPELABEL = "typeLabel";
+  private static final long serialVersionUID = -1172561813;
   
   public DataNotFoundExceptionBase()
   {
@@ -51,6 +53,34 @@ public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.S
   public DataNotFoundExceptionBase(java.lang.Throwable cause)
   {
     super(cause);
+  }
+  
+  public String getAttributeLabel()
+  {
+    return getValue(ATTRIBUTELABEL);
+  }
+  
+  public void validateAttributeLabel()
+  {
+    this.validateAttribute(ATTRIBUTELABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAttributeLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.DataNotFoundException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ATTRIBUTELABEL);
+  }
+  
+  public void setAttributeLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(ATTRIBUTELABEL, "");
+    }
+    else
+    {
+      setValue(ATTRIBUTELABEL, value);
+    }
   }
   
   public String getDataIdentifier()
@@ -97,6 +127,34 @@ public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.S
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
+  public String getTypeLabel()
+  {
+    return getValue(TYPELABEL);
+  }
+  
+  public void validateTypeLabel()
+  {
+    this.validateAttribute(TYPELABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypeLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.DataNotFoundException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPELABEL);
+  }
+  
+  public void setTypeLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(TYPELABEL, "");
+    }
+    else
+    {
+      setValue(TYPELABEL, value);
+    }
+  }
+  
   protected String getDeclaredType()
   {
     return CLASS;
@@ -105,8 +163,10 @@ public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.S
   public java.lang.String localize(java.util.Locale locale)
   {
     java.lang.String message = super.localize(locale);
+    message = replace(message, "{attributeLabel}", this.getAttributeLabel());
     message = replace(message, "{dataIdentifier}", this.getDataIdentifier());
     message = replace(message, "{oid}", this.getOid());
+    message = replace(message, "{typeLabel}", this.getTypeLabel());
     return message;
   }
   

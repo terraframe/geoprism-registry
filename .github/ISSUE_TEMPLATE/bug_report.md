@@ -7,14 +7,15 @@ assignees: ''
 
 ---
 
-**List the CGR version information**
+**List the CGR information**
 - CGR version:
+- CGR instance (e.g. a URL):
 
 **Describe the bug (clear and concise)**
 
 
 **To Reproduce**
-1. Go to 
+1. As a .....[role]: Go to 
 2. Click on 
 3. See error
 
