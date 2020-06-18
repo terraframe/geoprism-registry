@@ -57,7 +57,8 @@ public class OrganizationPermissionService
   
   public boolean canActorRead(SingleActorDAOIF actor, String orgCode)
   {
-    return ServiceFactory.getRolePermissionService().isRA(actor, orgCode);
+//    return ServiceFactory.getRolePermissionService().isRA(actor, orgCode);
+    return true;
   }
   
   public void enforceActorCanRead(SingleActorDAOIF actor, String orgCode)

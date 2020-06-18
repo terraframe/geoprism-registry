@@ -10,20 +10,20 @@
           <localize key="data.property.label.code"></localize>
         </label>
         <input [(ngModel)]="hierarchyType.code" name="code" type="input" class="form-control" id="codeInput"
-          [disabled]="edit" required>
+          [disabled]="edit || readOnly" required>
       </div>
       <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues">
         <label for="labelInput">
           <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
         </label>
-        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control"
+        <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control"
           required>
       </div>
       <div class="form-group" *ngFor="let localeValue of hierarchyType.description.localeValues">
         <label for="descriptionInput">
           <localize key="data.property.label.description"></localize> ({{localeValue.locale}})
         </label>
-        <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input"
+        <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input"
           class="form-control">
       </div>
 
@@ -31,7 +31,7 @@
         <label for="organization">
           <localize key="attribute.organization.label"></localize>
         </label>
-        <select [disabled]="edit" class="select-area" name="organization"
+        <select [disabled]="edit || readOnly" class="select-area" name="organization"
           [(ngModel)]="hierarchyType.organizationCode" required>
           <option></option>
           <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
@@ -44,7 +44,7 @@
             <button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
               <localize key="modal.button.cancel"></localize>
             </button>
-            <button type="submit" [disabled]="hierarchyType.code.length < 1" class="btn btn-primary"
+            <button *ngIf="!readOnly" type="submit" [disabled]="hierarchyType.code.length < 1" class="btn btn-primary"
               (click)="handleOnSubmit()" style="padding: 4px 18px;">
               <localize key="modal.button.ok"></localize>
             </button>

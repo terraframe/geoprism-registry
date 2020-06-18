@@ -19,9 +19,9 @@
                     </span>
                 </div>
             </div>
-
-            <localized-input [(value)]="editGeoObjectType.label" key="data.property.label.label"></localized-input>
-            <localized-text [(value)]="editGeoObjectType.description" key="data.property.label.description"></localized-text>
+            
+            <localized-input [disabled]="readOnly" [(value)]="editGeoObjectType.label" key="data.property.label.label"></localized-input>
+            <localized-text [disabled]="readOnly" [(value)]="editGeoObjectType.description" key="data.property.label.description"></localized-text>
 
             <div class="row-holder">
                 <div class="label-holder">
@@ -50,7 +50,7 @@
                 </div>
                 <div class="holder">
 
-                    <boolean-field [(value)]="editGeoObjectType.isGeometryEditable" [localizeLabelKey]="'hierarchy.management.option.label.isGeometryEditable'"></boolean-field>
+                    <boolean-field [disable]="readOnly" [(value)]="editGeoObjectType.isGeometryEditable" [localizeLabelKey]="'hierarchy.management.option.label.isGeometryEditable'"></boolean-field>
                 </div>
             </div>
             
@@ -74,7 +74,7 @@
                                 <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li>
                             </ul>
 
-                            <button type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
+                            <button [disabled]="readOnly" type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
                                 <localize key="modal.button.manageAttributes"></localize>
                             </button>
                         </div>
@@ -87,7 +87,7 @@
                         <button type="button" class="btn btn-default" (click)="close()">
                             <localize key="modal.button.cancel"></localize>
                         </button>
-                        <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="update()">
+                        <button *ngIf="!readOnly" type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="update()">
                             <localize key="modal.button.submit"></localize>
                         </button>
                     </div>

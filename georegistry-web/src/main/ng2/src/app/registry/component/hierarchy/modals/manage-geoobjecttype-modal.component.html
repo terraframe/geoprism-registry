@@ -3,7 +3,7 @@
      
   <modal-step-indicator></modal-step-indicator>
 
-  <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" (geoObjectTypeChange)="onGeoObjectTypeChange($event)" [geoObjectType]="geoObjectType" [setGeoObjectType]="geoObjectType"></geoobjecttype-input>
+  <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" [readOnly]="readOnly" (geoObjectTypeChange)="onGeoObjectTypeChange($event)" [geoObjectType]="geoObjectType" [setGeoObjectType]="geoObjectType"></geoobjecttype-input>
   
   <manage-attributes-modal *ngIf="modalState.state === 'MANAGE-ATTRIBUTES'" [geoObjectType]="geoObjectType"></manage-attributes-modal>
   

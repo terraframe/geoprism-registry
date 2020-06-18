@@ -23,6 +23,7 @@ export class ManageGeoObjectTypeModalComponent implements OnInit {
     modalStateSubscription: Subscription;
     geoObjectType: GeoObjectType;
     public onGeoObjectTypeSubmitted: Subject<GeoObjectType>;
+    readOnly: boolean = false;
 
     constructor( public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
       this.modalStateSubscription = geoObjectTypeManagementService.modalStepChange.subscribe( modalState => {

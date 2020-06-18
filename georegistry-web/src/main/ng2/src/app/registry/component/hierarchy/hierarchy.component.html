@@ -18,7 +18,11 @@
             
             <span *ngIf="isOrganizationRA(type.organizationCode)">
               <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
-              <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type)"> </i> 
+              <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type, false)"> </i> 
+            </span>
+            
+            <span *ngIf="!isOrganizationRA(type.organizationCode)">
+              <i class="fa fa-book clickable pull-right" (click)="manageGeoObjectType(type, true)"> </i> 
             </span>
           </li>
         </ul>
@@ -39,7 +43,11 @@
 
             <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
               <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
-              <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy)"> </i>            
+              <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy, false)"> </i>            
+            </span>
+            
+            <span *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
+              <i class="fa fa-book pull-right clickable" (click)="editHierarchyType(hierarchy, true)"> </i>
             </span>
           </li>
         </ul>

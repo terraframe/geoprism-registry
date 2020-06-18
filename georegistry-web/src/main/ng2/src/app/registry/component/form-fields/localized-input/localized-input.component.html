@@ -7,7 +7,7 @@
   </div>
   <div class="holder">
     <span class="text">
-      <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+      <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [disabled]="disabled" [required]="localeValue.locale === 'defaultLocale'">
     </span>
   </div>
 </div>

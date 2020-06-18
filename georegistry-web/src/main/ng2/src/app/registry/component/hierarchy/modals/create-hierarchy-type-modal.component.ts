@@ -7,6 +7,7 @@ import { HierarchyType } from '../../../model/hierarchy';
 import { RegistryService } from '../../../service/registry.service';
 import { HierarchyService } from '../../../service/hierarchy.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
+import { AuthService } from '../../../../shared/service/auth.service';
 
 
 @Component( {
@@ -19,14 +20,17 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
     hierarchyType: HierarchyType;
     organizations: any = [];
     message: string = null;
-    edit: boolean = false;
+    
+    edit: boolean = false; // if true, we are updating an existing. If false, we are creating new
+    
+    readOnly: boolean = false;
 
     /*
      * Observable subject for TreeNode changes.  Called when create is successful 
      */
     public onHierarchytTypeCreate: Subject<HierarchyType>;
 
-    constructor( private lService: LocalizationService, private registryService: RegistryService, private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
+    constructor( private lService: LocalizationService, private auth: AuthService, private registryService: RegistryService, private hierarchyService: HierarchyService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
         this.onHierarchytTypeCreate = new Subject();
@@ -40,11 +44,30 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
         };
         
         this.registryService.getOrganizations().then(orgs => {
+        
           if (!this.edit && orgs.length === 1)
           {
             this.hierarchyType.organizationCode = orgs[0].code;
           }
-          this.organizations = orgs;
+          
+          // Filter out organizations they're not RA's of, unless we're readOnly.
+          if (!this.readOnly)
+          {
+            this.organizations = [];
+            
+            for (var i = 0; i < orgs.length; ++i)
+            {
+              if (this.auth.isOrganizationRA(orgs[i].code))
+              {
+                this.organizations.push(orgs[i]);
+              }
+            }
+          }
+          else
+          {
+            this.organizations = orgs;
+          }
+          
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -52,6 +75,12 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
 
     handleOnSubmit(): void {
         this.message = null;
+        
+        if (this.readOnly)
+        {
+          this.bsModalRef.hide();
+          return;
+        }
 
         if ( this.edit ) {
             this.hierarchyService.updateHierarchyType( JSON.stringify( this.hierarchyType ) ).then( data => {

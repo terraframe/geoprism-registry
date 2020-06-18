@@ -7,7 +7,7 @@
   </div>
   <div class="holder">
     <span class="text">
-      <textarea [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale"></textarea>
+      <textarea [(ngModel)]="localeValue.value" [disabled]="disabled" [name]="'description-' + localeValue.locale"></textarea>
     </span>
   </div>
 </div>
