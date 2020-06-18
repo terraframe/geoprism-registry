@@ -177,7 +177,7 @@
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let system of systems.resultSet | paginate: { itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
-                                        <td>
+                                        <td class="button-column">
                                           <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"  [title]="'account.editTooltip' | localize"></a> 
                                           <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)" [title]="'account.removeTooltip' | localize" ></a>
                                         </td>
