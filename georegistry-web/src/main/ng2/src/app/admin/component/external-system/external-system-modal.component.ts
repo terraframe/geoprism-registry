@@ -24,7 +24,6 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
 import { ExternalSystem, Organization } from '../../../shared/model/core';
-import { SettingsService } from '../../service/settings.service';
 import { ExternalSystemService } from '../../../shared/service/external-system.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
@@ -50,7 +49,7 @@ export class ExternalSystemModalComponent implements OnInit {
 
 	public onSuccess: Subject<ExternalSystem>;
 
-	constructor(private service: SettingsService, private systemService: ExternalSystemService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
+	constructor(private systemService: ExternalSystemService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
 
 	ngOnInit(): void {
 		this.onSuccess = new Subject();

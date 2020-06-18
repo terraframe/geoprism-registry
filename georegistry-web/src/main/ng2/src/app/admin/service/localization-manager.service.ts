@@ -40,7 +40,7 @@ export class LocalizationManagerService {
             .toPromise();
     }
 
-    installLocale( language: string, country: string, variant: string ): Promise<void> {
+    installLocale( language: string, country: string, variant: string ): Promise<{locale:string}> {
         let params: HttpParams = new HttpParams();
 
         if ( language != null ) {
@@ -56,7 +56,7 @@ export class LocalizationManagerService {
         }
 
         return this.http
-            .get<void>( acp + '/localization/installLocale', { params: params } )
+            .get<{locale:string}>( acp + '/localization/installLocale', { params: params } )
             .toPromise();
     }
 

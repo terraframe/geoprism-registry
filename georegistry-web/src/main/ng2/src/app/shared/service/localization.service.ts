@@ -23,11 +23,14 @@ export class LocalizationService {
 
 	setLocales(locales: string[]): void {
 		// The installed locales are now read from the global registry value on load
-//		this.locales = locales;
+		//		this.locales = locales;
 	}
 
 	addLocale(locale: string): void {
-		this.locales.push(locale);
+
+		if (this.locales.indexOf(locale) === -1) {
+			this.locales.push(locale);
+		}
 	}
 
 	create(): LocalizedValue {

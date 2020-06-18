@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.localization;
 
@@ -64,7 +64,7 @@ public class LocalizationService
     {
       ServiceFactory.getRolePermissionService().enforceSRA(Session.getCurrentSession().getUser());
     }
-    
+
     try
     {
       LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), file.getInputStream());
@@ -75,15 +75,15 @@ public class LocalizationService
       throw new RuntimeException(e);
     }
   }
-  
+
   @Request(RequestType.SESSION)
-  public void installLocaleInRequest(String sessionId, String language, String country, String variant)
+  public String installLocaleInRequest(String sessionId, String language, String country, String variant)
   {
     if (Session.getCurrentSession() != null)
     {
       ServiceFactory.getRolePermissionService().enforceSRA(Session.getCurrentSession().getUser());
     }
-    
+
     String localeString = language;
     if (country != null)
     {
@@ -105,8 +105,10 @@ public class LocalizationService
 
     // Refresh the entire metadata cache
     ServiceFactory.getRegistryService().refreshMetadataCache();
+
+    return locale.toString();
   }
-  
+
   @Request(RequestType.SESSION)
   public InputStreamResponse exportSpreadsheetInRequest(String sessionId)
   {
@@ -114,7 +116,7 @@ public class LocalizationService
     {
       ServiceFactory.getRolePermissionService().enforceSRA(Session.getCurrentSession().getUser());
     }
-    
+
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     BufferedOutputStream buffer = new BufferedOutputStream(bytes);
 
@@ -125,7 +127,7 @@ public class LocalizationService
 
     return new InputStreamResponse(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "localization.xlsx");
   }
-  
+
   private SpreadsheetConfiguration buildConfig()
   {
     ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -199,9 +201,9 @@ public class LocalizationService
     myCriteria.definingTypeMustNotInclude(Operations.CLASS);
     myCriteria.entityKeyMustInclude("net.geoprism.registry");
     myCriteria.entityKeyMustInclude("Roles.cgr"); // Yes its
-                                                              // confusing but
-                                                              // these are OR
-                                                              // not AND
+                                                  // confusing but
+                                                  // these are OR
+                                                  // not AND
     localTabConfig.addQueryCriteria(myCriteria);
   }
 }
