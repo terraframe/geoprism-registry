@@ -50,8 +50,9 @@ export class NewLocaleModalComponent {
     this.eventService.start();
 
     this.localizationManagerService.installLocale(this.language, this.country, this.variant)
-      .then(() => {
-        this.onSuccess.next(this.language);
+      .then((response:{locale:string}) => {
+        this.onSuccess.next(response.locale);
+
         this.eventService.complete();
         this.bsModalRef.hide();
       }).catch((err: HttpErrorResponse) => {

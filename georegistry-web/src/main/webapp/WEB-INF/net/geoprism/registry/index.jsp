@@ -18,10 +18,22 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="net.geoprism.registry.service.RegistryService"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/tlds/geoprism.tld" prefix="gdb"%>
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
+
+<%@page import="net.geoprism.localization.LocalizationFacadeDTO"%>
+<%@page import="com.runwaysdk.constants.ClientConstants"%>
+<%@page import="com.runwaysdk.constants.ClientRequestIF"%>
+
+<%
+  ClientRequestIF clientRequest = (ClientRequestIF) request.getAttribute(ClientConstants.CLIENTREQUEST);
+
+  request.setAttribute("ilocales", RegistryService.getInstance().getLocales(clientRequest.getSessionId()));
+%>
+
 
 <!DOCTYPE html>
 
@@ -40,9 +52,9 @@
   
   <script>
     window.acp = "<%=request.getContextPath()%>"; 
+    window.registry = {locales:<%=request.getAttribute("ilocales")%>}; 
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
   </script>
-  
   
    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   
@@ -120,11 +132,9 @@
    <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-vendor.js"></script>
    <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-app.js"></script>
   
-  <%--
-  <script type="text/javascript" src="https://localhost:8080/dist/cgr-polyfills.js"></script>  
-  <script type="text/javascript" src="https://localhost:8080/dist/vendor.chunk.js"></script>  
-  <script type="text/javascript" src="https://localhost:8080/dist/cgr-vendor.js"></script>    
-  <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script>
-  --%>
+<!--   <script type="text/javascript" src="https://localhost:8080/dist/cgr-polyfills.js"></script>   -->
+<!--   <script type="text/javascript" src="https://localhost:8080/dist/vendor.chunk.js"></script>   -->
+<!--   <script type="text/javascript" src="https://localhost:8080/dist/cgr-vendor.js"></script>     -->
+<!--   <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script> -->
 </body>
   

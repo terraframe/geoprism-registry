@@ -1,90 +1,98 @@
 import { Injectable } from '@angular/core';
 import { LocalizedValue } from '../model/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-import { EventService } from '../../shared/service/event.service';
 
 declare var Globalize: any;
 declare var com: any
-declare var acp: any;
+declare var registry: any
 
 @Injectable()
 export class LocalizationService {
 
-    constructor( private http: HttpClient, private eventService: EventService ) { }
+	locales: string[] = ['defaultLocale'];
 
-    locales: string[] = ['defaultLocale'];
+	private parser: any = Globalize.numberParser();
+	private formatter: any = Globalize.numberFormatter();
 
-    private parser: any = Globalize.numberParser();
-    private formatter: any = Globalize.numberFormatter();
+	constructor() {
+		this.locales = registry.locales;
+	}
 
-    getLocales(): string[] {
-        return this.locales;
-    }
+	getLocales(): string[] {
+		return this.locales;
+	}
 
-    setLocales( locales: string[] ): void {
-        this.locales = locales;
-    }
+	setLocales(locales: string[]): void {
+		// The installed locales are now read from the global registry value on load
+		//		this.locales = locales;
+	}
 
-    create(): LocalizedValue {
-        const value = { localizedValue: '', localeValues: [] } as LocalizedValue;
+	addLocale(locale: string): void {
 
-        this.locales.forEach( locale => {
-            value.localeValues.push( { locale: locale, value: '' } );
-        } );
+		if (this.locales.indexOf(locale) === -1) {
+			this.locales.push(locale);
+		}
+	}
 
-        return value;
-    }
+	create(): LocalizedValue {
+		const value = { localizedValue: '', localeValues: [] } as LocalizedValue;
 
-    public parseNumber( value: string ): number {
-        if ( value != null && value.length > 0 ) {
-            //convert data from view format to model format
-            var number = this.parser( value );
+		this.locales.forEach(locale => {
+			value.localeValues.push({ locale: locale, value: '' });
+		});
 
-            return number;
-        }
+		return value;
+	}
 
-        return null;
-    }
+	public parseNumber(value: string): number {
+		if (value != null && value.length > 0) {
+			//convert data from view format to model format
+			var number = this.parser(value);
 
-    public formatNumber( value: any ): string {
-        if ( value != null ) {
-            var number = value;
+			return number;
+		}
 
-            if ( typeof number === 'string' ) {
-                if ( number.length > 0 && Number( number ) ) {
-                    number = Number( value );
-                }
-                else {
-                    return "";
-                }
-            }
+		return null;
+	}
 
-            //convert data from model format to view format
-            return this.formatter( number );
-        }
+	public formatNumber(value: any): string {
+		if (value != null) {
+			var number = value;
 
-        return null;
-    }
+			if (typeof number === 'string') {
+				if (number.length > 0 && Number(number)) {
+					number = Number(value);
+				}
+				else {
+					return "";
+				}
+			}
 
-    public localize( bundle: string, key: string ): string {
-        return com.runwaysdk.Localize.localize( bundle, key );
-    }
+			//convert data from model format to view format
+			return this.formatter(number);
+		}
 
-    public get( key: string ): string {
-        return com.runwaysdk.Localize.get( key );
-    }
+		return null;
+	}
 
-    public decode( key: string ): string {
-        let index = key.lastIndexOf( '.' );
+	public localize(bundle: string, key: string): string {
+		return com.runwaysdk.Localize.localize(bundle, key);
+	}
 
-        if ( index !== -1 ) {
+	public get(key: string): string {
+		return com.runwaysdk.Localize.get(key);
+	}
 
-            let temp = [key.slice( 0, index ), key.slice( index + 1 )]
+	public decode(key: string): string {
+		let index = key.lastIndexOf('.');
 
-            return this.localize( temp[0], temp[1] );
-        }
-        else {
-            return this.get( key );
-        }
-    }
+		if (index !== -1) {
+
+			let temp = [key.slice(0, index), key.slice(index + 1)]
+
+			return this.localize(temp[0], temp[1]);
+		}
+		else {
+			return this.get(key);
+		}
+	}
 }
