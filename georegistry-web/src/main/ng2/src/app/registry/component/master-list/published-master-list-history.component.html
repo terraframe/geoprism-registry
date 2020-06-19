@@ -1,6 +1,24 @@
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
+     <div *ngIf="list && ((list.admin) || isAdmin)" style="margin-bottom: 10px;" class="row">
+        <div class="col-md-12">
+            <form #myForm="ngForm">
+                <div class="form-group">
+                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
+                        <localize key="masterlist.publish.versions"></localize>
+                    </button>
+                    <span >Publish the lists for the defined frequency and from the specified starting date.</span>
+
+                    <!-- padding-left: 15px;
+    padding-top: 10px;
+    font-size: 12px;
+    color: grey;
+    display: block; -->
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div class="row form-group">
         <div *ngIf="list" class="col-md-12 table-responsive" style="">
@@ -38,17 +56,6 @@
         </div>
     </div>
 
-    <div *ngIf="list && ((list.admin) || isAdmin)" style="margin-bottom: 30px;" class="row">
-        <div class="col-md-12">
-            <form #myForm="ngForm">
-                <div class="form-group">
-                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
-                        <localize key="masterlist.publish.versions"></localize>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <div class="row">
         <div class="col-md-12 order-md-1">
