@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobject;
 
@@ -48,6 +48,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.RegistryIdService;
@@ -57,12 +58,12 @@ import net.geoprism.registry.view.GeoObjectSplitView;
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
   private GeoObjectPermissionServiceIF permissionService;
-  
+
   public ServerGeoObjectService(GeoObjectPermissionServiceIF permissionService)
   {
     this.permissionService = permissionService;
   }
-  
+
   @Request(RequestType.SESSION)
   public InputStream getAll(String sessionId, String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, String externalSystemId, Integer pageNumber, Integer pageSize)
   {
@@ -83,14 +84,14 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       throw new RuntimeException(e);
     }
   }
-  
+
   @Request(RequestType.SESSION)
   public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
   {
     ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
-    
+
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
 
     return parent.addChild(child, ht).toNode(false);
@@ -102,18 +103,18 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
-    
+
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
 
     parent.removeChild(child, hierarchyCode);
   }
-  
+
   @Transaction
   public ServerGeoObjectIF apply(GeoObject object, boolean isNew, boolean isImport)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-    
+
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       if (isNew)
@@ -219,12 +220,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public ServerGeoObjectIF getGeoObjectByCode(String code, String typeCode)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-    
+
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
     }
-    
+
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
     return strategy.getGeoObjectByCode(code);
@@ -236,7 +237,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     {
       this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
     }
-    
+
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
     return strategy.getGeoObjectByCode(code);
@@ -264,11 +265,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectStrategyIF getStrategy(ServerGeoObjectType type)
   {
-// Heads up: clean up
-//    if (type.isLeaf())
-//    {
-//      return new CompositeGeoObjectStrategy(new LeafGeoObjectStrategy(type));
-//    }
+    // Heads up: clean up
+    // if (type.isLeaf())
+    // {
+    // return new CompositeGeoObjectStrategy(new LeafGeoObjectStrategy(type));
+    // }
 
     return new CompositeGeoObjectStrategy(new TreeGeoObjectStrategy(type));
   }
@@ -299,6 +300,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     return new VertexGeoObjectQuery(type, date);
     // ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
     // return strategy.createQuery(date);
+  }
+
+  public boolean hasData(ServerHierarchyType serverHierarchyType, ServerGeoObjectType childType)
+  {
+    return VertexServerGeoObject.hasData(serverHierarchyType, childType);
   }
 
 }
