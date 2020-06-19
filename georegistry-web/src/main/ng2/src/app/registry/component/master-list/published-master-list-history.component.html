@@ -1,15 +1,27 @@
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
+     <div *ngIf="list && ((list.admin) || isAdmin)" style="margin-bottom: 10px;" class="row">
+        <div class="col-md-12">
+            <form #myForm="ngForm">
+                <div class="form-group">
+                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid" 
+                    [title]="'masterList.publish.help.text' | localize">
+                        <localize key="masterlist.publish.versions"></localize>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div class="row form-group">
-        <div *ngIf="list" class="col-md-12 table-responsive" style="">
+        <div *ngIf="list" class="col-md-12 table-responsive">
             <table class="list-table table" style="border-bottom: solid lightgrey 3px;">
                 <thead>
                     <tr>
                         <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
                         <th style="width: 15%" class="label-column"><localize key="masterlist.forDate"></localize></th>
-                        <th style="width: 15%" class="label-column"><localize key="masterlist.createDate"></localize></th>
+                        <th style="width: 15%" class="label-column"><localize key="masterlist.publishDate"></localize></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,17 +50,6 @@
         </div>
     </div>
 
-    <div *ngIf="list && ((list.admin) || isAdmin)" style="margin-bottom: 30px;" class="row">
-        <div class="col-md-12">
-            <form #myForm="ngForm">
-                <div class="form-group">
-                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
-                        <localize key="masterlist.publish.versions"></localize>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <div class="row">
         <div class="col-md-12 order-md-1">

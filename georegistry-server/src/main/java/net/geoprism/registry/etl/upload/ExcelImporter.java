@@ -16,11 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.etl.upload;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -29,14 +28,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import net.geoprism.data.etl.excel.CountSheetHandler;
-import net.geoprism.data.etl.excel.ExcelDataFormatter;
-import net.geoprism.data.etl.excel.ExcelSheetReader;
-import net.geoprism.data.importer.FeatureRow;
-import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.LatLonException;
 
 import org.jaitools.jts.CoordinateSequence2D;
 import org.slf4j.Logger;
@@ -51,8 +42,20 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
+import net.geoprism.data.etl.excel.CountSheetHandler;
+import net.geoprism.data.etl.excel.ExcelDataFormatter;
+import net.geoprism.data.etl.excel.ExcelSheetReader;
+import net.geoprism.data.importer.FeatureRow;
+import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.etl.CloseableDelegateFile;
+import net.geoprism.registry.etl.ImportFileFormatException;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.graph.RevealExternalSystem;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.LatLonException;
+
 /**
- * Class responsible for reading data from a shapefile row by row and making available that data as a common interface for
+ * Class responsible for reading data from a spreadsheet row by row and making available that data as a common interface for
  * consumption by the object importer.
  * 
  * @author Richard Rowlands
@@ -72,6 +75,8 @@ public class ExcelImporter implements FormatSpecificImporterIF
   protected Long startIndex = 0L;
   
   protected GeometryFactory factory;
+  
+  protected ExcelContentHandler excelHandler;
   
   protected static final Logger logger = LoggerFactory.getLogger(ExcelImporter.class);
 
@@ -206,10 +211,18 @@ public class ExcelImporter implements FormatSpecificImporterIF
     {
       this.progressListener.setWorkTotal(this.getWorkTotal(file));
       
-      ExcelContentHandler handler = new ExcelContentHandler(this.objectImporter, stage, this.getStartIndex());
+      if (this.config.isExternalImport() && this.config.getExternalSystem() instanceof RevealExternalSystem && this.config instanceof GeoObjectImportConfiguration)
+      {
+        this.excelHandler = new RevealExcelContentHandler(this.objectImporter, stage, this.getStartIndex(), ( (GeoObjectImportConfiguration) this.config ).getRevealGeometryColumn());
+      }
+      else
+      {
+        this.excelHandler = new ExcelContentHandler(this.objectImporter, stage, this.getStartIndex());
+      }
+      
       ExcelDataFormatter formatter = new ExcelDataFormatter();
 
-      ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
+      ExcelSheetReader reader = new ExcelSheetReader(excelHandler, formatter);
       
       reader.process(new FileInputStream(file));
     }
@@ -236,31 +249,38 @@ public class ExcelImporter implements FormatSpecificImporterIF
   @Override
   public Geometry getGeometry(FeatureRow row)
   {
-    ShapefileFunction latitudeFunction = this.config.getFunction(GeoObjectImportConfiguration.LATITUDE);
-    ShapefileFunction longitudeFunction = this.config.getFunction(GeoObjectImportConfiguration.LONGITUDE);
-
-    if (latitudeFunction != null && longitudeFunction != null)
+    if (this.config.isExternalImport() && this.config.getExternalSystem() instanceof RevealExternalSystem)
     {
-      Object latitude = latitudeFunction.getValue(row);
-      Object longitude = longitudeFunction.getValue(row);
-
-      if (latitude != null && longitude != null)
-      {
-        Double lat = new Double(latitude.toString());
-        Double lon = new Double(longitude.toString());
-
-        if (Math.abs(lat) > 90 || Math.abs(lon) > 180)
-        {
-          LatLonException ex = new LatLonException();
-          ex.setLat(lat.toString());
-          ex.setLon(lon.toString());
-          throw ex;
-        }
-
-        return new Point(new CoordinateSequence2D(lon, lat), factory);
-      }
+      return ((RevealExcelContentHandler) this.excelHandler).getGeometry();
     }
-
-    return null;
+    else
+    {
+      ShapefileFunction latitudeFunction = this.config.getFunction(GeoObjectImportConfiguration.LATITUDE);
+      ShapefileFunction longitudeFunction = this.config.getFunction(GeoObjectImportConfiguration.LONGITUDE);
+  
+      if (latitudeFunction != null && longitudeFunction != null)
+      {
+        Object latitude = latitudeFunction.getValue(row);
+        Object longitude = longitudeFunction.getValue(row);
+  
+        if (latitude != null && longitude != null)
+        {
+          Double lat = new Double(latitude.toString());
+          Double lon = new Double(longitude.toString());
+  
+          if (Math.abs(lat) > 90 || Math.abs(lon) > 180)
+          {
+            LatLonException ex = new LatLonException();
+            ex.setLat(lat.toString());
+            ex.setLon(lon.toString());
+            throw ex;
+          }
+  
+          return new Point(new CoordinateSequence2D(lon, lat), factory);
+        }
+      }
+  
+      return null;
+    }
   }
 }

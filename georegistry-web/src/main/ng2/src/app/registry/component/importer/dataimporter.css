@@ -1,0 +1,14 @@
+.radio-btn-wrapper span {
+	font-size: 17px;
+	font-weight: normal;
+}
+
+.radio-btn-wrapper span.active {
+	color: #6BA542;
+	font-weight: bold;
+}
+
+.radio-btn-wrapper p.radio-label-description{
+	color: #a3a0a0;
+	margin-left: 30px;
+}

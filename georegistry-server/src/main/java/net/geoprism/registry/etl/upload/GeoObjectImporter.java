@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.etl.upload;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,8 +62,11 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.ParentReferenceProblem;
+import net.geoprism.registry.etl.RowValidationProblem;
+import net.geoprism.registry.etl.TermReferenceProblem;
 import net.geoprism.registry.etl.upload.ExternalParentReferenceException;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;

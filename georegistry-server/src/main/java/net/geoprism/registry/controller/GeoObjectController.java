@@ -42,7 +42,8 @@ public class GeoObjectController
   public ResponseIF getAll(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode,
       @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "updatedSince") Long updatedSince,
       @RequestParamter(name = "includeGeographicLevel") Boolean includeLevel, @RequestParamter(name = "format") String format,
-      @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
+      @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize,
+      @RequestParamter(name = "externalSystemId") String externalSystemId)
   {
     Date dUpdatedSince = null;
     if (updatedSince != null)
@@ -50,7 +51,7 @@ public class GeoObjectController
       dUpdatedSince = new Date(updatedSince);
     }
     
-    InputStream is = ServiceFactory.getGeoObjectService().getAll(request.getSessionId(), typeCode, hierarchyCode, dUpdatedSince, includeLevel, format, pageNumber, pageSize);
+    InputStream is = ServiceFactory.getGeoObjectService().getAll(request.getSessionId(), typeCode, hierarchyCode, dUpdatedSince, includeLevel, format, externalSystemId, pageNumber, pageSize);
     
     return new InputStreamResponse(is, "application/json", "get-all.json");
   }

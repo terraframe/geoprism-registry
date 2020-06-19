@@ -51,7 +51,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
@@ -102,6 +102,10 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public static final String       DATE_FORMAT        = "yyyy-MM-dd";
   
   public static final String       MATCH_STRATEGY = "matchStrategy";
+  
+  public static final String       REVEAL_GEOMETRY_COLUMN = "revealGeometryColumn";
+  
+  private String                   revealGeometryColumn;
 
   private ServerGeoObjectType      type;
 
@@ -239,6 +243,16 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   {
     this.postalCode = postalCode;
   }
+  
+  public String getRevealGeometryColumn()
+  {
+    return revealGeometryColumn;
+  }
+
+  public void setRevealGeometryColumn(String revealGeometryColumn)
+  {
+    this.revealGeometryColumn = revealGeometryColumn;
+  }
 
   @Request
   @Override
@@ -323,6 +337,11 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
       config.put(EXCLUSIONS, exclusions);
     }
+    
+    if (this.getRevealGeometryColumn() != null)
+    {
+      config.put(REVEAL_GEOMETRY_COLUMN, revealGeometryColumn);
+    }
 
     return config;
   }
@@ -345,6 +364,11 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.setType(got);
     this.setIncludeCoordinates(includeCoordinates);
     this.setPostalCode(config.has(POSTAL_CODE) && config.getBoolean(POSTAL_CODE));
+    
+    if (config.has(REVEAL_GEOMETRY_COLUMN))
+    {
+      this.setRevealGeometryColumn(config.getString(REVEAL_GEOMETRY_COLUMN));
+    }
 
     try
     {

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.etl.upload;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +30,9 @@ import java.util.zip.ZipInputStream;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.SimpleFeatureRow;
+import net.geoprism.registry.etl.CloseableDelegateFile;
+import net.geoprism.registry.etl.ImportFileFormatException;
+import net.geoprism.registry.etl.ImportStage;
 
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;

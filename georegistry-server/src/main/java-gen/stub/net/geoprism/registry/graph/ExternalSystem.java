@@ -181,4 +181,32 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     return new DHIS2ExternalSystem();
   }
+  
+  public static ExternalSystem getByExternalSystemId(String id)
+  {
+    final MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(ExternalSystem.CLASS);
+    MdAttributeDAOIF attribute = mdVertex.definesAttribute(ExternalSystem.ID);
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT FROM " + mdVertex.getDBClassName());
+
+    builder.append(" WHERE " + attribute.getColumnName() + " = :id");
+
+    final GraphQuery<ExternalSystem> query = new GraphQuery<ExternalSystem>(builder.toString());
+
+    query.setParameter("id", id);
+    
+    ExternalSystem es = query.getSingleResult();
+    
+    if (es == null)
+    {
+      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+      ex.setDataIdentifier(id);
+      ex.setTypeLabel(mdVertex.getDisplayLabel(Session.getCurrentLocale()));
+      ex.setAttributeLabel(attribute.getDisplayLabel(Session.getCurrentLocale()));
+      throw ex;
+    }
+    
+    return es;
+  }
 }

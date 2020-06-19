@@ -34,6 +34,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -52,11 +53,14 @@ public class RevealGeoObjectJsonAdapters
     
     private Integer depth;
     
-    public RevealSerializer(ServerGeoObjectType got, ServerHierarchyType hierarchyType, Boolean includeLevel)
+    private String externalSystemId;
+    
+    public RevealSerializer(ServerGeoObjectType got, ServerHierarchyType hierarchyType, Boolean includeLevel, String externalSystemId)
     {
       this.got = got;
       this.hierarchyType = hierarchyType;
       this.includeLevel = includeLevel;
+      this.externalSystemId = externalSystemId;
       
       calculateDepth();
     }
@@ -64,11 +68,14 @@ public class RevealGeoObjectJsonAdapters
     @Override
     public JsonElement serialize(GeoObject go, Type typeOfSrc, JsonSerializationContext context)
     {
+      ExternalSystem system = ExternalSystem.getByExternalSystemId(this.externalSystemId);
+      ServerGeoObjectIF serverGo = ServiceFactory.getGeoObjectService().getGeoObject(go);
+      
       JsonObject joGO = new JsonObject();
       {
         joGO.addProperty("type", "feature");
         
-        joGO.addProperty("id", go.getUid());
+        joGO.addProperty("id", serverGo.getExternalId(system));
         
         if (go.getGeometry() != null)
         {
@@ -103,7 +110,17 @@ public class RevealGeoObjectJsonAdapters
             props.addProperty("geographicLevel", this.depth);
           }
           
-          props.addProperty("parentId", getParentId(go, this.hierarchyType.getCode()));
+          if (this.depth == null || this.depth > 0)
+          {
+            ServerGeoObjectIF parent = getParent(serverGo, this.hierarchyType.getCode());
+            
+            if (parent != null)
+            {
+              props.addProperty("parentId", parent.getExternalId(system));
+              
+              props.addProperty("externalParentId", parent.getCode());
+            }
+          }
         }
         joGO.add("properties", props);
         
@@ -112,10 +129,8 @@ public class RevealGeoObjectJsonAdapters
       return joGO;
     }
     
-    public static String getParentId(GeoObject go, String hierarchyCode)
+    public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, String hierarchyCode)
     {
-      ServerGeoObjectIF serverGo = ServiceFactory.getGeoObjectService().getGeoObject(go);
-      
       ServerParentTreeNode sptn = serverGo.getParentGeoObjects(null, false);
       
       List<ServerParentTreeNode> parents = sptn.getParents();
@@ -124,11 +139,11 @@ public class RevealGeoObjectJsonAdapters
       {
         if (hierarchyCode == null || parent.getHierarchyType().getCode().equals(hierarchyCode))
         {
-          return parent.getGeoObject().getUid();
+          return parent.getGeoObject();
         }
       }
       
-      return "NULL";
+      return null;
     }
     
     public void calculateDepth()

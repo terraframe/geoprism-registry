@@ -84,6 +84,19 @@
             </select>
           </div>
         </div>
+        
+        <div *ngIf="configuration.externalSystem.type === 'RevealExternalSystem'" class="row-holder">
+          <div class="label-holder">
+            <label class=""><localize key="io.import.revealGeometryAttribute"></localize></label>
+          </div>
+          <div class="holder">
+            <select name="revealGeometryColumn" class="select-area"
+              [(ngModel)]="configuration.revealGeometryColumn" [required]="false">
+              <option></option>
+              <option *ngFor="let attr of configuration.sheet.attributes['text']" value={{attr}}>{{attr}}</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!--

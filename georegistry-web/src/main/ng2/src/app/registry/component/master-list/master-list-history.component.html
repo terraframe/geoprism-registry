@@ -1,10 +1,10 @@
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div *ngIf="list && ((list.admin) || isMaintainer)" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+    <div *ngIf="list && ((list.admin) || isMaintainer)" style="margin-bottom: 10px;" class="row">
 
         <div class="col-md-12">
-            <form #myForm="ngForm">
+            <form #myForm="ngForm" style="margin-left: 10px;">
                 <div class="form-group">
                     <label for="forDate" style="display: block; margin-bottom: 0;"><localize key="masterlist.publishingFor"></localize></label> <input id="forDate" type="date" name="forDate" [(ngModel)]="forDate" required>
 
@@ -23,7 +23,7 @@
                     <tr>
                         <th style="width: 50%" class="label-column"><localize key="masterlist.actions"></localize></th>
                         <th style="width: 15%" class="label-column"><localize key="masterlist.forDate"></localize></th>
-                        <th style="width: 15%" class="label-column"><localize key="masterlist.createDate"></localize></th>
+                        <th style="width: 15%" class="label-column"><localize key="masterlist.generatedDate"></localize></th>
                     </tr>
                 </thead>
                 <tbody>

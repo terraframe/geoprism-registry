@@ -53,17 +53,18 @@
                     </span>
                     
                     <span *ngIf="!isPublished" class="clickable" (click)="onPublish()" style="padding: 10px;">
-                        <i [ngClass]="{'fa fa-refresh clickable':true, 'fa-spin':isRefreshing}" style="font-size: 25px;vertical-align: middle;" aria-hidden="true"></i>
+                        <i [ngClass]="{'fa fa-refresh clickable':true, 'fa-spin':isRefreshing}" style="font-size: 24px;vertical-align: middle;padding-right: 5px;" aria-hidden="true"></i>
                         <localize key="masterlist.publish"></localize>
                     </span>
-            
-            
-                    <!-- <button type="submit" (click)="clearFilters()" class="btn btn-default" role="button">
-                                <localize key="masterlist.clearFilters"></localize>
-                            </button>
-                            <button *ngIf="isMaintainer" type="submit" (click)="onPublish()" class="btn btn-primary" role="button">
-                                <localize key="masterlist.publish"></localize>
-                            </button> -->
+
+
+                        <button type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
+                            <localize key="masterlist.newGeoObject"></localize>
+                        </button>
+                        <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                            <localize *ngIf="filter.length === 0" key="io.export.allrows"></localize>
+                            <localize *ngIf="filter.length > 0" key="io.export.filteredrows"></localize>
+                        </button>
                 </div>
             </div>
         </div>
@@ -120,16 +121,6 @@
         <div class="row">
             <div class="col-md-12">
                 <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
-
-                <div class="button-holder pull-right">
-                    <button type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
-                        <localize key="masterlist.newGeoObject"></localize>
-                    </button>
-                    <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-                        <localize *ngIf="filter.length === 0" key="io.export.allrows"></localize>
-                        <localize *ngIf="filter.length > 0" key="io.export.filteredrows"></localize>
-                    </button>
-                </div>
             </div>
         </div>
     </div>

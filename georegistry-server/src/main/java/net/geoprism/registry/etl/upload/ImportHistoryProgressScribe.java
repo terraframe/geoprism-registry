@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.etl.upload;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -29,7 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.system.scheduler.JobHistory;
 
-class ImportHistoryProgressScribe implements ImportProgressListenerIF
+import net.geoprism.registry.etl.ImportError;
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ValidationProblem;
+
+public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 {
   private static Logger logger = LoggerFactory.getLogger(ImportHistoryProgressScribe.class);
   

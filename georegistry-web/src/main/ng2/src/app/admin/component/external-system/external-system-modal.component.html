@@ -55,7 +55,7 @@
 
                 <div class="form-group" *ngFor="let localeValue of system.label.localeValues">
                   <label> {{localeValue.locale}}</label>
-                  <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
+                  <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" [required]="localeValue.locale === 'defaultLocale'">
                 </div>
                 <!-- <input type="text" [(ngModel)]="external.system.label" name="name" required> -->
               </span>

@@ -24,9 +24,11 @@ declare var acp: string;
 
 	selector: 'dataimporter',
 	templateUrl: './dataimporter.component.html',
-	styleUrls: []
+	styleUrls: ['./dataimporter.css']
 })
 export class DataImporterComponent implements OnInit {
+	
+	showImportConfig: boolean = false;
 
     /*
      * List of geo object types from the system
@@ -66,7 +68,7 @@ export class DataImporterComponent implements OnInit {
   @Input()
   format: string; // Can be SHAPEFILE or EXCEL
   
-  isExternal: boolean = null;
+  isExternal: boolean = false;
   
   /*
    * List of available external systems (filtered based on user's org)
@@ -74,7 +76,7 @@ export class DataImporterComponent implements OnInit {
   externalSystems: ExternalSystem[];
   
   /*
-   * id of currently selected external system.
+   * currently selected external system.
    */ 
   externalSystemId: string;
   
@@ -156,7 +158,20 @@ export class DataImporterComponent implements OnInit {
 			const configuration = JSON.parse(response);
 			
 			configuration.isExternal = this.isExternal;
+			
+			let externalSystem: ExternalSystem = null;
+			for (let i = 0; i < this.externalSystems.length; ++i)
+			{
+			  let sys: ExternalSystem = this.externalSystems[i];
+			  
+			  if (sys.oid === this.externalSystemId)
+			  {
+			    externalSystem = sys;
+			  }
+			}
+			
 			configuration.externalSystemId = this.externalSystemId;
+			configuration.externalSystem = externalSystem;
 			
       if (this.format === "SHAPEFILE")
 	    {
@@ -176,14 +191,6 @@ export class DataImporterComponent implements OnInit {
 		}
 	}
 	
-	onClickImportFile(): void {
-	  this.isExternal = false;
-	}
-	
-	onClickImportExternalSystem(): void {
-	  this.isExternal = true;
-  }
-
 	onClick(): void {
 
 		if (this.uploader.queue != null && this.uploader.queue.length > 0) {
@@ -195,6 +202,23 @@ export class DataImporterComponent implements OnInit {
 				error: {},
 			});
 		}
+	}
+
+	setImportSource(event, type): void {
+		if(type === "EXTERNAL"){
+			this.isExternal = true;
+		}
+		else{
+			this.isExternal = false;
+		}
+	}
+
+	onNext(): void {
+		this.showImportConfig = true;
+	}
+
+	onBack(): void {
+		this.showImportConfig = false;
 	}
 
 
