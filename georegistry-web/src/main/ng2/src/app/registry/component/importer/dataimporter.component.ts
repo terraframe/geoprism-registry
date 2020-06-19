@@ -24,9 +24,11 @@ declare var acp: string;
 
 	selector: 'dataimporter',
 	templateUrl: './dataimporter.component.html',
-	styleUrls: []
+	styleUrls: ['./dataimporter.css']
 })
 export class DataImporterComponent implements OnInit {
+	
+	showImportConfig: boolean = false;
 
     /*
      * List of geo object types from the system
@@ -66,7 +68,7 @@ export class DataImporterComponent implements OnInit {
   @Input()
   format: string; // Can be SHAPEFILE or EXCEL
   
-  isExternal: boolean = null;
+  isExternal: boolean = false;
   
   /*
    * List of available external systems (filtered based on user's org)
@@ -176,13 +178,13 @@ export class DataImporterComponent implements OnInit {
 		}
 	}
 	
-	onClickImportFile(): void {
-	  this.isExternal = false;
-	}
+// 	onClickImportFile(): void {
+// 	  this.isExternal = false;
+// 	}
 	
-	onClickImportExternalSystem(): void {
-	  this.isExternal = true;
-  }
+// 	onClickImportExternalSystem(): void {
+// 	  this.isExternal = true;
+//   }
 
 	onClick(): void {
 
@@ -195,6 +197,23 @@ export class DataImporterComponent implements OnInit {
 				error: {},
 			});
 		}
+	}
+
+	setImportSource(event, type): void {
+		if(type === "EXTERNAL"){
+			this.isExternal = true;
+		}
+		else{
+			this.isExternal = false;
+		}
+	}
+
+	onNext(): void {
+		this.showImportConfig = true;
+	}
+
+	onBack(): void {
+		this.showImportConfig = false;
 	}
 
 
