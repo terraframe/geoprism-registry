@@ -352,7 +352,7 @@ export class HierarchyComponent implements OnInit {
         } );
     }
 
-    public editHierarchyType( obj: HierarchyType ): void {
+    public editHierarchyType( obj: HierarchyType, readOnly: boolean ): void {
         this.bsModalRef = this.modalService.show( CreateHierarchyTypeModalComponent, {
             animated: true,
             backdrop: true,
@@ -360,6 +360,7 @@ export class HierarchyComponent implements OnInit {
             'class': 'upload-modal'
         } );
         this.bsModalRef.content.edit = true;
+        this.bsModalRef.content.readOnly = readOnly;
         this.bsModalRef.content.hierarchyType = obj;
         this.bsModalRef.content.onHierarchytTypeCreate.subscribe( data => {
             let pos = this.getHierarchyTypePosition( data.code );
@@ -435,7 +436,7 @@ export class HierarchyComponent implements OnInit {
         } );
     }
 
-    public manageGeoObjectType( geoObjectType: GeoObjectType ): void {
+    public manageGeoObjectType( geoObjectType: GeoObjectType, readOnly: boolean ): void {
 
         this.bsModalRef = this.modalService.show( ManageGeoObjectTypeModalComponent, {
             animated: true,
@@ -450,6 +451,7 @@ export class HierarchyComponent implements OnInit {
             else return 0;
         } );
         this.bsModalRef.content.geoObjectType = geoObjectType;
+        this.bsModalRef.content.readOnly = readOnly;
 
         ( <ManageGeoObjectTypeModalComponent>this.bsModalRef.content ).onGeoObjectTypeSubmitted.subscribe( data => {
 

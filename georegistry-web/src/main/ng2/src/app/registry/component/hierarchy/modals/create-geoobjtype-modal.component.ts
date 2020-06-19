@@ -8,6 +8,7 @@ import { GeoObjectType } from '../../../model/registry';
 import { RegistryService } from '../../../service/registry.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 import { Organization } from '../../../../shared/model/core';
+import { AuthService } from '../../../../shared/service/auth.service';
 
 
 @Component( {
@@ -26,7 +27,7 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
      */
     public onGeoObjTypeCreate: Subject<GeoObjectType>;
 
-    constructor( private lService: LocalizationService, private registryService: RegistryService, public bsModalRef: BsModalRef ) { }
+    constructor( private lService: LocalizationService, private auth: AuthService, private registryService: RegistryService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
         this.onGeoObjTypeCreate = new Subject();
@@ -43,11 +44,23 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
         };
 
         this.registryService.getOrganizations().then(orgs => {
+        
           if (orgs.length === 1)
           {
             this.geoObjectType.organizationCode = orgs[0].code;
           }
-          this.organizations = orgs;
+          
+          // Filter out organizations they're not RA's of
+          this.organizations = [];
+          
+          for (var i = 0; i < orgs.length; ++i)
+          {
+            if (this.auth.isOrganizationRA(orgs[i].code))
+            {
+              this.organizations.push(orgs[i]);
+            }
+          }
+          
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

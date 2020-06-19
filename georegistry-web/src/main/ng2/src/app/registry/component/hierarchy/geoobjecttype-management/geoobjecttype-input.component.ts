@@ -22,6 +22,7 @@ import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-m
 } )
 export class GeoObjectTypeInputComponent implements OnInit {
 
+    @Input() readOnly: boolean = false;
     @Input() geoObjectType: GeoObjectType;
     @Output() geoObjectTypeChange:  EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
     editGeoObjectType: GeoObjectType;

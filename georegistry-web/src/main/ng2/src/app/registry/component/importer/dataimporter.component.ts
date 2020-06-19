@@ -77,6 +77,8 @@ export class DataImporterComponent implements OnInit {
    * id of currently selected external system.
    */ 
   externalSystemId: string;
+  
+  isLoading: boolean = true;
 
 	constructor(private service: IOService,
     	private eventService: EventService,
@@ -91,6 +93,13 @@ export class DataImporterComponent implements OnInit {
 	  this.sysService.getExternalSystems(1, 100).then(paginatedSystems => {
       
       this.externalSystems = paginatedSystems.resultSet;
+      
+      if (this.externalSystems.length == 0)
+      {
+        this.isExternal = false;
+      }
+      
+      this.isLoading = false;
 
     }).catch((err: HttpErrorResponse) => {
       this.error(err);

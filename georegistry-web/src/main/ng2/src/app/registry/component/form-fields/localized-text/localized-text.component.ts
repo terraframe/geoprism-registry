@@ -9,6 +9,7 @@ import { LocalizedValue } from '../../../../shared/model/core';
 export class LocalizedTextComponent {
     @Input() public key: string = "";
     @Input() public value: LocalizedValue;
+    @Input() public disabled: boolean = false;
     @Output() public valueChange = new EventEmitter<LocalizedValue>();
 
     constructor() { }
