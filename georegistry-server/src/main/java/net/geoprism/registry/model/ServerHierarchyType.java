@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -67,6 +67,8 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.roles.CreateHierarchyPermissionException;
 import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
@@ -204,8 +206,8 @@ public class ServerHierarchyType
     GeoEntity.getStrategy().shutdown(this.entityRelationship.definesType());
 
     this.entityRelationship.delete();
-    
-    ((MdEdgeDAO)this.getMdEdge()).delete();
+
+    ( (MdEdgeDAO) this.getMdEdge() ).delete();
   }
 
   public void addToHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
@@ -225,40 +227,42 @@ public class ServerHierarchyType
 
       throw exception;
     }
-    
+
     this.addToHierarchyTransaction(parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
     this.refresh();
   }
-  
+
   /**
-   * @return The organization associated with this HierarchyType. If this HierarchyType
-   * is AllowedIn (or constructed incorrectly) this method will return null.
+   * @return The organization associated with this HierarchyType. If this
+   *         HierarchyType is AllowedIn (or constructed incorrectly) this method
+   *         will return null.
    */
   public Organization getOrganization()
   {
-    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS)
-        || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
+    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS) || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
     {
-      return null; // AllowedIn is deprecated and should not be used by the end-user.
+      return null; // AllowedIn is deprecated and should not be used by the
+                   // end-user.
     }
-    
+
     Actor uniRelActor = this.getUniversalRelationship().getOwner();
-    if (!(uniRelActor instanceof Roles))
+    if (! ( uniRelActor instanceof Roles ))
     {
-      return null; // If we get here, then the HierarchyType was not created correctly.
+      return null; // If we get here, then the HierarchyType was not created
+                   // correctly.
     }
     else
     {
       Roles uniRelRole = (Roles) uniRelActor;
       String myOrgCode = RegistryRole.Type.parseOrgCode(uniRelRole.getRoleName());
-      
+
       return Organization.getByCode(myOrgCode);
     }
   }
-  
+
   @Transaction
   private void addToHierarchyTransaction(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
@@ -378,72 +382,34 @@ public class ServerHierarchyType
   @Transaction
   private void removeFromHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    Universal parent;
+    ServerGeoObjectType parentType = ServerGeoObjectType.get(parentGeoObjectTypeCode);
+    ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
-    if (parentGeoObjectTypeCode == null)
-    {
-      parent = Universal.getRoot();
-    }
-    else
-    {
-      parent = Universal.getByKey(parentGeoObjectTypeCode);
-    }
-
-    Universal child = Universal.getByKey(childGeoObjectTypeCode);
-
-    boolean hasData = hasData(child);
-
-    removeAllChildrenFromHierarchy(parent, this.universalRelationship);
+    ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+    
+    boolean hasData = service.hasData(this, childType);
 
     if (hasData)
     {
-      child.enforceValidRemoveLink(parent, this.universalRelationship.definesType());
+      GeoObjectTypeHasDataException ex = new GeoObjectTypeHasDataException();
+      ex.setName(childType.getLabel().getValue());
+      throw ex;
     }
 
-    if (child.getIsLeafType())
-    {
-      this.removeParentReferenceToLeafType(parent, child);
-    }
-  }
+//    Universal child = childType.getUniversal();
+    Universal parent = parentType.getUniversal();
 
-  private static boolean hasData(Universal uni)
-  {
-    if (uni.getIsLeafType())
-    {
-      MdBusiness mdBiz = uni.getMdBusiness();
+    removeAllChildrenFromHierarchy(parent, this.universalRelationship);
 
-      BusinessQuery bq = new QueryFactory().businessQuery(mdBiz.definesType());
-
-      if (bq.getCount() > 0)
-      {
-        GeoObjectTypeHasDataException ex = new GeoObjectTypeHasDataException();
-        ex.setName(uni.getDisplayLabel().getValue());
-        throw ex;
-      }
-    }
-    else
-    {
-      GeoEntityQuery query = new GeoEntityQuery(new QueryFactory());
-      Condition condition = query.getUniversal().EQ(uni);
-
-      Term[] thisAllDescends = TermUtil.getAllDescendants(uni.getOid(), TermUtil.getAllParentRelationships(uni.getOid()));
-      for (int i = 0; i < thisAllDescends.length; ++i)
-      {
-        condition = condition.OR(query.getUniversal().EQ((Universal) thisAllDescends[i]));
-      }
-      query.WHERE(condition);
-
-      // return query.getCount() > 0;
-
-      if (query.getCount() > 0)
-      {
-        GeoObjectTypeHasDataException ex = new GeoObjectTypeHasDataException();
-        ex.setName(uni.getDisplayLabel().getValue());
-        throw ex;
-      }
-    }
-
-    return false;
+//    if (hasData)
+//    {
+//      child.enforceValidRemoveLink(parent, this.universalRelationship.definesType());
+//    }
+//
+//    if (child.getIsLeafType())
+//    {
+//      this.removeParentReferenceToLeafType(parent, child);
+//    }
   }
 
   private static void removeAllChildrenFromHierarchy(Universal parent, MdTermRelationship mdTermRelationship)
@@ -480,7 +446,7 @@ public class ServerHierarchyType
   public static ServerHierarchyType get(String hierarchyTypeCode)
   {
     Optional<HierarchyType> hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyTypeCode);
-    
+
     if (!hierarchyType.isPresent())
     {
       net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
