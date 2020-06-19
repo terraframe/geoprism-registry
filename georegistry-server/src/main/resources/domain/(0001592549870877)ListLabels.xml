@@ -1,0 +1,120 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  	
+	  	  <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publishingFor">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.publishingFor" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Generating for" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publishNewVersion">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.publishNewVersion" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Generate New List" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.forDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.forDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="List Valid For" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeOverTime.forDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="changeOverTime.forDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="For Date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.generatedDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.generatedDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Date Generated" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publishDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.publishDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Date Published" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.createDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.createDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Create Date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.publish.versions">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.publish.versions" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Publish Lists" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="importer.import.from-file.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="importer.import.from-file.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Import from my computer" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="importer.import.from-file.description">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="importer.import.from-file.description" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="I will upload a spreadsheet from my computer." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="importer.import.from-external.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="importer.import.from-external.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Import from an external system" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="importer.import.from-external.description">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="importer.import.from-external.description" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="I will use a connected external system to import data." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterList.publish.help.text">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterList.publish.help.text" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Publish the lists for the defined frequency and from the specified starting date." />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+  	
+  	</createOrUpdate>
+  
+  
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

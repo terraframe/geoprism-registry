@@ -1,6 +1,6 @@
 
 <div *ngIf="!isLoading && !showImportConfig">
-  <div class="container-fluid">
+  <div class="container">
     <div class="row" style="margin-top:20px;">
     
         <div class="col-xs-6 radio-btn-wrapper">
@@ -25,7 +25,7 @@
                 </p>
             </label>
 
-            <div class="button-holder text-right">
+            <div class="button-holder">
                 <button type="submit" class="btn btn-primary" (click)="onNext()">
                     <localize key="io.next"></localize>
                 </button>
