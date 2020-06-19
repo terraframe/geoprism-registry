@@ -57,7 +57,7 @@ public class GeoObjectExporter
   @Request
   public static void mainInReq() throws IOException
   {
-    GeoObjectExporter exporter = new GeoObjectExporter("test123root", "test123hr", null, true, GeoObjectExportFormat.JSON_REVEAL, null, null);
+    GeoObjectExporter exporter = new GeoObjectExporter("test123leafgot", "test123hr", null, true, GeoObjectExportFormat.JSON_CGR, "test123sys", null, null);
     InputStream is = exporter.export();
     
     IOUtils.copy(is, System.out);
@@ -81,13 +81,16 @@ public class GeoObjectExporter
 
   private GeoObjectExportFormat format;
   
-  public GeoObjectExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, Integer pageSize, Integer pageNumber)
+  private String externalSystemId;
+  
+  public GeoObjectExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
   {
     this.got = ServerGeoObjectType.get(gotCode);
     this.hierarchyType = ServerHierarchyType.get(hierarchyCode);
     this.since = since;
     this.includeLevel = includeLevel == null ? Boolean.FALSE : includeLevel;
     this.format = format == null ? GeoObjectExportFormat.JSON_CGR : format;
+    this.externalSystemId = externalSystemId;
     this.pageSize = pageSize;
     this.pageNumber = pageNumber;
     
@@ -171,7 +174,7 @@ public class GeoObjectExporter
     
     if (this.format.equals(GeoObjectExportFormat.JSON_REVEAL))
     {
-      builder.registerTypeAdapter(GeoObject.class, new RevealGeoObjectJsonAdapters.RevealSerializer(this.got, this.hierarchyType, includeLevel));
+      builder.registerTypeAdapter(GeoObject.class, new RevealGeoObjectJsonAdapters.RevealSerializer(this.got, this.hierarchyType, this.includeLevel, this.externalSystemId));
     }
     else if (this.format.equals(GeoObjectExportFormat.JSON_CGR))
     {

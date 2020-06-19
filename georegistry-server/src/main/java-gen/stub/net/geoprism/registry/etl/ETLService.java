@@ -49,6 +49,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.GeoObjectEditorController;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;

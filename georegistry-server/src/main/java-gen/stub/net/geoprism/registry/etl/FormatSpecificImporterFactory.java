@@ -20,6 +20,12 @@ package net.geoprism.registry.etl;
 
 import com.runwaysdk.resource.ApplicationResource;
 
+import net.geoprism.registry.etl.upload.ExcelImporter;
+import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
+import net.geoprism.registry.etl.upload.ShapefileImporter;
+
 public class FormatSpecificImporterFactory
 {
   public static enum FormatImporterType {

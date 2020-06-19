@@ -27,7 +27,7 @@ import java.util.TimeZone;
 
 import net.geoprism.DataUploaderDTO;
 import net.geoprism.registry.etl.DataImportJob;
-import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ShapefileService;
 

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.etl.upload;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,6 +32,7 @@ import net.geoprism.data.etl.excel.ExcelObjectException;
 import net.geoprism.data.etl.excel.ExcelValueException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
+import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.excel.MapFeatureRow;
 
 import org.apache.poi.ss.util.CellReference;
@@ -50,12 +51,12 @@ public class ExcelContentHandler implements SheetHandler
   /**
    * Column index-Column Name Map for the current sheet
    */
-  private Map<Integer, String> map;
+  protected Map<Integer, String> map;
 
   /**
    * Current row number
    */
-  private long                  rowNum;
+  protected long                  rowNum;
 
   /**
    * Current error row number
@@ -149,7 +150,7 @@ public class ExcelContentHandler implements SheetHandler
     }
   }
 
-  private String setColumnName(String cellReference, String columnName)
+  protected String setColumnName(String cellReference, String columnName)
   {
     CellReference reference = new CellReference(cellReference);
     Integer column = new Integer(reference.getCol());
@@ -157,7 +158,7 @@ public class ExcelContentHandler implements SheetHandler
     return this.map.put(column, columnName);
   }
 
-  private String getColumnName(String cellReference)
+  protected String getColumnName(String cellReference)
   {
     CellReference reference = new CellReference(cellReference);
     Integer column = new Integer(reference.getCol());

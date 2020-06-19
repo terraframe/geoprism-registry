@@ -16,19 +16,17 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
-
-import com.vividsolutions.jts.geom.Geometry;
+package net.geoprism.registry.etl.upload;
 
 import net.geoprism.data.importer.FeatureRow;
 
-public interface FormatSpecificImporterIF
+public interface ObjectImporterIF
 {
-  public Geometry getGeometry(FeatureRow row);
 
-  public void setObjectImporter(ObjectImporterIF objectImporter);
+  public void validateRow(FeatureRow simpleFeatureRow);
 
-  public void setStartIndex(Long workProgress);
+  public void importRow(FeatureRow simpleFeatureRow);
 
-  public void run(ImportStage stage);
+  public void setFormatSpecificImporter(FormatSpecificImporterIF formatImporter);
+
 }

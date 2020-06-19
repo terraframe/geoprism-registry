@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class Location

@@ -27,11 +27,11 @@ import java.util.TimeZone;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ShapefileImporter;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.ObjectImporterFactory;
-import net.geoprism.registry.etl.ShapefileImporter;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;

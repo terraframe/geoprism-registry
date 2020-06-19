@@ -16,29 +16,20 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.etl.upload;
 
-public interface ImportProgressListenerIF
+import com.vividsolutions.jts.geom.Geometry;
+
+import net.geoprism.data.importer.FeatureRow;
+import net.geoprism.registry.etl.ImportStage;
+
+public interface FormatSpecificImporterIF
 {
-  public void setWorkTotal(Long workTotal);
-  
-  public Long getWorkTotal();
-  
-  public void setWorkProgress(Long newWorkProgress);
-  
-  public Long getWorkProgress();
-  
-  public void setImportedRecords(Long newImportedRecords);
-  
-  public Long getImportedRecords();
-  
-  public void recordError(Throwable ex, String objectJson, String objectType, long rowNum);
+  public Geometry getGeometry(FeatureRow row);
 
-  public boolean hasValidationProblems();
+  public void setObjectImporter(ObjectImporterIF objectImporter);
 
-  public void addReferenceProblem(ValidationProblem problem);
-  
-  public void addRowValidationProblem(ValidationProblem problem);
-  
-  public void applyValidationProblems();
+  public void setStartIndex(Long workProgress);
+
+  public void run(ImportStage stage);
 }

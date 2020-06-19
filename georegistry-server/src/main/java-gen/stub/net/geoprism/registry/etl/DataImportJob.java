@@ -37,6 +37,12 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
+import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
+import net.geoprism.registry.etl.upload.ObjectImporterIF;
+
 public class DataImportJob extends DataImportJobBase
 {
   private static final long serialVersionUID = 1742592504;

@@ -74,7 +74,7 @@ export class DataImporterComponent implements OnInit {
   externalSystems: ExternalSystem[];
   
   /*
-   * id of currently selected external system.
+   * currently selected external system.
    */ 
   externalSystemId: string;
   
@@ -156,7 +156,20 @@ export class DataImporterComponent implements OnInit {
 			const configuration = JSON.parse(response);
 			
 			configuration.isExternal = this.isExternal;
+			
+			let externalSystem: ExternalSystem = null;
+			for (let i = 0; i < this.externalSystems.length; ++i)
+			{
+			  let sys: ExternalSystem = this.externalSystems[i];
+			  
+			  if (sys.oid === this.externalSystemId)
+			  {
+			    externalSystem = sys;
+			  }
+			}
+			
 			configuration.externalSystemId = this.externalSystemId;
+			configuration.externalSystem = externalSystem;
 			
       if (this.format === "SHAPEFILE")
 	    {

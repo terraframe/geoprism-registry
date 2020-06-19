@@ -3,6 +3,11 @@
   <div class="container">
 	  <div class="row" style="margin-top:20px;">
 	
+      <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group" style="height:400px;">
+        <a style="font-weight:bold;font-size:20px;" (click)="onClickImportFile()" class="btn btn-default" role="button"><localize key="io.import.importFile"></localize></a>
+        <a style="font-weight:bold;font-size:20px;" (click)="onClickImportExternalSystem()" class="btn btn-default" role="button"><localize key="io.import.importExternalSystem"></localize></a>
+      </div>
+	<!-- 
 	    <div (click)="onClickImportFile()" class="col-xs-6" style="
 		    width: 200px;
 		    height: 170px;
@@ -19,6 +24,7 @@
 		      <localize key="io.import.importFile"></localize>
         </span>
 		  </div>
+		  
 		  <div (click)="onClickImportExternalSystem()" class="col-xs-6" style="
 		    width: 200px;
 		    height: 170px;
@@ -33,7 +39,7 @@
 		      <localize key="io.import.importExternalSystem"></localize>
 		    </span>
 		  </div>
-	
+	-->
 	  </div>
   </div>
 </div>

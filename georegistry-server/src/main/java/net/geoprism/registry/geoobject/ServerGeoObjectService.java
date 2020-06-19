@@ -64,7 +64,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
   
   @Request(RequestType.SESSION)
-  public InputStream getAll(String sessionId, String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, Integer pageNumber, Integer pageSize)
+  public InputStream getAll(String sessionId, String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, String externalSystemId, Integer pageNumber, Integer pageSize)
   {
     GeoObjectExportFormat goef = null;
     if (format != null && format.length() > 0)
@@ -72,7 +72,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       goef = GeoObjectExportFormat.valueOf(format);
     }
     
-    GeoObjectExporter exporter = new GeoObjectExporter(gotCode, hierarchyCode, since, includeLevel, goef, pageSize, pageNumber);
+    GeoObjectExporter exporter = new GeoObjectExporter(gotCode, hierarchyCode, since, includeLevel, goef, externalSystemId, pageSize, pageNumber);
     
     try
     {
