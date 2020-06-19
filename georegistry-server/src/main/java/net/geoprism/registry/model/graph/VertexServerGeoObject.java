@@ -1333,20 +1333,20 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (EdgeObject edge : edges)
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
-      
-      if(!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
+
+      if (!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
       {
         VertexObject childVertex = edge.getChild();
-  
+
         MdVertexDAOIF mdVertex = (MdVertexDAOIF) childVertex.getMdClass();
-  
+
         ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
         ServerGeoObjectType childType = ServerGeoObjectType.get(mdVertex);
-  
+
         VertexServerGeoObject child = new VertexServerGeoObject(childType, childVertex, date);
-  
+
         ServerChildTreeNode tnChild;
-  
+
         if (recursive)
         {
           tnChild = internalGetChildGeoObjects(child, childrenTypes, recursive, ht, date);
@@ -1355,7 +1355,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         {
           tnChild = new ServerChildTreeNode(child, ht, date);
         }
-  
+
         tnRoot.addChild(tnChild);
       }
     }
@@ -1426,20 +1426,20 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (EdgeObject edge : edges)
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
-      
-      if(!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
+
+      if (!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
       {
         VertexObject parentVertex = edge.getParent();
-  
+
         MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
-  
+
         ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
         ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
-  
+
         VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
-  
+
         ServerParentTreeNode tnParent;
-  
+
         if (recursive)
         {
           tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
@@ -1448,7 +1448,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         {
           tnParent = new ServerParentTreeNode(parent, ht, date);
         }
-  
+
         tnRoot.addParent(tnParent);
       }
     }
@@ -1505,27 +1505,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (EdgeObject edge : edges)
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
-      
-      if(!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
+
+      if (!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
       {
         ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
-  
+
         VertexObject parentVertex = edge.getParent();
-  
+
         MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
-  
+
         ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
-  
+
         Date date = edge.getObjectValue(GeoVertex.START_DATE);
         Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
-  
+
         ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date);
         tnRoot.setEndDate(endDate);
-  
+
         VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
-  
+
         ServerParentTreeNode tnParent;
-  
+
         if (recursive)
         {
           tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
@@ -1534,9 +1534,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         {
           tnParent = new ServerParentTreeNode(parent, ht, date);
         }
-  
+
         tnRoot.addParent(tnParent);
-  
+
         response.add(ht, tnRoot);
       }
     }
@@ -1552,5 +1552,20 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     final Date endDate = new GraphQuery<Date>("SELECT MAX(status_cot.startDate) FROM " + dbClassName).getSingleResult();
 
     return new Pair<Date, Date>(startDate, endDate);
+  }
+
+  public static boolean hasData(ServerHierarchyType hierarchyType, ServerGeoObjectType childType)
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*) FROM " + hierarchyType.getMdEdge().getDBClassName());
+    statement.append(" WHERE in.@class = :class");
+    statement.append(" OR out.@class = :class");
+
+    GraphQuery<Long> query = new GraphQuery<Long>(statement.toString());
+    query.setParameter("class", childType.getMdVertex().getDBClassName());
+
+    Long result = query.getSingleResult();
+
+    return ( result != null && result > 0 );
   }
 }

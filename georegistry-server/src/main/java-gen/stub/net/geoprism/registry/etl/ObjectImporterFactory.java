@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry.etl;
 
+import net.geoprism.registry.etl.upload.GeoObjectImporter;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
+import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 

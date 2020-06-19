@@ -243,11 +243,8 @@ public class ExcelFieldContentsHandler implements SheetHandler
     this.sheets = new JSONArray();
   }
 
-  public Field getField(String cellReference)
+  public Field createField(Integer column)
   {
-    CellReference reference = new CellReference(cellReference);
-    Integer column = new Integer(reference.getCol());
-
     if (!this.map.containsKey(column))
     {
       this.map.put(column, new Field());
@@ -346,6 +343,9 @@ public class ExcelFieldContentsHandler implements SheetHandler
   @Override
   public void cell(String cellReference, String contentValue, String formattedValue, ColumnType cellType)
   {
+    CellReference reference = new CellReference(cellReference);
+    final Integer colNum = new Integer(reference.getCol());
+    
     if (cellType.equals(ColumnType.FORMULA))
     {
       throw new ExcelFormulaException();
@@ -358,32 +358,37 @@ public class ExcelFieldContentsHandler implements SheetHandler
         throw new InvalidHeaderRowException();
       }
 
-      Field attribute = this.getField(cellReference);
+      Field attribute = this.createField(colNum);
       attribute.setName(formattedValue);
       attribute.setInputPosition(this.getFieldPosition(cellReference));
     }
     else
     {
-      Field attribute = this.getField(cellReference);
-      attribute.addDataType(cellType);
-
-      if (cellType.equals(ColumnType.NUMBER))
+      Field attribute = this.map.get(colNum);
+      
+      // The reveal format has extra data at the end of the spreadsheet which isn't directly mappable to an attribute
+      if (attribute != null)
       {
-        BigDecimal decimal = new BigDecimal(contentValue).stripTrailingZeros();
-
-        /*
-         * Precision is the total number of digits. Scale is the number of
-         * digits after the decimal place.
-         */
-        int precision = decimal.precision();
-        int scale = decimal.scale();
-
-        attribute.setPrecision(precision - scale);
-        attribute.setScale(scale);
-      }
-      else if (cellType.equals(ColumnType.TEXT) || cellType.equals(ColumnType.INLINE_STRING))
-      {
-        attribute.addValue(contentValue);
+        attribute.addDataType(cellType);
+  
+        if (cellType.equals(ColumnType.NUMBER))
+        {
+          BigDecimal decimal = new BigDecimal(contentValue).stripTrailingZeros();
+  
+          /*
+           * Precision is the total number of digits. Scale is the number of
+           * digits after the decimal place.
+           */
+          int precision = decimal.precision();
+          int scale = decimal.scale();
+  
+          attribute.setPrecision(precision - scale);
+          attribute.setScale(scale);
+        }
+        else if (cellType.equals(ColumnType.TEXT) || cellType.equals(ColumnType.INLINE_STRING))
+        {
+          attribute.addValue(contentValue);
+        }
       }
     }
   }

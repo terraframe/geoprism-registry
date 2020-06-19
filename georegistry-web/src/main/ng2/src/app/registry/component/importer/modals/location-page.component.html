@@ -28,7 +28,7 @@
                 <label><localize key="io.import.modal.parent.matchStrategy"></localize></label>
               </div>
               <div class="holder">
-                <select name="matchStrategy" class="select-area" [(ngModel)]="location.matchStrategy" required>
+                <select [name]="i + '-matchStrategy'" class="select-area" [(ngModel)]="location.matchStrategy" [required]="location.target != null && location.target !== ''">
 			            <option></option>
 			            <option value="ALL"><localize key="io.modal.all"></localize></option>
 			            <option value="CODE"><localize key="io.modal.code"></localize></option>
