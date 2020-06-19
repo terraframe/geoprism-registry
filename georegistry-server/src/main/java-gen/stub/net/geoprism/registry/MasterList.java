@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -108,11 +108,6 @@ public class MasterList extends MasterListBase
     if (!isValidName(this.getCode()))
     {
       throw new InvalidMasterListCodeException("The master list code has an invalid character");
-    }
-
-    if (!Organization.isRegistryAdmin(this.getOrganization()))
-    {
-      throw new OrganizationRAException("User must be an admin of the organization in order to add a master list to it.");
     }
 
     /*
@@ -388,7 +383,7 @@ public class MasterList extends MasterListBase
 
       object.addProperty(MasterList.OID, this.getOid());
       object.addProperty(MasterList.ORGANIZATION, org.getOid());
-      object.addProperty("admin", Organization.isRegistryAdmin(org));
+      object.addProperty("admin", this.doesActorHavePermission());
     }
     else
     {
@@ -644,10 +639,10 @@ public class MasterList extends MasterListBase
       throw new ProgrammingErrorException(e);
     }
   }
-  
-  public void enforceActorHasPermission(SingleActorDAOIF actor, Operation op)
+
+  public void enforceActorHasPermission(Operation op)
   {
-    if (!doesActorHavePermission(actor, op))
+    if (!doesActorHavePermission())
     {
       if (op.equals(Operation.CREATE))
       {
@@ -663,43 +658,58 @@ public class MasterList extends MasterListBase
       }
     }
   }
-  
-  public boolean doesActorHavePermission(SingleActorDAOIF actor, Operation op)
+
+  public boolean doesActorHavePermission()
   {
-    Set<RoleDAOIF> roles = actor.authorizedRoles();
-    
-    String thisOrgCode = this.getOrganization().getCode();
-    
-    for (RoleDAOIF role : roles)
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      String roleName = role.getRoleName();
-      
-      if (RegistryRole.Type.isRA_Role(roleName))
+      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+      Set<RoleDAOIF> roles = actor.authorizedRoles();
+
+      Organization organization = this.getOrganization();
+      ServerGeoObjectType type = this.getGeoObjectType();
+
+      String thisOrgCode = organization.getCode();
+
+      String rmRoleName = RegistryRole.Type.getRM_RoleName(thisOrgCode, type.getCode());
+
+      for (RoleDAOIF role : roles)
       {
-        String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-        
-        if (orgCode.equals(thisOrgCode))
+        String roleName = role.getRoleName();
+
+        if (RegistryRole.Type.isRA_Role(roleName))
+        {
+          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
+
+          if (orgCode.equals(thisOrgCode))
+          {
+            return true;
+          }
+        }
+        else if (RegistryRole.Type.isSRA_Role(roleName))
+        {
+          return true;
+        }
+        else if (rmRoleName.equals(roleName))
         {
           return true;
         }
       }
-      else if (RegistryRole.Type.isSRA_Role(roleName))
-      {
-        return true;
-      }
+
+      return false;
     }
-    
-    return false;
+
+    return true;
   }
 
   @Transaction
   public static MasterList create(JsonObject object)
   {
     MasterList list = MasterList.fromJSON(object);
-    
+
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      list.enforceActorHasPermission(Session.getCurrentSession().getUser(), Operation.CREATE);
+      list.enforceActorHasPermission(Operation.CREATE);
     }
 
     MasterListQuery query = new MasterListQuery(new QueryFactory());
@@ -851,7 +861,7 @@ public class MasterList extends MasterListBase
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
       object.addProperty("label", org.getDisplayLabel().getValue());
-      object.addProperty("admin", Organization.isRegistryAdmin(org));
+      object.addProperty("admin", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
       object.add("lists", lists);
 
       response.add(object);
