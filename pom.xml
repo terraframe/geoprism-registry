@@ -30,6 +30,7 @@
   <description>Geoprism's Geo-ontological hierarchy registry</description>
 
   <modules>
+    <module>dhis2adapter</module>
     <module>georegistry-server</module>
     <module>georegistry-web</module>
   </modules>

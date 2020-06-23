@@ -1,0 +1,48 @@
+package net.geoprism.dhis2.dhis2adapter;
+
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+
+public class DHIS2Facade
+{
+  private String version;
+  
+  private HTTPConnector connector;
+  
+  public DHIS2Facade(HTTPConnector connector, String version)
+  {
+    this.connector = connector;
+    this.version = version;
+  }
+  
+  public HTTPResponse systemInfo() throws InvalidLoginException, HTTPException
+  {
+    return this.apiGet("system/info", null);
+  }
+  
+  public HTTPResponse metadataPost(List<NameValuePair> params, String payload) throws InvalidLoginException, HTTPException
+  {
+    return this.apiPost("metadata", params, payload);
+  }
+  
+  public HTTPResponse apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    if (!url.contains("?") && !url.endsWith(".json"))
+    {
+      url = url + ".json";
+    }
+    
+    return connector.httpGet("api/" + version + "/" + url, params);
+  }
+  
+  public HTTPResponse apiPost(String url, List<NameValuePair> params, String body) throws InvalidLoginException, HTTPException
+  {
+    if (!url.contains("?") && !url.endsWith(".json"))
+    {
+      url = url + ".json";
+    }
+    
+    return connector.httpPost("api/" + version + "/" + url, params, body);
+  }
+}
