@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
 
 /**
  * Tests basic HTTP communication architecture by talking to play.dhis2.org

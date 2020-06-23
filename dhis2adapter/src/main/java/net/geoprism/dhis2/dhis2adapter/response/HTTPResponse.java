@@ -32,7 +32,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.dhis2.dhis2adapter;
+package net.geoprism.dhis2.dhis2adapter.response;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

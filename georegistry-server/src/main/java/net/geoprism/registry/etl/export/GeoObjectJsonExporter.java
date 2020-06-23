@@ -111,7 +111,7 @@ public class GeoObjectJsonExporter
     }
   }
   
-  private OIterator<GeoObject> postgresQuery()
+  public OIterator<GeoObject> postgresQuery()
   {
     GeoObjectQuery goq = new GeoObjectQuery(got);
     

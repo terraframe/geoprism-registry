@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 
+import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
+
 public class DHIS2Facade
 {
   private String version;
@@ -21,9 +24,9 @@ public class DHIS2Facade
     return this.apiGet("system/info", null);
   }
   
-  public HTTPResponse metadataPost(List<NameValuePair> params, String payload) throws InvalidLoginException, HTTPException
+  public MetadataImportResponse metadataPost(List<NameValuePair> params, String payload) throws InvalidLoginException, HTTPException
   {
-    return this.apiPost("metadata", params, payload);
+    return new MetadataImportResponse(this.apiPost("metadata", params, payload));
   }
   
   public HTTPResponse apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
