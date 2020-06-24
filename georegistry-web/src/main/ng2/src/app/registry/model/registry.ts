@@ -226,9 +226,8 @@ export class PaginationPage {
 	results: any[];
 }
 
-export class ScheduledJob {
+export class AbstractScheduledJob {
 	jobId: string;
-	fileName: string;
 	historyId: string;
 	stage: string;
 	status: string;
@@ -239,6 +238,9 @@ export class ScheduledJob {
 	workTotal: number;
 	startDate: string;
 	endDate: string;
+}
+
+export class ScheduledJob extends AbstractScheduledJob {
 	importedRecords: number;
 	configuration: ImportConfiguration;
 	importErrors: PaginationPage;
@@ -286,8 +288,9 @@ export class StepConfig {
 
 export class Step {
 	label: string;
-	complete: boolean;
-	enabled: boolean;
+	complete?: boolean;
+	enabled?: boolean;
+	status?: string;
 }
 
 export class MasterList {
@@ -376,4 +379,6 @@ export class OrgSyncInfo {
 	systems: { label: string, oid: string, type: string }[];
 };
 
-
+export class ExportScheduledJob extends AbstractScheduledJob {
+	stepConfig?: StepConfig;
+}

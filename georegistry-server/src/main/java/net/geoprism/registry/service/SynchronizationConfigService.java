@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -27,16 +30,27 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
+import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 
+import net.geoprism.GeoprismUser;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.export.DataExportJob;
+import net.geoprism.registry.etl.export.DataExportJobQuery;
+import net.geoprism.registry.etl.export.ExportHistory;
+import net.geoprism.registry.etl.export.ExportHistoryQuery;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
 public class SynchronizationConfigService
@@ -53,7 +67,7 @@ public class SynchronizationConfigService
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, String json) throws JSONException
   {
-    JsonElement element = new JsonParser().parse(json);
+    JsonElement element = JsonParser.parseString(json);
 
     SynchronizationConfig config = SynchronizationConfig.desieralize(element.getAsJsonObject());
     config.apply();
@@ -151,4 +165,99 @@ public class SynchronizationConfigService
   {
     SynchronizationConfig.unlock(oid);
   }
+
+  @Request(RequestType.SESSION)
+  public JsonObject run(String sessionId, String oid)
+  {
+    SynchronizationConfig config = SynchronizationConfig.get(oid);
+
+    SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), config.getOrganization().getCode());
+    }
+
+    List<? extends DataExportJob> jobs = config.getJobs();
+
+    DataExportJob job = jobs.get(0);
+    job.appLock();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.apply();
+
+    ExportHistory hist = job.start(config);
+    GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+
+    return serializeHistory(hist, user, job);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject getJobs(String sessionId, String configId, Integer pageSize, Integer pageNumber)
+  {
+    QueryFactory qf = new QueryFactory();
+
+    DataExportJobQuery jQuery = new DataExportJobQuery(qf);
+    jQuery.WHERE(jQuery.getConfig().EQ(configId));
+
+    ExportHistoryQuery ihq = new ExportHistoryQuery(qf);
+    ihq.WHERE(ihq.job(jQuery));
+    ihq.restrictRows(pageSize, pageNumber);
+    ihq.ORDER_BY_DESC(ihq.getCreateDate());
+
+    try (OIterator<? extends ExportHistory> it = ihq.getIterator())
+    {
+      LinkedList<JsonWrapper> results = new LinkedList<JsonWrapper>();
+
+      while (it.hasNext())
+      {
+        ExportHistory hist = it.next();
+        DataExportJob job = (DataExportJob) hist.getAllJob().getAll().get(0);
+
+        GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+
+        results.add(new JsonWrapper(serializeHistory(hist, user, job)));
+      }
+
+      return new Page<JsonWrapper>(ihq.getCount(), pageNumber, pageSize, results).toJSON();
+    }
+  }
+
+  protected JsonObject serializeHistory(ExportHistory hist, GeoprismUser user, ExecutableJob job)
+  {
+    JsonObject jo = new JsonObject();
+
+    jo.addProperty("jobType", job.getType());
+    jo.addProperty("stage", hist.getStage().get(0).name());
+    jo.addProperty("status", hist.getStatus().get(0).name());
+    jo.addProperty("author", user.getUsername());
+    jo.addProperty("createDate", formatDate(hist.getCreateDate()));
+    jo.addProperty("lastUpdateDate", formatDate(hist.getLastUpdateDate()));
+    jo.addProperty("workProgress", hist.getWorkProgress());
+    jo.addProperty("workTotal", hist.getWorkTotal());
+    jo.addProperty("historyId", hist.getOid());
+    jo.addProperty("jobId", job.getOid());
+
+    if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
+    {
+      String errorJson = hist.getErrorJson();
+      JsonObject error = JsonParser.parseString(errorJson).getAsJsonObject();
+
+      JsonObject exception = new JsonObject();
+      exception.addProperty("type", error.get("type").getAsString());
+      exception.addProperty("message", hist.getLocalizedError(Session.getCurrentLocale()));
+
+      jo.add("exception", exception);
+    }
+
+    return jo;
+  }
+
+  public static String formatDate(Date date)
+  {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT, Session.getCurrentLocale());
+    // format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+    return format.format(date);
+  }
+
 }

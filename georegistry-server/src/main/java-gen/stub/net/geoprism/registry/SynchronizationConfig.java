@@ -8,11 +8,13 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.view.JsonSerializable;
@@ -26,6 +28,39 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   public SynchronizationConfig()
   {
     super();
+  }
+
+  @Override
+  @Transaction
+  public void apply()
+  {
+    super.apply();
+
+    if (this.isNew())
+    {
+      DataExportJob job = new DataExportJob();
+      job.setConfig(this);
+      job.apply();
+    }
+  }
+
+  @Override
+  @Transaction
+  public void delete()
+  {
+    List<? extends DataExportJob> jobs = getJobs();
+
+    for (DataExportJob job : jobs)
+    {
+      job.delete();
+    }
+
+    super.delete();
+  }
+
+  public List<? extends DataExportJob> getJobs()
+  {
+    return DataExportJob.getAll(this);
   }
 
   private void populate(JsonObject json)

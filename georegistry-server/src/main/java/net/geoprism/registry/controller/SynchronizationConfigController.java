@@ -81,12 +81,28 @@ public class SynchronizationConfigController
 
     return new RestBodyResponse(response);
   }
-  
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "unlock")
   public ResponseIF unlock(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
     this.service.unlock(request.getSessionId(), oid);
-    
+
+    return new RestResponse();
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-jobs")
+  public ResponseIF getJobs(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
+  {
+    JsonObject jobs = this.service.getJobs(request.getSessionId(), oid, pageSize, pageNumber);
+
+    return new RestBodyResponse(jobs.toString());
+  }
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "run")
+  public ResponseIF run(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    this.service.run(request.getSessionId(), oid);
+
     return new RestResponse();
   }
 }
