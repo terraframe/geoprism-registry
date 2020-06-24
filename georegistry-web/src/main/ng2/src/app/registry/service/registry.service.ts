@@ -45,10 +45,17 @@ export class RegistryService {
     }
     
     // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
-    getGeoObjectTypes( types: any ): Promise<GeoObjectType[]> {
+    getGeoObjectTypes( types: string[], hierarchies:string[] ): Promise<GeoObjectType[]> {
         let params: HttpParams = new HttpParams();
 
-        params = params.set( 'types', JSON.stringify( types ) );
+
+        if(types != null) {
+          params = params.set( 'types', JSON.stringify( types ) );	
+        }
+
+        if(hierarchies != null) {
+          params = params.set( 'hierarchies', JSON.stringify( hierarchies ) );	
+        }
 
         return this.http
             .get<GeoObjectType[]>( acp + '/cgr/geoobjecttype/get-all', { params: params } )

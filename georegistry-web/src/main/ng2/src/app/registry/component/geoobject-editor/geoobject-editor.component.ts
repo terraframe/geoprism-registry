@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, 
-    Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { DatePipe } from '@angular/common';
@@ -8,22 +7,16 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 
 import { RegistryService } from '../../service/registry.service';
-import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
 
-import { IOService } from '../../service/io.service';
 import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, ParentTreeNode, ImportError } from '../../model/registry';
 
-import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
 import { AuthService } from '../../../shared/service/auth.service';
-
-
-declare var acp: string;
 
 
 @Component( {
@@ -108,9 +101,9 @@ export class GeoObjectEditorComponent implements OnInit {
      */
     private goSubmit: GeoObjectOverTime;
 
-    constructor( private service: IOService, private modalService: BsModalService, public bsModalRef: BsModalRef, private changeDetectorRef: ChangeDetectorRef,
-        private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private localizeService: LocalizationService, private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, authService: AuthService ) {
+    constructor( private modalService: BsModalService, public bsModalRef: BsModalRef,
+        private registryService: RegistryService, private localizeService: LocalizationService, 
+        authService: AuthService ) {
         
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
@@ -258,7 +251,7 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     private fetchGeoObjectType( code: string ) {
-        this.registryService.getGeoObjectTypes( [code] )
+        this.registryService.getGeoObjectTypes( [code], null )
             .then( geoObjectType => {
                 this.geoObjectType = geoObjectType[0];
                 

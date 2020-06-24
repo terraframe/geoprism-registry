@@ -4,6 +4,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class SyncLevel
 {
+
   public static enum Type {
     ORG_UNITS, RELATIONSHIPS, ALL
   }

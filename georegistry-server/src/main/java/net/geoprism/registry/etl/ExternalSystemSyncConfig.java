@@ -3,6 +3,8 @@ package net.geoprism.registry.etl;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 
@@ -54,6 +56,13 @@ public class ExternalSystemSyncConfig
   public void setLabel(LocalizedValue label)
   {
     this.label = label;
+  }
+
+  public void populate(SynchronizationConfig config)
+  {
+    this.setHierarchy(config.getServerHierarchyType());
+    this.setLabel(LocalizedValueConverter.convert(config.getLabel()));
+    this.setOrganization(config.getOrganization());
   }
 
 }

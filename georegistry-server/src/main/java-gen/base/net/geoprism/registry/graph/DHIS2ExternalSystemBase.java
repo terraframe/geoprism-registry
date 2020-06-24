@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -235517744)
+@com.runwaysdk.business.ClassSignature(hash = -643632978)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -32,7 +14,8 @@ public abstract class DHIS2ExternalSystemBase extends net.geoprism.registry.grap
   public static java.lang.String PASSWORD = "password";
   public static java.lang.String URL = "url";
   public static java.lang.String USERNAME = "username";
-  private static final long serialVersionUID = -235517744;
+  public static java.lang.String VERSION = "version";
+  private static final long serialVersionUID = -643632978;
   
   public DHIS2ExternalSystemBase()
   {
@@ -85,6 +68,22 @@ public abstract class DHIS2ExternalSystemBase extends net.geoprism.registry.grap
   public void setUsername(String value)
   {
     this.setValue(USERNAME, value);
+  }
+  
+  public String getVersion()
+  {
+    return (String) this.getObjectValue(VERSION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getVersionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.DHIS2ExternalSystem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(VERSION);
+  }
+  
+  public void setVersion(String value)
+  {
+    this.setValue(VERSION, value);
   }
   
   protected String getDeclaredType()

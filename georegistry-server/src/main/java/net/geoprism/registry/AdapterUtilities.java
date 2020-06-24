@@ -23,10 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 

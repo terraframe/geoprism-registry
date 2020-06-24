@@ -1,0 +1,110 @@
+<div class="modal-body">
+  <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+  <div class="text-center">
+    <h2>
+      <localize key="synchronization.config.title"></localize>
+    </h2>
+  </div>
+  <!-- <div class="col-md-12 order-md-1"> -->
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
+
+    <fieldset>
+      <div class="row-holder" *ngFor="let localeValue of config.label.localeValues">
+        <div class="label-holder">
+          <label> <localize key="synchronization.config.label"></localize> ({{localeValue.locale}})
+          </label>
+        </div>
+        <div class="holder">
+          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [required]="localeValue.locale === 'defaultLocale'" />
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label><localize key="synchronization.config.organization"></localize></label>
+        </div>
+        <div class="holder">
+          <span class="select">
+            <select type="text" [(ngModel)]="config.organization" name="organization" (change)='onOrganizationSelected()' [disabled]="config.oid != null" required>
+              <option></option>
+              <option *ngFor="let org of organizations" [value]="org.code">{{org.label}}</option>
+            </select>
+          </span>
+        </div>
+      </div>
+      <div *ngIf="cOrg != null" class="row-holder">
+        <div class="label-holder">
+          <label><localize key="synchronization.config.hierarchy"></localize></label>
+        </div>
+        <div class="holder">
+          <span class="select">
+            <select type="text" [(ngModel)]="config.hierarchy" name="hierarchy" [disabled]="config.oid != null" required>
+              <option></option>
+              <option *ngFor="let hierarchy of cOrg.hierarchies" [value]="hierarchy.code">{{hierarchy.label}}</option>
+            </select>
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="config.hierarchy != null" class="row-holder">
+        <div class="label-holder">
+          <label><localize key="synchronization.config.system"></localize></label>
+        </div>
+        <div class="holder">
+          <span class="select">
+            <select type="text" [(ngModel)]="config.system" name="system" (change)='onChange()' [disabled]="config.oid != null" required>
+              <option></option>
+              <option *ngFor="let system of cOrg.systems" [value]="system.oid">{{system.label}}</option>
+            </select>
+          </span>
+        </div>
+      </div>
+
+      <div class="row-holder" *ngIf="cSystem != null && cSystem.type === 'DHIS2ExternalSystem'">
+        <div class="label-holder">
+          <label><localize key="synchronization.config.units"></localize></label>
+        </div>
+        <div class="holder">
+          <div *ngFor="let level of this.config.configuration['levels']; let i = index;" class="row">
+            <div class="col-sm-2">Level {{i + 1}}</div>
+            <div class="col-sm-4">
+              <select type="text" [(ngModel)]="level.geoObjectType" [name]="'geoObjectType' + i" required>
+                <option></option>
+                <option *ngFor="let type of types" [value]="type.code">{{type.label.localizedValue}}</option>
+              </select>
+            </div>
+            <div class="col-sm-4">
+              <select type="text" [(ngModel)]="level.type" [name]="'type' + i" required>
+                <option></option>
+                <option value="ORG_UNITS"><localize key="synchronization.config.units"></localize></option>
+                <option value="RELATIONSHIPS"><localize key="synchronization.config.relationships"></localize></option>
+                <option value="ALL"><localize key="synchronization.config.all"></localize></option>
+              </select>
+            </div>
+            <div class="col-sm-2">
+              <a class="fa fa-trash-o ico-remove" (click)="removeLevel(i)" [title]="'account.removeTooltip' | localize"></a>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <a class="fa fa-plus" (click)="addLevel()" [title]="'account.newTooltip' | localize"></a>
+            </div>
+          </div>          
+        </div>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder"></div>
+        <div class="holder">
+          <div class="button-holder">
+            <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
+            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+  </form>
+  <!-- </div> -->
+</div>

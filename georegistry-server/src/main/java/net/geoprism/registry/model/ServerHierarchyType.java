@@ -4,21 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -26,13 +27,9 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.ontology.TermHacker;
-import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAOIF;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
@@ -41,14 +38,11 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.query.Condition;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
@@ -60,7 +54,6 @@ import com.runwaysdk.system.ontology.ImmutableRootException;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.Organization;
@@ -69,9 +62,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.roles.CreateHierarchyPermissionException;
-import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
-import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
+import net.geoprism.registry.hierarchy.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType
@@ -386,7 +377,7 @@ public class ServerHierarchyType
     ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
     ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
-    
+
     boolean hasData = service.hasData(this, childType);
 
     if (hasData)
@@ -396,20 +387,21 @@ public class ServerHierarchyType
       throw ex;
     }
 
-//    Universal child = childType.getUniversal();
+    // Universal child = childType.getUniversal();
     Universal parent = parentType.getUniversal();
 
     removeAllChildrenFromHierarchy(parent, this.universalRelationship);
 
-//    if (hasData)
-//    {
-//      child.enforceValidRemoveLink(parent, this.universalRelationship.definesType());
-//    }
-//
-//    if (child.getIsLeafType())
-//    {
-//      this.removeParentReferenceToLeafType(parent, child);
-//    }
+    // if (hasData)
+    // {
+    // child.enforceValidRemoveLink(parent,
+    // this.universalRelationship.definesType());
+    // }
+    //
+    // if (child.getIsLeafType())
+    // {
+    // this.removeParentReferenceToLeafType(parent, child);
+    // }
   }
 
   private static void removeAllChildrenFromHierarchy(Universal parent, MdTermRelationship mdTermRelationship)
@@ -604,6 +596,24 @@ public class ServerHierarchyType
     int startIndex = GISConstants.GEO_PACKAGE.length() + 1;
 
     return mdTermRelKey.substring(startIndex, mdTermRelKey.length());
+  }
+
+  public static List<ServerHierarchyType> getForOrganization(Organization organization)
+  {
+    final HierarchyTypePermissionServiceIF service = ServiceFactory.getHierarchyPermissionService();
+    final List<ServerHierarchyType> list = new LinkedList<ServerHierarchyType>();
+
+    List<HierarchyType> lHt = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    // Filter out what they're not allowed to see
+
+    lHt.forEach(ht -> {
+      if (service.canRead(Session.getCurrentSession().getUser(), organization.getCode()))
+      {
+        list.add(ServerHierarchyType.get(ht));
+      }
+    });
+
+    return list;
   }
 
 }

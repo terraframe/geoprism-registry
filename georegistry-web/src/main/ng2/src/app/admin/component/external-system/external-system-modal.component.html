@@ -109,6 +109,21 @@
             </div>
           </div>     
 
+          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
+            <div class="label-holder">
+              <label><localize key="external.system.version"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="select">
+                <select type="text" [(ngModel)]="system.version" name="version" required>
+                  <option></option>
+                  <option value="1.0.0">1.0.0</option>
+                  <option value="1.0.1">1.0.1</option>
+                </select>
+              </span>
+            </div>
+          </div>     
+
           <div class="row-holder">
             <div class="label-holder">
             </div>                    
