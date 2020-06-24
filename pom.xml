@@ -23,13 +23,14 @@
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>0.8.1-SNAPSHOT</version>
+  <version>0.8.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
   <description>Geoprism's Geo-ontological hierarchy registry</description>
 
   <modules>
+    <module>dhis2adapter</module>
     <module>georegistry-server</module>
     <module>georegistry-web</module>
   </modules>

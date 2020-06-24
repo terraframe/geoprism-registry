@@ -71,6 +71,11 @@ import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicato
 import { ImportProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/import-problem-widget.component';
 import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
 
+import { SynchronizationConfigManagerComponent } from './component/synchronization-config/synchronization-config-manager.component';
+import { SynchronizationConfigModalComponent } from './component/synchronization-config/synchronization-config-modal.component';
+import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
+
+
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
 import { GeoObjectTypePipe } from './pipe/geoobjecttype.pipe';
@@ -79,6 +84,7 @@ import { ToEpochDateTimePipe } from './pipe/to-epoch-date-time.pipe';
 import { RegistryService } from './service/registry.service';
 import { TaskService } from './service/task.service';
 import { HierarchyService } from './service/hierarchy.service';
+import { SynchronizationConfigService } from './service/synchronization-config.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 import { ChangeRequestService } from './service/change-request.service';
 import { IOService } from './service/io.service';
@@ -174,7 +180,11 @@ import '../rxjs-extensions';
 		RowValidationProblemWidgetComponent,
 		StepIndicatorComponent,
 		ImportProblemWidgetComponent,
-		TaskViewerComponent
+		TaskViewerComponent,
+		// Synchronization Config
+		SynchronizationConfigManagerComponent,
+		SynchronizationConfigModalComponent,
+		SynchronizationConfigComponent
 	],
 	providers: [
 		MapService,
@@ -187,7 +197,8 @@ import '../rxjs-extensions';
 		TaskService,
 		DatePipe,
 		ToEpochDateTimePipe,
-		StepIndicatorComponent
+		StepIndicatorComponent,
+		SynchronizationConfigService
 	],
 	entryComponents: [
 		AddChildToHierarchyModalComponent,
@@ -216,7 +227,8 @@ import '../rxjs-extensions';
 		ActionDetailModalComponent,
 		JobConflictModalComponent,
 		ReuploadModalComponent,
-		StepIndicatorComponent
+		StepIndicatorComponent,
+		SynchronizationConfigModalComponent
 	]
 })
 export class RegistryModule { }

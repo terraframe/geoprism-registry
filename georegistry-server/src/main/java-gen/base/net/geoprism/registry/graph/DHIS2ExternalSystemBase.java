@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -235517744)
+@com.runwaysdk.business.ClassSignature(hash = -643632978)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -14,7 +14,8 @@ public abstract class DHIS2ExternalSystemBase extends net.geoprism.registry.grap
   public static java.lang.String PASSWORD = "password";
   public static java.lang.String URL = "url";
   public static java.lang.String USERNAME = "username";
-  private static final long serialVersionUID = -235517744;
+  public static java.lang.String VERSION = "version";
+  private static final long serialVersionUID = -643632978;
   
   public DHIS2ExternalSystemBase()
   {
@@ -67,6 +68,22 @@ public abstract class DHIS2ExternalSystemBase extends net.geoprism.registry.grap
   public void setUsername(String value)
   {
     this.setValue(USERNAME, value);
+  }
+  
+  public String getVersion()
+  {
+    return (String) this.getObjectValue(VERSION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getVersionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.DHIS2ExternalSystem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(VERSION);
+  }
+  
+  public void setVersion(String value)
+  {
+    this.setValue(VERSION, value);
   }
   
   protected String getDeclaredType()

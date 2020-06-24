@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry;
+package net.geoprism.registry.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

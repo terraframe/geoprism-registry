@@ -41,9 +41,6 @@ export class MasterListManagerComponent implements OnInit {
 	ngOnInit(): void {
 
 		this.service.getMasterListsByOrg().then(response => {
-
-			this.localizeService.setLocales(response.locales);
-
 			this.orgs = response.orgs;
 
 		}).catch((err: HttpErrorResponse) => {

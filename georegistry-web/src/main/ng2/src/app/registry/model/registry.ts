@@ -54,13 +54,13 @@ export class GeoObjectType {
 }
 
 export class Task {
-  id: string;
-  templateKey: string;
-  msg: string;
-  title: string;
-  status: string;
-  createDate: number;
-  completedDate: number;
+	id: string;
+	templateKey: string;
+	msg: string;
+	title: string;
+	status: string;
+	createDate: number;
+	completedDate: number;
 }
 
 // export class Attribute {
@@ -227,7 +227,7 @@ export class PaginationPage {
 }
 
 export class ScheduledJob {
-  jobId: string;
+	jobId: string;
 	fileName: string;
 	historyId: string;
 	stage: string;
@@ -357,5 +357,23 @@ export class MasterListByOrg {
 	label: string;
 	lists: { label: string, oid: string, createDate: string, lastUpdateDate: string, admin: boolean, isMaster: boolean }[];
 }
+
+export class SynchronizationConfig {
+	oid?: string;
+	type?: string;
+	systemLabel?: string;
+	organization: string;
+	system: string;
+	hierarchy: string;
+	label: LocalizedValue;
+	configuration: any;
+}
+
+export class OrgSyncInfo {
+	label: string;
+	code: string;
+	hierarchies: { label: string, code: string }[];
+	systems: { label: string, oid: string, type: string }[];
+};
 
 

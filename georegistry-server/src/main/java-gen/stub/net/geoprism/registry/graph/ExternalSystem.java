@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.graph;
 
 import java.util.LinkedList;
@@ -15,7 +33,9 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
@@ -27,6 +47,8 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   {
     super();
   }
+
+  public abstract ExternalSystemSyncConfig configuration();
 
   @Override
   @Transaction
@@ -45,6 +67,20 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     }
 
     super.apply();
+  }
+
+  @Override
+  @Transaction
+  public void delete()
+  {
+    List<SynchronizationConfig> configs = SynchronizationConfig.getAll(this);
+
+    for (SynchronizationConfig config : configs)
+    {
+      config.delete();
+    }
+
+    super.delete();
   }
 
   protected void populate(JsonObject json)
@@ -181,7 +217,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     return new DHIS2ExternalSystem();
   }
-  
+
   public static ExternalSystem getByExternalSystemId(String id)
   {
     final MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(ExternalSystem.CLASS);
@@ -195,9 +231,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     final GraphQuery<ExternalSystem> query = new GraphQuery<ExternalSystem>(builder.toString());
 
     query.setParameter("id", id);
-    
+
     ExternalSystem es = query.getSingleResult();
-    
+
     if (es == null)
     {
       net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
@@ -206,7 +242,23 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
       ex.setAttributeLabel(attribute.getDisplayLabel(Session.getCurrentLocale()));
       throw ex;
     }
-    
+
     return es;
+  }
+
+  public static List<ExternalSystem> getForOrganization(Organization organization)
+  {
+    final MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(ExternalSystem.CLASS);
+    MdAttributeDAOIF oAttribute = mdVertex.definesAttribute(ExternalSystem.ORGANIZATION);
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT FROM " + mdVertex.getDBClassName());
+    builder.append(" WHERE " + oAttribute.getColumnName() + " = :org");
+    builder.append(" ORDER BY id");
+
+    final GraphQuery<ExternalSystem> query = new GraphQuery<ExternalSystem>(builder.toString());
+    query.setParameter("org", organization.getOid());
+
+    return query.getResults();
   }
 }

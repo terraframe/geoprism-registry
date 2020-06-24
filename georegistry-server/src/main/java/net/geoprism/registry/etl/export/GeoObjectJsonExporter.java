@@ -41,13 +41,14 @@ import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.LastUpdateRestriction;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class GeoObjectExporter
+public class GeoObjectJsonExporter
 {
   public static void main(String[] args) throws IOException
   {
@@ -57,13 +58,13 @@ public class GeoObjectExporter
   @Request
   public static void mainInReq() throws IOException
   {
-    GeoObjectExporter exporter = new GeoObjectExporter("test123leafgot", "test123hr", null, true, GeoObjectExportFormat.JSON_CGR, "test123sys", null, null);
+    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter("test123leafgot", "test123hr", null, true, GeoObjectExportFormat.JSON_CGR, "test123sys", null, null);
     InputStream is = exporter.export();
     
     IOUtils.copy(is, System.out);
   }
   
-  final private Logger logger = LoggerFactory.getLogger(GeoObjectExporter.class);
+  final private Logger logger = LoggerFactory.getLogger(GeoObjectJsonExporter.class);
   
   final private ServerGeoObjectType got;
   
@@ -81,16 +82,30 @@ public class GeoObjectExporter
 
   private GeoObjectExportFormat format;
   
-  private String externalSystemId;
+  private ExternalSystem externalSystem;
   
-  public GeoObjectExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
+  public GeoObjectJsonExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
   {
     this.got = ServerGeoObjectType.get(gotCode);
     this.hierarchyType = ServerHierarchyType.get(hierarchyCode);
     this.since = since;
     this.includeLevel = includeLevel == null ? Boolean.FALSE : includeLevel;
     this.format = format == null ? GeoObjectExportFormat.JSON_CGR : format;
-    this.externalSystemId = externalSystemId;
+    this.externalSystem = ExternalSystem.getByExternalSystemId(externalSystemId);
+    this.pageSize = pageSize;
+    this.pageNumber = pageNumber;
+    
+    init();
+  }
+  
+  public GeoObjectJsonExporter(ServerGeoObjectType got, ServerHierarchyType hierarchyType, Date since, Boolean includeLevel, GeoObjectExportFormat format, ExternalSystem externalSystem, Integer pageSize, Integer pageNumber)
+  {
+    this.got = got;
+    this.hierarchyType = hierarchyType;
+    this.externalSystem = externalSystem;
+    this.since = since;
+    this.includeLevel = includeLevel == null ? Boolean.FALSE : includeLevel;
+    this.format = format == null ? GeoObjectExportFormat.JSON_CGR : format;
     this.pageSize = pageSize;
     this.pageNumber = pageNumber;
     
@@ -111,7 +126,7 @@ public class GeoObjectExporter
     }
   }
   
-  private OIterator<GeoObject> postgresQuery()
+  public OIterator<GeoObject> postgresQuery()
   {
     GeoObjectQuery goq = new GeoObjectQuery(got);
     
@@ -174,11 +189,15 @@ public class GeoObjectExporter
     
     if (this.format.equals(GeoObjectExportFormat.JSON_REVEAL))
     {
-      builder.registerTypeAdapter(GeoObject.class, new RevealGeoObjectJsonAdapters.RevealSerializer(this.got, this.hierarchyType, this.includeLevel, this.externalSystemId));
+      builder.registerTypeAdapter(GeoObject.class, new RevealGeoObjectJsonAdapters.RevealSerializer(this.got, this.hierarchyType, this.includeLevel, this.externalSystem));
     }
     else if (this.format.equals(GeoObjectExportFormat.JSON_CGR))
     {
       builder.registerTypeAdapter(GeoObject.class, new GeoObjectJsonAdapters.GeoObjectSerializer());
+    }
+    else if (this.format.equals(GeoObjectExportFormat.JSON_DHIS2))
+    {
+      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.got, this.hierarchyType, this.externalSystem));
     }
     
     builder.create().toJson(go, go.getClass(), jw);
@@ -214,7 +233,7 @@ public class GeoObjectExporter
       @Request
       public void runInReq()
       {
-        GeoObjectExporter.this.write(pos);
+        GeoObjectJsonExporter.this.write(pos);
       }
     });
     t.setDaemon(true);

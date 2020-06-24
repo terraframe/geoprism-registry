@@ -1,0 +1,89 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+  <div id="app-container" class="container-fluid">
+
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="row">
+      <div *ngIf="config != null" class="col-md-12">
+
+        <div class="row">
+          <div class="col-md-12">
+            <h3>{{config.label.localizedValue}}</h3>
+          </div>
+        </div>
+
+        <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
+          <div style="margin-bottom: 10px;" class="row">
+            <div class="col-md-8">CGR -> {{config.systemLabel}}</div>
+            <div class="col-md-4">
+              <form #myForm="ngForm">
+                <div class="form-group">
+                  <button type="submit" style="margin-left: 15px;" (click)="onRun()" class="btn btn-primary" role="button" [disabled]="myForm.invalid" [title]="'synchronization.config.run' | localize">
+                    <localize key="synchronization.config.run"></localize>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="row" *ngIf="config != null && config.type === 'DHIS2ExternalSystem'">
+            <div class="col-md-12">
+              <div class="label-holder">
+                <label><localize key="synchronization.config.units"></localize></label>
+              </div>
+              <div class="holder">
+                <div *ngFor="let level of this.config.configuration['levels']; let i = index;" class="row">
+                  <div class="col-sm-2">Level {{i + 1}}</div>
+                  <div class="col-sm-6">{{level.geoObjectType}}</div>
+                  <div class="col-sm-4">
+                    <localize *ngIf="level.type === 'ORG_UNITS'" key="synchronization.config.units"></localize>
+                    <localize *ngIf="level.type === 'RELATIONSHIPS'" key="synchronization.config.relationships"></localize>
+                    <localize *ngIf="level.type === 'ALL'" key="synchronization.config.all"></localize>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="col-md-12 order-md-1">
+              <ul class="list-group">
+                <div class="solid-table-wrapper">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr style="height: 56px;">
+                        <th style="vertical-align: middle;"><localize key="masterlist.jobs"></localize></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let job of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
+                        <td style="vertical-align: middle;">
+                          <div class="wrapper">
+                            <i style="position: absolute; font-size: 40px;" class="fa fa-file" aria-hidden="true"></i>
+                            <p style="padding-left: 60px;">
+                              <span style="display: block;"> {{job.createDate}} </span>
+                              <span style="display: block;"> {{job.author}} </span>
+                              <span style="display: block;"> {{job.type}} </span>
+                              <span style="display: block;"> {{job.status}} </span>
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
+                    <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+                  </div>
+                </div>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

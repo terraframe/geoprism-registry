@@ -53,14 +53,14 @@ public class RevealGeoObjectJsonAdapters
     
     private Integer depth;
     
-    private String externalSystemId;
+    private ExternalSystem externalSystem;
     
-    public RevealSerializer(ServerGeoObjectType got, ServerHierarchyType hierarchyType, Boolean includeLevel, String externalSystemId)
+    public RevealSerializer(ServerGeoObjectType got, ServerHierarchyType hierarchyType, Boolean includeLevel, ExternalSystem externalSystem)
     {
       this.got = got;
       this.hierarchyType = hierarchyType;
       this.includeLevel = includeLevel;
-      this.externalSystemId = externalSystemId;
+      this.externalSystem = externalSystem;
       
       calculateDepth();
     }
@@ -68,21 +68,20 @@ public class RevealGeoObjectJsonAdapters
     @Override
     public JsonElement serialize(GeoObject go, Type typeOfSrc, JsonSerializationContext context)
     {
-      ExternalSystem system = ExternalSystem.getByExternalSystemId(this.externalSystemId);
       ServerGeoObjectIF serverGo = ServiceFactory.getGeoObjectService().getGeoObject(go);
       
       JsonObject joGO = new JsonObject();
       {
         joGO.addProperty("type", "feature");
         
-        joGO.addProperty("id", serverGo.getExternalId(system));
+        joGO.addProperty("id", serverGo.getExternalId(this.externalSystem));
         
         if (go.getGeometry() != null)
         {
           GeoJSONWriter gw = new GeoJSONWriter();
           org.wololo.geojson.Geometry gJSON = gw.write(go.getGeometry());
     
-          JsonObject joGeom = new JsonParser().parse(gJSON.toString()).getAsJsonObject();
+          JsonObject joGeom = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
           
           joGO.add("geometry", joGeom);
         }
@@ -116,7 +115,7 @@ public class RevealGeoObjectJsonAdapters
             
             if (parent != null)
             {
-              props.addProperty("parentId", parent.getExternalId(system));
+              props.addProperty("parentId", parent.getExternalId(this.externalSystem));
               
               props.addProperty("externalParentId", parent.getCode());
             }

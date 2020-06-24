@@ -1,0 +1,85 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.etl.RemoteConnectionException" message="Could not connect the remote server. Please check your connection configuration and that the remote server is reachable.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.etl.export.ExportRemoteException" message="The remote server encountered an error while synchronizing data with the CGR. {remoteError}" exported="false" publish="false" >
+        <attributes>
+          <text name="remoteError" label="Remote Error" />
+        </attributes>
+      </mdException>
+      
+      <mdBusiness name="net.geoprism.registry.etl.export.DataExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
+      </mdBusiness>
+      
+      <mdBusiness name="net.geoprism.registry.etl.export.ExportHistory" extends="com.runwaysdk.system.scheduler.JobHistory" exported="false">
+        <attributes>
+          <enumeration name="stage" label="stage" selectMultiple="false" required="true" type="net.geoprism.registry.etl.export.ExportStage"/>
+          <text name="configJson" label="configJson" description="A JSON object which configures the export." />
+          <long name="exportedRecords" label="Exported Records" rejectNegative="true" />
+        </attributes>
+      </mdBusiness>
+      
+      <enumerationMaster
+        name="net.geoprism.registry.etl.export.ExportStageMaster"
+        label="ExportStage"
+        generateController="false" />
+      
+      <object key="CONNECTING" type="net.geoprism.registry.etl.export.ExportStageMaster">
+        <attribute name="enumName" value="CONNECTING" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Connecting" />
+        </attributeStruct>
+      </object>
+      
+      <object key="CONNECTION_FAILED" type="net.geoprism.registry.etl.export.ExportStageMaster">
+        <attribute name="enumName" value="CONNECTION_FAILED" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Connection Failed" />
+        </attributeStruct>
+      </object>
+      
+      <object key="EXPORT" type="net.geoprism.registry.etl.export.ExportStageMaster">
+        <attribute name="enumName" value="EXPORT" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Uploading" />
+        </attributeStruct>
+      </object>
+      
+      <object key="EXPORT_RESOLVE" type="net.geoprism.registry.etl.export.ExportStageMaster">
+        <attribute name="enumName" value="EXPORT_RESOLVE" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Export Resolution" />
+        </attributeStruct>
+      </object>
+      
+      <object key="RESUME_EXPORT" type="net.geoprism.registry.etl.export.ExportStageMaster">
+        <attribute name="enumName" value="RESUME_EXPORT" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Resume Export" />
+        </attributeStruct>
+      </object>
+      
+      <object key="COMPLETE" type="net.geoprism.registry.etl.export.ExportStageMaster">
+        <attribute name="enumName" value="COMPLETE" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Complete" />
+        </attributeStruct>
+      </object>
+      
+      <mdEnumeration name="net.geoprism.registry.etl.export.ExportStage" type="net.geoprism.registry.etl.export.ExportStageMaster">
+        <includeAll />
+      </mdEnumeration>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.RemoteConnectionException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.etl.export.DataExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.export.ExportStageMaster" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.export.ExportRemoteException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>

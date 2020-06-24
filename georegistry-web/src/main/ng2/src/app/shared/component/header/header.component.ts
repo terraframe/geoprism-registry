@@ -72,6 +72,10 @@ export class CgrHeaderComponent {
       {
         return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
       }
+      else if (item === "CONFIGS")
+      {
+        return this.service.hasExactRole(RegistryRoleType.RA);
+      }
       else if (item === "SETTINGS")
       {
         return true;

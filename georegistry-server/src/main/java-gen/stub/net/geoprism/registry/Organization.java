@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -22,23 +22,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.GeoprismUser;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.EntityDAOIF;
 import com.runwaysdk.dataaccess.cache.ObjectCache;
 import com.runwaysdk.query.OIterator;
@@ -49,6 +44,9 @@ import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.gis.geo.Universal;
+
+import net.geoprism.GeoprismUser;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 
 public class Organization extends OrganizationBase
 {
@@ -425,6 +423,39 @@ public class Organization extends OrganizationBase
     if (session != null)
     {
       return session.userHasRole(roleName);
+    }
+
+    return true;
+  }
+
+  /**
+   * @param org
+   * @return If the current user is part of the registry admin role for the
+   *         given organization
+   */
+  public static boolean isRegistryMaintainer(Organization org)
+  {
+    final SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      Map<String, LocalizedValue> types = org.getGeoObjectTypes();
+
+      Set<Entry<String, LocalizedValue>> entries = types.entrySet();
+
+      for (Entry<String, LocalizedValue> entry : entries)
+      {
+        String roleName = RegistryRole.Type.getRM_RoleName(org.getCode(), entry.getKey());
+
+        boolean hasRole = session.userHasRole(roleName);
+
+        if (hasRole)
+        {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     return true;

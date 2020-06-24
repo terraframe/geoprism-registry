@@ -85,7 +85,7 @@ export class SubmitChangeRequestComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.registryService.getGeoObjectTypes( [] ).then( types => {
+        this.registryService.getGeoObjectTypes( [], null ).then( types => {
             
             var myOrgTypes = [];
             for (var i = 0; i < types.length; ++i)

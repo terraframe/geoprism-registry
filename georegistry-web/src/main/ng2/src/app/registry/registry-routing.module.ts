@@ -12,6 +12,8 @@ import { ChangeRequestPageComponent } from './component/change-request-page/chan
 import { ScheduledJobsComponent } from './component/scheduled-jobs/scheduled-jobs.component';
 import { JobComponent } from './component/scheduled-jobs/job.component';
 import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
+import { SynchronizationConfigManagerComponent } from './component/synchronization-config/synchronization-config-manager.component';
+import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from '../shared/service/guard.service';
 
@@ -70,6 +72,16 @@ const routes: Routes = [
         path: 'tasks',
         component: TaskViewerComponent,
         canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'synchronization-configs',
+        component: SynchronizationConfigManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'synchronization-config/:oid',
+        component: SynchronizationConfigComponent,
+        canActivate: [AuthGuard]
     }
 ];
 
