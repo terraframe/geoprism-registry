@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.stream.JsonWriter;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
@@ -34,7 +36,6 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.RemoteConnectionException;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -44,85 +45,89 @@ public class DataExportJob extends DataExportJobBase
 {
   private static final long serialVersionUID = -1821569567;
   
-  private SynchronizationConfig config;
-  
-  private Thread exportThread;
-  
-  private DHIS2Facade dhis2;
-  
   private static final Logger logger = LoggerFactory.getLogger(DataExportJob.class);
   
-  // Set to VALIDATE and the remote DHIS2 server will not commit, only "dry-run".
-  private static final String IMPORT_MODE = "VALIDATE";
+  //Set to VALIDATE and the remote DHIS2 server will not commit, only "dry-run".
+  private static final String IMPORT_MODE      = "VALIDATE";
+  
+  private SynchronizationConfig syncConfig;
+  
+  private DHIS2SyncConfig dhis2Config;
+  
+  private DHIS2Facade dhis2;
   
   public DataExportJob()
   {
     super();
   }
-  
+
   @Override
   public synchronized JobHistory start()
   {
     throw new UnsupportedOperationException();
   }
 
-  public synchronized ImportHistory start(DHIS2SyncConfig configuration)
+  public synchronized ExportHistory start(SynchronizationConfig configuration)
   {
     return executableJobStart(configuration);
   }
 
-  private ImportHistory executableJobStart(DHIS2SyncConfig configuration)
+  private ExportHistory executableJobStart(SynchronizationConfig configuration)
   {
     JobHistoryRecord record = startInTrans(configuration);
 
     this.getQuartzJob().start(record);
 
-    return (ImportHistory) record.getChild();
+    return (ExportHistory) record.getChild();
   }
-  
+
   @Transaction
-  private JobHistoryRecord startInTrans(DHIS2SyncConfig configuration)
+  private JobHistoryRecord startInTrans(SynchronizationConfig configuration)
   {
     ExportHistory history = (ExportHistory) this.createNewHistory();
 
     // TODO
-//    configuration.setHistoryId(history.getOid());
-//    configuration.setJobId(this.getOid());
-    
-//    history.appLock();
-//    history.setConfigJson(configuration.toJSON().toString());
-//    history.apply();
+    // configuration.setHistoryId(history.getOid());
+    // configuration.setJobId(this.getOid());
+
+    // history.appLock();
+    // history.setConfig(configuration);
+    // history.apply();
 
     JobHistoryRecord record = new JobHistoryRecord(this, history);
     record.apply();
-    
+
     return record;
   }
   
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
-    DHIS2ExternalSystem system = (DHIS2ExternalSystem) config.getExternalSystem();
-    
+    this.syncConfig = this.getConfig();
+    this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
+
+    DHIS2ExternalSystem system = this.dhis2Config.getSystem();
+
     HTTPConnector connector = new HTTPConnector();
     connector.setServerUrl(system.getUrl());
     connector.setCredentials(system.getUsername(), system.getPassword());
     
     dhis2 = new DHIS2Facade(connector, "33");
-    
+
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", IMPORT_MODE));
-    
+
     try
     {
       InputStream isPayload = this.export();
       
       MetadataImportResponse resp = dhis2.metadataPost(params, new InputStreamEntity(isPayload));
-      
+
       if (resp.getStatusCode() != 200)
       {
         ExportRemoteException re = new ExportRemoteException();
-        re.setRemoteError(resp.getError()); // TODO : resp.getError throws UnsupportedOp
+        re.setRemoteError(resp.getError()); // TODO : resp.getError throws
+                                            // UnsupportedOp
       }
     }
     catch (InvalidLoginException | HTTPException e)
@@ -134,21 +139,19 @@ public class DataExportJob extends DataExportJobBase
   
   private void write(OutputStream out) throws IOException
   {
-    final DHIS2SyncConfig syncConfig = (DHIS2SyncConfig) config.buildConfiguration();
-    
     try (JsonWriter jw = new JsonWriter(new OutputStreamWriter(out, Charset.forName("UTF-8"))))
     {
       jw.beginObject();
       {
         jw.name("organisationUnits").beginArray();
         {
-          List<SyncLevel> levels = syncConfig.getLevels();
+          List<SyncLevel> levels = this.dhis2Config.getLevels();
           
           for (SyncLevel level : levels)
           {
             ServerGeoObjectType got = level.getGeoObjectType();
             
-            GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, this.config.getServerHierarchyType(), null, true, GeoObjectExportFormat.JSON_DHIS2, this.config.getExternalSystem(), -1, -1);
+            GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, this.syncConfig.getServerHierarchyType(), null, true, GeoObjectExportFormat.JSON_DHIS2, this.syncConfig.getExternalSystem(), -1, -1);
             exporter.setDHIS2Facade(this.dhis2);
             exporter.writeObjects(jw);
           }
@@ -162,7 +165,7 @@ public class DataExportJob extends DataExportJobBase
     PipedOutputStream pos = new PipedOutputStream();
     PipedInputStream pis = new PipedInputStream(pos);
 
-    exportThread = new Thread(new Runnable()
+    Thread exportThread = new Thread(new Runnable()
     {
       @Override
       public void run()
@@ -211,7 +214,7 @@ public class DataExportJob extends DataExportJobBase
 
     return pis;
   }
-  
+
   @Override
   protected JobHistory createNewHistory()
   {
@@ -233,5 +236,16 @@ public class DataExportJob extends DataExportJobBase
   protected QuartzRunwayJob createQuartzRunwayJob()
   {
     return new QueueingQuartzJob(this);
+  }
+
+  public static List<? extends DataExportJob> getAll(SynchronizationConfig config)
+  {
+    DataExportJobQuery query = new DataExportJobQuery(new QueryFactory());
+    query.WHERE(query.getConfig().EQ(config));
+
+    try (OIterator<? extends DataExportJob> it = query.getIterator())
+    {
+      return it.getAll();
+    }
   }
 }

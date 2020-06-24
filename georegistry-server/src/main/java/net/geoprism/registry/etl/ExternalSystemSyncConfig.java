@@ -8,7 +8,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 
-public class ExternalSystemSyncConfig
+public abstract class ExternalSystemSyncConfig
 {
   private ExternalSystem      system;
 

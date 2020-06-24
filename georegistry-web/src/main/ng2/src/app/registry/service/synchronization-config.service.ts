@@ -25,7 +25,7 @@ import { finalize } from 'rxjs/operators';
 import { EventService } from '../../shared/service/event.service'
 
 import { PageResult } from '../../shared/model/core'
-import { SynchronizationConfig, OrgSyncInfo } from '../model/registry'
+import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from '../model/registry'
 
 declare var acp: any;
 
@@ -135,6 +135,36 @@ export class SynchronizationConfigService {
 			.toPromise();
 	}
 
+	run(oid: string): Promise<void> {
 
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
+		this.eventService.start();
+
+		return this.http
+			.post<any>(acp + '/synchronization-config/run', JSON.stringify({ oid: oid }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
+
+	getJobs(oid:string, pageNumber: number, pageSize: number): Promise<PageResult<ExportScheduledJob>> {
+
+		let params: HttpParams = new HttpParams();
+		params = params.set('oid', oid);
+		params = params.set('pageNumber', pageNumber.toString());
+		params = params.set('pageSize', pageSize.toString());
+
+//		this.eventService.start();
+
+		return this.http
+			.get<PageResult<ExportScheduledJob>>(acp + '/synchronization-config/get-jobs', { params: params })
+//			.pipe(finalize(() => {
+//				this.eventService.complete();
+//			}))
+			.toPromise();
+	}
 }

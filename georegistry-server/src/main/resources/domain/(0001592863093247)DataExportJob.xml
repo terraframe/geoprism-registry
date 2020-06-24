@@ -11,12 +11,14 @@
       </mdException>
       
       <mdBusiness name="net.geoprism.registry.etl.export.DataExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
+        <attributes>
+          <reference name="config" label="config" required="true" type="net.geoprism.registry.SynchronizationConfig"/>
+        </attributes>
       </mdBusiness>
       
       <mdBusiness name="net.geoprism.registry.etl.export.ExportHistory" extends="com.runwaysdk.system.scheduler.JobHistory" exported="false">
         <attributes>
           <enumeration name="stage" label="stage" selectMultiple="false" required="true" type="net.geoprism.registry.etl.export.ExportStage"/>
-          <text name="configJson" label="configJson" description="A JSON object which configures the export." />
           <long name="exportedRecords" label="Exported Records" rejectNegative="true" />
         </attributes>
       </mdBusiness>
@@ -76,6 +78,7 @@
   </doIt>
   <undoIt>
     <delete>
+      <object key="net.geoprism.registry.etl.export.ExportHistory" type="com.runwaysdk.system.metadata.MdBusiness"/>
       <object key="net.geoprism.registry.etl.RemoteConnectionException" type="com.runwaysdk.system.metadata.MdException"/>
       <object key="net.geoprism.registry.etl.export.DataExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>
       <object key="net.geoprism.registry.etl.export.ExportStageMaster" type="com.runwaysdk.system.metadata.MdBusiness"/>
