@@ -39,6 +39,11 @@
 
 
 	<dependencies>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>dhis2adapter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 		<dependency>
 			<groupId>net.geoprism</groupId>
 			<artifactId>geoprism-server</artifactId>

@@ -47,7 +47,7 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.query.postgres.LastUpdateRestriction;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class GeoObjectExporter
+public class GeoObjectJsonExporter
 {
   public static void main(String[] args) throws IOException
   {
@@ -57,13 +57,13 @@ public class GeoObjectExporter
   @Request
   public static void mainInReq() throws IOException
   {
-    GeoObjectExporter exporter = new GeoObjectExporter("test123leafgot", "test123hr", null, true, GeoObjectExportFormat.JSON_CGR, "test123sys", null, null);
+    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter("test123leafgot", "test123hr", null, true, GeoObjectExportFormat.JSON_CGR, "test123sys", null, null);
     InputStream is = exporter.export();
     
     IOUtils.copy(is, System.out);
   }
   
-  final private Logger logger = LoggerFactory.getLogger(GeoObjectExporter.class);
+  final private Logger logger = LoggerFactory.getLogger(GeoObjectJsonExporter.class);
   
   final private ServerGeoObjectType got;
   
@@ -83,7 +83,7 @@ public class GeoObjectExporter
   
   private String externalSystemId;
   
-  public GeoObjectExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
+  public GeoObjectJsonExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
   {
     this.got = ServerGeoObjectType.get(gotCode);
     this.hierarchyType = ServerHierarchyType.get(hierarchyCode);
@@ -111,7 +111,7 @@ public class GeoObjectExporter
     }
   }
   
-  private OIterator<GeoObject> postgresQuery()
+  public OIterator<GeoObject> postgresQuery()
   {
     GeoObjectQuery goq = new GeoObjectQuery(got);
     
@@ -214,7 +214,7 @@ public class GeoObjectExporter
       @Request
       public void runInReq()
       {
-        GeoObjectExporter.this.write(pos);
+        GeoObjectJsonExporter.this.write(pos);
       }
     });
     t.setDaemon(true);
