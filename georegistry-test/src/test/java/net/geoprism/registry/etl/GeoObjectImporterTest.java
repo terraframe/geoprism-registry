@@ -61,18 +61,14 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportConfiguration;
-import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.etl.ImportError;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
-import net.geoprism.registry.etl.ImportErrorQuery;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
+import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ExcelService;
@@ -436,8 +432,8 @@ public class GeoObjectImporterTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
-    config.addParent(new Location(testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent Country")));
-    config.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent State")));
+    config.addParent(new Location(testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent Country"), ParentMatchStrategy.ALL));
+    config.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent State"), ParentMatchStrategy.ALL));
     config.setStartDate(new Date());
     config.setEndDate(new Date());
 

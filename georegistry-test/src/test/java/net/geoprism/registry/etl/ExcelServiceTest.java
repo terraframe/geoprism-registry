@@ -75,8 +75,9 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
@@ -84,6 +85,7 @@ import net.geoprism.registry.io.DelegateShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
+import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -683,7 +685,7 @@ public class ExcelServiceTest
     configuration.setEndDate(new Date());
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
     
@@ -731,7 +733,7 @@ public class ExcelServiceTest
           }
         };
 
-        return new Location(type, delegate);
+        return new Location(type, delegate, ParentMatchStrategy.ALL);
       }
     });
 
@@ -758,7 +760,7 @@ public class ExcelServiceTest
     configuration.setEndDate(new Date());
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.STATE.getServerObject(), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(this.testData.STATE.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
     
@@ -799,7 +801,7 @@ public class ExcelServiceTest
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
     configuration.addExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, "00");
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
@@ -836,7 +838,7 @@ public class ExcelServiceTest
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent")));
+    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
     

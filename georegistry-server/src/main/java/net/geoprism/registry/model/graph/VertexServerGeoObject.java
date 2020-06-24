@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -497,6 +498,21 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes)
   {
     throw new UnsupportedOperationException();
+  }
+  
+  public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy)
+  {
+    List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
+    
+    GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy);
+    
+    List<VertexObject> results = query.getResults();
+    
+    results.forEach(result -> {
+      list.add(new VertexServerGeoObject(type, result, this.date));
+    });
+    
+    return list;
   }
 
   @Override
