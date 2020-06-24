@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = 76593088)
+@com.runwaysdk.business.ClassSignature(hash = 546864428)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -60,6 +60,44 @@ public  class ExportStageMasterQuery extends com.runwaysdk.system.EnumerationMas
 
     java.sql.ResultSet results = com.runwaysdk.dataaccess.database.Database.query(sqlStmt);
     return new com.runwaysdk.business.BusinessIterator<ExportStageMaster>(this.getComponentQuery().getMdEntityIF(), columnInfoMap, results);
+  }
+
+
+/**
+ * 
+ **/
+
+  public com.runwaysdk.query.Condition enum_ExportStage()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(com.runwaysdk.system.metadata.EnumerationAttributeItem.CLASS);
+
+    com.runwaysdk.business.BusinessQuery businessQuery = queryFactory.businessQuery(com.runwaysdk.system.metadata.MdEnumeration.CLASS);
+    com.runwaysdk.dataaccess.MdEnumerationDAOIF mdEnumerationIF = com.runwaysdk.dataaccess.metadata.MdEnumerationDAO.getMdEnumerationDAO(net.geoprism.registry.etl.export.ExportStage.CLASS); 
+    businessQuery.WHERE(businessQuery.oid().EQ(mdEnumerationIF.getOid()));
+
+    relationshipQuery.WHERE(relationshipQuery.hasParent(businessQuery));
+
+    return this.getBusinessQuery().isChildIn(relationshipQuery);
+  }
+
+
+/**
+ * 
+ **/
+
+  public com.runwaysdk.query.Condition notEnum_ExportStage()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(com.runwaysdk.system.metadata.EnumerationAttributeItem.CLASS);
+
+    com.runwaysdk.business.BusinessQuery businessQuery = queryFactory.businessQuery(com.runwaysdk.system.metadata.MdEnumeration.CLASS);
+    com.runwaysdk.dataaccess.MdEnumerationDAOIF mdEnumerationIF = com.runwaysdk.dataaccess.metadata.MdEnumerationDAO.getMdEnumerationDAO(net.geoprism.registry.etl.export.ExportStage.CLASS); 
+    businessQuery.WHERE(businessQuery.oid().EQ(mdEnumerationIF.getOid()));
+
+    relationshipQuery.WHERE(relationshipQuery.hasParent(businessQuery));
+
+    return this.getBusinessQuery().isNotChildIn(relationshipQuery);
   }
 
 
@@ -133,6 +171,91 @@ public  class ExportStageMasterQuery extends com.runwaysdk.system.EnumerationMas
 
   }
 
+/**
+ * Specifies type safe query methods for the enumeration net.geoprism.registry.etl.export.ExportStage.
+ * This type is used when a join is performed on this class as an enumeration.
+ **/
+  public interface ExportStageQueryIF extends ExportStageMasterQueryEnumerationIF  {
+
+    public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.etl.export.ExportStage ... exportStage);
+    public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.etl.export.ExportStage ... exportStage);
+    public com.runwaysdk.query.Condition containsAll(net.geoprism.registry.etl.export.ExportStage ... exportStage);
+    public com.runwaysdk.query.Condition notContainsAll(net.geoprism.registry.etl.export.ExportStage ... exportStage);
+    public com.runwaysdk.query.Condition containsExactly(net.geoprism.registry.etl.export.ExportStage ... exportStage);
+  }
+
+/**
+ * Implements type safe query methods for the enumeration net.geoprism.registry.etl.export.ExportStage.
+ * This type is used when a join is performed on this class as an enumeration.
+ **/
+  public static class ExportStageQuery extends ExportStageMasterQueryEnumeration implements  ExportStageQueryIF
+  {
+  public ExportStageQuery(com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias, String mdEnumerationTableName,com.runwaysdk.dataaccess.MdBusinessDAOIF masterMdBusinessIF, String masterTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String alias, String displayLabel)
+  {
+    super(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, mdEnumerationTableName, masterMdBusinessIF, masterTableAlias, rootQuery, tableJoinSet, alias, displayLabel);
+
+  }
+
+    public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.etl.export.ExportStage ... exportStage)  {
+
+      String[] enumIdArray = new String[exportStage.length]; 
+
+      for (int i=0; i<exportStage.length; i++)
+      {
+        enumIdArray[i] = exportStage[i].getOid();
+      }
+
+      return this.containsAny(enumIdArray);
+  }
+
+    public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.etl.export.ExportStage ... exportStage)  {
+
+      String[] enumIdArray = new String[exportStage.length]; 
+
+      for (int i=0; i<exportStage.length; i++)
+      {
+        enumIdArray[i] = exportStage[i].getOid();
+      }
+
+      return this.notContainsAny(enumIdArray);
+  }
+
+    public com.runwaysdk.query.Condition containsAll(net.geoprism.registry.etl.export.ExportStage ... exportStage)  {
+
+      String[] enumIdArray = new String[exportStage.length]; 
+
+      for (int i=0; i<exportStage.length; i++)
+      {
+        enumIdArray[i] = exportStage[i].getOid();
+      }
+
+      return this.containsAll(enumIdArray);
+  }
+
+    public com.runwaysdk.query.Condition notContainsAll(net.geoprism.registry.etl.export.ExportStage ... exportStage)  {
+
+      String[] enumIdArray = new String[exportStage.length]; 
+
+      for (int i=0; i<exportStage.length; i++)
+      {
+        enumIdArray[i] = exportStage[i].getOid();
+      }
+
+      return this.notContainsAll(enumIdArray);
+  }
+
+    public com.runwaysdk.query.Condition containsExactly(net.geoprism.registry.etl.export.ExportStage ... exportStage)  {
+
+      String[] enumIdArray = new String[exportStage.length]; 
+
+      for (int i=0; i<exportStage.length; i++)
+      {
+        enumIdArray[i] = exportStage[i].getOid();
+      }
+
+      return this.containsExactly(enumIdArray);
+  }
+  }
 /**
  * Interface that masks all type unsafe query methods and defines all type safe methods.
  * This type is used when a join is performed on this class as a reference.

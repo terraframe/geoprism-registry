@@ -1,9 +1,11 @@
 package net.geoprism.dhis2.dhis2adapter;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
@@ -70,7 +72,7 @@ public class HTTPConnectorTest extends TestCase
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
-    HTTPResponse resp = connector.httpPost("api/" + Constants.VERSION + "/metadata", params, payload);
+    HTTPResponse resp = connector.httpPost("api/" + Constants.VERSION + "/metadata", params, new StringEntity(payload, Charset.forName("UTF-8")));
     
     Assert.assertEquals(200, resp.getStatusCode());
     

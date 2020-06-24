@@ -38,10 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
@@ -53,7 +53,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -224,7 +223,7 @@ public class HTTPConnector
 //    }
 //  }
   
-  public HTTPResponse httpPost(String url, List<NameValuePair> params, String body) throws InvalidLoginException, HTTPException
+  public HTTPResponse httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     try
     {
@@ -237,7 +236,7 @@ public class HTTPConnector
       
       post.addHeader("Content-Type", "application/json");
       
-      post.setEntity(new StringEntity(body, Charset.forName("UTF-8")));
+      post.setEntity(body);
       
       try (CloseableHttpResponse response = client.execute(post, this.getContext()))
       {

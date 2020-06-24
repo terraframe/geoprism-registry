@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = 1481050199)
+@com.runwaysdk.business.ClassSignature(hash = -1572365579)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,7 +11,7 @@ package net.geoprism.registry.etl.export;
 public abstract class ExportStageMasterBase extends com.runwaysdk.system.EnumerationMaster
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.ExportStageMaster";
-  private static final long serialVersionUID = 1481050199;
+  private static final long serialVersionUID = -1572365579;
   
   public ExportStageMasterBase()
   {

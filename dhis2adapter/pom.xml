@@ -11,7 +11,7 @@
   <packaging>jar</packaging>
 
   <name>dhis2adapter</name>
-  <description>Provides facilities for restful http communcation with remote DHIS2 servers.</description>
+  <description>Provides facilities for restful http communcation with remote DHIS2 servers. Envisioned as a stand-alone resource which could be one day used outside of the CGR (Similar to the GeoserverRestService library).</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
