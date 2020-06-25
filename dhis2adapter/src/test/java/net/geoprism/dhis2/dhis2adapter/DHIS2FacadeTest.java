@@ -2,7 +2,9 @@ package net.geoprism.dhis2.dhis2adapter;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
@@ -15,6 +17,9 @@ import com.google.gson.JsonObject;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
 
 /**
@@ -80,5 +85,25 @@ public class DHIS2FacadeTest extends TestCase
     JsonObject jo = resp.getJsonObject();
     
     Assert.assertEquals("OK", jo.get("status").getAsString());
+  }
+  
+  public void testGetDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  {
+    Set<String> set = new HashSet<String>();
+    
+    final int fetchSize = Dhis2IdCache.FETCH_NUM * 3 - 300;
+    
+    for (int i = 0; i < fetchSize; ++i)
+    {
+      String id = facade.getDhis2Id();
+      
+      Assert.assertNotNull(id);
+      
+      Assert.assertEquals(11, id.length());
+      
+      Assert.assertTrue(set.add(id));
+    }
+    
+    Assert.assertEquals(new Integer((Dhis2IdCache.FETCH_NUM * 3) - (Dhis2IdCache.FETCH_NUM * 3 - 300)), facade.idCache.getNumIds());
   }
 }

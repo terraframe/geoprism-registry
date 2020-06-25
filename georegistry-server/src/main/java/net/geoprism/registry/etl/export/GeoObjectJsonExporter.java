@@ -41,6 +41,7 @@ import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -84,6 +85,10 @@ public class GeoObjectJsonExporter
   
   private ExternalSystem externalSystem;
   
+  private Thread exportThread;
+  
+  private DHIS2Facade dhis2;
+  
   public GeoObjectJsonExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
   {
     this.got = ServerGeoObjectType.get(gotCode);
@@ -126,6 +131,11 @@ public class GeoObjectJsonExporter
     }
   }
   
+  public void setDHIS2Facade(DHIS2Facade dhis2)
+  {
+    this.dhis2 = dhis2;
+  }
+  
   public OIterator<GeoObject> postgresQuery()
   {
     GeoObjectQuery goq = new GeoObjectQuery(got);
@@ -135,7 +145,7 @@ public class GeoObjectJsonExporter
       goq.setRestriction(new LastUpdateRestriction(this.since));
     }
     
-    if (this.pageSize != null && this.pageNumber != null)
+    if (this.pageSize != null && this.pageNumber != null && this.pageSize != -1 && this.pageNumber != -1)
     {
       goq.paginate(this.pageNumber, this.pageSize);
       this.total = goq.getCount();
@@ -146,6 +156,19 @@ public class GeoObjectJsonExporter
     return goq.getIterator();
   }
   
+  public void writeObjects(JsonWriter jw) throws IOException
+  {
+    try (OIterator<GeoObject> it = postgresQuery())
+    {
+      while (it.hasNext())
+      {
+        GeoObject go = it.next();
+        
+        exportObject(jw, go);
+      }
+    }
+  }
+  
   public void write(OutputStream os)
   {
     try (JsonWriter jw = new JsonWriter(new PrintWriter(os)))
@@ -154,18 +177,10 @@ public class GeoObjectJsonExporter
       {
         jw.name("results").beginArray();
         {
-          try (OIterator<GeoObject> it = postgresQuery())
-          {
-            while (it.hasNext())
-            {
-              GeoObject go = it.next();
-              
-              exportObject(jw, go);
-            }
-          }
+          writeObjects(jw);
         } jw.endArray();
         
-        if (this.pageSize != null && this.pageNumber != null && this.total != null)
+        if (this.pageSize != null && this.pageNumber != null && this.pageSize != -1 && this.pageNumber != -1 && this.total != null)
         {
           jw.name("page").beginObject();
           {
@@ -197,7 +212,7 @@ public class GeoObjectJsonExporter
     }
     else if (this.format.equals(GeoObjectExportFormat.JSON_DHIS2))
     {
-      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.got, this.hierarchyType, this.externalSystem));
+      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, this.got, this.hierarchyType, this.externalSystem));
     }
     
     builder.create().toJson(go, go.getClass(), jw);
@@ -208,7 +223,7 @@ public class GeoObjectJsonExporter
     PipedOutputStream pos = new PipedOutputStream();
     PipedInputStream pis = new PipedInputStream(pos);
 
-    Thread t = new Thread(new Runnable()
+    exportThread = new Thread(new Runnable()
     {
       @Override
       public void run()
@@ -236,9 +251,14 @@ public class GeoObjectJsonExporter
         GeoObjectJsonExporter.this.write(pos);
       }
     });
-    t.setDaemon(true);
-    t.start();
+    exportThread.setDaemon(true);
+    exportThread.start();
 
     return pis;
+  }
+  
+  public Thread getExportThread()
+  {
+    return this.exportThread;
   }
 }

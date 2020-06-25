@@ -45,7 +45,7 @@ import com.runwaysdk.mvc.AbstractRestResponse;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
-import net.geoprism.registry.RegistryController;
+import net.geoprism.registry.controller.RegistryController;
 
 public class TestRegistryAdapterClient extends RegistryAdapter
 {
