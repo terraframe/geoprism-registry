@@ -197,6 +197,7 @@ export class RoleManagementComponent implements OnInit {
 			});
 		})
 
+		this.onChangeRole();
 	}
 
 	setGroupRole(group: FormattedGeoObjectTypeRoleGroup, role: Role, event:any): void {	
