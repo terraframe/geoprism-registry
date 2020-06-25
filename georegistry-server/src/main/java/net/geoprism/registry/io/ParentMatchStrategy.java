@@ -19,5 +19,5 @@
 package net.geoprism.registry.io;
 
 public enum ParentMatchStrategy {
-  CODE, EXTERNAL, ALL
+  CODE, EXTERNAL, ALL, DHIS2_PATH
 }

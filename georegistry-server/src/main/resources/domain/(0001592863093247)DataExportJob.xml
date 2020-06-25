@@ -1,7 +1,22 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.modal.dhis2path">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.modal.dhis2path" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="DHIS2 Path" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
     <create>
-      <mdException name="net.geoprism.registry.etl.RemoteConnectionException" message="Could not connect the remote server. Please check your connection configuration and that the remote server is reachable.">
+      <mdException name="net.geoprism.registry.etl.upload.InvalidDhis2PathException" message="The DHIS2 path [{dhis2Path}] is invalid.." exported="false" publish="false">
+        <attributes>
+          <text name="dhis2Path" label="DHIS2 Path" />
+        </attributes>
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.etl.RemoteConnectionException" message="Could not connect the remote server. Please check your connection configuration and that the remote server is reachable." exported="false" publish="false">
       </mdException>
       
       <mdException name="net.geoprism.registry.etl.export.ExportRemoteException" message="The remote server encountered an error while synchronizing data with the CGR. {remoteError}" exported="false" publish="false" >
@@ -75,6 +90,18 @@
       </mdEnumeration>
     </create>
     <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.etl.export.ExportHistory">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.export.DataExportJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
   </doIt>
   <undoIt>
     <delete>
@@ -83,6 +110,7 @@
       <object key="net.geoprism.registry.etl.export.DataExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>
       <object key="net.geoprism.registry.etl.export.ExportStageMaster" type="com.runwaysdk.system.metadata.MdBusiness"/>
       <object key="net.geoprism.registry.etl.export.ExportRemoteException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.etl.upload.InvalidDhis2PathException" type="com.runwaysdk.system.metadata.MdException"/>
     </delete>
   </undoIt>
 </version>

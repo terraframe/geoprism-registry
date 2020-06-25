@@ -121,7 +121,7 @@ public class DHIS2GeoObjectJsonAdapters
       
       jo.addProperty("path", calculatePath(serverGo));
       
-      // TODO : openingDate ?
+      jo.addProperty("openingDate", formatDate(go.getCreateDate())); // TODO : Is this the correct date? It's a required field.
       
       ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
       if (goParent != null)
