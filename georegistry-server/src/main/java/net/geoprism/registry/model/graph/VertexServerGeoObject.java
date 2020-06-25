@@ -320,7 +320,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName())
+          || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName())
+          || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
       {
         // Ignore the attributes
       }
@@ -373,7 +375,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     Map<String, AttributeType> attributes = goTime.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()))
+      if (attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
       {
         // Ignore the attributes
       }
@@ -499,19 +501,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     throw new UnsupportedOperationException();
   }
-  
+
   public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy)
   {
     List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
-    
+
     GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy);
-    
+
     List<VertexObject> results = query.getResults();
-    
+
     results.forEach(result -> {
       list.add(new VertexServerGeoObject(type, result, this.date));
     });
-    
+
     return list;
   }
 
