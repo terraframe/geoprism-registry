@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = -976651539)
+@com.runwaysdk.business.ClassSignature(hash = 2030558601)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -38,6 +38,43 @@ public  class DataExportJobQuery extends com.runwaysdk.system.scheduler.Executab
   {
     return net.geoprism.registry.etl.export.DataExportJob.CLASS;
   }
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig()
+  {
+    return getConfig(null);
+
+  }
+ 
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.export.DataExportJob.CONFIG);
+
+    return (net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.export.DataExportJob.CONFIG, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.export.DataExportJob.CONFIG);
+
+    return (net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.export.DataExportJob.CONFIG, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.etl.export.DataExportJob.CONFIG)) 
+    {
+       return new net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+  }
+
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -70,6 +107,9 @@ public  class DataExportJobQuery extends com.runwaysdk.system.scheduler.Executab
   public interface DataExportJobQueryReferenceIF extends com.runwaysdk.system.scheduler.ExecutableJobQuery.ExecutableJobQueryReferenceIF
   {
 
+    public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig();
+    public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias);
+    public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.etl.export.DataExportJob dataExportJob);
 
@@ -105,6 +145,37 @@ public  class DataExportJobQuery extends com.runwaysdk.system.scheduler.Executab
       return this.NE(dataExportJob.getOid());
     }
 
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig()
+  {
+    return getConfig(null);
+
+  }
+ 
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias)
+  {
+    return (net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF)this.get(net.geoprism.registry.etl.export.DataExportJob.CONFIG, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF)this.get(net.geoprism.registry.etl.export.DataExportJob.CONFIG,  alias, displayLabel);
+
+  }
+  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.etl.export.DataExportJob.CONFIG)) 
+    {
+       return new net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+  }
+
   }
 
 /**
@@ -114,6 +185,9 @@ public  class DataExportJobQuery extends com.runwaysdk.system.scheduler.Executab
   public interface DataExportJobQueryMultiReferenceIF extends com.runwaysdk.system.scheduler.ExecutableJobQuery.ExecutableJobQueryMultiReferenceIF
   {
 
+    public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig();
+    public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias);
+    public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.etl.export.DataExportJob ... dataExportJob);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.etl.export.DataExportJob ... dataExportJob);
@@ -198,5 +272,36 @@ public  class DataExportJobQuery extends com.runwaysdk.system.scheduler.Executab
 
       return this.containsExactly(itemIdArray);
   }
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig()
+  {
+    return getConfig(null);
+
+  }
+ 
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias)
+  {
+    return (net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF)this.get(net.geoprism.registry.etl.export.DataExportJob.CONFIG, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF getConfig(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReferenceIF)this.get(net.geoprism.registry.etl.export.DataExportJob.CONFIG,  alias, displayLabel);
+
+  }
+  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.etl.export.DataExportJob.CONFIG)) 
+    {
+       return new net.geoprism.registry.SynchronizationConfigQuery.SynchronizationConfigQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+  }
+
   }
 }

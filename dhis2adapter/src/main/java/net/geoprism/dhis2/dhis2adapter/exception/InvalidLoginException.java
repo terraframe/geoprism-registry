@@ -1,4 +1,4 @@
-package net.geoprism.dhis2.dhis2adapter;
+package net.geoprism.dhis2.dhis2adapter.exception;
 
 public class InvalidLoginException extends Exception
 {

@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = -1439879506)
+@com.runwaysdk.business.ClassSignature(hash = -290346958)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -37,23 +37,6 @@ public  class ExportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public String getClassType()
   {
     return net.geoprism.registry.etl.export.ExportHistory.CLASS;
-  }
-  public com.runwaysdk.query.SelectableChar getConfigJson()
-  {
-    return getConfigJson(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getConfigJson(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.export.ExportHistory.CONFIGJSON, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.export.ExportHistory.CONFIGJSON, alias, displayLabel);
-
   }
   public com.runwaysdk.query.SelectableLong getExportedRecords()
   {
@@ -141,9 +124,6 @@ public  class ExportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public interface ExportHistoryQueryReferenceIF extends com.runwaysdk.system.scheduler.JobHistoryQuery.JobHistoryQueryReferenceIF
   {
 
-    public com.runwaysdk.query.SelectableChar getConfigJson();
-    public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
-    public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getExportedRecords();
     public com.runwaysdk.query.SelectableLong getExportedRecords(String alias);
     public com.runwaysdk.query.SelectableLong getExportedRecords(String alias, String displayLabel);
@@ -185,23 +165,6 @@ public  class ExportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
       return this.NE(exportHistory.getOid());
     }
 
-  public com.runwaysdk.query.SelectableChar getConfigJson()
-  {
-    return getConfigJson(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getConfigJson(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportHistory.CONFIGJSON, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportHistory.CONFIGJSON, alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableLong getExportedRecords()
   {
     return getExportedRecords(null);
@@ -259,9 +222,6 @@ public  class ExportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public interface ExportHistoryQueryMultiReferenceIF extends com.runwaysdk.system.scheduler.JobHistoryQuery.JobHistoryQueryMultiReferenceIF
   {
 
-    public com.runwaysdk.query.SelectableChar getConfigJson();
-    public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
-    public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getExportedRecords();
     public com.runwaysdk.query.SelectableLong getExportedRecords(String alias);
     public com.runwaysdk.query.SelectableLong getExportedRecords(String alias, String displayLabel);
@@ -351,23 +311,6 @@ public  class ExportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
       }
 
       return this.containsExactly(itemIdArray);
-  }
-  public com.runwaysdk.query.SelectableChar getConfigJson()
-  {
-    return getConfigJson(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getConfigJson(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportHistory.CONFIGJSON, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportHistory.CONFIGJSON, alias, displayLabel);
-
   }
   public com.runwaysdk.query.SelectableLong getExportedRecords()
   {

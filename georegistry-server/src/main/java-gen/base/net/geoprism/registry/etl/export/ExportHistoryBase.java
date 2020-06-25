@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = 1422739589)
+@com.runwaysdk.business.ClassSignature(hash = 961615369)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,42 +11,13 @@ package net.geoprism.registry.etl.export;
 public abstract class ExportHistoryBase extends com.runwaysdk.system.scheduler.JobHistory
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.ExportHistory";
-  public static java.lang.String CONFIGJSON = "configJson";
   public static java.lang.String EXPORTEDRECORDS = "exportedRecords";
   public static java.lang.String STAGE = "stage";
-  private static final long serialVersionUID = 1422739589;
+  private static final long serialVersionUID = 961615369;
   
   public ExportHistoryBase()
   {
     super();
-  }
-  
-  public String getConfigJson()
-  {
-    return getValue(CONFIGJSON);
-  }
-  
-  public void validateConfigJson()
-  {
-    this.validateAttribute(CONFIGJSON);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getConfigJsonMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.export.ExportHistory.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(CONFIGJSON);
-  }
-  
-  public void setConfigJson(String value)
-  {
-    if(value == null)
-    {
-      setValue(CONFIGJSON, "");
-    }
-    else
-    {
-      setValue(CONFIGJSON, value);
-    }
   }
   
   public Long getExportedRecords()

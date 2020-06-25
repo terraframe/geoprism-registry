@@ -20,10 +20,13 @@ package net.geoprism.registry.etl.export;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -35,14 +38,18 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.LocalizationFacade;
 
+import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
+import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.registry.AdapterUtilities;
-import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class DHIS2GeoObjectJsonAdapters
 {
@@ -56,18 +63,45 @@ public class DHIS2GeoObjectJsonAdapters
     
     private ExternalSystem ex;
     
-    public DHIS2Serializer(ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
+    private DHIS2Facade dhis2;
+    
+    public DHIS2Serializer(DHIS2Facade dhis2, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
     {
       this.got = got;
       this.hierarchyType = hierarchyType;
+      this.dhis2 = dhis2;
+      this.ex = ex;
       
       this.calculateDepth();
+    }
+    
+    private String getExternalId(ServerGeoObjectIF serverGo)
+    {
+      String externalId = serverGo.getExternalId(this.ex);
+      
+      if (externalId == null || externalId.length() == 0)
+      {
+        try
+        {
+          externalId = this.dhis2.getDhis2Id();
+        }
+        catch (HTTPException | InvalidLoginException | UnexpectedResponseException e)
+        {
+          ExportRemoteException remoteEx = new ExportRemoteException();
+          remoteEx.setRemoteError(e.getLocalizedMessage()); // TODO : Pull this error message from DHIS2
+          throw remoteEx;
+        }
+        
+        serverGo.createExternalId(this.ex, externalId);
+      }
+      
+      return externalId;
     }
     
     @Override
     public JsonElement serialize(GeoObject go, Type typeOfSrc, JsonSerializationContext context)
     {
-      ServerGeoObjectIF serverGo = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(go);
+      VertexServerGeoObject serverGo = new VertexGeoObjectStrategy(this.got).getGeoObjectByCode(go.getCode());
       
       JsonObject jo = new JsonObject();
       
@@ -79,20 +113,23 @@ public class DHIS2GeoObjectJsonAdapters
       
       jo.addProperty("lastUpdated", formatDate(go.getLastUpdateDate()));
       
-      jo.addProperty("name", go.getDisplayLabel().getValue(Locale.ENGLISH)); // TODO : Which locale?
+      jo.addProperty("name", go.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
       
-      jo.addProperty("id", serverGo.getExternalId(ex)); // TODO : Is this the correct id?
+      jo.addProperty("id", this.getExternalId(serverGo));
       
-      jo.addProperty("shortName", go.getDisplayLabel().getValue(Locale.ENGLISH)); // TODO : Which locale?
+      jo.addProperty("shortName", go.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
       
-      jo.addProperty("path", calculatePath());
+      jo.addProperty("path", calculatePath(serverGo));
       
       // TODO : openingDate ?
       
       ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
-      JsonObject parent = new JsonObject();
-      parent.addProperty("id", goParent.getExternalId(this.ex)); // TODO : Is this the correct id?
-      jo.add("parent", parent);
+      if (goParent != null)
+      {
+        JsonObject parent = new JsonObject();
+        parent.addProperty("id", this.getExternalId(goParent)); // TODO : Is this the correct id?
+        jo.add("parent", parent); // TODO Don't always submit parent information?
+      }
       
       // TODO : attributeValues ?
       
@@ -104,13 +141,17 @@ public class DHIS2GeoObjectJsonAdapters
       {
         if (lv.contains(locale))
         {
-          JsonObject joLocale = new JsonObject();
+          JsonObject joLocaleShort = new JsonObject();
+          joLocaleShort.addProperty("property", "SHORT_NAME");
+          joLocaleShort.addProperty("locale", locale.toString());
+          joLocaleShort.addProperty("value", lv.getValue(locale));
+          translations.add(joLocaleShort);
           
-          joLocale.addProperty("property", "SHORT_NAME");
-          joLocale.addProperty("locale", locale.toString());
-          joLocale.addProperty("value", lv.getValue(locale));
-          
-          translations.add(joLocale);
+          JsonObject joLocaleName = new JsonObject();
+          joLocaleName.addProperty("property", "NAME");
+          joLocaleName.addProperty("locale", locale.toString());
+          joLocaleName.addProperty("value", lv.getValue(locale));
+          translations.add(joLocaleName);
         }
       }
       
@@ -136,14 +177,24 @@ public class DHIS2GeoObjectJsonAdapters
     
     private String formatDate(Date date)
     {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss.SSS");
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
       
       return format.format(date);
     }
     
-    public String calculatePath()
+    public String calculatePath(VertexServerGeoObject serverGo)
     {
-      return null; // TODO
+      List<String> ancestorExternalIds = new ArrayList<String>();
+      
+      List<VertexServerGeoObject> ancestors = serverGo.getAncestors(this.hierarchyType);
+      
+      Collections.reverse(ancestors);
+      
+      ancestors.forEach(ancestor -> {
+        ancestorExternalIds.add(this.getExternalId(ancestor));
+      });
+      
+      return "/" + StringUtils.join(ancestorExternalIds, "/");
     }
     
     public void calculateDepth()

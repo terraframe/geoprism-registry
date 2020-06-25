@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = -243945724)
+@com.runwaysdk.business.ClassSignature(hash = -664204398)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,11 +11,64 @@ package net.geoprism.registry.etl.export;
 public abstract class DataExportJobBase extends com.runwaysdk.system.scheduler.ExecutableJob
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.DataExportJob";
-  private static final long serialVersionUID = -243945724;
+  public static java.lang.String CONFIG = "config";
+  private static final long serialVersionUID = -664204398;
   
   public DataExportJobBase()
   {
     super();
+  }
+  
+  public net.geoprism.registry.SynchronizationConfig getConfig()
+  {
+    if (getValue(CONFIG).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.SynchronizationConfig.get(getValue(CONFIG));
+    }
+  }
+  
+  public String getConfigOid()
+  {
+    return getValue(CONFIG);
+  }
+  
+  public void validateConfig()
+  {
+    this.validateAttribute(CONFIG);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getConfigMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.export.DataExportJob.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CONFIG);
+  }
+  
+  public void setConfig(net.geoprism.registry.SynchronizationConfig value)
+  {
+    if(value == null)
+    {
+      setValue(CONFIG, "");
+    }
+    else
+    {
+      setValue(CONFIG, value.getOid());
+    }
+  }
+  
+  public void setConfigId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(CONFIG, "");
+    }
+    else
+    {
+      setValue(CONFIG, oid);
+    }
   }
   
   protected String getDeclaredType()

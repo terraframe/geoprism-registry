@@ -60,23 +60,30 @@
                       </tr>
                     </thead>
                     <tbody>
+                      <!-- <tr *ngFor="let job of jobs; let i = index;">  -->
                       <tr *ngFor="let job of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
                         <td style="vertical-align: middle;">
                           <div class="wrapper">
                             <i style="position: absolute; font-size: 40px;" class="fa fa-file" aria-hidden="true"></i>
                             <p style="padding-left: 60px;">
+                              <span style="display: block;"> {{job.fileName}} </span>
                               <span style="display: block;"> {{job.createDate}} </span>
-                              <span style="display: block;"> {{job.author}} </span>
-                              <span style="display: block;"> {{job.type}} </span>
-                              <span style="display: block;"> {{job.status}} </span>
+                              <span style="display: block;"> {{formatJobStatus(job)}} </span>
+                              <span *ngIf="job.exception != null && job.exception.type != 'java.lang.RuntimeException'" style="display: block;">
+                                {{job.exception.message}}
+                              </span>
                             </p>
+
+                            <step-indicator [steps]="job.stepConfig"></step-indicator>
+
                           </div>
                         </td>
                       </tr>
+
                     </tbody>
                   </table>
                   <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-                    <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+                    <pagination-controls id="activeJobs" (pageChange)="onPageChange($event)"></pagination-controls>
                   </div>
                 </div>
               </ul>

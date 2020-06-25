@@ -22,11 +22,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.HttpRegistryClient;
 import org.commongeoregistry.adapter.id.AdapterIdServiceIF;
 import org.commongeoregistry.adapter.id.EmptyIdCacheException;
-
-import net.geoprism.registry.RegistryController;
 
 public class TestRegistryClientIdService implements AdapterIdServiceIF
 {
