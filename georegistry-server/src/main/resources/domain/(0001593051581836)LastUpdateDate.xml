@@ -1,0 +1,19 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version_gis.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+<!-- 
+    <update>    
+      <mdGeoVertex name="net.geoprism.registry.graph.GeoVertex">
+        <create>
+          <attributes>
+            <dateTime name="lastUpdateDate" label="Last Update Date" />
+            <dateTime name="createDate" label="Create Date" />
+          </attributes>
+        </create>
+      </mdGeoVertex>
+    </update>
+ -->  
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -11,12 +11,15 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
@@ -34,6 +37,15 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   @Transaction
   public void apply()
   {
+    SessionIF session = Session.getCurrentSession();
+
+    Organization organization = this.getOrganization();
+
+    if (session != null && organization != null)
+    {
+      ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), organization.getCode());
+    }
+
     super.apply();
 
     if (this.isNew())
