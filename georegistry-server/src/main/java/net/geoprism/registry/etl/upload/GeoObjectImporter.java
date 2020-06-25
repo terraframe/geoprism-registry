@@ -722,6 +722,31 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           query.setRestriction(new ServerExternalIdRestriction(this.getConfiguration().getExternalSystem(), label.toString()));
         }
+        else if (ms.equals(ParentMatchStrategy.DHIS2_PATH))
+        {
+          String path = label.toString();
+          
+          String dhis2Parent;
+          try
+          {
+            if (path.startsWith("/"))
+            {
+              path = path.substring(1);
+            }
+            
+            String pathArr[] = path.split("/");
+            
+            dhis2Parent = pathArr[pathArr.length - 2];
+          }
+          catch (Throwable t)
+          {
+            InvalidDhis2PathException ex = new InvalidDhis2PathException(t);
+            ex.setDhis2Path(path);
+            throw ex;
+          }
+          
+          query.setRestriction(new ServerExternalIdRestriction(this.getConfiguration().getExternalSystem(), dhis2Parent));
+        }
         else
         {
           query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), parent, this.configuration.getHierarchy()));

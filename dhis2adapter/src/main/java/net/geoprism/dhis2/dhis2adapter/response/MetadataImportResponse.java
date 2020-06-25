@@ -15,7 +15,7 @@ public class MetadataImportResponse extends HTTPResponse
   
   public String getError()
   {
-    throw new UnsupportedOperationException(); // TODO
+    return this.getResponse(); // TODO
   }
   
 //  public static class Stats

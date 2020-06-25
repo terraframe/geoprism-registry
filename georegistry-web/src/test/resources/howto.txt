@@ -1,0 +1,18 @@
+# How to import certs into the keystore! (And why you should) (SSL 101)
+
+# Did you get this error when developing? :
+
+# sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+
+
+# The answer is simple: We're using a custom truststore here and the truststore doesn't have the cert path you need.
+# You need to download the certificates (you can use Google Chrome) and import them into this here truststore
+
+
+
+# https://connect2id.com/blog/importing-ca-root-cert-into-jvm-trust-store
+
+
+openssl x509 -in LetsEncrypt.pem -inform pem -out LetsEncrypt.der -outform der
+
+/usr/lib/jvm/java-8-openjdk-amd64/bin/keytool -importcert -alias LetsEncrypt -keystore ./tomcat.truststore -storepass 2v8hVW2rPFncN6m -file LetsEncrypt.der

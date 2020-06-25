@@ -34,8 +34,10 @@ import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
+import net.geoprism.registry.SSLTrustConfiguration;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.RemoteConnectionException;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -48,7 +50,7 @@ public class DataExportJob extends DataExportJobBase
   private static final Logger logger = LoggerFactory.getLogger(DataExportJob.class);
   
   //Set to VALIDATE and the remote DHIS2 server will not commit, only "dry-run".
-  private static final String IMPORT_MODE      = "VALIDATE";
+  private static final String IMPORT_MODE      = "COMMIT";
   
   private SynchronizationConfig syncConfig;
   
@@ -100,9 +102,20 @@ public class DataExportJob extends DataExportJobBase
     return record;
   }
   
+  private String getDhis2Version()
+  {
+//    String in = this.dhis2Config.getSystem().getVersion();
+//    
+//    if (in.equals(""))
+    
+    return "31"; // TODO : Actually use the version
+  }
+  
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
+    ExportHistory history = (ExportHistory) executionContext.getJobHistoryRecord().getChild();
+    
     this.syncConfig = this.getConfig();
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
@@ -112,13 +125,15 @@ public class DataExportJob extends DataExportJobBase
     connector.setServerUrl(system.getUrl());
     connector.setCredentials(system.getUsername(), system.getPassword());
     
-    dhis2 = new DHIS2Facade(connector, "33");
+    dhis2 = new DHIS2Facade(connector, this.getDhis2Version());
 
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", IMPORT_MODE));
 
     try
     {
+      this.setStage(history, ExportStage.EXPORT);
+      
       InputStream isPayload = this.export();
       
       MetadataImportResponse resp = dhis2.metadataPost(params, new InputStreamEntity(isPayload));
@@ -126,15 +141,25 @@ public class DataExportJob extends DataExportJobBase
       if (resp.getStatusCode() != 200)
       {
         ExportRemoteException re = new ExportRemoteException();
-        re.setRemoteError(resp.getError()); // TODO : resp.getError throws
-                                            // UnsupportedOp
+        re.setRemoteError(resp.getError()); // TODO : pull the error from dhis2
+        throw re;
       }
+      
+      this.setStage(history, ExportStage.COMPLETE);
     }
     catch (InvalidLoginException | HTTPException e)
     {
       RemoteConnectionException rce = new RemoteConnectionException(e);
       throw rce;
     }
+  }
+  
+  private void setStage(ExportHistory history, ExportStage stage)
+  {
+    history.appLock();
+    history.clearStage();
+    history.addStage(stage);
+    history.apply();
   }
   
   private void write(OutputStream out) throws IOException
@@ -156,7 +181,7 @@ public class DataExportJob extends DataExportJobBase
             exporter.writeObjects(jw);
           }
         } jw.endArray();
-      }
+      } jw.endObject();
     }
   }
   

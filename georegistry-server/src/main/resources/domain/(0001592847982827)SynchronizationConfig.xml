@@ -130,7 +130,6 @@
           </mdBusinessPermission>          
         </grant>
       </role>      
-      
     </permissions>
   </doIt>
   <undoIt>
