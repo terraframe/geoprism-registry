@@ -42,6 +42,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
+import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -88,6 +89,8 @@ public class GeoObjectJsonExporter
   private Thread exportThread;
   
   private DHIS2Facade dhis2;
+
+  private SyncLevel syncLevel;
   
   public GeoObjectJsonExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
   {
@@ -129,11 +132,6 @@ public class GeoObjectJsonExporter
     {
       ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), this.got.getOrganization().getCode(), this.got.getCode());
     }
-  }
-  
-  public void setDHIS2Facade(DHIS2Facade dhis2)
-  {
-    this.dhis2 = dhis2;
   }
   
   public OIterator<GeoObject> postgresQuery()
@@ -212,7 +210,7 @@ public class GeoObjectJsonExporter
     }
     else if (this.format.equals(GeoObjectExportFormat.JSON_DHIS2))
     {
-      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, this.got, this.hierarchyType, this.externalSystem));
+      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, this.syncLevel, this.got, this.hierarchyType, this.externalSystem));
     }
     
     builder.create().toJson(go, go.getClass(), jw);
@@ -257,8 +255,17 @@ public class GeoObjectJsonExporter
     return pis;
   }
   
-  public Thread getExportThread()
+  /**
+   * TODO : Abstraction is leaking here. Maybe pass in a config object which contains this extra stuff we need? 
+   */
+  
+  public void setDHIS2Facade(DHIS2Facade dhis2)
   {
-    return this.exportThread;
+    this.dhis2 = dhis2;
+  }
+  
+  public void setSyncLevel(SyncLevel syncLevel)
+  {
+    this.syncLevel = syncLevel;
   }
 }

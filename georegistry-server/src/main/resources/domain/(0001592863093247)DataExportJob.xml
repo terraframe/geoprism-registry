@@ -10,6 +10,11 @@
       </object>
     </createOrUpdate>
     <create>
+    <!-- 
+      <mdException name="net.geoprism.registry.etl.upload.NewGeoObjectWithInvalidSyncType" message="You cannot export a new GeoObject when the " exported="false" publish="false">
+      </mdException>
+      -->
+    
       <mdException name="net.geoprism.registry.etl.upload.InvalidDhis2PathException" message="The DHIS2 path [{dhis2Path}] is invalid.." exported="false" publish="false">
         <attributes>
           <text name="dhis2Path" label="DHIS2 Path" />

@@ -73,7 +73,7 @@ public class GeoObjectIterator implements OIterator<GeoObject>
   @Override
   public Iterator<GeoObject> iterator()
   {
-    throw new UnsupportedOperationException();
+    return this;
   }
 
   @Override
