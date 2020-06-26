@@ -18,17 +18,17 @@
  */
 package net.geoprism.registry.controller;
 
-import java.io.InputStream;
 import java.util.Date;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
+import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -51,8 +51,10 @@ public class GeoObjectController
       dUpdatedSince = new Date(updatedSince);
     }
     
-    InputStream is = ServiceFactory.getGeoObjectService().getAll(request.getSessionId(), typeCode, hierarchyCode, dUpdatedSince, includeLevel, format, externalSystemId, pageNumber, pageSize);
+    JsonObject jo = ServiceFactory.getGeoObjectService().getAll(request.getSessionId(), typeCode, hierarchyCode, dUpdatedSince, includeLevel, format, externalSystemId, pageNumber, pageSize);
     
-    return new InputStreamResponse(is, "application/json", "get-all.json");
+//    return new InputStreamResponse(is, "application/json", "get-all.json");
+    
+    return new RestBodyResponse(jo.toString());
   }
 }

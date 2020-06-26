@@ -11,12 +11,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -25,23 +23,15 @@ import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
 /**
  * Tests the DHIS2 Facade by talking to play.dhis2.org
  */
-public class DHIS2FacadeTest extends TestCase
+public class DHIS2FacadeTest
 {
   private DHIS2Facade facade;
-  
-  public DHIS2FacadeTest( String testName )
-  {
-    super( testName );
-  }
-
-  public static Test suite()
-  {
-    return new TestSuite( DHIS2FacadeTest.class );
-  }
   
   @Before
   public void setUp()
   {
+    SSLTrustConfiguration.trustAll();
+    
     HTTPConnector connector = new HTTPConnector();
     connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
     connector.setServerUrl(Constants.DHIS2_URL);
@@ -49,6 +39,7 @@ public class DHIS2FacadeTest extends TestCase
     facade = new DHIS2Facade(connector, Constants.VERSION);
   }
   
+  @Test
   public void testSystemInfo() throws InvalidLoginException, HTTPException
   {
     HTTPResponse resp = facade.systemInfo();
@@ -60,6 +51,7 @@ public class DHIS2FacadeTest extends TestCase
     Assert.assertEquals(Constants.DHIS2_URL, jo.get("instanceBaseUrl").getAsString());
   }
   
+  @Test
   public void testMetadataPost() throws InvalidLoginException, HTTPException
   {
     // Payload taken from https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-import
@@ -87,6 +79,7 @@ public class DHIS2FacadeTest extends TestCase
     Assert.assertEquals("OK", jo.get("status").getAsString());
   }
   
+  @Test
   public void testGetDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
   {
     Set<String> set = new HashSet<String>();

@@ -134,15 +134,26 @@ public class JsonSerializationTest
     }
   }
   
+//  @Test
+//  @Request
+//  public void testDhis2Serialize() throws IOException
+//  {
+//    ServerGeoObjectType got = testData.DISTRICT.getServerObject();
+//    ServerHierarchyType ht = testData.HIER_ADMIN.getServerObject();
+//    
+//    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null, true, GeoObjectExportFormat.JSON_DHIS2, system, -1, -1);
+//    exporter.setDHIS2Facade(this.dhis2);
+//    System.out.println(IOUtils.toString(exporter.export()));
+//  }
+  
   @Test
   @Request
-  public void testDhis2Serialize() throws IOException
+  public void testRevealSerialize() throws IOException
   {
     ServerGeoObjectType got = testData.DISTRICT.getServerObject();
     ServerHierarchyType ht = testData.HIER_ADMIN.getServerObject();
     
-    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null, true, GeoObjectExportFormat.JSON_DHIS2, system, -1, -1);
-    exporter.setDHIS2Facade(this.dhis2);
-    System.out.println(IOUtils.toString(exporter.export()));
+    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null, true, GeoObjectExportFormat.JSON_REVEAL, system, -1, -1);
+    System.out.println(exporter.export().toString());
   }
 }

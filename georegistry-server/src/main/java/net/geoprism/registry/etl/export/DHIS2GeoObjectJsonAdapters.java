@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
@@ -43,7 +42,6 @@ import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.registry.AdapterUtilities;
-import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -54,7 +52,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class DHIS2GeoObjectJsonAdapters
 {
-  public static class DHIS2Serializer implements JsonSerializer<ServerGeoObjectIF>
+  public static class DHIS2Serializer implements JsonSerializer<VertexServerGeoObject>
   {
     private ServerHierarchyType hierarchyType;
 
@@ -105,7 +103,7 @@ public class DHIS2GeoObjectJsonAdapters
     }
 
     @Override
-    public JsonElement serialize(ServerGeoObjectIF serverGo, Type typeOfSrc, JsonSerializationContext context)
+    public JsonElement serialize(VertexServerGeoObject serverGo, Type typeOfSrc, JsonSerializationContext context)
     {
       JsonObject jo = new JsonObject();
 
@@ -116,7 +114,7 @@ public class DHIS2GeoObjectJsonAdapters
       return jo;
     }
 
-    private void writeTranslations(ServerGeoObjectIF go)
+    private void writeTranslations(VertexServerGeoObject go)
     {
       JsonArray translations = new JsonArray();
       LocalizedValue lv = go.getDisplayLabel();
@@ -141,7 +139,7 @@ public class DHIS2GeoObjectJsonAdapters
       }
     }
 
-    private void writeParents(ServerGeoObjectIF serverGo, JsonObject jo)
+    private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
     {
       if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
       {
@@ -161,7 +159,7 @@ public class DHIS2GeoObjectJsonAdapters
       }
     }
 
-    private void writeAttributes(ServerGeoObjectIF serverGo, JsonObject jo)
+    private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
       if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
       {
@@ -195,7 +193,7 @@ public class DHIS2GeoObjectJsonAdapters
       }
     }
 
-    public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, String hierarchyCode)
+    public static ServerGeoObjectIF getParent(VertexServerGeoObject serverGo, String hierarchyCode)
     {
       ServerParentTreeNode sptn = serverGo.getParentGeoObjects(null, false);
 
@@ -219,11 +217,11 @@ public class DHIS2GeoObjectJsonAdapters
       return format.format(date);
     }
 
-    public String calculatePath(ServerGeoObjectIF serverGo)
+    public String calculatePath(VertexServerGeoObject serverGo)
     {
       List<String> ancestorExternalIds = new ArrayList<String>();
 
-      List<VertexServerGeoObject> ancestors = ( (VertexServerGeoObject) serverGo ).getAncestors(this.hierarchyType);
+      List<VertexServerGeoObject> ancestors = serverGo.getAncestors(this.hierarchyType);
 
       Collections.reverse(ancestors);
 

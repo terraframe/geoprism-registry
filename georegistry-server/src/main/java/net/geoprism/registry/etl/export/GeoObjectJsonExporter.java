@@ -43,6 +43,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
@@ -50,7 +51,6 @@ import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
-import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -82,9 +82,9 @@ public class GeoObjectJsonExporter
 
   private Integer                   pageNumber = null;
 
-  private Date                      since;
+  private Long                      total      = null;
 
-  private Long                      total;
+  private Date                      since;
 
   private Boolean                   includeLevel;
 
@@ -232,7 +232,7 @@ public class GeoObjectJsonExporter
         }
         jw.endArray();
 
-        if (this.pageSize != null && this.pageNumber != null && this.pageSize != -1 && this.pageNumber != -1)
+        if (this.pageSize != null && this.pageNumber != null && this.pageSize != -1 && this.pageNumber != -1 && this.total != null)
         {
           jw.name("page").beginObject();
           {
