@@ -152,6 +152,18 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
+  public Date getCreateDate()
+  {
+    return this.vertex.getObjectValue(GeoVertex.CREATEDATE);
+  }
+
+  @Override
+  public Date getLastUpdateDate()
+  {
+    return this.vertex.getObjectValue(GeoVertex.LASTUPDATEDATE);
+  }
+
+  @Override
   public void setDate(Date date)
   {
     this.date = date;
@@ -320,9 +332,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName())
-          || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName())
-          || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
+      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
       {
         // Ignore the attributes
       }

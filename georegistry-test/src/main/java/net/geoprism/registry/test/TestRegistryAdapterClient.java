@@ -98,7 +98,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     
     String sResp = responseToString(response);
     
-    JsonArray ja = new JsonParser().parse(sResp).getAsJsonArray();
+    JsonArray ja = JsonParser.parseString(sResp).getAsJsonArray();
     
     Set<String> set = new HashSet<String>();
     for (int i = 0; i < ja.size(); ++i)
@@ -265,7 +265,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     String sResp = responseToString(resp);
     
-    JsonArray ja = new JsonParser().parse(sResp).getAsJsonArray();
+    JsonArray ja = JsonParser.parseString(sResp).getAsJsonArray();
     
     String[] sa = new String[ja.size()];
     for (int i = 0; i < ja.size(); ++i)

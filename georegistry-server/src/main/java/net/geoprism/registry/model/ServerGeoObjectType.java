@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -99,7 +99,7 @@ public class ServerGeoObjectType
   private MdBusiness    mdBusiness;
 
   private MdVertexDAOIF mdVertex;
-  
+
   public ServerGeoObjectType(GeoObjectType go, Universal universal, MdBusiness mdBusiness, MdVertexDAOIF mdVertex)
   {
     this.type = go;
@@ -107,7 +107,7 @@ public class ServerGeoObjectType
     this.mdBusiness = mdBusiness;
     this.mdVertex = mdVertex;
   }
-  
+
   public GeoObjectType getType()
   {
     return type;
@@ -212,8 +212,9 @@ public class ServerGeoObjectType
       this.deleteInTransaction();
 
       Session session = (Session) Session.getCurrentSession();
-      
-      // If this is being called in a JUnit test scenario then there is no session object in the request.
+
+      // If this is being called in a JUnit test scenario then there is no
+      // session object in the request.
       if (session != null)
       {
         session.reloadPermissions();
@@ -271,26 +272,26 @@ public class ServerGeoObjectType
     classRootTerm.delete();
 
     Actor ownerActor = this.universal.getOwner();
-    
+
     if (ownerActor instanceof Roles)
     {
-      Roles ownerRole = (Roles)ownerActor;
+      Roles ownerRole = (Roles) ownerActor;
       String roleName = ownerRole.getRoleName();
-      
+
       if (RegistryRole.Type.isOrgRole(roleName))
       {
         String organizationCode = RegistryRole.Type.parseOrgCode(roleName);
-        
+
         String geoObjectTypeCode = this.type.getCode();
-        
+
         String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
         Roles role = Roles.findRoleByName(rmRoleName);
         role.delete();
-        
+
         String rcRoleName = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectTypeCode);
         role = Roles.findRoleByName(rcRoleName);
         role.delete();
-        
+
         String acRoleName = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectTypeCode);
         role = Roles.findRoleByName(acRoleName);
         role.delete();
@@ -341,8 +342,7 @@ public class ServerGeoObjectType
 
   public AttributeType createAttributeType(String attributeTypeJSON)
   {
-    JsonParser parser = new JsonParser();
-    JsonObject attrObj = parser.parse(attributeTypeJSON).getAsJsonObject();
+    JsonObject attrObj = JsonParser.parseString(attributeTypeJSON).getAsJsonObject();
 
     AttributeType attrType = AttributeType.parse(attrObj);
 
@@ -360,23 +360,24 @@ public class ServerGeoObjectType
 
     return attrType;
   }
-  
+
   /**
    * @return The organization associated with this GeoObjectType.
    */
   public Organization getOrganization()
   {
     Actor owner = this.universal.getOwner();
-    
-    if (!(owner instanceof Roles))
+
+    if (! ( owner instanceof Roles ))
     {
-      return null; // If we get here, then the GeoObjectType was not created correctly.
+      return null; // If we get here, then the GeoObjectType was not created
+                   // correctly.
     }
     else
     {
       Roles uniRole = (Roles) owner;
       String myOrgCode = RegistryRole.Type.parseOrgCode(uniRole.getRoleName());
-      
+
       return Organization.getByCode(myOrgCode);
     }
   }
@@ -584,7 +585,7 @@ public class ServerGeoObjectType
 
   public AttributeType updateAttributeType(String attributeTypeJSON)
   {
-    JsonObject attrObj = new JsonParser().parse(attributeTypeJSON).getAsJsonObject();
+    JsonObject attrObj = JsonParser.parseString(attributeTypeJSON).getAsJsonObject();
     AttributeType attrType = AttributeType.parse(attrObj);
 
     MdAttributeConcrete mdAttribute = this.updateMdAttributeFromAttributeType(attrType);
@@ -757,10 +758,10 @@ public class ServerGeoObjectType
     return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
   }
 
-//  public String buildRMRoleName()
-//  {
-//    String ownerActorOid = this.universal.getOwnerOid();
-//    Organization.getRootOrganization(ownerActorOid)
-//  }
-  
+  // public String buildRMRoleName()
+  // {
+  // String ownerActorOid = this.universal.getOwnerOid();
+  // Organization.getRootOrganization(ownerActorOid)
+  // }
+
 }

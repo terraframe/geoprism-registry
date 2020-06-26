@@ -202,7 +202,7 @@ public class MasterList extends MasterListBase
   {
     if (this.getHierarchies() != null && this.getHierarchies().length() > 0)
     {
-      return new JsonParser().parse(this.getHierarchies()).getAsJsonArray();
+      return JsonParser.parseString(this.getHierarchies()).getAsJsonArray();
     }
 
     return new JsonArray();

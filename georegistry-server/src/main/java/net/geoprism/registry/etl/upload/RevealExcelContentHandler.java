@@ -167,7 +167,7 @@ public class RevealExcelContentHandler extends ExcelContentHandler
         sCoordinates = sCoordinates.substring(0, sCoordinates.length()-1);
       }
       
-      JsonArray joCoordinates = new JsonParser().parse(sCoordinates).getAsJsonArray();
+      JsonArray joCoordinates = JsonParser.parseString(sCoordinates).getAsJsonArray();
       
       // TODO : Not sure if we want to keep this polygon -> multipolygon conversion code
       if (this.geometryType.toUpperCase().equals("POLYGON"))
