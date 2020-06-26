@@ -64,6 +64,8 @@ public class DataExportJob extends DataExportJobBase
   
   private class ExportError extends Exception
   {
+    private static final long serialVersionUID = 8463740942015611693L;
+
     protected HTTPResponse response;
     
     protected Throwable error;
