@@ -74,7 +74,7 @@
                               </span>
                             </p>
 
-                            <step-indicator [steps]="job.stepConfig"></step-indicator>
+                            <step-indicator *ngIf="job.status !== 'SUCCESS' && job.status !== 'FAILURE' && job.status !== 'CANCELED'" [steps]="job.stepConfig"></step-indicator>
 
                           </div>
                         </td>
