@@ -29,19 +29,19 @@ import net.geoprism.registry.test.USATestData;
 public class JsonSerializationTest
 {
   protected static USATestData testData;
-  
-  protected ExternalSystem system;
-  
-  private DHIS2Facade dhis2;
-  
-  private static final String USERNAME = "admin";
-  
-  private static final String PASSWORD = "district";
-  
-  private static final String URL = "https://play.dhis2.org/2.31.9";
-  
-  private static final String VERSION = "31";
-  
+
+  protected ExternalSystem     system;
+
+  private DHIS2Facade          dhis2;
+
+  private static final String  USERNAME = "admin";
+
+  private static final String  PASSWORD = "district";
+
+  private static final String  URL      = "https://play.dhis2.org/2.31.9";
+
+  private static final String  VERSION  = "31";
+
   @BeforeClass
   public static void setUpClass()
   {
@@ -65,9 +65,9 @@ public class JsonSerializationTest
     {
       testData.setUpInstanceData();
     }
-    
+
     system = getDhis2ExternalSystem();
-    
+
     HTTPConnector connector = new HTTPConnector();
     connector.setCredentials(USERNAME, PASSWORD);
     connector.setServerUrl(URL);
@@ -81,10 +81,10 @@ public class JsonSerializationTest
     {
       testData.tearDownInstanceData();
     }
-    
+
     deleteExternalSystems();
   }
-  
+
   @Request
   private ExternalSystem getDhis2ExternalSystem()
   {
@@ -98,15 +98,15 @@ public class JsonSerializationTest
     system.setUrl(URL);
     system.setVersion(VERSION);
     system.apply();
-    
+
     return system;
   }
-  
+
   @Request
   private void deleteExternalSystems()
   {
     final String systemId = "JsonSerializationTestDhis2";
-    
+
     try
     {
       final MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(ExternalSystem.CLASS);
@@ -122,7 +122,7 @@ public class JsonSerializationTest
       query.setParameter("id", systemId);
 
       List<ExternalSystem> list = query.getResults();
-      
+
       for (ExternalSystem es : list)
       {
         es.delete();
@@ -133,26 +133,27 @@ public class JsonSerializationTest
       // Do nothing
     }
   }
-  
-//  @Test
-//  @Request
-//  public void testDhis2Serialize() throws IOException
-//  {
-//    ServerGeoObjectType got = testData.DISTRICT.getServerObject();
-//    ServerHierarchyType ht = testData.HIER_ADMIN.getServerObject();
-//    
-//    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null, true, GeoObjectExportFormat.JSON_DHIS2, system, -1, -1);
-//    exporter.setDHIS2Facade(this.dhis2);
-//    System.out.println(IOUtils.toString(exporter.export()));
-//  }
-  
+
+  // @Test
+  // @Request
+  // public void testDhis2Serialize() throws IOException
+  // {
+  // ServerGeoObjectType got = testData.DISTRICT.getServerObject();
+  // ServerHierarchyType ht = testData.HIER_ADMIN.getServerObject();
+  //
+  // GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null,
+  // true, GeoObjectExportFormat.JSON_DHIS2, system, -1, -1);
+  // exporter.setDHIS2Facade(this.dhis2);
+  // System.out.println(IOUtils.toString(exporter.export()));
+  // }
+
   @Test
   @Request
   public void testRevealSerialize() throws IOException
   {
     ServerGeoObjectType got = testData.DISTRICT.getServerObject();
     ServerHierarchyType ht = testData.HIER_ADMIN.getServerObject();
-    
+
     GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null, true, GeoObjectExportFormat.JSON_REVEAL, system, -1, -1);
     System.out.println(exporter.export().toString());
   }
