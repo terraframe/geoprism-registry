@@ -20,10 +20,6 @@ package net.geoprism.registry.etl.export;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintWriter;
 import java.util.Date;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -34,15 +30,15 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.util.IOUtils;
 import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonWriter;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
-import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -52,20 +48,6 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectJsonExporter
 {
-  public static void main(String[] args) throws IOException
-  {
-    mainInReq();
-  }
-  
-  @Request
-  public static void mainInReq() throws IOException
-  {
-    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter("test123leafgot", "test123hr", null, true, GeoObjectExportFormat.JSON_CGR, "test123sys", null, null);
-    InputStream is = exporter.export();
-    
-    IOUtils.copy(is, System.out);
-  }
-  
   final private Logger logger = LoggerFactory.getLogger(GeoObjectJsonExporter.class);
   
   final private ServerGeoObjectType got;
@@ -86,11 +68,9 @@ public class GeoObjectJsonExporter
   
   private ExternalSystem externalSystem;
   
-  private Thread exportThread;
-  
-  private DHIS2Facade dhis2;
-
-  private SyncLevel syncLevel;
+//  private DHIS2Facade dhis2;
+//
+//  private SyncLevel syncLevel;
   
   public GeoObjectJsonExporter(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, GeoObjectExportFormat format, String externalSystemId, Integer pageSize, Integer pageNumber)
   {
@@ -122,9 +102,12 @@ public class GeoObjectJsonExporter
   
   public void init()
   {
-    if (this.pageSize == null || this.pageNumber == null || this.pageNumber == 0 || this.pageSize == 0)
+    if (this.pageSize == null || this.pageSize == 0)
     {
       this.pageSize = 1000;
+    }
+    if (this.pageNumber == null || this.pageNumber == 0)
+    {
       this.pageNumber = 1;
     }
     
@@ -146,57 +129,16 @@ public class GeoObjectJsonExporter
     if (this.pageSize != null && this.pageNumber != null && this.pageSize != -1 && this.pageNumber != -1)
     {
       goq.paginate(this.pageNumber, this.pageSize);
-      this.total = goq.getCount();
     }
     
     goq.orderBy(DefaultAttribute.LAST_UPDATE_DATE.getName(), SortOrder.ASC);
     
+    this.total = goq.getCount();
+    
     return goq.getIterator();
   }
   
-  public void writeObjects(JsonWriter jw) throws IOException
-  {
-    try (OIterator<GeoObject> it = postgresQuery())
-    {
-      while (it.hasNext())
-      {
-        GeoObject go = it.next();
-        
-        exportObject(jw, go);
-      }
-    }
-  }
-  
-  public void write(OutputStream os)
-  {
-    try (JsonWriter jw = new JsonWriter(new PrintWriter(os)))
-    {
-      jw.beginObject();
-      {
-        jw.name("results").beginArray();
-        {
-          writeObjects(jw);
-        } jw.endArray();
-        
-        if (this.pageSize != null && this.pageNumber != null && this.pageSize != -1 && this.pageNumber != -1 && this.total != null)
-        {
-          jw.name("page").beginObject();
-          {
-            jw.name("pageSize").value(this.pageSize);
-            jw.name("pageNumber").value(this.pageNumber);
-            jw.name("total").value(this.total);
-          } jw.endObject();
-        }
-        
-      } jw.endObject();
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-  }
-  
-  protected void exportObject(JsonWriter jw, GeoObject go) throws IOException
+  protected JsonElement exportObject(GeoObject go) throws IOException
   {
     GsonBuilder builder = new GsonBuilder();
     
@@ -208,64 +150,139 @@ public class GeoObjectJsonExporter
     {
       builder.registerTypeAdapter(GeoObject.class, new GeoObjectJsonAdapters.GeoObjectSerializer());
     }
-    else if (this.format.equals(GeoObjectExportFormat.JSON_DHIS2))
-    {
-      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, this.syncLevel, this.got, this.hierarchyType, this.externalSystem));
-    }
+//    else if (this.format.equals(GeoObjectExportFormat.JSON_DHIS2))
+//    {
+//      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, this.syncLevel, this.got, this.hierarchyType, this.externalSystem));
+//    }
     
-    builder.create().toJson(go, go.getClass(), jw);
+    return builder.create().toJsonTree(go, go.getClass());
   }
   
-  public InputStream export() throws IOException
-  {
-    PipedOutputStream pos = new PipedOutputStream();
-    PipedInputStream pis = new PipedInputStream(pos);
-
-    exportThread = new Thread(new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        try
-        {
-          try
-          {
-            runInReq();
-          }
-          finally
-          {
-            pos.close();
-          }
-        }
-        catch (IOException e)
-        {
-          logger.error("Error while writing", e);
-        }
-      }
-      
-      @Request
-      public void runInReq()
-      {
-        GeoObjectJsonExporter.this.write(pos);
-      }
-    });
-    exportThread.setDaemon(true);
-    exportThread.start();
-
-    return pis;
-  }
-  
-  /**
+  /*
+   * This code is necessary if doing a DHIS2 export. But it's not used anymore because the DHIS2 exporter does it's own serialization now.
+   * 
    * TODO : Abstraction is leaking here. Maybe pass in a config object which contains this extra stuff we need? 
    */
   
-  public void setDHIS2Facade(DHIS2Facade dhis2)
+//  public void setDHIS2Facade(DHIS2Facade dhis2)
+//  {
+//    this.dhis2 = dhis2;
+//  }
+//  
+//  public void setSyncLevel(SyncLevel syncLevel)
+//  {
+//    this.syncLevel = syncLevel;
+//  }
+  
+  public JsonObject export() throws IOException
   {
-    this.dhis2 = dhis2;
+    JsonObject jo = new JsonObject();
+    
+    JsonArray results = new JsonArray();
+    
+    try (OIterator<GeoObject> it = postgresQuery())
+    {
+      while (it.hasNext())
+      {
+        GeoObject go = it.next();
+        
+        results.add(this.exportObject(go));
+      }
+    }
+    
+    jo.add("results", results);
+    
+    JsonObject page = new JsonObject();
+    page.addProperty("pageSize", this.pageSize);
+    page.addProperty("pageNumber", this.pageNumber);
+    page.addProperty("total", this.total);
+    jo.add("page", page);
+    
+    return jo;
   }
   
-  public void setSyncLevel(SyncLevel syncLevel)
-  {
-    this.syncLevel = syncLevel;
-  }
+  
+  
+/*
+ * Code that was once used for streaming. We can delete it at some point.  
+ */
+//public InputStream export() throws IOException
+//{
+//  PipedOutputStream pos = new PipedOutputStream();
+//  PipedInputStream pis = new PipedInputStream(pos);
+//
+//  exportThread = new Thread(new Runnable()
+//  {
+//    @Override
+//    public void run()
+//    {
+//      try
+//      {
+//        try
+//        {
+//          runInReq();
+//        }
+//        finally
+//        {
+//          pos.close();
+//        }
+//      }
+//      catch (IOException e)
+//      {
+//        logger.error("Error while writing", e);
+//      }
+//    }
+//    
+//    @Request
+//    public void runInReq()
+//    {
+//      GeoObjectJsonExporter.this.write(pos);
+//    }
+//  });
+//  exportThread.setDaemon(true);
+//  exportThread.start();
+//
+//  return pis;
+//}
+//public void writeObjects(JsonWriter jw) throws IOException
+//{
+//  try (OIterator<GeoObject> it = postgresQuery())
+//  {
+//    while (it.hasNext())
+//    {
+//      GeoObject go = it.next();
+//      
+//      exportObject(jw, go);
+//    }
+//  }
+//}
+//
+//public void writeAsStream(OutputStream os)
+//{
+//  try (JsonWriter jw = new JsonWriter(new PrintWriter(os)))
+//  {
+//    jw.beginObject();
+//    {
+//      jw.name("results").beginArray();
+//      {
+//        writeObjects(jw);
+//      } jw.endArray();
+//      
+//      if (this.pageSize != null && this.pageNumber != null && this.pageSize != -1 && this.pageNumber != -1 && this.total != null)
+//      {
+//        jw.name("page").beginObject();
+//        {
+//          jw.name("pageSize").value(this.pageSize);
+//          jw.name("pageNumber").value(this.pageNumber);
+//          jw.name("total").value(this.total);
+//        } jw.endObject();
+//      }
+//      
+//    } jw.endObject();
+//  }
+//  catch (IOException e)
+//  {
+//    throw new ProgrammingErrorException(e);
+//  }
+//}
 }
