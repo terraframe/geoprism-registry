@@ -36,6 +36,50 @@ public class DHIS2Facade
     return this.apiGet("system/info", null);
   }
   
+  /**
+   * Used to create or update a DHIS2 entity. Required attributes are enforced.
+   * 
+   * https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-create-read-update-delete-validate
+   * 
+   * @param entityName
+   * @param params
+   * @param payload
+   * @return
+   * @throws InvalidLoginException
+   * @throws HTTPException
+   */
+  public MetadataImportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  {
+    return new MetadataImportResponse(this.apiPost(entityName, params, payload));
+  }
+  
+  /**
+   * Used to update an existing DHIS2 entity. May be used to submit a 'partial update'.
+   * 
+   * https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-create-read-update-delete-validate
+   * 
+   * @param entityName
+   * @param entityId
+   * @param params
+   * @param payload
+   * @return
+   * @throws InvalidLoginException
+   * @throws HTTPException
+   */
+  public MetadataImportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  {
+    return new MetadataImportResponse(this.apiPatch(entityName + "/" + entityId, params, payload));
+  }
+  
+  /**
+   * https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-import
+   * 
+   * @param params
+   * @param payload
+   * @return
+   * @throws InvalidLoginException
+   * @throws HTTPException
+   */
   public MetadataImportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
   {
     return new MetadataImportResponse(this.apiPost("metadata", params, payload));
@@ -59,5 +103,15 @@ public class DHIS2Facade
     }
     
     return connector.httpPost("api/" + version + "/" + url, params, body);
+  }
+  
+  public HTTPResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  {
+    if (!url.contains("?") && !url.endsWith(".json"))
+    {
+      url = url + ".json";
+    }
+    
+    return connector.httpPatch("api/" + version + "/" + url, params, body);
   }
 }

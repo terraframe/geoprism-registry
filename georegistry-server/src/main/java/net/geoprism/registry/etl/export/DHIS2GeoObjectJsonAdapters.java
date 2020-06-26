@@ -44,6 +44,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
+import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -65,12 +66,15 @@ public class DHIS2GeoObjectJsonAdapters
     
     private DHIS2Facade dhis2;
     
-    public DHIS2Serializer(DHIS2Facade dhis2, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
+    private SyncLevel syncLevel;
+    
+    public DHIS2Serializer(DHIS2Facade dhis2, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
     {
       this.got = got;
       this.hierarchyType = hierarchyType;
       this.dhis2 = dhis2;
       this.ex = ex;
+      this.syncLevel = syncLevel;
       
       this.calculateDepth();
     }
@@ -105,34 +109,15 @@ public class DHIS2GeoObjectJsonAdapters
       
       JsonObject jo = new JsonObject();
       
-      jo.addProperty("code", go.getCode());
+      writeAttributes(go, serverGo, jo);
       
-      jo.addProperty("level", this.depth);
+      writeParents(serverGo, jo);
       
-      jo.addProperty("created", formatDate(go.getCreateDate()));
-      
-      jo.addProperty("lastUpdated", formatDate(go.getLastUpdateDate()));
-      
-      jo.addProperty("name", go.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-      
-      jo.addProperty("id", this.getExternalId(serverGo));
-      
-      jo.addProperty("shortName", go.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-      
-      jo.addProperty("path", calculatePath(serverGo));
-      
-      jo.addProperty("openingDate", formatDate(go.getCreateDate())); // TODO : Is this the correct date? It's a required field.
-      
-      ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
-      if (goParent != null)
-      {
-        JsonObject parent = new JsonObject();
-        parent.addProperty("id", this.getExternalId(goParent)); // TODO : Is this the correct id?
-        jo.add("parent", parent); // TODO Don't always submit parent information?
-      }
-      
-      // TODO : attributeValues ?
-      
+      return jo;
+    }
+
+    private void writeTranslations(GeoObject go)
+    {
       JsonArray translations = new JsonArray();
       LocalizedValue lv = go.getDisplayLabel();
       
@@ -154,8 +139,46 @@ public class DHIS2GeoObjectJsonAdapters
           translations.add(joLocaleName);
         }
       }
-      
-      return jo;
+    }
+
+    private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
+    {
+      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
+      {
+        ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
+        if (goParent != null)
+        {
+          JsonObject parent = new JsonObject();
+          parent.addProperty("id", this.getExternalId(goParent)); // TODO : Is this the correct id?
+          jo.add("parent", parent);
+        }
+        
+        jo.addProperty("path", calculatePath(serverGo));
+        
+        jo.addProperty("level", this.depth);
+      }
+    }
+
+    private void writeAttributes(GeoObject go, VertexServerGeoObject serverGo, JsonObject jo)
+    {
+      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
+      {
+        jo.addProperty("code", go.getCode());
+        
+        jo.addProperty("id", this.getExternalId(serverGo));
+        
+        jo.addProperty("created", formatDate(go.getCreateDate()));
+        
+        jo.addProperty("lastUpdated", formatDate(go.getLastUpdateDate()));
+        
+        jo.addProperty("shortName", go.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        
+        jo.addProperty("openingDate", formatDate(go.getCreateDate())); // TODO : Is this the correct date? It's a required field.
+        
+        // TODO : attributeValues ?
+        
+        writeTranslations(go);
+      }
     }
     
     public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, String hierarchyCode)

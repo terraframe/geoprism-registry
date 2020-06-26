@@ -34,6 +34,8 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response;
 
+import java.util.Arrays;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -76,5 +78,47 @@ public class HTTPResponse
 
   public void setStatusCode(int statusCode) {
     this.statusCode = statusCode;
+  }
+  
+  public boolean isSuccess()
+  {
+    final int[] successCodes = new int[] {200, 201, 202, 203, 204, 205, 206, 207, 208, 226};
+    
+    boolean isSuccessCode = Arrays.stream(successCodes).anyMatch(new Integer(this.getStatusCode())::equals);
+    
+    if (this.response == null)
+    {
+      return isSuccessCode;
+    }
+    
+    JsonObject jo = this.getJsonObject();
+    
+    return isSuccessCode && !this.hasErrorMessage() && !jo.get("status").getAsString().equals("ERROR");
+  }
+  
+  public String getErrorMessage()
+  {
+//    {"httpStatus":"Conflict","httpStatusCode":409,"status":"ERROR","message":"Unexpected end-of-input: expected close marker for Array (start marker at [Source: (BufferedInputStream); line: 1, column: 22])\n at [Source: (BufferedInputStream); line: 1, column: 45]"}
+
+    if (this.hasErrorMessage())
+    {
+      return this.getJsonObject().get("message").getAsString();
+    }
+    else
+    {
+      return "";
+    }
+  }
+  
+  public boolean hasErrorMessage()
+  {
+    JsonObject jo = this.getJsonObject();
+    
+    if (this.getStatusCode() != 200 || jo.has("status") && jo.get("status").getAsString().equals("ERROR"))
+    {
+      return jo.has("message");
+    }
+    
+    return false;
   }
 }
