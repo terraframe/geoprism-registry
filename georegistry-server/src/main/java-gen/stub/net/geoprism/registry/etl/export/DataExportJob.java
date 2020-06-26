@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.GsonBuilder;
+import com.runwaysdk.RunwayException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -62,7 +63,7 @@ public class DataExportJob extends DataExportJobBase
     super();
   }
   
-  private class ExportError extends Exception
+  private class ExportError extends RunwayException
   {
     private static final long serialVersionUID = 8463740942015611693L;
 
@@ -72,6 +73,7 @@ public class DataExportJob extends DataExportJobBase
     
     private ExportError(HTTPResponse response, Throwable t)
     {
+      super("");
       this.response = response;
       this.error = t;
     }
@@ -263,8 +265,8 @@ public class DataExportJob extends DataExportJobBase
       }
       
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(GeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.syncConfig.getServerHierarchyType(), this.syncConfig.getExternalSystem()));
-      String sJson = builder.create().toJson(go, go.getClass());
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.syncConfig.getServerHierarchyType(), this.syncConfig.getExternalSystem()));
+      String sJson = builder.create().toJson(serverGo, serverGo.getClass());
       
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("mergeMode", "MERGE"));

@@ -170,6 +170,8 @@ public class DHIS2GeoObjectJsonAdapters
         jo.addProperty("created", formatDate(serverGo.getCreateDate()));
 
         jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
+        
+        jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
 
         jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
 

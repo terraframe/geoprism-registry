@@ -30,8 +30,6 @@ public class DHIS2FacadeTest
   @Before
   public void setUp()
   {
-    SSLTrustConfiguration.trustAll();
-    
     HTTPConnector connector = new HTTPConnector();
     connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
     connector.setServerUrl(Constants.DHIS2_URL);

@@ -26,7 +26,6 @@ public class HTTPConnectorTest
   @Before
   public void setUp()
   {
-    SSLTrustConfiguration.trustAll();
   }
 
   @Test
