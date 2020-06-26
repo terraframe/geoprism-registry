@@ -171,7 +171,17 @@ public class DataExportJob extends DataExportJobBase
     history.apply();
   }
 
-  public List<VertexServerGeoObject> query(ServerGeoObjectType got)
+  private long getCount(ServerGeoObjectType got)
+  {
+    MdVertexDAOIF mdVertex = got.getMdVertex();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*) FROM " + mdVertex.getDBClassName());
+
+    return new GraphQuery<Long>(statement.toString()).getSingleResult();
+  }
+
+  public List<VertexServerGeoObject> query(ServerGeoObjectType got, long skip, long pageSize)
   {
     MdVertexDAOIF mdVertex = got.getMdVertex();
     MdAttributeDAOIF mdAttribute = MdAttributeDAO.getByKey(GeoVertex.CLASS + "." + GeoVertex.LASTUPDATEDATE);
@@ -179,6 +189,7 @@ public class DataExportJob extends DataExportJobBase
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
     statement.append(" ORDER BY " + mdAttribute.getColumnName() + ", oid ASC");
+    statement.append(" SKIP " + skip + " LIMIT " + pageSize);
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
 
@@ -203,18 +214,28 @@ public class DataExportJob extends DataExportJobBase
 
     for (SyncLevel level : levels)
     {
-      List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType());
+      long skip = 0;
+      long pageSize = 1000;
 
-      objects.forEach(go -> {
-        try
-        {
-          exportGeoObject(level, go);
-        }
-        catch (ExportError ee)
-        {
-          recordExportError(ee);
-        }
-      });
+      long count = this.getCount(level.getGeoObjectType());
+
+      while (skip < count)
+      {
+        List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType(), skip, pageSize);
+
+        objects.forEach(go -> {
+          try
+          {
+            exportGeoObject(level, go);
+          }
+          catch (ExportError ee)
+          {
+            recordExportError(ee);
+          }
+        });
+
+        skip += pageSize;
+      }
 
       // List<SyncLevel> levels = this.dhis2Config.getLevels();
       //
