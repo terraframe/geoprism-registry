@@ -8,12 +8,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
+import org.junit.Before;
 
 import com.google.gson.JsonObject;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
+
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
@@ -21,18 +21,15 @@ import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
 /**
  * Tests basic HTTP communication architecture by talking to play.dhis2.org
  */
-public class HTTPConnectorTest extends TestCase
+public class HTTPConnectorTest
 {
-  public HTTPConnectorTest( String testName )
+  @Before
+  public void setUp()
   {
-    super( testName );
+    SSLTrustConfiguration.trustAll();
   }
 
-  public static Test suite()
-  {
-    return new TestSuite( HTTPConnectorTest.class );
-  }
-
+  @Test
   public void testGet() throws InvalidLoginException, HTTPException
   {
     HTTPConnector connector = new HTTPConnector();
@@ -50,6 +47,7 @@ public class HTTPConnectorTest extends TestCase
     Assert.assertEquals(Constants.DHIS2_URL, jo.get("instanceBaseUrl").getAsString());
   }
   
+  @Test
   public void testPost() throws InvalidLoginException, HTTPException
   {
     // Payload taken from https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-import
