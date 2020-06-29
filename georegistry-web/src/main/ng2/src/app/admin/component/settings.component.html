@@ -127,13 +127,13 @@
                         
                         <div class="row">
                             <div class="col-md-12">
-                               <input class="btn btn-primary" type="submit" (click)="exportLocalization()" value="Export localization">
+                               <input class="btn btn-primary" type="submit" (click)="exportLocalization()" [value]="'localization-manager.exportButton' | localize">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12">
-                               <input class="btn btn-primary" type="submit" (click)="importLocalization()" value="Import localization">
+                               <input class="btn btn-primary" type="submit" (click)="importLocalization()" [value]="'localization-manager.importButton' | localize">
                             </div>
                         </div>
                     </div>
