@@ -103,7 +103,6 @@
                                 <thead>
                                     <tr>
                                         <th>
-                                            <localize key="settings.manage.lang.table.language.header"></localize>
                                         </th>
                                         <th>
                                             <localize key="settings.manage.lang.table.country.header"></localize>
@@ -125,9 +124,18 @@
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                               <input class="btn btn-primary" type="submit" (click)="exportLocalization()" value="Export localization">
+                            </div>
+                        </div>
 
-                        <input class="btn btn-primary" type="submit" (click)="exportLocalization()" value="Export localization">
-                    
+                        <div class="row">
+                            <div class="col-md-12">
+                               <input class="btn btn-primary" type="submit" (click)="importLocalization()" value="Import localization">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

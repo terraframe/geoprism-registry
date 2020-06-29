@@ -86,7 +86,6 @@ export class DataImporterComponent implements OnInit {
 		private eventService: EventService,
 		private modalService: BsModalService,
 		private localizationService: LocalizationService,
-		private router: Router,
 		private authService: AuthService,
 		private sysService: ExternalSystemService
 	) { }
