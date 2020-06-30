@@ -92,7 +92,7 @@
                     </tbody>
                   </table>
                   <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-                    <pagination-controls id="activeJobs" (pageChange)="onPageChange($event)"></pagination-controls>
+                    <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
                   </div>
                 </div>
               </ul>
