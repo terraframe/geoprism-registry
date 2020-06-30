@@ -54,7 +54,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 
       ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
-      return geoObjectPermissionService.canRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+      return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
     }
 
     return false;
