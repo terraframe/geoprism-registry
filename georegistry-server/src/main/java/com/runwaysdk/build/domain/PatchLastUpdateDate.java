@@ -26,19 +26,20 @@ public class PatchLastUpdateDate
 
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
     MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(GeoVertex.LASTUPDATEDATE);
+    MdAttributeDAOIF createDate = mdVertex.definesAttribute(GeoVertex.CREATEDATE);
 
-    long skip = 0;
     long pageSize = 1000;
 
-    long count = this.getCount();
+    long count = 0;
 
-    while (skip < count)
+    do
     {
-
       StringBuilder builder = new StringBuilder();
       builder.append("SELECT FROM " + mdVertex.getDBClassName());
       builder.append(" WHERE " + mdAttribute.getColumnName() + " IS NULL");
-      builder.append(" SKIP " + skip + " LIMIT " + pageSize);
+      builder.append(" OR " + createDate.getColumnName() + " IS NULL");
+      builder.append(" ORDER BY oid");
+      builder.append(" SKIP " + 0 + " LIMIT " + pageSize);
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
 
@@ -51,18 +52,20 @@ public class PatchLastUpdateDate
         result.apply();
       }
 
-      skip += pageSize;
-    }
+      count = this.getCount();
+    } while (count > 0);
   }
 
   public long getCount()
   {
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
     MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(GeoVertex.LASTUPDATEDATE);
+    MdAttributeDAOIF createDate = mdVertex.definesAttribute(GeoVertex.CREATEDATE);
 
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT COUNT(*) FROM " + mdVertex.getDBClassName());
     builder.append(" WHERE " + mdAttribute.getColumnName() + " IS NULL");
+    builder.append(" OR " + createDate.getColumnName() + " IS NULL");
 
     final GraphQuery<Long> query = new GraphQuery<Long>(builder.toString());
 
