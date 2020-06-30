@@ -18,8 +18,8 @@
  */
 package net.geoprism.registry.etl;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 
@@ -36,11 +36,11 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
     super();
   }
   
-  public ParentReferenceProblem(String typeCode, String label, String parentCode, JSONArray context)
+  public ParentReferenceProblem(String typeCode, String label, String parentCode, String context)
   {
     this.setTypeCode(typeCode);
     this.setLabel(label);
-    this.setContext(context.toString());
+    this.setContext(context);
     this.setParentCode(parentCode);
   }
   
@@ -63,20 +63,20 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
   }
 
   @Override
-  public JSONObject toJSON()
+  public JsonObject toJson()
   {
-    JSONObject object = super.toJSON();
+    JsonObject object = super.toJson();
     
     ServerGeoObjectType type = ServerGeoObjectType.get(this.getTypeCode());
     
-    object.put("label", this.getLabel());
-    object.put("typeCode", this.getTypeCode());
-    object.put("typeLabel", new JSONObject(type.getLabel().toJSON().toString()));
-    object.put("context", new JSONArray(this.getContext()));
+    object.addProperty("label", this.getLabel());
+    object.addProperty("typeCode", this.getTypeCode());
+    object.add("typeLabel", type.getLabel().toJSON());
+    object.add("context", JsonParser.parseString(this.getContext()));
 
     if (this.getParentCode() != null && this.getParentCode().length() > 0)
     {
-      object.put("parent", this.getParentCode());
+      object.addProperty("parent", this.getParentCode());
     }
 
     return object;

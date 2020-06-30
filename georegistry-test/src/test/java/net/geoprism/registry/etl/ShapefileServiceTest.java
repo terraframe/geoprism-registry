@@ -158,9 +158,13 @@ public class ShapefileServiceTest
     {
       JobHistoryRecord jhr = jhrs.next();
       
-      ExecutableJob job = jhr.getParent();
-      jhr.delete();
-      job.delete();
+      JobHistory hist = jhr.getChild();
+      if (hist instanceof ImportHistory)
+      {
+        ExecutableJob job = jhr.getParent();
+        jhr.delete();
+        job.delete();
+      }
     }
 
     SynonymQuery sq = new SynonymQuery(new QueryFactory());
@@ -596,7 +600,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     final GeoObjectImportConfiguration test = new GeoObjectImportConfiguration();
     test.fromJSON(hist.getConfigJson(), false);
@@ -679,7 +683,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
     
-    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -761,7 +765,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -870,7 +874,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -891,7 +895,8 @@ public class ShapefileServiceTest
     JSONObject valRes = new JSONObject();
     valRes.put("validationProblemId", results.getJSONObject(0).getString("id"));
     valRes.put("resolution", ValidationResolution.SYNONYM);
-    valRes.put("entityId", serverGo.getRunwayId());
+    valRes.put("code", serverGo.getCode());
+    valRes.put("typeCode", serverGo.getType().getCode());
     valRes.put("label", "00");
     
     new ETLService().submitValidationProblemResolution(this.testData.adminClientRequest.getSessionId(), valRes.toString());
@@ -923,7 +928,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, parents.size());
     
     
-    JSONObject page2 = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page2 = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results2 = page2.getJSONArray("results");
     Assert.assertEquals(0, results2.length());
     Assert.assertEquals(0, page2.getInt("count"));

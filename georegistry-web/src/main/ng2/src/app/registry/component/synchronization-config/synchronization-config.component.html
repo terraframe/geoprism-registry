@@ -78,6 +78,15 @@
 
                           </div>
                         </td>
+                        <td style="text-align: right; vertical-align: middle;">
+                          <div class="button-holder" style="float: right;">
+                            <a *ngIf="job.status === 'FAILURE'" [routerLink]="'/registry/sync/details/' + job.historyId" routerLinkActive="active">
+                              <button class="btn btn-primary" role="button">
+                                <localize key="scheduledjobs.detail.button"></localize>
+                              </button>
+                            </a>
+                           </div>
+                         </td>
                       </tr>
 
                     </tbody>

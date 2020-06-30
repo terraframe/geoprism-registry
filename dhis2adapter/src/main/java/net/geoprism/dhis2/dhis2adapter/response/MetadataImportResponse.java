@@ -1,7 +1,5 @@
 package net.geoprism.dhis2.dhis2adapter.response;
 
-import com.google.gson.JsonObject;
-
 public class MetadataImportResponse extends HTTPResponse
 {
 

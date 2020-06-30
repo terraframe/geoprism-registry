@@ -8,6 +8,7 @@ import org.apache.http.NameValuePair;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
+import net.geoprism.dhis2.dhis2adapter.response.EntityImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 
@@ -48,9 +49,9 @@ public class DHIS2Facade
    * @throws InvalidLoginException
    * @throws HTTPException
    */
-  public MetadataImportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public EntityImportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
   {
-    return new MetadataImportResponse(this.apiPost(entityName, params, payload));
+    return new EntityImportResponse(this.apiPost(entityName, params, payload));
   }
   
   /**
@@ -66,9 +67,9 @@ public class DHIS2Facade
    * @throws InvalidLoginException
    * @throws HTTPException
    */
-  public MetadataImportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public EntityImportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
   {
-    return new MetadataImportResponse(this.apiPatch(entityName + "/" + entityId, params, payload));
+    return new EntityImportResponse(this.apiPatch(entityName + "/" + entityId, params, payload));
   }
   
   /**

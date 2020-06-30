@@ -1,0 +1,47 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.etl.ExportJobHasErrors" message="One or more errors occurred, please see full details." exported="false" publish="false">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError" message="The GeoObject [{geoObject}] cannot be exported because it is new. New GeoObjects must be exported with 'Org Units and Relationships' sync type." exported="false" publish="false">
+        <attributes>
+          <text name="geoObject" label="geoObject" />
+        </attributes>
+      </mdException>
+    
+      <mdBusiness name="net.geoprism.registry.etl.export.ExportError" exported="false" publish="false">
+        <attributes>
+          <text name="submittedJson" label="submittedJson"/>
+          <text name="responseJson" label="responseJson"/>
+          <text name="code" label="code"/>
+          <text name="errorJson" label="errorJson"/>
+          <long name="rowIndex" label="Row Index" description="A zero-indexed row indentifier" rejectNegative="true" />
+          <reference name="history" type="net.geoprism.registry.etl.export.ExportHistory" required="true" label="history"/>
+        </attributes>
+      </mdBusiness>
+    </create>
+    <update>
+      <mdException name="net.geoprism.registry.etl.export.ExportRemoteException" message="{remoteError}">
+      </mdException>
+    </update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.etl.export.ExportError">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.export.ExportError" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError" type="com.runwaysdk.system.metadata.MdException"/>
+      <!--
+      <object key="net.geoprism.registry.etl.ExportJobHasErrors" type="com.runwaysdk.system.metadata.MdException"/>
+      -->
+    </delete>
+  </undoIt>
+</version>

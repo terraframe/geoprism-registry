@@ -12,6 +12,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -34,10 +35,12 @@ import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.EntityImportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.EntityImportResponse.ErrorReport;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.ExportJobHasErrors;
+import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
 import net.geoprism.registry.etl.RemoteConnectionException;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -45,6 +48,14 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
+/**
+ * This class is currently hardcoded to DHIS2 export, however the metadata is attempting to be generic enough
+ * to scale to more generic usecases.
+ * 
+ * @author rrowlands
+ * @author jsmethie
+ *
+ */
 public class DataExportJob extends DataExportJobBase
 {
   private static final long     serialVersionUID = -1821569567;
@@ -60,25 +71,36 @@ public class DataExportJob extends DataExportJobBase
   private DHIS2SyncConfig       dhis2Config;
 
   private DHIS2Facade           dhis2;
+  
+  private ExportHistory         history;
 
   public DataExportJob()
   {
     super();
   }
 
-  private class ExportError extends RunwayException
+  private class JobExportError extends RunwayException
   {
     private static final long serialVersionUID = 8463740942015611693L;
 
-    protected HTTPResponse    response;
+    protected EntityImportResponse    response;
+    
+    protected String          submittedJson;
 
     protected Throwable       error;
+    
+    protected String          geoObjectCode;
+    
+    protected Long            rowIndex;
 
-    private ExportError(HTTPResponse response, Throwable t)
+    private JobExportError(Long rowIndex, EntityImportResponse response, String submittedJson, Throwable t, String geoObjectCode)
     {
       super("");
       this.response = response;
+      this.submittedJson = submittedJson;
       this.error = t;
+      this.geoObjectCode = geoObjectCode;
+      this.rowIndex = rowIndex;
     }
   }
 
@@ -143,8 +165,8 @@ public class DataExportJob extends DataExportJobBase
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
-    ExportHistory history = (ExportHistory) executionContext.getJobHistoryRecord().getChild();
-
+    this.history = (ExportHistory) executionContext.getJobHistoryRecord().getChild();
+    
     this.syncConfig = this.getConfig();
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
@@ -159,8 +181,6 @@ public class DataExportJob extends DataExportJobBase
     this.setStage(history, ExportStage.EXPORT);
 
     this.doExport();
-
-    this.setStage(history, ExportStage.COMPLETE);
   }
 
   private void setStage(ExportHistory history, ExportStage stage)
@@ -210,6 +230,10 @@ public class DataExportJob extends DataExportJobBase
 
   private void doExport()
   {
+    long rowIndex = 0;
+    long total = 0;
+    long exportCount = 0;
+    
     List<SyncLevel> levels = this.dhis2Config.getLevels();
 
     for (SyncLevel level : levels)
@@ -218,61 +242,93 @@ public class DataExportJob extends DataExportJobBase
       long pageSize = 1000;
 
       long count = this.getCount(level.getGeoObjectType());
+      total += count;
 
       while (skip < count)
       {
         List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType(), skip, pageSize);
 
-        objects.forEach(go -> {
+        for (VertexServerGeoObject go : objects) {
           try
           {
-            exportGeoObject(level, go);
+            exportGeoObject(level, rowIndex, go);
+            
+            exportCount++;
+            
+            this.history.appLock();
+            this.history.setWorkProgress(rowIndex);
+            this.history.setExportedRecords(exportCount);
+            this.history.apply();
           }
-          catch (ExportError ee)
+          catch (JobExportError ee)
           {
             recordExportError(ee);
           }
-        });
+          
+          rowIndex++;
+        };
 
         skip += pageSize;
       }
-
-      // List<SyncLevel> levels = this.dhis2Config.getLevels();
-      //
-      // for (SyncLevel level : levels)
-      // {
-      // ServerGeoObjectType got = level.getGeoObjectType();
-      //
-      // GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got,
-      // this.syncConfig.getServerHierarchyType(), null, true,
-      // GeoObjectExportFormat.JSON_DHIS2, this.syncConfig.getExternalSystem(),
-      // -1, -1);
-      // exporter.setDHIS2Facade(this.dhis2);
-      // exporter.setSyncLevel(level);
-      // exporter.writeObjects(jw);
-      // }
+    }
+    
+    this.history.appLock();
+    this.history.setWorkTotal(total);
+    this.history.setWorkProgress(rowIndex);
+    this.history.setExportedRecords(exportCount);
+    history.clearStage();
+    history.addStage(ExportStage.COMPLETE);
+    this.history.apply();
+    
+    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(this.history));
+    Boolean hasErrors = query.getCount() > 0;
+    
+    if (hasErrors)
+    {
+      ExportJobHasErrors ex = new ExportJobHasErrors();
+      
+      throw ex;
     }
   }
 
-  private void recordExportError(ExportError ee)
+  private void recordExportError(JobExportError ee)
   {
-    HTTPResponse resp = ee.response;
+    EntityImportResponse resp = ee.response;
     Throwable ex = ee.error;
+    String geoObjectCode = ee.geoObjectCode;
+    
+    ExportError exportError = new ExportError();
 
-    if (resp != null)
+    if (ee.submittedJson != null)
     {
-      // TODO : do stuff
+      exportError.setSubmittedJson(ee.submittedJson);
     }
-
-    // TODO : Record the error or something
-    if (ex instanceof RuntimeException)
+    
+    if (resp != null && resp.hasErrorReports())
     {
-      throw (RuntimeException) ex;
+      List<ErrorReport> reports = resp.getErrorReports();
+      
+      ErrorReport report = reports.get(0);
+      
+      GsonBuilder builder = new GsonBuilder();
+      Gson gson = builder.create();
+      
+      exportError.setResponseJson(gson.toJson(report));
     }
-    else
+    
+    exportError.setCode(geoObjectCode);
+    
+    if (ex != null)
     {
-      throw new RuntimeException(ex);
+      exportError.setErrorJson(JobHistory.exceptionToJson(ex).toString());
     }
+    
+    exportError.setRowIndex(ee.rowIndex);
+    
+    exportError.setHistory(this.history);
+    
+    exportError.apply();
   }
 
   /**
@@ -292,26 +348,26 @@ public class DataExportJob extends DataExportJobBase
    * @throws ExportError
    */
   @Transaction
-  private void exportGeoObject(SyncLevel level, VertexServerGeoObject serverGo) throws ExportError
+  private void exportGeoObject(SyncLevel level, Long rowIndex, VertexServerGeoObject serverGo) throws JobExportError
   {
-    MetadataImportResponse resp = null;
-
+    EntityImportResponse resp = null;
+    
+    String submittedJson = null;
+    
     try
     {
       boolean isNew = serverGo.getExternalId(this.syncConfig.getExternalSystem()) == null;
 
       if (isNew && level.getSyncType() != SyncLevel.Type.ALL)
       {
-        // TODO : Maybe we want to throw an error here instead?
-        // Also, logging is OK for now but ultimately it might be too noisy
-
-        logger.warn("Skipping GeoObject [" + serverGo.getCode() + "] because it is new and sync type does not equal all.");
-        return;
+        NewGeoObjectInvalidSyncTypeError err = new NewGeoObjectInvalidSyncTypeError();
+        err.setGeoObject(serverGo.getDisplayLabel().getValue());
+        throw err;
       }
 
       GsonBuilder builder = new GsonBuilder();
       builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.syncConfig.getServerHierarchyType(), this.syncConfig.getExternalSystem()));
-      String sJson = builder.create().toJson(serverGo, serverGo.getClass());
+      submittedJson = builder.create().toJson(serverGo, serverGo.getClass());
 
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("mergeMode", "MERGE"));
@@ -320,11 +376,11 @@ public class DataExportJob extends DataExportJobBase
       {
         if (!isNew)
         {
-          resp = dhis2.entityIdPatch("organisationUnits", serverGo.getExternalId(this.syncConfig.getExternalSystem()), params, new StringEntity(sJson));
+          resp = dhis2.entityIdPatch("organisationUnits", serverGo.getExternalId(this.syncConfig.getExternalSystem()), params, new StringEntity(submittedJson));
         }
         else
         {
-          resp = dhis2.entityPost("organisationUnits", params, new StringEntity(sJson));
+          resp = dhis2.entityPost("organisationUnits", params, new StringEntity(submittedJson));
         }
       }
       catch (UnsupportedEncodingException | InvalidLoginException | HTTPException e)
@@ -337,9 +393,9 @@ public class DataExportJob extends DataExportJobBase
       {
         ExportRemoteException re = new ExportRemoteException();
 
-        if (resp.hasErrorMessage())
+        if (resp.hasMessage())
         {
-          re.setRemoteError(resp.getErrorMessage());
+          re.setRemoteError(resp.getMessage());
         }
 
         throw re;
@@ -347,7 +403,7 @@ public class DataExportJob extends DataExportJobBase
     }
     catch (Throwable t)
     {
-      ExportError er = new ExportError(resp, t);
+      JobExportError er = new JobExportError(rowIndex, resp, submittedJson, t, serverGo.getCode());
       throw er;
     }
   }

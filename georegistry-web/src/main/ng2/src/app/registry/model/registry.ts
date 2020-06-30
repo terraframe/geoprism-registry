@@ -244,6 +244,7 @@ export class ScheduledJob extends AbstractScheduledJob {
 	importedRecords: number;
 	configuration: ImportConfiguration;
 	importErrors: PaginationPage;
+	exportErrors: PaginationPage;
 	problems: PaginationPage;
 }
 

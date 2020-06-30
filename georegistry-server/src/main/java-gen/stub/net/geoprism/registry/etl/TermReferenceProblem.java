@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.etl;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public class TermReferenceProblem extends TermReferenceProblemBase
 {
@@ -52,15 +52,15 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   }
 
   @Override
-  public JSONObject toJSON()
+  public JsonObject toJson()
   {
-    JSONObject object = super.toJSON();
+    JsonObject object = super.toJson();
     
-    object.put("label", this.getLabel());
-    object.put("parentCode", this.getParentCode());
-    object.put("mdAttributeId", this.getMdAttributeOid());
-    object.put("attributeCode", this.getAttributeCode());
-    object.put("attributeLabel", this.getAttributeLabel());
+    object.addProperty("label", this.getLabel());
+    object.addProperty("parentCode", this.getParentCode());
+    object.addProperty("mdAttributeId", this.getMdAttributeOid());
+    object.addProperty("attributeCode", this.getAttributeCode());
+    object.addProperty("attributeLabel", this.getAttributeLabel());
 
     return object;
   }

@@ -38,6 +38,7 @@ import java.util.Arrays;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 public class HTTPResponse
@@ -54,12 +55,26 @@ public class HTTPResponse
 
   public JsonObject getJsonObject()
   {
-    return JsonParser.parseString(response).getAsJsonObject();
+    try
+    {
+      return JsonParser.parseString(response).getAsJsonObject();
+    }
+    catch (JsonParseException e)
+    {
+      return null;
+    }
   }
   
   public JsonArray getJsonArray()
   {
-    return JsonParser.parseString(response).getAsJsonArray();
+    try
+    {
+      return JsonParser.parseString(response).getAsJsonArray();
+    }
+    catch (JsonParseException e)
+    {
+      return null;
+    }
   }
 
   public String getResponse()
@@ -91,16 +106,14 @@ public class HTTPResponse
       return isSuccessCode;
     }
     
-    JsonObject jo = this.getJsonObject();
-    
-    return isSuccessCode && !this.hasErrorMessage() && !jo.get("status").getAsString().equals("ERROR");
+    return isSuccessCode && !this.getJsonObject().get("status").getAsString().equals("ERROR");
   }
   
-  public String getErrorMessage()
+  public String getMessage()
   {
 //    {"httpStatus":"Conflict","httpStatusCode":409,"status":"ERROR","message":"Unexpected end-of-input: expected close marker for Array (start marker at [Source: (BufferedInputStream); line: 1, column: 22])\n at [Source: (BufferedInputStream); line: 1, column: 45]"}
 
-    if (this.hasErrorMessage())
+    if (this.hasMessage())
     {
       return this.getJsonObject().get("message").getAsString();
     }
@@ -110,15 +123,10 @@ public class HTTPResponse
     }
   }
   
-  public boolean hasErrorMessage()
+  public boolean hasMessage()
   {
     JsonObject jo = this.getJsonObject();
     
-    if (this.getStatusCode() != 200 || jo.has("status") && jo.get("status").getAsString().equals("ERROR"))
-    {
-      return jo.has("message");
-    }
-    
-    return false;
+    return jo != null && jo.has("message");
   }
 }

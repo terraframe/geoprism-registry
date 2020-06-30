@@ -202,10 +202,13 @@ public class ExcelServiceTest
       JobHistoryRecord jhr = jhrs.next();
       
       JobHistory hist = jhr.getChild();
-      ExecutableJob job = jhr.getParent();
-      jhr.delete();
-//      hist.delete();
-      job.delete();
+      if (hist instanceof ImportHistory)
+      {
+        ExecutableJob job = jhr.getParent();
+        jhr.delete();
+  //      hist.delete();
+        job.delete();
+      }
     }
     
     
@@ -850,7 +853,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -934,7 +937,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
