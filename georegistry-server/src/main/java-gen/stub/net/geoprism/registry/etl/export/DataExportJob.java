@@ -1,6 +1,7 @@
 package net.geoprism.registry.etl.export;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -376,14 +377,14 @@ public class DataExportJob extends DataExportJobBase
       {
         if (!isNew)
         {
-          resp = dhis2.entityIdPatch("organisationUnits", serverGo.getExternalId(this.syncConfig.getExternalSystem()), params, new StringEntity(submittedJson));
+          resp = dhis2.entityIdPatch("organisationUnits", serverGo.getExternalId(this.syncConfig.getExternalSystem()), params, new StringEntity(submittedJson, Charset.forName("UTF-8")));
         }
         else
         {
-          resp = dhis2.entityPost("organisationUnits", params, new StringEntity(submittedJson));
+          resp = dhis2.entityPost("organisationUnits", params, new StringEntity(submittedJson, Charset.forName("UTF-8")));
         }
       }
-      catch (UnsupportedEncodingException | InvalidLoginException | HTTPException e)
+      catch (InvalidLoginException | HTTPException e)
       {
         RemoteConnectionException rce = new RemoteConnectionException(e);
         throw rce;
