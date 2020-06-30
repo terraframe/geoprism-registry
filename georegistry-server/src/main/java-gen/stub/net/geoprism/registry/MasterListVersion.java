@@ -175,6 +175,11 @@ public class MasterListVersion extends MasterListVersionBase
 
     String name = PREFIX + count + mdBusiness.getTableName();
 
+    if (name.length() > 29)
+    {
+      name = name.substring(0, 29);
+    }
+
     while (Database.tableExists(name))
     {
       count++;

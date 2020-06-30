@@ -31,8 +31,8 @@ import { EmailComponent } from './email/email.component'
 import { OrganizationModalComponent } from './organization/organization-modal.component'
 import { ExternalSystemModalComponent } from './external-system/external-system-modal.component'
 import { NewLocaleModalComponent } from './localization-manager/new-locale-modal.component';
+import { ImportLocalizationModalComponent } from './localization-manager/import-localization-modal.component';
 
-import { SettingsService } from '../service/settings.service';
 import { ExternalSystemService } from '../../shared/service/external-system.service';
 import { OrganizationService } from '../../shared/service/organization.service';
 import { Settings } from '../model/settings';
@@ -110,6 +110,15 @@ export class SettingsComponent implements OnInit {
 		//this.localizationManagerService.exportLocalization();
 		window.location.href = acp + "/localization/exportSpreadsheet";
 	}
+
+	public importLocalization(): void {
+		this.modalService.show(ImportLocalizationModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+	}
+
 
 	public onEditOrganization(org: Organization): void {
 		let bsModalRef = this.modalService.show(OrganizationModalComponent, {

@@ -18,8 +18,8 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-// import 'rxjs/add/operator/toPromise';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { EventService } from '../../shared/service/event.service';
 
@@ -31,33 +31,45 @@ declare var acp: any;
 export class LocalizationManagerService {
 
 
-    constructor( private http: HttpClient, private eventService: EventService ) { }
+	constructor(private http: HttpClient, private eventService: EventService) { }
 
 
-    getNewLocaleInfo(): Promise<AllLocaleInfo> {
-        return this.http
-            .get<AllLocaleInfo>( acp + '/localization/getNewLocaleInformation' )
-            .toPromise();
-    }
+	getNewLocaleInfo(): Promise<AllLocaleInfo> {
+		return this.http
+			.get<AllLocaleInfo>(acp + '/localization/getNewLocaleInformation')
+			.toPromise();
+	}
 
-    installLocale( language: string, country: string, variant: string ): Promise<{locale:string}> {
-        let params: HttpParams = new HttpParams();
+	installLocale(language: string, country: string, variant: string): Promise<{ locale: string }> {
+		let params: HttpParams = new HttpParams();
 
-        if ( language != null ) {
-            params = params.set( 'language', language );
-        }
+		if (language != null) {
+			params = params.set('language', language);
+		}
 
-        if ( country != null ) {
-            params = params.set( 'country', country );
-        }
+		if (country != null) {
+			params = params.set('country', country);
+		}
 
-        if ( variant != null ) {
-            params = params.set( 'variant', variant );
-        }
+		if (variant != null) {
+			params = params.set('variant', variant);
+		}
 
-        return this.http
-            .get<{locale:string}>( acp + '/localization/installLocale', { params: params } )
-            .toPromise();
-    }
+		return this.http
+			.get<{ locale: string }>(acp + '/localization/installLocale', { params: params })
+			.toPromise();
+	}
+
+	installFile(formData: FormData): Promise<void> {
+		let headers = new HttpHeaders();
+
+		this.eventService.start();
+
+		return this.http.post<void>(acp + "/localization/importSpreadsheet", formData, { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
 }

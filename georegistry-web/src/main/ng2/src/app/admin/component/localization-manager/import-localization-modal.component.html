@@ -1,0 +1,39 @@
+<div>
+  <loading-bar></loading-bar>
+
+<form #form="ngForm" class="modal-form" name="new-locale-form" (ngSubmit)="form.valid && submit()">
+  <div class="modal-body">
+  <fieldset>
+    <div class="heading">
+      <h3>
+        <localize key="localization-manager.importButton"></localize>
+      </h3>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+          <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".xls, .xlsx" required />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button type="button" (click)="cancel()" class="btn btn-default" role="button" aria-disabled="false">
+            <span>
+              <localize key="new-locale.cancel"></localize>
+            </span>
+          </button>
+          <button type="submit" class="btn btn-primary" role="button" aria-disabled="false">
+            <span>
+              <localize key="new-locale.submit"></localize>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  </div>
+</form>
+
+</div>
