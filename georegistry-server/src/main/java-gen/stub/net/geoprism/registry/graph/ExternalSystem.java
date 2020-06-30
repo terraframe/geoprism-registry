@@ -50,6 +50,8 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public abstract ExternalSystemSyncConfig configuration();
 
+  public abstract boolean isExportSupported();
+
   @Override
   @Transaction
   public void apply()
@@ -261,4 +263,5 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     return query.getResults();
   }
+
 }

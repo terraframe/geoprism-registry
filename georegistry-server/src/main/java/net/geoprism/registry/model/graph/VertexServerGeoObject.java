@@ -719,7 +719,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       throw new GeometryUpdateException();
     }
 
-    if (this.vertex.isNew())
+    if (this.vertex.isNew() || this.vertex.getObjectValue(GeoVertex.CREATEDATE) == null )
     {
       this.vertex.setValue(GeoVertex.CREATEDATE, new Date());
     }

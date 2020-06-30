@@ -30,6 +30,12 @@ public class RevealExternalSystem extends RevealExternalSystemBase
   }
 
   @Override
+  public boolean isExportSupported()
+  {
+    return false;
+  }
+
+  @Override
   public ExternalSystemSyncConfig configuration()
   {
     throw new UnsupportedOperationException();

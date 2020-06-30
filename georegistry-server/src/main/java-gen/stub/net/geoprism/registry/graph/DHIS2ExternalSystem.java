@@ -31,6 +31,12 @@ public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
   {
     super();
   }
+  
+  @Override
+  public boolean isExportSupported()
+  {
+    return true;
+  }
 
   protected void populate(JsonObject json)
   {
