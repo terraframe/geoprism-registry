@@ -215,8 +215,15 @@ public class DHIS2GeoObjectJsonAdapters
     private String formatDate(Date date)
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-
-      return format.format(date);
+      
+      if (date != null)
+      {
+        return format.format(date);
+      }
+      else
+      {
+        return null;
+      }
     }
 
     public String calculatePath(VertexServerGeoObject serverGo)

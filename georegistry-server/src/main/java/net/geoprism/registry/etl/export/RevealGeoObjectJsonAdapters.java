@@ -19,6 +19,7 @@
 package net.geoprism.registry.etl.export;
 
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -95,9 +96,9 @@ public class RevealGeoObjectJsonAdapters
 
           props.addProperty("name_en", serverGo.getDisplayLabel().getValue(Locale.ENGLISH.toString()));
 
-          props.addProperty("createDate", serverGo.getCreateDate().getTime());
+          props.addProperty("createDate", formatDate(serverGo.getCreateDate()));
 
-          props.addProperty("lastUpdateDate", serverGo.getLastUpdateDate().getTime());
+          props.addProperty("lastUpdateDate", formatDate(serverGo.getLastUpdateDate()));
 
           if (this.includeLevel)
           {
@@ -121,6 +122,18 @@ public class RevealGeoObjectJsonAdapters
         // joGO.addProperty("serverVersion", 0);
       }
       return joGO;
+    }
+    
+    private Long formatDate(Date date)
+    {
+      if (date != null)
+      {
+        return date.getTime();
+      }
+      else
+      {
+        return null;
+      }
     }
 
     public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, String hierarchyCode)
