@@ -1,19 +1,3 @@
-/*******************************************************************************
- * Copyright (C) 2018 IVCC
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
 /**
  * Copyright (c) 2015 TerraFrame, Inc. All rights reserved.
  *
@@ -35,19 +19,22 @@
 package net.geoprism.dhis2.dhis2adapter.response;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-public class HTTPResponse
+import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
+
+public class DHIS2Response
 {
   private String response;
   
   private int statusCode;
   
-  public HTTPResponse(String response, int statusCode)
+  public DHIS2Response(String response, int statusCode)
   {
     this.response = response;
     this.statusCode = statusCode;
@@ -55,6 +42,11 @@ public class HTTPResponse
 
   public JsonObject getJsonObject()
   {
+    if (this.response == null)
+    {
+      return null;
+    }
+    
     try
     {
       return JsonParser.parseString(response).getAsJsonObject();
@@ -67,6 +59,11 @@ public class HTTPResponse
   
   public JsonArray getJsonArray()
   {
+    if (this.response == null)
+    {
+      return null;
+    }
+    
     try
     {
       return JsonParser.parseString(response).getAsJsonArray();
@@ -128,5 +125,15 @@ public class HTTPResponse
     JsonObject jo = this.getJsonObject();
     
     return jo != null && jo.has("message");
+  }
+  
+  public Boolean hasErrorReports()
+  {
+    return false;
+  }
+  
+  public List<ErrorReport> getErrorReports()
+  {
+    return null;
   }
 }

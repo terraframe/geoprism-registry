@@ -1,6 +1,6 @@
 package net.geoprism.dhis2.dhis2adapter.response;
 
-public class MetadataImportResponse extends HTTPResponse
+public class MetadataImportResponse extends DHIS2Response
 {
 
   public MetadataImportResponse(String response, int statusCode)
@@ -8,7 +8,7 @@ public class MetadataImportResponse extends HTTPResponse
     super(response, statusCode);
   }
   
-  public MetadataImportResponse(HTTPResponse http)
+  public MetadataImportResponse(DHIS2Response http)
   {
     super(http.getResponse(), http.getStatusCode());
   }

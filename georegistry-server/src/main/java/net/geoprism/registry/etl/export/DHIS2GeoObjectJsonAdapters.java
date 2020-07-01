@@ -29,13 +29,18 @@ import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.LocalizationFacade;
+import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
@@ -44,6 +49,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -54,6 +60,8 @@ public class DHIS2GeoObjectJsonAdapters
 {
   public static class DHIS2Serializer implements JsonSerializer<VertexServerGeoObject>
   {
+    private static final Logger logger = LoggerFactory.getLogger(DHIS2Serializer.class);
+    
     private ServerHierarchyType hierarchyType;
 
     private ServerGeoObjectType got;
@@ -114,7 +122,7 @@ public class DHIS2GeoObjectJsonAdapters
       return jo;
     }
 
-    private void writeTranslations(VertexServerGeoObject go)
+    private JsonArray writeTranslations(VertexServerGeoObject go)
     {
       JsonArray translations = new JsonArray();
       LocalizedValue lv = go.getDisplayLabel();
@@ -122,21 +130,23 @@ public class DHIS2GeoObjectJsonAdapters
       List<Locale> locales = LocalizationFacade.getInstalledLocales();
       for (Locale locale : locales)
       {
-        if (lv.contains(locale))
+        if (lv.contains(locale) && lv.getValue(locale) != null)
         {
-          JsonObject joLocaleShort = new JsonObject();
-          joLocaleShort.addProperty("property", "SHORT_NAME");
-          joLocaleShort.addProperty("locale", locale.toString());
-          joLocaleShort.addProperty("value", lv.getValue(locale));
-          translations.add(joLocaleShort);
-
           JsonObject joLocaleName = new JsonObject();
           joLocaleName.addProperty("property", "NAME");
           joLocaleName.addProperty("locale", locale.toString());
           joLocaleName.addProperty("value", lv.getValue(locale));
           translations.add(joLocaleName);
+          
+          JsonObject joLocaleShort = new JsonObject();
+          joLocaleShort.addProperty("property", "SHORT_NAME");
+          joLocaleShort.addProperty("locale", locale.toString());
+          joLocaleShort.addProperty("value", lv.getValue(locale));
+          translations.add(joLocaleShort);
         }
       }
+      
+      return translations;
     }
 
     private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
@@ -175,24 +185,52 @@ public class DHIS2GeoObjectJsonAdapters
 
         jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
+        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate())); // TODO : Correct value?
+        
+        writeGeometry(jo, serverGo);
 
-        // TODO
-        // :
-        // Is
-        // this
-        // the
-        // correct
-        // date?
-        // It's
-        // a
-        // required
-        // field.
-
-        // TODO : attributeValues ?
-
-        writeTranslations(serverGo);
+        jo.add("translations", writeTranslations(serverGo));
       }
+    }
+    
+    private void writeGeometry(JsonObject jo, VertexServerGeoObject serverGo)
+    {
+      Geometry geom = serverGo.getGeometry();
+      
+      if (geom != null)
+      {
+        try
+        {
+          GeoJSONWriter gw = new GeoJSONWriter();
+          org.wololo.geojson.Geometry gJSON = gw.write(geom);
+  
+          JsonObject joGeom = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+          
+          jo.addProperty("featureType", convertGeometryType(joGeom.get("type").getAsString()));
+          
+//          jo.add("coordinates", joGeom.get("coordinates").getAsJsonArray());
+          jo.addProperty("coordinates", joGeom.get("coordinates").toString());
+        }
+        catch (Throwable t)
+        {
+          logger.error("Encountered an unexpected error when serializing geometry for GeoObject with code [" + serverGo.getCode() + "] and typeCode [" + serverGo.getType().getCode() + "].", t);
+          throw new InvalidGeometryException(t);
+        }
+      }
+    }
+    
+    private String convertGeometryType(String geometryType)
+    {
+      // Cannot deserialize value of type `org.hisp.dhis.organisationunit.FeatureType` from String "MultiPolygon": value not one of declared Enum instance names: [SYMBOL, POLYGON, MULTI_POLYGON, NONE, POINT] at [Source: (org.apache.catalina.connector.CoyoteInputStream); line: 1, column: 204] (through reference chain: org.hisp.dhis.organisationunit.OrganisationUnit["featureType"])
+      
+      String out = geometryType.toUpperCase();
+      
+      if (out.equals("MULTIPOLYGON"))
+      {
+        return "MULTI_POLYGON";
+      }
+      
+      return out;
     }
 
     public static ServerGeoObjectIF getParent(VertexServerGeoObject serverGo, String hierarchyCode)
@@ -250,7 +288,7 @@ public class DHIS2GeoObjectJsonAdapters
 
       List<GeoObjectType> ancestors = AdapterUtilities.getInstance().getTypeAncestors(this.got, this.hierarchyType.getCode());
 
-      this.depth = ancestors.size();
+      this.depth = ancestors.size() + 1;
     }
   }
 }

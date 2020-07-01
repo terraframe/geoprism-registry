@@ -52,6 +52,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.auth.BasicScheme;
@@ -64,7 +65,7 @@ import org.slf4j.LoggerFactory;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 public class HTTPConnector
 {
@@ -157,7 +158,7 @@ public class HTTPConnector
     return uriBuilder.build();
   }
   
-  private HTTPResponse convertResponse(CloseableHttpResponse response) throws InvalidLoginException, UnsupportedOperationException, IOException
+  private DHIS2Response convertResponse(CloseableHttpResponse response) throws InvalidLoginException, UnsupportedOperationException, IOException
   {
     int statusCode = response.getStatusLine().getStatusCode();
     
@@ -175,16 +176,16 @@ public class HTTPConnector
       {
         String resp = IOUtils.toString(is);
         
-        return new HTTPResponse(resp, response.getStatusLine().getStatusCode());
+        return new DHIS2Response(resp, response.getStatusLine().getStatusCode());
       }
     }
     else
     {
-      return new HTTPResponse(null, response.getStatusLine().getStatusCode());
+      return new DHIS2Response(null, response.getStatusLine().getStatusCode());
     }
   }
   
-  public HTTPResponse httpGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     try
     {
@@ -243,7 +244,7 @@ public class HTTPConnector
 //    }
 //  }
   
-  public HTTPResponse httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     try
     {
@@ -269,7 +270,33 @@ public class HTTPConnector
     }
   }
   
-  public HTTPResponse httpPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  {
+    try
+    {
+      if (!isInitialized())
+      {
+        initialize();
+      }
+      
+      HttpPut post = new HttpPut(this.buildUri(url, params));
+      
+      post.addHeader("Content-Type", "application/json");
+      
+      post.setEntity(body);
+      
+      try (CloseableHttpResponse response = client.execute(post, this.getContext()))
+      {
+        return this.convertResponse(response);
+      }
+    }
+    catch (IOException | URISyntaxException e)
+    {
+      throw new HTTPException(e);
+    }
+  }
+  
+  public DHIS2Response httpPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     try
     {

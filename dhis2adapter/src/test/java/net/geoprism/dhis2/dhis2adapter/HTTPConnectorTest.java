@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 /**
  * Tests basic HTTP communication architecture by talking to play.dhis2.org
@@ -37,13 +37,14 @@ public class HTTPConnectorTest
     
     connector.setServerUrl(Constants.DHIS2_URL);
     
-    HTTPResponse resp = connector.httpGet("api/" + Constants.VERSION + "/system/info", null);
+    DHIS2Response resp = connector.httpGet("api/" + Constants.API_VERSION + "/system/info", null);
     
     Assert.assertEquals(200, resp.getStatusCode());
     
     JsonObject jo = resp.getJsonObject();
     
-    Assert.assertEquals(Constants.DHIS2_URL, jo.get("instanceBaseUrl").getAsString());
+    Assert.assertEquals(Constants.DHIS2_VERSION, jo.get("version").getAsString());
+    Assert.assertEquals(Constants.DHIS2_URL, jo.get("contextPath").getAsString());
   }
   
   @Test
@@ -71,7 +72,7 @@ public class HTTPConnectorTest
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
-    HTTPResponse resp = connector.httpPost("api/" + Constants.VERSION + "/metadata", params, new StringEntity(payload, Charset.forName("UTF-8")));
+    DHIS2Response resp = connector.httpPost("api/" + Constants.API_VERSION + "/metadata", params, new StringEntity(payload, Charset.forName("UTF-8")));
     
     Assert.assertEquals(200, resp.getStatusCode());
     
