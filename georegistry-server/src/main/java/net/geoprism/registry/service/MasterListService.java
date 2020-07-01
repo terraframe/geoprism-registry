@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -26,10 +26,9 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -51,12 +50,13 @@ import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 
 public class MasterListService
 {
   private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
-  
+
   @Request(RequestType.SESSION)
   public JsonArray listAll(String sessionId)
   {
@@ -99,16 +99,7 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterList.getGeoObjectType().getOrganization().getCode(), masterList.getGeoObjectType().getCode()))
-      {
-        OrganizationRMException ex = new OrganizationRMException("You do not have permissions to publish a masterlist.");
-        ex.setOrganizationLabel(masterList.getOrganization().getDisplayLabel().getValue());
-        ex.setGeoObjectTypeLabel(masterList.getGeoObjectType().getLabel().getValue());
-        throw ex;
-      }
-    }
+    this.enforceWritePermissions(masterList);
 
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
 
@@ -121,6 +112,9 @@ public class MasterListService
   public void createPublishedVersions(String sessionId, String oid)
   {
     MasterList masterList = MasterList.get(oid);
+
+    this.enforceWritePermissions(masterList);
+
     masterList.publishFrequencyVersions();
   }
 
@@ -128,6 +122,8 @@ public class MasterListService
   public String createPublishedVersionsJob(String sessionId, String oid)
   {
     MasterList masterList = MasterList.get(oid);
+
+    this.enforceWritePermissions(masterList);
 
     QueryFactory factory = new QueryFactory();
 
@@ -155,8 +151,6 @@ public class MasterListService
   @Request(RequestType.SESSION)
   public JSONObject getPublishJobs(String sessionId, String oid, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    final SortOrder order = isAscending ? SortOrder.ASC : SortOrder.DESC;
-
     QueryFactory qf = new QueryFactory();
 
     final MasterListJobQuery query = new MasterListJobQuery(qf);
@@ -189,6 +183,8 @@ public class MasterListService
   {
     MasterListVersion version = MasterListVersion.get(oid);
 
+    this.enforceWritePermissions(version.getMasterlist());
+
     return version.publish();
   }
 
@@ -196,18 +192,8 @@ public class MasterListService
   public String generateShapefile(String sessionId, String oid)
   {
     MasterListVersion version = MasterListVersion.get(oid);
-    final MasterList masterlist = version.getMasterlist();
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      if (!geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), masterlist.getGeoObjectType().getOrganization().getCode(), masterlist.getGeoObjectType().getCode()))
-      {
-        OrganizationRMException ex = new OrganizationRMException("You do not have permissions to generate a masterlist shapefile.");
-        ex.setOrganizationLabel(masterlist.getOrganization().getDisplayLabel().getValue());
-        ex.setGeoObjectTypeLabel(masterlist.getGeoObjectType().getLabel().getValue());
-        throw ex;
-      }
-    }
+    this.enforceWritePermissions(version.getMasterlist());
 
     QueryFactory factory = new QueryFactory();
 
@@ -293,7 +279,11 @@ public class MasterListService
   {
     try
     {
-      MasterListVersion.get(oid).delete();
+      MasterListVersion version = MasterListVersion.get(oid);
+
+      this.enforceWritePermissions(version.getMasterlist());
+
+      version.delete();
 
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
@@ -304,4 +294,20 @@ public class MasterListService
 
   }
 
+  private void enforceWritePermissions(MasterList masterList)
+  {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
+      SingleActorDAOIF user = Session.getCurrentSession().getUser();
+
+      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, geoObjectType.getOrganization().getCode(), geoObjectType.getCode()))
+      {
+        OrganizationRMException ex = new OrganizationRMException("You do not have permissions to publish a masterlist.");
+        ex.setOrganizationLabel(masterList.getOrganization().getDisplayLabel().getValue());
+        ex.setGeoObjectTypeLabel(geoObjectType.getLabel().getValue());
+        throw ex;
+      }
+    }
+  }
 }
