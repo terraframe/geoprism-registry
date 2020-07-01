@@ -151,8 +151,8 @@ public class DHIS2GeoObjectJsonAdapters
 
     private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
     {
-      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
-      {
+//      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
+//      {
         ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
         if (goParent != null)
         {
@@ -166,13 +166,13 @@ public class DHIS2GeoObjectJsonAdapters
         jo.addProperty("path", calculatePath(serverGo));
 
         jo.addProperty("level", this.depth);
-      }
+//      }
     }
 
     private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
-      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
-      {
+//      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
+//      {
         jo.addProperty("code", serverGo.getCode());
 
         jo.addProperty("id", this.getExternalId(serverGo));
@@ -190,7 +190,7 @@ public class DHIS2GeoObjectJsonAdapters
         writeGeometry(jo, serverGo);
 
         jo.add("translations", writeTranslations(serverGo));
-      }
+//      }
     }
     
     private void writeGeometry(JsonObject jo, VertexServerGeoObject serverGo)
