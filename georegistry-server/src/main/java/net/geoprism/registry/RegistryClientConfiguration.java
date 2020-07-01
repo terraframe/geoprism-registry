@@ -90,28 +90,33 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
 //      return applications;
 //    }
     
-    GeoprismApplication settings = new GeoprismApplication();
-    settings.setId("settings");
-    settings.setLabel(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
-    settings.setSrc("net/geoprism/images/settings.svg");
-    settings.setUrl("cgr/manage#/admin/settings");
-    settings.setDescription(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
-    settings.addRole(RoleConstants.ADIM_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
-    applications.add(settings);
+    GeoprismApplication hierarchies = new GeoprismApplication();
+    hierarchies.setId("hierarchies");
+    hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
+    hierarchies.setSrc("net/geoprism/images/hierarchy-icon-modified.svg");
+    hierarchies.setUrl("cgr/manage#/registry/hierarchies");
+    hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
+    hierarchies.addRole(RoleConstants.ADIM_ROLE);
+    hierarchies.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+    hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    hierarchies.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
+    hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
+    applications.add(hierarchies);
     
-    GeoprismApplication tasks = new GeoprismApplication();
-    tasks.setId("tasks");
-    tasks.setLabel(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
-    tasks.setSrc("net/geoprism/images/task.svg");
-    tasks.setUrl("cgr/manage#/registry/tasks");
-    tasks.setDescription(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
-    tasks.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    tasks.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
-    applications.add(tasks);
+    GeoprismApplication masterLists = new GeoprismApplication();
+    masterLists.setId("lists");
+    masterLists.setLabel(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing"));
+    masterLists.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
+    masterLists.setUrl("cgr/manage#/registry/master-lists");
+    masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
+    masterLists.addRole(RoleConstants.ADIM_ROLE);
+    masterLists.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+    masterLists.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    masterLists.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    masterLists.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
+    masterLists.addRole(RegistryConstants.API_CONSUMER_ROLE);
+    applications.add(masterLists);
     
     GeoprismApplication uploads = new GeoprismApplication();
     uploads.setId("uploads");
@@ -122,6 +127,16 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     applications.add(uploads);
+    
+    GeoprismApplication scheduledJobs = new GeoprismApplication();
+    scheduledJobs.setId("scheduledJobs");
+    scheduledJobs.setLabel(new String(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu")));
+    scheduledJobs.setSrc("net/geoprism/images/job-scheduler.svg");
+    scheduledJobs.setUrl("cgr/manage#/registry/scheduled-jobs");
+    scheduledJobs.setDescription(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu"));
+    scheduledJobs.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    scheduledJobs.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    applications.add(scheduledJobs);
     
     GeoprismApplication management = new GeoprismApplication();
     management.setId("locations");
@@ -147,43 +162,29 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     applications.add(requests);
     
-    GeoprismApplication scheduledJobs = new GeoprismApplication();
-    scheduledJobs.setId("scheduledJobs");
-    scheduledJobs.setLabel(new String(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu")).toUpperCase());
-    scheduledJobs.setSrc("net/geoprism/images/job-scheduler.svg");
-    scheduledJobs.setUrl("cgr/manage#/registry/scheduled-jobs");
-    scheduledJobs.setDescription(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu").toUpperCase());
-    scheduledJobs.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    scheduledJobs.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
-    applications.add(scheduledJobs);
+    GeoprismApplication tasks = new GeoprismApplication();
+    tasks.setId("tasks");
+    tasks.setLabel(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
+    tasks.setSrc("net/geoprism/images/task.svg");
+    tasks.setUrl("cgr/manage#/registry/tasks");
+    tasks.setDescription(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
+    tasks.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    tasks.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    applications.add(tasks);
     
-    GeoprismApplication hierarchies = new GeoprismApplication();
-    hierarchies.setId("hierarchies");
-    hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
-    hierarchies.setSrc("net/geoprism/images/hierarchy-icon-modified.svg");
-    hierarchies.setUrl("cgr/manage#/registry/hierarchies");
-    hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
-    hierarchies.addRole(RoleConstants.ADIM_ROLE);
-    hierarchies.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
-    hierarchies.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    hierarchies.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
-    hierarchies.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
-    hierarchies.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    applications.add(hierarchies);
-
-    GeoprismApplication masterLists = new GeoprismApplication();
-    masterLists.setId("lists");
-    masterLists.setLabel(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing"));
-    masterLists.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
-    masterLists.setUrl("cgr/manage#/registry/master-lists");
-    masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
-    masterLists.addRole(RoleConstants.ADIM_ROLE);
-    masterLists.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
-    masterLists.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    masterLists.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
-    masterLists.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
-    masterLists.addRole(RegistryConstants.API_CONSUMER_ROLE);
-    applications.add(masterLists);
+    GeoprismApplication settings = new GeoprismApplication();
+    settings.setId("settings");
+    settings.setLabel(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
+    settings.setSrc("net/geoprism/images/settings.svg");
+    settings.setUrl("cgr/manage#/admin/settings");
+    settings.setDescription(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
+    settings.addRole(RoleConstants.ADIM_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    settings.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
+    applications.add(settings);
+    
 
     return applications;
   }

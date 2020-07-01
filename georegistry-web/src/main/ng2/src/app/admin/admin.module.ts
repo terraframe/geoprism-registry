@@ -31,6 +31,7 @@ import { SettingsService } from './service/settings.service';
 import { LocalizationManagerService } from './service/localization-manager.service';
 
 
+
 import { AccountsComponent } from './component/account/accounts.component';
 import { RoleManagementComponent } from './component/account/role-management.component';
 import { AccountInviteComponent } from './component/account/account-invite.component';
@@ -76,7 +77,7 @@ import '../rxjs-extensions';
         OrganizationModalComponent,
         NewLocaleModalComponent,
         RoleManagementComponent,
-        ExternalSystemModalComponent
+        ExternalSystemModalComponent,
     ],
     exports: [
         SystemLogoComponent,
@@ -87,7 +88,7 @@ import '../rxjs-extensions';
         EmailService,
         AccountService,
         SettingsService,
-        LocalizationManagerService
+        LocalizationManagerService,
     ],
     entryComponents: [
         AccountInviteComponent,
@@ -95,7 +96,7 @@ import '../rxjs-extensions';
         OrganizationModalComponent,
         NewLocaleModalComponent,
         RoleManagementComponent,
-        ExternalSystemModalComponent
+        ExternalSystemModalComponent,
     ]
 } )
 export class AdminModule { }

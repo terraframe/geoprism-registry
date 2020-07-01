@@ -12,7 +12,7 @@
 
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div> 
+        <div style="padding-bottom: 30px;"> 
             <div class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.information.heading"></localize></h3>
@@ -200,6 +200,28 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+
+            <div *ngIf="isRA && organizations.length > 0" class="row">
+                <div class="col-md-12">
+                    <h3>
+                        <localize key="settings.external.synchronization.heading"></localize>
+                    </h3>
+            
+                    <div class="content-wrapper">
+            
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a [routerLink]="'/registry/synchronization-configs'" routerLinkActive="active">
+                                    <button class="btn btn-primary" role="button">
+                                        <localize key="settings.external.synchronization.button"></localize>
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+            
+                    </div>
                 </div>
             </div>
             

@@ -27,7 +27,7 @@ declare var acp: string;
 	styleUrls: ['./dataimporter.css']
 })
 export class DataImporterComponent implements OnInit {
-	
+
 	showImportConfig: boolean = false;
 
     /*
@@ -65,68 +65,66 @@ export class DataImporterComponent implements OnInit {
 	@ViewChild('myFile')
 	fileRef: ElementRef;
 
-  @Input()
-  format: string; // Can be SHAPEFILE or EXCEL
-  
-  isExternal: boolean = false;
-  
-  /*
-   * List of available external systems (filtered based on user's org)
-   */
-  externalSystems: ExternalSystem[];
-  
-  /*
-   * currently selected external system.
-   */ 
-  externalSystemId: string;
-  
-  isLoading: boolean = true;
+	@Input() format: string; // Can be SHAPEFILE or EXCEL
+
+	isExternal: boolean = false;
+
+	/*
+	 * List of available external systems (filtered based on user's org)
+	 */
+	externalSystems: ExternalSystem[];
+
+	/*
+	 * currently selected external system.
+	 */
+	externalSystemId: string;
+
+	isLoading: boolean = true;
 
 	constructor(private service: IOService,
-    	private eventService: EventService,
-    	private modalService: BsModalService,
-    	private localizationService: LocalizationService,
-    	private router: Router,
-    	private authService: AuthService,
-    	private sysService: ExternalSystemService
-   ) { }
+		private eventService: EventService,
+		private modalService: BsModalService,
+		private localizationService: LocalizationService,
+		private router: Router,
+		private authService: AuthService,
+		private sysService: ExternalSystemService
+	) { }
 
 	ngOnInit(): void {
-	  this.sysService.getExternalSystems(1, 100).then(paginatedSystems => {
-      
-      this.externalSystems = paginatedSystems.resultSet;
-      
-      if (this.externalSystems.length == 0)
-      {
-        this.isExternal = false;
-      }
-      
-      this.isLoading = false;
+		this.sysService.getExternalSystems(1, 100).then(paginatedSystems => {
 
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
-	
-		this.service.listGeoObjectTypes(true).then(types => {
-			
-			var myOrgTypes = [];
-            for (var i = 0; i < types.length; ++i)
-            {
-              if (this.authService.isOrganizationRA(types[i].orgCode))
-              {
-                myOrgTypes.push(types[i]);
-              }
-            }
-            this.types = myOrgTypes;
+			this.externalSystems = paginatedSystems.resultSet;
+
+			if (this.externalSystems.length === 0) {
+				this.isExternal = false;
+				this.showImportConfig = true; // Show the upload widget if there are no external systems registered
+			}
+
+			this.isLoading = false;
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
-		
+
+		this.service.listGeoObjectTypes(true).then(types => {
+
+			var myOrgTypes = [];
+			for (var i = 0; i < types.length; ++i) {
+				if (this.authService.isOrganizationRA(types[i].orgCode)) {
+					myOrgTypes.push(types[i]);
+				}
+			}
+			this.types = myOrgTypes;
+
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+
 		var getUrl = acp + '/excel/get-configuration';
-		if (this.format === "SHAPEFILE")
-		{
-		  getUrl = acp + '/shapefile/get-shapefile-configuration';
+		if (this.format === "SHAPEFILE") {
+			getUrl = acp + '/shapefile/get-shapefile-configuration';
+
+			this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
 		}
 
 		let options: FileUploaderOptions = {
@@ -156,31 +154,27 @@ export class DataImporterComponent implements OnInit {
 		};
 		this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
 			const configuration = JSON.parse(response);
-			
+
 			configuration.isExternal = this.isExternal;
-			
+
 			let externalSystem: ExternalSystem = null;
-			for (let i = 0; i < this.externalSystems.length; ++i)
-			{
-			  let sys: ExternalSystem = this.externalSystems[i];
-			  
-			  if (sys.oid === this.externalSystemId)
-			  {
-			    externalSystem = sys;
-			  }
+			for (let i = 0; i < this.externalSystems.length; ++i) {
+				let sys: ExternalSystem = this.externalSystems[i];
+
+				if (sys.oid === this.externalSystemId) {
+					externalSystem = sys;
+				}
 			}
-			
+
 			configuration.externalSystemId = this.externalSystemId;
 			configuration.externalSystem = externalSystem;
-			
-      if (this.format === "SHAPEFILE")
-	    {
-	      this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true });
-	    }
-	    else
-	    {
-	      this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-	    }
+
+			if (this.format === "SHAPEFILE") {
+				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true });
+			}
+			else {
+				this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
+			}
 
 			this.bsModalRef.content.configuration = configuration;
 		};
@@ -190,7 +184,7 @@ export class DataImporterComponent implements OnInit {
 			this.error({ error: error });
 		}
 	}
-	
+
 	onClick(): void {
 
 		if (this.uploader.queue != null && this.uploader.queue.length > 0) {
@@ -205,10 +199,10 @@ export class DataImporterComponent implements OnInit {
 	}
 
 	setImportSource(event, type): void {
-		if(type === "EXTERNAL"){
+		if (type === "EXTERNAL") {
 			this.isExternal = true;
 		}
-		else{
+		else {
 			this.isExternal = false;
 		}
 	}
