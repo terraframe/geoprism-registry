@@ -9,13 +9,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-import org.junit.Test;
-
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 /**

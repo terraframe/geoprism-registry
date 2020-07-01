@@ -13,7 +13,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ImportParams;
 import net.geoprism.dhis2.dhis2adapter.response.model.Stats;
 import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 
-public class MetadataImportResponse extends DHIS2Response
+public class MetadataImportResponse extends DHIS2ImportResponse
 {
 
   private ImportParams importParams;
@@ -29,7 +29,7 @@ public class MetadataImportResponse extends DHIS2Response
     init();
   }
   
-  public MetadataImportResponse(DHIS2Response http)
+  public MetadataImportResponse(DHIS2ImportResponse http)
   {
     super(http.getResponse(), http.getStatusCode());
     

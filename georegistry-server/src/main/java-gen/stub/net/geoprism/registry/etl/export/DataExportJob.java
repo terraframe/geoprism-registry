@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -38,7 +39,7 @@ import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.registry.SynchronizationConfig;
@@ -85,7 +86,7 @@ public class DataExportJob extends DataExportJobBase
   {
     private static final long serialVersionUID = 8463740942015611693L;
 
-    protected DHIS2Response    response;
+    protected DHIS2ImportResponse    response;
     
     protected String          submittedJson;
 
@@ -95,7 +96,7 @@ public class DataExportJob extends DataExportJobBase
     
     protected Long            rowIndex;
 
-    private JobExportError(Long rowIndex, DHIS2Response response, String submittedJson, Throwable t, String geoObjectCode)
+    private JobExportError(Long rowIndex, DHIS2ImportResponse response, String submittedJson, Throwable t, String geoObjectCode)
     {
       super("");
       this.response = response;
@@ -305,7 +306,7 @@ public class DataExportJob extends DataExportJobBase
 
   private void recordExportError(JobExportError ee)
   {
-    DHIS2Response resp = ee.response;
+    DHIS2ImportResponse resp = ee.response;
     Throwable ex = ee.error;
     String geoObjectCode = ee.geoObjectCode;
     
@@ -361,7 +362,7 @@ public class DataExportJob extends DataExportJobBase
   @Transaction
   private void exportGeoObject(SyncLevel level, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws JobExportError
   {
-    DHIS2Response resp = null;
+    DHIS2ImportResponse resp = null;
     
     JsonObject orgUnitJsonTree = null;
     String orgUnitJson = null;
@@ -410,11 +411,24 @@ public class DataExportJob extends DataExportJobBase
           
           JsonObject orgUnitRelationships = new JsonObject();
           
+          
           // These attributes must be included at the requirement of DHIS2 API
           orgUnitRelationships.addProperty("id", orgUnitJsonTree.get("id").getAsString());
           orgUnitRelationships.addProperty("name", orgUnitJsonTree.get("name").getAsString());
           orgUnitRelationships.addProperty("shortName", orgUnitJsonTree.get("shortName").getAsString());
           orgUnitRelationships.addProperty("openingDate", orgUnitJsonTree.get("openingDate").getAsString());
+          
+          // We don't want to actually update any of these attributes, so if we can fetch the object from DHIS2
+          // then use the values they have in their server instead.
+          DHIS2Response orgUnitGetResp = dhis2.entityIdGet("organisationUnits", externalId, params);
+          if (orgUnitGetResp.isSuccess())
+          {
+            JsonObject jo = JsonParser.parseString(orgUnitGetResp.getResponse()).getAsJsonObject();
+            
+            orgUnitRelationships.addProperty("name", jo.get("name").getAsString());
+            orgUnitRelationships.addProperty("shortName", jo.get("shortName").getAsString());
+            orgUnitRelationships.addProperty("openingDate", jo.get("openingDate").getAsString());
+          }
           
           // These attributes are the ones we need to include to change the relationship
           orgUnitRelationships.add("parent", orgUnitJsonTree.get("parent").getAsJsonObject());

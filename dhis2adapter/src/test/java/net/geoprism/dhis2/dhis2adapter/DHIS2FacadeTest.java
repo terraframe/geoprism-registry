@@ -18,8 +18,8 @@ import com.google.gson.JsonObject;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 
@@ -53,6 +53,30 @@ public class DHIS2FacadeTest
     Assert.assertEquals(Constants.DHIS2_URL, jo.get("contextPath").getAsString());
   }
   
+//  @Test
+//  public void testMetadataGet() throws Exception
+//  {
+//    List<NameValuePair> params = new ArrayList<NameValuePair>();
+//    params.add(new BasicNameValuePair("organisationUnits", "true"));
+//    params.add(new BasicNameValuePair("code", "OU_525"));
+//    
+//    DHIS2Response resp = facade.metadataGet(params);
+//    
+//    System.out.println(resp.getResponse());
+//  }
+  
+  @Test
+  public void testEntityIdGet() throws Exception
+  {
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+//    params.add(new BasicNameValuePair("organisationUnits", "true"));
+//    params.add(new BasicNameValuePair("code", "OU_525"));
+    
+    DHIS2Response resp = facade.entityIdGet("organisationUnits", "ImspTQPwCqd", params);
+    
+//    System.out.println(resp.getResponse());
+  }
+  
   @Test
   public void testMetadataPost() throws InvalidLoginException, HTTPException
   {
@@ -72,7 +96,7 @@ public class DHIS2FacadeTest
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
-    DHIS2Response resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
+    DHIS2ImportResponse resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
     
     Assert.assertEquals(200, resp.getStatusCode());
     

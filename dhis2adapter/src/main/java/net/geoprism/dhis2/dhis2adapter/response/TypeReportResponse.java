@@ -11,7 +11,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ObjectReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 
-public class TypeReportResponse extends DHIS2Response
+public class TypeReportResponse extends DHIS2ImportResponse
 {
 
   private TypeReport typeReport;
@@ -23,7 +23,7 @@ public class TypeReportResponse extends DHIS2Response
     init();
   }
   
-  public TypeReportResponse(DHIS2Response http)
+  public TypeReportResponse(DHIS2ImportResponse http)
   {
     super(http.getResponse(), http.getStatusCode());
     

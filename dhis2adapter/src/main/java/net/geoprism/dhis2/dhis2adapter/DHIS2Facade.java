@@ -8,6 +8,7 @@ import org.apache.http.NameValuePair;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
@@ -53,6 +54,11 @@ public class DHIS2Facade
   public ObjectReportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
   {
     return new ObjectReportResponse(this.apiPost(entityName, params, payload));
+  }
+  
+  public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    return this.apiGet(entityName + "/" + entityId, params);
   }
   
   /**
@@ -114,6 +120,11 @@ public class DHIS2Facade
     return new MetadataImportResponse(this.apiPost("metadata", params, payload));
   }
   
+  public DHIS2Response metadataGet(List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    return this.apiGet("metadata", params);
+  }
+  
   public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
@@ -124,33 +135,33 @@ public class DHIS2Facade
     return connector.httpGet("api/" + version + "/" + url, params);
   }
   
-  public DHIS2Response apiPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {
       url = url + ".json";
     }
     
-    return connector.httpPost("api/" + version + "/" + url, params, body);
+    return new DHIS2ImportResponse(connector.httpPost("api/" + version + "/" + url, params, body));
   }
   
-  public DHIS2Response apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {
       url = url + ".json";
     }
     
-    return connector.httpPut("api/" + version + "/" + url, params, body);
+    return new DHIS2ImportResponse(connector.httpPut("api/" + version + "/" + url, params, body));
   }
   
-  public DHIS2Response apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {
       url = url + ".json";
     }
     
-    return connector.httpPatch("api/" + version + "/" + url, params, body);
+    return new DHIS2ImportResponse(connector.httpPatch("api/" + version + "/" + url, params, body));
   }
 }

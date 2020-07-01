@@ -11,7 +11,7 @@ import com.google.gson.reflect.TypeToken;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ObjectReport;
 
-public class ObjectReportResponse extends DHIS2Response
+public class ObjectReportResponse extends DHIS2ImportResponse
 {
 
   private ObjectReport objReport;
@@ -23,7 +23,7 @@ public class ObjectReportResponse extends DHIS2Response
     init();
   }
   
-  public ObjectReportResponse(DHIS2Response http)
+  public ObjectReportResponse(DHIS2ImportResponse http)
   {
     super(http.getResponse(), http.getStatusCode());
     
