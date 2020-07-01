@@ -1,0 +1,29 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  <createOrUpdate>
+  
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="io.location.description">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.location.description" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Match the different levels in the hierarchy to the source file columns." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.location.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.location.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Hierarchy Matching (optional)" />
+	        </attributeStruct>
+	      </object>
+  
+  </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
