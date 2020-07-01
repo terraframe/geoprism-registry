@@ -87,7 +87,7 @@ export class SettingsComponent implements OnInit {
 		// } );
 
 		this.installedLocales = this.getLocales();
-		
+
 		this.orgService.getOrganizations().then(orgs => {
 			this.organizations = orgs
 		}).catch((err: HttpErrorResponse) => {
@@ -131,7 +131,16 @@ export class SettingsComponent implements OnInit {
 		bsModalRef.content.isNewOrganization = false;
 
 		bsModalRef.content.onSuccess.subscribe(data => {
-			this.organizations.push(data);
+			//			this.organizations.push(data);
+			const index = this.organizations.findIndex(x => x.code === data.code);
+
+			if (index !== -1) {
+				this.organizations[index] = data;
+			}
+			else {
+				this.organizations.push(data);
+			}
+
 		})
 	}
 
@@ -185,7 +194,7 @@ export class SettingsComponent implements OnInit {
 			ignoreBackdropClick: true
 		});
 
-		bsModalRef.content.onSuccess.subscribe((locale:string) => {			
+		bsModalRef.content.onSuccess.subscribe((locale: string) => {
 			this.localizeService.addLocale(locale);
 		})
 	}
@@ -216,7 +225,7 @@ export class SettingsComponent implements OnInit {
 
 
 	/* EXTERNAL SYSTEM LOGIC */
-	
+
 	onSystemPageChange(pageNumber: number): void {
 		this.externalSystemService.getExternalSystems(pageNumber, this.systems.pageSize).then(systems => {
 			this.systems = systems;
@@ -224,7 +233,7 @@ export class SettingsComponent implements OnInit {
 			this.error(err);
 		});
 	}
-	
+
 	newSystem(): void {
 		let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
 			animated: true,
@@ -233,25 +242,25 @@ export class SettingsComponent implements OnInit {
 		});
 		bsModalRef.content.organizations = this.organizations;
 		bsModalRef.content.onSuccess.subscribe(data => {
-          this.onSystemPageChange(this.systems.pageNumber);
+			this.onSystemPageChange(this.systems.pageNumber);
 		})
-	}	
+	}
 
 	onEditSystem(system: ExternalSystem): void {
-		
-	  this.externalSystemService.getExternalSystem(system.oid).then(system => {
 
-		let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
+		this.externalSystemService.getExternalSystem(system.oid).then(system => {
+
+			let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
+			});
+			bsModalRef.content.system = system;
+			bsModalRef.content.organizations = this.organizations;
+			bsModalRef.content.onSuccess.subscribe(data => {
+				this.onSystemPageChange(this.systems.pageNumber);
+			})
 		});
-		bsModalRef.content.system = system;
-		bsModalRef.content.organizations = this.organizations;
-		bsModalRef.content.onSuccess.subscribe(data => {
-          this.onSystemPageChange(this.systems.pageNumber);
-		})
-      });
 	}
 
 	onRemoveSystem(system: ExternalSystem): void {
@@ -267,7 +276,7 @@ export class SettingsComponent implements OnInit {
 
 		this.bsModalRef.content.onConfirm.subscribe(data => {
 			this.externalSystemService.removeExternalSystem(system.oid).then(response => {
-		      this.onSystemPageChange(this.systems.pageNumber);
+				this.onSystemPageChange(this.systems.pageNumber);
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});

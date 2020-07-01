@@ -65,8 +65,8 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	//	return this.authService.isGeoObjectTypeRM(type);
 	//}
 
-	onDeleteMasterListVersion( oid: string ): void {
-		this.service.deleteMasterListVersion( oid ).then(data =>{
+	onDeleteMasterListVersion(oid: string): void {
+		this.service.deleteMasterListVersion(oid).then(data => {
 			this.updateList();
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);

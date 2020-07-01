@@ -719,7 +719,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       throw new GeometryUpdateException();
     }
 
-    if (this.vertex.isNew() || this.vertex.getObjectValue(GeoVertex.CREATEDATE) == null )
+    if (this.vertex.isNew() || this.vertex.getObjectValue(GeoVertex.CREATEDATE) == null)
     {
       this.vertex.setValue(GeoVertex.CREATEDATE, new Date());
     }
@@ -1585,6 +1585,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     final Date startDate = new GraphQuery<Date>("SELECT MIN(status_cot.startDate) FROM " + dbClassName).getSingleResult();
     final Date endDate = new GraphQuery<Date>("SELECT MAX(status_cot.startDate) FROM " + dbClassName).getSingleResult();
+    Date current = new Date();
+
+    if (endDate.before(current))
+    {
+      return new Pair<Date, Date>(startDate, current);
+    }
 
     return new Pair<Date, Date>(startDate, endDate);
   }
