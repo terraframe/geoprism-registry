@@ -1,0 +1,94 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  	<createOrUpdate>
+  	
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="External System Synchronizations" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Register Synchronization" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.geoobjecttype.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.geoobjecttype.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="GeoObject Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.dhis2.synch.type.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.dhis2.synch.type.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="DHIS2 Synchnonization Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.actions.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.actions.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Actions" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.level.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.level.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Level" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="button.view.helptext">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="button.view.helptext" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="View" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="button.edit.helptext">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="button.edit.helptext" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Edit" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="button.delete.helptext">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="button.delete.helptext" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Delete" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="button.filter.helptext">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="button.filter.helptext" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Filter" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

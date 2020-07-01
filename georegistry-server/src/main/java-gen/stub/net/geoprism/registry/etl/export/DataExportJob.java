@@ -38,6 +38,7 @@ import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.registry.SynchronizationConfig;

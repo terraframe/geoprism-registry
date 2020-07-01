@@ -95,8 +95,9 @@ export class DataImporterComponent implements OnInit {
 
 			this.externalSystems = paginatedSystems.resultSet;
 
-			if (this.externalSystems.length == 0) {
+			if (this.externalSystems.length === 0) {
 				this.isExternal = false;
+				this.showImportConfig = true; // Show the upload widget if there are no external systems registered
 			}
 
 			this.isLoading = false;
@@ -124,6 +125,8 @@ export class DataImporterComponent implements OnInit {
 		var getUrl = acp + '/excel/get-configuration';
 		if (this.format === "SHAPEFILE") {
 			getUrl = acp + '/shapefile/get-shapefile-configuration';
+
+			this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
 		}
 
 		let options: FileUploaderOptions = {

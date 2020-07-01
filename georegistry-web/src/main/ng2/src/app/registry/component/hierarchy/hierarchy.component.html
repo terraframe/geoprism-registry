@@ -17,12 +17,12 @@
             {{type.label.localizedValue}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" style="font-size:15px;cursor:auto;margin-left:5px;" aria-hidden="true"></i> 
             
             <span *ngIf="isOrganizationRA(type.organizationCode)">
-              <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)"></i> 
-              <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type, false)"> </i> 
+              <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)" [title]="'button.delete.helptext' | localize"></i> 
+              <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type, false)" [title]="'button.edit.helptext' | localize"></i> 
             </span>
             
             <span *ngIf="!isOrganizationRA(type.organizationCode)">
-              <i class="fa fa-book clickable pull-right" (click)="manageGeoObjectType(type, true)"> </i> 
+              <i class="fa fa-eye clickable pull-right" (click)="manageGeoObjectType(type, true)" [title]="'button.view.helptext' | localize"> </i> 
             </span>
           </li>
         </ul>
@@ -42,12 +42,12 @@
             <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
 
             <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
-              <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)"></i> 
-              <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy, false)"> </i>            
+              <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)" [title]="'button.delete.helptext' | localize"></i> 
+              <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy, false)" [title]="'button.edit.helptext' | localize"> </i>            
             </span>
             
             <span *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
-              <i class="fa fa-book pull-right clickable" (click)="editHierarchyType(hierarchy, true)"> </i>
+              <i class="fa fa-eye pull-right clickable" (click)="editHierarchyType(hierarchy, true)" [title]="'button.view.helptext' | localize"> </i>
             </span>
           </li>
         </ul>
@@ -60,7 +60,7 @@
       <div class="col-md-4">
         <h3> 
             <localize key="hierarchy.current.management.panel.title"></localize> 
-            <span *ngIf="currentHierarchy">{{currentHierarchy.label.localizedValue}}</span>
+            <span *ngIf="currentHierarchy"> {{currentHierarchy.label.localizedValue}}</span>
         </h3>
         <hr>
         <div *ngIf="nodes.length > 0" class="tree">

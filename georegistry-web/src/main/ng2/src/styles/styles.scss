@@ -123,7 +123,8 @@ form legend{
 .button-column .fa {
     color: #767676; /* IE fallback */
     color: var(--theme-button-black);
-    font-size: 18px;
+	font-size: 18px;
+	padding: 0 2px;
 }
 
 .fa.disabled, 
@@ -161,6 +162,7 @@ i.clickable.fa:focus,
     color: var(--theme-submit-button-color-hover);
     cursor: pointer;
 }
+.list-table .fa.ico-remove:hover,
 .fa.ico-remove:hover{
     color: #e30000; /* IE fallback */
     color: var(--theme-alert-color);
@@ -234,7 +236,8 @@ input[type=button],
 input[type=submit],
 button.btn {
     min-width: 104px;
-    height: 40px;
+	height: 40px;
+	margin: 0 3px;
 }
 input[type=button]:focus,
 input[type=button]:active,

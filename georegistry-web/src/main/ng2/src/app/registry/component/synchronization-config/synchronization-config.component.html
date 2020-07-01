@@ -2,7 +2,7 @@
   <cgr-header></cgr-header>
   <loading-bar></loading-bar>
 
-  <div id="app-container" class="container-fluid">
+  <div class="container-fluid">
 
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
@@ -16,11 +16,15 @@
         </div>
 
         <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
-          <div style="margin-bottom: 10px;" class="row">
-            <div class="col-md-8">CGR -> {{config.systemLabel}}</div>
+          <div class="row">
+            <div class="col-md-8">
+              <label style="vertical-align: middle;">CGR</label> 
+              <i class="fa fa-long-arrow-right" aria-hidden="true" style="font-size: 23px;padding: 0 7px;vertical-align: middle; color: #bdbdbd;margin-bottom: 4px;"></i> 
+              <label style="vertical-align: middle;">{{config.systemLabel}}</label>
+            </div>
             <div class="col-md-4">
               <form #myForm="ngForm">
-                <div class="form-group">
+                <div class="form-group text-right" style="margin: 0;">
                   <button type="submit" style="margin-left: 15px;" (click)="onRun()" class="btn btn-primary" role="button" [disabled]="myForm.invalid" [title]="'synchronization.config.run' | localize">
                     <localize key="synchronization.config.run"></localize>
                   </button>
@@ -31,20 +35,41 @@
 
           <div class="row" *ngIf="config != null && config.type === 'DHIS2ExternalSystem'">
             <div class="col-md-12">
-              <div class="label-holder">
-                <label><localize key="synchronization.config.units"></localize></label>
-              </div>
-              <div class="holder">
-                <div *ngFor="let level of this.config.configuration['levels']; let i = index;" class="row">
-                  <div class="col-sm-2">Level {{i + 1}}</div>
-                  <div class="col-sm-6">{{level.geoObjectType}}</div>
-                  <div class="col-sm-4">
-                    <localize *ngIf="level.type === 'ORG_UNITS'" key="synchronization.config.units"></localize>
-                    <localize *ngIf="level.type === 'RELATIONSHIPS'" key="synchronization.config.relationships"></localize>
-                    <localize *ngIf="level.type === 'ALL'" key="synchronization.config.all"></localize>
-                  </div>
-                </div>
-              </div>
+
+                <h4>
+                    <localize key="synchronization.config.units"></localize>
+                </h4>
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <localize key="settings.external.synchronization.level.label"></localize>
+                        </th>
+                        <th>
+                          <localize key="settings.external.synchronization.geoobjecttype.label"></localize>
+                        </th>
+                        <th style="text-align: right;">
+                          <localize key="settings.external.synchronization.dhis2.synch.type.label"></localize>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let level of this.config.configuration['levels']; let i = index;" >
+                        <td style="vertical-align: middle;">
+                          <localize key="settings.external.synchronization.level.label"></localize> {{i + 1}}
+                        </td>
+                        <td style="">
+                          {{level.geoObjectType}}
+                        </td>
+                        <td style="text-align: right;">
+                          <localize *ngIf="level.type === 'ORG_UNITS'" key="synchronization.config.units"></localize>
+                          <localize *ngIf="level.type === 'RELATIONSHIPS'" key="synchronization.config.relationships"></localize>
+                          <localize *ngIf="level.type === 'ALL'" key="synchronization.config.all"></localize>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+
             </div>
           </div>
 

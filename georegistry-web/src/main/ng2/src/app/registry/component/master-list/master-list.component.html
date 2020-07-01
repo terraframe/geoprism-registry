@@ -79,7 +79,7 @@
 
                                 <div style="display: table-cell; padding-right: 10px; vertical-align: middle;" *ngIf="isFilterable(attribute)">
                                     <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"> 
-										<i style="font-size: 20px;" class="fa fa-filter"></i>
+										<i style="font-size: 20px;" class="fa fa-filter" [title]="'button.filter.helptext' | localize"></i>
                                     </a>
 								</div> 
 								<a (click)="onSort(attribute)" style="display: table-cell; word-break: keep-all; word-wrap: normal;">{{attribute.label}} </a> 
@@ -107,7 +107,7 @@
                     <tbody>
                         <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
                             <td *ngIf="!list.leaf" style="width: 3%; text-align: center;" class="label-column"><a class="fa fa-map-marker" (click)="onGoto(result)"></a></td>
-                            <td style="width: 3%" class="label-column"><a class="fa fa-pencil ico-edit" (click)="onEdit(result)"></a></td>
+                            <td style="width: 3%" class="label-column"><a class="fa fa-pencil ico-edit" (click)="onEdit(result)" [title]="'button.edit.helptext' | localize"></a></td>
                             <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
                         </tr>
                     </tbody>
