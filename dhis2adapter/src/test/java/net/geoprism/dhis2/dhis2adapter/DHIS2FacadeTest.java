@@ -11,33 +11,23 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 
 /**
  * Tests the DHIS2 Facade by talking to play.dhis2.org
  */
-public class DHIS2FacadeTest extends TestCase
+public class DHIS2FacadeTest
 {
   private DHIS2Facade facade;
-  
-  public DHIS2FacadeTest( String testName )
-  {
-    super( testName );
-  }
-
-  public static Test suite()
-  {
-    return new TestSuite( DHIS2FacadeTest.class );
-  }
   
   @Before
   public void setUp()
@@ -46,20 +36,23 @@ public class DHIS2FacadeTest extends TestCase
     connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
     connector.setServerUrl(Constants.DHIS2_URL);
     
-    facade = new DHIS2Facade(connector, Constants.VERSION);
+    facade = new DHIS2Facade(connector, Constants.API_VERSION);
   }
   
+  @Test
   public void testSystemInfo() throws InvalidLoginException, HTTPException
   {
-    HTTPResponse resp = facade.systemInfo();
+    DHIS2Response resp = facade.systemInfo();
     
     Assert.assertEquals(200, resp.getStatusCode());
     
     JsonObject jo = resp.getJsonObject();
     
-    Assert.assertEquals(Constants.DHIS2_URL, jo.get("instanceBaseUrl").getAsString());
+    Assert.assertEquals(Constants.DHIS2_VERSION, jo.get("version").getAsString());
+    Assert.assertEquals(Constants.DHIS2_URL, jo.get("contextPath").getAsString());
   }
   
+  @Test
   public void testMetadataPost() throws InvalidLoginException, HTTPException
   {
     // Payload taken from https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-import
@@ -78,7 +71,7 @@ public class DHIS2FacadeTest extends TestCase
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
-    HTTPResponse resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
+    DHIS2Response resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
     
     Assert.assertEquals(200, resp.getStatusCode());
     
@@ -87,6 +80,7 @@ public class DHIS2FacadeTest extends TestCase
     Assert.assertEquals("OK", jo.get("status").getAsString());
   }
   
+  @Test
   public void testGetDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
   {
     Set<String> set = new HashSet<String>();
@@ -106,4 +100,101 @@ public class DHIS2FacadeTest extends TestCase
     
     Assert.assertEquals(new Integer((Dhis2IdCache.FETCH_NUM * 3) - (Dhis2IdCache.FETCH_NUM * 3 - 300)), facade.idCache.getNumIds());
   }
+  
+  @Test
+  public void testEntityTranslations() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  {
+    final String sierraLeoneId = "ImspTQPwCqd";
+    
+    final String payload = "{\n" + 
+        "  \"translations\": [\n" + 
+        "    {\n" + 
+        "      \"property\": \"NAME\",\n" + 
+        "      \"locale\": \"km\",\n" + 
+        "      \"value\": \"Sierra Leone km\"\n" + 
+        "    },\n" + 
+        "    {\n" + 
+        "      \"property\": \"SHORT_NAME\",\n" + 
+        "      \"locale\": \"km\",\n" + 
+        "      \"value\": \"Sierra Leone km\"\n" + 
+        "    }\n" + 
+        "  ]\n" + 
+        "}";
+    
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+    params.add(new BasicNameValuePair("importMode", "VALIDATE"));
+    
+    TypeReportResponse resp = facade.entityTranslations("organisationUnits", sierraLeoneId, params, new StringEntity(payload, Charset.forName("UTF-8")));
+    
+    Assert.assertNull(resp.getResponse());
+    
+    Assert.assertFalse(resp.hasErrorReports());
+    
+    Assert.assertEquals(204, resp.getStatusCode());
+  }
+  
+  /**
+   * This test posts to the Entity Translations DHIS2 play endpoint, however it does so with a bad payload.
+   * This payload is missing required parameters (specifically, value).
+   */
+  @Test
+  public void testBadEntityTranslations() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  {
+    final String sierraLeoneId = "ImspTQPwCqd";
+    
+    final String payload = "{\n" + 
+        "  \"translations\": [\n" + 
+        "    {\n" + 
+        "      \"property\": \"NAME\",\n" + 
+        "      \"locale\": \"km\",\n" + 
+        "      \"value\": \"Sierra Leone km\"\n" + 
+        "    },\n" + 
+        "    {\n" + 
+        "      \"property\": \"SHORT_NAME\",\n" + 
+        "      \"locale\": \"km\"\n" + 
+        "    }\n" + 
+        "  ]\n" + 
+        "}";
+    
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+    params.add(new BasicNameValuePair("importMode", "VALIDATE"));
+    
+    TypeReportResponse resp = facade.entityTranslations("organisationUnits", sierraLeoneId, params, new StringEntity(payload, Charset.forName("UTF-8")));
+    
+    Assert.assertEquals(409, resp.getStatusCode());
+    
+    Assert.assertNotNull(resp.getResponse());
+    
+    Assert.assertTrue(resp.hasErrorReports());
+    
+    Assert.assertFalse(resp.isSuccess());
+    
+    List<ErrorReport> reports = resp.getErrorReports();
+    
+    Assert.assertEquals(1, reports.size());
+    Assert.assertEquals(ErrorCodes.MISSING_REQUIRED_PROPERTY, reports.get(0).getErrorCode());
+    Assert.assertEquals("Missing required property `value`.", reports.get(0).getMessage());
+  }
+  
+  // TODO : It says in their docs that they should support this, however it doesn't work on any DHIS2 server I've tried. (server responds 404)
+  // https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#translations
+//  @Test
+//  public void testTranslationsPost() throws InvalidLoginException, HTTPException
+//  {
+//    JsonObject payload = new JsonObject();
+//    payload.addProperty("objectId", "ImspTQPwCqd"); // We're currently hardcoded to the playstore SierraLeone object id. Let's hope this never changes.
+//    payload.addProperty("className", "OrganisationUnit");
+//    payload.addProperty("locale", "es");
+//    payload.addProperty("property", "name");
+//    payload.addProperty("value", "Spanish Test");
+//    
+//    List<NameValuePair> params = new ArrayList<NameValuePair>();
+//    params.add(new BasicNameValuePair("importMode", "VALIDATE"));
+//    
+//    HTTPResponse resp = facade.translationsPost(params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
+//    
+//    System.out.println(resp.getResponse());
+//    
+//    Assert.assertEquals(200, resp.getStatusCode());
+//  }
 }

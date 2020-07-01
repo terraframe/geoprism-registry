@@ -114,7 +114,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
   public JsonObject getConfigurationJson()
   {
-    JsonElement element = new JsonParser().parse(this.getConfiguration());
+    JsonElement element = JsonParser.parseString(this.getConfiguration());
 
     return element.getAsJsonObject();
   }

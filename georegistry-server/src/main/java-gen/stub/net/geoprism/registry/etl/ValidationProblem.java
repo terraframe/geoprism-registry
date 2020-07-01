@@ -19,11 +19,10 @@
 package net.geoprism.registry.etl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
+
+import com.google.gson.JsonObject;
 
 public abstract class ValidationProblem extends ValidationProblemBase implements Comparable<ValidationProblem>
 {
@@ -59,15 +58,15 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
     }
   }
   
-  public JSONObject toJSON()
+  public JsonObject toJson()
   {
-    JSONObject json = new JSONObject();
+    JsonObject json = new JsonObject();
     
-    json.put("affectedRows", this.getAffectedRows());
-    json.put("resolution", this.getResolution());
-    json.put("historyId", this.getHistory());
-    json.put("type", this.getValidationProblemType());
-    json.put("id", this.getOid());
+    json.addProperty("affectedRows", this.getAffectedRows());
+    json.addProperty("resolution", this.getResolution());
+    json.addProperty("historyId", this.getHistory().getOid());
+    json.addProperty("type", this.getValidationProblemType());
+    json.addProperty("id", this.getOid());
     
     return json;
   }

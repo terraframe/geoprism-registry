@@ -18,16 +18,7 @@
  */
 package net.geoprism.registry.etl;
 
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-
-import org.json.JSONObject;
-
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
@@ -53,7 +44,7 @@ public class ETLController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "reimport")
   public ResponseIF doReImport(ClientRequestIF request, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "json") String json)
   {
-    JSONObject config = this.service.reImport(request.getSessionId(), file, json);
+    JsonObject config = this.service.reImport(request.getSessionId(), file, json);
     
     return new RestBodyResponse(config.toString());
   }
@@ -61,7 +52,7 @@ public class ETLController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import")
   public ResponseIF doImport(ClientRequestIF request, @RequestParamter(name = "json") String json)
   {
-    JSONObject config = this.service.doImport(request.getSessionId(), json);
+    JsonObject config = this.service.doImport(request.getSessionId(), json);
     
     return new RestBodyResponse(config.toString());
   }
@@ -103,7 +94,7 @@ public class ETLController
       isAscending = true;
     }
     
-    JSONObject config = this.service.getActiveImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+    JsonObject config = this.service.getActiveImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
     
     return new RestBodyResponse(config.toString());
   }
@@ -121,7 +112,7 @@ public class ETLController
       isAscending = true;
     }
     
-    JSONObject json = this.service.getCompletedImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+    JsonObject json = this.service.getCompletedImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
     
     return new RestBodyResponse(json.toString());
   }
@@ -129,7 +120,7 @@ public class ETLController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-errors")
   public ResponseIF getImportErrors(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "onlyUnresolved") Boolean onlyUnresolved, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
-    JSONObject json = this.service.getImportErrors(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
+    JsonObject json = this.service.getImportErrors(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
     
     return new RestBodyResponse(json.toString());
   }
@@ -137,7 +128,7 @@ public class ETLController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-import-details")
   public ResponseIF getImportDetails(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "onlyUnresolved") Boolean onlyUnresolved, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
-    JSONObject details = this.service.getImportDetails(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
+    JsonObject details = this.service.getImportDetails(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
     
     return new RestBodyResponse(details.toString());
   }
@@ -148,6 +139,14 @@ public class ETLController
     this.service.cancelImport(request.getSessionId(), config);
     
     return new RestResponse();
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-export-details")
+  public ResponseIF getExportDetails(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  {
+    JsonObject details = this.service.getExportDetails(request.getSessionId(), historyId, pageSize, pageNumber);
+    
+    return new RestBodyResponse(details.toString());
   }
   
 }

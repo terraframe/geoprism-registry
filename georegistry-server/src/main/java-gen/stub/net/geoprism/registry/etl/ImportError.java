@@ -20,6 +20,8 @@ package net.geoprism.registry.etl;
 
 import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -49,27 +51,29 @@ public class ImportError extends ImportErrorBase
     return ieq;
   }
   
-  public JSONObject toJSON()
+  public JsonObject toJson()
   {
-    JSONObject jo = new JSONObject();
+    JsonObject jo = new JsonObject();
     
-    JSONObject exception = new JSONObject();
-    exception.put("type", new JSONObject(this.getErrorJson()).get("type"));
-    exception.put("message", JobHistory.readLocalizedException(new JSONObject(this.getErrorJson()), Session.getCurrentLocale()));
-    jo.put("exception", exception);
+    JsonObject errJson = JsonParser.parseString(this.getErrorJson()).getAsJsonObject();
+    
+    JsonObject exception = new JsonObject();
+    exception.addProperty("type", errJson.get("type").getAsString());
+    exception.addProperty("message", JobHistory.readLocalizedException(new JSONObject(this.getErrorJson()), Session.getCurrentLocale()));
+    jo.add("exception", exception);
     
     if (this.getObjectJson() != null && this.getObjectJson().length() > 0)
     {
-      jo.put("object", new JSONObject(this.getObjectJson()));
+      jo.add("object", JsonParser.parseString(this.getObjectJson()));
     }
     
-    jo.put("objectType", this.getObjectType());
+    jo.addProperty("objectType", this.getObjectType());
     
-    jo.put("id", this.getOid());
+    jo.addProperty("id", this.getOid());
     
-    jo.put("resolution", this.getResolution());
+    jo.addProperty("resolution", this.getResolution());
     
-    jo.put("rowNum", this.getRowIndex());
+    jo.addProperty("rowNum", this.getRowIndex());
     
     return jo;
   }

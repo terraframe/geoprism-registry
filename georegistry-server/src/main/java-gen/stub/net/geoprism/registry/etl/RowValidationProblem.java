@@ -20,6 +20,8 @@ package net.geoprism.registry.etl;
 
 import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.session.Session;
@@ -74,11 +76,11 @@ public class RowValidationProblem extends RowValidationProblemBase
   }
 
   @Override
-  public JSONObject toJSON()
+  public JsonObject toJson()
   {
-    JSONObject object = super.toJSON();
+    JsonObject object = super.toJson();
     
-    object.put("exception", new JSONObject(this.getExceptionJson()));
+    object.add("exception", JsonParser.parseString(this.getExceptionJson()));
 
     return object;
   }

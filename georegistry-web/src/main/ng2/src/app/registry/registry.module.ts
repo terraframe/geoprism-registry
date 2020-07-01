@@ -74,6 +74,7 @@ import { TaskViewerComponent } from './component/task-viewer/task-viewer.compone
 import { SynchronizationConfigManagerComponent } from './component/synchronization-config/synchronization-config-manager.component';
 import { SynchronizationConfigModalComponent } from './component/synchronization-config/synchronization-config-modal.component';
 import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
+import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
@@ -184,7 +185,8 @@ import '../rxjs-extensions';
 		// Synchronization Config
 		SynchronizationConfigManagerComponent,
 		SynchronizationConfigModalComponent,
-		SynchronizationConfigComponent
+		SynchronizationConfigComponent,
+		SyncDetailsComponent
 	],
 	providers: [
 		MapService,

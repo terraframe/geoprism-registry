@@ -50,7 +50,9 @@ import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.auth.BasicScheme;
@@ -63,7 +65,7 @@ import org.slf4j.LoggerFactory;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 public class HTTPConnector
 {
@@ -156,7 +158,34 @@ public class HTTPConnector
     return uriBuilder.build();
   }
   
-  public HTTPResponse httpGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  private DHIS2Response convertResponse(CloseableHttpResponse response) throws InvalidLoginException, UnsupportedOperationException, IOException
+  {
+    int statusCode = response.getStatusLine().getStatusCode();
+    
+    if (statusCode == 401 || (
+          statusCode == 302 && response.getFirstHeader("Location") != null && 
+          response.getFirstHeader("Location").getValue().contains("security/login")
+        ))
+    {
+      throw new InvalidLoginException("Unable to log in to " + this.getServerUrl());
+    }
+    
+    if (response.getEntity() != null)
+    {
+      try (InputStream is = response.getEntity().getContent())
+      {
+        String resp = IOUtils.toString(is);
+        
+        return new DHIS2Response(resp, response.getStatusLine().getStatusCode());
+      }
+    }
+    else
+    {
+      return new DHIS2Response(null, response.getStatusLine().getStatusCode());
+    }
+  }
+  
+  public DHIS2Response httpGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     try
     {
@@ -171,17 +200,7 @@ public class HTTPConnector
       
       try (CloseableHttpResponse response = client.execute(get, getContext()))
       {
-        if (response.getStatusLine().getStatusCode() == 401)
-        {
-          throw new InvalidLoginException("Unable to log in to " + this.getServerUrl());
-        }
-        
-        try (InputStream is = response.getEntity().getContent())
-        {
-          String resp = IOUtils.toString(is);
-          
-          return new HTTPResponse(resp, response.getStatusLine().getStatusCode());
-        }
+        return this.convertResponse(response);
       }
     }
     catch (URISyntaxException | IOException e)
@@ -225,7 +244,7 @@ public class HTTPConnector
 //    }
 //  }
   
-  public HTTPResponse httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     try
     {
@@ -242,22 +261,59 @@ public class HTTPConnector
       
       try (CloseableHttpResponse response = client.execute(post, this.getContext()))
       {
-        int statusCode = response.getStatusLine().getStatusCode();
-        
-        if (statusCode == 401 || (
-              statusCode == 302 && response.getFirstHeader("Location") != null && 
-              response.getFirstHeader("Location").getValue().contains("security/login")
-            ))
-        {
-          throw new InvalidLoginException("Unable to log in to " + this.getServerUrl());
-        }
-        
-        try (InputStream is = response.getEntity().getContent())
-        {
-          String resp = IOUtils.toString(is);
-          
-          return new HTTPResponse(resp, response.getStatusLine().getStatusCode());
-        }
+        return this.convertResponse(response);
+      }
+    }
+    catch (IOException | URISyntaxException e)
+    {
+      throw new HTTPException(e);
+    }
+  }
+  
+  public DHIS2Response httpPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  {
+    try
+    {
+      if (!isInitialized())
+      {
+        initialize();
+      }
+      
+      HttpPut post = new HttpPut(this.buildUri(url, params));
+      
+      post.addHeader("Content-Type", "application/json");
+      
+      post.setEntity(body);
+      
+      try (CloseableHttpResponse response = client.execute(post, this.getContext()))
+      {
+        return this.convertResponse(response);
+      }
+    }
+    catch (IOException | URISyntaxException e)
+    {
+      throw new HTTPException(e);
+    }
+  }
+  
+  public DHIS2Response httpPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  {
+    try
+    {
+      if (!isInitialized())
+      {
+        initialize();
+      }
+      
+      HttpPatch patch = new HttpPatch(this.buildUri(url, params));
+      
+      patch.addHeader("Content-Type", "application/json");
+      
+      patch.setEntity(body);
+      
+      try (CloseableHttpResponse response = client.execute(patch, this.getContext()))
+      {
+        return this.convertResponse(response);
       }
     }
     catch (IOException | URISyntaxException e)

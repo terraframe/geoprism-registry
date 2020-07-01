@@ -175,6 +175,11 @@ public class MasterListVersion extends MasterListVersionBase
 
     String name = PREFIX + count + mdBusiness.getTableName();
 
+    if (name.length() > 29)
+    {
+      name = name.substring(0, 29);
+    }
+
     while (Database.tableExists(name))
     {
       count++;
@@ -1195,7 +1200,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (filterJson != null && filterJson.length() > 0)
     {
-      JsonArray filters = new JsonParser().parse(filterJson).getAsJsonArray();
+      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
 
       for (int i = 0; i < filters.size(); i++)
       {
@@ -1264,7 +1269,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (filterJson != null && filterJson.length() > 0)
     {
-      JsonArray filters = new JsonParser().parse(filterJson).getAsJsonArray();
+      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
 
       for (int i = 0; i < filters.size(); i++)
       {
@@ -1358,7 +1363,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (sort != null && sort.length() > 0)
     {
-      JsonObject jObject = new JsonParser().parse(sort).getAsJsonObject();
+      JsonObject jObject = JsonParser.parseString(sort).getAsJsonObject();
       String attribute = jObject.get("attribute").getAsString();
       String order = jObject.get("order").getAsString();
 

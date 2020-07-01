@@ -65,7 +65,7 @@ abstract public class ImportConfiguration
   
   protected String fileName;
   
-  protected Boolean isExternal;
+  protected Boolean isExternal = false;
   
   protected String externalSystemId = null;
   

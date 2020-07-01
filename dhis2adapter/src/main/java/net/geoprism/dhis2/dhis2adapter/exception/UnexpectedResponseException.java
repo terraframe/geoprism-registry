@@ -1,13 +1,13 @@
 package net.geoprism.dhis2.dhis2adapter.exception;
 
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 public class UnexpectedResponseException extends Exception
 {
 
   private static final long serialVersionUID = -6010794787560014358L;
   
-  private HTTPResponse response;
+  private DHIS2Response response;
   
   private String errorMessage;
   
@@ -33,12 +33,12 @@ public class UnexpectedResponseException extends Exception
     super(message, cause, enableSuppression, writableStackTrace);
   }
 
-  public HTTPResponse getResponse()
+  public DHIS2Response getResponse()
   {
     return response;
   }
 
-  public void setResponse(HTTPResponse response)
+  public void setResponse(DHIS2Response response)
   {
     this.response = response;
   }

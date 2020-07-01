@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.geoobject;
 
@@ -24,8 +24,8 @@ import org.json.JSONObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
+import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -33,11 +33,28 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class SetParentAction extends SetParentActionBase
 {
-  private static final long serialVersionUID = 876924243;
+  private static final long            serialVersionUID           = 876924243;
+
+  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
 
   public SetParentAction()
   {
     super();
+  }
+
+  @Override
+  public boolean isVisible()
+  {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+      ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
+      ServerGeoObjectType type = child.getType();
+
+      return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+    }
+
+    return false;
   }
 
   @Override
@@ -50,7 +67,7 @@ public class SetParentAction extends SetParentActionBase
 
     child.setParents(ptnOt);
   }
-  
+
   @Override
   public void apply()
   {
@@ -58,9 +75,9 @@ public class SetParentAction extends SetParentActionBase
     ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
-    
+
     ptnOt.enforceUserHasPermissionSetParents(child.getCode());
-    
+
     super.apply();
   }
 

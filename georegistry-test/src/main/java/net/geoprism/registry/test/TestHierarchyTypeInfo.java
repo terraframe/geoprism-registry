@@ -23,7 +23,9 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -110,11 +112,30 @@ public class TestHierarchyTypeInfo
     
     if (hierarchyType.isPresent())
     {
-      this.serverObj = ServerHierarchyType.get(getCode());
-      return this.serverObj;
+      if (this.doesMdTermRelationshipExist())
+      {
+        this.serverObj = ServerHierarchyType.get(getCode());
+        return this.serverObj;
+      }
     }
     
     return null;
+  }
+  
+  public Boolean doesMdTermRelationshipExist()
+  {
+    String universalKey = ServerHierarchyType.buildMdTermRelUniversalKey(this.getCode());
+    
+    MdTermRelationshipQuery uniQuery = new MdTermRelationshipQuery(new QueryFactory());
+    uniQuery.WHERE(uniQuery.getKeyName().EQ(universalKey));
+    
+    
+    String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(this.getCode());
+    
+    MdTermRelationshipQuery geoQuery = new MdTermRelationshipQuery(new QueryFactory());
+    geoQuery.WHERE(geoQuery.getKeyName().EQ(geoEntityKey));
+    
+    return uniQuery.getCount() > 0 && geoQuery.getCount() > 0;
   }
   
   public TestOrganizationInfo getOrganization()

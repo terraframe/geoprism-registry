@@ -65,7 +65,8 @@ export class DataImporterComponent implements OnInit {
 	@ViewChild('myFile')
 	fileRef: ElementRef;
 
-	@Input() format: string; // Can be SHAPEFILE or EXCEL
+	@Input()
+	format: string; // Can be SHAPEFILE or EXCEL
 
 	isExternal: boolean = false;
 
@@ -85,7 +86,6 @@ export class DataImporterComponent implements OnInit {
 		private eventService: EventService,
 		private modalService: BsModalService,
 		private localizationService: LocalizationService,
-		private router: Router,
 		private authService: AuthService,
 		private sysService: ExternalSystemService
 	) { }
@@ -110,7 +110,9 @@ export class DataImporterComponent implements OnInit {
 
 			var myOrgTypes = [];
 			for (var i = 0; i < types.length; ++i) {
-				if (this.authService.isOrganizationRA(types[i].orgCode)) {
+				let type = types[i];
+				
+				if (this.authService.isOrganizationRA(type.orgCode) || this.authService.isGeoObjectTypeRM(type.orgCode, type.code)) {
 					myOrgTypes.push(types[i]);
 				}
 			}

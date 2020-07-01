@@ -391,7 +391,17 @@ export class RegistryService {
             .get<ScheduledJob>( acp + '/etl/get-import-details', { params: params } )
             .toPromise();
     }
+    
+    getExportDetails(historyId: string, pageSize: number, pageNumber: number): Promise<ScheduledJob> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("historyId", historyId);
+        params = params.set("pageSize", pageSize.toString());
+        params = params.set("pageNumber", pageNumber.toString())
 
+        return this.http
+            .get<ScheduledJob>( acp + '/etl/get-export-details', { params: params } )
+            .toPromise();
+    }
 
     resolveScheduledJob(historyId: string): Promise<void> {
         let headers = new HttpHeaders( {

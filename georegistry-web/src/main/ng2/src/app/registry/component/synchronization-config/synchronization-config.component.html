@@ -99,16 +99,25 @@
                               </span>
                             </p>
 
-                            <step-indicator [steps]="job.stepConfig"></step-indicator>
+                            <step-indicator *ngIf="job.status !== 'SUCCESS' && job.status !== 'FAILURE' && job.status !== 'CANCELED'" [steps]="job.stepConfig"></step-indicator>
 
                           </div>
                         </td>
+                        <td style="text-align: right; vertical-align: middle;">
+                          <div class="button-holder" style="float: right;">
+                            <a *ngIf="job.status === 'FAILURE'" [routerLink]="'/registry/sync/details/' + job.historyId" routerLinkActive="active">
+                              <button class="btn btn-primary" role="button">
+                                <localize key="scheduledjobs.detail.button"></localize>
+                              </button>
+                            </a>
+                           </div>
+                         </td>
                       </tr>
 
                     </tbody>
                   </table>
                   <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-                    <pagination-controls id="activeJobs" (pageChange)="onPageChange($event)"></pagination-controls>
+                    <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
                   </div>
                 </div>
               </ul>

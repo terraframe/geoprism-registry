@@ -807,7 +807,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             {
               String parentCode = ( parent == null ) ? null : parent.getCode();
 
-              ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context);
+              ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
               prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
               prp.setHistoryId(this.configuration.historyId);
               

@@ -136,14 +136,17 @@ public class SynchronizationConfigService
 
       for (ExternalSystem system : esystems)
       {
-        LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
+        if (system.isExportSupported())
+        {
+          LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
 
-        JsonObject object = new JsonObject();
-        object.addProperty("label", label.getValue());
-        object.addProperty("oid", system.getOid());
-        object.addProperty("type", system.getMdClass().getTypeName());
+          JsonObject object = new JsonObject();
+          object.addProperty("label", label.getValue());
+          object.addProperty("oid", system.getOid());
+          object.addProperty("type", system.getMdClass().getTypeName());
 
-        systems.add(object);
+          systems.add(object);
+        }
       }
 
       JsonObject object = new JsonObject();

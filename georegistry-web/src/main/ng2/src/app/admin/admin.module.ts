@@ -43,6 +43,7 @@ import { EmailComponent } from './component/email/email.component';
 import { SettingsComponent } from './component/settings.component';
 import { OrganizationModalComponent } from './component/organization/organization-modal.component';
 import { NewLocaleModalComponent } from './component/localization-manager/new-locale-modal.component'
+import { ImportLocalizationModalComponent } from './component/localization-manager/import-localization-modal.component';
 import { ExternalSystemModalComponent } from './component/external-system/external-system-modal.component';
 
 
@@ -52,51 +53,54 @@ import { SharedModule } from '../shared/shared.module';
 
 import '../rxjs-extensions';
 
-@NgModule( {
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FileUploadModule,
-        NgxPaginationModule,
-        SharedModule,
-        AdminRoutingModule
-    ],
-    declarations: [
-        // Global components
-        SystemLogoComponent,
-        SystemLogosComponent,
-        AccountsComponent,
-        AccountInviteCompleteComponent,
-        AccountInviteComponent,
-        AccountComponent,
-        SystemLogoComponent,
-        SystemLogosComponent,
-        EmailComponent,
-        SettingsComponent,
-        OrganizationModalComponent,
-        NewLocaleModalComponent,
-        RoleManagementComponent,
-        ExternalSystemModalComponent,
-    ],
-    exports: [
-        SystemLogoComponent,
-        SystemLogosComponent
-    ],
-    providers: [
-        SystemLogoService,
-        EmailService,
-        AccountService,
-        SettingsService,
-        LocalizationManagerService,
-    ],
-    entryComponents: [
-        AccountInviteComponent,
-        AccountComponent,
-        OrganizationModalComponent,
-        NewLocaleModalComponent,
-        RoleManagementComponent,
-        ExternalSystemModalComponent,
-    ]
-} )
+@NgModule({
+	imports: [
+		CommonModule,
+		FormsModule,
+		ReactiveFormsModule,
+		FileUploadModule,
+		NgxPaginationModule,
+		SharedModule,
+		AdminRoutingModule
+	],
+	declarations: [
+		// Global components
+		SystemLogoComponent,
+		SystemLogosComponent,
+		AccountsComponent,
+		AccountInviteCompleteComponent,
+		AccountInviteComponent,
+		AccountComponent,
+		SystemLogoComponent,
+		SystemLogosComponent,
+		EmailComponent,
+		SettingsComponent,
+		OrganizationModalComponent,
+		NewLocaleModalComponent,
+		RoleManagementComponent,
+		ExternalSystemModalComponent,
+		ImportLocalizationModalComponent
+	],
+	exports: [
+		SystemLogoComponent,
+		SystemLogosComponent
+	],
+	providers: [
+		SystemLogoService,
+		EmailService,
+		AccountService,
+		SettingsService,
+		LocalizationManagerService
+	],
+	entryComponents: [
+		AccountInviteComponent,
+		AccountComponent,
+		OrganizationModalComponent,
+		NewLocaleModalComponent,
+		RoleManagementComponent,
+		ExternalSystemModalComponent,
+		ImportLocalizationModalComponent
+	]
+})
+
 export class AdminModule { }

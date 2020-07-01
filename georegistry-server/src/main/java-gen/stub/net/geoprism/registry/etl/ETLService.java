@@ -25,9 +25,11 @@ import java.util.Date;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -40,6 +42,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.DataUploader;
@@ -49,6 +52,10 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.GeoObjectEditorController;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
+import net.geoprism.registry.etl.export.DataExportJob;
+import net.geoprism.registry.etl.export.ExportError;
+import net.geoprism.registry.etl.export.ExportErrorQuery;
+import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
@@ -111,7 +118,7 @@ public class ETLService
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject reImport(String sessionId, MultipartFileParameter file, String json)
+  public JsonObject reImport(String sessionId, MultipartFileParameter file, String json)
   {
     reImportInTrans(file, json);
     
@@ -146,7 +153,7 @@ public class ETLService
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject doImport(String sessionId, String json)
+  public JsonObject doImport(String sessionId, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
 
@@ -171,13 +178,13 @@ public class ETLService
       hist = job.start(config);
     }
     
-    return new JSONObject(hist.getConfigJson());
+    return JsonParser.parseString(hist.getConfigJson()).getAsJsonObject();
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getActiveImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
+  public JsonObject getActiveImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    JSONArray ja = new JSONArray();
+    JsonArray ja = new JsonArray();
     
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
@@ -185,10 +192,10 @@ public class ETLService
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
     
-    JSONObject page = new JSONObject();
-    page.put("count", ihq.getCount());
-    page.put("pageNumber", ihq.getPageNumber());
-    page.put("pageSize", ihq.getPageSize());
+    JsonObject page = new JsonObject();
+    page.addProperty("count", ihq.getCount());
+    page.addProperty("pageNumber", ihq.getPageNumber());
+    page.addProperty("pageSize", ihq.getPageSize());
     
     OIterator<? extends ImportHistory> it = ihq.getIterator();
     
@@ -199,18 +206,18 @@ public class ETLService
       
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
       
-      ja.put(serializeHistory(hist, user, job));
+      ja.add(serializeHistory(hist, user, job));
     }
     
-    page.put("results", ja);
+    page.add("results", ja);
     
     return page;
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
+  public JsonObject getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    JSONArray ja = new JSONArray();
+    JsonArray ja = new JsonArray();
     
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
@@ -218,10 +225,10 @@ public class ETLService
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
     
-    JSONObject page = new JSONObject();
-    page.put("count", ihq.getCount());
-    page.put("pageNumber", ihq.getPageNumber());
-    page.put("pageSize", ihq.getPageSize());
+    JsonObject page = new JsonObject();
+    page.addProperty("count", ihq.getCount());
+    page.addProperty("pageNumber", ihq.getPageNumber());
+    page.addProperty("pageSize", ihq.getPageSize());
     
     OIterator<? extends ImportHistory> it = ihq.getIterator();
     
@@ -232,10 +239,10 @@ public class ETLService
       
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
       
-      ja.put(serializeHistory(hist, user, job));
+      ja.add(serializeHistory(hist, user, job));
     }
     
-    page.put("results", ja);
+    page.add("results", ja);
     
     return page;
   }
@@ -248,44 +255,57 @@ public class ETLService
     return format.format(date);
   }
 
-  protected JSONObject serializeHistory(ImportHistory hist, GeoprismUser user, ExecutableJob job)
+  protected JsonObject serializeHistory(JobHistory hist, GeoprismUser user, ExecutableJob job)
   {
-    JSONObject jo = new JSONObject();
+    JsonObject jo = new JsonObject();
     
-    JSONObject config = new JSONObject(hist.getConfigJson());
+    jo.addProperty("jobType", job.getType());
+    jo.addProperty("status", hist.getStatus().get(0).name());
+    jo.addProperty("author", user.getUsername());
+    jo.addProperty("createDate", formatDate(hist.getCreateDate()));
+    jo.addProperty("lastUpdateDate", formatDate(hist.getLastUpdateDate()));
+    jo.addProperty("workProgress", hist.getWorkProgress());
+    jo.addProperty("workTotal", hist.getWorkTotal());
+    jo.addProperty("historyId", hist.getOid());
+    jo.addProperty("jobId", job.getOid());
     
-    jo.put("jobType", job.getType());
-    jo.put("fileName", config.getString(ImportConfiguration.FILE_NAME));
-    jo.put("stage", hist.getStage().get(0).name());
-    jo.put("status", hist.getStatus().get(0).name());
-    jo.put("author", user.getUsername());
-    jo.put("createDate", formatDate(hist.getCreateDate()));
-    jo.put("lastUpdateDate", formatDate(hist.getLastUpdateDate()));
-    jo.put("importedRecords", hist.getImportedRecords());
-    jo.put("workProgress", hist.getWorkProgress());
-    jo.put("workTotal", hist.getWorkTotal());
-    jo.put("historyId", hist.getOid());
-    jo.put("jobId", config.getString(ImportConfiguration.JOB_ID));
-    jo.put("configuration", config);
+    if (hist instanceof ImportHistory)
+    {
+      ImportHistory iHist = (ImportHistory) hist;
+      
+      jo.addProperty("importedRecords", iHist.getImportedRecords());
+      
+      jo.addProperty("stage", iHist.getStage().get(0).name());
+      
+      JsonObject config = JsonParser.parseString(iHist.getConfigJson()).getAsJsonObject();
+      jo.addProperty("fileName", config.get(ImportConfiguration.FILE_NAME).getAsString());
+      jo.add("configuration", JsonParser.parseString(config.toString()));
+    }
+    else if (hist instanceof ExportHistory)
+    {
+      ExportHistory eHist = (ExportHistory) hist;
+      
+      jo.addProperty("exportedRecords", eHist.getExportedRecords());
+      
+      jo.addProperty("stage", eHist.getStage().get(0).name());
+    }
     
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
     {
-      JSONObject exception = new JSONObject();
+      JsonObject exception = new JsonObject();
       
-      exception.put("type", new JSONObject(hist.getErrorJson()).get("type"));
-      exception.put("message", hist.getLocalizedError(Session.getCurrentLocale()));
+      exception.add("type", JsonParser.parseString(hist.getErrorJson()).getAsJsonObject().get("type"));
+      exception.addProperty("message", hist.getLocalizedError(Session.getCurrentLocale()));
       
-      jo.put("exception", exception);
+      jo.add("exception", exception);
     }
     
     return jo;
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getImportErrors(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  public JsonObject getImportErrors(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
-    JSONArray ja = new JSONArray();
-    
     ImportErrorQuery query = new ImportErrorQuery(new QueryFactory());
     
     query.WHERE(query.getHistory().EQ(historyId));
@@ -299,26 +319,28 @@ public class ETLService
 
     query.restrictRows(pageSize, pageNumber);
     
-    JSONObject page = new JSONObject();
-    page.put("count", query.getCount());
-    page.put("pageNumber", query.getPageNumber());
-    page.put("pageSize", query.getPageSize());
+    JsonObject page = new JsonObject();
+    page.addProperty("count", query.getCount());
+    page.addProperty("pageNumber", query.getPageNumber());
+    page.addProperty("pageSize", query.getPageSize());
+    
+    JsonArray ja = new JsonArray();
     
     OIterator<? extends ImportError> it = query.getIterator();
     while (it.hasNext())
     {
       ImportError err = it.next();
       
-      ja.put(err.toJSON());
+      ja.add(err.toJson());
     }
     
-    page.put("results", ja);
+    page.add("results", ja);
     
     return page;
   }
   
   @Request(RequestType.SESSION)
-  public JSONObject getValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  public JsonObject getValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
     
@@ -333,12 +355,12 @@ public class ETLService
       vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
     }
     
-    JSONObject page = new JSONObject();
-    page.put("count", vpq.getCount());
-    page.put("pageNumber", vpq.getPageNumber());
-    page.put("pageSize", vpq.getPageSize());
+    JsonObject page = new JsonObject();
+    page.addProperty("count", vpq.getCount());
+    page.addProperty("pageNumber", vpq.getPageNumber());
+    page.addProperty("pageSize", vpq.getPageSize());
     
-    JSONArray jaVP = new JSONArray();
+    JsonArray jaVP = new JsonArray();
     
     OIterator<? extends ValidationProblem> it = vpq.getIterator();
     try
@@ -347,7 +369,7 @@ public class ETLService
       {
         ValidationProblem vp = it.next();
         
-        jaVP.put(vp.toJSON());
+        jaVP.add(vp.toJson());
       }
     }
     finally
@@ -355,7 +377,38 @@ public class ETLService
       it.close();
     }
     
-    page.put("results", jaVP);
+    page.add("results", jaVP);
+    
+    return page;
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject getExportErrors(String sessionId, String historyId, int pageSize, int pageNumber)
+  {
+    JsonArray ja = new JsonArray();
+    
+    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
+    
+    query.WHERE(query.getHistory().EQ(historyId));
+    
+    query.ORDER_BY(query.getRowIndex(), SortOrder.ASC);
+
+    query.restrictRows(pageSize, pageNumber);
+    
+    JsonObject page = new JsonObject();
+    page.addProperty("count", query.getCount());
+    page.addProperty("pageNumber", query.getPageNumber());
+    page.addProperty("pageSize", query.getPageSize());
+    
+    OIterator<? extends ExportError> it = query.getIterator();
+    while (it.hasNext())
+    {
+      ExportError err = it.next();
+      
+      ja.add(err.toJson());
+    }
+    
+    page.add("results", ja);
     
     return page;
   }
@@ -445,22 +498,36 @@ public class ETLService
 //  }
   
   @Request(RequestType.SESSION)
-  public JSONObject getImportDetails(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  public JsonObject getImportDetails(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
     
-    JSONObject jo = this.serializeHistory(hist, user, job);
+    JsonObject jo = this.serializeHistory(hist, user, job);
     
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
     {
-      jo.put("importErrors", this.getImportErrors(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
+      jo.add("importErrors", this.getImportErrors(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
     }
     else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
     {
-      jo.put("problems", this.getValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
+      jo.add("problems", this.getValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
     }
+    
+    return jo;
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject getExportDetails(String sessionId, String historyId, int pageSize, int pageNumber)
+  {
+    ExportHistory hist = ExportHistory.get(historyId);
+    DataExportJob job = (DataExportJob) hist.getAllJob().getAll().get(0);
+    GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+    
+    JsonObject jo = this.serializeHistory(hist, user, job);
+    
+    jo.add("exportErrors", this.getExportErrors(sessionId, historyId, pageSize, pageNumber));
     
     return jo;
   }
@@ -488,19 +555,19 @@ public class ETLService
   {
     checkPermissions();
     
-    JSONObject config = new JSONObject(json);
+    JsonObject config = JsonParser.parseString(json).getAsJsonObject();
     
-    ImportHistory hist = ImportHistory.get(config.getString("historyId"));
+    ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
     
-    ImportError err = ImportError.get(config.getString("importErrorId"));
+    ImportError err = ImportError.get(config.get("importErrorId").getAsString());
     
-    String resolution = config.getString("resolution");
+    String resolution = config.get("resolution").getAsString();
     
     if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
     {
       String parentTreeNode = config.get("parentTreeNode").toString();
       String geoObject = config.get("geoObject").toString();
-      Boolean isNew = config.getBoolean("isNew");
+      Boolean isNew = config.get("isNew").getAsBoolean();
       
       if (isNew)
       {
@@ -539,38 +606,38 @@ public class ETLService
   }
 
   @Transaction
-  private JSONObject submitValidationProblemResolutionInTrans(String sessionId, String json)
+  private JsonObject submitValidationProblemResolutionInTrans(String sessionId, String json)
   {
     checkPermissions();
     
-    JSONObject response = new JSONObject();
+    JsonObject response = new JsonObject();
     
-    JSONObject config = new JSONObject(json);
+    JsonObject config = JsonParser.parseString(json).getAsJsonObject();
     
 //    ImportHistory hist = ImportHistory.get(config.getString("historyId"));
     
-    ValidationProblem problem = ValidationProblem.get(config.getString("validationProblemId"));
+    ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
     
-    String resolution = config.getString("resolution");
+    String resolution = config.get("resolution").getAsString();
     
     if (resolution.equals(ValidationResolution.SYNONYM.name()))
     {
       if (problem instanceof TermReferenceProblem)
       {
-        String classifierId = config.getString("classifierId");
-        String label = config.getString("label");
+        String classifierId = config.get("classifierId").getAsString();
+        String label = config.get("label").getAsString();
         
-        response = new JSONObject(DataUploader.createClassifierSynonym(classifierId, label));
+        response = JsonParser.parseString(DataUploader.createClassifierSynonym(classifierId, label)).getAsJsonObject();
       }
       else if (problem instanceof ParentReferenceProblem)
       {
-        String code = config.getString("code");
-        String typeCode = config.getString("typeCode");
-        String label = config.getString("label");
+        String code = config.get("code").getAsString();
+        String typeCode = config.get("typeCode").getAsString();
+        String label = config.get("label").getAsString();
         
         ServerGeoObjectIF go = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObjectByCode(code, typeCode);
         
-        response = new GeoSynonymService().createGeoEntitySynonym(sessionId, go.getRunwayId(), label);
+        response = JsonParser.parseString(new GeoSynonymService().createGeoEntitySynonym(sessionId, go.getRunwayId(), label).toString()).getAsJsonObject();
       }
       
       problem.appLock();
@@ -591,10 +658,10 @@ public class ETLService
     {
       if (problem instanceof TermReferenceProblem)
       {
-        String parentTermCode = config.getString("parentTermCode");
-        String termJSON = config.getString("termJSON");
+        String parentTermCode = config.get("parentTermCode").getAsString();
+        String termJSON = config.get("termJSON").toString();
         
-        response = new JSONObject(RegistryService.getInstance().createTerm(sessionId, parentTermCode, termJSON).toJSON().toString());
+        response = RegistryService.getInstance().createTerm(sessionId, parentTermCode, termJSON).toJSON();
       }
       else if (problem instanceof ParentReferenceProblem)
       {

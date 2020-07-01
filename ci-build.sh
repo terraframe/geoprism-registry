@@ -67,9 +67,8 @@ if [ "$run_tests" == "true" ]; then
 fi
 
 cd $WORKSPACE/georegistry
-mvn clean deploy -B
+mvn clean deploy -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
 fi
-
 
 :
 : ----------------------------------

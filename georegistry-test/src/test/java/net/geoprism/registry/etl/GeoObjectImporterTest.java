@@ -271,7 +271,7 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     
     Assert.assertEquals(0, json.getJSONArray("results").length());
   }
@@ -334,7 +334,7 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     
     Assert.assertEquals(2, json.getJSONArray("results").length());
   }
@@ -399,7 +399,7 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     
     Assert.assertEquals(1, json.getJSONArray("results").length());
   }
@@ -441,7 +441,7 @@ public class GeoObjectImporterTest
 
     this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
-    JSONObject json = new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray errors = json.getJSONArray("results");
     
     hist = ImportHistory.get(hist.getOid());
@@ -546,7 +546,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(new Long(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
-    JSONObject jo = new ETLService().getImportDetails(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1);
+    JSONObject jo = new JSONObject(new ETLService().getImportDetails(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));

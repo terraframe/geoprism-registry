@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 
 /**
@@ -42,12 +42,12 @@ public class Dhis2IdCache
    * @throws InvalidLoginException 
    * @throws UnexpectedResponseException 
    */
-  public HTTPResponse fetchIds() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  public DHIS2Response fetchIds() throws HTTPException, InvalidLoginException, UnexpectedResponseException
   {
     List<NameValuePair> nvp = new ArrayList<NameValuePair>();
     nvp.add(new BasicNameValuePair("limit", String.valueOf(FETCH_NUM)));
     
-    HTTPResponse response = dhis2.apiGet("system/id.json", nvp);
+    DHIS2Response response = dhis2.apiGet("system/id.json", nvp);
     
     if (response.getStatusCode() != 200)
     {

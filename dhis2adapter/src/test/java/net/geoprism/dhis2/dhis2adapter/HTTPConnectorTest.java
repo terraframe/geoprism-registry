@@ -8,31 +8,27 @@ import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
+import org.junit.Before;
 
 import com.google.gson.JsonObject;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
+
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.HTTPResponse;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 /**
  * Tests basic HTTP communication architecture by talking to play.dhis2.org
  */
-public class HTTPConnectorTest extends TestCase
+public class HTTPConnectorTest
 {
-  public HTTPConnectorTest( String testName )
+  @Before
+  public void setUp()
   {
-    super( testName );
   }
 
-  public static Test suite()
-  {
-    return new TestSuite( HTTPConnectorTest.class );
-  }
-
+  @Test
   public void testGet() throws InvalidLoginException, HTTPException
   {
     HTTPConnector connector = new HTTPConnector();
@@ -41,15 +37,17 @@ public class HTTPConnectorTest extends TestCase
     
     connector.setServerUrl(Constants.DHIS2_URL);
     
-    HTTPResponse resp = connector.httpGet("api/" + Constants.VERSION + "/system/info", null);
+    DHIS2Response resp = connector.httpGet("api/" + Constants.API_VERSION + "/system/info", null);
     
     Assert.assertEquals(200, resp.getStatusCode());
     
     JsonObject jo = resp.getJsonObject();
     
-    Assert.assertEquals(Constants.DHIS2_URL, jo.get("instanceBaseUrl").getAsString());
+    Assert.assertEquals(Constants.DHIS2_VERSION, jo.get("version").getAsString());
+    Assert.assertEquals(Constants.DHIS2_URL, jo.get("contextPath").getAsString());
   }
   
+  @Test
   public void testPost() throws InvalidLoginException, HTTPException
   {
     // Payload taken from https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-import
@@ -74,7 +72,7 @@ public class HTTPConnectorTest extends TestCase
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
-    HTTPResponse resp = connector.httpPost("api/" + Constants.VERSION + "/metadata", params, new StringEntity(payload, Charset.forName("UTF-8")));
+    DHIS2Response resp = connector.httpPost("api/" + Constants.API_VERSION + "/metadata", params, new StringEntity(payload, Charset.forName("UTF-8")));
     
     Assert.assertEquals(200, resp.getStatusCode());
     

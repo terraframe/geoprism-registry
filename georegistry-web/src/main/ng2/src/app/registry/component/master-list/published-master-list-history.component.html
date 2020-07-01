@@ -1,7 +1,7 @@
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-     <div *ngIf="list && ((list.admin) || isAdmin)" style="margin-bottom: 10px;" class="row">
+     <div *ngIf="list && ((list.admin))" style="margin-bottom: 10px;" class="row">
         <div class="col-md-12">
             <form #myForm="ngForm">
                 <div class="form-group">
@@ -31,13 +31,13 @@
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">
                                     <localize key="modal.button.view"></localize>
                                 </button>
-                                <button *ngIf="list && ((list.admin) || isMaintainer)" type="submit" (click)="onPublishShapefile(version)" class="btn btn-default" role="button">
+                                <button *ngIf="list && (list.admin)" type="submit" (click)="onPublishShapefile(version)" class="btn btn-default" role="button">
                                     <localize key="masterlist.publish-shapefile"></localize>
                                 </button>                                
                                 <button *ngIf="version.shapefile" type="submit" (click)="onDownloadShapefile(version)" class="btn btn-primary" role="button">
                                     <localize key="masterlist.download"></localize>
                                 </button>   
-                                <button *ngIf="list && ((list.admin) || isMaintainer)" type="submit" (click)="onDeleteMasterListVersion( version.oid )" class="btn btn-danger" role="button">
+                                <button *ngIf="list && (list.admin)" type="submit" (click)="onDeleteMasterListVersion( version.oid )" class="btn btn-danger" role="button">
                                     Delete
                                 </button>  
                             </div>
