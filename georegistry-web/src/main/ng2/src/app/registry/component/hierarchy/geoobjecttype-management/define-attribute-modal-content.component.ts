@@ -6,22 +6,17 @@ import {
   animate,
   transition
 } from '@angular/animations'
-import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { StepConfig } from '../../../../shared/model/modal';
-import { ErrorMessageComponent } from '../../../../shared/component/message/error-message.component';
 import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
 import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
-import { HierarchyService } from '../../../service/hierarchy.service';
 import { RegistryService } from '../../../service/registry.service';
 import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
 import { AttributeInputComponent} from '../geoobjecttype-management/attribute-input.component';
-import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
  
 
 @Component( {
@@ -62,8 +57,11 @@ export class DefineAttributeModalContentComponent implements OnInit {
     @ViewChild(AttributeInputComponent) attributeInputComponent:AttributeInputComponent;
 
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, 
-        private geoObjectTypeManagementService: GeoObjectTypeManagementService, private localizeService: LocalizationService,
+    constructor( 
+	    public bsModalRef: BsModalRef, 
+        private modalStepIndicatorService: ModalStepIndicatorService, 
+        private geoObjectTypeManagementService: GeoObjectTypeManagementService, 
+        private localizeService: LocalizationService,
         private registryService: RegistryService ) {
     
     }

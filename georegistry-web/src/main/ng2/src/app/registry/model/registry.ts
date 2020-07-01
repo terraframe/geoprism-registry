@@ -151,6 +151,8 @@ export class Attribute {
 	required: boolean;
 	unique: boolean;
 	isChangeOverTime?: boolean;
+	precision?: number;
+	scale?: number;
 
 	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 
@@ -183,11 +185,11 @@ export class AttributeTerm extends Attribute {
 }
 
 export class AttributeDecimal extends Attribute {
-	precision: number = 32;
-	scale: number = 8;
-
 	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
 		super(code, type, label, description, isDefault, required, unique, isChange);
+
+		this.precision = 32;
+		this.scale = 8;
 	}
 }
 
