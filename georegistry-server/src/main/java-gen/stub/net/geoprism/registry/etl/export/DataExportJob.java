@@ -1,6 +1,5 @@
 package net.geoprism.registry.etl.export;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,12 +8,13 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -36,8 +36,8 @@ import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.EntityImportResponse;
-import net.geoprism.dhis2.dhis2adapter.response.EntityImportResponse.ErrorReport;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExportJobHasErrors;
@@ -75,6 +75,8 @@ public class DataExportJob extends DataExportJobBase
   
   private ExportHistory         history;
 
+  private JobExportError exportWarning;
+
   public DataExportJob()
   {
     super();
@@ -84,7 +86,7 @@ public class DataExportJob extends DataExportJobBase
   {
     private static final long serialVersionUID = 8463740942015611693L;
 
-    protected EntityImportResponse    response;
+    protected DHIS2Response    response;
     
     protected String          submittedJson;
 
@@ -94,7 +96,7 @@ public class DataExportJob extends DataExportJobBase
     
     protected Long            rowIndex;
 
-    private JobExportError(Long rowIndex, EntityImportResponse response, String submittedJson, Throwable t, String geoObjectCode)
+    private JobExportError(Long rowIndex, DHIS2Response response, String submittedJson, Throwable t, String geoObjectCode)
     {
       super("");
       this.response = response;
@@ -236,6 +238,8 @@ public class DataExportJob extends DataExportJobBase
     long exportCount = 0;
     
     List<SyncLevel> levels = this.dhis2Config.getLevels();
+    
+    Boolean includeTranslations = LocalizationFacade.getInstalledLocales().size() > 0;
 
     for (SyncLevel level : levels)
     {
@@ -252,7 +256,9 @@ public class DataExportJob extends DataExportJobBase
         for (VertexServerGeoObject go : objects) {
           try
           {
-            exportGeoObject(level, rowIndex, go);
+            this.exportWarning = null;
+            
+            exportGeoObject(level, rowIndex, go, includeTranslations);
             
             exportCount++;
             
@@ -264,6 +270,11 @@ public class DataExportJob extends DataExportJobBase
           catch (JobExportError ee)
           {
             recordExportError(ee);
+          }
+          
+          if (this.exportWarning != null)
+          {
+            recordExportError(this.exportWarning);
           }
           
           rowIndex++;
@@ -295,7 +306,7 @@ public class DataExportJob extends DataExportJobBase
 
   private void recordExportError(JobExportError ee)
   {
-    EntityImportResponse resp = ee.response;
+    DHIS2Response resp = ee.response;
     Throwable ex = ee.error;
     String geoObjectCode = ee.geoObjectCode;
     
@@ -349,15 +360,18 @@ public class DataExportJob extends DataExportJobBase
    * @throws ExportError
    */
   @Transaction
-  private void exportGeoObject(SyncLevel level, Long rowIndex, VertexServerGeoObject serverGo) throws JobExportError
+  private void exportGeoObject(SyncLevel level, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws JobExportError
   {
-    EntityImportResponse resp = null;
+    DHIS2Response resp = null;
     
-    String submittedJson = null;
+    JsonObject orgUnitJson = null;
+    
+    String externalId = null;
     
     try
     {
-      boolean isNew = serverGo.getExternalId(this.syncConfig.getExternalSystem()) == null;
+      externalId = serverGo.getExternalId(this.syncConfig.getExternalSystem());
+      boolean isNew = (externalId == null);
 
       if (isNew && level.getSyncType() != SyncLevel.Type.ALL)
       {
@@ -368,20 +382,22 @@ public class DataExportJob extends DataExportJobBase
 
       GsonBuilder builder = new GsonBuilder();
       builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.syncConfig.getServerHierarchyType(), this.syncConfig.getExternalSystem()));
-      submittedJson = builder.create().toJson(serverGo, serverGo.getClass());
+      orgUnitJson = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
+      
+      externalId = serverGo.getExternalId(this.syncConfig.getExternalSystem());
 
       List<NameValuePair> params = new ArrayList<NameValuePair>();
-      params.add(new BasicNameValuePair("mergeMode", "MERGE"));
+//      params.add(new BasicNameValuePair("mergeMode", "MERGE"));
 
       try
       {
         if (!isNew)
         {
-          resp = dhis2.entityIdPatch("organisationUnits", serverGo.getExternalId(this.syncConfig.getExternalSystem()), params, new StringEntity(submittedJson, Charset.forName("UTF-8")));
+          resp = dhis2.entityIdPatch("organisationUnits", externalId, params, new StringEntity(orgUnitJson.toString(), Charset.forName("UTF-8")));
         }
         else
         {
-          resp = dhis2.entityPost("organisationUnits", params, new StringEntity(submittedJson, Charset.forName("UTF-8")));
+          resp = dhis2.entityPost("organisationUnits", params, new StringEntity(orgUnitJson.toString(), Charset.forName("UTF-8")));
         }
       }
       catch (InvalidLoginException | HTTPException e)
@@ -404,8 +420,39 @@ public class DataExportJob extends DataExportJobBase
     }
     catch (Throwable t)
     {
-      JobExportError er = new JobExportError(rowIndex, resp, submittedJson, t, serverGo.getCode());
+      JobExportError er = new JobExportError(rowIndex, resp, orgUnitJson.toString(), t, serverGo.getCode());
       throw er;
+    }
+    
+    String translationJson = null;
+    DHIS2Response translationResp = null;
+    try
+    {
+      if (includeTranslations)
+      {
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        
+        JsonObject payload = new JsonObject();
+        payload.add("translations", orgUnitJson.get("translations").getAsJsonArray().deepCopy());
+        
+        translationResp = dhis2.entityTranslations("organisationUnits", externalId, params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
+        
+        if (!translationResp.isSuccess())
+        {
+          ExportRemoteException re = new ExportRemoteException();
+
+          if (translationResp.hasMessage())
+          {
+            re.setRemoteError(translationResp.getMessage());
+          }
+
+          throw re;
+        }
+      }
+    }
+    catch (Throwable t)
+    {
+      this.exportWarning = new JobExportError(rowIndex, translationResp, translationJson, t, serverGo.getCode());
     }
   }
 

@@ -8,8 +8,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
 
-import net.geoprism.dhis2.dhis2adapter.response.EntityImportResponse.ErrorReport;
-import net.geoprism.registry.etl.ExportJobHasErrors;
+import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 
 public class ExportError extends ExportErrorBase
 {
