@@ -24,25 +24,7 @@ import { AttributeInputComponent } from '../geoobjecttype-management/attribute-i
 @Component({
 	selector: 'edit-attribute-modal-content',
 	templateUrl: './edit-attribute-modal-content.component.html',
-	styleUrls: ['./edit-attribute-modal-content.css'],
-	animations: [
-		trigger('openClose',
-			[
-				transition(
-					':enter', [
-					style({ 'opacity': 0 }),
-					animate('500ms', style({ 'opacity': 1 }))
-				]
-				),
-				transition(
-					':leave', [
-					style({ 'opacity': 1 }),
-					animate('0ms', style({ 'opacity': 0 })),
-
-				]
-				)]
-		)
-	]
+	styleUrls: ['./edit-attribute-modal-content.css']
 })
 export class EditAttributeModalContentComponent implements OnInit {
 

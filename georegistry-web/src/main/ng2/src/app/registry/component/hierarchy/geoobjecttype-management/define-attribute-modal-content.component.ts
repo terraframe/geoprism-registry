@@ -22,25 +22,7 @@ import { AttributeInputComponent} from '../geoobjecttype-management/attribute-in
 @Component( {
     selector: 'define-attribute-modal-content',
     templateUrl: './define-attribute-modal-content.component.html',
-    styleUrls: ['./define-attribute-modal-content.css'],
-    animations: [
-        trigger('openClose', 
-            [
-            transition(
-                ':enter', [
-                style({ 'opacity': 0}),
-                animate('500ms', style({ 'opacity': 1}))
-                ]
-            ),
-            transition(
-                ':leave', [
-                style({ 'opacity': 1}),
-                animate('0ms', style({'opacity': 0})),
-                
-                ]
-            )]
-      )
-    ]
+    styleUrls: ['./define-attribute-modal-content.css']
 } )
 export class DefineAttributeModalContentComponent implements OnInit {
 

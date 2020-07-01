@@ -3,11 +3,6 @@ input[type="text"] {
     float: none !important;
 }
 
-button {
-    margin-top: 5px;
-    float: right;
-}
-
 label {
     color: #999;
     font-weight: bold;
@@ -17,3 +12,30 @@ label {
     color: grey;
 }
 
+.btn-group.define-attribute-btns {
+    /* width: 50%; */
+    margin: 0 auto;
+    display: block;
+    /* margin-bottom: 100px; */
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button {
+    width: 16.5%;
+    background: white; /* IE fallback */
+    background: var(--theme-button-color);
+    
+    color: #767676; /* IE fallback */
+    color: var(--theme-button-text-color);  
+    border-color: var(--theme-button-color-border);
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button:active{
+    background: #edf4e8; /* IE fallback */
+    background: var(--theme-submit-button-color-light) !important;
+}
+.btn-group.define-attribute-btns .btn.full-width-radio-button.active,
+.btn-group.define-attribute-btns .btn.full-width-radio-button:focus{
+    color: white !important; 
+
+    background-color: #6BA542 !important; /* IE fallback */
+    background-color: var(--theme-button-color-hover) !important;
+    box-shadow: none;
+}
