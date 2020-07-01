@@ -10,5 +10,5 @@ public class Constants
   
   public static final String PASSWORD = "district";
   
-  public static final String API_VERSION = "29";
+  public static final String API_VERSION = "26";
 }
