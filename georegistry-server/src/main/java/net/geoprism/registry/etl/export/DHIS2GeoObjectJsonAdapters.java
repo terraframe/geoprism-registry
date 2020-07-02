@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.export;
 
@@ -151,8 +151,8 @@ public class DHIS2GeoObjectJsonAdapters
 
     private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
     {
-      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
-      {
+//      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
+//      {
         ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
         if (goParent != null)
         {
@@ -166,13 +166,13 @@ public class DHIS2GeoObjectJsonAdapters
         jo.addProperty("path", calculatePath(serverGo));
 
         jo.addProperty("level", this.depth);
-      }
+//      }
     }
 
     private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
-      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
-      {
+//      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
+//      {
         jo.addProperty("code", serverGo.getCode());
 
         jo.addProperty("id", this.getExternalId(serverGo));
@@ -190,7 +190,7 @@ public class DHIS2GeoObjectJsonAdapters
         writeGeometry(jo, serverGo);
 
         jo.add("translations", writeTranslations(serverGo));
-      }
+//      }
     }
     
     private void writeGeometry(JsonObject jo, VertexServerGeoObject serverGo)

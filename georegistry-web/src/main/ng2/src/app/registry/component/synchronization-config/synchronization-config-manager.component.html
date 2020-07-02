@@ -2,7 +2,7 @@
   <cgr-header></cgr-header>
   <loading-bar></loading-bar>
 
-  <div id="app-container" class="container-fluid">
+  <div class="container-fluid">
 
     <div class="heading">
       <h2>
@@ -27,10 +27,10 @@
                 <button type="submit" (click)="onView(config)" class="btn btn-primary" role="button">
                   <localize key="modal.button.view"></localize>
                 </button>
-                <button type="submit" (click)="onEdit(config)" class="btn btn-default" role="button">
+                <button type="submit" (click)="onEdit(config)" class="btn btn-default" role="button" style="margin-left: 5px;">
                   <localize key="modal.button.edit"></localize>
                 </button>
-                <button type="submit" (click)="onRemove(config)" class="btn btn-danger" role="button">
+                <button type="submit" (click)="onRemove(config)" class="btn btn-danger" role="button" style="margin-left: 5px;">
                   <localize key="modal.button.delete"></localize>
                 </button>
               </td>

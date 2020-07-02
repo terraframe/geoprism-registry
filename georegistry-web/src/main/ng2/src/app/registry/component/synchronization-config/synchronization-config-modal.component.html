@@ -61,37 +61,62 @@
       </div>
 
       <div class="row-holder" *ngIf="cSystem != null && cSystem.type === 'DHIS2ExternalSystem'">
+
         <div class="label-holder">
           <label><localize key="synchronization.config.units"></localize></label>
         </div>
         <div class="holder">
-          <div *ngFor="let level of this.config.configuration['levels']; let i = index;" class="row">
-            <div class="col-sm-2">Level {{i + 1}}</div>
-            <div class="col-sm-4">
-              <select type="text" [(ngModel)]="level.geoObjectType" [name]="'geoObjectType' + i" required>
-                <option></option>
-                <option *ngFor="let type of types" [value]="type.code">{{type.label.localizedValue}}</option>
-              </select>
-            </div>
-            <div class="col-sm-4">
-              <select type="text" [(ngModel)]="level.type" [name]="'type' + i" required>
-                <option></option>
-                <option value="ORG_UNITS"><localize key="synchronization.config.units"></localize></option>
-                <option value="RELATIONSHIPS"><localize key="synchronization.config.relationships"></localize></option>
-                <option value="ALL"><localize key="synchronization.config.all"></localize></option>
-              </select>
-            </div>
-            <div class="col-sm-2">
-              <a class="fa fa-trash-o ico-remove" (click)="removeLevel(i)" [title]="'account.removeTooltip' | localize"></a>
-            </div>
-
+          <div class="list-table-wrapper">
+            <table id="manage-systems-table" class="list-table table table-bordered">
+              <thead>
+                <tr>
+                  <th>Label</th>
+                  <th>
+                    <localize key="settings.external.synchronization.geoobjecttype.label"></localize>
+                  </th>
+                  <th>
+                    <localize key="settings.external.synchronization.dhis2.synch.type.label"></localize>
+                  </th>
+                  <th style="text-align: center;">
+                    <localize key="settings.external.synchronization.actions.label"></localize>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let level of this.config.configuration['levels']; let i = index;">
+                  <td>
+                    <label style="padding: 10px 0; margin: 0;">Level {{i + 1}}</label>
+                  </td>
+                  <td>
+                    <select type="text" [(ngModel)]="level.geoObjectType" [name]="'geoObjectType' + i" required>
+                      <option></option>
+                      <option *ngFor="let type of types" [value]="type.code">{{type.label.localizedValue}}</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select type="text" [(ngModel)]="level.type" [name]="'type' + i" required>
+                      <option></option>
+                      <option value="ORG_UNITS"><localize key="synchronization.config.units"></localize></option>
+                      <option value="RELATIONSHIPS"><localize key="synchronization.config.relationships"></localize></option>
+                      <option value="ALL"><localize key="synchronization.config.all"></localize></option>
+                    </select>
+                  </td>
+                  <td class="button-column">
+                    <a class="fa fa-trash-o ico-remove" style="padding: 10px" (click)="removeLevel(i)" [title]="'button.delete.helptext' | localize"></a>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="button-column">
+                    <a class="fa fa-plus" (click)="addLevel()"></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          
           </div>
-          <div class="row">
-            <div class="col-sm-12">
-              <a class="fa fa-plus" (click)="addLevel()" [title]="'account.newTooltip' | localize"></a>
-            </div>
-          </div>          
-        </div>
+      </div>
+
+
       </div>
 
       <div class="row-holder">

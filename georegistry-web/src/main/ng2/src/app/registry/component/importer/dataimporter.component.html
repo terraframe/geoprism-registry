@@ -1,9 +1,10 @@
 
-<div *ngIf="!isLoading && !showImportConfig">
-  <div class="container">
-    <div class="row" style="margin-top:20px;">
-    
-        <div class="col-xs-6 radio-btn-wrapper">
+<div *ngIf="!isLoading && !showImportConfig && externalSystems.length > 0 && format === 'EXCEL'">
+  <div>
+    <div class="row">
+
+        <div class="col-xs-1"></div>
+        <div class="col-xs-9 radio-btn-wrapper">
 
             <label class="radio">
                 <input type="checkbox" [value]="true" [checked]="!isExternal" (change)="setImportSource($event, 'FILE')" name="import-source">
@@ -31,69 +32,80 @@
                 </button>
             </div>
         </div>
-        <div class="col-xs-6"></div>
-	
-	
+        <div class="col-xs-2"></div>
 	  </div>
   </div>
 </div>
 
-<form *ngIf="!isLoading && isExternal !== null && showImportConfig" #form="ngForm">
-    <div *ngIf="isExternal" class="form-group row">
-        <label class="col-md-3 text-right" for="externalSystem">
-            <localize key="io.import.externalSystems"></localize>
-        </label>
-        <div class="col-md-9">
-            <select id="externalSystem" name="externalSystem" class="select-area" [(ngModel)]="externalSystemId" required>
-                <option *ngFor="let externalSystem of externalSystems" value={{externalSystem.oid}}>{{externalSystem.label.localizedValue}}</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group row" *ngIf="types">
-        <label class="col-md-3 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
-        <div class="col-md-9">
-            <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
-                <option></option>
-                <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-md-3 text-right" for="strategy">
-            <localize *ngIf="this.format === 'EXCEL'" key="spreadsheet.import.import.strategy"></localize>
-            <localize *ngIf="this.format === 'SHAPEFILE'" key="shapefile.import.import.strategy"></localize>
-        </label>
-        <div class="col-md-9">
-            <select id="strategy" name="strategy" class="select-area" [(ngModel)]="importStrategy" required>
-                <option *ngFor="let strategy of importStrategies" value={{strategy.strategy}}>{{strategy.label}}</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-md-3 text-right" for="startDate"><localize key="io.startDate"></localize></label>
-        <div class="col-md-9">
-            <input class="ghost-input" name="startDate" [(ngModel)]="startDate" type="date" required />
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-md-3 text-right" for="file">
-          <localize *ngIf="this.format === 'EXCEL'" key="io.spreadsheet"></localize>
-          <localize *ngIf="this.format === 'SHAPEFILE'" key="io.shapefile"></localize>
-        </label>
-        <div class="col-md-9">
-          <input *ngIf="this.format === 'EXCEL'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".xls, .xlsx" required />
-          <input *ngIf="this.format === 'SHAPEFILE'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".zip" required />
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="button-holder col-md-12 text-right">
-            <button type="submit" class="btn btn-default" (click)="onBack()">
-                <localize key="io.back"></localize>
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
-                <localize key="io.submit"></localize>
-            </button>
-        </div>
-    </div>
-</form>
+<div *ngIf="!isLoading && isExternal !== null && showImportConfig">
+    <div >
+        <form #form="ngForm">
+            <div *ngIf="isExternal" class="form-group row">
+                <label class="col-md-2 text-right" for="externalSystem">
+                    <localize key="io.import.externalSystems"></localize>
+                </label>
+                <div class="col-md-8">
+                    <select id="externalSystem" name="externalSystem" class="select-area" [(ngModel)]="externalSystemId" required>
+                        <option *ngFor="let externalSystem of externalSystems" value={{externalSystem.oid}}>{{externalSystem.label.localizedValue}}</option>
+                    </select>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            <div class="form-group row" *ngIf="types">
+                <label class="col-md-2 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
+                <div class="col-md-8">
+                    <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
+                        <option></option>
+                        <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
+                    </select>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 text-right" for="strategy">
+                    <localize *ngIf="this.format === 'EXCEL'" key="spreadsheet.import.import.strategy"></localize>
+                    <localize *ngIf="this.format === 'SHAPEFILE'" key="shapefile.import.import.strategy"></localize>
+                </label>
+                <div class="col-md-8">
+                    <select id="strategy" name="strategy" class="select-area" [(ngModel)]="importStrategy" required>
+                        <option *ngFor="let strategy of importStrategies" value={{strategy.strategy}}>{{strategy.label}}</option>
+                    </select>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
+                <div class="col-md-8">
+                    <input class="ghost-input" name="startDate" [(ngModel)]="startDate" type="date" required />
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-2 text-right" for="file">
+                    <localize *ngIf="this.format === 'EXCEL'" key="io.spreadsheet"></localize>
+                    <localize *ngIf="this.format === 'SHAPEFILE'" key="io.shapefile"></localize>
+                </label>
+                <div class="col-md-8">
+                    <input *ngIf="this.format === 'EXCEL'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect
+                        [uploader]="uploader" accept=".xls, .xlsx" required />
+                    <input *ngIf="this.format === 'SHAPEFILE'" class="ghost-input" #myFile name="file" type="file" ng2FileSelect
+                        [uploader]="uploader" accept=".zip" required />
+                </div>
+                <div class="col-md-2"></div>
+            </div>
 
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="button-holder col-md-8 text-right">
+                    <button type="submit" class="btn btn-default" (click)="onBack()">
+                        <localize key="io.back"></localize>
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
+                        <localize key="io.submit"></localize>
+                    </button>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </form>
+    </div>
+</div>

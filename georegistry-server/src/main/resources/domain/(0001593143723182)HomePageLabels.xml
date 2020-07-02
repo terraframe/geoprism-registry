@@ -1,0 +1,121 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  	
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="io.import.modal.parent.source">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.import.modal.parent.source" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Source file parent column" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.location.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.location.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Hierarchy matching (optional)" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.location.description">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.location.description" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Match the different levels in the hierarchy to the imported file columns." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.attributes.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Attribute Matching" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.description">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.attributes.description" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Match the Geo Object Type attributes to the source file columns" />
+	        </attributeStruct>
+	      </object>
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.landing">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchies.landing" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="GeoObjects and Hierarchies" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlists.landing">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlists.landing" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Lists" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="navigator.landing">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="navigator.landing" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Explorer" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="uploads.landing">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="uploads.landing" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Import" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="requests.landing">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="requests.landing" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Change Requests" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.tasks">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="header.tasks" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Curation" />
+	        </attributeStruct>
+	      </object>
+	      
+  	
+  	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -167,6 +167,9 @@ public class RevealExcelContentHandler extends ExcelContentHandler
         sCoordinates = sCoordinates.substring(0, sCoordinates.length()-1);
       }
       
+      // remove newlines and spaces
+      sCoordinates = sCoordinates.replace("\n", "").replace("\r", "").replaceAll("\\s+","");
+      
       JsonArray joCoordinates = JsonParser.parseString(sCoordinates).getAsJsonArray();
       
       // TODO : Not sure if we want to keep this polygon -> multipolygon conversion code

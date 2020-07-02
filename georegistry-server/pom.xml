@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-		<version>0.8.2-SNAPSHOT</version>
+		<version>0.9.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -34,7 +34,7 @@
 
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
-		<cgr.adapter.version>0.8.2-SNAPSHOT</cgr.adapter.version>
+		<cgr.adapter.version>0.9.1-SNAPSHOT</cgr.adapter.version>
 	</properties>
 
 

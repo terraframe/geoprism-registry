@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.dhis2.dhis2adapter;
 
 import java.nio.charset.Charset;
@@ -18,6 +36,7 @@ import com.google.gson.JsonObject;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
@@ -52,6 +71,30 @@ public class DHIS2FacadeTest
     Assert.assertEquals(Constants.DHIS2_URL, jo.get("contextPath").getAsString());
   }
   
+//  @Test
+//  public void testMetadataGet() throws Exception
+//  {
+//    List<NameValuePair> params = new ArrayList<NameValuePair>();
+//    params.add(new BasicNameValuePair("organisationUnits", "true"));
+//    params.add(new BasicNameValuePair("code", "OU_525"));
+//    
+//    DHIS2Response resp = facade.metadataGet(params);
+//    
+//    System.out.println(resp.getResponse());
+//  }
+  
+  @Test
+  public void testEntityIdGet() throws Exception
+  {
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+//    params.add(new BasicNameValuePair("organisationUnits", "true"));
+//    params.add(new BasicNameValuePair("code", "OU_525"));
+    
+    DHIS2Response resp = facade.entityIdGet("organisationUnits", "ImspTQPwCqd", params);
+    
+//    System.out.println(resp.getResponse());
+  }
+  
   @Test
   public void testMetadataPost() throws InvalidLoginException, HTTPException
   {
@@ -71,7 +114,7 @@ public class DHIS2FacadeTest
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
-    DHIS2Response resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
+    DHIS2ImportResponse resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
     
     Assert.assertEquals(200, resp.getStatusCode());
     

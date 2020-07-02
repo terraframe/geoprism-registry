@@ -18,17 +18,16 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
+import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode, 
     ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage, MasterListByOrg } from '../model/registry';
-import { HierarchyNode, HierarchyType } from '../model/hierarchy';
+import { HierarchyType } from '../model/hierarchy';
 import { Progress } from '../../shared/model/progress';
 import { EventService } from '../../shared/service/event.service';
-import { templateJitUrl } from '@angular/compiler';
 import { Organization } from '../../shared/model/core';
 
 declare var acp: any;

@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.etl.export;
 
 import java.nio.charset.Charset;
@@ -8,12 +26,15 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -36,6 +57,7 @@ import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.registry.SynchronizationConfig;
@@ -63,10 +85,6 @@ public class DataExportJob extends DataExportJobBase
 
   private static final Logger   logger           = LoggerFactory.getLogger(DataExportJob.class);
 
-  // Set to VALIDATE and the remote DHIS2 server will not commit, only
-  // "dry-run".
-  private static final String   IMPORT_MODE      = "COMMIT";
-
   private SynchronizationConfig syncConfig;
 
   private DHIS2SyncConfig       dhis2Config;
@@ -86,7 +104,7 @@ public class DataExportJob extends DataExportJobBase
   {
     private static final long serialVersionUID = 8463740942015611693L;
 
-    protected DHIS2Response    response;
+    protected DHIS2ImportResponse    response;
     
     protected String          submittedJson;
 
@@ -96,7 +114,7 @@ public class DataExportJob extends DataExportJobBase
     
     protected Long            rowIndex;
 
-    private JobExportError(Long rowIndex, DHIS2Response response, String submittedJson, Throwable t, String geoObjectCode)
+    private JobExportError(Long rowIndex, DHIS2ImportResponse response, String submittedJson, Throwable t, String geoObjectCode)
     {
       super("");
       this.response = response;
@@ -157,12 +175,12 @@ public class DataExportJob extends DataExportJobBase
   {
     String in = this.dhis2Config.getSystem().getVersion();
 
-    if (in.startsWith("2.3.1"))
+    if (in.startsWith("2.31"))
     {
-      return "31";
+      return "26";
     }
 
-    return "31"; // We currently only support API version 31 right now anyway
+    return "26"; // We currently only support API version 26 right now anyway
   }
 
   @Override
@@ -306,7 +324,7 @@ public class DataExportJob extends DataExportJobBase
 
   private void recordExportError(JobExportError ee)
   {
-    DHIS2Response resp = ee.response;
+    DHIS2ImportResponse resp = ee.response;
     Throwable ex = ee.error;
     String geoObjectCode = ee.geoObjectCode;
     
@@ -317,16 +335,23 @@ public class DataExportJob extends DataExportJobBase
       exportError.setSubmittedJson(ee.submittedJson);
     }
     
-    if (resp != null && resp.hasErrorReports())
+    if (resp != null)
     {
-      List<ErrorReport> reports = resp.getErrorReports();
+      if (resp.getResponse() != null && resp.getResponse().length() > 0)
+      {
+        exportError.setResponseJson(resp.getResponse());
+        
+        if (resp.hasErrorReports())
+        {
+          List<ErrorReport> reports = resp.getErrorReports();
+          
+          ErrorReport report = reports.get(0);
+          
+          exportError.setErrorMessage(report.getMessage());
+        }
+      }
       
-      ErrorReport report = reports.get(0);
-      
-      GsonBuilder builder = new GsonBuilder();
-      Gson gson = builder.create();
-      
-      exportError.setResponseJson(gson.toJson(report));
+      exportError.setErrorCode(resp.getStatusCode());
     }
     
     exportError.setCode(geoObjectCode);
@@ -362,9 +387,10 @@ public class DataExportJob extends DataExportJobBase
   @Transaction
   private void exportGeoObject(SyncLevel level, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws JobExportError
   {
-    DHIS2Response resp = null;
+    DHIS2ImportResponse resp = null;
     
-    JsonObject orgUnitJson = null;
+    JsonObject orgUnitJsonTree = null;
+    String orgUnitJson = null;
     
     String externalId = null;
     
@@ -382,169 +408,106 @@ public class DataExportJob extends DataExportJobBase
 
       GsonBuilder builder = new GsonBuilder();
       builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.syncConfig.getServerHierarchyType(), this.syncConfig.getExternalSystem()));
-      orgUnitJson = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
+      
+      orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
+      orgUnitJson = orgUnitJsonTree.toString();
       
       externalId = serverGo.getExternalId(this.syncConfig.getExternalSystem());
 
       List<NameValuePair> params = new ArrayList<NameValuePair>();
-//      params.add(new BasicNameValuePair("mergeMode", "MERGE"));
+      params.add(new BasicNameValuePair("mergeMode", "MERGE"));
 
       try
       {
-        if (!isNew)
+        JsonObject metadataPayload = new JsonObject();
+        JsonArray orgUnits = new JsonArray();
+        metadataPayload.add("organisationUnits", orgUnits);
+        
+        if (level.getSyncType() == SyncLevel.Type.ALL)
         {
-          resp = dhis2.entityIdPatch("organisationUnits", externalId, params, new StringEntity(orgUnitJson.toString(), Charset.forName("UTF-8")));
+          orgUnits.add(orgUnitJsonTree);
         }
-        else
+        else if (level.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
         {
-          resp = dhis2.entityPost("organisationUnits", params, new StringEntity(orgUnitJson.toString(), Charset.forName("UTF-8")));
+          if (!orgUnitJsonTree.has("parent"))
+          {
+            return; // Root level types do not have parents.
+          }
+          
+          JsonObject orgUnitRelationships = new JsonObject();
+          
+          
+          // These attributes must be included at the requirement of DHIS2 API
+          orgUnitRelationships.addProperty("id", orgUnitJsonTree.get("id").getAsString());
+          orgUnitRelationships.addProperty("name", orgUnitJsonTree.get("name").getAsString());
+          orgUnitRelationships.addProperty("shortName", orgUnitJsonTree.get("shortName").getAsString());
+          orgUnitRelationships.addProperty("openingDate", orgUnitJsonTree.get("openingDate").getAsString());
+          
+          // We don't want to actually update any of these attributes, so if we can fetch the object from DHIS2
+          // then use the values they have in their server instead.
+          DHIS2Response orgUnitGetResp = dhis2.entityIdGet("organisationUnits", externalId, params);
+          if (orgUnitGetResp.isSuccess())
+          {
+            JsonObject jo = JsonParser.parseString(orgUnitGetResp.getResponse()).getAsJsonObject();
+            
+            orgUnitRelationships.addProperty("name", jo.get("name").getAsString());
+            orgUnitRelationships.addProperty("shortName", jo.get("shortName").getAsString());
+            orgUnitRelationships.addProperty("openingDate", jo.get("openingDate").getAsString());
+          }
+          
+          // These attributes are the ones we need to include to change the relationship
+          orgUnitRelationships.add("parent", orgUnitJsonTree.get("parent").getAsJsonObject());
+          orgUnitRelationships.addProperty("path", orgUnitJsonTree.get("path").getAsString());
+          orgUnitRelationships.addProperty("level", orgUnitJsonTree.get("level").getAsInt());
+          
+          orgUnits.add(orgUnitRelationships);
         }
+        else if (level.getSyncType() == SyncLevel.Type.ORG_UNITS)
+        {
+          JsonObject orgUnitAttributes = orgUnitJsonTree.deepCopy();
+          
+          // Drop all attributes related to the parent / hierarchy
+          orgUnitAttributes.remove("parent");
+          orgUnitAttributes.remove("path");
+          orgUnitAttributes.remove("level");
+          
+          orgUnits.add(orgUnitAttributes);
+        }
+        
+        resp = dhis2.metadataPost(params, new StringEntity(metadataPayload.toString(), Charset.forName("UTF-8")));
       }
-      catch (InvalidLoginException | HTTPException e)
+      catch (InvalidLoginException e)
       {
-        RemoteConnectionException rce = new RemoteConnectionException(e);
-        throw rce;
+        LoginException cgrlogin = new LoginException(e);
+        throw cgrlogin;
+      }
+      catch (HTTPException e)
+      {
+        HttpError cgrhttp = new HttpError(e);
+        throw cgrhttp;
       }
 
       if (!resp.isSuccess())
       {
-        ExportRemoteException re = new ExportRemoteException();
-
         if (resp.hasMessage())
         {
-          re.setRemoteError(resp.getMessage());
+          ExportRemoteException ere = new ExportRemoteException();
+          ere.setRemoteError(resp.getMessage());
+          throw ere;
         }
-
-        throw re;
-      }
-    }
-    catch (Throwable t)
-    {
-      JobExportError er = new JobExportError(rowIndex, resp, orgUnitJson.toString(), t, serverGo.getCode());
-      throw er;
-    }
-    
-    String translationJson = null;
-    DHIS2Response translationResp = null;
-    try
-    {
-      if (includeTranslations)
-      {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        
-        JsonObject payload = new JsonObject();
-        payload.add("translations", orgUnitJson.get("translations").getAsJsonArray().deepCopy());
-        
-        translationResp = dhis2.entityTranslations("organisationUnits", externalId, params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
-        
-        if (!translationResp.isSuccess())
+        else
         {
-          ExportRemoteException re = new ExportRemoteException();
-
-          if (translationResp.hasMessage())
-          {
-            re.setRemoteError(translationResp.getMessage());
-          }
-
+          UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
           throw re;
         }
       }
     }
     catch (Throwable t)
     {
-      this.exportWarning = new JobExportError(rowIndex, translationResp, translationJson, t, serverGo.getCode());
+      JobExportError er = new JobExportError(rowIndex, resp, orgUnitJson, t, serverGo.getCode());
+      throw er;
     }
   }
-
-  /*
-   * This method was used when we were posting to the metadata endpoint and
-   * doing bulk operations. We had to switch over to object-by-object posting
-   * because it's the only endpoint that supports "partial updates". I'm keeping
-   * it here for a little bit in case we need it for some reason.
-   */
-  // private void write(OutputStream out) throws IOException
-  // {
-  // try (JsonWriter jw = new JsonWriter(new OutputStreamWriter(out,
-  // Charset.forName("UTF-8"))))
-  // {
-  // jw.beginObject();
-  // {
-  // jw.name("organisationUnits").beginArray();
-  // {
-  // List<SyncLevel> levels = this.dhis2Config.getLevels();
-  //
-  // for (SyncLevel level : levels)
-  // {
-  // ServerGeoObjectType got = level.getGeoObjectType();
-  //
-  // GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got,
-  // this.syncConfig.getServerHierarchyType(), null, true,
-  // GeoObjectExportFormat.JSON_DHIS2, this.syncConfig.getExternalSystem(), -1,
-  // -1);
-  // exporter.setDHIS2Facade(this.dhis2);
-  // exporter.setSyncLevel(level);
-  // exporter.writeObjects(jw);
-  // }
-  // } jw.endArray();
-  // } jw.endObject();
-  // }
-  // }
-
-  // public InputStream export() throws IOException
-  // {
-  // PipedOutputStream pos = new PipedOutputStream();
-  // PipedInputStream pis = new PipedInputStream(pos);
-  //
-  // Thread exportThread = new Thread(new Runnable()
-  // {
-  // @Override
-  // public void run()
-  // {
-  // try
-  // {
-  // try
-  // {
-  // runInReq();
-  // }
-  // finally
-  // {
-  // pos.close();
-  // }
-  // }
-  // catch (IOException e)
-  // {
-  // logger.error("Error while writing", e);
-  // }
-  // }
-  //
-  // @Request
-  // public void runInReq()
-  // {
-  // try
-  // {
-  // DataExportJob.this.write(pos);
-  // }
-  // catch (Throwable t)
-  // {
-  // logger.error("Data Export Job encountered error while writing to stream.",
-  // t);
-  //
-  // if (t instanceof RuntimeException)
-  // {
-  // throw (RuntimeException) t;
-  // }
-  // else
-  // {
-  // throw new RuntimeException(t);
-  // }
-  // }
-  // }
-  // });
-  // exportThread.setDaemon(true);
-  // exportThread.start();
-  //
-  // return pis;
-  // }
 
   @Override
   protected JobHistory createNewHistory()
