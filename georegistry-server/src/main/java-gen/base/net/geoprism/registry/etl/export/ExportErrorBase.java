@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = 71833330)
+@com.runwaysdk.business.ClassSignature(hash = 308839031)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -33,7 +33,9 @@ public abstract class ExportErrorBase extends com.runwaysdk.business.Business
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String ERRORCODE = "errorCode";
   public static java.lang.String ERRORJSON = "errorJson";
+  public static java.lang.String ERRORMESSAGE = "errorMessage";
   public static java.lang.String HISTORY = "history";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -47,7 +49,7 @@ public abstract class ExportErrorBase extends com.runwaysdk.business.Business
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String SUBMITTEDJSON = "submittedJson";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 71833330;
+  private static final long serialVersionUID = 308839031;
   
   public ExportErrorBase()
   {
@@ -178,6 +180,34 @@ public abstract class ExportErrorBase extends com.runwaysdk.business.Business
     }
   }
   
+  public Integer getErrorCode()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(ERRORCODE));
+  }
+  
+  public void validateErrorCode()
+  {
+    this.validateAttribute(ERRORCODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getErrorCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.export.ExportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(ERRORCODE);
+  }
+  
+  public void setErrorCode(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(ERRORCODE, "");
+    }
+    else
+    {
+      setValue(ERRORCODE, java.lang.Integer.toString(value));
+    }
+  }
+  
   public String getErrorJson()
   {
     return getValue(ERRORJSON);
@@ -203,6 +233,34 @@ public abstract class ExportErrorBase extends com.runwaysdk.business.Business
     else
     {
       setValue(ERRORJSON, value);
+    }
+  }
+  
+  public String getErrorMessage()
+  {
+    return getValue(ERRORMESSAGE);
+  }
+  
+  public void validateErrorMessage()
+  {
+    this.validateAttribute(ERRORMESSAGE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getErrorMessageMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.export.ExportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ERRORMESSAGE);
+  }
+  
+  public void setErrorMessage(String value)
+  {
+    if(value == null)
+    {
+      setValue(ERRORMESSAGE, "");
+    }
+    else
+    {
+      setValue(ERRORMESSAGE, value);
     }
   }
   

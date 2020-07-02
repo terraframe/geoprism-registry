@@ -335,16 +335,23 @@ public class DataExportJob extends DataExportJobBase
       exportError.setSubmittedJson(ee.submittedJson);
     }
     
-    if (resp != null && resp.hasErrorReports())
+    if (resp != null)
     {
-      List<ErrorReport> reports = resp.getErrorReports();
+      if (resp.getResponse() != null && resp.getResponse().length() > 0)
+      {
+        exportError.setResponseJson(resp.getResponse());
+        
+        if (resp.hasErrorReports())
+        {
+          List<ErrorReport> reports = resp.getErrorReports();
+          
+          ErrorReport report = reports.get(0);
+          
+          exportError.setErrorMessage(report.getMessage());
+        }
+      }
       
-      ErrorReport report = reports.get(0);
-      
-      GsonBuilder builder = new GsonBuilder();
-      Gson gson = builder.create();
-      
-      exportError.setResponseJson(gson.toJson(report));
+      exportError.setErrorCode(resp.getStatusCode());
     }
     
     exportError.setCode(geoObjectCode);
@@ -469,22 +476,30 @@ public class DataExportJob extends DataExportJobBase
         
         resp = dhis2.metadataPost(params, new StringEntity(metadataPayload.toString(), Charset.forName("UTF-8")));
       }
-      catch (InvalidLoginException | HTTPException e)
+      catch (InvalidLoginException e)
       {
-        RemoteConnectionException rce = new RemoteConnectionException(e);
-        throw rce;
+        LoginException cgrlogin = new LoginException(e);
+        throw cgrlogin;
+      }
+      catch (HTTPException e)
+      {
+        HttpError cgrhttp = new HttpError(e);
+        throw cgrhttp;
       }
 
       if (!resp.isSuccess())
       {
-        ExportRemoteException re = new ExportRemoteException();
-
         if (resp.hasMessage())
         {
-          re.setRemoteError(resp.getMessage());
+          ExportRemoteException ere = new ExportRemoteException();
+          ere.setRemoteError(resp.getMessage());
+          throw ere;
         }
-
-        throw re;
+        else
+        {
+          UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
+          throw re;
+        }
       }
     }
     catch (Throwable t)
