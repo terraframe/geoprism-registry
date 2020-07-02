@@ -72,12 +72,11 @@ export class AccountComponent implements OnInit {
         }
     }
 
-    public onEdit: Subject<User>;
+    public onEdit: Subject<Account>;
 
     constructor(
         private service: AccountService,
         private authService: AuthService,
-        private location: Location,
         public bsModalRef: BsModalRef,
         private localizeService: LocalizationService
     ) {

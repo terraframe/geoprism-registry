@@ -130,7 +130,7 @@ export class AccountService {
             .toPromise();
     }
 
-    apply( user: User, roleNames: string[] ): Promise<User> {
+    apply( user: User, roleNames: string[] ): Promise<Account> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<User>( acp + '/registryaccount/apply', JSON.stringify( { account: user, roleNames: roleNames } ), { headers: headers } )
+            .post<Account>( acp + '/registryaccount/apply', JSON.stringify( { account: user, roleNames: roleNames } ), { headers: headers } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
