@@ -39,9 +39,7 @@
     <delete>
       <object key="net.geoprism.registry.etl.export.ExportError" type="com.runwaysdk.system.metadata.MdBusiness"/>
       <object key="net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError" type="com.runwaysdk.system.metadata.MdException"/>
-      <!--
       <object key="net.geoprism.registry.etl.ExportJobHasErrors" type="com.runwaysdk.system.metadata.MdException"/>
-      -->
     </delete>
   </undoIt>
 </version>

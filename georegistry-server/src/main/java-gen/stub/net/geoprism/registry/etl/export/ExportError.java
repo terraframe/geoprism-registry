@@ -19,16 +19,6 @@ public class ExportError extends ExportErrorBase
     super();
   }
   
-  public ErrorReport getErrorReport()
-  {
-    String json = this.getResponseJson();
-    
-    GsonBuilder builder = new GsonBuilder();
-    Gson gson = builder.create();
-    
-    return gson.fromJson(json, ErrorReport.class);
-  }
-  
   public JsonObject toJson()
   {
     JsonObject jo = new JsonObject();
@@ -38,9 +28,9 @@ public class ExportError extends ExportErrorBase
       jo.addProperty("code", this.getCode());
     }
     
-    if (this.getResponseJson() != null && this.getResponseJson().length() > 0)
+    if (this.getErrorMessage() != null && this.getErrorMessage().length() > 0)
     {
-      jo.addProperty("message", this.getErrorReport().getMessage());
+      jo.addProperty("message", this.getErrorMessage());
     }
     else if (this.getErrorJson() != null && this.getErrorJson().length() > 0)
     {

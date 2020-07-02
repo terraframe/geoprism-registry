@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.etl.export.HttpError" message="The CGR encountered an error while communicating with the DHIS2 server." exported="false" publish="false">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.etl.export.UnexpectedRemoteResponse" message="The DHIS2 server responded with an unexpected error." exported="false" publish="false">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.etl.export.LoginException" message="We were unable to login using the provided authentication credentials." exported="false" publish="false">
+      </mdException>
+    </create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.etl.export.ExportError">
+        <create>
+          <attributes>
+            <integer name="errorCode" label="errorCode" />
+            <text name="errorMessage" label="errorMessage" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.export.HttpError" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.etl.export.UnexpectedRemoteResponse" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.etl.export.LoginException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.etl.export.ExportError.errorCode" type="com.runwaysdk.system.metadata.MdAttributeInteger"/>
+    </delete>
+  </undoIt>
+</version>

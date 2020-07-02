@@ -64,7 +64,7 @@ public class DHIS2ImportResponse extends DHIS2Response
   {
     JsonObject jo = this.getJsonObject();
     
-    return jo != null && jo.has("message");
+    return jo != null && jo.has("message") && jo.get("message").getAsString().length() > 0;
   }
   
   public Boolean hasErrorReports()
