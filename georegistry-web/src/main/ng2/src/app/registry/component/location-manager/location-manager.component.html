@@ -1,0 +1,115 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+
+  <div id="app-container" class="container-fluid">
+
+    <div class="row">
+      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
+        <div class="row">
+          <div class="col-md-12">
+
+            <div class="row">
+              <div class="col-md-12" style="height: 56px; overflow: scroll;">
+                <ul class="breadcrumb" style="background-color: white;">
+                  <li *ngIf="current != null">
+                    <i class="fa fa-angle-left breadcrumb-back-ico" aria-hidden="true"></i>
+                    <a (click)="back(null)" style="color: #007276;">Root</a>
+                  </li>
+                  <li *ngFor="let entity of breadcrumbs; last as isLast" [ngClass]="{'active':isLast}">
+                    <a *ngIf="!isLast" (click)="back(entity)" style="color: #007276;"> {{entity.properties.displayLabel.localizedValue}}</a>
+                    <span *ngIf="isLast">
+                      <b>{{entity.properties.displayLabel.localizedValue}}</b>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Search bar -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="location-management-widget-section">
+                  <!-- 
+                        <input class="form-control search-input" type="text" placeholder="Search..." [(ngModel)]="search"
+                          [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="handleClick($event)"
+                          [typeaheadOptionsLimit]="10" [typeaheadItemTemplate]="bsItemTemplate" typeaheadOptionField="label"
+                          [ngModelOptions]="{standalone: true}" (keydown.enter)="$event.preventDefault()" />
+ -->
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="location-management-widget-section">
+                  <select id="hierarchy" name="hierarchy" class="select-area" [(ngModel)]="data.hierarchy" required>
+                    <option *ngFor="let hierarchy of data.hierarchies" [value]="hierarchy.code">{{hierarchy.label.localizedValue}}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="location-management-widget-section">
+                  <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="data.childType" required>
+                    <option *ngFor="let type of data.types" [value]="type.code">{{type.label.localizedValue}}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- <hr> -->
+
+        <div class="row">
+          <div class="col-md-12">
+
+            <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container" style="overflow-y: auto;">
+              <div class="list-group">
+
+                <!-- If -->
+                <div *ngIf="data.geojson.features.length < 1 && breadcrumbs.length === 0" style="padding: 20px; text-align: center; color: grey;">
+                  <h4>No Sites in this area.</h4>
+                  <p>Zoom out to find sites in other areas of the map.</p>
+                </div>
+
+                <div *ngFor="let node of data.geojson.features; let i = index" class="list-group-item">
+
+                  <!-- Single column card -->
+                  <div class="card card-default clickable" (click)="select(node, null, $event)">
+                    <div class="card-body">
+                      <h4 style="word-break: break-all;">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-md-9" id="site-explorer-map">
+        <div class="row">
+          <article class="base-layer-panel">
+            <div class="layer-toggle" style="cursor: pointer; background: #fff; padding: 8px; border-radius: 4px;" (mouseenter)="baselayerIconHover = true" (mouseleave)="baselayerIconHover = false">
+              <i class="fas fa-layer-group" *ngIf="!baselayerIconHover" style="vertical-align: middle; font-size: 18px;"></i>
+              <div *ngIf="baselayerIconHover">
+                <div class="row-form" *ngFor="let baseLayer of baseLayers">
+                  <input class="layer-toggle-input" type='radio' name='rtoggle' [value]='baseLayer.id' [checked]="baseLayer.selected" (change)="handleStyle(baseLayer)"> <label class="layer-toggle-label">{{baseLayer.label}}</label>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div id="mousemove-panel" class="mapboxgl-ctrl-bottom-right" style="background: rgba(255, 255, 255, .5); right: 0; padding: 0 5px 0 5px; bottom: 15px;"></div>
+
+          <div id="map" class="map-view-port"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

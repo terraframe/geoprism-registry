@@ -142,7 +142,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.setId("locations");
     management.setLabel(LocalizationFacadeDTO.getFromBundles(request, "navigator.landing"));
     management.setSrc("net/geoprism/images/map_icon.svg");
-    management.setUrl("nav/management#locations");
+    management.setUrl("cgr/manage#/registry/location-manager");
     management.setDescription(LocalizationFacadeDTO.getFromBundles(request, "navigator.landing.description"));
     management.addRole(RoleConstants.ADIM_ROLE);
     management.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
