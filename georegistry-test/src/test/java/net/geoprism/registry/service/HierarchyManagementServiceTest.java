@@ -29,6 +29,7 @@ import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
+import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -105,7 +106,11 @@ public class HierarchyManagementServiceTest
 
   private static String                ROOT_TEST_TERM_KEY           = null;
 
-  private static String                ORG_MOI                      = "MOI";
+//  private static String                ORG_MOI                      = "MOI";
+  
+  public static final String TEST_KEY = "HiearchyManTest";
+  
+  public static TestOrganizationInfo moiOrg = new TestOrganizationInfo(TEST_KEY + "MOI", TEST_KEY + "MOI");
 
   protected static USATestData         testData;
 
@@ -114,6 +119,8 @@ public class HierarchyManagementServiceTest
   {
     testData = USATestData.newTestDataForClass();
     testData.setUpMetadata();
+    
+    moiOrg.apply();
 
     COUNTRY = testData.newTestGeoObjectTypeInfo("HMST_Country", testData.ORG_NPS);
     PROVINCE = testData.newTestGeoObjectTypeInfo("HMST_Province", testData.ORG_NPS);
@@ -133,6 +140,8 @@ public class HierarchyManagementServiceTest
     {
       testData.tearDownMetadata();
     }
+    
+    moiOrg.delete();
   }
 
   @Before
@@ -142,10 +151,10 @@ public class HierarchyManagementServiceTest
     {
       testData.setUpInstanceData();
 
-      for (TestGeoObjectTypeInfo got : testData.getManagedGeoObjectTypeExtras())
-      {
-        got.delete();
-      }
+//      for (TestGeoObjectTypeInfo got : testData.getManagedGeoObjectTypeExtras())
+//      {
+//        got.delete();
+//      }
     }
 
     setUpInRequest();
@@ -352,61 +361,65 @@ public class HierarchyManagementServiceTest
       catch (DataNotFoundException e)
       {
       }
-      try
-      {
-        Organization organization = Organization.getByKey(ORG_MOI);
-        organization.delete();
-      }
-      catch (DataNotFoundException e)
-      {
-      }
+//      try
+//      {
+//        Organization organization = Organization.getByKey(moiOrg.getCode());
+//        organization.delete();
+//      }
+//      catch (DataNotFoundException e)
+//      {
+//      }
     }
     catch (RuntimeException e)
     {
       e.printStackTrace();
     }
   }
-
-  @Test
-  public void testCreateOganization()
-  {
-    OrganizationDTO orgDTOclient = this.createOrganization(ORG_MOI);
-    
-    try
-    {
-      OrganizationDTO[] orgs = service.getOrganizations(testData.adminSession.getSessionId(), new String[] { ORG_MOI });
-
-      Assert.assertEquals("Organization was not properly created", 1, orgs.length);
-
-      OrganizationDTO orgDTOserver = orgs[0];
-
-      Assert.assertEquals("Organization code was not correct", orgDTOclient.getCode(), orgDTOserver.getCode());
-      Assert.assertEquals("Organization label was not correct", orgDTOclient.getLabel().getValue(), orgDTOserver.getLabel().getValue());
-      Assert.assertEquals("Organization contact info was not correct", orgDTOclient.getContactInfo().getValue(), orgDTOserver.getContactInfo().getValue());
-    }
-    finally
-    {
-      this.deleteOrganization(ORG_MOI);
-    }
-  }
   
-  private OrganizationDTO createOrganization(String organizationCode)
-  {
-    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-
-    OrganizationDTO orgDTOclient = MetadataFactory.newOrganization(organizationCode, new LocalizedValue("Ministry of Interior"), new LocalizedValue("Contact Joe at..."), registry);
-
-    String gtJSON = orgDTOclient.toJSON().toString();
-
-    service.createOrganization(testData.adminSession.getSessionId(), gtJSON);
-    
-    return orgDTOclient;
-  }
+//  private OrganizationDTO createOrganization(String organizationCode)
+//  {
+//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+//
+//    OrganizationDTO orgDTOclient = MetadataFactory.newOrganization(organizationCode, new LocalizedValue("Ministry of Interior"), new LocalizedValue("Contact Joe at..."), registry);
+//
+//    String gtJSON = orgDTOclient.toJSON().toString();
+//
+//    service.createOrganization(testData.adminSession.getSessionId(), gtJSON);
+//    
+//    return orgDTOclient;
+//  }
+//
+//  @Test
+//  public void testCreateOganization()
+//  {
+//    OrganizationDTO[] orgs = service.getOrganizations(testData.adminSession.getSessionId(), new String[] { moiOrg.getCode() });
+//
+//    Assert.assertEquals("Organization was not properly created", 1, orgs.length);
+//
+//    OrganizationDTO orgDTOserver = orgs[0];
+//
+//    Assert.assertEquals("Organization code was not correct", orgDTOclient.getCode(), orgDTOserver.getCode());
+//    Assert.assertEquals("Organization label was not correct", orgDTOclient.getLabel().getValue(), orgDTOserver.getLabel().getValue());
+//    Assert.assertEquals("Organization contact info was not correct", orgDTOclient.getContactInfo().getValue(), orgDTOserver.getContactInfo().getValue());
+//  }
   
-  private void deleteOrganization(String organizationCode)
-  {
-    service.deleteOrganization(testData.adminSession.getSessionId(), organizationCode);
-  }
+//  private OrganizationDTO createOrganization(String organizationCode)
+//  {
+//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+//
+//    OrganizationDTO orgDTOclient = MetadataFactory.newOrganization(organizationCode, new LocalizedValue("Ministry of Interior"), new LocalizedValue("Contact Joe at..."), registry);
+//
+//    String gtJSON = orgDTOclient.toJSON().toString();
+//
+//    service.createOrganization(testData.adminSession.getSessionId(), gtJSON);
+//    
+//    return orgDTOclient;
+//  }
+//  
+//  private void deleteOrganization(String organizationCode)
+//  {
+//    service.deleteOrganization(testData.adminSession.getSessionId(), organizationCode);
+//  }
 
   @Test
   public void testCreateGeoObjectType()
@@ -430,32 +443,19 @@ public class HierarchyManagementServiceTest
   {
     GeoObjectType serverProvince = null;
     
-    String organizationCode = ORG_MOI;
-    this.createOrganization(organizationCode);
+    String organizationCode = moiOrg.getCode();
     
-    try
-    {
-      RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-      GeoObjectType clientProvince = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true,  organizationCode, registry);
+    GeoObjectType clientProvince = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true,  organizationCode, registry);
 
-      String gtJSON = clientProvince.toJSON().toString();
+    String gtJSON = clientProvince.toJSON().toString();
 
-      serverProvince = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+    serverProvince = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
-      Assert.assertEquals("Organization code was not properly returned from the server", organizationCode, serverProvince.getOrganizationCode());
-      
-      checkMdBusinessAttributes(PROVINCE.getCode());
-    }
-    finally
-    {
-      if (serverProvince != null)
-      {
-        service.deleteGeoObjectType(testData.adminSession.getSessionId(), PROVINCE.getCode());
-      }
- 
-      this.deleteOrganization(organizationCode);
-    }
+    Assert.assertEquals("Organization code was not properly returned from the server", organizationCode, serverProvince.getOrganizationCode());
+    
+    checkMdBusinessAttributes(PROVINCE.getCode());
   }
 
   @Request
@@ -1221,49 +1221,35 @@ public class HierarchyManagementServiceTest
   {
     HierarchyType reportingDivision = null;
 
-    String organizationCode = ORG_MOI;
+    String organizationCode = moiOrg.getCode();
     
-    this.createOrganization(organizationCode);
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+  
+    reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
+    String gtJSON = reportingDivision.toJSON().toString();
+
+    ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+
+    HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
+
+    Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
+
+    Assert.assertEquals("The wrong number of hierarchies were returned.", 1, hierarchies.length);
+
+    HierarchyType hierarchy = hierarchies[0];
+
+    Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
     
-    try
-    {
-      RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-    
-      reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
-      String gtJSON = reportingDivision.toJSON().toString();
+    Assert.assertEquals(organizationCode, hierarchy.getOrganizationCode());
 
-      ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+    // test the types that were created
+    String mdTermRelUniversal = ServerHierarchyType.buildMdTermRelUniversalKey(reportingDivision.getCode());
+    String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
+    Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
 
-      HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
-
-      Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
-
-      Assert.assertEquals("The wrong number of hierarchies were returned.", 1, hierarchies.length);
-
-      HierarchyType hierarchy = hierarchies[0];
-
-      Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
-      
-      Assert.assertEquals(organizationCode, hierarchy.getOrganizationCode());
-
-      // test the types that were created
-      String mdTermRelUniversal = ServerHierarchyType.buildMdTermRelUniversalKey(reportingDivision.getCode());
-      String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
-      Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
-
-      String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
-      String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
-      Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
-    }
-    finally
-    {
-      if (reportingDivision != null)
-      {
-        ServiceFactory.getHierarchyService().deleteHierarchyType(testData.adminSession.getSessionId(), REPORTING_DIVISION.getCode());
-      }
-      
-      this.deleteOrganization(organizationCode);
-    }
+    String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
+    String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
+    Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
   }
 
   @Test

@@ -33,8 +33,6 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class TestHierarchyTypeInfo
 {
-  private final TestDataSet testDataSet;
-  
   private String                  code;
   
   private String                  displayLabel;
@@ -45,15 +43,13 @@ public class TestHierarchyTypeInfo
   
   private ServerHierarchyType     serverObj;
   
-  protected TestHierarchyTypeInfo(TestDataSet testDataSet, String genKey, TestOrganizationInfo org)
+  protected TestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
-    this.testDataSet = testDataSet;
     initialize(genKey, org);
   }
   
-  protected TestHierarchyTypeInfo(TestDataSet testDataSet, String code, String displayLabel, TestOrganizationInfo org)
+  protected TestHierarchyTypeInfo(String code, String displayLabel, TestOrganizationInfo org)
   {
-    this.testDataSet = testDataSet;
     this.code = code;
     this.displayLabel = displayLabel;
     this.org = org;
@@ -61,8 +57,8 @@ public class TestHierarchyTypeInfo
   
   private void initialize(String genKey, TestOrganizationInfo org)
   {
-    this.code = this.testDataSet.getTestDataKey() + genKey + "Code";
-    this.displayLabel = this.testDataSet.getTestDataKey() + " " + genKey + " Display Label";
+    this.code = genKey + "Code";
+    this.displayLabel = genKey + " Display Label";
     this.org = org;
   }
 
@@ -170,11 +166,6 @@ public class TestHierarchyTypeInfo
   @Transaction
   private void deleteInTrans()
   {
-    if (this.testDataSet.debugMode >= 1)
-    {
-      System.out.println("Deleting TestHierarchyTypeInfo [" + this.getCode() + "].");
-    }
-
     ServerHierarchyType serverHOT = getServerObject();
     
     if (serverHOT != null)
