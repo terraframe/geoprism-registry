@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -47,6 +48,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class Organization extends OrganizationBase
 {
@@ -97,6 +99,17 @@ public class Organization extends OrganizationBase
    */
   public void delete()
   {
+    // Can't delete if there's existing data
+    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    
+    for (HierarchyType ht : hierarchyTypes)
+    {
+      if (ht.getOrganizationCode().equals(this.getCode()))
+      {
+        throw new ObjectHasDataException();
+      }
+    }
+    
     try
     {
       Roles raOrgRole = this.getRegistryAdminiRole();
