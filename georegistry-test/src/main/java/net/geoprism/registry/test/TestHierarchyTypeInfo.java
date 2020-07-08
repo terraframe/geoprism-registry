@@ -173,6 +173,8 @@ public class TestHierarchyTypeInfo
       serverHOT.delete();
     }
     
+    this.serverObj = null;
+    
 //    MdClass mdTermRelationship = this.testDataSet.getMdClassIfExist(GISConstants.GEO_PACKAGE, this.getCode());
 //    
 //    if (mdTermRelationship != null)

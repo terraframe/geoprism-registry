@@ -50,6 +50,7 @@ import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
@@ -69,10 +70,19 @@ public class MasterListTest
     testData = USATestData.newTestDataForClass(true, new Date());
     testData.setUpMetadata();
 
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), testTerm.toJSON().toString());
+    setUpInReq();
 
     reload();
+  }
+  
+  @Request
+  private static void setUpInReq()
+  {
+    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+//    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(null, testData.STATE.getCode(), testTerm.toJSON().toString());
+    
+    ServerGeoObjectType got = ServerGeoObjectType.get(testData.STATE.getCode());
+    testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
   }
 
   @Request

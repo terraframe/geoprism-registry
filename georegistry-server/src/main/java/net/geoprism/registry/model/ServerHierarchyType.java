@@ -188,10 +188,23 @@ public class ServerHierarchyType
     this.entityRelationship.unlock();
   }
 
-  @Transaction
   public void delete()
   {
-    // They can't delete it if there's existing data
+    deleteInTrans();
+    
+    if (Session.getCurrentSession() != null)
+    {
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    }
+
+    // No error at this point so the transaction completed successfully.
+    ServiceFactory.getAdapter().getMetadataCache().removeHierarchyType(this.getCode());
+  }
+  
+  @Transaction
+  private void deleteInTrans()
+  {
+ // They can't delete it if there's existing data
     Universal root = Universal.getRoot();
     OIterator<? extends Business> it = root.getChildren(this.getUniversalRelationship().definesType());
     if (it.hasNext())
