@@ -15,6 +15,7 @@ import { TaskViewerComponent } from './component/task-viewer/task-viewer.compone
 import { SynchronizationConfigManagerComponent } from './component/synchronization-config/synchronization-config-manager.component';
 import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
 import { SyncDetailsComponent } from './component/synchronization-config/details.component';
+import { LocationManagerComponent } from './component/location-manager/location-manager.component';
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from '../shared/service/guard.service';
 
@@ -82,6 +83,11 @@ const routes: Routes = [
     {
         path: 'synchronization-config/:oid',
         component: SynchronizationConfigComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'location-manager',
+        component: LocationManagerComponent,
         canActivate: [AuthGuard]
     },
     {

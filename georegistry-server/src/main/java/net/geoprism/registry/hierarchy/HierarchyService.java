@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -57,11 +57,14 @@ public class HierarchyService
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
 
+    HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
+    SingleActorDAOIF user = Session.getCurrentSession().getUser();
+
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
       ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
-      if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), sType.getOrganization().getCode()))
+      if (pService.canRead(user, hierarchyType.getOrganizationCode()))
       {
         // Note: Ordered ancestors always includes self
         Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
@@ -106,12 +109,15 @@ public class HierarchyService
 
       for (HierarchyType hierarchyType : hierarchyTypes)
       {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", hierarchyType.getCode());
-        object.addProperty("label", hierarchyType.getLabel().getValue());
-        object.add("parents", new JsonArray());
+        if (pService.canRead(user, hierarchyType.getOrganizationCode()))
+        {
+          JsonObject object = new JsonObject();
+          object.addProperty("code", hierarchyType.getCode());
+          object.addProperty("label", hierarchyType.getLabel().getValue());
+          object.add("parents", new JsonArray());
 
-        hierarchies.add(object);
+          hierarchies.add(object);
+        }
       }
     }
 

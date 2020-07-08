@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -102,9 +102,9 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
-  private static final Logger              logger            = LoggerFactory.getLogger(GeoObjectImporter.class);
+  private static final Logger              logger                     = LoggerFactory.getLogger(GeoObjectImporter.class);
 
-  protected static final String            ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
+  protected static final String            ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
   protected GeoObjectImportConfiguration   configuration;
 
@@ -112,13 +112,13 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected Map<String, ServerGeoObjectIF> parentCache;
 
-  protected static final String            parentConcatToken = "&";
+  protected static final String            parentConcatToken          = "&";
 
   protected ImportProgressListenerIF       progressListener;
 
   protected FormatSpecificImporterIF       formatImporter;
-  
-  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
+
+  private GeoObjectPermissionServiceIF     geoObjectPermissionService = new GeoObjectPermissionService();
 
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
@@ -201,7 +201,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           tnParent.setEndDate(GeoObjectImporter.this.configuration.getEndDate());
 
           tnParent.addParent(ptn);
-          
+
           ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(GeoObjectImporter.this.configuration.getType());
           parentsOverTime.add(hierarchy, tnParent);
 
@@ -255,7 +255,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
         }
       }
-      
+
       /*
        * 1. Check for location problems
        */
@@ -379,7 +379,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       RowValidationProblem problem = new RowValidationProblem(t);
       problem.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
       problem.setHistoryId(this.configuration.historyId);
-      
+
       this.progressListener.addRowValidationProblem(problem);
     }
 
@@ -432,7 +432,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     ServerGeoObjectIF serverGo = null;
 
     ServerGeoObjectIF parent = null;
-    
+
     boolean isNew = false;
 
     GeoObjectParentErrorBuilder parentBuilder = new GeoObjectParentErrorBuilder();
@@ -526,10 +526,10 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
           }
-          
+
           go = serverGo.toGeoObjectOverTime();
           goJson = go.toJSON().toString();
-          
+
           /*
            * Try to get the parent and ensure that this row is not ignored. The
            * getParent method will throw a IgnoreRowException if the parent is
@@ -553,17 +553,15 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
 
           serverGo.apply(true);
-          
-          
+
           if (this.configuration.isExternalImport())
           {
             ShapefileFunction function = this.configuration.getExternalIdFunction();
-            
+
             Object value = function.getValue(row);
-            
+
             serverGo.createExternalId(this.configuration.getExternalSystem(), (String) value);
           }
-          
 
           if (parent != null)
           {
@@ -610,7 +608,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         obj.put("geoObject", new JSONObject(goJson));
       }
-      
+
       obj.put("isNew", isNew);
 
       RecordedErrorException re = new RecordedErrorException();
@@ -623,7 +621,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
   }
-  
+
   private boolean hasValue(LocalizedValue value)
   {
     String defaultLocale = value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
@@ -658,7 +656,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     return null;
   }
-  
+
   /**
    * Returns the entity as defined by the 'parent' and 'parentType' attributes
    * of the given feature. If an entity is not found then Earth is returned by
@@ -709,9 +707,9 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           continue;
         }
-        
+
         final ParentMatchStrategy ms = location.getMatchStrategy();
-        
+
         // Search
         ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
 
@@ -726,7 +724,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         else if (ms.equals(ParentMatchStrategy.DHIS2_PATH))
         {
           String path = label.toString();
-          
+
           String dhis2Parent;
           try
           {
@@ -734,9 +732,9 @@ public class GeoObjectImporter implements ObjectImporterIF
             {
               path = path.substring(1);
             }
-            
+
             String pathArr[] = path.split("/");
-            
+
             dhis2Parent = pathArr[pathArr.length - 2];
           }
           catch (Throwable t)
@@ -745,7 +743,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             ex.setDhis2Path(path);
             throw ex;
           }
-          
+
           query.setRestriction(new ServerExternalIdRestriction(this.getConfiguration().getExternalSystem(), dhis2Parent));
         }
         else
@@ -811,7 +809,7 @@ public class GeoObjectImporter implements ObjectImporterIF
               ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
               prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
               prp.setHistoryId(this.configuration.historyId);
-              
+
               this.progressListener.addReferenceProblem(prp);
             }
 
@@ -919,7 +917,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
           trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
           trp.setHistoryId(this.configuration.getHistoryId());
-          
+
           this.progressListener.addReferenceProblem(trp);
         }
         else

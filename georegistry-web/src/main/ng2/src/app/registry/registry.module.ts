@@ -76,6 +76,7 @@ import { SynchronizationConfigModalComponent } from './component/synchronization
 import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
 import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 
+import { LocationManagerComponent } from './component/location-manager/location-manager.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -186,7 +187,9 @@ import '../rxjs-extensions';
 		SynchronizationConfigManagerComponent,
 		SynchronizationConfigModalComponent,
 		SynchronizationConfigComponent,
-		SyncDetailsComponent
+		SyncDetailsComponent,
+		// Location manager
+		LocationManagerComponent
 	],
 	providers: [
 		MapService,
