@@ -275,17 +275,21 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	refresh(zoom: boolean): void {
-		this.mapService.roots(null, null).then(data => {
-			(<any>this.map.getSource('children')).setData(data.geojson);
 
-			this.data = data;
+		if (this.current == null) {
+			this.mapService.roots(null, null).then(data => {
+				(<any>this.map.getSource('children')).setData(data.geojson);
 
-			//			if (zoom) {
-			//				let bounds = new LngLatBounds([data.bbox[0], data.bbox[1]], [data.bbox[2], data.bbox[3]]);
-			//
-			//				this.map.fitBounds(bounds, { padding: 50 });
-			//			}
-		});
+				this.data = data;
+			});
+		} else {
+			this.mapService.select(this.current.properties.code, this.current.properties.type, this.data.childType, this.data.hierarchy).then(data => {
+				(<any>this.map.getSource('children')).setData(data.geojson);
+
+				this.data = data;
+			});
+		}
+
 	}
 
 	zoomToFeature(node: GeoObject): void {
