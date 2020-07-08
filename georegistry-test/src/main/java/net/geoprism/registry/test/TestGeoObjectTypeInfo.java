@@ -44,8 +44,6 @@ import net.geoprism.registry.service.WMSService;
 
 public class TestGeoObjectTypeInfo
   {
-    private TestDataSet testDataSet;
-
     private Universal                   universal;
 
     private String                      code;
@@ -66,22 +64,26 @@ public class TestGeoObjectTypeInfo
     
     private TestOrganizationInfo        organization;
     
-    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, TestOrganizationInfo organization)
+    public TestGeoObjectTypeInfo(String orgCode, String gotCode)
     {
-      initialize(testDataSet, genKey, GeometryType.MULTIPOLYGON, organization);
+      this.initialize(orgCode, GeometryType.MULTIPOLYGON, new TestOrganizationInfo(orgCode, orgCode));
     }
     
-    protected TestGeoObjectTypeInfo(TestDataSet testDataSet, String genKey, GeometryType geomType, TestOrganizationInfo organization)
+    public TestGeoObjectTypeInfo(String gotCode, TestOrganizationInfo organization)
     {
-      initialize(testDataSet, genKey, geomType, organization);
+      initialize(gotCode, GeometryType.MULTIPOLYGON, organization);
     }
     
-    private void initialize(TestDataSet testDataSet, String genKey, GeometryType geomType, TestOrganizationInfo organization)
+    public TestGeoObjectTypeInfo(String gotCode, GeometryType geomType, TestOrganizationInfo organization)
     {
-      this.testDataSet = testDataSet;
-      this.code = this.testDataSet.getTestDataKey() + genKey;
-      this.displayLabel = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey);
-      this.description = new LocalizedValue(this.testDataSet.getTestDataKey() + " " + genKey);
+      initialize(gotCode, geomType, organization);
+    }
+    
+    private void initialize(String genKey, GeometryType geomType, TestOrganizationInfo organization)
+    {
+      this.code = genKey;
+      this.displayLabel = new LocalizedValue(genKey);
+      this.description = new LocalizedValue(genKey);
       this.children = new LinkedList<TestGeoObjectTypeInfo>();
       this.geomType = geomType;
       this.isLeaf = false; // Leaf types are not supported anymore
@@ -149,7 +151,7 @@ public class TestGeoObjectTypeInfo
         }
         else
         {
-          Universal uni = this.testDataSet.getUniversalIfExist(getCode());
+          Universal uni = TestDataSet.getUniversalIfExist(getCode());
           
           if (uni == null)
           {
@@ -213,20 +215,15 @@ public class TestGeoObjectTypeInfo
       applyInTrans();
 
       // If this did not error out then add to the cache
-      this.testDataSet.adapter.getMetadataCache().addGeoObjectType(this.serverObject.getType());
+      ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(this.serverObject.getType());
     }
 
     @Transaction
     private void applyInTrans()
     {
-      if (this.testDataSet.debugMode >= 1)
-      {
-        System.out.println("Applying TestGeoObjectTypeInfo [" + this.getCode() + "].");
-      }
-
       String organizationCode = this.getOrganization().getCode();
  
-      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, this.testDataSet.adapter);
+      GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, ServiceFactory.getAdapter());
 
       this.serverObject = new ServerGeoObjectTypeConverter().create(got);
 
@@ -244,11 +241,6 @@ public class TestGeoObjectTypeInfo
     @Transaction
     private void deleteInTrans()
     {
-      if (this.testDataSet.debugMode >= 1)
-      {
-        System.out.println("Deleting TestGeoObjectTypeInfo [" + this.getCode() + "].");
-      }
-      
       ServerGeoObjectType type = this.getServerObject();
       
       if (type != null)
@@ -287,7 +279,7 @@ public class TestGeoObjectTypeInfo
       
       if (exists)
       {
-        MdClass universal = this.testDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
+        MdClass universal = TestDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
         
         exists = universal != null;
       }

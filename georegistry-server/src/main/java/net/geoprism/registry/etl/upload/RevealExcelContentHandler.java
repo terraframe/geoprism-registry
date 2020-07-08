@@ -26,6 +26,8 @@ import org.wololo.jts2geojson.GeoJSONReader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.RunwayException;
+import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ExceptionUtil;
@@ -196,7 +198,9 @@ public class RevealExcelContentHandler extends ExcelContentHandler
     }
     catch (Throwable t)
     {
-      throw new InvalidGeometryException(t);
+      InvalidGeometryException geomEx = new InvalidGeometryException(t);
+      geomEx.setReason(RunwayException.localizeThrowable(t, Session.getCurrentLocale()));
+      throw geomEx;
     }
   }
 }

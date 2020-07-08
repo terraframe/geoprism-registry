@@ -26,6 +26,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.ontology.TermAndRel;
@@ -38,6 +39,7 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
@@ -56,6 +58,7 @@ import com.runwaysdk.system.ontology.TermUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
+import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -188,6 +191,14 @@ public class ServerHierarchyType
   @Transaction
   public void delete()
   {
+    // They can't delete it if there's existing data
+    Universal root = Universal.getRoot();
+    OIterator<? extends Business> it = root.getChildren(this.getUniversalRelationship().definesType());
+    if (it.hasNext())
+    {
+      throw new ObjectHasDataException();
+    }
+    
     Universal.getStrategy().shutdown(this.universalRelationship.definesType());
 
     AttributeHierarchy.deleteByRelationship(this.universalRelationship);
@@ -373,7 +384,13 @@ public class ServerHierarchyType
   @Transaction
   private void removeFromHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    ServerGeoObjectType parentType = ServerGeoObjectType.get(parentGeoObjectTypeCode);
+    ServerGeoObjectType parentType = null;
+    
+    if (parentGeoObjectTypeCode != null)
+    {
+      parentType = ServerGeoObjectType.get(parentGeoObjectTypeCode);
+    }
+    
     ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
     ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
@@ -388,7 +405,16 @@ public class ServerHierarchyType
     }
 
     // Universal child = childType.getUniversal();
-    Universal parent = parentType.getUniversal();
+    Universal parent = null;
+    
+    if (parentGeoObjectTypeCode != null)
+    {
+      parent = parentType.getUniversal();
+    }
+    else
+    {
+      parent = Universal.getRoot();
+    }
 
     removeAllChildrenFromHierarchy(parent, this.universalRelationship);
 

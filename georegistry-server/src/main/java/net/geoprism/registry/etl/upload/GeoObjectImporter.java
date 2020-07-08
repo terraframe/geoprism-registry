@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.RunwayException;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -302,8 +303,8 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
               else
               {
-                // throw new SridException();
-                throw new InvalidGeometryException();
+                InvalidGeometryException geomEx = new InvalidGeometryException();
+                throw geomEx;
               }
             }
 

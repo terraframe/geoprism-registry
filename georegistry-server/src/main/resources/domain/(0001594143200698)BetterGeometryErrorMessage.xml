@@ -1,0 +1,18 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update>
+      <mdException name="net.geoprism.registry.io.InvalidGeometryException" 
+                   message="The provided geometry is invalid. {reason}">
+        <create>
+          <attributes>
+            <text name="reason" defaultValue="Check to ensure that the geometry is well formed and/or that it is in 4326 projection."/>
+          </attributes>
+        </create>
+      </mdException>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
