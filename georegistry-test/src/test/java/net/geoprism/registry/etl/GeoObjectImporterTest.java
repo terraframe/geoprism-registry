@@ -456,9 +456,9 @@ public class GeoObjectImporterTest
 
     JSONObject error = errors.getJSONObject(0);
 
-    Assert.assertTrue(error.has("importErrorId"));
+    Assert.assertTrue(error.has("id"));
 
-    Assert.assertEquals("com.runwaysdk.dataaccess.DuplicateDataException", error.getJSONObject("exception").getString("type"));
+    Assert.assertEquals("net.geoprism.registry.DuplicateGeoObjectException", error.getJSONObject("exception").getString("type"));
 
     JSONObject object = error.getJSONObject("object");
     Assert.assertTrue(object.has("geoObject"));
@@ -487,7 +487,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(ErrorResolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
 
     JSONObject resolution = new JSONObject();
-    resolution.put("importErrorId", error.get("importErrorId"));
+    resolution.put("id", error.get("id"));
     resolution.put("resolution", ErrorResolution.IGNORE);
     resolution.put("historyId", hist.getOid());
 
