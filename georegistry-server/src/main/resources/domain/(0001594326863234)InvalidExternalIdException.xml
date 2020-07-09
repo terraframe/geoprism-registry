@@ -6,6 +6,8 @@
     <update></update>
   </doIt>
   <undoIt>
-    <delete></delete>
+    <delete>
+      <object key="net.geoprism.registry.etl.InvalidExternalIdException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
   </undoIt>
 </version>
