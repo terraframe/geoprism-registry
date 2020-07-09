@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.RunwayException;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -61,12 +60,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
-import net.geoprism.registry.etl.upload.ExternalParentReferenceException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.GeoObjectPermissionService;
@@ -85,7 +83,6 @@ import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.GeoObjectMetadata;
-import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -335,6 +332,20 @@ public class GeoObjectImporter implements ObjectImporterIF
 
             GeoObjectOverTime go = entity.toGeoObjectOverTime();
             go.toJSON().toString();
+            
+            if (this.configuration.isExternalImport())
+            {
+              ShapefileFunction function = this.configuration.getExternalIdFunction();
+
+              Object value = function.getValue(row);
+              
+              if (value == null ||
+                  !(value instanceof String || value instanceof Integer || value instanceof Long) ||
+                  (value instanceof String && ((String)value).length() == 0))
+              {
+                throw new InvalidExternalIdException();
+              }
+            }
 
             // We must ensure that any problems created during the transaction
             // are
@@ -559,8 +570,8 @@ public class GeoObjectImporter implements ObjectImporterIF
             ShapefileFunction function = this.configuration.getExternalIdFunction();
 
             Object value = function.getValue(row);
-
-            serverGo.createExternalId(this.configuration.getExternalSystem(), (String) value);
+            
+            serverGo.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value));
           }
 
           if (parent != null)

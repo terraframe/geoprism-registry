@@ -85,7 +85,7 @@
           </div>
         </div>
         
-        <div *ngIf="configuration.externalSystem.type === 'RevealExternalSystem'" class="row-holder">
+        <div *ngIf="configuration.externalSystem.type === 'RevealExternalSystem' && configuration.formatType === 'EXCEL'" class="row-holder">
           <div class="label-holder">
             <label class=""><localize key="io.import.revealGeometryAttribute"></localize></label>
           </div>
