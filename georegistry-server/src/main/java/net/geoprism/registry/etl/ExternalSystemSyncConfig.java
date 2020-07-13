@@ -40,7 +40,7 @@ public abstract class ExternalSystemSyncConfig
   {
     return system;
   }
-
+  
   public void setSystem(ExternalSystem system)
   {
     this.system = system;

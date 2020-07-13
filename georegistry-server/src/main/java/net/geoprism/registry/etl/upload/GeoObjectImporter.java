@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
