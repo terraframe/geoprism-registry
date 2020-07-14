@@ -14,7 +14,7 @@ export class MapService {
 		(mapboxgl as any).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
 	}
 
-	roots(typeCode: string, hierarchyCode: string): Promise<LocationInformation> {
+	roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
 		let params: HttpParams = new HttpParams();
 
 		if (typeCode != null) {
@@ -30,10 +30,14 @@ export class MapService {
 			.toPromise();
 	}
 
-	select(code: string, typeCode: string, childTypeCode: string, hierarchyCode: string): Promise<LocationInformation> {
+	select(code: string, typeCode: string, childTypeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
 		let params: HttpParams = new HttpParams();
 		params = params.set('code', code);
 		params = params.set('typeCode', typeCode);
+
+		if (date != null) {
+			params = params.set('date', date);
+		}
 
 		if (childTypeCode != null) {
 			params = params.set('childTypeCode', childTypeCode);

@@ -1,0 +1,58 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.TileCache">
+        <attributes>
+          <reference name="version" label="Master List Version" type="net.geoprism.registry.MasterListVersion"  required="true"/>
+          <integer name="x" label="X" required="true"/>
+          <integer name="y" label="Y" required="true"/>
+          <integer name="z" label="z" required="true"/>
+          <blob name="tile" label="tile"/>          
+        </attributes>
+      </mdBusiness>
+      
+      <mdIndex type="net.geoprism.registry.TileCache" label="Cache Label" active="true" unique="true">
+        <attribute name="version" indexOrder="0"/>
+        <attribute name="x" indexOrder="1"/>
+        <attribute name="y" indexOrder="2"/>
+        <attribute name="z" indexOrder="3"/>
+      </mdIndex>
+      
+    </create>
+    <permissions>
+      <role roleName="PUBLIC">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>      
+      </role>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>
+      </role>      
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>        
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.TileCache" type="com.runwaysdk.system.metadata.MdBusiness" />
+    </delete>
+  </undoIt>
+</version>

@@ -7,6 +7,8 @@ import { GeoObject } from '../../model/registry';
 import { LocationInformation } from '../../model/location-manager';
 import { MapService } from '../../service/map.service';
 
+declare var acp;
+
 @Component({
 	selector: 'location-manager',
 	templateUrl: './location-manager.component.html',
@@ -22,6 +24,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		hierarchies: [],
 		geojson: { type: 'MultiPolygon', features: [] }
 	};
+
+    /*
+     * Date of data for explorer
+     */
+	dateStr: string = null;
 
     /* 
      * Breadcrumb of previous children clicked on
@@ -42,6 +49,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * Flag denoting the draw control is active
      */
 	active: boolean = false;
+
+	vectorLayers: string[] = [];
 
     /* 
      * List of base layers
@@ -93,6 +102,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	}
 
+	handleDateChange(): void {
+		this.back(null);
+	}
+
 	initMap(): void {
 
 		this.map.on('style.load', () => {
@@ -109,62 +122,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.map.addControl(new NavigationControl());
 		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-left');
 
-		//		this.map.on('mousemove', e => {
-		//			// e.point is the x, y coordinates of the mousemove event relative
-		//			// to the top-left corner of the map.
-		//			// e.lngLat is the longitude, latitude geographical position of the event
-		//			let coord = e.lngLat.wrap();
-		//
-		//			// EPSG:3857 = WGS 84 / Pseudo-Mercator
-		//			// EPSG:4326 = WGS 84 
-		//			// let coord4326 = window.proj4(window.proj4.defs('EPSG:3857'), window.proj4.defs('EPSG:4326'), [coord.lng, coord.lat]);
-		//			// let text = "Long: " + coord4326[0] + " Lat: " + coord4326[1];
-		//
-		//			let text = "Lat: " + coord.lat + " Long: " + coord.lng;
-		//			let mousemovePanel = document.getElementById("mousemove-panel");
-		//			mousemovePanel.textContent = text;
-		//
-		//
-		//			let features = this.map.queryRenderedFeatures(e.point, { layers: ['points'] });
-		//
-		//			if (this.current == null) {
-		//				if (features.length > 0) {
-		//					let focusFeatureId = features[0].properties.oid; // just the first
-		//					this.map.setFilter('hover-points', ['all',
-		//						['==', 'oid', focusFeatureId]
-		//					])
-		//
-		//					this.highlightListItem(focusFeatureId)
-		//				}
-		//				else {
-		//					this.map.setFilter('hover-points', ['all',
-		//						['==', 'oid', "NONE"]
-		//					])
-		//
-		//					this.clearHighlightListItem();
-		//				}
-		//			}
-		//		});
-		//
-		//		this.map.on('zoomend', (e) => {
-		//			this.subject.next(e);
-		//		});
-		//
-		//		this.map.on('moveend', (e) => {
-		//			this.subject.next(e);
-		//		});
-		//
-		//		// MapboxGL doesn't have a good way to detect when moving off the map
-		//		let sidebar = document.getElementById("navigator-left-sidebar");
-		//		sidebar.addEventListener("mouseenter", function() {
-		//			let mousemovePanel = document.getElementById("mousemove-panel");
-		//			mousemovePanel.textContent = "";
-		//		});
 	}
 
 	addLayers(): void {
 
-		this.map.addSource('children', {
+		const source = 'children';
+
+		this.map.addSource(source, {
 			type: 'geojson',
 			data: {
 				"type": "FeatureCollection",
@@ -172,15 +136,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			}
 		});
 
-
 		// Point layer
 		this.map.addLayer({
-			"id": "points",
+			"id": source + "-points",
 			"type": "circle",
-			"source": 'children',
+			"source": source,
 			"paint": {
 				"circle-radius": 10,
-				"circle-color": '#800000',
+				"circle-color": '#a6611a',
 				"circle-stroke-width": 2,
 				"circle-stroke-color": '#FFFFFF'
 			},
@@ -188,32 +151,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
 			]
 		});
-		//
-		//
-		//		// Hover style
-		//		this.map.addLayer({
-		//			"id": "hover-points",
-		//			"type": "circle",
-		//			"source": 'children',
-		//			"paint": {
-		//				"circle-radius": 13,
-		//				"circle-color": '#cf0000',
-		//				"circle-stroke-width": 2,
-		//				"circle-stroke-color": '#FFFFFF'
-		//			},
-		//			filter: ['all',
-		//				['==', 'id', 'NONE'] // start with a filter that doesn't select GeoObjectthing
-		//			]
-		//		});
 
 		// Polygon layer
 		this.map.addLayer({
-			'id': 'polygon',
+			'id': source + '-polygon',
 			'type': 'fill',
-			'source': 'children',
+			'source': source,
 			'layout': {},
 			'paint': {
-				'fill-color': '#088',
+				'fill-color': '#a6611a',
 				'fill-opacity': 0.8
 			},
 			filter: ['all',
@@ -224,8 +170,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		// Label layer
 		this.map.addLayer({
-			"id": "points-label",
-			"source": 'children',
+			"id": source + "-label",
+			"source": source,
 			"type": "symbol",
 			"paint": {
 				"text-color": "black",
@@ -240,6 +186,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 				"text-size": 12,
 			}
 		});
+
+
+//		this.addContextLayer('c4ae30ca-1c86-4ec7-ae3f-b095520005f1');
 	}
 
 	handleExtentChange(e: MapboxEvent<MouseEvent | TouchEvent | WheelEvent>): void {
@@ -277,13 +226,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	refresh(zoom: boolean): void {
 
 		if (this.current == null) {
-			this.mapService.roots(null, null).then(data => {
+			this.mapService.roots(null, null, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.data = data;
 			});
 		} else {
-			this.mapService.select(this.current.properties.code, this.current.properties.type, this.data.childType, this.data.hierarchy).then(data => {
+			this.mapService.select(this.current.properties.code, this.current.properties.type, this.data.childType, this.data.hierarchy, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.data = data;
@@ -362,7 +311,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			event.stopPropagation();
 		}
 
-		this.mapService.select(node.properties.code, node.properties.type, null, null).then(data => {
+		this.mapService.select(node.properties.code, node.properties.type, null, null, this.dateStr).then(data => {
 			this.current = node;
 			if (parent != null) {
 				this.addBreadcrumb(parent);
@@ -393,7 +342,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	back(node: GeoObject): void {
 
 		if (node != null) {
-			this.mapService.select(node.properties.code, node.properties.type, null, this.data.hierarchy).then(data => {
+			this.mapService.select(node.properties.code, node.properties.type, null, this.data.hierarchy, this.dateStr).then(data => {
 				var indexOf = this.breadcrumbs.findIndex(i => i.properties.code === node.properties.code);
 
 				this.current = node;
@@ -405,7 +354,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			});
 		}
 		else if (this.breadcrumbs.length > 0) {
-			this.mapService.roots(null, null).then(data => {
+			this.mapService.roots(null, null, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.data = data;
@@ -427,4 +376,93 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.data.geojson.features.push(node);
 		})
 	}
+
+	addContextLayer(source: string) {
+		const index = this.vectorLayers.indexOf(source);
+
+		if (index === -1) {
+			const prevLayer = 'children-points';
+
+			var protocol = window.location.protocol;
+			var host = window.location.host;
+
+			this.map.addSource(source, {
+				type: 'vector',
+				tiles: [protocol + '//' + host + acp + '/master-list/tile?x={x}&y={y}&z={z}&config=' + encodeURIComponent(JSON.stringify({ oid: source }))]
+			});
+
+			// Point layer
+			this.map.addLayer({
+				"id": source + "-points",
+				"type": "circle",
+				"source": source,
+				"source-layer": 'context',
+				"paint": {
+					"circle-radius": 10,
+					"circle-color": '#800000',
+					"circle-stroke-width": 2,
+					"circle-stroke-color": '#FFFFFF'
+				},
+				filter: ['all',
+					["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+				]
+			}, prevLayer);
+
+			// Polygon layer
+			this.map.addLayer({
+				'id': source + '-polygon',
+				'type': 'fill',
+				'source': source,
+				"source-layer": 'context',
+				'layout': {},
+				'paint': {
+					'fill-color': '#80cdc1',
+					'fill-opacity': 0.8
+				},
+				filter: ['all',
+					["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+				]
+			}, prevLayer);
+
+
+			// Label layer
+			this.map.addLayer({
+				"id": source + "-label",
+				"source": source,
+				"source-layer": 'context',
+				"type": "symbol",
+				"paint": {
+					"text-color": "black",
+					"text-halo-color": "#fff",
+					"text-halo-width": 2
+				},
+				"layout": {
+					"text-field": ["case",
+						["has", "displayLabel_" + navigator.language.toLowerCase],
+						["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase]], ["string", ["get", "displayLabel"]]],
+						["string", ["get", "displayLabel"]]
+					],
+					"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+					"text-offset": [0, 0.6],
+					"text-anchor": "top",
+					"text-size": 12,
+				}
+			}, prevLayer);
+
+
+			this.vectorLayers.push(source);
+		}
+	}
+
+	removeContextLayer(oid: string) {
+		const index = this.vectorLayers.indexOf(oid);
+
+		if (index !== -1) {
+			this.map.removeSource(oid);
+
+			this.vectorLayers.splice(index, 1);
+		}
+	}
+
+
 }
