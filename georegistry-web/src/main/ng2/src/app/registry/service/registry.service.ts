@@ -466,6 +466,14 @@ export class RegistryService {
             .toPromise();
     }
 
+    getAllMasterListVersions(): Promise<MasterList[]> {
+        let params: HttpParams = new HttpParams();
+
+        return this.http
+            .get<MasterList[]>( acp + '/master-list/list-all-versions', { params: params } )
+            .toPromise();
+    }
+
     getMasterListVersion( oid: string ): Promise<MasterListVersion> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'oid', oid );

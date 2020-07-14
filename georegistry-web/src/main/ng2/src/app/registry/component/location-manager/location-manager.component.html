@@ -30,7 +30,7 @@
             <div class="row">
               <div class="col-md-12">
                 <div class="location-management-widget-section">
-                  <input style="width:100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
+                  <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
                 </div>
               </div>
             </div>
@@ -58,7 +58,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="row">
               <div class="col-md-12">
                 <div class="location-management-widget-section">
@@ -71,36 +71,56 @@
           </div>
         </div>
 
-        <!-- <hr> -->
-
         <div class="row">
           <div class="col-md-12">
+            <label>Context Layers</label>
 
-            <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container" style="overflow-y: auto;">
+            <div class="location-management-widget-section location-management-list-container" style="overflow-y: auto;">
               <div class="list-group">
-
-                <!-- If -->
-                <div *ngIf="data.geojson.features.length < 1 && breadcrumbs.length === 0" style="padding: 20px; text-align: center; color: grey;">
-                  <h4>No Sites in this area.</h4>
-                  <p>Zoom out to find sites in other areas of the map.</p>
-                </div>
-
-                <div *ngFor="let node of data.geojson.features; let i = index" class="list-group-item">
-
-                  <!-- Single column card -->
-                  <div class="card card-default clickable" (click)="select(node, null, $event)">
-                    <div class="card-body">
-                      <h4 style="word-break: break-all;">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+                <div *ngFor="let list of lists; let i = index" class="list-group-item">
+                  {{ list.displayLabel.localizedValue }}
+                  <div class="list-group">
+                    <div *ngFor="let version of list.versions" class="list-group-item">
+                      <input type="checkbox" (click)="toggleContextLayer(version.oid)"> {{ version.forDate }}
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
+          <!-- <hr> -->
+
+          <div class="row">
+            <div class="col-md-12">
+
+              <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container" style="overflow-y: auto;">
+                <div class="list-group">
+
+                  <!-- If -->
+                  <div *ngIf="data.geojson.features.length < 1 && breadcrumbs.length === 0" style="padding: 20px; text-align: center; color: grey;">
+                    <h4>No Sites in this area.</h4>
+                    <p>Zoom out to find sites in other areas of the map.</p>
+                  </div>
+
+                  <div *ngFor="let node of data.geojson.features; let i = index" class="list-group-item">
+
+                    <!-- Single column card -->
+                    <div class="card card-default clickable" (click)="select(node, null, $event)">
+                      <div class="card-body">
+                        <h4 style="word-break: break-all;">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
+
       <div class="col-md-9" id="site-explorer-map">
         <div class="row">
           <article class="base-layer-panel">

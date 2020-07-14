@@ -255,4 +255,10 @@ public class MasterListController
     return new InputStreamResponse(this.service.getTile(request.getSessionId(), object), "application/x-protobuf", null);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-all-versions")
+  public ResponseIF listAllVersions(ClientRequestIF request)
+  {
+    return new RestBodyResponse(this.service.getAllVersions(request.getSessionId()));
+  }
+
 }

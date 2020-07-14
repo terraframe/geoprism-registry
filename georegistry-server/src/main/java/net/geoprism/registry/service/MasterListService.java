@@ -20,6 +20,7 @@ package net.geoprism.registry.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.json.JSONArray;
@@ -42,7 +43,9 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.TileCache;
 import net.geoprism.registry.etl.DuplicateJobException;
@@ -291,6 +294,31 @@ public class MasterListService
     {
       // Do nothing
     }
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getAllVersions(String sessionId)
+  {
+    JsonArray response = new JsonArray();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    try (OIterator<? extends MasterList> it = query.getIterator())
+    {
+      while (it.hasNext())
+      {
+        MasterList list = it.next();
+        final boolean isMember = Organization.isMember(list.getOrganization());
+
+        if (isMember || list.getVisibility().equals(MasterList.PUBLIC))
+        {
+          response.add(list.toJSON(MasterListVersion.PUBLISHED));
+        }
+      }
+    }
+
+    return response;
   }
 
   @Request(RequestType.SESSION)

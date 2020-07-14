@@ -3,11 +3,13 @@ import { Map, LngLatBounds, NavigationControl, MapboxEvent, AttributionControl }
 
 import { Subject } from 'rxjs';
 
-import { GeoObject } from '../../model/registry';
+import { GeoObject, MasterList } from '../../model/registry';
 import { LocationInformation } from '../../model/location-manager';
-import { MapService } from '../../service/map.service';
 
-declare var acp;
+import { MapService } from '../../service/map.service';
+import { RegistryService } from '../../service/registry.service';
+
+declare var acp: string;
 
 @Component({
 	selector: 'location-manager',
@@ -52,6 +54,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	vectorLayers: string[] = [];
 
+	lists: MasterList[] = [];
+
     /* 
      * List of base layers
      */
@@ -76,10 +80,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
 	subject: Subject<MapboxEvent<MouseEvent | TouchEvent | WheelEvent>>;
 
-	constructor(private mapService: MapService) {
+	constructor(private mapService: MapService, public service: RegistryService) {
 	}
 
 	ngOnInit(): void {
+		this.service.getAllMasterListVersions().then(lists => {
+			this.lists = lists;
+		});
 	}
 
 	ngOnDestroy(): void {
@@ -188,7 +195,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		});
 
 
-//		this.addContextLayer('c4ae30ca-1c86-4ec7-ae3f-b095520005f1');
+		//		this.addContextLayer('c4ae30ca-1c86-4ec7-ae3f-b095520005f1');
 	}
 
 	handleExtentChange(e: MapboxEvent<MouseEvent | TouchEvent | WheelEvent>): void {
@@ -377,7 +384,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		})
 	}
 
-	addContextLayer(source: string) {
+	toggleContextLayer(source: string) {
 		const index = this.vectorLayers.indexOf(source);
 
 		if (index === -1) {
@@ -452,17 +459,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 			this.vectorLayers.push(source);
 		}
-	}
-
-	removeContextLayer(oid: string) {
-		const index = this.vectorLayers.indexOf(oid);
-
-		if (index !== -1) {
-			this.map.removeSource(oid);
+		else {
+			this.map.removeLayer(source + "-points");
+			this.map.removeLayer(source + "-polygon");
+			this.map.removeLayer(source + "-label");
+			this.map.removeSource(source);
 
 			this.vectorLayers.splice(index, 1);
 		}
 	}
-
-
 }
