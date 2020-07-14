@@ -186,7 +186,7 @@ public class PublishMasterListJobTest
   @Test
   public void testNewAndUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -213,7 +213,7 @@ public class PublishMasterListJobTest
   @Test
   public void testGetPublishJobs() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -254,7 +254,7 @@ public class PublishMasterListJobTest
   @Test
   public void testCreateMultiple() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -292,7 +292,7 @@ public class PublishMasterListJobTest
   @Test
   public void testChangeFrequency() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -327,7 +327,7 @@ public class PublishMasterListJobTest
   @Test
   public void testUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);

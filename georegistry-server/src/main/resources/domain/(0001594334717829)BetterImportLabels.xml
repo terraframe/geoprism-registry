@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.complete.import.button">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="scheduledjobs.complete.import.button" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Ignore All Errors" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.resume.modal.importDescription">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.resume.modal.importDescription" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to mark the import as completed? Some of the data has already been imported. All unresolved problems will be ignored." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.import.cancel.modal.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.import.cancel.modal.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to cancel the import? None of the data will be imported into the database." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

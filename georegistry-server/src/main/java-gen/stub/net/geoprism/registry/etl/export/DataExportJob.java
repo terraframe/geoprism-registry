@@ -30,7 +30,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -64,8 +63,8 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
-import net.geoprism.registry.etl.RemoteConnectionException;
 import net.geoprism.registry.etl.SyncLevel;
+import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -84,8 +83,6 @@ public class DataExportJob extends DataExportJobBase
   private static final long     serialVersionUID = -1821569567;
 
   private static final Logger   logger           = LoggerFactory.getLogger(DataExportJob.class);
-
-  private SynchronizationConfig syncConfig;
 
   private DHIS2SyncConfig       dhis2Config;
 
@@ -188,7 +185,6 @@ public class DataExportJob extends DataExportJobBase
   {
     this.history = (ExportHistory) executionContext.getJobHistoryRecord().getChild();
     
-    this.syncConfig = this.getConfig();
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
     DHIS2ExternalSystem system = this.dhis2Config.getSystem();
@@ -396,7 +392,7 @@ public class DataExportJob extends DataExportJobBase
     
     try
     {
-      externalId = serverGo.getExternalId(this.syncConfig.getExternalSystem());
+      externalId = serverGo.getExternalId(this.dhis2Config.getSystem());
       boolean isNew = (externalId == null);
 
       if (isNew && level.getSyncType() != SyncLevel.Type.ALL)
@@ -407,12 +403,12 @@ public class DataExportJob extends DataExportJobBase
       }
 
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.syncConfig.getServerHierarchyType(), this.syncConfig.getExternalSystem()));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.dhis2Config.getHierarchy(), this.dhis2Config.getSystem()));
       
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();
       
-      externalId = serverGo.getExternalId(this.syncConfig.getExternalSystem());
+      externalId = serverGo.getExternalId(this.dhis2Config.getSystem());
 
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("mergeMode", "MERGE"));

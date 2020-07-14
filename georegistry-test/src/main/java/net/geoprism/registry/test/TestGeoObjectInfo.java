@@ -233,6 +233,7 @@ public class TestGeoObjectInfo
    * Constructs a new GeoObject and populates all attributes from the data
    * contained within this test wrapper.
    */
+  @Request
   public GeoObject asGeoObject()
   {
     GeoObject geoObj = ServiceFactory.getAdapter().newGeoObjectInstance(this.geoObjectType.getCode());
@@ -255,6 +256,7 @@ public class TestGeoObjectInfo
    * Constructs a new GeoObject and populates all attributes from the data
    * contained within this test wrapper.
    */
+  @Request
   public GeoObjectOverTime asGeoObject(Date date)
   {
     GeoObjectOverTime geoObj = ServiceFactory.getAdapter().newGeoObjectOverTimeInstance(this.geoObjectType.getCode());

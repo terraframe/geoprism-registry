@@ -43,12 +43,12 @@ public class TestHierarchyTypeInfo
   
   private ServerHierarchyType     serverObj;
   
-  protected TestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
+  public TestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
     initialize(genKey, org);
   }
   
-  protected TestHierarchyTypeInfo(String code, String displayLabel, TestOrganizationInfo org)
+  public TestHierarchyTypeInfo(String code, String displayLabel, TestOrganizationInfo org)
   {
     this.code = code;
     this.displayLabel = displayLabel;
@@ -166,18 +166,13 @@ public class TestHierarchyTypeInfo
   @Transaction
   private void deleteInTrans()
   {
-    ServerHierarchyType serverHOT = getServerObject();
+    ServerHierarchyType serverHOT = getServerObject(true);
     
     if (serverHOT != null)
     {
       serverHOT.delete();
     }
     
-//    MdClass mdTermRelationship = this.testDataSet.getMdClassIfExist(GISConstants.GEO_PACKAGE, this.getCode());
-//    
-//    if (mdTermRelationship != null)
-//    {
-//      mdTermRelationship.delete();
-//    }
+    this.serverObj = null;
   }
 }

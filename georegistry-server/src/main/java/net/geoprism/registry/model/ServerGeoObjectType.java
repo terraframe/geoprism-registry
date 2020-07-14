@@ -355,7 +355,10 @@ public class ServerGeoObjectType
     ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(this.type);
 
     // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    if (Session.getCurrentSession() != null)
+    {
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    }
 
     return attrType;
   }

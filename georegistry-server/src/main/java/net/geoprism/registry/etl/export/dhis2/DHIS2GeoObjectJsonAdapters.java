@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl.export;
+package net.geoprism.registry.etl.export.dhis2;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
@@ -48,6 +48,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.etl.SyncLevel;
+import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -190,7 +191,14 @@ public class DHIS2GeoObjectJsonAdapters
         writeGeometry(jo, serverGo);
 
         jo.add("translations", writeTranslations(serverGo));
+        
+        this.writeCustomAttributes(serverGo, jo);
 //      }
+    }
+    
+    private void writeCustomAttributes(VertexServerGeoObject serverGo, JsonObject jo)
+    {
+      
     }
     
     private void writeGeometry(JsonObject jo, VertexServerGeoObject serverGo)

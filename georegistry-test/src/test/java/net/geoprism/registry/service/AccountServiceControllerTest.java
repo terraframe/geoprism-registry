@@ -22,18 +22,12 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import net.geoprism.GeoprismUserDTO;
-import net.geoprism.registry.OrganizationAndRoleTest;
-import net.geoprism.registry.controller.RegistryAccountController;
-import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.TestGeoObjectTypeInfo;
-import net.geoprism.registry.test.TestOrganizationInfo;
-
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -44,7 +38,18 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+
+import net.geoprism.GeoprismUser;
+import net.geoprism.GeoprismUserDTO;
+import net.geoprism.GeoprismUserQuery;
+import net.geoprism.registry.UserInfo;
+import net.geoprism.registry.controller.RegistryAccountController;
+import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestOrganizationInfo;
 
 public class AccountServiceControllerTest
 {
@@ -123,6 +128,53 @@ public class AccountServiceControllerTest
     healthFacility.delete();
     mohOrg.delete();
   }
+  
+  @Before
+  public void setUp()
+  {
+    deleteAllUsers();
+  }
+  
+  @Request
+  public void deleteAllUsers()
+  {
+    String[] usernames = new String[] {"johny@gmail.com", "sallyy@gmail.com", "franky@gmail.com", "beckyy@gmail.com", "jdoe6"};
+    
+    for (String username : usernames)
+    {
+      deleteUser(username);
+    }
+  }
+  
+  public void deleteUser(String username)
+  {
+    GeoprismUserQuery query = new GeoprismUserQuery(new QueryFactory());
+    
+    query.WHERE(query.getUsername().EQ(username));
+    
+    OIterator<? extends GeoprismUser> it = query.getIterator();
+    
+    try
+    {
+      if (it.hasNext())
+      {
+        GeoprismUser user = it.next();
+        
+        UserInfo info = UserInfo.getByUser(user);
+
+        if (info != null)
+        {
+          info.delete();
+        }
+
+        user.delete();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+  }
 
   /**
    * Test returning possible roles that can be assigned to a person for a given
@@ -146,8 +198,8 @@ public class AccountServiceControllerTest
     JSONObject franky = createUser("franky@gmail.com", rmHealthFacilityRole);
     JSONObject becky = createUser("beckyy@gmail.com", rcHealthFacilityRole);
 
-    try
-    {
+//    try
+//    {
       JSONArray orgCodeArray = new JSONArray();
       orgCodeArray.put(moiOrg.getCode());
       // orgCodeArray.put(mohOrg.getCode());
@@ -155,37 +207,38 @@ public class AccountServiceControllerTest
       // orgCodeArray.put("TEST2");
 
       RestBodyResponse response = (RestBodyResponse) controller.page(clientRequest, 1);
-    }
-    finally
-    {
-      controller.remove(clientRequest, johny.getString(GeoprismUserDTO.OID));
-      controller.remove(clientRequest, sally.getString(GeoprismUserDTO.OID));
-
-      controller.remove(clientRequest, franky.getString(GeoprismUserDTO.OID));
-      controller.remove(clientRequest, becky.getString(GeoprismUserDTO.OID));
-    }
+//    }
+//    finally
+//    {
+//      controller.remove(clientRequest, johny.getString(GeoprismUserDTO.OID));
+//      controller.remove(clientRequest, sally.getString(GeoprismUserDTO.OID));
+//
+//      controller.remove(clientRequest, franky.getString(GeoprismUserDTO.OID));
+//      controller.remove(clientRequest, becky.getString(GeoprismUserDTO.OID));
+//    }
   }
 
   private JSONObject createUser(String userName, String roleNames)
   {
     RestResponse response = (RestResponse) controller.newInstance(clientRequest, "[" + moiOrg.getCode() + "]");
     Pair userPair = (Pair) response.getAttribute("user");
-    JSONObject user = (JSONObject) userPair.getFirst();
+    GeoprismUserDTO user = (GeoprismUserDTO) userPair.getFirst();
 
     Pair rolesPair = (Pair) response.getAttribute("roles");
     JSONArray roleJSONArray = (JSONArray) rolesPair.getFirst();
 
-    user.put(GeoprismUserDTO.FIRSTNAME, "Some Firstname");
-    user.put(GeoprismUserDTO.LASTNAME, "Some Lastame");
-    user.put(GeoprismUserDTO.USERNAME, userName);
-    user.put(GeoprismUserDTO.EMAIL, userName);
-    user.put(GeoprismUserDTO.PASSWORD, "123456");
+    JSONObject jsonUser = new JSONObject();
+    jsonUser.put(GeoprismUserDTO.FIRSTNAME, "Some Firstname");
+    jsonUser.put(GeoprismUserDTO.LASTNAME, "Some Lastame");
+    jsonUser.put(GeoprismUserDTO.USERNAME, userName);
+    jsonUser.put(GeoprismUserDTO.EMAIL, userName);
+    jsonUser.put(GeoprismUserDTO.PASSWORD, "123456");
 
-    response = (RestResponse) controller.apply(clientRequest, user.toString(), roleNames);
+    response = (RestResponse) controller.apply(clientRequest, jsonUser.toString(), "[" + roleNames + "]");
     userPair = (Pair) response.getAttribute("user");
-    user = (JSONObject) userPair.getFirst();
+    jsonUser = (JSONObject) userPair.getFirst();
 
-    return user;
+    return jsonUser;
   }
 
   /**
@@ -225,11 +278,11 @@ public class AccountServiceControllerTest
     userPair = (Pair) response.getAttribute("user");
     jsonUser = (JSONObject) userPair.getFirst();
 
-    try
-    {
+//    try
+//    {
       Pair rolePair = (Pair) response.getAttribute("roles");
       roleJSONArray = (JSONArray) rolePair.getFirst();
-      Assert.assertEquals(7, roleJSONArray.length());
+      Assert.assertEquals(8, roleJSONArray.length());
 
       Set<String> rolesFoundSet = new HashSet<String>();
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
@@ -248,13 +301,13 @@ public class AccountServiceControllerTest
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
       // Edit
-      response = (RestResponse) controller.edit(clientRequest, user.getOid());
+      response = (RestResponse) controller.edit(clientRequest, jsonUser.getString("oid"));
       userPair = (Pair) response.getAttribute("user");
-      user = (GeoprismUserDTO) userPair.getFirst();
+      jsonUser = (JSONObject) userPair.getFirst();
 
       rolesPair = (Pair) response.getAttribute("roles");
       roleJSONArray = (JSONArray) rolesPair.getFirst();
-      Assert.assertEquals(7, roleJSONArray.length());
+      Assert.assertEquals(8, roleJSONArray.length());
 
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
@@ -277,15 +330,15 @@ public class AccountServiceControllerTest
       user.setLastName("Dwayne");
       
       String rcVillageRole = RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode());
-      response = (RestResponse) controller.apply(clientRequest, user.toString(), rmDistrictRole + "," + rcVillageRole);
+      response = (RestResponse) controller.apply(clientRequest, jsonUser.toString(), "[" + rmDistrictRole + "," + rcVillageRole + "]");
 
       userPair = (Pair) response.getAttribute("user");
-      user = (GeoprismUserDTO) userPair.getFirst();
+      jsonUser = (JSONObject) userPair.getFirst();
       Assert.assertEquals("Dwayne", user.getLastName());
 
       rolePair = (Pair) response.getAttribute("roles");
       roleJSONArray = (JSONArray) rolePair.getFirst();
-      Assert.assertEquals(7, roleJSONArray.length());
+      Assert.assertEquals(8, roleJSONArray.length());
 
       rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
       rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode()));
@@ -304,11 +357,11 @@ public class AccountServiceControllerTest
       this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
-    }
-    finally
-    {
-      controller.remove(clientRequest, user.getOid());
-    }
+//    }
+//    finally
+//    {
+//      controller.remove(clientRequest, user.getOid());
+//    }
   }
 
   /**
@@ -373,7 +426,7 @@ public class AccountServiceControllerTest
 
     JSONArray roleJSONArray = (JSONArray) pair.getFirst();
 
-    Assert.assertEquals(12, roleJSONArray.length());
+    Assert.assertEquals(37, roleJSONArray.length());
 
     Set<String> rolesFoundSet = new HashSet<String>();
     rolesFoundSet.add(RegistryRole.Type.getSRA_RoleName());

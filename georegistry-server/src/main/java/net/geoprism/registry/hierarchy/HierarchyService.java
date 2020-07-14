@@ -255,11 +255,6 @@ public class HierarchyService
     ServiceFactory.getHierarchyPermissionService().enforceCanDelete(Session.getCurrentSession().getUser(), type.getOrganization().getCode());
 
     type.delete();
-
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    // No error at this point so the transaction completed successfully.
-    ServiceFactory.getAdapter().getMetadataCache().removeHierarchyType(code);
   }
 
   /**

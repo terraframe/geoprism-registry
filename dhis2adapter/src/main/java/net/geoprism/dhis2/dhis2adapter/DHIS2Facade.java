@@ -18,16 +18,19 @@
  */
 package net.geoprism.dhis2.dhis2adapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
@@ -138,9 +141,34 @@ public class DHIS2Facade
     return new MetadataImportResponse(this.apiPost("metadata", params, payload));
   }
   
-  public DHIS2Response metadataGet(List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural) throws InvalidLoginException, HTTPException
   {
-    return this.apiGet("metadata", params);
+    return this.metadataGet(objectNamePlural, null);
+  }
+  
+  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    if (params == null)
+    {
+      params = new ArrayList<NameValuePair>();
+    }
+    
+    boolean hasObjectName = false;
+    
+    for (NameValuePair param : params)
+    {
+      if (param.getName().equals(objectNamePlural))
+      {
+        hasObjectName = true;
+      }
+    }
+    
+    if (!hasObjectName)
+    {
+      params.add(new BasicNameValuePair(objectNamePlural, "true"));
+    }
+    
+    return new MetadataGetResponse<T>(this.apiGet("metadata", params), objectNamePlural);
   }
   
   public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException

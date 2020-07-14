@@ -38,8 +38,11 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
+import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 
 /**
  * Tests the DHIS2 Facade by talking to play.dhis2.org
@@ -240,4 +243,36 @@ public class DHIS2FacadeTest
 //    
 //    Assert.assertEquals(200, resp.getStatusCode());
 //  }
+  
+  @Test
+  public void testMetadataGetAttributes() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  {
+    final String objectNamePlural = DHIS2Objects.ATTRIBUTES;
+    
+    MetadataGetResponse<Attribute> metadataGetResp = facade.<Attribute>metadataGet(objectNamePlural);
+    
+    List<Attribute> attrs = metadataGetResp.getObjects();
+    
+    Attribute testAttr = null;
+    
+    for (Attribute attr : attrs)
+    {
+      if (attr.getName().equals("Classification"))
+      {
+        testAttr = attr;
+      }
+    }
+    
+    Assert.assertNotNull(testAttr);
+    
+    Assert.assertEquals("CLASSIFICATION", testAttr.getCode());
+    
+    Assert.assertEquals(ValueType.TEXT, testAttr.getValueType());
+    
+    Assert.assertTrue(testAttr.getIndicatorAttribute());
+    
+    Assert.assertFalse(testAttr.getOptionAttribute());
+    
+    Assert.assertFalse(testAttr.getCategoryAttribute());
+  }
 }

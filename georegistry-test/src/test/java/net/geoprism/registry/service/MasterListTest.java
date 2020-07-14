@@ -50,7 +50,9 @@ import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class MasterListTest
@@ -69,10 +71,19 @@ public class MasterListTest
     testData = USATestData.newTestDataForClass(true, new Date());
     testData.setUpMetadata();
 
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.STATE.getCode(), testTerm.toJSON().toString());
+    setUpInReq();
 
     reload();
+  }
+  
+  @Request
+  private static void setUpInReq()
+  {
+    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+//    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(null, testData.STATE.getCode(), testTerm.toJSON().toString());
+    
+    ServerGeoObjectType got = ServerGeoObjectType.get(testData.STATE.getCode());
+    testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
   }
 
   @Request
@@ -245,7 +256,7 @@ public class MasterListTest
   @Request
   public void testCreateMultiple()
   {
-    JsonObject json = getJson(org, testData.STATE);
+    JsonObject json = getJson(org, testData.HIER_ADMIN, testData.STATE);
 
     MasterList test1 = MasterList.create(json);
 
@@ -267,7 +278,7 @@ public class MasterListTest
   @Test
   public void testServiceCreateAndRemove()
   {
-    JsonObject listJson = getJson(org, testData.STATE);
+    JsonObject listJson = getJson(org, testData.HIER_ADMIN, testData.STATE);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -280,7 +291,7 @@ public class MasterListTest
   @Test
   public void testList()
   {
-    JsonObject listJson = getJson(org, testData.STATE);
+    JsonObject listJson = getJson(org, testData.HIER_ADMIN, testData.STATE);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -302,7 +313,7 @@ public class MasterListTest
   @Request
   public void testPublishVersion()
   {
-    JsonObject json = getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject json = getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -332,7 +343,7 @@ public class MasterListTest
   @Test
   public void testCreatePublishedVersions()
   {
-    JsonObject listJson = getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
@@ -428,7 +439,7 @@ public class MasterListTest
   }
 
   @Request
-  public static JsonObject getJson(Organization org, TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
+  public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
   {
     JsonArray pArray = new JsonArray();
     for (TestGeoObjectTypeInfo parent : parents)
@@ -441,7 +452,7 @@ public class MasterListTest
     }
 
     JsonObject hierarchy = new JsonObject();
-    hierarchy.addProperty("code", LocatedIn.class.getSimpleName());
+    hierarchy.addProperty("code", ht.getCode());
     hierarchy.add("parents", pArray);
 
     JsonArray array = new JsonArray();
