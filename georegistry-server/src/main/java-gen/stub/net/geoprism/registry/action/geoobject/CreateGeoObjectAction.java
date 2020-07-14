@@ -60,12 +60,19 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      String sJson = this.getGeoObjectJson();
-      GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
+      try
+      {
+        String sJson = this.getGeoObjectJson();
+        GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
-      ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
+        ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
-      return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+      }
+      catch (Exception e)
+      {
+
+      }
     }
 
     return false;

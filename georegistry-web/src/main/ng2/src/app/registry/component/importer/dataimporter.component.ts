@@ -126,7 +126,7 @@ export class DataImporterComponent implements OnInit {
 		if (this.format === "SHAPEFILE") {
 			getUrl = acp + '/shapefile/get-shapefile-configuration';
 
-			this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
+			//this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
 		}
 
 		let options: FileUploaderOptions = {

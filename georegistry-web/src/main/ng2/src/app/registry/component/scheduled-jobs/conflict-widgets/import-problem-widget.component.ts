@@ -72,7 +72,7 @@ export class ImportProblemWidgetComponent implements OnInit {
         }
 
         if(probType === "net.geoprism.registry.DataNotFoundException"){
-          return this.lService.decode( "scheduledjobs.job.problem.type.required.value.lookup" );
+          return this.lService.decode( "scheduledjobs.job.problem.type.datanotfound" );
         }
         
         if(
@@ -90,6 +90,7 @@ export class ImportProblemWidgetComponent implements OnInit {
         if(
           probType === "com.runwaysdk.dataaccess.DuplicateDataException"
           || probType === "net.geoprism.registry.DuplicateGeoObjectException"
+          || probType === "net.geoprism.registry.DuplicateGeoObjectCodeException"
           ){
           return this.lService.decode( "scheduledjobs.job.problem.type.duplicate.data.lookup" );
         }

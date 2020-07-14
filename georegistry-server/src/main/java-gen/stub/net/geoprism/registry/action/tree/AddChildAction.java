@@ -61,11 +61,19 @@ public class AddChildAction extends AddChildActionBase
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
-      ServerGeoObjectIF child = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObject(this.getChildId(), this.getChildTypeCode());
-      ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
+      try
+      {
+        ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
+        ServerGeoObjectIF child = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObject(this.getChildId(), this.getChildTypeCode());
+        ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
-      return ServiceFactory.getGeoObjectRelationshipPermissionService().canAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+        return ServiceFactory.getGeoObjectRelationshipPermissionService().canAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+      }
+      catch (Exception e)
+      {
+
+      }
+
     }
 
     return false;

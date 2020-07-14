@@ -47,11 +47,18 @@ public class SetParentAction extends SetParentActionBase
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
-      ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
-      ServerGeoObjectType type = child.getType();
+      try
+      {
+        ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+        ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
+        ServerGeoObjectType type = child.getType();
 
-      return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+      }
+      catch (Exception e)
+      {
+
+      }
     }
 
     return false;

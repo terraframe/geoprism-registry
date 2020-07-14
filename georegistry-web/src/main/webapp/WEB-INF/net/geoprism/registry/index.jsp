@@ -132,10 +132,17 @@
 <%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-vendor.js"></script> --%>
 <%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-app.js"></script> --%>
   
+<<<<<<< HEAD
   <script type="text/javascript" src="https://localhost:8080/dist/cgr-polyfills.js"></script>  
   <script type="text/javascript" src="https://localhost:8080/dist/vendor.chunk.js"></script>  
   <script type="text/javascript" src="https://localhost:8080/dist/cgr-vendor.js"></script>    
   <script type="text/javascript" src="https://localhost:8080/dist/cgr-app.js"></script>
+=======
+  <script type="text/javascript" src="$local.host$/dist/cgr-polyfills.js"></script>  
+  <script type="text/javascript" src="$local.host$/dist/vendor.chunk.js"></script>  
+  <script type="text/javascript" src="$local.host$/dist/cgr-vendor.js"></script>    
+  <script type="text/javascript" src="$local.host$/dist/cgr-app.js"></script>
+>>>>>>> b42b716973934ee46c5495c7eb0483922e1a114f
 
 </body>
   

@@ -108,7 +108,7 @@ export class JobComponent implements OnInit {
 		}
 
 		if (probType === "net.geoprism.registry.DataNotFoundException") {
-			return this.localizeService.decode("scheduledjobs.job.problem.type.required.value.lookup");
+			return this.localizeService.decode("scheduledjobs.job.problem.type.datanotfound");
 		}
 
 		if (
@@ -127,6 +127,7 @@ export class JobComponent implements OnInit {
 		if (
 			probType === "com.runwaysdk.dataaccess.DuplicateDataException"
 			|| probType === "net.geoprism.registry.DuplicateGeoObjectException"
+			|| probType === "net.geoprism.registry.DuplicateGeoObjectCodeException"
 		) {
 			return this.localizeService.decode("scheduledjobs.job.problem.type.duplicate.data.lookup");
 		}

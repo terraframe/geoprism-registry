@@ -33,8 +33,6 @@ import net.geoprism.registry.conversion.OrganizationConverter;
 
 public class TestOrganizationInfo
 {
-  private final TestDataSet testDataSet;
-  
   private String                  code;
   
   private String                  displayLabel;
@@ -43,23 +41,21 @@ public class TestOrganizationInfo
   
   private Organization            serverObj;
   
-  protected TestOrganizationInfo(TestDataSet testDataSet, String genKey)
+  public TestOrganizationInfo(String code)
   {
-    this.testDataSet = testDataSet;
-    initialize(genKey);
+    initialize(code);
   }
   
-  protected TestOrganizationInfo(TestDataSet testDataSet, String code, String displayLabel)
+  public TestOrganizationInfo(String code, String displayLabel)
   {
-    this.testDataSet = testDataSet;
     this.code = code;
     this.displayLabel = displayLabel;
   }
   
-  private void initialize(String genKey)
+  private void initialize(String code)
   {
-    this.code = this.testDataSet.getTestDataKey() + genKey + "Code";
-    this.displayLabel = this.testDataSet.getTestDataKey() + " " + genKey + " Display Label";
+    this.code = code;
+    this.displayLabel = code + " Display Label";
   }
 
   public String getCode()
@@ -130,11 +126,6 @@ public class TestOrganizationInfo
   @Transaction
   private void deleteInTrans()
   {
-    if (this.testDataSet.debugMode >= 1)
-    {
-      System.out.println("Deleting Organization [" + this.getCode() + "].");
-    }
-
     Organization org = getServerObject();
     
     if (org != null)

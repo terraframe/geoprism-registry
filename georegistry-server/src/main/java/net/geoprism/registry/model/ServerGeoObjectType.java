@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -40,7 +40,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
@@ -56,7 +56,6 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Actor;
@@ -356,7 +355,10 @@ public class ServerGeoObjectType
     ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(this.type);
 
     // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    if (Session.getCurrentSession() != null)
+    {
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    }
 
     return attrType;
   }
@@ -664,6 +666,25 @@ public class ServerGeoObjectType
     return null;
   }
 
+  public List<ServerGeoObjectType> getChildren(ServerHierarchyType hierarchy)
+  {
+    List<ServerGeoObjectType> children = new LinkedList<>();
+    String mdRelationshipType = hierarchy.getUniversalRelationship().definesType();
+
+    try (OIterator<? extends Business> iterator = this.universal.getDirectDescendants(mdRelationshipType))
+    {
+      while (iterator.hasNext())
+      {
+        Universal cUniversal = (Universal) iterator.next();
+
+        children.add(ServerGeoObjectType.get(cUniversal));
+      }
+
+    }
+
+    return children;
+  }
+
   public List<ServerHierarchyType> getHierarchies()
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
@@ -673,15 +694,21 @@ public class ServerGeoObjectType
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
+      Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-      // Note: Ordered ancestors always includes self
-      Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, this.getUniversal(), sType.getUniversalType());
-
-      if (parents.size() > 1)
+      if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode()))
       {
-        hierarchies.add(sType);
+        ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
+
+        // Note: Ordered ancestors always includes self
+        Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, this.getUniversal(), sType.getUniversalType());
+
+        if (parents.size() > 1)
+        {
+          hierarchies.add(sType);
+        }
       }
+
     }
 
     if (hierarchies.size() == 0)
@@ -692,7 +719,12 @@ public class ServerGeoObjectType
 
       for (HierarchyType hierarchyType : hierarchyTypes)
       {
-        hierarchies.add(ServerHierarchyType.get(hierarchyType));
+        Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
+
+        if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode()))
+        {
+          hierarchies.add(ServerHierarchyType.get(hierarchyType));
+        }
       }
     }
 

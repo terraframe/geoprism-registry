@@ -414,7 +414,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(this, genKey, testUni);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni);
 
     info.delete();
 
@@ -425,7 +425,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(this, genKey, testUni, wkt, DefaultTerms.GeoObjectStatusTerm.PENDING.code, true);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, DefaultTerms.GeoObjectStatusTerm.PENDING.code, true);
 
     info.delete();
 
@@ -436,7 +436,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectTypeInfo newTestGeoObjectTypeInfo(String genKey, TestOrganizationInfo organization)
   {
-    TestGeoObjectTypeInfo info = new TestGeoObjectTypeInfo(this, genKey, organization);
+    TestGeoObjectTypeInfo info = new TestGeoObjectTypeInfo(genKey, organization);
 
     info.delete();
 
@@ -447,7 +447,7 @@ abstract public class TestDataSet
 
   public TestHierarchyTypeInfo newTestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
-    TestHierarchyTypeInfo info = new TestHierarchyTypeInfo(this, genKey, org);
+    TestHierarchyTypeInfo info = new TestHierarchyTypeInfo(genKey, org);
 
     info.delete();
 
@@ -457,13 +457,8 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void deleteGeoEntity(String key)
+  public static void deleteGeoEntity(String key)
   {
-    if (this.debugMode >= 1)
-    {
-      System.out.println("Deleting All GeoEntities by key [" + key + "].");
-    }
-
     GeoEntityQuery geq = new GeoEntityQuery(new QueryFactory());
     geq.WHERE(geq.getKeyName().EQ(key));
     OIterator<? extends GeoEntity> git = geq.getIterator();
@@ -472,11 +467,6 @@ abstract public class TestDataSet
       while (git.hasNext())
       {
         GeoEntity ge = git.next();
-
-        if (this.debugMode >= 2)
-        {
-          System.out.println("Deleting GeoEntity with geoId [" + ge.getGeoId() + "].");
-        }
 
         ge.delete();
       }
@@ -487,7 +477,7 @@ abstract public class TestDataSet
     }
   }
 
-  public MdClass getMdClassIfExist(String pack, String type)
+  public static MdClass getMdClassIfExist(String pack, String type)
   {
     MdClassQuery mbq = new MdClassQuery(new QueryFactory());
     mbq.WHERE(mbq.getPackageName().EQ(pack));
@@ -509,23 +499,18 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void deleteMdClass(String pack, String type)
+  public static void deleteMdClass(String pack, String type)
   {
     MdClass mdBiz = getMdClassIfExist(pack, type);
 
     if (mdBiz != null)
     {
-      if (this.debugMode >= 1)
-      {
-        System.out.println("Deleting MdClass [" + pack + "." + type + "].");
-      }
-
       mdBiz.delete();
     }
   }
 
   @Request
-  public Universal getUniversalIfExist(String universalId)
+  public static Universal getUniversalIfExist(String universalId)
   {
     UniversalQuery uq = new UniversalQuery(new QueryFactory());
     uq.WHERE(uq.getUniversalId().EQ(universalId));
@@ -546,17 +531,12 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void deleteUniversal(String code)
+  public static void deleteUniversal(String code)
   {
     Universal uni = getUniversalIfExist(code);
 
     if (uni != null)
     {
-      if (this.debugMode >= 1)
-      {
-        System.out.println("Deleting Universal [" + code + "].");
-      }
-
       MasterList.deleteAll(uni);
 
       uni = Universal.get(uni.getOid());

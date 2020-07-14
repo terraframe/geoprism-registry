@@ -226,7 +226,7 @@ export class ScheduledJobsComponent implements OnInit {
 
 		this.bsModalRef.content.message = this.localizeService.decode("etl.import.cancel.modal.description");
 		this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.cancel.modal.button");
-
+		
 		this.bsModalRef.content.type = ModalTypes.danger;
 
 		this.bsModalRef.content.onConfirm.subscribe(data => {
@@ -252,6 +252,41 @@ export class ScheduledJobsComponent implements OnInit {
 		});
 	}
 
+  onResolveScheduledJob(historyId: string, job: ScheduledJob): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: true,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+
+    this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.importDescription");
+    this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.importButton");
+
+    this.bsModalRef.content.type = ModalTypes.danger;
+
+    this.bsModalRef.content.onConfirm.subscribe(data => {
+
+      this.service.resolveScheduledJob(historyId).then(response => {
+
+        this.bsModalRef.hide()
+
+        for (let i = 0; i < this.activeJobsPage.results.length; ++i) {
+          let activeJob = this.activeJobsPage.results[i];
+
+          if (activeJob.jobId === job.jobId) {
+            this.activeJobsPage.results.splice(i, 1);
+            break;
+          }
+        }
+
+        this.onViewAllCompleteJobs();
+
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+
+    });
+  }
 
 
 	error(err: HttpErrorResponse): void {

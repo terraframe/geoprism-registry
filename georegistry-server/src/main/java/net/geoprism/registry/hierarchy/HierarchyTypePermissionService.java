@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -35,11 +35,7 @@ import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
 public class HierarchyTypePermissionService implements HierarchyTypePermissionServiceIF
 {
   /**
-   * Operation must be one of:
-   * - WRITE (Update)
-   * - READ
-   * - DELETE
-   * - CREATE
+   * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
    * 
    * @param actor
    * @param op
@@ -49,7 +45,7 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
     if (!doesActorHavePermission(actor, orgCode, op))
     {
       Organization org = Organization.getByCode(orgCode);
-      
+
       if (op.equals(Operation.WRITE))
       {
         UpdateHierarchyPermissionException ex = new UpdateHierarchyPermissionException();
@@ -76,35 +72,35 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
       }
     }
   }
-  
+
   protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
       return true;
     }
-    
+
     if (orgCode != null)
     {
       Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
+
       for (RoleDAOIF role : roles)
       {
         String roleName = role.getRoleName();
-        
+
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
-          if ( RegistryRole.Type.isRA_Role(roleName) )
-          {
-            return orgCode.equals(roleOrgCode) || op.equals(Operation.READ);
-          }
-          else if ( RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ) )
+
+          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(roleOrgCode))
           {
             return true;
           }
-          else if ( (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName)) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
+          else if (RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
+          {
+            return true;
+          }
+          else if ( ( RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
           {
             return true;
           }
@@ -115,10 +111,10 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
         }
       }
     }
-    
+
     return false;
   }
-  
+
   @Override
   public boolean canRead(SingleActorDAOIF actor, String orgCode)
   {
@@ -166,5 +162,5 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
   {
     this.enforceActorHasPermission(actor, orgCode, Operation.DELETE);
   }
-  
+
 }

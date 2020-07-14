@@ -18,18 +18,25 @@
  */
 package net.geoprism.registry.etl;
 
+import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
+import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
+  public static final String ATTRIBUTES      = "attributes";
+  
   public static final String LEVELS          = "levels";
 
   public static final String GEO_OBJECT_TYPE = "geoObjectType";
@@ -37,6 +44,8 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
   public static final String TYPE            = "type";
 
   private List<SyncLevel>    levels;
+  
+  private List<DHIS2AttributeMapping> attributes;
 
   public List<SyncLevel> getLevels()
   {
@@ -61,6 +70,8 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
     JsonObject json = config.getConfigurationJson();
 
+    
+    // Levels
     LinkedList<SyncLevel> levels = new LinkedList<SyncLevel>();
 
     JsonArray lArray = json.get(LEVELS).getAsJsonArray();
@@ -79,8 +90,16 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
       levels.add(level);
     }
-
+    
     this.setLevels(levels);
+    
+    
+    // Attribute Mappings
+    JsonArray jaAttrMap = json.get(ATTRIBUTES).getAsJsonArray();
+    
+    Gson gson = new GsonBuilder().create();
+    Type list = new TypeToken<List<DHIS2AttributeMapping>>() {}.getType();
+    this.attributes =  gson.fromJson(jaAttrMap, list);
   }
 
 }
