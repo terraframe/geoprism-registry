@@ -82,6 +82,7 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 public class ShapefileServiceTest
@@ -95,7 +96,7 @@ public class ShapefileServiceTest
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(false);
+    this.testData = USATestData.newTestData();
 
     AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
     this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
@@ -702,7 +703,7 @@ public class ShapefileServiceTest
 
     try
     {
-      this.testData.refreshTerms(this.testTerm);
+      TestDataSet.refreshTerms(this.testTerm);
 
       InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -735,7 +736,7 @@ public class ShapefileServiceTest
     {
       ServiceFactory.getRegistryService().deleteTerm(this.testData.adminClientRequest.getSessionId(), term.getCode());
 
-      this.testData.refreshTerms(this.testTerm);
+      TestDataSet.refreshTerms(this.testTerm);
     }
   }
 

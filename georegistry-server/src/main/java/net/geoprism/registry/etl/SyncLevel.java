@@ -26,8 +26,10 @@ public class SyncLevel
   public static enum Type {
     ORG_UNITS, RELATIONSHIPS, ALL
   }
+  
+  private transient ServerGeoObjectType geoObjectType;
 
-  private ServerGeoObjectType geoObjectType;
+  private String geoObjectTypeCode;
 
   private Type                syncType;
 
@@ -35,12 +37,17 @@ public class SyncLevel
 
   public ServerGeoObjectType getGeoObjectType()
   {
+    if (geoObjectType == null)
+    {
+      geoObjectType = ServerGeoObjectType.get(geoObjectTypeCode);
+    }
+    
     return geoObjectType;
   }
 
-  public void setGeoObjectType(ServerGeoObjectType geoObjectType)
+  public void setGeoObjectType(String geoObjectTypeCode)
   {
-    this.geoObjectType = geoObjectType;
+    this.geoObjectTypeCode = geoObjectTypeCode;
   }
 
   public Type getSyncType()

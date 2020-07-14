@@ -578,7 +578,7 @@ public class ServerGeoObjectType
    * 
    * @return
    */
-  private MdAttributeConcreteDAOIF getMdAttribute(String attributeName)
+  public MdAttributeConcreteDAOIF getMdAttribute(String attributeName)
   {
     MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) getMdBusinessDAO();
 

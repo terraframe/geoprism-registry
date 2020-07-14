@@ -117,7 +117,7 @@ public class HierarchyManagementServiceTest
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
     
     COUNTRY = testData.newTestGeoObjectTypeInfo("HMST_Country", testData.ORG_NPS);

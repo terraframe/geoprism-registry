@@ -96,6 +96,7 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ExcelService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 public class ExcelServiceTest
@@ -119,7 +120,7 @@ public class ExcelServiceTest
   {
 //    testData.setUpTest();
     
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
     
     AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
@@ -610,7 +611,7 @@ public class ExcelServiceTest
 
     try
     {
-      this.testData.refreshTerms(testTerm);
+      TestDataSet.refreshTerms(testTerm);
 
       Calendar calendar = Calendar.getInstance();
       calendar.clear();
@@ -872,7 +873,7 @@ public class ExcelServiceTest
 
     try
     {
-      this.testData.refreshTerms(testTerm);
+      TestDataSet.refreshTerms(testTerm);
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -906,7 +907,7 @@ public class ExcelServiceTest
     {
       ServiceFactory.getRegistryService().deleteTerm(testData.adminClientRequest.getSessionId(), term.getCode());
 
-      this.testData.refreshTerms(testTerm);
+      TestDataSet.refreshTerms(testTerm);
     }
   }
 

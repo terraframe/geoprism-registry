@@ -21,6 +21,7 @@ package net.geoprism.registry.etl;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,7 +29,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
-import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -45,7 +45,7 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
   private List<SyncLevel>    levels;
   
-  private List<DHIS2AttributeMapping> attributes;
+  private Map<String, DHIS2AttributeMapping> attributes;
 
   public List<SyncLevel> getLevels()
   {
@@ -55,6 +55,16 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
   public void setLevels(List<SyncLevel> levels)
   {
     this.levels = levels;
+  }
+  
+  public Map<String, DHIS2AttributeMapping> getAttributes()
+  {
+    return attributes;
+  }
+
+  public void setAttributes(Map<String, DHIS2AttributeMapping> attributes)
+  {
+    this.attributes = attributes;
   }
 
   @Override
@@ -84,7 +94,7 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
       String type = object.get(TYPE).getAsString();
 
       SyncLevel level = new SyncLevel();
-      level.setGeoObjectType(ServerGeoObjectType.get(typeCode));
+      level.setGeoObjectType(typeCode);
       level.setSyncType(SyncLevel.Type.valueOf(type));
       level.setLevel(i + 1);
 

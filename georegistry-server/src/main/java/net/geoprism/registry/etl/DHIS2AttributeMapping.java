@@ -18,11 +18,35 @@
  */
 package net.geoprism.registry.etl;
 
+import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
+
 public class DHIS2AttributeMapping
 {
   
-  private String dhis2ValueType;
+  private ValueType dhis2ValueType;
   
   private String runwayAttributeId;
+
+  public ValueType getDhis2ValueType()
+  {
+    return dhis2ValueType;
+  }
+
+  public void setDhis2ValueType(ValueType dhis2ValueType)
+  {
+    this.dhis2ValueType = dhis2ValueType;
+  }
+
+  public String getRunwayAttributeId()
+  {
+    return runwayAttributeId;
+  }
+
+  public void setRunwayAttributeId(String runwayAttributeId)
+  {
+    this.runwayAttributeId = runwayAttributeId;
+  }
+  
+  
 
 }

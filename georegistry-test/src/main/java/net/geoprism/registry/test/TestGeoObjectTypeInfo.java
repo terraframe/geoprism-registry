@@ -165,6 +165,11 @@ public class TestGeoObjectTypeInfo
       }
     }
     
+    public GeoObjectType toDTO()
+    {
+      return this.getServerObject().getType();
+    }
+    
 //    public ServerGeoObjectType getGeoObjectType()
 //    {
       // if (this.getUniversal() != null)

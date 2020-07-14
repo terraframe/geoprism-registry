@@ -86,6 +86,8 @@ public class TestGeoObjectInfo
   private String                  statusCode;
 
   private Boolean                 isNew;
+  
+  private Date                    date;
 
   protected TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
   {
@@ -107,6 +109,7 @@ public class TestGeoObjectInfo
     this.parents = new LinkedList<TestGeoObjectInfo>();
     this.statusCode = statusCode;
     this.isNew = isNew;
+    this.date = new Date();
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
     if (geom == GeometryType.POLYGON)
@@ -527,7 +530,7 @@ public class TestGeoObjectInfo
    * @postcondition The applied GeoObject's status will be equal to ACTIVE
    */
   @Request
-  public void apply(Date date)
+  public void apply()
   {
     ServerGeoObjectIF localServerGO = applyInTrans(date);
 

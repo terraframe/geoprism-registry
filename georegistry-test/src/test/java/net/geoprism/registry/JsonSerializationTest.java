@@ -63,7 +63,7 @@ public class JsonSerializationTest
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
   }
 
