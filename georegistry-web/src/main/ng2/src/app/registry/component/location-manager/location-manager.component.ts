@@ -1,5 +1,8 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { Map, LngLatBounds, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
+import { Map, LngLatBounds, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
+
+import { AllGeoJSON } from '@turf/helpers'
+import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
 
@@ -84,6 +87,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	hoverFeatureId: string;
 
+	preventSingleClick: boolean = false;
+
+	/* 
+     * Timer for determining double click vs single click
+     */
+	timer: any;
+
 	/* 
      * debounced subject for map extent change events
      */
@@ -103,7 +113,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	ngAfterViewInit() {
-		
+
 		const layer = this.baseLayers[1];
 
 		this.map = new Map({
@@ -158,18 +168,25 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		this.map.on('style.load', () => {
 			this.addLayers();
-			this.refresh(false);
+			this.refresh();
 		});
 
 		this.addLayers();
 
 
-		this.refresh(true);
+		this.refresh();
 
 		// Add zoom and rotation controls to the map.
 		this.map.addControl(new NavigationControl());
 		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-left');
 
+		this.map.on('dblclick', 'children-points', (event: any) => {
+			this.handleMapClickEvent(event);
+		});
+
+		this.map.on('dblclick', 'children-polygon', (event: any) => {
+			this.handleMapClickEvent(event);
+		});
 	}
 
 	addLayers(): void {
@@ -238,43 +255,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.vectorLayers.forEach(source => {
 			this.addVectorLayer(source);
 		});
-
-		//		this.addContextLayer('c4ae30ca-1c86-4ec7-ae3f-b095520005f1');
 	}
 
-	handleExtentChange(e: MapboxEvent<MouseEvent | TouchEvent | WheelEvent>): void {
-		if (this.current == null) {
-			const bounds = this.map.getBounds();
-
-			// Sometimes bounds aren't valid for 4326, so validate it before sending to server
-			if (this.isValidBounds(bounds)) {
-				//				this.service.roots(null, bounds).then(nodes => {
-				//					this.nodes = nodes;
-				//				});
-			}
-			else {
-				// console.log("Invalid bounds", bounds);
-			}
-		}
-	}
-
-	isValidBounds(bounds: LngLatBounds): boolean {
-
-		const ne = bounds.getNorthEast();
-		const sw = bounds.getSouthWest();
-
-		if (Math.abs(ne.lng) > 180 || Math.abs(sw.lng) > 180) {
-			return false;
-		}
-
-		if (Math.abs(ne.lat) > 90 || Math.abs(sw.lat) > 90) {
-			return false;
-		}
-
-		return true;
-	}
-
-	refresh(zoom: boolean): void {
+	refresh(): void {
 
 		if (this.current == null) {
 			this.mapService.roots(null, null, this.dateStr).then(data => {
@@ -291,15 +274,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		}
 
 	}
-
-	zoomToFeature(node: GeoObject): void {
-		if (node.geometry != null) {
-			this.map.flyTo({
-				center: node.geometry.coordinates
-			});
-		}
-	}
-
 
 	handleStyle(layer: any): void {
 
@@ -386,31 +360,63 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	//		}
 	//	}
 
-	select(node: GeoObject, parent: GeoObject, event: any): void {
+	zoomToFeature(node: GeoObject, event: MouseEvent): void {
+		if (event != null) {
+			event.stopPropagation();
+		}
+
+		this.preventSingleClick = false;
+		const delay = 200;
+
+		this.timer = setTimeout(() => {
+			if (!this.preventSingleClick) {
+				if (node.geometry != null) {
+					const bounds = bbox(node as AllGeoJSON) as LngLatBoundsLike;
+
+					this.map.fitBounds(bounds);
+				}
+			}
+		}, delay);
+	}
+
+	select(node: GeoObject, event: MouseEvent): void {
 
 		if (event != null) {
 			event.stopPropagation();
 		}
 
+		this.preventSingleClick = true;
+		clearTimeout(this.timer);
+
+		this.drillDown(node);
+	}
+
+	handleMapClickEvent(event: any): void {
+		if (event.features != null && event.features.length > 0) {
+			const feature = event.features[0];
+
+			const index = this.data.geojson.features.findIndex(node => { return node.properties.code === feature.properties.code });
+
+			if (index !== -1) {
+				this.drillDown(this.data.geojson.features[index]);
+			}
+		}
+	}
+
+
+
+	drillDown(node: GeoObject): void {
+		console.log(node);
+
 		this.mapService.select(node.properties.code, node.properties.type, null, null, this.dateStr).then(data => {
 			this.current = node;
-			if (parent != null) {
-				this.addBreadcrumb(parent);
-			}
 
 			this.addBreadcrumb(node);
 
 			(<any>this.map.getSource('children')).setData(data.geojson);
 
 			this.data = data;
-
-			//			if (zoom) {
-			//				let bounds = new LngLatBounds([data.bbox[0], data.bbox[1]], [data.bbox[2], data.bbox[3]]);
-			//
-			//				this.map.fitBounds(bounds, { padding: 50 });
-			//			}
 		});
-
 	}
 
 	addBreadcrumb(node: GeoObject): void {
@@ -458,7 +464,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		})
 	}
 
-	toggleContextLayer(source: string) {
+	toggleContextLayer(source: string): void {
 		const index = this.vectorLayers.indexOf(source);
 
 		if (index === -1) {
@@ -476,7 +482,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		}
 	}
 
-	public addVectorLayer(source: string): void {
+	addVectorLayer(source: string): void {
 		const prevLayer = 'children-points';
 
 		var protocol = window.location.protocol;
