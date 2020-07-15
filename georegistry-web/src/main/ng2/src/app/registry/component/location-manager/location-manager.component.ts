@@ -60,15 +60,24 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * List of base layers
      */
 	baseLayers: any[] = [{
+		name: 'Outdoors',
 		label: 'Outdoors',
 		id: 'outdoors-v11',
+		sprite: 'mapbox://sprites/mapbox/outdoors-v11',
+		url: 'mapbox://mapbox.outdoors',
+	}, {
+		name: 'Satellite',
+		label: 'Satellite',
+		id: 'satellite-v9',
+		sprite: 'mapbox://sprites/mapbox/satellite-v9',
+		url: 'mapbox://mapbox.satellite',
 		selected: true
 	}, {
-		label: 'Satellite',
-		id: 'satellite-v9'
-	}, {
+		name: 'Satellite',
 		label: 'Streets',
-		id: 'streets-v11'
+		id: 'streets-v11',
+		sprite: 'mapbox://sprites/mapbox/streets-v11',
+		url: 'mapbox://mapbox.streets',
 	}];
 
 	baselayerIconHover = false;
@@ -94,10 +103,42 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	ngAfterViewInit() {
+		
+		const layer = this.baseLayers[1];
 
 		this.map = new Map({
 			container: 'map',
-			style: 'mapbox://styles/mapbox/outdoors-v11',
+			style: {
+				"version": 8,
+				"name": layer.name,
+				"metadata": {
+					"mapbox:autocomposite": true
+				},
+				"sources": {
+					"mapbox": {
+						"type": "raster",
+						"url": layer.url,
+						"tileSize": 256
+					}
+				},
+				"sprite": layer.sprite,
+				"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
+				"layers": [
+					{
+						"id": "background",
+						"type": "background",
+						"paint": {
+							"background-color": "rgb(4,7,14)"
+						}
+					},
+					{
+						"id": "satellite",
+						"type": "raster",
+						"source": "mapbox",
+						"source-layer": "mapbox_satellite_full"
+					}
+				]
+			},
 			zoom: 2,
 			attributionControl: false,
 			center: [-78.880453, 42.897852]
@@ -187,13 +228,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			},
 			"layout": {
 				"text-field": ['get', 'localizedValue', ['get', 'displayLabel']],
-				"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+				"text-font": ["NotoSansRegular"],
 				"text-offset": [0, 0.6],
 				"text-anchor": "top",
 				"text-size": 12,
 			}
 		});
 
+		this.vectorLayers.forEach(source => {
+			this.addVectorLayer(source);
+		});
 
 		//		this.addContextLayer('c4ae30ca-1c86-4ec7-ae3f-b095520005f1');
 	}
@@ -265,7 +309,37 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		layer.selected = true;
 
-		this.map.setStyle('mapbox://styles/mapbox/' + layer.id);
+		this.map.setStyle({
+			"version": 8,
+			"name": layer.name,
+			"metadata": {
+				"mapbox:autocomposite": true
+			},
+			"sources": {
+				"mapbox": {
+					"type": "raster",
+					"url": layer.url,
+					"tileSize": 256
+				}
+			},
+			"sprite": layer.sprite,
+			"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
+			"layers": [
+				{
+					"id": "background",
+					"type": "background",
+					"paint": {
+						"background-color": "rgb(4,7,14)"
+					}
+				},
+				{
+					"id": "satellite",
+					"type": "raster",
+					"source": "mapbox",
+					"source-layer": "mapbox_satellite_full"
+				}
+			]
+		});
 	}
 
 	highlightMapFeature(id: string): void {
@@ -388,74 +462,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		const index = this.vectorLayers.indexOf(source);
 
 		if (index === -1) {
-			const prevLayer = 'children-points';
-
-			var protocol = window.location.protocol;
-			var host = window.location.host;
-
-			this.map.addSource(source, {
-				type: 'vector',
-				tiles: [protocol + '//' + host + acp + '/master-list/tile?x={x}&y={y}&z={z}&config=' + encodeURIComponent(JSON.stringify({ oid: source }))]
-			});
-
-			// Point layer
-			this.map.addLayer({
-				"id": source + "-points",
-				"type": "circle",
-				"source": source,
-				"source-layer": 'context',
-				"paint": {
-					"circle-radius": 10,
-					"circle-color": '#800000',
-					"circle-stroke-width": 2,
-					"circle-stroke-color": '#FFFFFF'
-				},
-				filter: ['all',
-					["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-				]
-			}, prevLayer);
-
-			// Polygon layer
-			this.map.addLayer({
-				'id': source + '-polygon',
-				'type': 'fill',
-				'source': source,
-				"source-layer": 'context',
-				'layout': {},
-				'paint': {
-					'fill-color': '#80cdc1',
-					'fill-opacity': 0.8
-				},
-				filter: ['all',
-					["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
-				]
-			}, prevLayer);
-
-
-			// Label layer
-			this.map.addLayer({
-				"id": source + "-label",
-				"source": source,
-				"source-layer": 'context',
-				"type": "symbol",
-				"paint": {
-					"text-color": "black",
-					"text-halo-color": "#fff",
-					"text-halo-width": 2
-				},
-				"layout": {
-					"text-field": ["case",
-						["has", "displayLabel_" + navigator.language.toLowerCase],
-						["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase]], ["string", ["get", "displayLabel"]]],
-						["string", ["get", "displayLabel"]]
-					],
-					"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-					"text-offset": [0, 0.6],
-					"text-anchor": "top",
-					"text-size": 12,
-				}
-			}, prevLayer);
-
+			this.addVectorLayer(source);
 
 			this.vectorLayers.push(source);
 		}
@@ -467,5 +474,76 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 			this.vectorLayers.splice(index, 1);
 		}
+	}
+
+	public addVectorLayer(source: string): void {
+		const prevLayer = 'children-points';
+
+		var protocol = window.location.protocol;
+		var host = window.location.host;
+
+		this.map.addSource(source, {
+			type: 'vector',
+			tiles: [protocol + '//' + host + acp + '/master-list/tile?x={x}&y={y}&z={z}&config=' + encodeURIComponent(JSON.stringify({ oid: source }))]
+		});
+
+		// Point layer
+		this.map.addLayer({
+			"id": source + "-points",
+			"type": "circle",
+			"source": source,
+			"source-layer": 'context',
+			"paint": {
+				"circle-radius": 10,
+				"circle-color": '#800000',
+				"circle-stroke-width": 2,
+				"circle-stroke-color": '#FFFFFF'
+			},
+			filter: ['all',
+				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+			]
+		}, prevLayer);
+
+		// Polygon layer
+		this.map.addLayer({
+			'id': source + '-polygon',
+			'type': 'fill',
+			'source': source,
+			"source-layer": 'context',
+			'layout': {},
+			'paint': {
+				'fill-color': '#80cdc1',
+				'fill-opacity': 0.8
+			},
+			filter: ['all',
+				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+			]
+		}, prevLayer);
+
+
+		// Label layer
+		this.map.addLayer({
+			"id": source + "-label",
+			"source": source,
+			"source-layer": 'context',
+			"type": "symbol",
+			"paint": {
+				"text-color": "black",
+				"text-halo-color": "#fff",
+				"text-halo-width": 2
+			},
+			"layout": {
+				"text-field": ["case",
+					["has", "displayLabel_" + navigator.language.toLowerCase],
+					["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase]], ["string", ["get", "displayLabel"]]],
+					["string", ["get", "displayLabel"]]
+				],
+				"text-font": ["NotoSansRegular"],
+				"text-offset": [0, 0.6],
+				"text-anchor": "top",
+				"text-size": 12,
+			}
+		}, prevLayer);
+
 	}
 }
