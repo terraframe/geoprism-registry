@@ -21,7 +21,6 @@ package net.geoprism.registry;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -34,7 +33,6 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
@@ -50,7 +48,7 @@ public class JsonSerializationTest
 
   protected ExternalSystem     system;
 
-  private DHIS2Facade          dhis2;
+//  private DHIS2ServiceIF          dhis2;
 
   private static final String  USERNAME = "admin";
 
@@ -89,7 +87,7 @@ public class JsonSerializationTest
     HTTPConnector connector = new HTTPConnector();
     connector.setCredentials(USERNAME, PASSWORD);
     connector.setServerUrl(URL);
-    dhis2 = new DHIS2Facade(connector, VERSION);
+//    dhis2 = new DHIS2Facade(connector, VERSION);
   }
 
   @After

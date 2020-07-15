@@ -35,7 +35,7 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 
-public class DHIS2Facade
+public class DHIS2Bridge
 {
   private String version;
   
@@ -43,7 +43,7 @@ public class DHIS2Facade
   
   Dhis2IdCache idCache;
   
-  public DHIS2Facade(HTTPConnector connector, String version)
+  public DHIS2Bridge(HTTPConnector connector, String version)
   {
     this.connector = connector;
     this.version = version;

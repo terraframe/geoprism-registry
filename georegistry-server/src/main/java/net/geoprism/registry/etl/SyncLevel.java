@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.etl;
 
+import com.google.gson.annotations.SerializedName;
+
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class SyncLevel
@@ -29,8 +31,10 @@ public class SyncLevel
   
   private transient ServerGeoObjectType geoObjectType;
 
+  @SerializedName(DHIS2SyncConfig.GEO_OBJECT_TYPE)
   private String geoObjectTypeCode;
 
+  @SerializedName(DHIS2SyncConfig.TYPE)
   private Type                syncType;
 
   private int                 level;

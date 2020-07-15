@@ -42,7 +42,6 @@ import com.google.gson.JsonSerializer;
 import com.runwaysdk.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
-import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -71,11 +70,11 @@ public class DHIS2GeoObjectJsonAdapters
 
     private ExternalSystem      ex;
 
-    private DHIS2Facade         dhis2;
+    private DHIS2ServiceIF         dhis2;
 
     private SyncLevel           syncLevel;
 
-    public DHIS2Serializer(DHIS2Facade dhis2, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
+    public DHIS2Serializer(DHIS2ServiceIF dhis2, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
     {
       this.got = got;
       this.hierarchyType = hierarchyType;

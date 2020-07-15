@@ -31,7 +31,6 @@ import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
@@ -105,10 +104,10 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
     
     
     // Attribute Mappings
-    JsonArray jaAttrMap = json.get(ATTRIBUTES).getAsJsonArray();
+    JsonObject jaAttrMap = json.get(ATTRIBUTES).getAsJsonObject();
     
     Gson gson = new GsonBuilder().create();
-    Type list = new TypeToken<List<DHIS2AttributeMapping>>() {}.getType();
+    Type list = new TypeToken<Map<String, DHIS2AttributeMapping>>() {}.getType();
     this.attributes =  gson.fromJson(jaAttrMap, list);
   }
 

@@ -52,7 +52,6 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
-import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
@@ -65,6 +64,7 @@ import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
+import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -86,7 +86,7 @@ public class DataExportJob extends DataExportJobBase
 
   private DHIS2SyncConfig       dhis2Config;
 
-  private DHIS2Facade           dhis2;
+  private DHIS2ServiceIF           dhis2;
   
   private ExportHistory         history;
 
@@ -193,7 +193,7 @@ public class DataExportJob extends DataExportJobBase
     connector.setServerUrl(system.getUrl());
     connector.setCredentials(system.getUsername(), system.getPassword());
 
-    dhis2 = new DHIS2Facade(connector, this.getAPIVersion());
+    dhis2 = DataExportServiceFactory.getDhis2Service(connector, this.getAPIVersion());
 
     this.setStage(history, ExportStage.EXPORT);
 
@@ -323,6 +323,8 @@ public class DataExportJob extends DataExportJobBase
     DHIS2ImportResponse resp = ee.response;
     Throwable ex = ee.error;
     String geoObjectCode = ee.geoObjectCode;
+    
+    logger.error("Export Error", ee.error); // TODO This is here for development only
     
     ExportError exportError = new ExportError();
 

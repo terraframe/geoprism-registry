@@ -39,13 +39,13 @@ import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
  * 
  * The metadata API is the best way to change localization of org units. The entity
  * API simply does not process the "translations" array and it does not do anything with it.
- * You can also change localization via the "entityTranslations" api in the DHIS2Facade.
+ * You can also change localization via the "entityTranslations" api in the DHIS2Bridge.
  * 
  * @author rrowlands
  */
 public class TranslationsTest
 {
-  private DHIS2Facade facade;
+  private DHIS2Bridge facade;
   
   @Before
   public void setUp()
@@ -54,7 +54,7 @@ public class TranslationsTest
     connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
     connector.setServerUrl(Constants.DHIS2_URL);
     
-    facade = new DHIS2Facade(connector, Constants.API_VERSION);
+    facade = new DHIS2Bridge(connector, Constants.API_VERSION);
   }
   
   @Test

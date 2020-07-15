@@ -38,7 +38,7 @@ public class CustomAttributeDataset extends TestDataSet
   
   public final TestOrganizationInfo  ORG          = new TestOrganizationInfo(this.getTestDataKey() + "Org");
   
-  public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(this.getTestDataKey() +  "Hier", ORG);
+  public final TestHierarchyTypeInfo HIER       = new TestHierarchyTypeInfo(this.getTestDataKey() +  "Hier", ORG);
   
   public final TestGeoObjectTypeInfo GOT_ALL          = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "All", GeometryType.MULTIPOLYGON, ORG);
 
@@ -48,12 +48,14 @@ public class CustomAttributeDataset extends TestDataSet
   
   public final TestGeoObjectInfo     GO_CHAR              = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_CHAR", GOT_CHAR);
   
-  public TestAttributeTypeInfo GOT_ALL_CHAR;
+  public TestAttributeTypeInfo AT_ALL_CHAR;
+
+  public TestAttributeTypeInfo AT_GO_CHAR;
 
   {
     managedOrganizationInfos.add(ORG);
     
-    managedHierarchyTypeInfos.add(HIER_ADMIN);
+    managedHierarchyTypeInfos.add(HIER);
     
     managedGeoObjectTypeInfos.add(GOT_ALL);
     managedGeoObjectTypeInfos.add(GOT_CHAR);
@@ -73,8 +75,8 @@ public class CustomAttributeDataset extends TestDataSet
   {
     super.setUpMetadataInTrans();
     
-    this.testChar = createAttribute(GOT_ALL, AttributeCharacterType.TYPE);
-    this.testChar = createAttribute(GOT_ALL, AttributeCharacterType.TYPE);
+    this.AT_ALL_CHAR = createAttribute(GOT_ALL, AttributeCharacterType.TYPE);
+    this.AT_GO_CHAR = createAttribute(GOT_CHAR, AttributeCharacterType.TYPE);
     
   }
   
@@ -93,16 +95,18 @@ public class CustomAttributeDataset extends TestDataSet
   @Override
   public void setUpClassRelationships()
   {
-    COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_ADMIN.getServerObject().getUniversalType());
-    COUNTRY.addChild(STATE, HIER_ADMIN);
+    GOT_ALL.getUniversal().addLink(Universal.getRoot(), HIER.getServerObject().getUniversalType());
+    
+    GOT_ALL.addChild(GOT_CHAR, HIER);
   }
 
   @Transaction
   @Override
   public void setUpRelationships()
   {
-    USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
-    USA.addChild(COLORADO, HIER_ADMIN);
+    GO_ALL.getGeoEntity().addLink(GeoEntity.getRoot(), HIER.getServerObject().getEntityType());
+    
+    GO_ALL.addChild(GO_CHAR, HIER);
   }
 
   @Override

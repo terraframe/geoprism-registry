@@ -39,7 +39,7 @@ import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
  */
 public class OrgUnitRelationshipTest
 {
-  private DHIS2Facade facade;
+  private DHIS2Bridge facade;
   
   @Before
   public void setUp()
@@ -48,7 +48,7 @@ public class OrgUnitRelationshipTest
     connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
     connector.setServerUrl(Constants.DHIS2_URL);
     
-    facade = new DHIS2Facade(connector, Constants.API_VERSION);
+    facade = new DHIS2Bridge(connector, Constants.API_VERSION);
   }
   
   @Test

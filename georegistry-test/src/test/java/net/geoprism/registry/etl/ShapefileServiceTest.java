@@ -82,6 +82,7 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
+import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
@@ -315,42 +316,6 @@ public class ShapefileServiceTest
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
 
-  private void waitUntilStatus(JobHistory hist, AllJobStatus status) throws InterruptedException
-  {
-    int waitTime = 0;
-    while (true)
-    {
-      hist = JobHistory.get(hist.getOid());
-      if (hist.getStatus().get(0) == status)
-      {
-        break;
-      }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE)
-      {
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
-      }
-
-      Thread.sleep(10);
-
-      waitTime += 10;
-      if (waitTime > 20000000)
-      {
-//        String extra = "";
-//        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-//        {
-//          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 100, 1).toString();
-//
-//          extra = extra + " " + ( (ImportHistory) hist ).getValidationProblems();
-//        }
-
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
-        return;
-      }
-    }
-
-    Thread.sleep(100);
-  }
-
   @Test
   @Request
   public void testImportShapefile() throws InterruptedException
@@ -367,7 +332,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -399,7 +364,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
@@ -416,7 +381,7 @@ public class ShapefileServiceTest
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), config2.toString());
     Assert.assertNotSame(hist.getOid(), hist2.getOid());
 
-    this.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
 
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
@@ -451,7 +416,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -494,7 +459,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -541,7 +506,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
 
@@ -595,7 +560,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -641,7 +606,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -676,7 +641,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -719,7 +684,7 @@ public class ShapefileServiceTest
 
       ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-      this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
       hist = ImportHistory.get(hist.getOid());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
@@ -758,7 +723,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -803,13 +768,13 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.RUNNING);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.RUNNING);
 
     hist = ImportHistory.get(hist.getOid());
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertTrue("Expected status new or queued, but was [" + hist2.getStatus().get(0) + "]", hist2.getStatus().get(0).equals(AllJobStatus.NEW) || hist2.getStatus().get(0).equals(AllJobStatus.QUEUED));
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertTrue("Expected status running or queued, but was [" + hist2.getStatus().get(0) + "]", hist2.getStatus().get(0).equals(AllJobStatus.RUNNING) || hist2.getStatus().get(0).equals(AllJobStatus.QUEUED));
@@ -827,7 +792,7 @@ public class ShapefileServiceTest
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
     Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
 
-    this.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
 
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertEquals(new Long(56), hist2.getWorkTotal());
@@ -867,7 +832,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -909,7 +874,7 @@ public class ShapefileServiceTest
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
