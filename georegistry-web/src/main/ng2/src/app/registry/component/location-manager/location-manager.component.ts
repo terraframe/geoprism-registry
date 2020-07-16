@@ -406,8 +406,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 
 	drillDown(node: GeoObject): void {
-		console.log(node);
-
 		this.mapService.select(node.properties.code, node.properties.type, null, null, this.dateStr).then(data => {
 			this.current = node;
 
