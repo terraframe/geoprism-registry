@@ -92,7 +92,7 @@ public class LocationInformation
 
   private String              hierarchy;
 
-  private GeoObjectOverTime   entity;
+  private GeoObject           entity;
 
   private GeoObjectType       childType;
 
@@ -168,12 +168,12 @@ public class LocationInformation
     return hierarchy;
   }
 
-  public void setEntity(GeoObjectOverTime entity)
+  public void setEntity(GeoObject entity)
   {
     this.entity = entity;
   }
 
-  public GeoObjectOverTime getEntity()
+  public GeoObject getEntity()
   {
     return entity;
   }

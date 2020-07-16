@@ -4,29 +4,33 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -39,8 +43,11 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRMException;
+import net.geoprism.registry.TileCache;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
@@ -48,15 +55,11 @@ import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.etl.PublishMasterListJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
-import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 
 public class MasterListService
 {
-  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
-
   @Request(RequestType.SESSION)
   public JsonArray listAll(String sessionId)
   {
@@ -291,7 +294,45 @@ public class MasterListService
     {
       // Do nothing
     }
+  }
 
+  @Request(RequestType.SESSION)
+  public JsonArray getAllVersions(String sessionId)
+  {
+    JsonArray response = new JsonArray();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    try (OIterator<? extends MasterList> it = query.getIterator())
+    {
+      while (it.hasNext())
+      {
+        MasterList list = it.next();
+        final boolean isMember = Organization.isMember(list.getOrganization());
+
+        if (isMember || list.getVisibility().equals(MasterList.PUBLIC))
+        {
+          response.add(list.toJSON(MasterListVersion.PUBLISHED));
+        }
+      }
+    }
+
+    return response;
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream getTile(String sessionId, JSONObject object)
+  {
+    try
+    {
+      byte[] bytes = TileCache.getTile(object);
+      return new ByteArrayInputStream(bytes);
+    }
+    catch (JSONException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   private void enforceWritePermissions(MasterList masterList)

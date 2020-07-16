@@ -1,5 +1,6 @@
 package net.geoprism.registry.service;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -18,7 +19,6 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
@@ -206,7 +206,7 @@ public class LocationService
   }
 
   @Request(RequestType.SESSION)
-  public LocationInformation getLocationInformation(String sessionId, String typeCode, String hierarchyCode)
+  public LocationInformation getLocationInformation(String sessionId, Date date, String typeCode, String hierarchyCode)
   {
     LocationInformation information = new LocationInformation();
 
@@ -246,7 +246,7 @@ public class LocationService
       {
         information.setChildType(type.getType());
 
-        List<VertexServerGeoObject> children = this.getGeoObjects(type.getCode());
+        List<VertexServerGeoObject> children = this.getGeoObjects(type.getCode(), date);
 
         for (VertexServerGeoObject child : children)
         {
@@ -264,11 +264,13 @@ public class LocationService
   }
 
   @Request(RequestType.SESSION)
-  public LocationInformation getLocationInformation(String sessionId, String code, String typeCode, String childTypeCode, String hierarchyCode)
+  public LocationInformation getLocationInformation(String sessionId, String code, String typeCode, Date date, String childTypeCode, String hierarchyCode)
   {
     LocationInformation information = new LocationInformation();
 
     ServerGeoObjectIF go = this.service.getGeoObjectByCode(code, typeCode);
+    go.setDate(date);
+
     ServerGeoObjectType type = go.getType();
     List<ServerHierarchyType> hierarchies = type.getHierarchies();
 
@@ -299,7 +301,7 @@ public class LocationService
     {
       information.setChildType(childType.getType());
 
-      List<VertexServerGeoObject> children = this.getGeoObjects(childType.getCode(), go.getCode(), hierarchy.getCode());
+      List<VertexServerGeoObject> children = this.getGeoObjects(go.getCode(), childType.getCode(), hierarchy.getCode(), date);
 
       for (VertexServerGeoObject child : children)
       {
@@ -310,7 +312,7 @@ public class LocationService
     information.setChildTypes(childTypes);
     information.setHierarchies(hierarchies);
     information.setHierarchy(hierarchy.getCode());
-    information.setEntity(go.toGeoObjectOverTime());
+    information.setEntity(go.toGeoObject());
 
     return information;
   }
@@ -326,7 +328,7 @@ public class LocationService
   // return children;
   // }
 
-  private List<VertexServerGeoObject> getGeoObjects(String typeCode)
+  private List<VertexServerGeoObject> getGeoObjects(String typeCode, Date date)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
@@ -345,7 +347,7 @@ public class LocationService
     for (VertexObject vObject : vObjects)
     {
       VertexServerGeoObject vSGO = new VertexServerGeoObject(type, vObject);
-      vSGO.setDate(ValueOverTime.INFINITY_END_DATE);
+      vSGO.setDate(date);
 
       response.add(vSGO);
     }
@@ -353,7 +355,7 @@ public class LocationService
     return response;
   }
 
-  private List<VertexServerGeoObject> getGeoObjects(String typeCode, String parentCode, String hierarchyCode)
+  private List<VertexServerGeoObject> getGeoObjects(String parentCode, String typeCode, String hierarchyCode, Date date)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
     ServerHierarchyType hierachy = ServerHierarchyType.get(hierarchyCode);
@@ -365,12 +367,12 @@ public class LocationService
     statement.append("SELECT EXPAND(in) FROM " + mdEdge.getDBClassName());
     statement.append(" WHERE in.@class = '" + mdVertex.getDBClassName() + "'");
     statement.append(" AND out.code = :parent");
-    statement.append(" AND :date = endDate");
+    statement.append(" AND :date BETWEEN startDate AND endDate");
     statement.append(" ORDER BY in.code");
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("parent", parentCode);
-    query.setParameter("date", ValueOverTime.INFINITY_END_DATE);
+    query.setParameter("date", date);
 
     List<VertexObject> vObjects = query.getResults();
 
@@ -379,7 +381,7 @@ public class LocationService
     for (VertexObject vObject : vObjects)
     {
       VertexServerGeoObject vSGO = new VertexServerGeoObject(type, vObject);
-      vSGO.setDate(ValueOverTime.INFINITY_END_DATE);
+      vSGO.setDate(date);
 
       response.add(vSGO);
     }

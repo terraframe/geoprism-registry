@@ -1,11 +1,18 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { Map, LngLatBounds, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
+import { Map, LngLatBounds, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
+
+import { AllGeoJSON } from '@turf/helpers'
+import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
 
-import { GeoObject } from '../../model/registry';
+import { GeoObject, MasterList } from '../../model/registry';
 import { LocationInformation } from '../../model/location-manager';
+
 import { MapService } from '../../service/map.service';
+import { RegistryService } from '../../service/registry.service';
+
+declare var acp: string;
 
 @Component({
 	selector: 'location-manager',
@@ -22,6 +29,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		hierarchies: [],
 		geojson: { type: 'MultiPolygon', features: [] }
 	};
+
+    /*
+     * Date of data for explorer
+     */
+	dateStr: string = null;
 
     /* 
      * Breadcrumb of previous children clicked on
@@ -43,34 +55,57 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
 	active: boolean = false;
 
+	vectorLayers: string[] = [];
+
+	lists: MasterList[] = [];
+
     /* 
      * List of base layers
      */
 	baseLayers: any[] = [{
+		name: 'Outdoors',
 		label: 'Outdoors',
 		id: 'outdoors-v11',
+		sprite: 'mapbox://sprites/mapbox/outdoors-v11',
+		url: 'mapbox://mapbox.outdoors',
+	}, {
+		name: 'Satellite',
+		label: 'Satellite',
+		id: 'satellite-v9',
+		sprite: 'mapbox://sprites/mapbox/satellite-v9',
+		url: 'mapbox://mapbox.satellite',
 		selected: true
 	}, {
-		label: 'Satellite',
-		id: 'satellite-v9'
-	}, {
+		name: 'Satellite',
 		label: 'Streets',
-		id: 'streets-v11'
+		id: 'streets-v11',
+		sprite: 'mapbox://sprites/mapbox/streets-v11',
+		url: 'mapbox://mapbox.streets',
 	}];
 
 	baselayerIconHover = false;
 
 	hoverFeatureId: string;
 
+	preventSingleClick: boolean = false;
+
+	/* 
+     * Timer for determining double click vs single click
+     */
+	timer: any;
+
 	/* 
      * debounced subject for map extent change events
      */
 	subject: Subject<MapboxEvent<MouseEvent | TouchEvent | WheelEvent>>;
 
-	constructor(private mapService: MapService) {
+	constructor(private mapService: MapService, public service: RegistryService) {
 	}
 
 	ngOnInit(): void {
+		this.service.getAllMasterListVersions().then(lists => {
+			this.lists = lists;
+		});
 	}
 
 	ngOnDestroy(): void {
@@ -79,9 +114,41 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	ngAfterViewInit() {
 
+		const layer = this.baseLayers[1];
+
 		this.map = new Map({
 			container: 'map',
-			style: 'mapbox://styles/mapbox/outdoors-v11',
+			style: {
+				"version": 8,
+				"name": layer.name,
+				"metadata": {
+					"mapbox:autocomposite": true
+				},
+				"sources": {
+					"mapbox": {
+						"type": "raster",
+						"url": layer.url,
+						"tileSize": 256
+					}
+				},
+				"sprite": layer.sprite,
+				"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
+				"layers": [
+					{
+						"id": "background",
+						"type": "background",
+						"paint": {
+							"background-color": "rgb(4,7,14)"
+						}
+					},
+					{
+						"id": "satellite",
+						"type": "raster",
+						"source": "mapbox",
+						"source-layer": "mapbox_satellite_full"
+					}
+				]
+			},
 			zoom: 2,
 			attributionControl: false,
 			center: [-78.880453, 42.897852]
@@ -93,78 +160,40 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	}
 
+	handleDateChange(): void {
+		this.back(null);
+	}
+
 	initMap(): void {
 
 		this.map.on('style.load', () => {
 			this.addLayers();
-			this.refresh(false);
+			this.refresh();
 		});
 
 		this.addLayers();
 
 
-		this.refresh(true);
+		this.refresh();
 
 		// Add zoom and rotation controls to the map.
 		this.map.addControl(new NavigationControl());
 		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-left');
 
-		//		this.map.on('mousemove', e => {
-		//			// e.point is the x, y coordinates of the mousemove event relative
-		//			// to the top-left corner of the map.
-		//			// e.lngLat is the longitude, latitude geographical position of the event
-		//			let coord = e.lngLat.wrap();
-		//
-		//			// EPSG:3857 = WGS 84 / Pseudo-Mercator
-		//			// EPSG:4326 = WGS 84 
-		//			// let coord4326 = window.proj4(window.proj4.defs('EPSG:3857'), window.proj4.defs('EPSG:4326'), [coord.lng, coord.lat]);
-		//			// let text = "Long: " + coord4326[0] + " Lat: " + coord4326[1];
-		//
-		//			let text = "Lat: " + coord.lat + " Long: " + coord.lng;
-		//			let mousemovePanel = document.getElementById("mousemove-panel");
-		//			mousemovePanel.textContent = text;
-		//
-		//
-		//			let features = this.map.queryRenderedFeatures(e.point, { layers: ['points'] });
-		//
-		//			if (this.current == null) {
-		//				if (features.length > 0) {
-		//					let focusFeatureId = features[0].properties.oid; // just the first
-		//					this.map.setFilter('hover-points', ['all',
-		//						['==', 'oid', focusFeatureId]
-		//					])
-		//
-		//					this.highlightListItem(focusFeatureId)
-		//				}
-		//				else {
-		//					this.map.setFilter('hover-points', ['all',
-		//						['==', 'oid', "NONE"]
-		//					])
-		//
-		//					this.clearHighlightListItem();
-		//				}
-		//			}
-		//		});
-		//
-		//		this.map.on('zoomend', (e) => {
-		//			this.subject.next(e);
-		//		});
-		//
-		//		this.map.on('moveend', (e) => {
-		//			this.subject.next(e);
-		//		});
-		//
-		//		// MapboxGL doesn't have a good way to detect when moving off the map
-		//		let sidebar = document.getElementById("navigator-left-sidebar");
-		//		sidebar.addEventListener("mouseenter", function() {
-		//			let mousemovePanel = document.getElementById("mousemove-panel");
-		//			mousemovePanel.textContent = "";
-		//		});
+		this.map.on('dblclick', 'children-points', (event: any) => {
+			this.handleMapClickEvent(event);
+		});
+
+		this.map.on('dblclick', 'children-polygon', (event: any) => {
+			this.handleMapClickEvent(event);
+		});
 	}
 
 	addLayers(): void {
 
-		this.map.addSource('children', {
+		const source = 'children';
+
+		this.map.addSource(source, {
 			type: 'geojson',
 			data: {
 				"type": "FeatureCollection",
@@ -172,15 +201,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			}
 		});
 
-
 		// Point layer
 		this.map.addLayer({
-			"id": "points",
+			"id": source + "-points",
 			"type": "circle",
-			"source": 'children',
+			"source": source,
 			"paint": {
 				"circle-radius": 10,
-				"circle-color": '#800000',
+				"circle-color": '#a6611a',
 				"circle-stroke-width": 2,
 				"circle-stroke-color": '#FFFFFF'
 			},
@@ -188,32 +216,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
 			]
 		});
-		//
-		//
-		//		// Hover style
-		//		this.map.addLayer({
-		//			"id": "hover-points",
-		//			"type": "circle",
-		//			"source": 'children',
-		//			"paint": {
-		//				"circle-radius": 13,
-		//				"circle-color": '#cf0000',
-		//				"circle-stroke-width": 2,
-		//				"circle-stroke-color": '#FFFFFF'
-		//			},
-		//			filter: ['all',
-		//				['==', 'id', 'NONE'] // start with a filter that doesn't select GeoObjectthing
-		//			]
-		//		});
 
 		// Polygon layer
 		this.map.addLayer({
-			'id': 'polygon',
+			'id': source + '-polygon',
 			'type': 'fill',
-			'source': 'children',
+			'source': source,
 			'layout': {},
 			'paint': {
-				'fill-color': '#088',
+				'fill-color': '#a6611a',
 				'fill-opacity': 0.8
 			},
 			filter: ['all',
@@ -224,8 +235,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		// Label layer
 		this.map.addLayer({
-			"id": "points-label",
-			"source": 'children',
+			"id": source + "-label",
+			"source": source,
 			"type": "symbol",
 			"paint": {
 				"text-color": "black",
@@ -234,56 +245,28 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			},
 			"layout": {
 				"text-field": ['get', 'localizedValue', ['get', 'displayLabel']],
-				"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+				"text-font": ["NotoSansRegular"],
 				"text-offset": [0, 0.6],
 				"text-anchor": "top",
 				"text-size": 12,
 			}
 		});
+
+		this.vectorLayers.forEach(source => {
+			this.addVectorLayer(source);
+		});
 	}
 
-	handleExtentChange(e: MapboxEvent<MouseEvent | TouchEvent | WheelEvent>): void {
-		if (this.current == null) {
-			const bounds = this.map.getBounds();
-
-			// Sometimes bounds aren't valid for 4326, so validate it before sending to server
-			if (this.isValidBounds(bounds)) {
-				//				this.service.roots(null, bounds).then(nodes => {
-				//					this.nodes = nodes;
-				//				});
-			}
-			else {
-				// console.log("Invalid bounds", bounds);
-			}
-		}
-	}
-
-	isValidBounds(bounds: LngLatBounds): boolean {
-
-		const ne = bounds.getNorthEast();
-		const sw = bounds.getSouthWest();
-
-		if (Math.abs(ne.lng) > 180 || Math.abs(sw.lng) > 180) {
-			return false;
-		}
-
-		if (Math.abs(ne.lat) > 90 || Math.abs(sw.lat) > 90) {
-			return false;
-		}
-
-		return true;
-	}
-
-	refresh(zoom: boolean): void {
+	refresh(): void {
 
 		if (this.current == null) {
-			this.mapService.roots(null, null).then(data => {
+			this.mapService.roots(null, null, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.data = data;
 			});
 		} else {
-			this.mapService.select(this.current.properties.code, this.current.properties.type, this.data.childType, this.data.hierarchy).then(data => {
+			this.mapService.select(this.current.properties.code, this.current.properties.type, this.data.childType, this.data.hierarchy, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.data = data;
@@ -291,15 +274,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		}
 
 	}
-
-	zoomToFeature(node: GeoObject): void {
-		if (node.geometry != null) {
-			this.map.flyTo({
-				center: node.geometry.coordinates
-			});
-		}
-	}
-
 
 	handleStyle(layer: any): void {
 
@@ -309,7 +283,37 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		layer.selected = true;
 
-		this.map.setStyle('mapbox://styles/mapbox/' + layer.id);
+		this.map.setStyle({
+			"version": 8,
+			"name": layer.name,
+			"metadata": {
+				"mapbox:autocomposite": true
+			},
+			"sources": {
+				"mapbox": {
+					"type": "raster",
+					"url": layer.url,
+					"tileSize": 256
+				}
+			},
+			"sprite": layer.sprite,
+			"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
+			"layers": [
+				{
+					"id": "background",
+					"type": "background",
+					"paint": {
+						"background-color": "rgb(4,7,14)"
+					}
+				},
+				{
+					"id": "satellite",
+					"type": "raster",
+					"source": "mapbox",
+					"source-layer": "mapbox_satellite_full"
+				}
+			]
+		});
 	}
 
 	highlightMapFeature(id: string): void {
@@ -356,31 +360,61 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	//		}
 	//	}
 
-	select(node: GeoObject, parent: GeoObject, event: any): void {
+	zoomToFeature(node: GeoObject, event: MouseEvent): void {
+		if (event != null) {
+			event.stopPropagation();
+		}
+
+		this.preventSingleClick = false;
+		const delay = 200;
+
+		this.timer = setTimeout(() => {
+			if (!this.preventSingleClick) {
+				if (node.geometry != null) {
+					const bounds = bbox(node as AllGeoJSON) as LngLatBoundsLike;
+
+					this.map.fitBounds(bounds);
+				}
+			}
+		}, delay);
+	}
+
+	select(node: GeoObject, event: MouseEvent): void {
 
 		if (event != null) {
 			event.stopPropagation();
 		}
 
-		this.mapService.select(node.properties.code, node.properties.type, null, null).then(data => {
-			this.current = node;
-			if (parent != null) {
-				this.addBreadcrumb(parent);
+		this.preventSingleClick = true;
+		clearTimeout(this.timer);
+
+		this.drillDown(node);
+	}
+
+	handleMapClickEvent(event: any): void {
+		if (event.features != null && event.features.length > 0) {
+			const feature = event.features[0];
+
+			const index = this.data.geojson.features.findIndex(node => { return node.properties.code === feature.properties.code });
+
+			if (index !== -1) {
+				this.drillDown(this.data.geojson.features[index]);
 			}
+		}
+	}
+
+
+
+	drillDown(node: GeoObject): void {
+		this.mapService.select(node.properties.code, node.properties.type, null, null, this.dateStr).then(data => {
+			this.current = node;
 
 			this.addBreadcrumb(node);
 
 			(<any>this.map.getSource('children')).setData(data.geojson);
 
 			this.data = data;
-
-			//			if (zoom) {
-			//				let bounds = new LngLatBounds([data.bbox[0], data.bbox[1]], [data.bbox[2], data.bbox[3]]);
-			//
-			//				this.map.fitBounds(bounds, { padding: 50 });
-			//			}
 		});
-
 	}
 
 	addBreadcrumb(node: GeoObject): void {
@@ -393,7 +427,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	back(node: GeoObject): void {
 
 		if (node != null) {
-			this.mapService.select(node.properties.code, node.properties.type, null, this.data.hierarchy).then(data => {
+			this.mapService.select(node.properties.code, node.properties.type, null, this.data.hierarchy, this.dateStr).then(data => {
 				var indexOf = this.breadcrumbs.findIndex(i => i.properties.code === node.properties.code);
 
 				this.current = node;
@@ -405,7 +439,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			});
 		}
 		else if (this.breadcrumbs.length > 0) {
-			this.mapService.roots(null, null).then(data => {
+			this.mapService.roots(null, null, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.data = data;
@@ -426,5 +460,94 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		nodes.forEach(node => {
 			this.data.geojson.features.push(node);
 		})
+	}
+
+	toggleContextLayer(source: string): void {
+		const index = this.vectorLayers.indexOf(source);
+
+		if (index === -1) {
+			this.addVectorLayer(source);
+
+			this.vectorLayers.push(source);
+		}
+		else {
+			this.map.removeLayer(source + "-points");
+			this.map.removeLayer(source + "-polygon");
+			this.map.removeLayer(source + "-label");
+			this.map.removeSource(source);
+
+			this.vectorLayers.splice(index, 1);
+		}
+	}
+
+	addVectorLayer(source: string): void {
+		const prevLayer = 'children-points';
+
+		var protocol = window.location.protocol;
+		var host = window.location.host;
+
+		this.map.addSource(source, {
+			type: 'vector',
+			tiles: [protocol + '//' + host + acp + '/master-list/tile?x={x}&y={y}&z={z}&config=' + encodeURIComponent(JSON.stringify({ oid: source }))]
+		});
+
+		// Point layer
+		this.map.addLayer({
+			"id": source + "-points",
+			"type": "circle",
+			"source": source,
+			"source-layer": 'context',
+			"paint": {
+				"circle-radius": 10,
+				"circle-color": '#800000',
+				"circle-stroke-width": 2,
+				"circle-stroke-color": '#FFFFFF'
+			},
+			filter: ['all',
+				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+			]
+		}, prevLayer);
+
+		// Polygon layer
+		this.map.addLayer({
+			'id': source + '-polygon',
+			'type': 'fill',
+			'source': source,
+			"source-layer": 'context',
+			'layout': {},
+			'paint': {
+				'fill-color': '#80cdc1',
+				'fill-opacity': 0.8
+			},
+			filter: ['all',
+				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+			]
+		}, prevLayer);
+
+
+		// Label layer
+		this.map.addLayer({
+			"id": source + "-label",
+			"source": source,
+			"source-layer": 'context',
+			"type": "symbol",
+			"paint": {
+				"text-color": "black",
+				"text-halo-color": "#fff",
+				"text-halo-width": 2
+			},
+			"layout": {
+				"text-field": ["case",
+					["has", "displayLabel_" + navigator.language.toLowerCase],
+					["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase]], ["string", ["get", "displayLabel"]]],
+					["string", ["get", "displayLabel"]]
+				],
+				"text-font": ["NotoSansRegular"],
+				"text-offset": [0, 0.6],
+				"text-anchor": "top",
+				"text-size": 12,
+			}
+		}, prevLayer);
+
 	}
 }

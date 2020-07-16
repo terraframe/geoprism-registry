@@ -19,6 +19,11 @@
 package net.geoprism.registry.controller;
 
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
@@ -27,6 +32,7 @@ import org.json.JSONObject;
 
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -109,7 +115,7 @@ public class RegistryLocationController
     return service.applyInRequest(request.getSessionId(), isNew, sjsGO, parentOid, existingLayers, sjsPTN);
   }
 
-  /****
+  /**
    * 
    * 
    * 
@@ -127,23 +133,39 @@ public class RegistryLocationController
    * 
    */
 
+  /**
+   * @param request
+   * @param code
+   *          Code of the geo object being selected
+   * @param typeCode
+   *          Type code of the geo object being selected
+   * @param date
+   *          Date in which to use for values and parent lookup
+   * @param childTypeCode
+   *          Type code of the desired children geo objects
+   * @param hierarchyCode
+   *          Hierarchy code of the desired children geo objects
+   * @return
+   * @throws JSONException
+   * @throws ParseException
+   */
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF select(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "childTypeCode") String childTypeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException
+  public ResponseIF select(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "date") String date, @RequestParamter(name = "childTypeCode") String childTypeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
   {
     // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
 
-    LocationInformation information = service.getLocationInformation(request.getSessionId(), code, typeCode, childTypeCode, hierarchyCode);
+    LocationInformation information = service.getLocationInformation(request.getSessionId(), code, typeCode, parseDate(date), childTypeCode, hierarchyCode);
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());
 
     return new RestBodyResponse(information.toJson(serializer));
   }
 
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF roots(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException
+  public ResponseIF roots(ClientRequestIF request, @RequestParamter(name = "date") String date, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
   {
     // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
 
-    LocationInformation information = service.getLocationInformation(request.getSessionId(), typeCode, hierarchyCode);
+    LocationInformation information = service.getLocationInformation(request.getSessionId(), parseDate(date), typeCode, hierarchyCode);
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());
 
     return new RestBodyResponse(information.toJson(serializer));
@@ -162,4 +184,16 @@ public class RegistryLocationController
     return new InputStreamResponse(istream, "application/x-protobuf", null);
   }
 
+  private Date parseDate(String date) throws ParseException
+  {
+    if (date != null && date.length() > 0)
+    {
+      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+      dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+      return dateFormat.parse(date);
+    }
+
+    return ValueOverTime.INFINITY_END_DATE;
+  }
 }
