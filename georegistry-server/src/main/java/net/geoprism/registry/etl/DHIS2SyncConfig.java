@@ -21,7 +21,8 @@ package net.geoprism.registry.etl;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -42,30 +43,18 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
   public static final String TYPE            = "type";
 
-  private List<SyncLevel>    levels;
+  private SortedSet<SyncLevel>    levels;
   
-  private Map<String, DHIS2AttributeMapping> attributes;
-
-  public List<SyncLevel> getLevels()
+  public SortedSet<SyncLevel> getLevels()
   {
     return levels;
   }
 
-  public void setLevels(List<SyncLevel> levels)
+  public void setLevels(SortedSet<SyncLevel> levels)
   {
     this.levels = levels;
   }
   
-  public Map<String, DHIS2AttributeMapping> getAttributes()
-  {
-    return attributes;
-  }
-
-  public void setAttributes(Map<String, DHIS2AttributeMapping> attributes)
-  {
-    this.attributes = attributes;
-  }
-
   @Override
   public DHIS2ExternalSystem getSystem()
   {
@@ -79,36 +68,43 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
     JsonObject json = config.getConfigurationJson();
 
-    
-    // Levels
-    LinkedList<SyncLevel> levels = new LinkedList<SyncLevel>();
-
     JsonArray lArray = json.get(LEVELS).getAsJsonArray();
-
-    for (int i = 0; i < lArray.size(); i++)
-    {
-      JsonObject object = lArray.get(i).getAsJsonObject();
-
-      String typeCode = object.get(GEO_OBJECT_TYPE).getAsString();
-      String type = object.get(TYPE).getAsString();
-
-      SyncLevel level = new SyncLevel();
-      level.setGeoObjectType(typeCode);
-      level.setSyncType(SyncLevel.Type.valueOf(type));
-      level.setLevel(i + 1);
-
-      levels.add(level);
-    }
-    
-    this.setLevels(levels);
-    
-    
-    // Attribute Mappings
-    JsonObject jaAttrMap = json.get(ATTRIBUTES).getAsJsonObject();
     
     Gson gson = new GsonBuilder().create();
-    Type list = new TypeToken<Map<String, DHIS2AttributeMapping>>() {}.getType();
-    this.attributes =  gson.fromJson(jaAttrMap, list);
+    Type list = new TypeToken<SortedSet<SyncLevel>>() {}.getType();
+    this.levels =  gson.fromJson(lArray, list);
+    
+    
+    
+    // Levels
+//    LinkedList<SyncLevel> levels = new LinkedList<SyncLevel>();
+//
+//    JsonArray lArray = json.get(LEVELS).getAsJsonArray();
+//
+//    for (int i = 0; i < lArray.size(); i++)
+//    {
+//      JsonObject object = lArray.get(i).getAsJsonObject();
+//
+//      String typeCode = object.get(GEO_OBJECT_TYPE).getAsString();
+//      String type = object.get(TYPE).getAsString();
+//
+//      SyncLevel level = new SyncLevel();
+//      level.setGeoObjectType(typeCode);
+//      level.setSyncType(SyncLevel.Type.valueOf(type));
+//      level.setLevel(i + 1);
+//
+//      levels.add(level);
+//    }
+//    
+//    this.setLevels(levels);
+//    
+//    
+//    // Attribute Mappings
+//    JsonObject jaAttrMap = json.get(ATTRIBUTES).getAsJsonObject();
+//    
+//    Gson gson = new GsonBuilder().create();
+//    Type list = new TypeToken<Map<String, DHIS2AttributeMapping>>() {}.getType();
+//    this.attributes =  gson.fromJson(jaAttrMap, list);
   }
 
 }

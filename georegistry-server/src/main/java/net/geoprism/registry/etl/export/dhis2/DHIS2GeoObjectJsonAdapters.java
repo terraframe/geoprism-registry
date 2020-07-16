@@ -23,11 +23,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,10 +73,10 @@ public class DHIS2GeoObjectJsonAdapters
 
     private ExternalSystem      ex;
 
-    private DHIS2ServiceIF         dhis2;
+    private DHIS2ServiceIF      dhis2;
 
     private SyncLevel           syncLevel;
-
+    
     public DHIS2Serializer(DHIS2ServiceIF dhis2, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
     {
       this.got = got;
@@ -85,7 +88,7 @@ public class DHIS2GeoObjectJsonAdapters
       this.calculateDepth();
     }
 
-    private String getExternalId(ServerGeoObjectIF serverGo)
+    private synchronized String getExternalId(ServerGeoObjectIF serverGo)
     {
       String externalId = serverGo.getExternalId(this.ex);
 
@@ -106,7 +109,7 @@ public class DHIS2GeoObjectJsonAdapters
 
         serverGo.createExternalId(this.ex, externalId);
       }
-
+      
       return externalId;
     }
 
@@ -197,7 +200,35 @@ public class DHIS2GeoObjectJsonAdapters
     
     private void writeCustomAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
+      final String lastUpdateDate = formatDate(serverGo.getLastUpdateDate());
       
+      final String createDate = formatDate(serverGo.getCreateDate());
+      
+      JsonArray attributeValues = new JsonArray();
+      
+      Map<String, AttributeType> attrs = this.got.getAttributeMap();
+      
+      for (AttributeType attr : attrs.values())
+      {
+        if (!attr.getIsDefault() && this.syncLevel.hasAttribute(attr.getName()))
+        {
+          JsonObject av = new JsonObject();
+          
+          av.addProperty("lastUpdated", lastUpdateDate);
+          
+          av.addProperty("created", createDate);
+          
+          av.addProperty("value", String.valueOf(serverGo.getValue(attr.getName())));
+          
+          JsonObject joAttr = new JsonObject();
+          joAttr.addProperty("id", this.syncLevel.getAttribute(attr.getName()).getExternalId());
+          av.add("attribute", joAttr);
+          
+          attributeValues.add(av);
+        }
+      }
+      
+      jo.add("attributeValues", attributeValues);
     }
     
     private void writeGeometry(JsonObject jo, VertexServerGeoObject serverGo)
@@ -257,7 +288,7 @@ public class DHIS2GeoObjectJsonAdapters
       return null;
     }
 
-    private String formatDate(Date date)
+    public static String formatDate(Date date)
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
       
@@ -279,9 +310,14 @@ public class DHIS2GeoObjectJsonAdapters
 
       Collections.reverse(ancestors);
 
-      ancestors.forEach(ancestor -> {
+//      ancestors.forEach(ancestor -> {
+//        ancestorExternalIds.add(this.getExternalId(ancestor));
+//      }); 
+      
+      for (VertexServerGeoObject ancestor : ancestors)
+      {
         ancestorExternalIds.add(this.getExternalId(ancestor));
-      });
+      }
 
       return "/" + StringUtils.join(ancestorExternalIds, "/");
     }

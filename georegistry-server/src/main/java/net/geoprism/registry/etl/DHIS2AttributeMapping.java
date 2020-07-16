@@ -26,6 +26,8 @@ public class DHIS2AttributeMapping
   private ValueType dhis2ValueType;
   
   private String runwayAttributeId;
+  
+  private String externalId;
 
   public ValueType getDhis2ValueType()
   {
@@ -46,7 +48,15 @@ public class DHIS2AttributeMapping
   {
     this.runwayAttributeId = runwayAttributeId;
   }
-  
-  
 
+  public String getExternalId()
+  {
+    return externalId;
+  }
+
+  public void setExternalId(String externalId)
+  {
+    this.externalId = externalId;
+  }
+  
 }

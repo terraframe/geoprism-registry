@@ -20,6 +20,7 @@ package net.geoprism.registry.test;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -88,6 +89,8 @@ public class TestGeoObjectInfo
   private Boolean                 isNew;
   
   private Date                    date;
+  
+  private HashMap<String, Object> defaultValues;
 
   protected TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
   {
@@ -110,6 +113,7 @@ public class TestGeoObjectInfo
     this.statusCode = statusCode;
     this.isNew = isNew;
     this.date = new Date();
+    this.defaultValues = new HashMap<String, Object>();
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
     if (geom == GeometryType.POLYGON)
@@ -153,6 +157,16 @@ public class TestGeoObjectInfo
   public String getCode()
   {
     return code;
+  }
+  
+  public void setDefaultValue(String attr, Object value)
+  {
+    this.defaultValues.put(attr, value);
+  }
+  
+  public Object getDefaultValue(String attr)
+  {
+    return this.defaultValues.get(attr);
   }
 
   public String getDisplayLabel()
@@ -251,6 +265,11 @@ public class TestGeoObjectInfo
     {
       geoObj.setUid(registryId);
     }
+    
+    for (String attrName : this.defaultValues.keySet())
+    {
+      geoObj.setValue(attrName, this.defaultValues.get(attrName));
+    }
 
     return geoObj;
   }
@@ -277,6 +296,11 @@ public class TestGeoObjectInfo
     if (registryId != null)
     {
       geoObj.setUid(registryId);
+    }
+    
+    for (String attrName : this.defaultValues.keySet())
+    {
+      geoObj.setValue(attrName, this.defaultValues.get(attrName), date, ValueOverTime.INFINITY_END_DATE);
     }
 
     return geoObj;

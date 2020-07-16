@@ -604,7 +604,7 @@ abstract public class TestDataSet
       
       for (ExternalSystem es : list)
       {
-        es.delete();
+        es.delete(false);
       }
     }
     catch (net.geoprism.registry.DataNotFoundException ex)

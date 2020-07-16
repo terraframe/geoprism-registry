@@ -648,6 +648,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return (List<? extends MdAttributeConcreteDAOIF>) this.vertex.getMdAttributeDAOs();
   }
+  
+  public MdAttributeConcreteDAOIF getMdAttributeDAO(String name)
+  {
+    return this.vertex.getMdAttributeDAO(name);
+  }
 
   @Override
   public Object getValue(String attributeName)
@@ -1262,21 +1267,35 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     query.setParameter("parent", system.getRID());
     query.setParameter("child", this.getVertex().getRID());
 
-    return query.getSingleResult();
+//    return query.getSingleResult();
+    List<EdgeObject> results = query.getResults();
+    
+    if (results.size() > 0)
+    {
+      return results.get(0);
+    }
+    else
+    {
+      return null;
+    }
   }
 
   @Override
   public void createExternalId(ExternalSystem system, String id)
   {
     EdgeObject edge = this.getExternalIdEdge(system);
-
+    
     if (edge == null)
     {
       edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
     }
-
+    
+    System.out.println("Applying external id with oid [" + edge.getObjectValue("oid") + "] on geoobject [" + this.getCode() + "]");
+    
     edge.setValue("id", id);
     edge.apply();
+    
+    System.out.println("Applied EXTID. RID of code [" + this.getCode() + "] " + edge.getRID());
   }
 
   @Override

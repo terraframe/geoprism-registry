@@ -10,6 +10,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
@@ -81,7 +82,7 @@ public class DHIS2TestService implements DHIS2ServiceIF
   @Override
   public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
   {
-    return "GenTestId";
+    return "GenTest" + IDGenerator.nextID();
   }
 
   @Override

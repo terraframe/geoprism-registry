@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
@@ -251,7 +252,7 @@ public class DataExportJob extends DataExportJobBase
     long total = 0;
     long exportCount = 0;
     
-    List<SyncLevel> levels = this.dhis2Config.getLevels();
+    SortedSet<SyncLevel> levels = this.dhis2Config.getLevels();
     
     Boolean includeTranslations = LocalizationFacade.getInstalledLocales().size() > 0;
 

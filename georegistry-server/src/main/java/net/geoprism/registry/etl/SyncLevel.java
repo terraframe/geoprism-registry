@@ -18,11 +18,13 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.Map;
+
 import com.google.gson.annotations.SerializedName;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 
-public class SyncLevel
+public class SyncLevel implements Comparable<SyncLevel>
 {
 
   public static enum Type {
@@ -37,7 +39,9 @@ public class SyncLevel
   @SerializedName(DHIS2SyncConfig.TYPE)
   private Type                syncType;
 
-  private int                 level;
+  private Integer                 level;
+  
+  private Map<String, DHIS2AttributeMapping> attributes;
 
   public ServerGeoObjectType getGeoObjectType()
   {
@@ -64,14 +68,40 @@ public class SyncLevel
     this.syncType = syncType;
   }
 
-  public int getLevel()
+  public Integer getLevel()
   {
     return level;
   }
 
-  public void setLevel(int level)
+  public void setLevel(Integer level)
   {
     this.level = level;
+  }
+  
+  public Boolean hasAttribute(String name)
+  {
+    return this.attributes != null && this.attributes.containsKey(name);
+  }
+  
+  public DHIS2AttributeMapping getAttribute(String name)
+  {
+    return this.attributes.get(name);
+  }
+  
+  public Map<String, DHIS2AttributeMapping> getAttributes()
+  {
+    return attributes;
+  }
+
+  public void setAttributes(Map<String, DHIS2AttributeMapping> attributes)
+  {
+    this.attributes = attributes;
+  }
+
+  @Override
+  public int compareTo(SyncLevel o)
+  {
+    return this.getLevel().compareTo(o.getLevel());
   }
 
 }
