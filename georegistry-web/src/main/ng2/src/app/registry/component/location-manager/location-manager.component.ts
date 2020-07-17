@@ -225,7 +225,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			'layout': {},
 			'paint': {
 				'fill-color': '#a6611a',
-				'fill-opacity': 0.8
+				'fill-opacity': 0.8,
+				'fill-outline-color': 'black'
 			},
 			filter: ['all',
 				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
@@ -482,6 +483,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	addVectorLayer(source: string): void {
 		const prevLayer = 'children-points';
+		
+		console.log(navigator.language.toLowerCase());
 
 		var protocol = window.location.protocol;
 		var host = window.location.host;
@@ -517,7 +520,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			'layout': {},
 			'paint': {
 				'fill-color': '#80cdc1',
-				'fill-opacity': 0.8
+				'fill-opacity': 0.8,
+				'fill-outline-color': 'black'
 			},
 			filter: ['all',
 				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
@@ -538,8 +542,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			},
 			"layout": {
 				"text-field": ["case",
-					["has", "displayLabel_" + navigator.language.toLowerCase],
-					["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase]], ["string", ["get", "displayLabel"]]],
+					["has", "displayLabel_" + navigator.language.toLowerCase()],
+					["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
 					["string", ["get", "displayLabel"]]
 				],
 				"text-font": ["NotoSansRegular"],
