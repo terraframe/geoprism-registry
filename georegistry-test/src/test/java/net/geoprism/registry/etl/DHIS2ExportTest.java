@@ -18,20 +18,23 @@
  */
 package net.geoprism.registry.etl;
 
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,7 +49,6 @@ import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
@@ -123,7 +125,7 @@ public class DHIS2ExportTest
 //    deleteExternalIds();
     
     
-//    createExternalIds();
+    createExternalIds();
   }
   
   @After
@@ -233,6 +235,28 @@ public class DHIS2ExportTest
     
     dhis2Config.setLevels(levels);
     
+    if (attr.toDTO() instanceof AttributeTermType)
+    {
+      Set<DHIS2TermMapping> terms = new HashSet<DHIS2TermMapping>();
+      
+      DHIS2TermMapping root = new DHIS2TermMapping();
+      root.setExternalId("TEST_EXTERNAL_ID");
+      root.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid());
+      terms.add(root);
+      
+      DHIS2TermMapping val1 = new DHIS2TermMapping();
+      val1.setExternalId("TEST_EXTERNAL_ID");
+      val1.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid());
+      terms.add(val1);
+      
+      DHIS2TermMapping val2 = new DHIS2TermMapping();
+      val2.setExternalId("TEST_EXTERNAL_ID");
+      val2.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid());
+      terms.add(val2);
+      
+      dhis2Config.setTerms(terms);
+    }
+    
     // Serialize the DHIS2 Config
     GsonBuilder builder = new GsonBuilder();
     String dhis2JsonConfig = builder.create().toJson(dhis2Config);
@@ -318,7 +342,10 @@ public class DHIS2ExportTest
         }
         else if (attr.toDTO() instanceof AttributeDateType)
         {
-          String expected = DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) go.getServerObject().getValue(attr.getAttributeName()));
+          // TODO : If we fetch the object from the database in this manner the miliseconds aren't included on the date. But if we fetch the object via a query (as in DataExportJob) then the miliseconds ARE included...
+//          String expected = DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) go.getServerObject().getValue(attr.getAttributeName()));
+          
+          String expected = DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate(AllAttributesDataset.GO_DATE_VALUE);
           String actual = attributeValue.get("value").getAsString();
           
           Assert.assertEquals(expected, actual);
@@ -326,6 +353,14 @@ public class DHIS2ExportTest
         else if (attr.toDTO() instanceof AttributeBooleanType)
         {
           Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsBoolean());
+        }
+        else if (attr.toDTO() instanceof AttributeTermType)
+        {
+          String dhis2Id = attributeValue.get("value").getAsString();
+          
+          // Term term = (Term) go.getServerObject().getValue(attr.getAttributeName());
+          
+          Assert.assertEquals("TEST_EXTERNAL_ID", dhis2Id);
         }
         
         Assert.assertEquals("TEST_EXTERNAL_ID", attributeValue.get("attribute").getAsJsonObject().get("id").getAsString());
@@ -397,5 +432,13 @@ public class DHIS2ExportTest
   {
     System.out.println("Starting boolean test");
     exportCustomAttribute(testData.GOT_BOOL, testData.GO_BOOL, testData.AT_GO_BOOL);
+  }
+  
+  @Test
+  @Request
+  public void testExportTermAttr() throws Exception
+  {
+    System.out.println("Starting term test");
+    exportCustomAttribute(testData.GOT_TERM, testData.GO_TERM, testData.AT_GO_TERM);
   }
 }

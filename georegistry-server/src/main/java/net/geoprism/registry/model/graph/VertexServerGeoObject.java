@@ -1267,17 +1267,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     query.setParameter("parent", system.getRID());
     query.setParameter("child", this.getVertex().getRID());
 
-//    return query.getSingleResult();
-    List<EdgeObject> results = query.getResults();
-    
-    if (results.size() > 0)
-    {
-      return results.get(0);
-    }
-    else
-    {
-      return null;
-    }
+    return query.getSingleResult();
   }
 
   @Override

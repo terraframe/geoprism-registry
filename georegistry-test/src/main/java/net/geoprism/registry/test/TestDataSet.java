@@ -20,7 +20,6 @@ package net.geoprism.registry.test;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,8 +46,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.resource.ClasspathResource;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -58,8 +55,9 @@ import com.runwaysdk.system.metadata.MdClassQuery;
 
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierQuery;
 import net.geoprism.registry.MasterList;
-import net.geoprism.registry.SynchronizationConfigQuery;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
@@ -482,6 +480,37 @@ abstract public class TestDataSet
     finally
     {
       git.close();
+    }
+  }
+  
+  public static Classifier getClassifierIfExist(String classifierId)
+  {
+    ClassifierQuery query = new ClassifierQuery(new QueryFactory());
+    query.WHERE(query.getClassifierId().EQ(classifierId));
+    OIterator<? extends Classifier> it = query.getIterator();
+    try
+    {
+      while (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+
+    return null;
+  }
+  
+  @Request
+  public static void deleteClassifier(String classifierId)
+  {
+    Classifier clazz = getClassifierIfExist(classifierId);
+
+    if (clazz != null)
+    {
+      clazz.delete();
     }
   }
 
