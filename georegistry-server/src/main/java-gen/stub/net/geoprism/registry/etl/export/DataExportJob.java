@@ -406,7 +406,7 @@ public class DataExportJob extends DataExportJobBase
       }
 
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.dhis2Config.getHierarchy(), this.dhis2Config.getSystem()));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, this.dhis2Config, level, level.getGeoObjectType(), this.dhis2Config.getHierarchy(), this.dhis2Config.getSystem()));
       
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();

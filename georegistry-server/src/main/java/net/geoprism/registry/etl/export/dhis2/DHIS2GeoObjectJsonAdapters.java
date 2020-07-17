@@ -23,13 +23,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.slf4j.Logger;
@@ -48,7 +53,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.DHIS2TermMapping;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -77,13 +85,16 @@ public class DHIS2GeoObjectJsonAdapters
 
     private SyncLevel           syncLevel;
     
-    public DHIS2Serializer(DHIS2ServiceIF dhis2, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
+    private DHIS2SyncConfig     dhis2Config;
+    
+    public DHIS2Serializer(DHIS2ServiceIF dhis2, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
     {
       this.got = got;
       this.hierarchyType = hierarchyType;
       this.dhis2 = dhis2;
       this.ex = ex;
       this.syncLevel = syncLevel;
+      this.dhis2Config = dhis2Config;
 
       this.calculateDepth();
     }
@@ -218,7 +229,41 @@ public class DHIS2GeoObjectJsonAdapters
           
           av.addProperty("created", createDate);
           
-          av.addProperty("value", String.valueOf(serverGo.getValue(attr.getName())));
+          if (attr instanceof AttributeBooleanType)
+          {
+            av.addProperty("value", (Boolean) serverGo.getValue(attr.getName()));
+          }
+          else if (attr instanceof AttributeIntegerType)
+          {
+            av.addProperty("value", (Long) serverGo.getValue(attr.getName()));
+          }
+          else if (attr instanceof AttributeFloatType)
+          {
+            av.addProperty("value", (Double) serverGo.getValue(attr.getName()));
+          }
+          else if (attr instanceof AttributeDateType)
+          {
+            av.addProperty("value", formatDate((Date) serverGo.getValue(attr.getName())));
+          }
+          else if (attr instanceof AttributeTermType)
+          {
+            Classifier classy = (Classifier) serverGo.getValue(attr.getName());
+            
+            DHIS2TermMapping mapping = this.dhis2Config.getTermMapping(classy.getOid());
+            
+            if (mapping == null)
+            {
+              MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
+              ex.setTermCode(classy.getClassifierId());
+              throw ex;
+            }
+            
+            av.addProperty("value", mapping.getExternalId());
+          }
+          else
+          {
+            av.addProperty("value", String.valueOf(serverGo.getValue(attr.getName())));
+          }
           
           JsonObject joAttr = new JsonObject();
           joAttr.addProperty("id", this.syncLevel.getAttribute(attr.getName()).getExternalId());
@@ -290,7 +335,8 @@ public class DHIS2GeoObjectJsonAdapters
 
     public static String formatDate(Date date)
     {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+      format.setTimeZone(TimeZone.getTimeZone("UTC"));
       
       if (date != null)
       {

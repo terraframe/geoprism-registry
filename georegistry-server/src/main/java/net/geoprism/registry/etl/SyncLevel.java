@@ -97,6 +97,11 @@ public class SyncLevel implements Comparable<SyncLevel>
   {
     this.attributes = attributes;
   }
+  
+  @Override
+  public int hashCode() {
+    return new String(geoObjectTypeCode + syncType.name()).hashCode() + level;
+  }
 
   @Override
   public int compareTo(SyncLevel o)
