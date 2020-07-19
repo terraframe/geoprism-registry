@@ -1,6 +1,7 @@
 package net.geoprism.registry.etl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,8 +11,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.util.IDGenerator;
 
+import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -21,6 +24,7 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.model.Option;
 import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
 
 public class DHIS2TestService implements DHIS2ServiceIF
@@ -133,15 +137,51 @@ public class DHIS2TestService implements DHIS2ServiceIF
   }
 
   @Override
-  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException
   {
-    throw new UnsupportedOperationException();
+    return this.metadataGet(dhis2Type, null);
   }
 
   @Override
-  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
-    throw new UnsupportedOperationException();
+    String objectNamePlural = DHIS2Objects.getPluralObjectNameFromClass(dhis2Type);
+    
+    try
+    {
+      if (objectNamePlural.equals(DHIS2Objects.OPTIONS))
+      {
+        InputStream data = Thread.currentThread().getContextClassLoader().getResourceAsStream("dhis2/2.31.9/options.json");
+        
+        String resp = IOUtils.toString(data, "UTF-8");
+        
+        return new MetadataGetResponse<T>(resp, 200, objectNamePlural, dhis2Type);
+      }
+      else if (objectNamePlural.equals(DHIS2Objects.OPTIONSETS))
+      {
+        InputStream data = Thread.currentThread().getContextClassLoader().getResourceAsStream("dhis2/2.31.9/optionsets.json");
+        
+        String resp = IOUtils.toString(data, "UTF-8");
+        
+        return new MetadataGetResponse<T>(resp, 200, objectNamePlural, dhis2Type);
+      }
+      else if (objectNamePlural.equals(DHIS2Objects.ATTRIBUTES))
+      {
+        InputStream data = Thread.currentThread().getContextClassLoader().getResourceAsStream("dhis2/2.31.9/attributes.json");
+        
+        String resp = IOUtils.toString(data, "UTF-8");
+        
+        return new MetadataGetResponse<T>(resp, 200, objectNamePlural, dhis2Type);
+      }
+      else
+      {
+        throw new UnsupportedOperationException();
+      }
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   @Override

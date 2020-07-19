@@ -247,9 +247,7 @@ public class DHIS2BridgeTest
   @Test
   public void testMetadataGetAttributes() throws HTTPException, InvalidLoginException, UnexpectedResponseException
   {
-    final String objectNamePlural = DHIS2Objects.ATTRIBUTES;
-    
-    MetadataGetResponse<Attribute> metadataGetResp = facade.<Attribute>metadataGet(objectNamePlural);
+    MetadataGetResponse<Attribute> metadataGetResp = facade.<Attribute>metadataGet(Attribute.class);
     
     List<Attribute> attrs = metadataGetResp.getObjects();
     

@@ -1280,12 +1280,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
     }
     
-    System.out.println("Applying external id with oid [" + edge.getObjectValue("oid") + "] on geoobject [" + this.getCode() + "]");
-    
     edge.setValue("id", id);
     edge.apply();
-    
-    System.out.println("Applied EXTID. RID of code [" + this.getCode() + "] " + edge.getRID());
   }
 
   @Override

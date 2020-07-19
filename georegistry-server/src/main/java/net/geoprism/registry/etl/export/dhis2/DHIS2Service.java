@@ -69,15 +69,15 @@ public class DHIS2Service implements DHIS2ServiceIF
   }
 
   @Override
-  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException
   {
-    return this.dhis2.metadataGet(objectNamePlural);
+    return this.dhis2.metadataGet(dhis2Type);
   }
 
   @Override
-  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
-    return this.dhis2.metadataGet(objectNamePlural, params);
+    return this.dhis2.metadataGet(dhis2Type, params);
   }
 
   @Override

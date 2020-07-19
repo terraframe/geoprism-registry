@@ -201,7 +201,6 @@ public class AllAttributesDataset extends TestDataSet
     Classifier allRootClass = TermConverter.buildIfNotExistdMdBusinessClassifier(allMdBiz);
     
     Classifier allRoot = TermConverter.buildIfNotExistAttribute(allMdBiz, "testterm", allRootClass);
-    System.out.println("Created allRoot with key [" + allRoot.getKey() + "]");
     TERM_ALL_ROOT = new TermConverter(allRoot.getKeyName()).build();
     
     Classifier allVal1 = new Classifier();
@@ -265,15 +264,31 @@ public class AllAttributesDataset extends TestDataSet
   @Override
   protected void cleanUpClassInTrans()
   {
+    super.cleanUpClassInTrans();
+    
     deleteTestTerms();
   }
   
-  public static void deleteTestTerms()
+  public void deleteTestTerms()
   {
+//    deleteGotTerm(this.GOT_ALL);
+//    deleteGotTerm(this.GOT_BOOL);
+//    deleteGotTerm(this.GOT_CHAR);
+//    deleteGotTerm(this.GOT_CHAR);
+    
     TestDataSet.deleteClassifier(ROOT_TEST_TERM_CLASSIFIER_ID);
-    TestDataSet.deleteClassifier(TEST_DATA_KEY + "_VAL1");
-    TestDataSet.deleteClassifier(TEST_DATA_KEY + "_VAL2");
+    TestDataSet.deleteClassifier(TEST_DATA_KEY + "ALL_VAL1");
+    TestDataSet.deleteClassifier(TEST_DATA_KEY + "ALL_VAL2");
+    TestDataSet.deleteClassifier(TEST_DATA_KEY + "_TERMVAL1");
+    TestDataSet.deleteClassifier(TEST_DATA_KEY + "_TERMVAL2");
   }
+  
+//  public void deleteGotTerm(TestGeoObjectTypeInfo got)
+//  {
+//    MdBusiness allMdBiz = got.getServerObject().getMdBusiness();
+//    String classTermKey = TermConverter.buildRootClassKey(allMdBiz.getTypeName());
+//    TestDataSet.deleteClassifier(classTermKey);
+//  }
   
   public static TestAttributeTypeInfo createAttribute(TestGeoObjectTypeInfo got, String type)
   {

@@ -85,7 +85,7 @@ public class TranslationsTest
         "}";
     
     List<NameValuePair> params = new ArrayList<NameValuePair>();
-//    params.add(new BasicNameValuePair("importMode", "VALIDATE"));
+    params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
     MetadataImportResponse resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
     

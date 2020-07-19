@@ -258,7 +258,7 @@ public class DHIS2GeoObjectJsonAdapters
               throw ex;
             }
             
-            av.addProperty("value", mapping.getExternalId());
+            av.addProperty("value", mapping.getDhis2Code());
           }
           else
           {
@@ -356,10 +356,6 @@ public class DHIS2GeoObjectJsonAdapters
 
       Collections.reverse(ancestors);
 
-//      ancestors.forEach(ancestor -> {
-//        ancestorExternalIds.add(this.getExternalId(ancestor));
-//      }); 
-      
       for (VertexServerGeoObject ancestor : ancestors)
       {
         ancestorExternalIds.add(this.getExternalId(ancestor));

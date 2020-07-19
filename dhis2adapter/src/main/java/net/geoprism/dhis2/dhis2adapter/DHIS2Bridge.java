@@ -34,6 +34,10 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
+import net.geoprism.dhis2.dhis2adapter.response.model.Option;
+import net.geoprism.dhis2.dhis2adapter.response.model.OptionSet;
+import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 
 public class DHIS2Bridge
 {
@@ -141,13 +145,15 @@ public class DHIS2Bridge
     return new MetadataImportResponse(this.apiPost("metadata", params, payload));
   }
   
-  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException
   {
-    return this.metadataGet(objectNamePlural, null);
+    return this.metadataGet(dhis2Type, null);
   }
   
-  public <T> MetadataGetResponse<T> metadataGet(String objectNamePlural, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
+    String objectNamePlural = DHIS2Objects.getPluralObjectNameFromClass(dhis2Type);
+    
     if (params == null)
     {
       params = new ArrayList<NameValuePair>();
@@ -168,7 +174,7 @@ public class DHIS2Bridge
       params.add(new BasicNameValuePair(objectNamePlural, "true"));
     }
     
-    return new MetadataGetResponse<T>(this.apiGet("metadata", params), objectNamePlural);
+    return new MetadataGetResponse<T>(this.apiGet("metadata", params), objectNamePlural, dhis2Type);
   }
   
   public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException

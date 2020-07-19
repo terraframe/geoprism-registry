@@ -23,16 +23,16 @@ public class DHIS2TermMapping
   
   private String runwayClassifierId;
   
-  private String externalId;
+  private String dhis2Code;
 
-  public String getExternalId()
+  public String getDhis2Code()
   {
-    return externalId;
+    return dhis2Code;
   }
 
-  public void setExternalId(String externalId)
+  public void setDhis2Code(String externalId)
   {
-    this.externalId = externalId;
+    this.dhis2Code = externalId;
   }
 
   public String getRunwayClassifierId()
@@ -47,7 +47,7 @@ public class DHIS2TermMapping
   
   @Override
   public int hashCode() {
-    return new String(runwayClassifierId + externalId).hashCode();
+    return new String(runwayClassifierId + dhis2Code).hashCode();
   }
   
 }

@@ -27,10 +27,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -125,7 +123,7 @@ public class DHIS2ExportTest
 //    deleteExternalIds();
     
     
-    createExternalIds();
+//    createExternalIds();
   }
   
   @After
@@ -172,7 +170,6 @@ public class DHIS2ExportTest
     
     for (EdgeObject edge : edges)
     {
-      System.out.println("Deleting external id with oid [" + edge.getObjectValue("oid") + "]");
       edge.delete();
     }
   }
@@ -195,7 +192,7 @@ public class DHIS2ExportTest
   }
   
   @Request
-  private SynchronizationConfig createSyncConfig(SyncLevel additionalLevel, TestGeoObjectTypeInfo got, TestAttributeTypeInfo attr)
+  private SynchronizationConfig createSyncConfig(SyncLevel additionalLevel, Set<DHIS2TermMapping> terms)
   {
     // Define reusable objects
     final ServerHierarchyType ht = testData.HIER.getServerObject();
@@ -219,41 +216,13 @@ public class DHIS2ExportTest
     // Populate Attribute Mappings
     if (additionalLevel != null)
     {
-      Map<String, DHIS2AttributeMapping> mappings = new HashMap<String, DHIS2AttributeMapping>();
-      
-      DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
-      
-      mapping.setDhis2ValueType(ValueType.TEXT);
-      mapping.setRunwayAttributeId(attr.getServerObject().getOid());
-      mapping.setExternalId("TEST_EXTERNAL_ID");
-      mappings.put(attr.getAttributeName(), mapping);
-      
-      additionalLevel.setAttributes(mappings);
-      
       levels.add(additionalLevel);
     }
     
     dhis2Config.setLevels(levels);
     
-    if (attr.toDTO() instanceof AttributeTermType)
+    if (terms != null)
     {
-      Set<DHIS2TermMapping> terms = new HashSet<DHIS2TermMapping>();
-      
-      DHIS2TermMapping root = new DHIS2TermMapping();
-      root.setExternalId("TEST_EXTERNAL_ID");
-      root.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid());
-      terms.add(root);
-      
-      DHIS2TermMapping val1 = new DHIS2TermMapping();
-      val1.setExternalId("TEST_EXTERNAL_ID");
-      val1.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid());
-      terms.add(val1);
-      
-      DHIS2TermMapping val2 = new DHIS2TermMapping();
-      val2.setExternalId("TEST_EXTERNAL_ID");
-      val2.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid());
-      terms.add(val2);
-      
       dhis2Config.setTerms(terms);
     }
     
@@ -280,7 +249,35 @@ public class DHIS2ExportTest
     level2.setSyncType(SyncLevel.Type.ALL);
     level2.setLevel(2);
     
-    SynchronizationConfig config = createSyncConfig(level2, got, attr);
+    Map<String, DHIS2AttributeMapping> mappings = new HashMap<String, DHIS2AttributeMapping>();
+    
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    
+    mapping.setDhis2ValueType(ValueType.TEXT);
+    mapping.setRunwayAttributeId(attr.getServerObject().getOid());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.put(attr.getAttributeName(), mapping);
+    
+    level2.setAttributes(mappings);
+    
+    Set<DHIS2TermMapping> terms = new HashSet<DHIS2TermMapping>();
+    
+    DHIS2TermMapping root = new DHIS2TermMapping();
+    root.setDhis2Code("TEST_EXTERNAL_ID");
+    root.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid());
+    terms.add(root);
+    
+    DHIS2TermMapping val1 = new DHIS2TermMapping();
+    val1.setDhis2Code("TEST_EXTERNAL_ID");
+    val1.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid());
+    terms.add(val1);
+    
+    DHIS2TermMapping val2 = new DHIS2TermMapping();
+    val2.setDhis2Code("TEST_EXTERNAL_ID");
+    val2.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid());
+    terms.add(val2);
+    
+    SynchronizationConfig config = createSyncConfig(level2, terms);
     
     JsonObject jo = syncService.run(testData.adminSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
@@ -293,8 +290,6 @@ public class DHIS2ExportTest
     for (int level = 0; level < payloads.size(); ++level)
     {
       Dhis2Payload payload = payloads.get(level);
-      
-      System.out.println("Payload " + level + " " + payload.getData());
       
       JsonObject joPayload = JsonParser.parseString(payload.getData()).getAsJsonObject();
       
@@ -328,11 +323,7 @@ public class DHIS2ExportTest
         
         Assert.assertNotNull(attributeValue.get("created").getAsString());
         
-        if (attr.toDTO() instanceof AttributeCharacterType)
-        {
-          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsString());
-        }
-        else if (attr.toDTO() instanceof AttributeIntegerType)
+        if (attr.toDTO() instanceof AttributeIntegerType)
         {
           Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsLong());
         }
@@ -361,6 +352,10 @@ public class DHIS2ExportTest
           // Term term = (Term) go.getServerObject().getValue(attr.getAttributeName());
           
           Assert.assertEquals("TEST_EXTERNAL_ID", dhis2Id);
+        }
+        else
+        {
+          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsString());
         }
         
         Assert.assertEquals("TEST_EXTERNAL_ID", attributeValue.get("attribute").getAsJsonObject().get("id").getAsString());
@@ -398,7 +393,6 @@ public class DHIS2ExportTest
   @Request
   public void testExportCharacterAttr() throws Exception
   {
-    System.out.println("Starting Character Test");
     exportCustomAttribute(testData.GOT_CHAR, testData.GO_CHAR, testData.AT_GO_CHAR);
   }
   
@@ -406,7 +400,6 @@ public class DHIS2ExportTest
   @Request
   public void testExportIntegerAttr() throws Exception
   {
-    System.out.println("Starting Integer Test");
     exportCustomAttribute(testData.GOT_INT, testData.GO_INT, testData.AT_GO_INT);
   }
   
@@ -414,7 +407,6 @@ public class DHIS2ExportTest
   @Request
   public void testExportFloatAttr() throws Exception
   {
-    System.out.println("Starting float test");
     exportCustomAttribute(testData.GOT_FLOAT, testData.GO_FLOAT, testData.AT_GO_FLOAT);
   }
   
@@ -422,7 +414,6 @@ public class DHIS2ExportTest
   @Request
   public void testExportDateAttr() throws Exception
   {
-    System.out.println("Starting date test");
     exportCustomAttribute(testData.GOT_DATE, testData.GO_DATE, testData.AT_GO_DATE);
   }
   
@@ -430,7 +421,6 @@ public class DHIS2ExportTest
   @Request
   public void testExportBoolAttr() throws Exception
   {
-    System.out.println("Starting boolean test");
     exportCustomAttribute(testData.GOT_BOOL, testData.GO_BOOL, testData.AT_GO_BOOL);
   }
   
@@ -438,7 +428,194 @@ public class DHIS2ExportTest
   @Request
   public void testExportTermAttr() throws Exception
   {
-    System.out.println("Starting term test");
     exportCustomAttribute(testData.GOT_TERM, testData.GO_TERM, testData.AT_GO_TERM);
+  }
+  
+  @Test
+  @Request
+  public void testGetCustomAttributeConfiguration() throws Exception
+  {
+    Set<DHIS2TermMapping> terms = new HashSet<DHIS2TermMapping>();
+    
+    DHIS2TermMapping root = new DHIS2TermMapping();
+    root.setDhis2Code("TEST_EXTERNAL_ID");
+    root.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid());
+    terms.add(root);
+    
+    DHIS2TermMapping val1 = new DHIS2TermMapping();
+    val1.setDhis2Code("TEST_EXTERNAL_ID");
+    val1.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid());
+    terms.add(val1);
+    
+    DHIS2TermMapping val2 = new DHIS2TermMapping();
+    val2.setDhis2Code("TEST_EXTERNAL_ID");
+    val2.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid());
+    terms.add(val2);
+    
+    SynchronizationConfig config = createSyncConfig(null, terms);
+    
+    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.adminSession.getSessionId(), config.getOid(), testData.GOT_ALL.getCode());
+    
+    System.out.println(custConfig.toString());
+    
+    for (int i = 0; i < custConfig.size(); ++i)
+    {
+      JsonObject attr = custConfig.get(i).getAsJsonObject();
+      
+      String name = attr.get("name").getAsString();
+      
+      TestAttributeTypeInfo attrType = null;
+      
+      JsonArray dhis2Attrs = attr.get("dhis2Attrs").getAsJsonArray();
+      
+      if (name.equals(testData.AT_ALL_INT.getAttributeName()))
+      {
+        attrType = testData.AT_ALL_INT;
+        
+        Assert.assertEquals(1, dhis2Attrs.size());
+        
+        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
+        
+        Assert.assertEquals("V9JL0MAFQop", dhis2Attr.get("dhis2Id").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Integer", dhis2Attr.get("code").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Integer", dhis2Attr.get("name").getAsString());
+      }
+      else if (name.equals(testData.AT_ALL_BOOL.getAttributeName()))
+      {
+        attrType = testData.AT_ALL_BOOL;
+        
+        Assert.assertEquals(1, dhis2Attrs.size());
+        
+        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
+        
+        Assert.assertEquals("HoRXtod7Z8W", dhis2Attr.get("dhis2Id").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Bool", dhis2Attr.get("code").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Bool", dhis2Attr.get("name").getAsString());
+      }
+      else if (name.equals(testData.AT_ALL_CHAR.getAttributeName()))
+      {
+        attrType = testData.AT_ALL_CHAR;
+        
+        Assert.assertEquals(3, dhis2Attrs.size());
+        
+        for (int j = 0; j < dhis2Attrs.size(); j++)
+        {
+          JsonObject dhis2Attr = dhis2Attrs.get(j).getAsJsonObject();
+          
+          String id = dhis2Attr.get("dhis2Id").getAsString();
+          Assert.assertTrue(id.equals("UKNKz1H10EE") || id.equals("n2xYlNbsfko") || id.equals("tw1zAoX9tP6"));
+          
+          String code = dhis2Attr.get("code").getAsString();
+          Assert.assertTrue(code.equals("IRID") || code.equals("NGOID") || code.equals("CGRIntegrationAttributeTest-Char"));
+        }
+      }
+      else if (name.equals(testData.AT_ALL_DATE.getAttributeName()))
+      {
+        attrType = testData.AT_ALL_DATE;
+        
+        Assert.assertEquals(1, dhis2Attrs.size());
+        
+        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
+        
+        Assert.assertEquals("Z5TiJm1H4TC", dhis2Attr.get("dhis2Id").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Date", dhis2Attr.get("code").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Date", dhis2Attr.get("name").getAsString());
+      }
+      else if (name.equals(testData.AT_ALL_FLOAT.getAttributeName()))
+      {
+        attrType = testData.AT_ALL_FLOAT;
+        
+        Assert.assertEquals(1, dhis2Attrs.size());
+        
+        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
+        
+        Assert.assertEquals("Po0hdj4UHUv", dhis2Attr.get("dhis2Id").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Float", dhis2Attr.get("code").getAsString());
+        
+        Assert.assertEquals("CGRIntegrationAttributeTest-Float", dhis2Attr.get("name").getAsString());
+      }
+      else if (name.equals(testData.AT_ALL_TERM.getAttributeName()))
+      {
+        attrType = testData.AT_ALL_TERM;
+        
+        Assert.assertEquals(2, dhis2Attrs.size());
+        
+        for (int j = 0; j < dhis2Attrs.size(); j++)
+        {
+          JsonObject dhis2Attr = dhis2Attrs.get(j).getAsJsonObject();
+          
+          String id = dhis2Attr.get("dhis2Id").getAsString();
+          
+          JsonArray options = dhis2Attr.get("options").getAsJsonArray();
+          
+          if (id.equals("Wt2PuMK4kTt"))
+          {
+            Assert.assertEquals(4, options.size());
+            
+            JsonObject option = options.get(0).getAsJsonObject();
+            
+            Assert.assertNotNull(option.get("code").getAsString());
+            
+            Assert.assertNotNull(option.get("name").getAsString());
+            
+            Assert.assertNotNull(option.get("id").getAsString());
+          }
+          else if (id.equals("Bp9g0VvC1fK"))
+          {
+            Assert.assertEquals(2, options.size());
+            
+            JsonObject option = options.get(0).getAsJsonObject();
+            
+            String code = option.get("code").getAsString();
+            
+            Assert.assertTrue(code.equals("0-14 years") || code.equals("val2"));
+            
+            String optionName = option.get("name").getAsString();
+            
+            Assert.assertTrue(optionName.equals("val1") || optionName.equals("val2"));
+            
+            String optionId = option.get("id").getAsString();
+            
+            Assert.assertTrue(optionId.equals("val1") || optionId.equals("val2"));
+          }
+          else
+          {
+            Assert.fail("Unexpected id [" + id + "].");
+          }
+        }
+        
+        JsonArray cgrTerms = attr.get("terms").getAsJsonArray();
+        
+        Assert.assertEquals(2, cgrTerms.size());
+        
+        for (int k = 0; k < cgrTerms.size(); ++k)
+        {
+          JsonObject term = cgrTerms.get(k).getAsJsonObject();
+          
+          String label = term.get("label").getAsString();
+          Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getLabel().getValue().equals(label) || AllAttributesDataset.TERM_ALL_VAL2.getLabel().getValue().equals(label));
+          
+          String code = term.get("code").getAsString();
+          Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getCode().equals(code) || AllAttributesDataset.TERM_ALL_VAL2.getCode().equals(code));
+        }
+      }
+      else
+      {
+        Assert.fail("Unexpected attribute name [" + name + "].");
+      }
+      
+      Assert.assertEquals(attrType.toDTO().getLabel().getValue(), attr.get("label").getAsString());
+      
+      Assert.assertEquals(attrType.toDTO().getType(), attr.get("type").getAsString());
+      
+      Assert.assertEquals(attrType.toDTO().getLabel().getValue(), attr.get("typeLabel").getAsString());
+    }
   }
 }
