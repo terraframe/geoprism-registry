@@ -64,13 +64,20 @@ public class PatchTerms
         Collections.reverse(parents);
 
         logger.error("[" + classifier.getClassifierId() + "]: " + parents.size());
-        System.out.println("[" + classifier.getClassifierId() + "]: " + parents.size());
 
         // Option attributes should have 2 parents
         // Root -> Class Root -> Class -> Attribute -> Option
         if (parents.size() == 5)
         {
           Iterator<Term> pit = parents.iterator();
+
+          while (pit.hasNext())
+          {
+            Classifier p = (Classifier) pit.next();
+            logger.error("[" + p.getClassifierId() + "]: ");
+          }
+
+          pit = parents.iterator();
           pit.next();
 
           Classifier parent = (Classifier) pit.next();
