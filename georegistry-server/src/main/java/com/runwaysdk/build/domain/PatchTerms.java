@@ -18,6 +18,10 @@
  */
 package com.runwaysdk.build.domain;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -31,6 +35,7 @@ import com.runwaysdk.query.QueryFactory;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierQuery;
+import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.RegistryConstants;
 
 public class PatchTerms
@@ -47,37 +52,40 @@ public class PatchTerms
   {
     ClassifierQuery gQuery = new ClassifierQuery(new QueryFactory());
 
+    Classifier root = Classifier.getRoot();
+
     try (OIterator<? extends Classifier> it = gQuery.getIterator())
     {
       while (it.hasNext())
       {
         Classifier classifier = it.next();
 
-        try (OIterator<Term> pit = classifier.getAllAncestors(ClassifierIsARelationship.CLASS))
+        LinkedList<Term> parents = new LinkedList<>(GeoEntityUtil.getOrderedAncestors(root, classifier, ClassifierIsARelationship.CLASS));
+        Collections.reverse(parents);
+
+        logger.error("[" + classifier.getClassifierId() + "]: " + parents.size());
+        System.out.println("[" + classifier.getClassifierId() + "]: " + parents.size());
+
+        // Option attributes should have 2 parents
+        // Root -> Class Root -> Class -> Attribute -> Option
+        if (parents.size() == 5)
         {
-          List<Term> parents = pit.getAll();
+          Iterator<Term> pit = parents.iterator();
+          pit.next();
 
-          logger.error("[" + classifier.getClassifierId() + "]: " + parents.size());
-          System.out.println("[" + classifier.getClassifierId() + "]: " + parents.size());
+          Classifier parent = (Classifier) pit.next();
 
-          // Option attributes should have 2 parents
-          // Class -> Attribute -> Option
-          if (parents.size() == 2)
-          {
-            Classifier parent = (Classifier) parents.get(0);
-
-            classifier.appLock();
-            classifier.setClassifierPackage(parent.getKey());
-            classifier.setKeyName(Classifier.buildKey(parent.getKey(), classifier.getClassifierId()));
-            classifier.apply();
-          }
-          else
-          {
-            classifier.appLock();
-            classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
-            classifier.setKeyName(Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, classifier.getClassifierId()));
-            classifier.apply();
-          }
+          classifier.appLock();
+          classifier.setClassifierPackage(parent.getKey());
+          classifier.setKeyName(Classifier.buildKey(parent.getKey(), classifier.getClassifierId()));
+          classifier.apply();
+        }
+        else
+        {
+          classifier.appLock();
+          classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+          classifier.setKeyName(Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, classifier.getClassifierId()));
+          classifier.apply();
         }
 
       }
