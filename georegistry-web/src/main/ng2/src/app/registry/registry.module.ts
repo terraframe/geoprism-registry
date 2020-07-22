@@ -11,6 +11,7 @@ import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { TabsModule } from 'ngx-bootstrap/tabs';
 import { DatePipe } from '@angular/common';
 
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
@@ -113,6 +114,7 @@ import '../rxjs-extensions';
 		ButtonsModule,
 		TypeaheadModule,
 		ProgressbarModule,
+		TabsModule,
 		CollapseModule,
 		NgxPaginationModule,
 		SharedModule,

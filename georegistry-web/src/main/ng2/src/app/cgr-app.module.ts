@@ -11,6 +11,7 @@ import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { TabsModule } from 'ngx-bootstrap/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { CgrAppComponent } from './cgr-app.component';
@@ -48,6 +49,7 @@ import './rxjs-extensions';
         TypeaheadModule.forRoot(),
         ProgressbarModule.forRoot(),
         CollapseModule.forRoot(),
+		TabsModule.forRoot(),
         NgxPaginationModule,
         BrowserAnimationsModule,
         SharedModule.forRoot(),
