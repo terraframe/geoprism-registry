@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -72,6 +72,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
@@ -623,13 +624,14 @@ public class RegistryService
    * given code.
    * 
    * @param sessionId
+   * @param parentTermCode
+   *          TODO
    * @param termJSON
    *          JSON of the term object.
-   * 
    * @return Updated {@link Term} object.
    */
   @Request(RequestType.SESSION)
-  public Term updateTerm(String sessionId, String termJSON)
+  public Term updateTerm(String sessionId, String parentTermCode, String termJSON)
   {
     JsonObject termJSONobj = JsonParser.parseString(termJSON).getAsJsonObject();
 
@@ -637,7 +639,7 @@ public class RegistryService
 
     LocalizedValue value = LocalizedValue.fromJSON(termJSONobj.get(Term.JSON_LOCALIZED_LABEL).getAsJsonObject());
 
-    Classifier classifier = TermConverter.updateClassifier(termCode, value);
+    Classifier classifier = TermConverter.updateClassifier(parentTermCode, termCode, value);
 
     TermConverter termBuilder = new TermConverter(classifier.getKeyName());
 
@@ -655,13 +657,19 @@ public class RegistryService
    * deleted.
    * 
    * @param sessionId
+   * @param parentTermCode
+   *          TODO
    * @param geoObjectTypeCode
    * @param attributeTypeJSON
    */
   @Request(RequestType.SESSION)
-  public void deleteTerm(String sessionId, String termCode)
+  public void deleteTerm(String sessionId, String parentTermCode, String termCode)
   {
-    String classifierKey = TermConverter.buildClassifierKeyFromTermCode(termCode);
+    String parentClassifierKey = TermConverter.buildClassifierKeyFromTermCode(parentTermCode);
+
+    Classifier parent = Classifier.getByKey(parentClassifierKey);
+
+    String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 
     Classifier classifier = Classifier.getByKey(classifierKey);
 

@@ -192,13 +192,13 @@ export class IOService {
             .toPromise();
     }
 
-    removeTerm( termCode: string ): Promise<void> {
+    removeTerm( parentTermCode: string, termCode: string ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         return this.http
-            .post<void>( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { termCode: termCode } ), { headers: headers } )
+            .post<void>( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { 'parentTermCode': parentTermCode, 'termCode': termCode } ), { headers: headers } )
             .toPromise()
     }
 
