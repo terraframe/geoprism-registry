@@ -169,9 +169,9 @@ public class DataExportJob extends DataExportJobBase
    * 
    * @return
    */
-  public static String getAPIVersion(DHIS2SyncConfig dhis2Config)
+  public static String getAPIVersion(DHIS2ExternalSystem system)
   {
-    String in = dhis2Config.getSystem().getVersion();
+    String in = system.getVersion();
 
     if (in.startsWith("2.31"))
     {
@@ -181,15 +181,13 @@ public class DataExportJob extends DataExportJobBase
     return "26"; // We currently only support API version 26 right now anyway
   }
   
-  public static DHIS2ServiceIF getDHIS2Service(DHIS2SyncConfig dhis2Config)
+  public static DHIS2ServiceIF getDHIS2Service(DHIS2ExternalSystem system)
   {
-    DHIS2ExternalSystem system = dhis2Config.getSystem();
-
     HTTPConnector connector = new HTTPConnector();
     connector.setServerUrl(system.getUrl());
     connector.setCredentials(system.getUsername(), system.getPassword());
 
-    return DataExportServiceFactory.getDhis2Service(connector, getAPIVersion(dhis2Config));
+    return DataExportServiceFactory.getDhis2Service(connector, getAPIVersion(system));
   }
 
   @Override
@@ -199,7 +197,7 @@ public class DataExportJob extends DataExportJobBase
     
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
-    this.dhis2 = getDHIS2Service(this.dhis2Config);
+    this.dhis2 = getDHIS2Service(this.dhis2Config.getSystem());
 
     this.setStage(history, ExportStage.EXPORT);
 

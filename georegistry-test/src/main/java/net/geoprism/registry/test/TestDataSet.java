@@ -26,10 +26,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.Assert;
 
@@ -646,5 +649,30 @@ abstract public class TestDataSet
   public static void refreshTerms(AttributeTermType attribute)
   {
     attribute.setRootTerm(new TermConverter(TermConverter.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
+  }
+  
+  public static TestAttributeTypeInfo createAttribute(String name, String label, TestGeoObjectTypeInfo got, String type)
+  {
+    AttributeType at = AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
+    
+    String attributeTypeJSON = at.toJSON().toString();
+    
+    at = got.getServerObject().createAttributeType(attributeTypeJSON);
+    
+    return new TestAttributeTypeInfo(at, got);
+  }
+  
+  public static TestAttributeTypeInfo createTermAttribute(String name, String label, TestGeoObjectTypeInfo got, Term attrRoot)
+  {
+    final String type = AttributeTermType.TYPE;
+    
+    AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
+    att.setRootTerm(attrRoot);
+    
+    String attributeTypeJSON = att.toJSON().toString();
+    
+    att = (AttributeTermType) got.getServerObject().createAttributeType(attributeTypeJSON);
+    
+    return new TestAttributeTypeInfo(att, got);
   }
 }

@@ -9,6 +9,8 @@ import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from '../../model/r
 import { SynchronizationConfigService } from '../../service/synchronization-config.service';
 import { RegistryService } from '../../service/registry.service';
 
+import {CustomAttributeConfig} from '../../model/sync';
+
 @Component({
 	selector: 'synchronization-config-modal',
 	templateUrl: './synchronization-config-modal.component.html',
@@ -31,6 +33,8 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	cSystem: { label: string, oid: string, type: string } = null;
 
 	types: GeoObjectType[] = [];
+	
+	levelCfgRows: any[] = [];
 
 
     /*
@@ -71,6 +75,14 @@ export class SynchronizationConfigModalComponent implements OnInit {
 				});
 
 			}
+			
+			this.levelCfgRows = [];
+			for (var i = 0; i < this.config.configuration.levels.length; ++i)
+			{
+			  var level = this.config.configuration.levels[i];
+			  
+			  this.levelCfgRows.push({ level: level, levelIndex: i, isAttributeEditor:false });
+			}
 		}
 	}
 
@@ -104,10 +116,12 @@ export class SynchronizationConfigModalComponent implements OnInit {
 			});
 
 			if (this.config.configuration['levels'] == null) {
-				this.config.configuration['levels'] = [{
-					type: null,
-					geoObjectType: null
-				}];
+			  var lvl = {
+          type: null,
+          geoObjectType: null
+        };
+				this.config.configuration['levels'] = [lvl];
+				this.levelCfgRows.push({level:lvl, levelIndex: 0, isAttributeEditor:false});
 			}
 
 		}
@@ -117,16 +131,30 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	}
 
 	addLevel(): void {
-		this.config.configuration['levels'].push({
-			type: null,
-			geoObjectType: null
-		});
+	  var lvl = {
+      type: null,
+      geoObjectType: null
+    };
+		var len = this.config.configuration['levels'].push(lvl);
+		this.levelCfgRows.push({ level: lvl, levelIndex: len-1, isAttributeEditor:false });
 	}
 
 	removeLevel(index: number): void {
 		if (index < this.config.configuration['levels'].length) {
 			this.config.configuration['levels'].splice(index, 1);
+			this.levelCfgRows.splice(index, 1);
 		}
+	}
+	
+	onSelectGeoObjectType(geoObjectTypeCode: string, levelIndex: number) {
+	  this.service.getCustomAttrCfg(geoObjectTypeCode, this.config.system).then( (attrCfg: CustomAttributeConfig[]) => {
+	    if (attrCfg.length > 0)
+	    {
+	      this.levelCfgRows.splice(levelIndex+1, 0, {isAttributeEditor:true, attrCfg:attrCfg});
+	    }
+	  }).catch((err: HttpErrorResponse) => {
+      this.error(err);
+    });
 	}
 
 	onSubmit(): void {

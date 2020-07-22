@@ -18,11 +18,27 @@
  */
 package net.geoprism.registry.test;
 
+import java.util.Date;
+import java.util.List;
+
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.metadata.MdBusiness;
+
+import junit.framework.Assert;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.TermConverter;
 
 public class CambodiaTestDataset extends TestDataSet
 {
@@ -49,6 +65,28 @@ public class CambodiaTestDataset extends TestDataSet
   public final TestGeoObjectInfo     GO_Cambodia              = new TestGeoObjectInfo("Cambodia", GOT_Country);
   
   public final TestGeoObjectInfo     GO_Oddar_Meanchey              = new TestGeoObjectInfo("Oddar Meanchey", GOT_Province);
+  
+  public TestAttributeTypeInfo AT_National_Anthem;
+  
+  public TestAttributeTypeInfo AT_PHONE_COUNTRY_CODE;
+  
+  public TestAttributeTypeInfo AT_UN_MEMBER;
+  
+  public TestAttributeTypeInfo AT_GDP;
+  
+  public TestAttributeTypeInfo AT_DATE_OF_FORMATION;
+  
+  public TestAttributeTypeInfo AT_RELIGION;
+  
+  public Term T_Religion;
+  
+  public Term T_Buddhism;
+  
+  public Term T_Islam;
+  
+  public Term T_Christianity;
+  
+  public Term T_Other;
 
   {
     managedOrganizationInfos.add(ORG_CENTRAL);
@@ -100,6 +138,88 @@ public class CambodiaTestDataset extends TestDataSet
     GO_Cambodia.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
     
     GO_Cambodia.addChild(GO_Oddar_Meanchey, HIER_ADMIN);
+  }
+  
+  @Transaction
+  @Override
+  protected void setUpMetadataInTrans()
+  {
+    super.setUpMetadataInTrans();
+    
+    this.AT_National_Anthem = TestDataSet.createAttribute("NationalAnthem", "National Anthem", GOT_Country, AttributeCharacterType.TYPE);
+    GO_Cambodia.setDefaultValue(this.AT_National_Anthem.getAttributeName(), "Nokor Reach");
+    
+    this.AT_PHONE_COUNTRY_CODE = TestDataSet.createAttribute("PhoneCountryCode", "Phone Country Code", GOT_Country, AttributeIntegerType.TYPE);
+    GO_Cambodia.setDefaultValue(this.AT_PHONE_COUNTRY_CODE.getAttributeName(), 855L);
+    
+    this.AT_GDP = TestDataSet.createAttribute("GDP", "Gross Domestic Product", GOT_Country, AttributeFloatType.TYPE);
+    GO_Cambodia.setDefaultValue(this.AT_GDP.getAttributeName(), 26.730D);
+    
+    this.AT_UN_MEMBER = TestDataSet.createAttribute("UnMember", "UN Member", GOT_Country, AttributeBooleanType.TYPE);
+    GO_Cambodia.setDefaultValue(this.AT_UN_MEMBER.getAttributeName(), true);
+    
+    this.AT_DATE_OF_FORMATION = TestDataSet.createAttribute("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
+    GO_Cambodia.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
+    
+    
+    createReligionTerms();
+    
+    this.AT_RELIGION = TestDataSet.createTermAttribute("Religion", "Religion", GOT_Country, T_Religion);
+    
+    this.GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
+  }
+  
+  public void createReligionTerms()
+  {
+    MdBusiness countryMdBiz = this.GOT_Country.getServerObject().getMdBusiness();
+    
+    Classifier cCountry = TermConverter.buildIfNotExistdMdBusinessClassifier(countryMdBiz);
+    
+    Classifier cReligion = TermConverter.buildIfNotExistAttribute(countryMdBiz, "Religion", cCountry);
+    T_Religion = new TermConverter(cReligion.getKeyName()).build();
+    
+    Classifier cBuddhism = new Classifier();
+    cBuddhism.setClassifierId("Buddhism");
+    cBuddhism.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cBuddhism.getDisplayLabel().setDefaultValue("Buddhism");
+    cBuddhism.apply();
+    
+    cBuddhism.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
+    T_Buddhism = new TermConverter(cBuddhism.getKeyName()).build();
+    
+    
+    Classifier cIslam = new Classifier();
+    cIslam.setClassifierId("Islam");
+    cIslam.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cIslam.getDisplayLabel().setDefaultValue("Islam");
+    cIslam.apply();
+    
+    cIslam.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
+    T_Islam = new TermConverter(cIslam.getKeyName()).build();
+    
+    
+    Classifier cChristianity = new Classifier();
+    cChristianity.setClassifierId("Christianity");
+    cChristianity.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cChristianity.getDisplayLabel().setDefaultValue("Christianity");
+    cChristianity.apply();
+    
+    cChristianity.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
+    T_Christianity = new TermConverter(cChristianity.getKeyName()).build();
+    
+    
+    Classifier cOther = new Classifier();
+    cOther.setClassifierId("Other");
+    cOther.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cOther.getDisplayLabel().setDefaultValue("Other");
+    cOther.apply();
+    
+    cOther.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
+    T_Other = new TermConverter(cOther.getKeyName()).build();
+    
+    
+    List<? extends Classifier> childClassifiers = cReligion.getAllIsAChild().getAll();
+    Assert.assertEquals(4, childClassifiers.size());
   }
 
   @Override
