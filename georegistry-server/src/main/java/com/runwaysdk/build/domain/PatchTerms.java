@@ -40,8 +40,6 @@ public class PatchTerms
   @Transaction
   private void doIt()
   {
-    Classifier rootClassTerm = Classifier.getByKey(RegistryConstants.TERM_CLASS);
-
     ClassifierQuery gQuery = new ClassifierQuery(new QueryFactory());
 
     try (OIterator<? extends Classifier> it = gQuery.getIterator())
@@ -50,21 +48,20 @@ public class PatchTerms
       {
         Classifier classifier = it.next();
 
-        try (OIterator<Term> pit = classifier.getDirectAncestors(ClassifierIsARelationship.CLASS))
+        try (OIterator<Term> pit = classifier.getAllAncestors(ClassifierIsARelationship.CLASS))
         {
           List<Term> parents = pit.getAll();
 
-          if (parents.size() > 0)
+          // Option attributes should have 3 parents
+          // Root -> Class -> Attribute -> Option
+          if (parents.size() == 3)
           {
             Classifier parent = (Classifier) parents.get(0);
 
-            if (!parent.getOid().equals(rootClassTerm.getOid()) && !classifier.getOid().equals(rootClassTerm.getOid()))
-            {
-              classifier.appLock();
-              classifier.setClassifierPackage(parent.getKey());
-              classifier.setKeyName(Classifier.buildKey(parent.getKey(), classifier.getClassifierId()));
-              classifier.apply();
-            }
+            classifier.appLock();
+            classifier.setClassifierPackage(parent.getKey());
+            classifier.setKeyName(Classifier.buildKey(parent.getKey(), classifier.getClassifierId()));
+            classifier.apply();
           }
         }
 
