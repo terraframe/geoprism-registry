@@ -18,6 +18,8 @@
  */
 package com.runwaysdk.build.domain;
 
+import java.util.List;
+
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -48,16 +50,21 @@ public class PatchTerms
       {
         Classifier classifier = it.next();
 
-        try (OIterator<Term> parents = classifier.getDirectAncestors(ClassifierIsARelationship.CLASS))
+        try (OIterator<Term> pit = classifier.getDirectAncestors(ClassifierIsARelationship.CLASS))
         {
-          Classifier parent = (Classifier) parents.getAll().get(0);
+          List<Term> parents = pit.getAll();
 
-          if (!parent.getOid().equals(rootClassTerm.getOid()) && !classifier.getOid().equals(rootClassTerm.getOid()))
+          if (parents.size() > 0)
           {
-            classifier.appLock();
-            classifier.setClassifierPackage(parent.getKey());
-            classifier.setKeyName(Classifier.buildKey(parent.getKey(), classifier.getClassifierId()));
-            classifier.apply();
+            Classifier parent = (Classifier) parents.get(0);
+
+            if (!parent.getOid().equals(rootClassTerm.getOid()) && !classifier.getOid().equals(rootClassTerm.getOid()))
+            {
+              classifier.appLock();
+              classifier.setClassifierPackage(parent.getKey());
+              classifier.setKeyName(Classifier.buildKey(parent.getKey(), classifier.getClassifierId()));
+              classifier.apply();
+            }
           }
         }
 
