@@ -53,8 +53,8 @@ public class PatchTerms
           List<Term> parents = pit.getAll();
 
           // Option attributes should have 3 parents
-          // Root -> Class -> Attribute -> Option
-          if (parents.size() == 3)
+          // Root -> Class Root -> Class -> Attribute -> Option
+          if (parents.size() == 4)
           {
             Classifier parent = (Classifier) parents.get(0);
 
