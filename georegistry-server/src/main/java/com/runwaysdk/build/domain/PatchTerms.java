@@ -35,7 +35,7 @@ import net.geoprism.registry.RegistryConstants;
 
 public class PatchTerms
 {
-  private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
+  private Logger logger = LoggerFactory.getLogger(PatchTerms.class);
 
   public static void main(String[] args)
   {
