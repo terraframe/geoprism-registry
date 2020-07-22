@@ -62,6 +62,7 @@ import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
@@ -454,7 +455,7 @@ public class DHIS2ExportTest
     
     SynchronizationConfig config = createSyncConfig(null, terms);
     
-    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.adminSession.getSessionId(), config.getOid(), testData.GOT_ALL.getCode());
+    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.adminSession.getSessionId(), config.getSystem(), testData.GOT_ALL.getCode());
     
     System.out.println(custConfig.toString());
     
@@ -615,7 +616,8 @@ public class DHIS2ExportTest
       
       Assert.assertEquals(attrType.toDTO().getType(), attr.get("type").getAsString());
       
-      Assert.assertEquals(attrType.toDTO().getLabel().getValue(), attr.get("typeLabel").getAsString());
+      Assert.assertNotNull(attr.get("typeLabel").getAsString());
+      Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.toDTO().getType()), attr.get("typeLabel").getAsString());
     }
   }
 }

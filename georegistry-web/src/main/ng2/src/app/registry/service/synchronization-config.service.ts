@@ -26,6 +26,7 @@ import { EventService } from '../../shared/service/event.service'
 
 import { PageResult } from '../../shared/model/core'
 import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from '../model/registry'
+import { CustomAttributeConfig } from '../model/sync'
 
 declare var acp: any;
 
@@ -64,6 +65,22 @@ export class SynchronizationConfigService {
 			}))
 			.toPromise();
 	}
+	
+	getCustomAttrCfg(geoObjectTypeCode: string, externalId: string): Promise<CustomAttributeConfig[]> {
+
+    let params: HttpParams = new HttpParams();
+    params = params.set('externalId', externalId);
+    params = params.set('geoObjectTypeCode', geoObjectTypeCode);
+
+    this.eventService.start();
+
+    return this.http
+      .get<CustomAttributeConfig[]>(acp + '/synchronization-config/get-custom-attr', { params: params })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
 
 	apply(config: SynchronizationConfig): Promise<SynchronizationConfig> {
 

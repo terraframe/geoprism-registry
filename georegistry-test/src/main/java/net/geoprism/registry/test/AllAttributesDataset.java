@@ -144,48 +144,48 @@ public class AllAttributesDataset extends TestDataSet
   {
     super.setUpMetadataInTrans();
     
-    this.AT_ALL_CHAR = createAttribute(GOT_ALL, AttributeCharacterType.TYPE);
+    this.AT_ALL_CHAR = TestDataSet.createAttribute("testcharacter", "testcharacter", GOT_ALL, AttributeCharacterType.TYPE);
     this.GO_ALL.setDefaultValue(this.AT_ALL_CHAR.getAttributeName(), "Test Attribute Text Value 123");
-    this.AT_GO_CHAR = createAttribute(GOT_CHAR, AttributeCharacterType.TYPE);
+    this.AT_GO_CHAR = TestDataSet.createAttribute("testcharacter", "testcharacter", GOT_CHAR, AttributeCharacterType.TYPE);
     this.GO_CHAR.setDefaultValue(this.AT_GO_CHAR.getAttributeName(), "Test Attribute Text Value 123");
     
-    this.AT_ALL_INT = createAttribute(GOT_ALL, AttributeIntegerType.TYPE);
+    this.AT_ALL_INT = TestDataSet.createAttribute("testinteger", "testinteger", GOT_ALL, AttributeIntegerType.TYPE);
     this.GO_ALL.setDefaultValue(this.AT_ALL_INT.getAttributeName(), 123L);
-    this.AT_GO_INT = createAttribute(GOT_INT, AttributeIntegerType.TYPE);
+    this.AT_GO_INT = TestDataSet.createAttribute("testinteger", "testinteger", GOT_INT, AttributeIntegerType.TYPE);
     this.GO_INT.setDefaultValue(this.AT_GO_INT.getAttributeName(), 123L);
     
-    this.AT_ALL_FLOAT = createAttribute(GOT_ALL, AttributeFloatType.TYPE);
+    this.AT_ALL_FLOAT = TestDataSet.createAttribute("testfloat", "testfloat", GOT_ALL, AttributeFloatType.TYPE);
     this.GO_ALL.setDefaultValue(this.AT_ALL_FLOAT.getAttributeName(), 123.123D);
-    this.AT_GO_FLOAT = createAttribute(GOT_FLOAT, AttributeFloatType.TYPE);
+    this.AT_GO_FLOAT = TestDataSet.createAttribute("testfloat", "testfloat", GOT_FLOAT, AttributeFloatType.TYPE);
     this.GO_FLOAT.setDefaultValue(this.AT_GO_FLOAT.getAttributeName(), 123.123D);
     
-    this.AT_ALL_BOOL = createAttribute(GOT_ALL, AttributeBooleanType.TYPE);
+    this.AT_ALL_BOOL = TestDataSet.createAttribute("testboolean", "testboolean", GOT_ALL, AttributeBooleanType.TYPE);
     this.GO_ALL.setDefaultValue(this.AT_ALL_BOOL.getAttributeName(), true);
-    this.AT_GO_BOOL = createAttribute(GOT_BOOL, AttributeBooleanType.TYPE);
+    this.AT_GO_BOOL = TestDataSet.createAttribute("testboolean", "testboolean", GOT_BOOL, AttributeBooleanType.TYPE);
     this.GO_BOOL.setDefaultValue(this.AT_GO_BOOL.getAttributeName(), true);
     
-    this.AT_ALL_DATE = createAttribute(GOT_ALL, AttributeDateType.TYPE);
+    this.AT_ALL_DATE = TestDataSet.createAttribute("testdate", "testdate", GOT_ALL, AttributeDateType.TYPE);
     this.GO_ALL.setDefaultValue(this.AT_ALL_DATE.getAttributeName(), GO_DATE_VALUE);
-    this.AT_GO_DATE = createAttribute(GOT_DATE, AttributeDateType.TYPE);
+    this.AT_GO_DATE = TestDataSet.createAttribute("testdate", "testdate", GOT_DATE, AttributeDateType.TYPE);
     this.GO_DATE.setDefaultValue(this.AT_GO_DATE.getAttributeName(), GO_DATE_VALUE);
     
     
     createTestTerms();
     
-    this.AT_ALL_TERM = createTermAttribute(GOT_ALL, TERM_ALL_ROOT);
-    this.AT_GO_TERM = createTermAttribute(GOT_TERM, TERM_TERM_ROOT);
+    this.AT_ALL_TERM = TestDataSet.createTermAttribute("testterm", "testterm", GOT_ALL, TERM_ALL_ROOT);
+    this.AT_GO_TERM = TestDataSet.createTermAttribute("testterm", "testterm", GOT_TERM, TERM_TERM_ROOT);
     
     // TODO : Delete this test?
     AttributeTermType att = (AttributeTermType) this.AT_ALL_TERM.toDTO();
-    TestDataSet.refreshTerms(att);
+//    TestDataSet.refreshTerms(att);
     Assert.assertEquals(2, att.getRootTerm().getChildren().size());
     
     // TODO : Delete this test?
     AttributeTermType att2 = (AttributeTermType) this.AT_GO_TERM.toDTO();
-    TestDataSet.refreshTerms(att2);
+//    TestDataSet.refreshTerms(att2);
     Assert.assertEquals(2, att2.getRootTerm().getChildren().size());
     
-    TERM_TERM_ROOT = ((AttributeTermType)AT_GO_TERM.toDTO()).getRootTerm();
+//    TERM_TERM_ROOT = ((AttributeTermType)AT_GO_TERM.toDTO()).getRootTerm();
     
     this.GO_ALL.setDefaultValue(this.AT_ALL_TERM.getAttributeName(), TERM_ALL_VAL1);
     this.GO_TERM.setDefaultValue(this.AT_GO_TERM.getAttributeName(), TERM_TERM_VAL1);
@@ -271,48 +271,11 @@ public class AllAttributesDataset extends TestDataSet
   
   public void deleteTestTerms()
   {
-//    deleteGotTerm(this.GOT_ALL);
-//    deleteGotTerm(this.GOT_BOOL);
-//    deleteGotTerm(this.GOT_CHAR);
-//    deleteGotTerm(this.GOT_CHAR);
-    
     TestDataSet.deleteClassifier(ROOT_TEST_TERM_CLASSIFIER_ID);
     TestDataSet.deleteClassifier(TEST_DATA_KEY + "ALL_VAL1");
     TestDataSet.deleteClassifier(TEST_DATA_KEY + "ALL_VAL2");
     TestDataSet.deleteClassifier(TEST_DATA_KEY + "_TERMVAL1");
     TestDataSet.deleteClassifier(TEST_DATA_KEY + "_TERMVAL2");
-  }
-  
-//  public void deleteGotTerm(TestGeoObjectTypeInfo got)
-//  {
-//    MdBusiness allMdBiz = got.getServerObject().getMdBusiness();
-//    String classTermKey = TermConverter.buildRootClassKey(allMdBiz.getTypeName());
-//    TestDataSet.deleteClassifier(classTermKey);
-//  }
-  
-  public static TestAttributeTypeInfo createAttribute(TestGeoObjectTypeInfo got, String type)
-  {
-    AttributeType at = AttributeType.factory("test" + type, new LocalizedValue("Label for test" + type), new LocalizedValue("Description for test" + type), type, false, false, false);
-    
-    String attributeTypeJSON = at.toJSON().toString();
-    
-    at = got.getServerObject().createAttributeType(attributeTypeJSON);
-    
-    return new TestAttributeTypeInfo(at, got);
-  }
-  
-  public static TestAttributeTypeInfo createTermAttribute(TestGeoObjectTypeInfo got, Term attrRoot)
-  {
-    final String type = AttributeTermType.TYPE;
-    
-    AttributeTermType att = (AttributeTermType) AttributeType.factory("test" + type, new LocalizedValue("Label for test" + type), new LocalizedValue("Description for test" + type), type, false, false, false);
-    att.setRootTerm(attrRoot);
-    
-    String attributeTypeJSON = att.toJSON().toString();
-    
-    att = (AttributeTermType) got.getServerObject().createAttributeType(attributeTypeJSON);
-    
-    return new TestAttributeTypeInfo(att, got);
   }
   
   @Transaction

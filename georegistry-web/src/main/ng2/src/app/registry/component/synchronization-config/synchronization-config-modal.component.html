@@ -83,26 +83,74 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let level of this.config.configuration['levels']; let i = index;">
-                  <td>
-                    <label style="padding: 10px 0; margin: 0;">Level {{i + 1}}</label>
+                <tr *ngFor="let levelCfg of levelCfgRows; let i = index;">
+                  <td *ngIf="levelCfg.isAttributeEditor === false">
+                    <label style="padding: 10px 0; margin: 0;">Level {{levelCfg.levelIndex + 1}}</label>
                   </td>
-                  <td>
-                    <select type="text" [(ngModel)]="level.geoObjectType" [name]="'geoObjectType' + i" required>
+                  <td *ngIf="levelCfg.isAttributeEditor === false">
+                    <select type="text" [(ngModel)]="levelCfg.level.geoObjectType" (change)="onSelectGeoObjectType(levelCfg.level.geoObjectType, levelCfg.levelIndex)" [name]="'geoObjectType' + levelCfg.levelIndex" required>
                       <option></option>
                       <option *ngFor="let type of types" [value]="type.code">{{type.label.localizedValue}}</option>
                     </select>
                   </td>
-                  <td>
-                    <select type="text" [(ngModel)]="level.type" [name]="'type' + i" required>
+                  <td *ngIf="levelCfg.isAttributeEditor === false">
+                    <select type="text" [(ngModel)]="levelCfg.level.type" [name]="'type' + levelCfg.levelIndex" required>
                       <option></option>
                       <option value="ORG_UNITS"><localize key="synchronization.config.units"></localize></option>
                       <option value="RELATIONSHIPS"><localize key="synchronization.config.relationships"></localize></option>
                       <option value="ALL"><localize key="synchronization.config.all"></localize></option>
                     </select>
                   </td>
-                  <td class="button-column">
-                    <a class="fa fa-trash-o ico-remove" style="padding: 10px" (click)="removeLevel(i)" [title]="'button.delete.helptext' | localize"></a>
+                  <td *ngIf="levelCfg.isAttributeEditor === false" class="button-column">
+                    <a class="fa fa-trash-o ico-remove" style="padding: 10px" (click)="removeLevel(levelCfg.levelIndex)" [title]="'button.delete.helptext' | localize"></a>
+                  </td>
+                  <td colspan="4" *ngIf="levelCfg.isAttributeEditor === true">
+	                  <table class="table">
+	                    <thead>
+	                      <tr>
+	                        <th></th>
+	                      </tr>
+	                    </thead>
+	                    <tbody>
+	                      <tr *ngFor="let attr of levelCfg.attrCfg">
+	                        <td class="row-holder">
+	                          <table style="width:80%; margin-left:80px;">
+	                            <thead>
+	                              <tr>
+	                                <th style="width:25%">
+	                                  <label><localize key="sync.attr.sourceAttribute"></localize></label>
+	                                </th>
+	                                <th style="width:25%">
+                                    <label><localize key="sync.attr.type"></localize></label>
+                                  </th>
+                                  <th style="width:25%">
+                                    <!-- To -->
+                                  </th>
+                                  <th style="width:25%">
+                                    <label><localize key="sync.attr.targetAttribute"></localize></label>
+                                  </th>
+	                              </tr>
+	                            </thead>
+	                            <tbody>
+	                              <tr>
+	                                <td><label style="color:#999;">{{attr.label}}</label></td>
+	                                <td><label style="color:#999;">{{attr.typeLabel}}</label></td>
+	                                <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
+	                                <td>
+	                                  <select [(ngModel)]="attr.mappedDhis2Attr" [ngModelOptions]="{standalone: true}">
+	                                    <option></option>
+	                                    <option [value]="dhis2Attr.code" *ngFor="let dhis2Attr of attr.dhis2Attrs">
+	                                      {{dhis2Attr.name}}
+	                                    </option>
+	                                  </select>
+	                                </td>
+	                              </tr>
+	                            </tbody>
+	                          </table>
+	                        </td>
+	                      </tr>
+	                    </tbody>
+	                  </table>
                   </td>
                 </tr>
                 <tr>
