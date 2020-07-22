@@ -52,7 +52,7 @@ public class PatchTerms
   {
     ClassifierQuery gQuery = new ClassifierQuery(new QueryFactory());
 
-    Classifier root = Classifier.getRoot();
+    Classifier root = Classifier.getByKey("net.geoprism.registry.ROOT");
 
     try (OIterator<? extends Classifier> it = gQuery.getIterator())
     {
@@ -63,19 +63,22 @@ public class PatchTerms
         LinkedList<Term> parents = new LinkedList<>(GeoEntityUtil.getOrderedAncestors(root, classifier, ClassifierIsARelationship.CLASS));
         Collections.reverse(parents);
 
-        logger.error("[" + classifier.getClassifierId() + "]: " + parents.size());
+//        logger.error("[" + classifier.getClassifierId() + "]: " + parents.size());
+//        System.out.println("[" + classifier.getClassifierId() + "]: " + parents.size());
 
         // Option attributes should have 2 parents
         // Root -> Class Root -> Class -> Attribute -> Option
-        if (parents.size() == 5)
+        if (parents.size() == 4)
         {
           Iterator<Term> pit = parents.iterator();
 
-          while (pit.hasNext())
-          {
-            Classifier p = (Classifier) pit.next();
-            logger.error("[" + p.getClassifierId() + "]: ");
-          }
+//          while (pit.hasNext())
+//          {
+//            Classifier p = (Classifier) pit.next();
+//            
+////            logger.error("[" + p.getClassifierId() + "]: ");
+//            System.out.println(" Parent [" + p.getClassifierId() + "]: ");
+//          }
 
           pit = parents.iterator();
           pit.next();
