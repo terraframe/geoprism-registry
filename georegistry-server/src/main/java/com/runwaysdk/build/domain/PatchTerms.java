@@ -60,9 +60,9 @@ public class PatchTerms
           logger.error("[" + classifier.getClassifierId() + "]: " + parents.size());
           System.out.println("[" + classifier.getClassifierId() + "]: " + parents.size());
 
-          // Option attributes should have 3 parents
-          // Root -> Class Root -> Class -> Attribute -> Option
-          if (parents.size() == 4)
+          // Option attributes should have 2 parents
+          // Class -> Attribute -> Option
+          if (parents.size() == 2)
           {
             Classifier parent = (Classifier) parents.get(0);
 
