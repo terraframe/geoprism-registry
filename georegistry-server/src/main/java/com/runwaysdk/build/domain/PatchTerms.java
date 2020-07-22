@@ -63,6 +63,13 @@ public class PatchTerms
             classifier.setKeyName(Classifier.buildKey(parent.getKey(), classifier.getClassifierId()));
             classifier.apply();
           }
+          else
+          {
+            classifier.appLock();
+            classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+            classifier.setKeyName(Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, classifier.getClassifierId()));
+            classifier.apply();
+          }
         }
 
       }
