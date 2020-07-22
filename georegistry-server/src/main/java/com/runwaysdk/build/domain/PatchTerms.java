@@ -20,6 +20,9 @@ package com.runwaysdk.build.domain;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -32,6 +35,8 @@ import net.geoprism.registry.RegistryConstants;
 
 public class PatchTerms
 {
+  private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
+
   public static void main(String[] args)
   {
     new PatchTerms().doIt();
@@ -51,6 +56,9 @@ public class PatchTerms
         try (OIterator<Term> pit = classifier.getAllAncestors(ClassifierIsARelationship.CLASS))
         {
           List<Term> parents = pit.getAll();
+
+          logger.error("[" + classifier.getClassifierId() + "]: " + parents.size());
+          System.out.println("[" + classifier.getClassifierId() + "]: " + parents.size());
 
           // Option attributes should have 3 parents
           // Root -> Class Root -> Class -> Attribute -> Option
