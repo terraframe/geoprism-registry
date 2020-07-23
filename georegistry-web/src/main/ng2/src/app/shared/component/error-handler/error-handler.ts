@@ -14,7 +14,13 @@ export class ErrorHandler {
     
       if (err.error != null)
       {
-        return err.error.localizedMessage || err.error.message;
+        var msg = err.error.localizedMessage || err.error.message;
+        
+        if (msg.includes("##tferrormsg##"))
+        {
+          var split = msg.split("##tferrormsg##");
+          return split[2];
+        }
       }
      
       return unspecified;

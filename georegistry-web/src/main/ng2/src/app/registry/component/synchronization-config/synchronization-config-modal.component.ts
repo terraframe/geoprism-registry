@@ -11,10 +11,24 @@ import { RegistryService } from '../../service/registry.service';
 import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import {CustomAttributeConfig} from '../../model/sync';
 
+export interface LevelRow {
+  isAttributeEditor: boolean;
+  
+  level?: any;
+  levelNum?: number;
+  hasAttributes?: boolean;
+  
+  attrCfg?: GOTAttributeConfig;
+}
+export interface GOTAttributeConfig {
+  geoObjectTypeCode?: string;
+  attrs: CustomAttributeConfig[];
+}
+
 @Component({
-	selector: 'synchronization-config-modal',
-	templateUrl: './synchronization-config-modal.component.html',
-	styleUrls: []
+  selector: 'synchronization-config-modal',
+  templateUrl: './synchronization-config-modal.component.html',
+  styleUrls: []
 })
 export class SynchronizationConfigModalComponent implements OnInit {
 	message: string = null;
@@ -34,7 +48,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
 	types: GeoObjectType[] = [];
 	
-	levelCfgRows: any[] = [];
+	levelRows: LevelRow[] = [];
 
 
     /*
@@ -76,12 +90,12 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
 			}
 			
-			this.levelCfgRows = [];
+			this.levelRows = [];
 			for (var i = 0; i < this.config.configuration.levels.length; ++i)
 			{
 			  var level = this.config.configuration.levels[i];
 			  
-			  this.levelCfgRows.push({ level: level, levelIndex: i, isAttributeEditor:false });
+			  this.levelRows.push({ level: level, levelNum: i, isAttributeEditor:false });
 			}
 		}
 	}
@@ -121,7 +135,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
           geoObjectType: null
         };
 				this.config.configuration['levels'] = [lvl];
-				this.levelCfgRows.push({level:lvl, levelIndex: 0, isAttributeEditor:false});
+				this.levelRows.push({level:lvl, levelNum: 0, isAttributeEditor:false});
 			}
 
 		}
@@ -136,39 +150,149 @@ export class SynchronizationConfigModalComponent implements OnInit {
       geoObjectType: null
     };
 		var len = this.config.configuration['levels'].push(lvl);
-		this.levelCfgRows.push({ level: lvl, levelIndex: len-1, isAttributeEditor:false });
+		this.levelRows.push({ level: lvl, levelNum: len-1, isAttributeEditor:false });
 	}
 
-	removeLevel(index: number): void {
-		if (index < this.config.configuration['levels'].length) {
-			this.config.configuration['levels'].splice(index, 1);
-			this.levelCfgRows.splice(index, 1);
+	removeLevel(levelNum: number, levelRowIndex: number): void {
+		if (levelNum < this.config.configuration['levels'].length) {
+			this.config.configuration['levels'].splice(levelNum, 1);
+			
+			var editorIndex = this.getEditorIndex();
+			if (editorIndex === levelRowIndex+1)
+			{
+			  this.levelRows.splice(editorIndex, 1);
+			}
+			
+			this.levelRows.splice(levelRowIndex, 1);
+			
+			var levelNum = 0;
+			for (var i = 0; i < this.levelRows.length; ++i)
+			{
+			  var levelRow: LevelRow = this.levelRows[i];
+			  
+			  levelRow.levelNum = levelNum;
+			  
+			  if (!levelRow.isAttributeEditor)
+			  {
+			    levelNum = levelNum + 1;
+			  }
+			}
 		}
 	}
 	
-	onSelectGeoObjectType(geoObjectTypeCode: string, levelIndex: number) {
-	  this.service.getCustomAttrCfg(geoObjectTypeCode, this.config.system).then( (attrCfg: CustomAttributeConfig[]) => {
-	    if (attrCfg.length > 0)
-	    {
-	      var level = this.levelCfgRows[levelIndex].level;
-	      
-	      level.customAttrs = {};
-	      
-	      for (var i = 0; i < attrCfg.length; ++i)
-	      {
-	        var attr = attrCfg[i];
-	        
-	        level.attributes[attr.name] = {
-	          name: attr.name,
-	          externalId: null
-	        };
-	      }
-	    
-	      this.levelCfgRows.splice(levelIndex+1, 0, {isAttributeEditor:true, attrCfg:attrCfg});
-	    }
-	  }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
+	getEditorIndex(): number {
+	  for (var i = 0; i < this.levelRows.length; ++i)
+    {
+      var levelRow = this.levelRows[i];
+      
+      if (levelRow.isAttributeEditor)
+      {
+        return i;
+      }
+    }
+    
+    return -1;
+	}
+	
+	configureAttributes(levelRow: any): void {
+	  var editorIndex = this.getEditorIndex();
+    
+    if (editorIndex != -1)
+    {
+      this.levelRows.splice(editorIndex, 1);
+      
+      if (editorIndex == levelRow.levelNum + 1)
+      {
+        return;
+      }
+    }
+	
+    this.onSelectGeoObjectType(levelRow.level.geoObjectType, levelRow.levelNum);
+  }
+	
+	onSelectGeoObjectType(geoObjectTypeCode: string, levelRowIndex: number) {
+    if (geoObjectTypeCode === "" || geoObjectTypeCode == null)
+    {
+      var levelRow: LevelRow = this.levelRows[levelRowIndex];
+      
+      levelRow.hasAttributes = false;
+      levelRow.attrCfg = null;
+      levelRow.level.attributes = {};
+      
+      var editorIndex = this.getEditorIndex();
+      
+      if (editorIndex != -1 && editorIndex === levelRowIndex+1)
+      {
+        this.levelRows.splice(editorIndex, 1);
+      }
+      
+      return;
+    }
+    
+    var attrCfg = this.levelRows[levelRowIndex].attrCfg;
+    if (attrCfg != null && attrCfg.geoObjectTypeCode === geoObjectTypeCode)
+    {
+      // Resume an editing session on attributes that we fetched previously
+      
+      var editorIndex = this.getEditorIndex();
+      
+      if (editorIndex != -1 && editorIndex !== levelRowIndex + 1)
+      {
+        this.levelRows.splice(editorIndex, 1);
+        
+        if (editorIndex < levelRowIndex)
+        {
+          levelRowIndex = levelRowIndex - 1;
+        }
+      }
+      
+      this.levelRows.splice(levelRowIndex+1, 0, {isAttributeEditor:true, attrCfg:attrCfg});
+    }
+    else
+    {
+  	  this.service.getCustomAttrCfg(geoObjectTypeCode, this.config.system).then( (attrs: CustomAttributeConfig[]) => {
+  	    var editorIndex = this.getEditorIndex();
+  	    var levelRow: LevelRow = this.levelRows[levelRowIndex];
+  	    var level = levelRow.level;
+  	    
+  	    level.attributes = {};
+  	    
+  	    levelRow.attrCfg = {geoObjectTypeCode: geoObjectTypeCode, attrs:attrs};
+  	    
+  	    if (editorIndex != -1 && (editorIndex === levelRowIndex+1 || attrs.length > 0))
+        {
+          this.levelRows.splice(editorIndex, 1);
+          
+          if (editorIndex < levelRowIndex)
+          {
+            levelRowIndex = levelRowIndex - 1;
+          }
+        }
+  	  
+  	    if (attrs.length > 0)
+  	    {
+  	      levelRow.hasAttributes = true;
+  	      
+  	      for (var i = 0; i < attrs.length; ++i)
+  	      {
+  	        var attr = attrs[i];
+  	        
+  	        level.attributes[attr.name] = {
+  	          name: attr.name,
+  	          externalId: null
+  	        };
+  	      }
+  	      
+  	      this.levelRows.splice(levelRowIndex+1, 0, {isAttributeEditor:true, attrCfg:{geoObjectTypeCode: geoObjectTypeCode, attrs:attrs}});
+  	    }
+  	    else
+  	    {
+  	      levelRow.hasAttributes = false;
+  	    }
+  	  }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+    }
 	}
 
 	onSubmit(): void {

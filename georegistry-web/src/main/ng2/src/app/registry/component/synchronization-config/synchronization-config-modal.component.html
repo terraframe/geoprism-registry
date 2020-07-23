@@ -70,41 +70,54 @@
             <table id="manage-systems-table" class="list-table table table-bordered">
               <thead>
                 <tr>
-                  <th>Label</th>
-                  <th>
+                  <th style="width:20%">
+                    <localize key="settings.external.synchronization.level.label"></localize>
+                  </th>
+                  <th style="width:30%">
                     <localize key="settings.external.synchronization.geoobjecttype.label"></localize>
                   </th>
-                  <th>
+                  <th style="width:30%">
                     <localize key="settings.external.synchronization.dhis2.synch.type.label"></localize>
                   </th>
-                  <th style="text-align: center;">
+                  <th style="width:20%; text-align: center;">
                     <localize key="settings.external.synchronization.actions.label"></localize>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let levelCfg of levelCfgRows; let i = index;">
-                  <td *ngIf="levelCfg.isAttributeEditor === false">
-                    <label style="padding: 10px 0; margin: 0;">Level {{levelCfg.levelIndex + 1}}</label>
+                <tr *ngFor="let levelRow of levelRows; let i = index;">
+                  <td style="width:20%" *ngIf="levelRow.isAttributeEditor === false">
+                    <label style="padding: 10px 0; margin: 0;">Level {{levelRow.levelNum + 1}}</label>
                   </td>
-                  <td *ngIf="levelCfg.isAttributeEditor === false">
-                    <select type="text" [(ngModel)]="levelCfg.level.geoObjectType" (change)="onSelectGeoObjectType(levelCfg.level.geoObjectType, levelCfg.levelIndex)" [name]="'geoObjectType' + levelCfg.levelIndex" required>
+                  <td style="width:30%" *ngIf="levelRow.isAttributeEditor === false">
+                    <select type="text" [(ngModel)]="levelRow.level.geoObjectType" (change)="onSelectGeoObjectType(levelRow.level.geoObjectType, i)" [name]="'geoObjectType' + levelRow.levelNum" required>
                       <option></option>
                       <option *ngFor="let type of types" [value]="type.code">{{type.label.localizedValue}}</option>
                     </select>
                   </td>
-                  <td *ngIf="levelCfg.isAttributeEditor === false">
-                    <select type="text" [(ngModel)]="levelCfg.level.type" [name]="'type' + levelCfg.levelIndex" required>
+                  <td style="width:30%" *ngIf="levelRow.isAttributeEditor === false">
+                    <select type="text" [(ngModel)]="levelRow.level.type" [name]="'type' + levelRow.levelNum" required>
                       <option></option>
                       <option value="ORG_UNITS"><localize key="synchronization.config.units"></localize></option>
                       <option value="RELATIONSHIPS"><localize key="synchronization.config.relationships"></localize></option>
                       <option value="ALL"><localize key="synchronization.config.all"></localize></option>
                     </select>
                   </td>
-                  <td *ngIf="levelCfg.isAttributeEditor === false" class="button-column">
-                    <a class="fa fa-trash-o ico-remove" style="padding: 10px" (click)="removeLevel(levelCfg.levelIndex)" [title]="'button.delete.helptext' | localize"></a>
-                  </td>
-                  <td colspan="4" *ngIf="levelCfg.isAttributeEditor === true">
+                  <td style="width:20%" *ngIf="levelRow.isAttributeEditor === false">
+									  <div>
+									    <a style="padding: 10px;" (click)="removeLevel(levelRow.levelNum, i)" [title]="'button.delete.helptext' | localize">
+									      <icon class="fa fa-trash-o ico-remove"></icon>
+									      <label style="cursor:pointer; margin-left:9px;">Delete</label>
+									    </a> 
+									  </div>
+									  <div>
+                      <a *ngIf="levelRow.hasAttributes" style="padding: 10px;" (click)="configureAttributes(levelRow)" [title]="'sync.attr.configureAttributes.helptext' | localize">
+                        <icon class="fa fa-edit"></icon>
+                        <label style="cursor:pointer; margin-left:3px;"><localize key="sync.attr.configureAttributes"></localize></label>
+                      </a> 
+                    </div>
+									</td>
+                  <td colspan="4" *ngIf="levelRow.isAttributeEditor === true">
 	                  <table class="table">
 	                    <thead>
 	                      <tr>
@@ -112,7 +125,7 @@
 	                      </tr>
 	                    </thead>
 	                    <tbody>
-	                      <tr *ngFor="let attr of levelCfg.attrCfg">
+	                      <tr *ngFor="let attr of levelRow.attrCfg.attrs">
 	                        <td class="row-holder">
 	                          <table style="width:80%; margin-left:80px;">
 	                            <thead>
@@ -137,7 +150,7 @@
 	                                <td><label style="color:#999;">{{attr.typeLabel}}</label></td>
 	                                <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
 	                                <td>
-	                                  <select [(ngModel)]="levelCfgRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}">
+	                                  <select [(ngModel)]="levelRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}">
 	                                    <option></option>
 	                                    <option [value]="dhis2Attr.dhis2Id" *ngFor="let dhis2Attr of attr.dhis2Attrs">
 	                                      {{dhis2Attr.name}}

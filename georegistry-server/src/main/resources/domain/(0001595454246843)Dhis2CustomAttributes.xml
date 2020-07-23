@@ -43,6 +43,13 @@
           <attribute name="defaultLocale" value="Configure Attributes" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.configureAttributes.helptext">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.configureAttributes.helptext" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Map the CGR attributes to their equivalent in the DHIS2" />
+        </attributeStruct>
+      </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.term.cgrTerm">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="sync.attr.term.cgrTerm" />
