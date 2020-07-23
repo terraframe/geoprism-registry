@@ -5,6 +5,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { AuthService } from '../../../shared/service/auth.service';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
@@ -55,11 +56,8 @@ export class DataPageComponent implements OnInit {
 
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
+            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

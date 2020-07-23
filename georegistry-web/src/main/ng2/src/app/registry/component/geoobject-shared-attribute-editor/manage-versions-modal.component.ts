@@ -12,6 +12,7 @@ import {
 import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from '../../model/registry';
 
 import { RegistryService } from '../../service/registry.service';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 import { IOService } from '../../service/io.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
@@ -301,10 +302,7 @@ export class ManageVersionsModalComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

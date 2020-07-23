@@ -7,7 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GeoObjectType, MasterList, ScheduledJob, ImportError } from '../../../model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import Utils from '../../../utility/Utils'
 
 import { RegistryService } from '../../../service/registry.service';
@@ -107,10 +107,7 @@ export class ImportProblemWidgetComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

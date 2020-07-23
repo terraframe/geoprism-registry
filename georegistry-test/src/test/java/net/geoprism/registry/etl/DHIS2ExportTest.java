@@ -254,8 +254,7 @@ public class DHIS2ExportTest
     
     DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
     
-    mapping.setDhis2ValueType(ValueType.TEXT);
-    mapping.setRunwayAttributeId(attr.getServerObject().getOid());
+    mapping.setName(attr.getAttributeName());
     mapping.setExternalId("TEST_EXTERNAL_ID");
     mappings.put(attr.getAttributeName(), mapping);
     

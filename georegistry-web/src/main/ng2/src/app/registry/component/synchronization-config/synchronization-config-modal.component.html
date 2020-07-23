@@ -137,9 +137,9 @@
 	                                <td><label style="color:#999;">{{attr.typeLabel}}</label></td>
 	                                <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
 	                                <td>
-	                                  <select [(ngModel)]="attr.mappedDhis2Attr" [ngModelOptions]="{standalone: true}">
+	                                  <select [(ngModel)]="levelCfgRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}">
 	                                    <option></option>
-	                                    <option [value]="dhis2Attr.code" *ngFor="let dhis2Attr of attr.dhis2Attrs">
+	                                    <option [value]="dhis2Attr.dhis2Id" *ngFor="let dhis2Attr of attr.dhis2Attrs">
 	                                      {{dhis2Attr.name}}
 	                                    </option>
 	                                  </select>

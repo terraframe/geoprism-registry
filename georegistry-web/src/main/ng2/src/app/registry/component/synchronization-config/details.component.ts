@@ -5,7 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { ScheduledJob } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
 import { IOService } from '../../service/io.service';
@@ -77,12 +77,7 @@ export class SyncDetailsComponent implements OnInit {
   }
 
   error(err: HttpErrorResponse): void {
-    console.log("Encountered error", err);
-
-    // Handle error
-    if (err !== null) {
-      this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-    }
+      this.message = ErrorHandler.getMessageFromError(err);
   }
 
 }

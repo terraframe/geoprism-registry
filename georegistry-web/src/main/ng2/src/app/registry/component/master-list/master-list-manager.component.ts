@@ -5,7 +5,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterListByOrg } from '../../model/registry';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { PublishModalComponent } from './publish-modal.component';
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 
@@ -117,10 +117,7 @@ export class MasterListManagerComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

@@ -27,6 +27,8 @@ import { ErrorModalComponent } from '../../../shared/component/modals/error-moda
 import { SessionService } from '../../../shared/service/session.service';
 import { HubService } from '../../service/hub.service';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+
 import { LoginHeaderComponent } from './login-header.component';
 
 declare var acp: any;
@@ -72,13 +74,9 @@ export class LoginComponent {
     }
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
             // TODO: add error modal
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
-
+            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 

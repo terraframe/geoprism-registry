@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ImportConfiguration, LocationProblem } from '../../../model/io';
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 
 @Component( {
 
@@ -30,10 +31,7 @@ export class LocationProblemPageComponent implements OnInit {
     }
 
     handleError( err: any ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
     onNext(): void {

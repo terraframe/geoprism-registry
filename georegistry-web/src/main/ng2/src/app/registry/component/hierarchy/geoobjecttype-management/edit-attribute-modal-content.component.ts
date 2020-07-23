@@ -10,6 +10,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
 
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { StepConfig } from '../../../../shared/model/modal';
 import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
@@ -99,12 +100,7 @@ export class EditAttributeModalContentComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-
-			console.log(this.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

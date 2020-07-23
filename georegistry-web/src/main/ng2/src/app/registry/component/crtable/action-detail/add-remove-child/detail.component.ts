@@ -11,7 +11,7 @@ import { AddChildAction } from '../../../../model/crtable';
 import { ChangeRequestService } from '../../../../service/change-request.service';
 import { ComponentCanDeactivate } from "../../../../../shared/service/pending-changes-guard";
 
-
+import { ErrorHandler } from '../../../../../shared/component/error-handler/error-handler';
 import { ActionDetailComponent } from '../action-detail-modal.component';
 
 declare var acp: any;
@@ -116,13 +116,8 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
     }
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            // TODO: add error modal
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
-
+            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

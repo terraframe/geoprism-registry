@@ -7,7 +7,7 @@ import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListVersion } from '../../model/registry';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { PublishModalComponent } from './publish-modal.component';
 
@@ -107,10 +107,7 @@ export class MasterListHistoryComponent implements OnInit {
 
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

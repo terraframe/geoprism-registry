@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
@@ -359,13 +360,8 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     public error( err: HttpErrorResponse ): void {
-      // TODO
-  
-      // Handle error
-      if ( err !== null ) {
           this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-          this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-      }
+          this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
     public cancel(): void {

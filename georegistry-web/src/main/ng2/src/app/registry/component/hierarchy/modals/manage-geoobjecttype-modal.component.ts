@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '../../../model/registry';
 
 import { HierarchyService } from '../../../service/hierarchy.service';
@@ -58,12 +58,7 @@ export class ManageGeoObjectTypeModalComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-            
-            console.log(this.message);
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

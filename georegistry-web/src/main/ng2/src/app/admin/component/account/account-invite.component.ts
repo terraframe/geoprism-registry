@@ -22,6 +22,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { Account, UserInvite } from '../../model/account';
 import { Organization } from '../../../shared/model/core';
 
@@ -80,9 +81,6 @@ export class AccountInviteComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 }

@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angula
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { GeoObjectType } from '../../../model/registry';
 
 import { RegistryService } from '../../../service/registry.service';
@@ -87,11 +87,6 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-
-            console.log( this.message );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 }

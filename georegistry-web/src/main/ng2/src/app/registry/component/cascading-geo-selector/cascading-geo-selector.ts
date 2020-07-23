@@ -11,6 +11,7 @@ import { ManageParentVersionsModalComponent } from './manage-parent-versions-mod
 
 import { LocalizedValue } from '../../../shared/model/core';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 @Component( {
 
@@ -128,11 +129,8 @@ export class CascadingGeoSelector {
     }
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
             let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
+            bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

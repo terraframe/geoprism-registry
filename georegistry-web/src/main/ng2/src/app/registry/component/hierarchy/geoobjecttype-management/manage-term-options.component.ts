@@ -10,7 +10,7 @@ import { NgControl, Validators, FormBuilder } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { StepConfig,ModalTypes } from '../../../../shared/model/modal';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
 import { ErrorMessageComponent } from '../../../../shared/component/message/error-message.component';
@@ -205,13 +205,7 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        if ( err !== null ) {
-            // TODO: add error modal
-            //   this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            //   this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-
-            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
+      this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

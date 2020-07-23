@@ -8,7 +8,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from '../../model/registry';
 import { SynchronizationConfigService } from '../../service/synchronization-config.service';
 import { RegistryService } from '../../service/registry.service';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import {CustomAttributeConfig} from '../../model/sync';
 
 @Component({
@@ -150,6 +150,20 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	  this.service.getCustomAttrCfg(geoObjectTypeCode, this.config.system).then( (attrCfg: CustomAttributeConfig[]) => {
 	    if (attrCfg.length > 0)
 	    {
+	      var level = this.levelCfgRows[levelIndex].level;
+	      
+	      level.customAttrs = {};
+	      
+	      for (var i = 0; i < attrCfg.length; ++i)
+	      {
+	        var attr = attrCfg[i];
+	        
+	        level.attributes[attr.name] = {
+	          name: attr.name,
+	          externalId: null
+	        };
+	      }
+	    
 	      this.levelCfgRows.splice(levelIndex+1, 0, {isAttributeEditor:true, attrCfg:attrCfg});
 	    }
 	  }).catch((err: HttpErrorResponse) => {
@@ -183,10 +197,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

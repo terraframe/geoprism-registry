@@ -33,6 +33,8 @@ import { SystemLogoComponent } from './system-logo.component'
 import { SystemLogo } from '../../model/system-logo';
 import { SystemLogoService } from '../../service/system-logo.service';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+
 declare let acp: string;
 
 @Component({
@@ -123,9 +125,6 @@ export class SystemLogosComponent implements OnInit {
   }
 
   error( err: HttpErrorResponse ): void {
-    // Handle error
-    if ( err !== null ) {
-      this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-    }
+      this.message = ErrorHandler.getMessageFromError(err);
   }
 }

@@ -6,6 +6,7 @@ import { ModalTypes } from '../../../../shared/model/modal';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { EventService } from '../../../../shared/service/event.service'
 import { ScheduledJob } from '../../../model/registry';
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 
 declare var acp: any;
 
@@ -90,11 +91,6 @@ export class ReuploadModalComponent {
   }
   
   public error( err: any ): void {
-    console.log("ERROR", err);
-  
-    // Handle error
-    if ( err !== null ) {
-      this.error = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-    }
+    this.errorMessage = ErrorHandler.getMessageFromError(err);
   }
 }

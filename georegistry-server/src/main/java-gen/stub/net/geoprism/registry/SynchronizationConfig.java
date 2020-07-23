@@ -204,7 +204,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     return new LinkedList<SynchronizationConfig>();
   }
 
-  public static SynchronizationConfig desieralize(JsonObject json)
+  public static SynchronizationConfig deserialize(JsonObject json)
   {
     String oid = json.has(SynchronizationConfig.OID) ? json.get(SynchronizationConfig.OID).getAsString() : null;
 

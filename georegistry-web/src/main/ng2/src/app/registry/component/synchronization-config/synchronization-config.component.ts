@@ -8,7 +8,7 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 
 import { SynchronizationConfig, ExportScheduledJob } from '../../model/registry';
 import { SynchronizationConfigService } from '../../service/synchronization-config.service';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 declare var acp: any;
 
@@ -153,10 +153,7 @@ export class SynchronizationConfigComponent implements OnInit {
 
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

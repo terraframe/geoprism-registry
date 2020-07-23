@@ -10,7 +10,7 @@ import { DatePipe } from '@angular/common';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
 import { ChangeRequestService } from '../../service/change-request.service';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
@@ -203,10 +203,7 @@ export class SubmitChangeRequestComponent implements OnInit {
     }
 
     public error( err: any ): void {
-        // Handle error
-        if ( err !== null ) {
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-        }
+            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 }

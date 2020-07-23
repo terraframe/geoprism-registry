@@ -10,7 +10,7 @@ import {NgControl, Validators, FormBuilder} from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 
 import { Step, StepConfig } from '../../../../shared/model/modal';
 import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
@@ -106,12 +106,7 @@ export class EditTermOptionInputComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-            
-            console.log(this.message);
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

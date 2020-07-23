@@ -26,6 +26,7 @@ import { Subject } from 'rxjs';
 import { ExternalSystem, Organization } from '../../../shared/model/core';
 import { ExternalSystemService } from '../../../shared/service/external-system.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 @Component({
 	selector: 'external-system-modal',
@@ -69,11 +70,7 @@ export class ExternalSystemModalComponent implements OnInit {
 	}
 
 	public error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-		}
-
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

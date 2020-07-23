@@ -23,6 +23,7 @@ import { ModalTypes } from '../../../shared/model/modal'
 
 import { HierarchyService } from '../../service/hierarchy.service';
 import { RegistryService } from '../../service/registry.service';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 class Instance {
     active: boolean;
@@ -597,13 +598,8 @@ export class HierarchyComponent implements OnInit {
     }
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            // TODO: add error modal
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
-
+            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

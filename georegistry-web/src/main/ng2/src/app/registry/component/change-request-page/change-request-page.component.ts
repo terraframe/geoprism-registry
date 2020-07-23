@@ -10,6 +10,8 @@ import { ErrorModalComponent } from '../../../shared/component/modals/error-moda
 import { AuthService } from '../../../shared/service/auth.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+
 declare var acp: string;
 
 @Component( {
@@ -51,11 +53,8 @@ export class ChangeRequestPageComponent implements OnInit {
 
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
-        }
+            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

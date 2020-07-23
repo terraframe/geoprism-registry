@@ -19,7 +19,7 @@
 
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { AuthService } from '../../../shared/service/auth.service';
@@ -256,11 +256,7 @@ export class RoleManagementComponent implements OnInit {
 
 
 	public error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
-		}
-
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }
