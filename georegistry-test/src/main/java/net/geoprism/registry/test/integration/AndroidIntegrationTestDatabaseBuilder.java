@@ -40,6 +40,8 @@ public class AndroidIntegrationTestDatabaseBuilder
   private static void buildFromMain()
   {
     USATestData data = USATestData.newTestData();
+    data.setUpMetadata();
+    data.setUpInstanceData();
     
     build(data);
   }
@@ -55,6 +57,6 @@ public class AndroidIntegrationTestDatabaseBuilder
   {
     data.newTestGeoObjectInfo("Utah", data.STATE).delete();
     data.newTestGeoObjectInfo("California", data.STATE).delete();
-    data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.DISTRICT).apply(null);
+    data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.DISTRICT).apply();
   }
 }

@@ -28,13 +28,13 @@ import net.geoprism.registry.model.ServerHierarchyType;
 
 public abstract class ExternalSystemSyncConfig
 {
-  private ExternalSystem      system;
+  private transient ExternalSystem      system;
 
-  private Organization        organization;
+  private transient Organization        organization;
 
-  private ServerHierarchyType hierarchy;
+  private transient ServerHierarchyType hierarchy;
 
-  private LocalizedValue      label;
+  private transient LocalizedValue      label;
 
   public ExternalSystem getSystem()
   {

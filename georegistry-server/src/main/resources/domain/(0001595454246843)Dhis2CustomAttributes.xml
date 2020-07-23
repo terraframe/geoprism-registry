@@ -1,0 +1,119 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.sourceAttribute">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.sourceAttribute" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Source Attribute" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.targetAttribute">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.targetAttribute" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Target Attribute" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.to">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.to" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="To" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.attributesTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.attributesTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Attributes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.configureAttributes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.configureAttributes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Configure Attributes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.configureAttributes.helptext">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.configureAttributes.helptext" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Map the CGR attributes to their equivalent in the DHIS2" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.term.cgrTerm">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.term.cgrTerm" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="CGR Term" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.term.dhis2Option">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.term.dhis2Option" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="DHIS2 Option" />
+        </attributeStruct>
+      </object>
+      
+      <!-- AttributeType type enum metadata -->
+      <!-- This metadata is accessible via Java from AttributeTypeMetadata.java -->
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.boolean">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attributeType.typeEnum.boolean" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Boolean" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.character">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attributeType.typeEnum.character" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Character" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.date">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attributeType.typeEnum.date" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Date" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.integer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attributeType.typeEnum.integer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Integer" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.float">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attributeType.typeEnum.float" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Decimal" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.term">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attributeType.typeEnum.term" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Term" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -3,7 +3,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { TreeNode } from 'angular-tree-component';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { HierarchyType, HierarchyNode } from '../../../model/hierarchy';
 import { GeoObjectType } from '../../../model/registry';
 import { HierarchyService } from '../../../service/hierarchy.service';
@@ -69,11 +69,6 @@ export class AddChildToHierarchyModalComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-            
-            console.log(this.message);
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 }

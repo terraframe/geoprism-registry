@@ -43,7 +43,7 @@ public class DHIS2ImportResponse extends DHIS2Response
       return super.isSuccess();
     }
     
-    return super.isSuccess() && !this.getJsonObject().get("status").getAsString().equals("ERROR");
+    return super.isSuccess() && this.getJsonObject() != null && !this.getJsonObject().get("status").getAsString().equals("ERROR");
   }
   
   public String getMessage()

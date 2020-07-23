@@ -21,8 +21,30 @@ package net.geoprism.registry.etl;
 public class DHIS2AttributeMapping
 {
   
-  private String dhis2ValueType;
+  private String name;
   
-  private String runwayAttributeId;
+  private String externalId;
 
+  public String getExternalId()
+  {
+    return externalId;
+  }
+
+  public void setExternalId(String externalId)
+  {
+    this.externalId = externalId;
+  }
+
+  public String getName()
+  {
+    return name;
+  }
+
+  public void setName(String name)
+  {
+    this.name = name;
+  }
+  
+  
+  
 }

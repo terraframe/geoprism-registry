@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry;
+package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.util.Date;
@@ -39,6 +39,8 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
 import junit.framework.Assert;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
@@ -47,7 +49,6 @@ import net.geoprism.registry.graph.RevealExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
-import net.geoprism.registry.query.graph.VertexExternalIdRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;

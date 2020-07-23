@@ -116,7 +116,19 @@ public class Attribute
   private JsonArray userGroupAccesses;
   
   private JsonArray userAccesses;
+  
+  private JsonObject optionSet;
 
+  public String getOptionSetId()
+  {
+    if (this.optionSet != null && this.optionSet.has("id"))
+    {
+      return this.optionSet.get("id").getAsString();
+    }
+    
+    return null;
+  }
+  
   public String getLastUpdated()
   {
     return lastUpdated;

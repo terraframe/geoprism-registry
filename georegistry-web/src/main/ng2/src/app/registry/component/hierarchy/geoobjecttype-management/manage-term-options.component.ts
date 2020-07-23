@@ -9,7 +9,7 @@ import {
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { StepConfig,ModalTypes } from '../../../../shared/model/modal';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
 import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
@@ -202,13 +202,7 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        if ( err !== null ) {
-            // TODO: add error modal
-            //   this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            //   this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
-
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+      this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

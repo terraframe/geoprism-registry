@@ -434,12 +434,6 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     public error( err: HttpErrorResponse ): void {
         // TODO
         console.log( "ERROR", err );
-
-        // Handle error
-        //if (err !== null) {
-        //    this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-        //    this.bsModalRef.content.message = (err.localizedMessage || err.message);
-        //}
     }
 
 

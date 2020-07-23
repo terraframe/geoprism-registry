@@ -14,6 +14,7 @@ import { ChangeRequestService } from '../../../../service/change-request.service
 import { ErrorModalComponent } from '../../../../../shared/component/modals/error-modal.component';
 import { ComponentCanDeactivate } from "../../../../../shared/service/pending-changes-guard";
 
+import { ErrorHandler } from '../../../../../shared/component/error-handler/error-handler';
 
 import { ActionDetailComponent } from '../action-detail-modal.component';
 
@@ -233,15 +234,8 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     // }
 
     public error( err: HttpErrorResponse ): void {
-        console.log( err );
-
-        // Handle error
-        if ( err !== null ) {
-            // TODO: add error modal
             this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
-
+            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

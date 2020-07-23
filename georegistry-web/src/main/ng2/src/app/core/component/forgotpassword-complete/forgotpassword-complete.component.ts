@@ -21,7 +21,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 import { ForgotPasswordService } from '../../service/forgotpassword.service';
 
@@ -69,9 +69,6 @@ export class ForgotPasswordCompleteComponent implements OnInit {
   }
   
   error( err: HttpErrorResponse ): void {
-    // Handle error
-    if ( err !== null ) {
-      this.message = ( err.error.localizedMessage || err.error.message || err.message );
-    }
+      this.message = ErrorHandler.getMessageFromError(err);
   }
 }

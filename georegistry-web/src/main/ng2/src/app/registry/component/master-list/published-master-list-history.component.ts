@@ -7,7 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { PublishModalComponent } from './publish-modal.component';
 import { MasterList, MasterListVersion } from '../../model/registry';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { RegistryService } from '../../service/registry.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
@@ -147,10 +147,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

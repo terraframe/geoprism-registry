@@ -18,20 +18,16 @@
  */
 package net.geoprism.registry.etl;
 
-import java.lang.reflect.Type;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
-import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
@@ -42,19 +38,42 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
   public static final String GEO_OBJECT_TYPE = "geoObjectType";
 
   public static final String TYPE            = "type";
-
-  private List<SyncLevel>    levels;
   
-  private List<DHIS2AttributeMapping> attributes;
+  private Set<DHIS2TermMapping> terms;
 
-  public List<SyncLevel> getLevels()
+  private SortedSet<SyncLevel>    levels;
+  
+  public SortedSet<SyncLevel> getLevels()
   {
     return levels;
   }
 
-  public void setLevels(List<SyncLevel> levels)
+  public void setLevels(SortedSet<SyncLevel> levels)
   {
     this.levels = levels;
+  }
+  
+  public DHIS2TermMapping getTermMapping(String runwayClassifierId)
+  {
+    for (DHIS2TermMapping mapping : terms)
+    {
+      if (mapping.getRunwayClassifierId().equals(runwayClassifierId))
+      {
+        return mapping;
+      }
+    }
+    
+    return null;
+  }
+  
+  public Set<DHIS2TermMapping> getTerms()
+  {
+    return terms;
+  }
+
+  public void setTerms(Set<DHIS2TermMapping> terms)
+  {
+    this.terms = terms;
   }
 
   @Override
@@ -70,36 +89,14 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
     JsonObject json = config.getConfigurationJson();
 
+    JsonArray jaLevels = json.get(LEVELS).getAsJsonArray();
+    this.levels =  new GsonBuilder().create().fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
     
-    // Levels
-    LinkedList<SyncLevel> levels = new LinkedList<SyncLevel>();
-
-    JsonArray lArray = json.get(LEVELS).getAsJsonArray();
-
-    for (int i = 0; i < lArray.size(); i++)
+    if (json.has("terms"))
     {
-      JsonObject object = lArray.get(i).getAsJsonObject();
-
-      String typeCode = object.get(GEO_OBJECT_TYPE).getAsString();
-      String type = object.get(TYPE).getAsString();
-
-      SyncLevel level = new SyncLevel();
-      level.setGeoObjectType(ServerGeoObjectType.get(typeCode));
-      level.setSyncType(SyncLevel.Type.valueOf(type));
-      level.setLevel(i + 1);
-
-      levels.add(level);
+      JsonArray jaTerms = json.get("terms").getAsJsonArray();
+      this.terms =  new GsonBuilder().create().fromJson(jaTerms, new TypeToken<Set<DHIS2TermMapping>>() {}.getType());
     }
-    
-    this.setLevels(levels);
-    
-    
-    // Attribute Mappings
-    JsonArray jaAttrMap = json.get(ATTRIBUTES).getAsJsonArray();
-    
-    Gson gson = new GsonBuilder().create();
-    Type list = new TypeToken<List<DHIS2AttributeMapping>>() {}.getType();
-    this.attributes =  gson.fromJson(jaAttrMap, list);
   }
 
 }

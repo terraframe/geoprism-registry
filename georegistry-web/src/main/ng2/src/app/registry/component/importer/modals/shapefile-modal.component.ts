@@ -5,7 +5,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Router } from '@angular/router';
 
 import { LocalizationService } from '../../../../shared/service/localization.service';
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { SuccessModalComponent } from '../../../../shared/component/modals/success-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
 
@@ -122,9 +122,6 @@ export class ShapefileModalComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 }

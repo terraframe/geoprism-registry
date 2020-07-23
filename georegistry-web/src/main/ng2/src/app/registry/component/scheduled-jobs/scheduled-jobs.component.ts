@@ -10,7 +10,7 @@ import { RegistryService } from '../../service/registry.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 import { IOService } from '../../service/io.service';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { ScheduledJob, ScheduledJobOverview, PaginationPage } from '../../model/registry';
 import { ModalTypes } from '../../../shared/model/modal';
 
@@ -290,12 +290,7 @@ export class ScheduledJobsComponent implements OnInit {
 
 
 	error(err: HttpErrorResponse): void {
-		console.log("ERROR", err);
-
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

@@ -7,7 +7,7 @@ import {
 } from '@angular/animations'
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 
 import { StepConfig } from '../../../../shared/model/modal';
 import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
@@ -84,7 +84,6 @@ export class EditTermOptionInputComponent implements OnInit {
 	}
 
 	isFormValid(): boolean {
-
 		// let isAttrValid: boolean = this.attributeInputComponent.isValid();
 
 		// if(isAttrValid){
@@ -99,13 +98,8 @@ export class EditTermOptionInputComponent implements OnInit {
 		this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute": this.attribute, "termOption": "" })
 	}
 
-	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-
-			console.log(this.message);
-		}
-	}
+    error( err: HttpErrorResponse ): void {
+            this.message = ErrorHandler.getMessageFromError(err);
+    }
 
 }
