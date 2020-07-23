@@ -11,6 +11,8 @@ import { ChangeRequestService } from '../../service/change-request.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+
 @Component( {
 
     selector: 'request-table',
@@ -133,11 +135,8 @@ export class RequestTableComponent {
     }
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
             let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+            bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 	}
 	
 	requestTrackBy(index: number, request: ChangeRequest) {

@@ -47,9 +47,9 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 /**
  * Tests the DHIS2 Facade by talking to play.dhis2.org
  */
-public class DHIS2FacadeTest
+public class DHIS2BridgeTest
 {
-  private DHIS2Facade facade;
+  private DHIS2Bridge facade;
   
   @Before
   public void setUp()
@@ -58,7 +58,7 @@ public class DHIS2FacadeTest
     connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
     connector.setServerUrl(Constants.DHIS2_URL);
     
-    facade = new DHIS2Facade(connector, Constants.API_VERSION);
+    facade = new DHIS2Bridge(connector, Constants.API_VERSION);
   }
   
   @Test
@@ -247,9 +247,7 @@ public class DHIS2FacadeTest
   @Test
   public void testMetadataGetAttributes() throws HTTPException, InvalidLoginException, UnexpectedResponseException
   {
-    final String objectNamePlural = DHIS2Objects.ATTRIBUTES;
-    
-    MetadataGetResponse<Attribute> metadataGetResp = facade.<Attribute>metadataGet(objectNamePlural);
+    MetadataGetResponse<Attribute> metadataGetResp = facade.<Attribute>metadataGet(Attribute.class);
     
     List<Attribute> attrs = metadataGetResp.getObjects();
     

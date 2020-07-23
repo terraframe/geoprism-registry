@@ -47,9 +47,9 @@ public class Dhis2IdCache
   
   Stack<String> cache = new Stack<String>();
   
-  DHIS2Facade dhis2;
+  DHIS2Bridge dhis2;
   
-  public Dhis2IdCache(DHIS2Facade dhis2)
+  public Dhis2IdCache(DHIS2Bridge dhis2)
   {
     this.dhis2 = dhis2;
   }

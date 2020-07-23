@@ -86,7 +86,7 @@ public class GeoObjectImporterTest
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
 
     SchedulerManager.start();
@@ -412,7 +412,7 @@ public class GeoObjectImporterTest
     state00.setCode("00");
     state00.setDisplayLabel("Test Label");
     state00.setRegistryId(ServiceFactory.getIdService().getUids(1)[0]);
-    state00.apply(new Date());
+    state00.apply();
     testData.USA.addChild(state00, testData.HIER_ADMIN);
 
     TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);

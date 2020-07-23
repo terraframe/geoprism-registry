@@ -126,7 +126,7 @@ public class TestOrganizationInfo
   @Transaction
   private void deleteInTrans()
   {
-    Organization org = getServerObject();
+    Organization org = getServerObject(true);
     
     if (org != null)
     {

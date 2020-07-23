@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.etl.export;
 
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
+
 public class ExportHistory extends ExportHistoryBase
 {
   private static final long serialVersionUID = -465305950;
@@ -25,6 +28,34 @@ public class ExportHistory extends ExportHistoryBase
   public ExportHistory()
   {
     super();
+  }
+  
+  @Override
+  public void delete()
+  {
+    deleteAllExportErrors();
+    
+    super.delete();
+  }
+
+  public void deleteAllExportErrors()
+  {
+    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(this));
+    
+    OIterator<? extends ExportError> it = query.getIterator();
+    
+    try
+    {
+      while (it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
   }
   
 }

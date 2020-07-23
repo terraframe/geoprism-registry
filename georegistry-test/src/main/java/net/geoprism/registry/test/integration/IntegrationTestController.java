@@ -48,7 +48,7 @@ public class IntegrationTestController
       //IntegrationTestController.testData = USATestData.newTestData();
       //AndroidIntegrationTestDatabaseBuilder.build(testData);
     	
-      IntegrationTestController.testData = USATestData.newTestDataForClass();
+      IntegrationTestController.testData = USATestData.newTestData();
       testData.setUpMetadata();
       testData.setUpInstanceData();
       AndroidIntegrationTestDatabaseBuilder.build(testData);

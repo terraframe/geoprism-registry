@@ -29,6 +29,8 @@ import { User, Account } from '../../model/account';
 import { PageResult } from '../../../shared/model/core';
 import { AccountService } from '../../service/account.service';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+
 declare let acp: string;
 
 @Component({
@@ -75,9 +77,6 @@ export class AccountInviteCompleteComponent implements OnInit {
   }  
   
   error( err: HttpErrorResponse ): void {
-    // Handle error
-    if ( err !== null ) {
-      this.message = ( err.error.localizedMessage || err.error.message || err.message );
-    }
+      this.message = ErrorHandler.getMessageFromError(err);
   }
 }

@@ -59,7 +59,7 @@ public class RegistryServiceTest
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
   }
 
@@ -392,7 +392,7 @@ public class RegistryServiceTest
   public void testAddChild()
   {
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", testData.STATE);
-    testAddChild.apply(null);
+    testAddChild.apply();
 
     ParentTreeNode ptnTestState = testData.adapter.addChild(testData.USA.getRegistryId(), testData.USA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), testData.HIER_ADMIN.getCode());
 

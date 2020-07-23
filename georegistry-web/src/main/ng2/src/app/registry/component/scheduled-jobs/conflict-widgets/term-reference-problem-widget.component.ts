@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { GeoObjectType, MasterList, ScheduledJob } from '../../../model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
@@ -102,10 +102,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

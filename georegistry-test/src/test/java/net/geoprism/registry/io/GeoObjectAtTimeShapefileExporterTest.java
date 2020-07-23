@@ -62,7 +62,7 @@ public class GeoObjectAtTimeShapefileExporterTest
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestDataForClass(true, new Date());
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
   }
 

@@ -23,7 +23,7 @@ import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { Email } from '../../model/email';
 import { EmailService } from '../../service/email.service';
 
@@ -82,9 +82,6 @@ export class EmailComponent implements OnInit {
   }
 
   error(err: HttpErrorResponse): void {
-    // Handle error
-    if (err !== null) {
-      this.message = (err.error.localizedMessage || err.error.message || err.message);
-    }
+      this.message = ErrorHandler.getMessageFromError(err);
   }
 }

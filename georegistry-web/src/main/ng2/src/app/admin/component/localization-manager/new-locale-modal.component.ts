@@ -7,6 +7,7 @@ import { LocalizationManagerService } from '../../service/localization-manager.s
 import { EventService } from '../../../shared/service/event.service';
 import { AllLocaleInfo } from '../../model/localization-manager';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 @Component({
   selector: 'new-locale-modal',
@@ -71,10 +72,7 @@ export class NewLocaleModalComponent {
   }
 
   public error(err: HttpErrorResponse): void {
-    // Handle error
-    if (err !== null) {
       let bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-      bsModalRef.content.message = (err.error.localizedMessage || err.error.message || err.message);
-    }
+      bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
   }
 }

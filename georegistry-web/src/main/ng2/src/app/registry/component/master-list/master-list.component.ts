@@ -8,7 +8,7 @@ import { interval, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { HttpErrorResponse } from '@angular/common/http';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { MasterListVersion } from '../../model/registry';
 
 import { ExportFormatModalComponent } from './export-format-modal.component';
@@ -303,10 +303,7 @@ export class MasterListComponent implements OnInit {
 
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }
