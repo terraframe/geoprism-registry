@@ -3,12 +3,7 @@
     <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid">
         <fieldset>
 
-            <div *ngIf="message" class="row-holder">
-                <div class="label-holder"></div>
-                <div class="holder" style="border-left: solid 1px #8c0000;">
-                    <error-message [message]="message"></error-message>
-                </div>
-            </div>
+            <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
                 
             <div class="heading">
                 <h1>

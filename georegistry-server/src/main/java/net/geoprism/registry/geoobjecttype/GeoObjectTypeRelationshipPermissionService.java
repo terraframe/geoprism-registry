@@ -91,9 +91,11 @@ public class GeoObjectTypeRelationshipPermissionService implements GeoObjectType
             }
           }
         }
+        // SRA only has the ability to see types and hierarchies, it does not
+        // have permissions to modify
         else if (RegistryRole.Type.isSRA_Role(roleName))
         {
-          return true;
+//          return true;
         }
       }
     }
