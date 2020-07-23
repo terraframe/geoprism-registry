@@ -240,7 +240,7 @@ export class SettingsComponent implements OnInit {
 			backdrop: true,
 			ignoreBackdropClick: true,
 		});
-		bsModalRef.content.organizations = this.organizations;
+		bsModalRef.content.init(this.organizations);
 		bsModalRef.content.onSuccess.subscribe(data => {
 			this.onSystemPageChange(this.systems.pageNumber);
 		})
@@ -255,8 +255,7 @@ export class SettingsComponent implements OnInit {
 				backdrop: true,
 				ignoreBackdropClick: true,
 			});
-			bsModalRef.content.system = system;
-			bsModalRef.content.organizations = this.organizations;
+			bsModalRef.content.init(this.organizations, system);
 			bsModalRef.content.onSuccess.subscribe(data => {
 				this.onSystemPageChange(this.systems.pageNumber);
 			})
