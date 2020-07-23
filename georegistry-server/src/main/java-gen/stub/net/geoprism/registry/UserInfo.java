@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -32,8 +32,10 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
+import com.runwaysdk.dataaccess.AttributeBooleanIF;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
+import com.runwaysdk.dataaccess.attributes.entity.AttributeBoolean;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.LeftJoinEq;
 import com.runwaysdk.query.OIterator;
@@ -80,7 +82,7 @@ public class UserInfo extends UserInfoBase
       GeoprismUserQuery uQuery = new GeoprismUserQuery(vQuery);
       UserInfoQuery iQuery = new UserInfoQuery(vQuery);
 
-      vQuery.SELECT(uQuery.getOid(), uQuery.getUsername(), uQuery.getFirstName(), uQuery.getLastName(), uQuery.getPhoneNumber(), uQuery.getEmail());
+      vQuery.SELECT(uQuery.getOid(), uQuery.getUsername(), uQuery.getFirstName(), uQuery.getLastName(), uQuery.getPhoneNumber(), uQuery.getEmail(), uQuery.getInactive());
       vQuery.SELECT(iQuery.getAltFirstName(), iQuery.getAltLastName(), iQuery.getAltPhoneNumber(), iQuery.getPosition());
 
       vQuery.WHERE(new LeftJoinEq(uQuery.getOid(), iQuery.getGeoprismUser()));
@@ -119,6 +121,7 @@ public class UserInfo extends UserInfoBase
           result.put(GeoprismUser.LASTNAME, vObject.getValue(GeoprismUser.LASTNAME));
           result.put(GeoprismUser.PHONENUMBER, vObject.getValue(GeoprismUser.PHONENUMBER));
           result.put(GeoprismUser.EMAIL, vObject.getValue(GeoprismUser.EMAIL));
+          result.put(GeoprismUser.INACTIVE, AttributeBoolean.getBooleanValue((AttributeBooleanIF) vObject.getAttributeIF(GeoprismUser.INACTIVE)));
           result.put(UserInfo.ALTFIRSTNAME, vObject.getValue(UserInfo.ALTFIRSTNAME));
           result.put(UserInfo.ALTLASTNAME, vObject.getValue(UserInfo.ALTLASTNAME));
           result.put(UserInfo.ALTPHONENUMBER, vObject.getValue(UserInfo.ALTPHONENUMBER));

@@ -366,7 +366,7 @@ public class ConversionTest
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(sessionId, term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(sessionId, rootTerm.getCode(), term.getCode());
     }
   }
 // Heads up: clean up

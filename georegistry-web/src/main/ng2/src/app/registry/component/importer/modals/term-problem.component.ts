@@ -107,7 +107,7 @@ export class TermProblemComponent implements OnInit {
             else if ( action.name == 'OPTION' ) {
                 this.onError.emit( null );
 
-                this.service.removeTerm( action.term.code ).then( response => {
+                this.service.removeTerm(this.problem.parentCode, action.term.code ).then( response => {
                     this.problem.resolved = false;
                     this.problem.action = null;
                 } ).catch( e => {

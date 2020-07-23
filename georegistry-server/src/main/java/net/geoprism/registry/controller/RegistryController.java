@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -114,7 +114,7 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
-  
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_GET)
   public ResponseIF getGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
   {
@@ -134,12 +134,12 @@ public class RegistryController
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
   }
-  
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "geoobject-time/newGeoObjectInstance")
   public ResponseIF newGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_NEW_INSTANCE_PARAM_TYPE_CODE) String typeCode)
   {
     String resp = this.registryService.newGeoObjectInstanceOverTime(request.getSessionId(), typeCode);
-    
+
     return new RestBodyResponse(resp);
   }
 
@@ -162,12 +162,12 @@ public class RegistryController
 
     return new RestBodyResponse(bounds);
   }
-  
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject-time/get-bounds")
   public ResponseIF getGeoObjectBoundsAtDate(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException, ParseException
   {
     GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode);
-    
+
     Date forDate = null;
 
     if (date != null && date.length() > 0)
@@ -378,17 +378,17 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
-  public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
+  public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
   {
-    Term term = this.registryService.updateTerm(request.getSessionId(), termJSON);
+    Term term = this.registryService.updateTerm(request.getSessionId(), parentTermCode, termJSON);
 
     return new RestBodyResponse(term.toJSON());
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-  public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
+  public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
   {
-    this.registryService.deleteTerm(request.getSessionId(), termCode);
+    this.registryService.deleteTerm(request.getSessionId(), parentTermCode, termCode);
 
     return new RestResponse();
   }
@@ -560,7 +560,7 @@ public class RegistryController
         aTypes[i] = jaTypes.getString(i);
       }
     }
-    
+
     String[] aHierarchies = null;
     if (hierarchies != null)
     {
@@ -614,8 +614,9 @@ public class RegistryController
     for (int i = 0; i < gots.length; ++i)
     {
       GeoObjectType geoObjectType = gots[i];
-// Heads up: Cleanup
-//    if (!geoObjectType.getCode().equals("ROOT") && ( includeLeafTypes == null || includeLeafTypes || !geoObjectType.isLeaf() ))
+      // Heads up: Cleanup
+      // if (!geoObjectType.getCode().equals("ROOT") && ( includeLeafTypes ==
+      // null || includeLeafTypes || !geoObjectType.isLeaf() ))
       if (!geoObjectType.getCode().equals("ROOT"))
       {
         JsonObject type = new JsonObject();
@@ -912,7 +913,7 @@ public class RegistryController
 
     return new RestBodyResponse(response);
   }
-  
+
   /**
    * Submit scheduled job conflict.
    * 
@@ -922,15 +923,15 @@ public class RegistryController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "registry/submit-conflict")
   public ResponseIF submitDataConflictResolution(ClientRequestIF request, @RequestParamter(name = "conflict") String conflict)
   {
-    
+
     // TODO: set this method up
-    
+
     HierarchyType hierarchyType = ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), conflict);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
   }
-  
+
   /**
    * Returns an array of (label, entityId) pairs that under the given
    * parent/hierarchy and have the given label.
@@ -948,16 +949,16 @@ public class RegistryController
 
     OrganizationDTO[] orgs = this.registryService.getOrganizations(request.getSessionId(), null);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-    
+
     JsonArray orgsJson = new JsonArray();
-    for(OrganizationDTO org : orgs)
+    for (OrganizationDTO org : orgs)
     {
       orgsJson.add(org.toJSON(serializer));
     }
-    
+
     return new RestBodyResponse(orgsJson);
   }
-  
+
   /**
    * Submit new organization.
    * 
@@ -965,14 +966,14 @@ public class RegistryController
    * @param json
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
-  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json )
+  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json)
   {
     OrganizationDTO org = this.registryService.createOrganization(request.getSessionId(), json);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-    
+
     return new RestBodyResponse(org.toJSON(serializer));
   }
-  
+
   /**
    * Delete organization.
    * 
@@ -980,13 +981,13 @@ public class RegistryController
    * @param json
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/delete")
-  public ResponseIF removeOrganization(ClientRequestIF request, @RequestParamter(name = "code") String code )
+  public ResponseIF removeOrganization(ClientRequestIF request, @RequestParamter(name = "code") String code)
   {
     this.registryService.deleteOrganization(request.getSessionId(), code);
-    
+
     return new RestResponse();
   }
-  
+
   /**
    * Update organization.
    * 
@@ -994,11 +995,11 @@ public class RegistryController
    * @param json
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/update")
-  public ResponseIF updateOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json )
+  public ResponseIF updateOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json)
   {
     OrganizationDTO org = this.registryService.updateOrganization(request.getSessionId(), json);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-    
+
     return new RestBodyResponse(org.toJSON(serializer));
   }
 }

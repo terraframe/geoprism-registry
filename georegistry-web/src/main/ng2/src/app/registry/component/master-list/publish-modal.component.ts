@@ -41,7 +41,7 @@ export class PublishModalComponent implements OnInit {
      */
 	edit: boolean = false;
 
-  isNew: boolean = false;
+	isNew: boolean = false;
 
 	constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService) { }
 
@@ -51,17 +51,15 @@ export class PublishModalComponent implements OnInit {
 
 		if (this.master == null || !this.readonly) {
 			this.iService.listGeoObjectTypes(true).then(types => {
-			
-			  var myOrgTypes = [];
-        for (var i = 0; i < types.length; ++i)
-        {
-          if (this.authService.isGeoObjectTypeRM(types[i].orgCode, types[i].code))
-          {
-            myOrgTypes.push(types[i]);
-          }
-        }
-        this.types = myOrgTypes;
-			
+
+				var myOrgTypes = [];
+				for (var i = 0; i < types.length; ++i) {
+					if (this.authService.isGeoObjectTypeRM(types[i].orgCode, types[i].code)) {
+						myOrgTypes.push(types[i]);
+					}
+				}
+				this.types = myOrgTypes;
+
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});

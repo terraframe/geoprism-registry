@@ -26,6 +26,7 @@ import { Subject } from 'rxjs';
 import { ExternalSystem, Organization } from '../../../shared/model/core';
 import { ExternalSystemService } from '../../../shared/service/external-system.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { AuthService } from '../../../shared/service/auth.service';
 
 @Component({
 	selector: 'external-system-modal',
@@ -35,24 +36,34 @@ import { LocalizationService } from '../../../shared/service/localization.servic
 export class ExternalSystemModalComponent implements OnInit {
 
 	message: string = null;
-	
-	system: ExternalSystem = { 
-	  id: "", 
-	  type:'DHIS2ExternalSystem',
-      organization:"",
-	  label: this.lService.create(), 
-	  description: this.lService.create()
+
+	system: ExternalSystem = {
+		id: "",
+		type: 'DHIS2ExternalSystem',
+		organization: "",
+		label: this.lService.create(),
+		description: this.lService.create()
 	};
-	
+
 	organizations: Organization[] = [];
 
 
 	public onSuccess: Subject<ExternalSystem>;
 
-	constructor(private systemService: ExternalSystemService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
+	constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
 
 	ngOnInit(): void {
 		this.onSuccess = new Subject();
+	}
+
+	init(organizations: Organization[], system: ExternalSystem): void {
+		this.organizations = organizations.filter(o => {
+			return this.authService.isOrganizationRA(o.code);
+		});
+
+		if (system != null) {
+			this.system = system;
+		}
 	}
 
 	cancel(): void {
@@ -60,12 +71,12 @@ export class ExternalSystemModalComponent implements OnInit {
 	}
 
 	onSubmit(): void {
-			this.systemService.applyExternalSystem(this.system).then(data => {
-				this.onSuccess.next(data);
-				this.bsModalRef.hide();
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
+		this.systemService.applyExternalSystem(this.system).then(data => {
+			this.onSuccess.next(data);
+			this.bsModalRef.hide();
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 	}
 
 	public error(err: HttpErrorResponse): void {

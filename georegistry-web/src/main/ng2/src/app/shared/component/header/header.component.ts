@@ -70,7 +70,7 @@ export class CgrHeaderComponent {
       }
       else if (item === "TASKS")
       {
-        return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+        return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
       }
       else if (item === "CONFIGS")
       {

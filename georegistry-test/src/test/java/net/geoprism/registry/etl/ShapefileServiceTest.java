@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -143,7 +143,7 @@ public class ShapefileServiceTest
     {
       vpit.next().delete();
     }
-    
+
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     OIterator<? extends ImportError> ieit = ieq.getIterator();
     while (ieit.hasNext())
@@ -157,7 +157,7 @@ public class ShapefileServiceTest
     while (jhrs.hasNext())
     {
       JobHistoryRecord jhr = jhrs.next();
-      
+
       JobHistory hist = jhr.getChild();
       if (hist instanceof ImportHistory)
       {
@@ -334,13 +334,16 @@ public class ShapefileServiceTest
       waitTime += 10;
       if (waitTime > 20000000)
       {
-//        String extra = "";
-//        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-//        {
-//          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 100, 1).toString();
-//
-//          extra = extra + " " + ( (ImportHistory) hist ).getValidationProblems();
-//        }
+        // String extra = "";
+        // if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
+        // {
+        // extra = new
+        // ETLService().getImportErrors(Session.getCurrentSession().getOid(),
+        // hist.getOid(), false, 100, 1).toString();
+        //
+        // extra = extra + " " + ( (ImportHistory) hist
+        // ).getValidationProblems();
+        // }
 
         Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
         return;
@@ -553,7 +556,8 @@ public class ShapefileServiceTest
     test.fromJSON(hist.getConfigJson(), false);
 
     // TODO
-//    Assert.assertEquals(config.getParentLookupType(), test.getParentLookupType());
+    // Assert.assertEquals(config.getParentLookupType(),
+    // test.getParentLookupType());
 
     String sessionId = this.testData.adminClientRequest.getSessionId();
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
@@ -606,11 +610,12 @@ public class ShapefileServiceTest
     test.fromJSON(hist.getConfigJson(), false);
 
     // TODO
-//    Assert.assertEquals(config.getParentLookupType(), test.getParentLookupType());
-    
-//    JSONArray errors = new JSONArray(hist.getErrorJson());
-//
-//    Assert.assertEquals(0, errors.length());
+    // Assert.assertEquals(config.getParentLookupType(),
+    // test.getParentLookupType());
+
+    // JSONArray errors = new JSONArray(hist.getErrorJson());
+    //
+    // Assert.assertEquals(0, errors.length());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
@@ -647,7 +652,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    
+
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
@@ -682,7 +687,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
-    
+
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
@@ -733,7 +738,7 @@ public class ShapefileServiceTest
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(this.testData.adminClientRequest.getSessionId(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(this.testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
 
       this.testData.refreshTerms(this.testTerm);
     }
@@ -891,16 +896,16 @@ public class ShapefileServiceTest
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServerGeoObjectIF serverGo = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
-    
+
     JSONObject valRes = new JSONObject();
     valRes.put("validationProblemId", results.getJSONObject(0).getString("id"));
     valRes.put("resolution", ValidationResolution.SYNONYM);
     valRes.put("code", serverGo.getCode());
     valRes.put("typeCode", serverGo.getType().getCode());
     valRes.put("label", "00");
-    
+
     new ETLService().submitValidationProblemResolution(this.testData.adminClientRequest.getSessionId(), valRes.toString());
-    
+
     ValidationProblem vp = ValidationProblem.get(results.getJSONObject(0).getString("id"));
     Assert.assertEquals(ValidationResolution.SYNONYM.name(), vp.getResolution());
     Assert.assertEquals(ParentReferenceProblem.DEFAULT_SEVERITY, vp.getSeverity());
@@ -926,8 +931,7 @@ public class ShapefileServiceTest
     List<ParentTreeNode> parents = nodes.getParents();
 
     Assert.assertEquals(1, parents.size());
-    
-    
+
     JSONObject page2 = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results2 = page2.getJSONArray("results");
     Assert.assertEquals(0, results2.length());
@@ -969,7 +973,7 @@ public class ShapefileServiceTest
     config.setStartDate(new Date());
     config.setEndDate(new Date());
     config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
-    
+
     return config;
   }
 }
