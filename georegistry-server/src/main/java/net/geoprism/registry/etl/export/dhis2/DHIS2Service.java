@@ -29,7 +29,7 @@ public class DHIS2Service implements DHIS2ServiceIF
   @Override
   public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
   {
-    return this.getDhis2Id();
+    return this.dhis2.getDhis2Id();
   }
 
   @Override

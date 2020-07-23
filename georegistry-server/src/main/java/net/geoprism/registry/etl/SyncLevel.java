@@ -109,4 +109,16 @@ public class SyncLevel implements Comparable<SyncLevel>
     return this.getLevel().compareTo(o.getLevel());
   }
 
+  public boolean isAttributeMapped(String name)
+  {
+    if (this.hasAttribute(name))
+    {
+      DHIS2AttributeMapping mapping = this.attributes.get(name);
+      
+      return mapping.getExternalId() != null && mapping.getExternalId().length() > 0;
+    }
+    
+    return false;
+  }
+
 }

@@ -21,6 +21,10 @@ export class ErrorHandler {
           var split = msg.split("##tferrormsg##");
           return split[2];
         }
+        else
+        {
+          return msg;
+        }
       }
      
       return unspecified;

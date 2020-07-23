@@ -221,7 +221,7 @@ public class DHIS2GeoObjectJsonAdapters
       
       for (AttributeType attr : attrs.values())
       {
-        if (!attr.getIsDefault() && this.syncLevel.hasAttribute(attr.getName()))
+        if (!attr.getIsDefault() && this.syncLevel.isAttributeMapped(attr.getName()))
         {
           JsonObject av = new JsonObject();
           

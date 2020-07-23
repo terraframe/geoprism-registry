@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -32,6 +32,8 @@ export interface GOTAttributeConfig {
 })
 export class SynchronizationConfigModalComponent implements OnInit {
 	message: string = null;
+	
+	@ViewChild('form') form;
 
 	config: SynchronizationConfig = {
 		organization: null,
@@ -95,7 +97,14 @@ export class SynchronizationConfigModalComponent implements OnInit {
 			{
 			  var level = this.config.configuration.levels[i];
 			  
-			  this.levelRows.push({ level: level, levelNum: i, isAttributeEditor:false });
+			  var levelRow: LevelRow = { level: level, levelNum: i, isAttributeEditor:false };
+			  
+			  if (level.attributes != null && Object.keys(level.attributes).length > 0)
+			  {
+			    levelRow.hasAttributes = true;
+			  }
+			  
+			  this.levelRows.push(levelRow);
 			}
 		}
 	}
@@ -132,7 +141,8 @@ export class SynchronizationConfigModalComponent implements OnInit {
 			if (this.config.configuration['levels'] == null) {
 			  var lvl = {
           type: null,
-          geoObjectType: null
+          geoObjectType: null,
+          level: 0
         };
 				this.config.configuration['levels'] = [lvl];
 				this.levelRows.push({level:lvl, levelNum: 0, isAttributeEditor:false});
@@ -147,7 +157,8 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	addLevel(): void {
 	  var lvl = {
       type: null,
-      geoObjectType: null
+      geoObjectType: null,
+      level: this.config.configuration.levels.length
     };
 		var len = this.config.configuration['levels'].push(lvl);
 		this.levelRows.push({ level: lvl, levelNum: len-1, isAttributeEditor:false });
@@ -155,8 +166,6 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
 	removeLevel(levelNum: number, levelRowIndex: number): void {
 		if (levelNum < this.config.configuration['levels'].length) {
-			this.config.configuration['levels'].splice(levelNum, 1);
-			
 			var editorIndex = this.getEditorIndex();
 			if (editorIndex === levelRowIndex+1)
 			{
@@ -165,18 +174,20 @@ export class SynchronizationConfigModalComponent implements OnInit {
 			
 			this.levelRows.splice(levelRowIndex, 1);
 			
-			var levelNum = 0;
+			var newLevelNum = 0;
 			for (var i = 0; i < this.levelRows.length; ++i)
 			{
 			  var levelRow: LevelRow = this.levelRows[i];
 			  
-			  levelRow.levelNum = levelNum;
+			  levelRow.levelNum = newLevelNum;
 			  
 			  if (!levelRow.isAttributeEditor)
 			  {
-			    levelNum = levelNum + 1;
+			    newLevelNum = newLevelNum + 1;
 			  }
 			}
+			
+			this.config.configuration['levels'].splice(levelNum, 1);
 		}
 	}
 	
@@ -207,10 +218,10 @@ export class SynchronizationConfigModalComponent implements OnInit {
       }
     }
 	
-    this.onSelectGeoObjectType(levelRow.level.geoObjectType, levelRow.levelNum);
+    this.onSelectGeoObjectType(levelRow.level.geoObjectType, levelRow.levelNum, false);
   }
 	
-	onSelectGeoObjectType(geoObjectTypeCode: string, levelRowIndex: number) {
+	onSelectGeoObjectType(geoObjectTypeCode: string, levelRowIndex: number, isDifferentGot: boolean = true) {
     if (geoObjectTypeCode === "" || geoObjectTypeCode == null)
     {
       var levelRow: LevelRow = this.levelRows[levelRowIndex];
@@ -255,7 +266,10 @@ export class SynchronizationConfigModalComponent implements OnInit {
   	    var levelRow: LevelRow = this.levelRows[levelRowIndex];
   	    var level = levelRow.level;
   	    
-  	    level.attributes = {};
+  	    if (isDifferentGot)
+  	    {
+  	      level.attributes = {};
+  	    }
   	    
   	    levelRow.attrCfg = {geoObjectTypeCode: geoObjectTypeCode, attrs:attrs};
   	    
@@ -277,10 +291,13 @@ export class SynchronizationConfigModalComponent implements OnInit {
   	      {
   	        var attr = attrs[i];
   	        
-  	        level.attributes[attr.name] = {
-  	          name: attr.name,
-  	          externalId: null
-  	        };
+  	        if (isDifferentGot || level.attributes[attr.name] == null)
+  	        { 
+    	        level.attributes[attr.name] = {
+    	          name: attr.name,
+    	          externalId: null
+    	        };
+  	        }
   	      }
   	      
   	      this.levelRows.splice(levelRowIndex+1, 0, {isAttributeEditor:true, attrCfg:{geoObjectTypeCode: geoObjectTypeCode, attrs:attrs}});
