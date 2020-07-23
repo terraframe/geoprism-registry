@@ -94,7 +94,7 @@ export class ReuploadModalComponent {
   
     // Handle error
     if ( err !== null ) {
-      this.error = ( err.error.localizedMessage || err.error.message || err.message );
+      this.error = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
     }
   }
 }

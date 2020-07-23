@@ -208,9 +208,9 @@ export class ManageTermOptionsComponent implements OnInit {
         if ( err !== null ) {
             // TODO: add error modal
             //   this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            //   this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
+            //   this.bsModalRef.content.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
 
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
+            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
         }
     }
 

@@ -132,7 +132,7 @@ export class AccountComponent implements OnInit {
     public error( err: HttpErrorResponse ): void {
         // Handle error
         if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
+            this.message = ( (err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred" );
         }
 
     }

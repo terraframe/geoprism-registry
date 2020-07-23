@@ -294,7 +294,7 @@ export class ScheduledJobsComponent implements OnInit {
 
 		// Handle error
 		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
+			this.message = ((err.error && (err.error.localizedMessage || err.error.message)) || err.message || "An unspecified error has occurred");
 		}
 	}
 
