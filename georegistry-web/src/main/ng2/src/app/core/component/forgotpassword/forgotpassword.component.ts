@@ -24,6 +24,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { ForgotPasswordService } from '../../service/forgotpassword.service';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 @Component({
   selector: 'forgotpassword',
@@ -61,9 +62,6 @@ export class ForgotPasswordComponent implements OnInit {
   }
   
   error( err: HttpErrorResponse ): void {
-    // Handle error
-    if ( err !== null ) {
-      this.message = ( err.error.localizedMessage || err.error.message || err.message );
-    }
+      this.message = ErrorHandler.getMessageFromError(err);
   }
 }

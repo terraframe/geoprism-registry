@@ -23,7 +23,7 @@ import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 
 import { Observable } from 'rxjs';
@@ -132,10 +132,7 @@ export class SystemLogoComponent implements OnInit {
         this.uploader.clearQueue()
     }
 
-    error( err: string ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = err;
-        }
+    error( err: any ): void {
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 }

@@ -18,29 +18,44 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.Map;
+
+import com.google.gson.annotations.SerializedName;
+
 import net.geoprism.registry.model.ServerGeoObjectType;
 
-public class SyncLevel
+public class SyncLevel implements Comparable<SyncLevel>
 {
 
   public static enum Type {
     ORG_UNITS, RELATIONSHIPS, ALL
   }
+  
+  private transient ServerGeoObjectType geoObjectType;
 
-  private ServerGeoObjectType geoObjectType;
+  @SerializedName(DHIS2SyncConfig.GEO_OBJECT_TYPE)
+  private String geoObjectTypeCode;
 
+  @SerializedName(DHIS2SyncConfig.TYPE)
   private Type                syncType;
 
-  private int                 level;
+  private Integer                 level;
+  
+  private Map<String, DHIS2AttributeMapping> attributes;
 
   public ServerGeoObjectType getGeoObjectType()
   {
+    if (geoObjectType == null)
+    {
+      geoObjectType = ServerGeoObjectType.get(geoObjectTypeCode);
+    }
+    
     return geoObjectType;
   }
 
-  public void setGeoObjectType(ServerGeoObjectType geoObjectType)
+  public void setGeoObjectType(String geoObjectTypeCode)
   {
-    this.geoObjectType = geoObjectType;
+    this.geoObjectTypeCode = geoObjectTypeCode;
   }
 
   public Type getSyncType()
@@ -53,14 +68,57 @@ public class SyncLevel
     this.syncType = syncType;
   }
 
-  public int getLevel()
+  public Integer getLevel()
   {
     return level;
   }
 
-  public void setLevel(int level)
+  public void setLevel(Integer level)
   {
     this.level = level;
+  }
+  
+  public Boolean hasAttribute(String name)
+  {
+    return this.attributes != null && this.attributes.containsKey(name);
+  }
+  
+  public DHIS2AttributeMapping getAttribute(String name)
+  {
+    return this.attributes.get(name);
+  }
+  
+  public Map<String, DHIS2AttributeMapping> getAttributes()
+  {
+    return attributes;
+  }
+
+  public void setAttributes(Map<String, DHIS2AttributeMapping> attributes)
+  {
+    this.attributes = attributes;
+  }
+  
+  @Override
+  public int hashCode() {
+    return new String(geoObjectTypeCode + syncType.name()).hashCode() + level;
+  }
+
+  @Override
+  public int compareTo(SyncLevel o)
+  {
+    return this.getLevel().compareTo(o.getLevel());
+  }
+
+  public boolean isAttributeMapped(String name)
+  {
+    if (this.hasAttribute(name))
+    {
+      DHIS2AttributeMapping mapping = this.attributes.get(name);
+      
+      return mapping.getExternalId() != null && mapping.getExternalId().length() > 0;
+    }
+    
+    return false;
   }
 
 }

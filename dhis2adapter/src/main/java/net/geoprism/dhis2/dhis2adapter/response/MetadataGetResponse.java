@@ -41,21 +41,22 @@ public class MetadataGetResponse<T> extends DHIS2Response
   
   private String objectNamePlural;
   
-  public MetadataGetResponse(String response, int statusCode, String objectNamePlural)
+  public MetadataGetResponse(String response, int statusCode, String objectNamePlural, Class<?> myType)
   {
     super(response, statusCode);
     
-    init(objectNamePlural);
+    init(objectNamePlural, myType);
   }
   
-  public MetadataGetResponse(DHIS2Response http, String objectNamePlural)
+  public MetadataGetResponse(DHIS2Response http, String objectNamePlural, Class<?> myType)
   {
     super(http.getResponse(), http.getStatusCode());
     
-    init(objectNamePlural);
+    init(objectNamePlural, myType);
   }
   
-  private void init(String objectNamePlural)
+  // https://exceptionshub.com/java-type-generic-as-argument-for-gson.html
+  private void init(String objectNamePlural, Class<?> myType)
   {
     this.objectNamePlural = objectNamePlural;
     
@@ -64,7 +65,9 @@ public class MetadataGetResponse<T> extends DHIS2Response
     
     if (this.getJsonObject() != null && this.getJsonObject().has(objectNamePlural))
     {
-      Type list = new TypeToken<List<Attribute>>() {}.getType();
+//      Type list = new TypeToken<List<DHIS2_OBJECT>>() {}.getType();
+//      Type list = TypeToken.getParameterized(List.class, myType.getType()).getType();
+      Type list = TypeToken.getParameterized(List.class, myType).getType();
       this.objects =  gson.fromJson(this.getJsonObject().get(objectNamePlural), list);
     }
     

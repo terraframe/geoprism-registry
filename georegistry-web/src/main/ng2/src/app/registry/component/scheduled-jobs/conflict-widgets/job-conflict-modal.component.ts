@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ParentReferenceProblemWidgetComponent } from './parent-reference-problem-widget.component'
 import { TermReferenceProblemWidgetComponent } from './term-reference-problem-widget.component'
 import { RowValidationProblemWidgetComponent } from './row-validation-problem-widget.component'
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { GeoObjectType, MasterList, ScheduledJob, ScheduledJobOverview } from '../../../model/registry';
 
 import { RegistryService } from '../../../service/registry.service';
@@ -50,10 +50,7 @@ export class JobConflictModalComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

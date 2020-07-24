@@ -12,6 +12,7 @@ import { RegistryService } from '../../service/registry.service';
 import { IOService } from '../../service/io.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 @Component( {
     selector: 'manage-parent-versions-modal',
@@ -203,10 +204,7 @@ export class ManageParentVersionsModalComponent implements OnInit {
 
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

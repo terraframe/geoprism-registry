@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListByOrg } from '../../model/registry';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { RegistryService } from '../../service/registry.service';
 
 import { IOService } from '../../service/io.service';
@@ -136,10 +136,7 @@ export class PublishModalComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

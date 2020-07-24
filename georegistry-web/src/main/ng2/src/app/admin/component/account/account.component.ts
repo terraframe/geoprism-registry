@@ -31,6 +31,8 @@ import { AccountService } from '../../service/account.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { AuthService } from '../../../shared/service/auth.service';
 
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+
 @Component( {
     selector: 'account',
     templateUrl: './account.component.html',
@@ -130,11 +132,7 @@ export class AccountComponent implements OnInit {
 
 
     public error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
-
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

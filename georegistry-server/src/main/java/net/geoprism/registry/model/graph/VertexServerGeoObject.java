@@ -648,6 +648,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return (List<? extends MdAttributeConcreteDAOIF>) this.vertex.getMdAttributeDAOs();
   }
+  
+  public MdAttributeConcreteDAOIF getMdAttributeDAO(String name)
+  {
+    return this.vertex.getMdAttributeDAO(name);
+  }
 
   @Override
   public Object getValue(String attributeName)
@@ -1269,12 +1274,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public void createExternalId(ExternalSystem system, String id)
   {
     EdgeObject edge = this.getExternalIdEdge(system);
-
+    
     if (edge == null)
     {
       edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
     }
-
+    
     edge.setValue("id", id);
     edge.apply();
   }

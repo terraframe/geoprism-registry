@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
@@ -52,7 +53,6 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
-import net.geoprism.dhis2.dhis2adapter.DHIS2Facade;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
@@ -65,6 +65,7 @@ import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
+import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -86,7 +87,7 @@ public class DataExportJob extends DataExportJobBase
 
   private DHIS2SyncConfig       dhis2Config;
 
-  private DHIS2Facade           dhis2;
+  private DHIS2ServiceIF           dhis2;
   
   private ExportHistory         history;
 
@@ -168,9 +169,9 @@ public class DataExportJob extends DataExportJobBase
    * 
    * @return
    */
-  private String getAPIVersion()
+  public static String getAPIVersion(DHIS2ExternalSystem system)
   {
-    String in = this.dhis2Config.getSystem().getVersion();
+    String in = system.getVersion();
 
     if (in.startsWith("2.31"))
     {
@@ -178,6 +179,15 @@ public class DataExportJob extends DataExportJobBase
     }
 
     return "26"; // We currently only support API version 26 right now anyway
+  }
+  
+  public static DHIS2ServiceIF getDHIS2Service(DHIS2ExternalSystem system)
+  {
+    HTTPConnector connector = new HTTPConnector();
+    connector.setServerUrl(system.getUrl());
+    connector.setCredentials(system.getUsername(), system.getPassword());
+
+    return DataExportServiceFactory.getDhis2Service(connector, getAPIVersion(system));
   }
 
   @Override
@@ -187,13 +197,7 @@ public class DataExportJob extends DataExportJobBase
     
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
-    DHIS2ExternalSystem system = this.dhis2Config.getSystem();
-
-    HTTPConnector connector = new HTTPConnector();
-    connector.setServerUrl(system.getUrl());
-    connector.setCredentials(system.getUsername(), system.getPassword());
-
-    dhis2 = new DHIS2Facade(connector, this.getAPIVersion());
+    this.dhis2 = getDHIS2Service(this.dhis2Config.getSystem());
 
     this.setStage(history, ExportStage.EXPORT);
 
@@ -251,7 +255,7 @@ public class DataExportJob extends DataExportJobBase
     long total = 0;
     long exportCount = 0;
     
-    List<SyncLevel> levels = this.dhis2Config.getLevels();
+    SortedSet<SyncLevel> levels = this.dhis2Config.getLevels();
     
     Boolean includeTranslations = LocalizationFacade.getInstalledLocales().size() > 0;
 
@@ -323,6 +327,8 @@ public class DataExportJob extends DataExportJobBase
     DHIS2ImportResponse resp = ee.response;
     Throwable ex = ee.error;
     String geoObjectCode = ee.geoObjectCode;
+    
+    logger.error("Export Error", ee.error); // TODO This is here for development only
     
     ExportError exportError = new ExportError();
 
@@ -403,7 +409,7 @@ public class DataExportJob extends DataExportJobBase
       }
 
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, level, level.getGeoObjectType(), this.dhis2Config.getHierarchy(), this.dhis2Config.getSystem()));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(this.dhis2, this.dhis2Config, level, level.getGeoObjectType(), this.dhis2Config.getHierarchy(), this.dhis2Config.getSystem()));
       
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();

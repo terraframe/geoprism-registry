@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobjecttype;
 
@@ -35,11 +35,7 @@ import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
 public class GeoObjectTypePermissionService implements GeoObjectTypePermissionServiceIF
 {
   /**
-   * Operation must be one of:
-   * - WRITE (Update)
-   * - READ
-   * - DELETE
-   * - CREATE
+   * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
    * 
    * @param actor
    * @param op
@@ -49,7 +45,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
     if (!this.doesActorHavePermission(actor, orgCode, op))
     {
       Organization org = Organization.getByCode(orgCode);
-      
+
       if (op.equals(Operation.WRITE))
       {
         WriteGeoObjectTypePermissionException ex = new WriteGeoObjectTypePermissionException();
@@ -79,42 +75,44 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
       }
     }
   }
-  
+
   protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
       return true;
     }
-    
+
     if (orgCode != null)
     {
       Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
+
       for (RoleDAOIF role : roles)
       {
         String roleName = role.getRoleName();
-        
+
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
+
           if (RegistryRole.Type.isRA_Role(roleName))
           {
             return orgCode.equals(roleOrgCode) || op.equals(Operation.READ);
           }
-          else if ( op.equals(Operation.READ) && orgCode.equals(roleOrgCode) && (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isRM_Role(roleName)))
+          else if (op.equals(Operation.READ) && orgCode.equals(roleOrgCode) && ( RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isRM_Role(roleName) ))
           {
             return true;
           }
         }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
+        // SRA only has the ability to see type and hierarchies, it does not
+        // have permissions to modify
+        else if (op.equals(Operation.READ) && RegistryRole.Type.isSRA_Role(roleName))
         {
           return true;
         }
       }
     }
-    
+
     return false;
   }
 
@@ -153,7 +151,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   {
     this.enforceActorHasPermission(actor, orgCode, null, Operation.CREATE);
   }
-  
+
   @Override
   public boolean canDelete(SingleActorDAOIF actor, String orgCode)
   {
@@ -165,5 +163,5 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   {
     this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.DELETE);
   }
-  
+
 }

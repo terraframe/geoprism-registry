@@ -6,6 +6,7 @@ import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { EventService } from '../../../shared/service/event.service';
 import { LocalizationService } from '../../../shared/service/localization.service';
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 
 declare var acp: any;
 
@@ -75,11 +76,8 @@ export class ImportLocalizationModalComponent {
 	}
 
 	public error(err: any): void {
-		// Handle error
-		if (err !== null) {
 			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-			this.bsModalRef.content.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

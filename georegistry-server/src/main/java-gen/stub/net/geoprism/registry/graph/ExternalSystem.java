@@ -80,7 +80,12 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   @Transaction
   public void delete()
   {
-    if (getReferencedDataCount() > 0)
+    this.delete(true);
+  }
+  
+  public void delete(Boolean checkReferencedData)
+  {
+    if (checkReferencedData && getReferencedDataCount() > 0)
     {
       throw new ObjectHasDataException();
     }
@@ -91,7 +96,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     {
       config.delete();
     }
-
+    
     super.delete();
   }
   

@@ -96,6 +96,8 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ExcelService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.test.SchedulerTestUtils;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 public class ExcelServiceTest
@@ -117,9 +119,7 @@ public class ExcelServiceTest
   @Before
   public void setUp()
   {
-    // testData.setUpTest();
-
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
 
     AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
@@ -288,44 +288,6 @@ public class ExcelServiceTest
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
 
-  private void waitUntilStatus(JobHistory hist, AllJobStatus status) throws InterruptedException
-  {
-    int waitTime = 0;
-    while (true)
-    {
-      hist = JobHistory.get(hist.getOid());
-      if (hist.getStatus().get(0) == status)
-      {
-        break;
-      }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE)
-      {
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
-      }
-
-      Thread.sleep(10);
-
-      waitTime += 10;
-      if (waitTime > 20000)
-      {
-        // String extra = "";
-        // if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-        // {
-        // extra = new
-        // ETLService().getImportErrors(Session.getCurrentSession().getOid(),
-        // hist.getOid(), false, 100, 1).toString();
-        //
-        // extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
-        // }
-
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
-        return;
-      }
-    }
-
-    Thread.sleep(100);
-  }
-
   private ImportHistory importExcelFile(String sessionId, String config)
   {
     String retConfig = new ETLService().doImport(sessionId, config).toString();
@@ -354,9 +316,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -399,9 +361,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -432,9 +394,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(1), hist.getWorkTotal());
     Assert.assertEquals(new Long(1), hist.getWorkProgress());
@@ -467,9 +429,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(1), hist.getWorkTotal());
     Assert.assertEquals(new Long(1), hist.getWorkProgress());
@@ -502,9 +464,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -540,9 +502,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -572,9 +534,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -610,7 +572,7 @@ public class ExcelServiceTest
 
     try
     {
-      this.testData.refreshTerms(testTerm);
+      TestDataSet.refreshTerms(testTerm);
 
       Calendar calendar = Calendar.getInstance();
       calendar.clear();
@@ -691,9 +653,9 @@ public class ExcelServiceTest
     configuration.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -766,9 +728,9 @@ public class ExcelServiceTest
     configuration.addParent(new Location(this.testData.STATE.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -808,9 +770,9 @@ public class ExcelServiceTest
     configuration.addExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, "00");
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -844,9 +806,9 @@ public class ExcelServiceTest
     configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -872,7 +834,7 @@ public class ExcelServiceTest
 
     try
     {
-      this.testData.refreshTerms(testTerm);
+      TestDataSet.refreshTerms(testTerm);
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -888,9 +850,9 @@ public class ExcelServiceTest
       configuration.setHierarchy(hierarchyType);
 
       ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-      this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
-
+      
+      SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+      
       hist = ImportHistory.get(hist.getOid());
       Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
       Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
@@ -906,7 +868,7 @@ public class ExcelServiceTest
     {
       ServiceFactory.getRegistryService().deleteTerm(testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
 
-      this.testData.refreshTerms(testTerm);
+      TestDataSet.refreshTerms(testTerm);
     }
   }
 
@@ -928,9 +890,9 @@ public class ExcelServiceTest
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
-
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
