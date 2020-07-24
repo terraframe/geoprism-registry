@@ -118,6 +118,7 @@
                     </div>
 									</td>
                   <td colspan="4" *ngIf="levelRow.isAttributeEditor === true">
+                    <h4>Attributes</h4>
 	                  <table class="table">
 	                    <thead>
 	                      <tr>
@@ -127,7 +128,7 @@
 	                    <tbody>
 	                      <tr *ngFor="let attr of levelRow.attrCfg.attrs">
 	                        <td class="row-holder">
-	                          <table style="width:80%; margin-left:80px;">
+	                          <table class="row" style="width:80%; margin-left:80px; margin-top:15px; margin-bottom: 10px;">
 	                            <thead>
 	                              <tr>
 	                                <th style="width:25%">
@@ -150,16 +151,51 @@
 	                                <td><label style="color:#999;">{{attr.typeLabel}}</label></td>
 	                                <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
 	                                <td>
-	                                  <select [(ngModel)]="levelRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}">
+	                                  <select *ngIf="attr.dhis2Attrs.length > 0" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}">
 	                                    <option></option>
 	                                    <option [value]="dhis2Attr.dhis2Id" *ngFor="let dhis2Attr of attr.dhis2Attrs">
 	                                      {{dhis2Attr.name}}
 	                                    </option>
 	                                  </select>
+	                                  <label *ngIf="attr.dhis2Attrs.length == 0" style="color:#999;"><localize key="sync.noValid"></localize></label>
 	                                </td>
 	                              </tr>
 	                            </tbody>
 	                          </table>
+	                          <div *ngIf="levelRows[i-1].level.attributes[attr.name].externalId != null && levelRows[i-1].level.attributes[attr.name].externalId.length > 0">
+		                          <table *ngFor="let term of attr.terms" class="row" style="width:80%; margin-left:80px;">
+	                              <thead>
+	                                <tr>
+	                                  <th style="width:25%">
+	                                  </th>
+	                                  <th style="width:25%">
+	                                    <label><localize key="sync.attr.term.cgrTerm"></localize></label>
+	                                  </th>
+	                                  <th style="width:25%">
+	                                    <!-- To -->
+	                                  </th>
+	                                  <th style="width:25%">
+	                                    <label><localize key="sync.attr.term.dhis2Option"></localize></label>
+	                                  </th>
+	                                </tr>
+	                              </thead>
+	                              <tbody>
+	                                <tr>
+	                                  <td></td>
+	                                  <td><label style="color:#999;">{{term.label}}</label></td>
+	                                  <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
+	                                  <td>
+	                                    <select [(ngModel)]="levelRows[i-1].level.attributes[attr.name].terms[term.code]" [ngModelOptions]="{standalone: true}">
+	                                      <option></option>
+	                                      <option *ngFor="let option of getTermOptions(attr, levelRows[i-1].level.attributes[attr.name].externalId)" [value]="option.code">
+	                                        {{option.name}}
+	                                      </option>
+	                                    </select>
+	                                  </td>
+	                                </tr>
+	                              </tbody>
+	                            </table>
+                            </div>
 	                        </td>
 	                      </tr>
 	                    </tbody>

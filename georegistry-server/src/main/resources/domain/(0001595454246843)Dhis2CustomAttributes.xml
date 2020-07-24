@@ -64,6 +64,13 @@
           <attribute name="defaultLocale" value="DHIS2 Option" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.noValid">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.noValid" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No valid selections in DHIS2" />
+        </attributeStruct>
+      </object>
       
       <!-- AttributeType type enum metadata -->
       <!-- This metadata is accessible via Java from AttributeTypeMetadata.java -->

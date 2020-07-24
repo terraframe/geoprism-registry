@@ -18,12 +18,16 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.Map;
+
 public class DHIS2AttributeMapping
 {
   
   private String name;
   
   private String externalId;
+  
+  private Map<String, String> terms;
 
   public String getExternalId()
   {
@@ -44,7 +48,25 @@ public class DHIS2AttributeMapping
   {
     this.name = name;
   }
-  
-  
+
+  public String getTermMapping(String classifierId)
+  {
+    if (this.terms == null)
+    {
+      return null;
+    }
+    
+    return this.terms.get(classifierId);
+  }
+
+  public Map<String, String> getTerms()
+  {
+    return terms;
+  }
+
+  public void setTerms(Map<String, String> terms)
+  {
+    this.terms = terms;
+  }
   
 }

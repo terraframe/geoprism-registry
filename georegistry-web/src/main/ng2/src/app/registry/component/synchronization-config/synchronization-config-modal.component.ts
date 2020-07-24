@@ -220,6 +220,19 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	
     this.onSelectGeoObjectType(levelRow.level.geoObjectType, levelRow.levelNum, false);
   }
+  
+  getTermOptions(attr: CustomAttributeConfig, dhis2Id: string)
+  {
+    for (var i = 0; i < attr.dhis2Attrs.length; ++i)
+    {
+      var dhis2Attr = attr.dhis2Attrs[i];
+      
+      if (dhis2Attr.dhis2Id === dhis2Id)
+      {
+        return dhis2Attr.options;
+      }
+    }
+  }
 	
 	onSelectGeoObjectType(geoObjectTypeCode: string, levelRowIndex: number, isDifferentGot: boolean = true) {
     if (geoObjectTypeCode === "" || geoObjectTypeCode == null)
@@ -295,9 +308,23 @@ export class SynchronizationConfigModalComponent implements OnInit {
   	        { 
     	        level.attributes[attr.name] = {
     	          name: attr.name,
-    	          externalId: null
+    	          externalId: null,
+    	          terms: {}
     	        };
   	        }
+  	        
+  	        //if (isDifferentGot && attr.terms.length > 0)
+  	        //{
+  	        //  for (var j = 0; j < attr.terms.length; ++j)
+  	        //  {
+  	        //    var term = attr.terms[j];
+  	            
+  	        //    if ( level.terms[term.code] == null )
+  	        //    {
+  	              
+  	        //    }
+  	        //  }
+  	        //}
   	      }
   	      
   	      this.levelRows.splice(levelRowIndex+1, 0, {isAttributeEditor:true, attrCfg:{geoObjectTypeCode: geoObjectTypeCode, attrs:attrs}});
