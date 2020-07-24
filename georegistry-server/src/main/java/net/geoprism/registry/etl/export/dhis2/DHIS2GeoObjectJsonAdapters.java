@@ -55,6 +55,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
+import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2TermMapping;
 import net.geoprism.registry.etl.SyncLevel;
@@ -223,6 +224,8 @@ public class DHIS2GeoObjectJsonAdapters
       {
         if (!attr.getIsDefault() && this.syncLevel.isAttributeMapped(attr.getName()))
         {
+          DHIS2AttributeMapping attrMapping = this.syncLevel.getAttribute(attr.getName());
+          
           JsonObject av = new JsonObject();
           
           av.addProperty("lastUpdated", lastUpdateDate);
@@ -249,7 +252,7 @@ public class DHIS2GeoObjectJsonAdapters
           {
             Classifier classy = (Classifier) serverGo.getValue(attr.getName());
             
-            DHIS2TermMapping mapping = this.dhis2Config.getTermMapping(classy.getOid());
+            String mapping = attrMapping.getTermMapping(classy.getClassifierId());
             
             if (mapping == null)
             {
@@ -258,7 +261,7 @@ public class DHIS2GeoObjectJsonAdapters
               throw ex;
             }
             
-            av.addProperty("value", mapping.getDhis2Code());
+            av.addProperty("value", mapping);
           }
           else
           {
@@ -266,7 +269,7 @@ public class DHIS2GeoObjectJsonAdapters
           }
           
           JsonObject joAttr = new JsonObject();
-          joAttr.addProperty("id", this.syncLevel.getAttribute(attr.getName()).getExternalId());
+          joAttr.addProperty("id", attrMapping.getExternalId());
           av.add("attribute", joAttr);
           
           attributeValues.add(av);

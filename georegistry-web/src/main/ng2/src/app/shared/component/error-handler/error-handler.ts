@@ -16,7 +16,11 @@ export class ErrorHandler {
       {
         var msg = err.error.localizedMessage || err.error.message;
         
-        if (msg.includes("##tferrormsg##"))
+        if (msg == null)
+        {
+          return unspecified;
+        }
+        else if (msg.includes("##tferrormsg##"))
         {
           var split = msg.split("##tferrormsg##");
           return split[2];

@@ -52,7 +52,6 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import junit.framework.Assert;
-import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
@@ -193,7 +192,7 @@ public class DHIS2ExportTest
   }
   
   @Request
-  private SynchronizationConfig createSyncConfig(SyncLevel additionalLevel, Set<DHIS2TermMapping> terms)
+  private SynchronizationConfig createSyncConfig(SyncLevel additionalLevel)
   {
     // Define reusable objects
     final ServerHierarchyType ht = testData.HIER.getServerObject();
@@ -221,11 +220,6 @@ public class DHIS2ExportTest
     }
     
     dhis2Config.setLevels(levels);
-    
-    if (terms != null)
-    {
-      dhis2Config.setTerms(terms);
-    }
     
     // Serialize the DHIS2 Config
     GsonBuilder builder = new GsonBuilder();
@@ -260,24 +254,13 @@ public class DHIS2ExportTest
     
     level2.setAttributes(mappings);
     
-    Set<DHIS2TermMapping> terms = new HashSet<DHIS2TermMapping>();
+    Map<String, String> terms = new HashMap<String, String>();
+    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid(), "TEST_EXTERNAL_ID");
+    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid(), "TEST_EXTERNAL_ID");
+    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid(), "TEST_EXTERNAL_ID");
+    mapping.setTerms(terms);
     
-    DHIS2TermMapping root = new DHIS2TermMapping();
-    root.setDhis2Code("TEST_EXTERNAL_ID");
-    root.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid());
-    terms.add(root);
-    
-    DHIS2TermMapping val1 = new DHIS2TermMapping();
-    val1.setDhis2Code("TEST_EXTERNAL_ID");
-    val1.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid());
-    terms.add(val1);
-    
-    DHIS2TermMapping val2 = new DHIS2TermMapping();
-    val2.setDhis2Code("TEST_EXTERNAL_ID");
-    val2.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid());
-    terms.add(val2);
-    
-    SynchronizationConfig config = createSyncConfig(level2, terms);
+    SynchronizationConfig config = createSyncConfig(level2);
     
     JsonObject jo = syncService.run(testData.adminSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
@@ -435,24 +418,7 @@ public class DHIS2ExportTest
   @Request
   public void testGetCustomAttributeConfiguration() throws Exception
   {
-    Set<DHIS2TermMapping> terms = new HashSet<DHIS2TermMapping>();
-    
-    DHIS2TermMapping root = new DHIS2TermMapping();
-    root.setDhis2Code("TEST_EXTERNAL_ID");
-    root.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid());
-    terms.add(root);
-    
-    DHIS2TermMapping val1 = new DHIS2TermMapping();
-    val1.setDhis2Code("TEST_EXTERNAL_ID");
-    val1.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid());
-    terms.add(val1);
-    
-    DHIS2TermMapping val2 = new DHIS2TermMapping();
-    val2.setDhis2Code("TEST_EXTERNAL_ID");
-    val2.setRunwayClassifierId(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid());
-    terms.add(val2);
-    
-    SynchronizationConfig config = createSyncConfig(null, terms);
+    SynchronizationConfig config = createSyncConfig(null);
     
     JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.adminSession.getSessionId(), config.getSystem(), testData.GOT_ALL.getCode());
     

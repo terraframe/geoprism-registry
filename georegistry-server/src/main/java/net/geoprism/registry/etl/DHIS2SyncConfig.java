@@ -39,8 +39,6 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
   public static final String TYPE            = "type";
   
-  private Set<DHIS2TermMapping> terms;
-
   private SortedSet<SyncLevel>    levels;
   
   public SortedSet<SyncLevel> getLevels()
@@ -51,29 +49,6 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
   public void setLevels(SortedSet<SyncLevel> levels)
   {
     this.levels = levels;
-  }
-  
-  public DHIS2TermMapping getTermMapping(String runwayClassifierId)
-  {
-    for (DHIS2TermMapping mapping : terms)
-    {
-      if (mapping.getRunwayClassifierId().equals(runwayClassifierId))
-      {
-        return mapping;
-      }
-    }
-    
-    return null;
-  }
-  
-  public Set<DHIS2TermMapping> getTerms()
-  {
-    return terms;
-  }
-
-  public void setTerms(Set<DHIS2TermMapping> terms)
-  {
-    this.terms = terms;
   }
 
   @Override
@@ -91,12 +66,6 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
     JsonArray jaLevels = json.get(LEVELS).getAsJsonArray();
     this.levels =  new GsonBuilder().create().fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
-    
-    if (json.has("terms"))
-    {
-      JsonArray jaTerms = json.get("terms").getAsJsonArray();
-      this.terms =  new GsonBuilder().create().fromJson(jaTerms, new TypeToken<Set<DHIS2TermMapping>>() {}.getType());
-    }
   }
 
 }
