@@ -85,7 +85,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let levelRow of levelRows; let i = index;">
+                <tr *ngFor="let levelRow of levelRows; let i = index;" [style.background-color]="levelRow.isAttributeEditor === false ? '#F7F7F7' : ''">
                   <td style="width:20%" *ngIf="levelRow.isAttributeEditor === false">
                     <label style="padding: 10px 0; margin: 0;">Level {{levelRow.levelNum + 1}}</label>
                   </td>
