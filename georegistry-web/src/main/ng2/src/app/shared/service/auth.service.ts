@@ -148,7 +148,7 @@ export class AuthService {
 			}
 		}
 
-		return this.isSRA();
+		return false; // this.isSRA();
 	}
 
 	isGeoObjectTypeRM(orgCode: string, gotCode: string): boolean {

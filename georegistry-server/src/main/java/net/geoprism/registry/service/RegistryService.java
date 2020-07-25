@@ -45,6 +45,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -69,10 +70,8 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
@@ -82,7 +81,6 @@ import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
 import net.geoprism.registry.model.GeoObjectMetadata;
-import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -668,6 +666,8 @@ public class RegistryService
     String parentClassifierKey = TermConverter.buildClassifierKeyFromTermCode(parentTermCode);
 
     Classifier parent = Classifier.getByKey(parentClassifierKey);
+
+    TermConverter.enforceTermPermissions(parent, Operation.DELETE);
 
     String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 

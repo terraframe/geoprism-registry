@@ -40,7 +40,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
    * @param actor
    * @param op
    */
-  protected void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotLabel, Operation op)
+  public void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotLabel, Operation op)
   {
     if (!this.doesActorHavePermission(actor, orgCode, op))
     {
