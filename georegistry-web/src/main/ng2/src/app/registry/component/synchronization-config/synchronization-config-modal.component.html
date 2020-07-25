@@ -151,8 +151,8 @@
 	                                <td><label style="color:#999;">{{attr.typeLabel}}</label></td>
 	                                <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
 	                                <td>
-	                                  <select *ngIf="attr.dhis2Attrs.length > 0" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}">
-	                                    <option></option>
+	                                  <select *ngIf="attr.dhis2Attrs.length > 0" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}" (change)="onChangeAttrMapping(levelRows[i-1].level.attributes[attr.name], levelRows[i-1].level.attributes[attr.name].externalId, levelRow)">
+	                                    <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
 	                                    <option [value]="dhis2Attr.dhis2Id" *ngFor="let dhis2Attr of attr.dhis2Attrs">
 	                                      {{dhis2Attr.name}}
 	                                    </option>
@@ -186,7 +186,7 @@
 	                                  <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
 	                                  <td>
 	                                    <select [(ngModel)]="levelRows[i-1].level.attributes[attr.name].terms[term.code]" [ngModelOptions]="{standalone: true}">
-	                                      <option></option>
+	                                      <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
 	                                      <option *ngFor="let option of getTermOptions(attr, levelRows[i-1].level.attributes[attr.name].externalId)" [value]="option.code">
 	                                        {{option.name}}
 	                                      </option>
