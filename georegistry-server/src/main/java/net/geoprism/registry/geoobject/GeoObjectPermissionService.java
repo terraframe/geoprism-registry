@@ -126,7 +126,7 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
             }
           }
         }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
+        else if (RegistryRole.Type.isSRA_Role(roleName) && op.equals(Operation.READ))
         {
           return true;
         }

@@ -57,6 +57,7 @@ import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
+import net.geoprism.registry.roles.CreateListPermissionException;
 
 public class MasterListService
 {
@@ -341,12 +342,12 @@ public class MasterListService
     {
       ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
       SingleActorDAOIF user = Session.getCurrentSession().getUser();
+      Organization organization = geoObjectType.getOrganization();
 
-      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, geoObjectType.getOrganization().getCode(), geoObjectType.getCode()))
+      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, organization.getCode(), geoObjectType.getCode()))
       {
-        OrganizationRMException ex = new OrganizationRMException("You do not have permissions to publish a masterlist.");
-        ex.setOrganizationLabel(masterList.getOrganization().getDisplayLabel().getValue());
-        ex.setGeoObjectTypeLabel(geoObjectType.getLabel().getValue());
+        CreateListPermissionException ex = new CreateListPermissionException();
+        ex.setOrganization(organization.getDisplayLabel().getValue());
         throw ex;
       }
     }
