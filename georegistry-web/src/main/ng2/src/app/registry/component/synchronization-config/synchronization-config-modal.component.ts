@@ -234,6 +234,41 @@ export class SynchronizationConfigModalComponent implements OnInit {
     }
   }
 	
+	onChangeAttrMapping(attr: any, newValue: string, levelRow: LevelRow)
+	{
+	  if (newValue == null || newValue === "")
+	  {
+	    if (attr.terms != null)
+	    {
+	      attr.terms = {};
+	    }
+	  
+	    return;
+	  }
+	
+	  for (var j = 0; j < levelRow.attrCfg.attrs.length; j++)
+	  {
+	    if (levelRow.attrCfg.attrs[j].name === attr.name)
+	    {
+    	  var attrCfgAttr: any = levelRow.attrCfg.attrs[j];
+    	
+    	  if (attrCfgAttr.terms != null)
+    	  {
+    	    attr.terms = {};
+    	  
+    	    for (var i = 0; i < attrCfgAttr.terms.length; ++i)
+    	    {
+    	      var term = attrCfgAttr.terms[i];
+    	    
+    	      attr.terms[term.code] = null;
+    	    }
+    	  }
+    	  
+    	  return;
+  	  }
+	  }
+	}
+	
 	onSelectGeoObjectType(geoObjectTypeCode: string, levelRowIndex: number, isDifferentGot: boolean = true) {
     if (geoObjectTypeCode === "" || geoObjectTypeCode == null)
     {
@@ -308,23 +343,21 @@ export class SynchronizationConfigModalComponent implements OnInit {
   	        { 
     	        level.attributes[attr.name] = {
     	          name: attr.name,
-    	          externalId: null,
-    	          terms: {}
+    	          externalId: null
     	        };
+    	        
+    	        if ( attr.terms != null && attr.terms.length > 0 )
+    	        {
+    	          level.attributes[attr.name].terms = {};
+    	        
+    	          for (var j = 0; j < attr.terms.length; ++j)
+                {
+                  var term = attr.terms[j];
+                  
+                  level.attributes[attr.name].terms[term.code] = null;
+                }
+    	        }
   	        }
-  	        
-  	        //if (isDifferentGot && attr.terms.length > 0)
-  	        //{
-  	        //  for (var j = 0; j < attr.terms.length; ++j)
-  	        //  {
-  	        //    var term = attr.terms[j];
-  	            
-  	        //    if ( level.terms[term.code] == null )
-  	        //    {
-  	              
-  	        //    }
-  	        //  }
-  	        //}
   	      }
   	      
   	      this.levelRows.splice(levelRowIndex+1, 0, {isAttributeEditor:true, attrCfg:{geoObjectTypeCode: geoObjectTypeCode, attrs:attrs}});
