@@ -1,0 +1,40 @@
+#hierarchy-tree-container {
+	height: calc(100vh - 429px);
+    overflow-y: auto;
+}
+
+.location-management-widget-section {
+	margin: 5px 0;
+}
+.location-management-widget-section > select {
+	float: none !important;
+}
+
+.list-group-item {
+	border: none;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 0;
+}
+.list-group-item input {
+	height: auto;
+}
+
+.breadcrumb{
+	padding: 10px 0;
+	background-color: white;
+	margin:0;
+}
+
+.layer-toggle {
+	cursor: pointer; 
+	background: #fff; 
+	padding: 8px; 
+	border-radius: 4px;
+}
+
+.layer-toggle input {
+	height: auto;
+}
+.layer-toggle label {
+	margin-left: 5px;
+}

@@ -1,13 +1,19 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Map, LngLatBounds, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
 
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+
 import { AllGeoJSON } from '@turf/helpers'
 import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
+import { LocalizationService } from '../../../shared/service/localization.service';
 
-import { GeoObject, MasterList } from '../../model/registry';
+import { GeoObject, MasterList, ContextLayer, ContextLayerGroup } from '../../model/registry';
 import { LocationInformation } from '../../model/location-manager';
+
+import { ContextLayerModalComponent } from './context-layer-modal.component';
 
 import { MapService } from '../../service/map.service';
 import { RegistryService } from '../../service/registry.service';
@@ -17,9 +23,11 @@ declare var acp: string;
 @Component({
 	selector: 'location-manager',
 	templateUrl: './location-manager.component.html',
-	styles: [],
+	styleUrls: ['./location-manager.css']
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
+
+	private bsModalRef: BsModalRef;
 
     /* 
      * Root nodes of the tree
@@ -57,31 +65,30 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	vectorLayers: string[] = [];
 
+	contextLayerGroups: ContextLayerGroup[] = [];
+
 	lists: MasterList[] = [];
 
     /* 
      * List of base layers
      */
-	baseLayers: any[] = [{
-		name: 'Outdoors',
-		label: 'Outdoors',
-		id: 'outdoors-v11',
-		sprite: 'mapbox://sprites/mapbox/outdoors-v11',
-		url: 'mapbox://mapbox.outdoors',
-	}, {
-		name: 'Satellite',
-		label: 'Satellite',
-		id: 'satellite-v9',
-		sprite: 'mapbox://sprites/mapbox/satellite-v9',
-		url: 'mapbox://mapbox.satellite',
-		selected: true
-	}, {
-		name: 'Satellite',
-		label: 'Streets',
-		id: 'streets-v11',
-		sprite: 'mapbox://sprites/mapbox/streets-v11',
-		url: 'mapbox://mapbox.streets',
-	}];
+	baseLayers: any[] = [
+		{
+			name: 'Satellite',
+			label: 'Satellite',
+			id: 'satellite-v9',
+			sprite: 'mapbox://sprites/mapbox/satellite-v9',
+			url: 'mapbox://mapbox.satellite',
+			selected: true
+		}, 
+		// {
+		// 	name: 'Streets',
+		// 	label: 'Streets',
+		// 	id: 'streets-v9',
+		// 	sprite: 'mapbox://sprites/mapbox/basic-v9',
+		// 	url: 'mapbox://mapbox.basic-v9'
+		// }
+	];
 
 	baselayerIconHover = false;
 
@@ -99,12 +106,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
 	subject: Subject<MapboxEvent<MouseEvent | TouchEvent | WheelEvent>>;
 
-	constructor(private mapService: MapService, public service: RegistryService) {
+	constructor(private localizeService: LocalizationService, private modalService: BsModalService, private mapService: MapService, public service: RegistryService) {
 	}
 
 	ngOnInit(): void {
 		this.service.getAllMasterListVersions().then(lists => {
 			this.lists = lists;
+
+			this.convertListsToContextLayers(lists);
 		});
 	}
 
@@ -114,7 +123,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	ngAfterViewInit() {
 
-		const layer = this.baseLayers[1];
+		const layer = this.baseLayers[0];
 
 		this.map = new Map({
 			container: 'map',
@@ -128,24 +137,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 					"mapbox": {
 						"type": "raster",
 						"url": layer.url,
-						"tileSize": 256
+					    "tileSize": 256
 					}
 				},
 				"sprite": layer.sprite,
 				"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
 				"layers": [
 					{
-						"id": "background",
-						"type": "background",
-						"paint": {
-							"background-color": "rgb(4,7,14)"
-						}
-					},
-					{
-						"id": "satellite",
-						"type": "raster",
-						"source": "mapbox",
-						"source-layer": "mapbox_satellite_full"
+						"id": layer.id,
+						"type": 'raster',
+						"source": 'mapbox',
+						// "source-layer": "mapbox_satellite_full"
 					}
 				]
 			},
@@ -158,6 +160,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.initMap();
 		});
 
+	}
+
+	convertListsToContextLayers(lists: MasterList[]): void{
+		lists.forEach(list =>{
+			let thisList = {oid: list.oid, displayLabel:list.displayLabel.localizedValue, contextLayers:[]};
+			this.contextLayerGroups.push(thisList);
+			list.versions.forEach(version => {
+				let thisContextLayer = {oid: version.oid, displayLabel: version.forDate, active: false, enabled: false};
+				thisList.contextLayers.push(thisContextLayer);
+			});
+		});
 	}
 
 	handleDateChange(): void {
@@ -177,8 +190,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.refresh();
 
 		// Add zoom and rotation controls to the map.
-		this.map.addControl(new NavigationControl());
-		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-left');
+		this.map.addControl(new NavigationControl({'visualizePitch': true}));
+		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
 
 		this.map.on('dblclick', 'children-points', (event: any) => {
 			this.handleMapClickEvent(event);
@@ -253,9 +266,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			}
 		});
 
-		this.vectorLayers.forEach(source => {
-			this.addVectorLayer(source);
+		this.contextLayerGroups.forEach(cLayerGroup => {
+			cLayerGroup.contextLayers.forEach(cLayer => {
+				if(cLayer.enabled){
+					this.addVectorLayer(cLayer.oid);
+				}
+			});
 		});
+
 	}
 
 	refresh(): void {
@@ -276,7 +294,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	}
 
-	handleStyle(layer: any): void {
+	handleBasemapStyle(layer: any): void {
+		// this.map.setStyle('mapbox://styles/mapbox/' + layer.id);
 
 		this.baseLayers.forEach(baseLayer => {
 			baseLayer.selected = false;
@@ -295,26 +314,80 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 					"type": "raster",
 					"url": layer.url,
 					"tileSize": 256
-				}
+				},
 			},
 			"sprite": layer.sprite,
 			"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
 			"layers": [
 				{
-					"id": "background",
-					"type": "background",
-					"paint": {
-						"background-color": "rgb(4,7,14)"
-					}
-				},
-				{
-					"id": "satellite",
-					"type": "raster",
-					"source": "mapbox",
-					"source-layer": "mapbox_satellite_full"
+					"id": layer.id,
+					"type": 'raster',
+					"source": 'mapbox',
+					// "source-layer": "mapbox_satellite_full"
 				}
 			]
 		});
+	}
+
+	// handleStyle(layer: any): void {
+
+	// 	this.baseLayers.forEach(baseLayer => {
+	// 		baseLayer.selected = false;
+	// 	});
+
+	// 	layer.selected = true;
+
+	// 	this.map.setStyle({
+	// 		"version": 8,
+	// 		"name": layer.name,
+	// 		"metadata": {
+	// 			"mapbox:autocomposite": true
+	// 		},
+	// 		"sources": {
+	// 			"mapbox": {
+	// 				"type": "raster",
+	// 				"url": layer.url,
+	// 				"tileSize": 256
+	// 			}
+	// 		},
+	// 		"sprite": layer.sprite,
+	// 		"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
+	// 		"layers": [
+	// 			{
+	// 				"id": "background",
+	// 				"type": "background",
+	// 				"paint": {
+	// 					"background-color": "rgb(4,7,14)"
+	// 				}
+	// 			},
+	// 			{
+	// 				"id": layer.id,
+	// 				"type": "raster",
+	// 				"source": "mapbox",
+	// 				"source-layer": "mapbox_satellite_full"
+	// 			}
+	// 		]
+	// 	});
+	// }
+
+	addContextLayerModal(): void {
+		this.bsModalRef = this.modalService.show( ContextLayerModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true,
+            'class': 'context-layer-modal'
+		} );
+		this.bsModalRef.content.contextLayerGroups = this.contextLayerGroups;
+
+        ( <ContextLayerModalComponent>this.bsModalRef.content ).onSubmit.subscribe( cLayerGroups => {
+
+			// cLayerGroups.forEach(cLayerGroup => {
+			// 	cLayerGroup.contextLayers.forEach(cLayer => {
+			// 		this.toggleContextLayer(cLayer.oid)
+			// 	});
+			// })
+
+        });
 	}
 
 	highlightMapFeature(id: string): void {
@@ -463,28 +536,81 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		})
 	}
 
+
+	groupHasEnabledContextLayers(group:string): boolean {
+		let hasEnabled = false;
+		this.contextLayerGroups.forEach(cLayerGroup => {
+			if(cLayerGroup.oid === group){
+				cLayerGroup.contextLayers.forEach(cLayer => {
+					if(cLayer.enabled){
+						hasEnabled = true;
+					}
+				});
+			}
+		});
+		
+		return hasEnabled;
+	}
+
+	hasEnabledContextLayers(): boolean {
+		let hasEnabled = false;
+		this.contextLayerGroups.forEach(cLayerGroup => {
+			cLayerGroup.contextLayers.forEach(cLayer => {
+				if(cLayer.enabled){
+					hasEnabled = true;
+				}
+			});
+		});
+		
+		return hasEnabled;
+	}
+
+	removeContextLayer(cLayer: ContextLayer): void {
+		if (cLayer.active) {
+			this.map.removeLayer(cLayer.oid + "-points");
+			this.map.removeLayer(cLayer.oid + "-polygon");
+			this.map.removeLayer(cLayer.oid + "-label");
+			this.map.removeSource(cLayer.oid);
+
+			cLayer.active = false;
+		}
+
+		cLayer.enabled = false;
+	}
+
 	toggleContextLayer(source: string): void {
-		const index = this.vectorLayers.indexOf(source);
 
-		if (index === -1) {
-			this.addVectorLayer(source);
+		this.contextLayerGroups.forEach(cLayerGroup => {
+			cLayerGroup.contextLayers.forEach(cLayer => {
+				if(cLayer.oid === source){
 
-			this.vectorLayers.push(source);
-		}
-		else {
-			this.map.removeLayer(source + "-points");
-			this.map.removeLayer(source + "-polygon");
-			this.map.removeLayer(source + "-label");
-			this.map.removeSource(source);
+					// WARNING: the boolean component returns the value already switched (false --> true). 
+					// I'm reversing that value here so the logic below is more intuitive.
+					// cLayer.active = !cLayer.active 
+					//
 
-			this.vectorLayers.splice(index, 1);
-		}
+					if(cLayer.active){
+						this.map.removeLayer(source + "-points");
+						this.map.removeLayer(source + "-polygon");
+						this.map.removeLayer(source + "-label");
+						this.map.removeSource(source);
+
+						cLayer.active = false;
+					}
+					else{
+						this.addVectorLayer(source);
+						
+						cLayer.active = true;
+					}
+				}
+			})
+		})
 	}
 
 	addVectorLayer(source: string): void {
 		const prevLayer = 'children-points';
 		
-		console.log(navigator.language.toLowerCase());
+		// console.log(navigator.language.toLowerCase());
 
 		var protocol = window.location.protocol;
 		var host = window.location.host;

@@ -78,6 +78,7 @@ import { SynchronizationConfigComponent } from './component/synchronization-conf
 import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 
 import { LocationManagerComponent } from './component/location-manager/location-manager.component';
+import { ContextLayerModalComponent } from './component/location-manager/context-layer-modal.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -191,7 +192,8 @@ import '../rxjs-extensions';
 		SynchronizationConfigComponent,
 		SyncDetailsComponent,
 		// Location manager
-		LocationManagerComponent
+		LocationManagerComponent,
+		ContextLayerModalComponent
 	],
 	providers: [
 		MapService,
@@ -235,7 +237,8 @@ import '../rxjs-extensions';
 		JobConflictModalComponent,
 		ReuploadModalComponent,
 		StepIndicatorComponent,
-		SynchronizationConfigModalComponent
+		SynchronizationConfigModalComponent,
+		ContextLayerModalComponent
 	]
 })
 export class RegistryModule { }

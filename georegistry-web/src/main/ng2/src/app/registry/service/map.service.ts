@@ -11,7 +11,7 @@ declare var acp: any;
 export class MapService {
 
 	constructor(private http: HttpClient) {
-		(mapboxgl as any).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNTFnaTYyZ2RuNDlxcmNnejNtNjN6In0.-kmlS8Tgb2fNc1NPb5rJEQ';
+		(mapboxgl as any).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNWE5bWkwazYwNGFtb3loOGxsbjR1In0.ZNEwT-pBnGookEb-BF_jQQ';
 	}
 
 	roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
