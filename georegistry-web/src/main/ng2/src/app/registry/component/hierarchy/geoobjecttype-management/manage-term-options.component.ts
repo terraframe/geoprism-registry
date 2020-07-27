@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import {
     trigger,
     state,
@@ -6,14 +6,12 @@ import {
     animate,
     transition
 } from '@angular/animations'
-import { NgControl, Validators, FormBuilder } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { StepConfig,ModalTypes } from '../../../../shared/model/modal';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
-import { ErrorMessageComponent } from '../../../../shared/component/message/error-message.component';
 import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
 import { LocalizationService } from '../../../../shared/service/localization.service';
 
@@ -21,7 +19,6 @@ import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-m
 import { RegistryService } from '../../../service/registry.service';
 import { GeoObjectType, AttributeTerm, Term, GeoObjectTypeModalStates } from '../../../model/registry';
 import { HierarchyService } from '../../../service/hierarchy.service';
-import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
 @Component( {
     selector: 'manage-term-options',
@@ -74,7 +71,7 @@ export class ManageTermOptionsComponent implements OnInit {
         ]
     };
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
+    constructor( public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
         private modalService: BsModalService, private localizeService: LocalizationService, private modalStepIndicatorService: ModalStepIndicatorService,
         private registryService: RegistryService ) {
     }
@@ -150,7 +147,7 @@ export class ManageTermOptionsComponent implements OnInit {
 
     deleteTermOption( termOption: Term ): void {
 
-        this.registryService.deleteAttributeTermTypeOption( termOption.code ).then( data => {
+        this.registryService.deleteAttributeTermTypeOption( this.attribute.rootTerm.code, termOption.code ).then( data => {
 
             if ( this.attribute.rootTerm.children.indexOf( termOption ) !== -1 ) {
                 this.attribute.rootTerm.children.splice( this.attribute.rootTerm.children.indexOf( termOption ), 1 );
@@ -205,13 +202,7 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        if ( err !== null ) {
-            // TODO: add error modal
-            //   this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            //   this.bsModalRef.content.message = ( err.error.localizedMessage || err.error.message || err.message );
-
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+      this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

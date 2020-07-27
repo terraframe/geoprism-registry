@@ -17,6 +17,7 @@
     "@angular/router": "9.1.9",
     "@mapbox/mapbox-gl-draw": "1.1.2",
     "@mapbox/mapbox-gl-draw-static-mode": "1.0.1",
+    "@turf/turf": "^5.1.6",
     "@types/mapbox-gl": "1.10.2",
     "@types/uuid": "8.0.0",
     "angular-tree-component": "8.5.6",

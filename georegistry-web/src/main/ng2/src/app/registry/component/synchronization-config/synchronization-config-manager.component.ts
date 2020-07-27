@@ -8,7 +8,7 @@ import { PageResult } from '../../../shared/model/core'
 import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
 import { LocalizationService } from '../../../shared/service/localization.service';
 import { ModalTypes } from '../../../shared/model/modal';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { SynchronizationConfig } from '../../model/registry';
 import { SynchronizationConfigModalComponent } from './synchronization-config-modal.component';
 import { SynchronizationConfigService } from '../../service/synchronization-config.service';
@@ -103,10 +103,7 @@ export class SynchronizationConfigManagerComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

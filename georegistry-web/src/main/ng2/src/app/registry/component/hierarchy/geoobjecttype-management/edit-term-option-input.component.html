@@ -1,7 +1,8 @@
 <div class="modal-body">
-   <error-message [message]="message"></error-message>
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && handleOnSubmit()">
+    <form #tForm="ngForm" class="modal-form" (ngSubmit)="!tForm.invalid && handleOnSubmit()">
+    
         <div class="">
             <div class="">
                 <div class="heading">
@@ -19,10 +20,11 @@
                         </div>
                         <div class="holder">
                             <span class="text">
-                                <input autofocus type="text" [disabled]="true" [(ngModel)]="termOption.code" name="code" required geoObjectAttributeCode>
+                                <input type="text" [disabled]="true" [(ngModel)]="termOption.code" name="code">
                             </span>
                         </div>
                     </div>
+                    
                     <localized-input [(value)]="termOption.label" key="data.property.label.label"></localized-input>
                     
                     <div class="row-holder">
@@ -33,7 +35,7 @@
                                 <button type="button" class="btn btn-default" (click)="cancel()">
                                     <localize key="modal.button.cancel"></localize>
                                 </button>
-                                <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+                                <button type="submit" class="btn btn-primary" [disabled]="tForm.invalid">
                                     <localize key="modal.button.submit"></localize>
                                 </button>
                             </div>

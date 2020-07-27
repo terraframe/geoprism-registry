@@ -21,18 +21,6 @@ package net.geoprism.registry.conversion;
 import java.util.List;
 import java.util.Locale;
 
-import net.geoprism.DefaultConfiguration;
-import net.geoprism.GeoprismUser;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.InvalidMasterListCodeException;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
-
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -84,6 +72,16 @@ import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
+
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.InvalidMasterListCodeException;
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 {
@@ -215,21 +213,22 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     {
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
-    
+
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), geoObjectType.getOrganizationCode());
     }
-   
+
     Universal universal = new Universal();
     universal.setUniversalId(geoObjectType.getCode());
     universal.setIsLeafType(false);
     universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
-    
-    // Set the owner of the universal to the id of the corresponding role of the responsible organization.
+
+    // Set the owner of the universal to the id of the corresponding role of the
+    // responsible organization.
     String organizationCode = geoObjectType.getOrganizationCode();
-    setOwner(universal, organizationCode); 
-    
+    setOwner(universal, organizationCode);
+
     populate(universal.getDisplayLabel(), geoObjectType.getLabel());
     populate(universal.getDescription(), geoObjectType.getDescription());
 
@@ -260,22 +259,24 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     // Create the MdGeoVertexClass
     MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid());
     this.createDefaultAttributes(universal, mdVertex);
-    
-//    Organization organization = Organization.getByKey(geoObjectType.getCode());
-//    mdVertex.setValue(DefaultAttribute.ORGANIZATION.getName(), organization.getOid());
+
+    // Organization organization =
+    // Organization.getByKey(geoObjectType.getCode());
+    // mdVertex.setValue(DefaultAttribute.ORGANIZATION.getName(),
+    // organization.getOid());
 
     assignSRAPermissions(mdVertex, mdBusiness);
-    
+
     assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
     create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
     assign_RM_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
-    
+
     create_RC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
     assign_RC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
-    
+
     create_AC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
     assign_AC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
-    
+
     // Build the parent class term root if it does not exist.
     TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
 
@@ -291,28 +292,28 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     if (organizationCode != null && !organizationCode.trim().equals(""))
     {
       String acRoleName = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectTypeCode);
-      
+
       Locale locale = Session.getCurrentLocale();
       String defaultDisplayLabel = mdGeoVertexDAO.getLocalValue(MdGeoVertexInfo.DISPLAY_LABEL, locale) + " API Consumer";
-      
+
       Roles acOrgRole = new Roles();
       acOrgRole.setRoleName(acRoleName);
       acOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);
       acOrgRole.apply();
-      
+
       String orgRoleName = RegistryRole.Type.getRootOrgRoleName(organizationCode);
       Roles orgRole = Roles.findRoleByName(orgRoleName);
-      
+
       RoleDAO orgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(orgRole);
       RoleDAO acOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(acOrgRole);
       orgRoleDAO.addInheritance(acOrgRoleDAO);
-      
+
       // Inherit the permissions from the root RC role
       RoleDAO rootAC_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(RegistryConstants.API_CONSUMER_ROLE));
       rootAC_DAO.addInheritance(acOrgRoleDAO);
     }
   }
-  
+
   private void assign_AC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
@@ -320,42 +321,42 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       String rmRoleName = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectTypeCode);
 
       RoleDAO rmRole = RoleDAO.findRole(rmRoleName).getBusinessDAO();
- 
+
       rmRole.grantPermission(Operation.READ, mdGeoVertexDAO.getOid());
       rmRole.grantPermission(Operation.READ_ALL, mdGeoVertexDAO.getOid());
-      
+
       rmRole.grantPermission(Operation.READ, mdBusiness.getOid());
       rmRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
     }
   }
-  
+
   private void create_RC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
     {
       String rcRoleName = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectTypeCode);
-      
+
       Locale locale = Session.getCurrentLocale();
       String defaultDisplayLabel = mdGeoVertexDAO.getLocalValue(MdGeoVertexInfo.DISPLAY_LABEL, locale) + " Registry Contributor";
-      
+
       Roles rcOrgRole = new Roles();
       rcOrgRole.setRoleName(rcRoleName);
       rcOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);
       rcOrgRole.apply();
-      
+
       String orgRoleName = RegistryRole.Type.getRootOrgRoleName(organizationCode);
       Roles orgRole = Roles.findRoleByName(orgRoleName);
-      
+
       RoleDAO orgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(orgRole);
       RoleDAO rcOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(rcOrgRole);
       orgRoleDAO.addInheritance(rcOrgRoleDAO);
-      
+
       // Inherit the permissions from the root RC role
       RoleDAO rootRC_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE));
       rootRC_DAO.addInheritance(rcOrgRoleDAO);
     }
   }
-  
+
   private void assign_RC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
@@ -363,15 +364,15 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       String rmRoleName = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectTypeCode);
 
       RoleDAO rmRole = RoleDAO.findRole(rmRoleName).getBusinessDAO();
- 
+
       rmRole.grantPermission(Operation.READ, mdGeoVertexDAO.getOid());
       rmRole.grantPermission(Operation.READ_ALL, mdGeoVertexDAO.getOid());
-      
+
       rmRole.grantPermission(Operation.READ, mdBusiness.getOid());
       rmRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
     }
   }
-  
+
   private void create_RM_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
@@ -385,33 +386,33 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       rmOrgRole.setRoleName(rmRoleName);
       rmOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);
       rmOrgRole.apply();
-      
+
       String orgRoleName = RegistryRole.Type.getRootOrgRoleName(organizationCode);
       Roles orgRole = Roles.findRoleByName(orgRoleName);
-      
+
       RoleDAO orgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(orgRole);
       RoleDAO rmOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(rmOrgRole);
       orgRoleDAO.addInheritance(rmOrgRoleDAO);
-      
+
       // Inherit the permissions from the root RM role
       RoleDAO rootRM_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(RegistryConstants.REGISTRY_MAINTAINER_ROLE));
       rootRM_DAO.addInheritance(rmOrgRoleDAO);
     }
   }
-    
+
   private void assign_RM_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
     {
       String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
-      
+
       Roles rmRole = Roles.findRoleByName(rmRoleName);
-    
+
       this.assignAllPermissions(mdBusiness, rmRole);
       this.assignAllPermissions(mdGeoVertexDAO, rmRole);
     }
   }
-  
+
   /**
    * Assigns all permissions to the Organization's RA
    * 
@@ -425,33 +426,34 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     {
       Organization organization = Organization.getByKey(organizationCode);
       Roles raRole = organization.getRegistryAdminiRole();
-    
+
       this.assignAllPermissions(mdBusiness, raRole);
       this.assignAllPermissions(mdGeoVertexDAO, raRole);
     }
   }
-  
+
   /**
    * Assigns all permissions to the {@link ComponentIF} to the given role.
    * 
-   * Precondition: component is either a {@link MdGeoVertex} or a {@link MdBusiness}.
+   * Precondition: component is either a {@link MdGeoVertex} or a
+   * {@link MdBusiness}.
    * 
    * @param component
    * @param role
    */
   private void assignAllPermissions(ComponentIF component, Roles role)
   {
-    RoleDAO roleDAO = (RoleDAO)BusinessFacade.getEntityDAO(role);
+    RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
     roleDAO.grantPermission(Operation.CREATE, component.getOid());
     roleDAO.grantPermission(Operation.DELETE, component.getOid());
     roleDAO.grantPermission(Operation.WRITE, component.getOid());
     roleDAO.grantPermission(Operation.WRITE_ALL, component.getOid());
   }
-  
+
   public void assignSRAPermissions(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness)
   {
     Roles sraRole = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
-    
+
     this.assignAllPermissions(mdBusiness, sraRole);
     this.assignAllPermissions(mdGeoVertexDAO, sraRole);
   }
@@ -466,9 +468,9 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     LocalizedValue label = convert(universal.getDisplayLabel());
     LocalizedValue description = convert(universal.getDescription());
-    
+
     String ownerActerOid = universal.getOwnerOid();
-    
+
     String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
 
     GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());

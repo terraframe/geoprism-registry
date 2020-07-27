@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListByOrg } from '../../model/registry';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { RegistryService } from '../../service/registry.service';
 
 import { IOService } from '../../service/io.service';
@@ -41,7 +41,7 @@ export class PublishModalComponent implements OnInit {
      */
 	edit: boolean = false;
 
-  isNew: boolean = false;
+	isNew: boolean = false;
 
 	constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService) { }
 
@@ -51,17 +51,15 @@ export class PublishModalComponent implements OnInit {
 
 		if (this.master == null || !this.readonly) {
 			this.iService.listGeoObjectTypes(true).then(types => {
-			
-			  var myOrgTypes = [];
-        for (var i = 0; i < types.length; ++i)
-        {
-          if (this.authService.isGeoObjectTypeRM(types[i].orgCode, types[i].code))
-          {
-            myOrgTypes.push(types[i]);
-          }
-        }
-        this.types = myOrgTypes;
-			
+
+				var myOrgTypes = [];
+				for (var i = 0; i < types.length; ++i) {
+					if (this.authService.isGeoObjectTypeRM(types[i].orgCode, types[i].code)) {
+						myOrgTypes.push(types[i]);
+					}
+				}
+				this.types = myOrgTypes;
+
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});
@@ -138,10 +136,7 @@ export class PublishModalComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			this.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

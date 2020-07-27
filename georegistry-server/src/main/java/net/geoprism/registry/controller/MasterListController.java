@@ -244,4 +244,21 @@ public class MasterListController
     return new RestBodyResponse(config.toString());
   }
 
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF tile(ClientRequestIF request, @RequestParamter(name = "x") Integer x, @RequestParamter(name = "y") Integer y, @RequestParamter(name = "z") Integer z, @RequestParamter(name = "config") String config) throws JSONException
+  {
+    JSONObject object = new JSONObject(config);
+    object.put("x", x);
+    object.put("y", y);
+    object.put("z", z);
+
+    return new InputStreamResponse(this.service.getTile(request.getSessionId(), object), "application/x-protobuf", null);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-all-versions")
+  public ResponseIF listAllVersions(ClientRequestIF request)
+  {
+    return new RestBodyResponse(this.service.getAllVersions(request.getSessionId()));
+  }
+
 }

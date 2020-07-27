@@ -9,7 +9,7 @@ import { SuccessModalComponent } from '../../../shared/component/modals/success-
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 import { ShapefileModalComponent } from './modals/shapefile-modal.component';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { IOService } from '../../service/io.service';
 import { EventService } from '../../../shared/service/event.service';
 import { AuthService } from '../../../shared/service/auth.service';
@@ -126,7 +126,7 @@ export class DataImporterComponent implements OnInit {
 		if (this.format === "SHAPEFILE") {
 			getUrl = acp + '/shapefile/get-shapefile-configuration';
 
-			this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
+			//this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
 		}
 
 		let options: FileUploaderOptions = {
@@ -219,11 +219,8 @@ export class DataImporterComponent implements OnInit {
 
 
 	public error(err: any): void {
-		// Handle error
-		if (err !== null) {
 			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-			this.bsModalRef.content.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
+			this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

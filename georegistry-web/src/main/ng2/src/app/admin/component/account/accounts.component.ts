@@ -23,7 +23,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-
+import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
 import { PageResult } from '../../../shared/model/core';
 
 import { User, Account } from '../../model/account';
@@ -105,12 +105,7 @@ export class AccountsComponent implements OnInit {
 	}
 
 	public error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
-			// TODO: add error modal
 			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-			this.bsModalRef.content.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
-
+			this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 	}
 }

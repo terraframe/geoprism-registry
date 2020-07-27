@@ -11,6 +11,7 @@ import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { TabsModule } from 'ngx-bootstrap/tabs';
 import { DatePipe } from '@angular/common';
 
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
@@ -76,6 +77,8 @@ import { SynchronizationConfigModalComponent } from './component/synchronization
 import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
 import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 
+import { LocationManagerComponent } from './component/location-manager/location-manager.component';
+import { ContextLayerModalComponent } from './component/location-manager/context-layer-modal.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -112,6 +115,7 @@ import '../rxjs-extensions';
 		ButtonsModule,
 		TypeaheadModule,
 		ProgressbarModule,
+		TabsModule,
 		CollapseModule,
 		NgxPaginationModule,
 		SharedModule,
@@ -186,7 +190,10 @@ import '../rxjs-extensions';
 		SynchronizationConfigManagerComponent,
 		SynchronizationConfigModalComponent,
 		SynchronizationConfigComponent,
-		SyncDetailsComponent
+		SyncDetailsComponent,
+		// Location manager
+		LocationManagerComponent,
+		ContextLayerModalComponent
 	],
 	providers: [
 		MapService,
@@ -230,7 +237,8 @@ import '../rxjs-extensions';
 		JobConflictModalComponent,
 		ReuploadModalComponent,
 		StepIndicatorComponent,
-		SynchronizationConfigModalComponent
+		SynchronizationConfigModalComponent,
+		ContextLayerModalComponent
 	]
 })
 export class RegistryModule { }

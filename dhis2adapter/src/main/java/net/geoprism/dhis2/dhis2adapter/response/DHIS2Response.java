@@ -57,7 +57,7 @@ public class DHIS2Response
     {
       return JsonParser.parseString(response).getAsJsonObject();
     }
-    catch (JsonParseException e)
+    catch (JsonParseException | IllegalStateException e)
     {
       return null;
     }

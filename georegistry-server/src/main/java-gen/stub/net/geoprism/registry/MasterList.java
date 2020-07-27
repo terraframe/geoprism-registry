@@ -664,39 +664,9 @@ public class MasterList extends MasterListBase
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-      Set<RoleDAOIF> roles = actor.authorizedRoles();
-
-      Organization organization = this.getOrganization();
       ServerGeoObjectType type = this.getGeoObjectType();
 
-      String thisOrgCode = organization.getCode();
-
-      String rmRoleName = RegistryRole.Type.getRM_RoleName(thisOrgCode, type.getCode());
-
-      for (RoleDAOIF role : roles)
-      {
-        String roleName = role.getRoleName();
-
-        if (RegistryRole.Type.isRA_Role(roleName))
-        {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-
-          if (orgCode.equals(thisOrgCode))
-          {
-            return true;
-          }
-        }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
-        {
-          return true;
-        }
-        else if (rmRoleName.equals(roleName))
-        {
-          return true;
-        }
-      }
-
-      return false;
+      return ServiceFactory.getGeoObjectPermissionService().canWrite(actor, type.getOrganization().getCode(), type.getCode());
     }
 
     return true;

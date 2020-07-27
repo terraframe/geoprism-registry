@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.io;
 
-@com.runwaysdk.business.ClassSignature(hash = -809615084)
+@com.runwaysdk.business.ClassSignature(hash = 1159166474)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -30,7 +30,8 @@ public abstract class InvalidGeometryExceptionBase extends com.runwaysdk.busines
 {
   public final static String CLASS = "net.geoprism.registry.io.InvalidGeometryException";
   public static java.lang.String OID = "oid";
-  private static final long serialVersionUID = -809615084;
+  public static java.lang.String REASON = "reason";
+  private static final long serialVersionUID = 1159166474;
   
   public InvalidGeometryExceptionBase()
   {
@@ -68,6 +69,34 @@ public abstract class InvalidGeometryExceptionBase extends com.runwaysdk.busines
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
+  public String getReason()
+  {
+    return getValue(REASON);
+  }
+  
+  public void validateReason()
+  {
+    this.validateAttribute(REASON);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getReasonMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.io.InvalidGeometryException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(REASON);
+  }
+  
+  public void setReason(String value)
+  {
+    if(value == null)
+    {
+      setValue(REASON, "");
+    }
+    else
+    {
+      setValue(REASON, value);
+    }
+  }
+  
   protected String getDeclaredType()
   {
     return CLASS;
@@ -77,6 +106,7 @@ public abstract class InvalidGeometryExceptionBase extends com.runwaysdk.busines
   {
     java.lang.String message = super.localize(locale);
     message = replace(message, "{oid}", this.getOid());
+    message = replace(message, "{reason}", this.getReason());
     return message;
   }
   

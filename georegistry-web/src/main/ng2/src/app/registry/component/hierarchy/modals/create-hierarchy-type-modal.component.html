@@ -3,7 +3,7 @@
   <div class="modal-body">
     <form class="modal-form">
 
-      <error-message [message]="message"></error-message>
+      <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
       <div class="form-group">
         <label for="codeInput">

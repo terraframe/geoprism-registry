@@ -45,6 +45,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -69,7 +70,6 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
@@ -81,7 +81,6 @@ import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
 import net.geoprism.registry.model.GeoObjectMetadata;
-import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -528,7 +527,10 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    if (Session.getCurrentSession() != null)
+    {
+      ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    }
 
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
@@ -620,13 +622,14 @@ public class RegistryService
    * given code.
    * 
    * @param sessionId
+   * @param parentTermCode
+   *          TODO
    * @param termJSON
    *          JSON of the term object.
-   * 
    * @return Updated {@link Term} object.
    */
   @Request(RequestType.SESSION)
-  public Term updateTerm(String sessionId, String termJSON)
+  public Term updateTerm(String sessionId, String parentTermCode, String termJSON)
   {
     JsonObject termJSONobj = JsonParser.parseString(termJSON).getAsJsonObject();
 
@@ -634,7 +637,7 @@ public class RegistryService
 
     LocalizedValue value = LocalizedValue.fromJSON(termJSONobj.get(Term.JSON_LOCALIZED_LABEL).getAsJsonObject());
 
-    Classifier classifier = TermConverter.updateClassifier(termCode, value);
+    Classifier classifier = TermConverter.updateClassifier(parentTermCode, termCode, value);
 
     TermConverter termBuilder = new TermConverter(classifier.getKeyName());
 
@@ -652,13 +655,21 @@ public class RegistryService
    * deleted.
    * 
    * @param sessionId
+   * @param parentTermCode
+   *          TODO
    * @param geoObjectTypeCode
    * @param attributeTypeJSON
    */
   @Request(RequestType.SESSION)
-  public void deleteTerm(String sessionId, String termCode)
+  public void deleteTerm(String sessionId, String parentTermCode, String termCode)
   {
-    String classifierKey = TermConverter.buildClassifierKeyFromTermCode(termCode);
+    String parentClassifierKey = TermConverter.buildClassifierKeyFromTermCode(parentTermCode);
+
+    Classifier parent = Classifier.getByKey(parentClassifierKey);
+
+    TermConverter.enforceTermPermissions(parent, Operation.DELETE);
+
+    String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 
     Classifier classifier = Classifier.getByKey(classifierKey);
 

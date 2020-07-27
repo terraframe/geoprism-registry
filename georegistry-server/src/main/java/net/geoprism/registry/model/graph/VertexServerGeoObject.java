@@ -83,6 +83,7 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
@@ -346,7 +347,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           {
             String code = it.next();
 
-            String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
+            Term root = ( (AttributeTermType) attribute ).getRootTerm();
+            String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
+
+            String classifierKey = Classifier.buildKey(parent, code);
             Classifier classifier = Classifier.getByKey(classifierKey);
 
             this.vertex.setValue(attributeName, classifier.getOid(), this.date, null);
@@ -436,7 +440,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
             {
               String code = it.next();
 
-              String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
+              Term root = ( (AttributeTermType) attribute ).getRootTerm();
+              String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
+
+              String classifierKey = Classifier.buildKey(parent, code);
               Classifier classifier = Classifier.getByKey(classifierKey);
 
               this.vertex.setValue(attributeName, classifier.getOid(), votDTO.getStartDate(), votDTO.getEndDate());
@@ -647,6 +654,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public List<? extends MdAttributeConcreteDAOIF> getMdAttributeDAOs()
   {
     return (List<? extends MdAttributeConcreteDAOIF>) this.vertex.getMdAttributeDAOs();
+  }
+
+  public MdAttributeConcreteDAOIF getMdAttributeDAO(String name)
+  {
+    return this.vertex.getMdAttributeDAO(name);
   }
 
   @Override

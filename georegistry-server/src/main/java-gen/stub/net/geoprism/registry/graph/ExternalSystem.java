@@ -20,18 +20,23 @@ package net.geoprism.registry.graph;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
+import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -75,14 +80,40 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   @Transaction
   public void delete()
   {
+    this.delete(true);
+  }
+  
+  public void delete(Boolean checkReferencedData)
+  {
+    if (checkReferencedData && getReferencedDataCount() > 0)
+    {
+      throw new ObjectHasDataException();
+    }
+    
     List<SynchronizationConfig> configs = SynchronizationConfig.getAll(this);
 
     for (SynchronizationConfig config : configs)
     {
       config.delete();
     }
-
+    
     super.delete();
+  }
+  
+  public long getReferencedDataCount()
+  {
+    final MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT COUNT(*) FROM " + mdEdge.getDBClassName());
+
+    builder.append(" WHERE out = :system");
+    
+    final GraphQuery<Long> query = new GraphQuery<Long>(builder.toString());
+    
+    query.setParameter("system", this.getRID());
+
+    return query.getSingleResult();
   }
 
   protected void populate(JsonObject json)

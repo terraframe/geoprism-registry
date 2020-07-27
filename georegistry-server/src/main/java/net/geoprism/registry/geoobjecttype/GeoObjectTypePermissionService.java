@@ -35,21 +35,17 @@ import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
 public class GeoObjectTypePermissionService implements GeoObjectTypePermissionServiceIF
 {
   /**
-   * Operation must be one of:
-   * - WRITE (Update)
-   * - READ
-   * - DELETE
-   * - CREATE
+   * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
    * 
    * @param actor
    * @param op
    */
-  protected void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotLabel, Operation op)
+  public void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotLabel, Operation op)
   {
     if (!this.doesActorHavePermission(actor, orgCode, op))
     {
       Organization org = Organization.getByCode(orgCode);
-      
+
       if (op.equals(Operation.WRITE))
       {
         WriteGeoObjectTypePermissionException ex = new WriteGeoObjectTypePermissionException();
@@ -79,42 +75,44 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
       }
     }
   }
-  
+
   protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
       return true;
     }
-    
+
     if (orgCode != null)
     {
       Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
+
       for (RoleDAOIF role : roles)
       {
         String roleName = role.getRoleName();
-        
+
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
+
           if (RegistryRole.Type.isRA_Role(roleName))
           {
             return orgCode.equals(roleOrgCode) || op.equals(Operation.READ);
           }
-          else if ( op.equals(Operation.READ) && orgCode.equals(roleOrgCode) && (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isRM_Role(roleName)))
+          else if (op.equals(Operation.READ) && orgCode.equals(roleOrgCode) && ( RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isRM_Role(roleName) ))
           {
             return true;
           }
         }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
+        // SRA only has the ability to see type and hierarchies, it does not
+        // have permissions to modify
+        else if (op.equals(Operation.READ) && RegistryRole.Type.isSRA_Role(roleName))
         {
           return true;
         }
       }
     }
-    
+
     return false;
   }
 
@@ -153,7 +151,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   {
     this.enforceActorHasPermission(actor, orgCode, null, Operation.CREATE);
   }
-  
+
   @Override
   public boolean canDelete(SingleActorDAOIF actor, String orgCode)
   {
@@ -165,5 +163,5 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   {
     this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.DELETE);
   }
-  
+
 }

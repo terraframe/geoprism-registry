@@ -86,7 +86,7 @@ public class GeoObjectImporterTest
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
 
     SchedulerManager.start();
@@ -412,7 +412,7 @@ public class GeoObjectImporterTest
     state00.setCode("00");
     state00.setDisplayLabel("Test Label");
     state00.setRegistryId(ServiceFactory.getIdService().getUids(1)[0]);
-    state00.apply(new Date());
+    state00.apply();
     testData.USA.addChild(state00, testData.HIER_ADMIN);
 
     TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
@@ -456,9 +456,9 @@ public class GeoObjectImporterTest
 
     JSONObject error = errors.getJSONObject(0);
 
-    Assert.assertTrue(error.has("importErrorId"));
+    Assert.assertTrue(error.has("id"));
 
-    Assert.assertEquals("com.runwaysdk.dataaccess.DuplicateDataException", error.getJSONObject("exception").getString("type"));
+    Assert.assertEquals("net.geoprism.registry.DuplicateGeoObjectException", error.getJSONObject("exception").getString("type"));
 
     JSONObject object = error.getJSONObject("object");
     Assert.assertTrue(object.has("geoObject"));
@@ -487,7 +487,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(ErrorResolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
 
     JSONObject resolution = new JSONObject();
-    resolution.put("importErrorId", error.get("importErrorId"));
+    resolution.put("importErrorId", error.get("id"));
     resolution.put("resolution", ErrorResolution.IGNORE);
     resolution.put("historyId", hist.getOid());
 
@@ -550,8 +550,8 @@ public class GeoObjectImporterTest
 
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
-    Assert.assertEquals(format.format(startDate), jo.getString("configStartDate"));
-    Assert.assertEquals(format.format(endDate), jo.getString("configEndDate"));
+    Assert.assertEquals(format.format(startDate), jo.getJSONObject("configuration").getString("startDate"));
+    Assert.assertEquals(format.format(endDate), jo.getJSONObject("configuration").getString("endDate"));
 
     JSONObject importErrors = jo.getJSONObject("importErrors");
     JSONArray results = importErrors.getJSONArray("results");

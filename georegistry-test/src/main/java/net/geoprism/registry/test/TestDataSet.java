@@ -26,15 +26,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.Assert;
 
 import com.runwaysdk.ClientSession;
+import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
+import com.runwaysdk.constants.LocalProperties;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -46,13 +55,18 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
-import com.runwaysdk.system.metadata.MdRelationship;
 
+import net.geoprism.gis.geoserver.GeoserverFacade;
+import net.geoprism.gis.geoserver.NullGeoserverService;
+import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierQuery;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.WMSService;
 
@@ -76,13 +90,11 @@ abstract public class TestDataSet
   
   protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfosExtras = new ArrayList<TestHierarchyTypeInfo>();
 
-  public TestRegistryAdapterClient           adapter;
+  public TestRegistryAdapterClient           adapter = new TestRegistryAdapterClient();
 
   public ClientSession                       adminSession                    = null;
 
   public ClientRequestIF                     adminClientRequest              = null;
-
-  protected boolean                          includeData;
 
   public static final String                 ADMIN_USER_NAME                 = "admin";
 
@@ -96,8 +108,11 @@ abstract public class TestDataSet
 
   abstract public String getTestDataKey();
 
+  public TestDataSet()
   {
     checkDuplicateClasspathResources();
+    LocalProperties.setSkipCodeGenAndCompile(true);
+    GeoserverFacade.setService(new NullGeoserverService());
   }
 
   public ArrayList<TestOrganizationInfo> getManagedOrganizations()
@@ -149,7 +164,7 @@ abstract public class TestDataSet
   {
     return managedHierarchyTypeInfosExtras;
   }
-
+  
   @Request
   public void setUp()
   {
@@ -165,33 +180,33 @@ abstract public class TestDataSet
 
     tearDownInstanceData();
   }
+  
+  public void setUpSessions()
+  {
+    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
+    adminClientRequest = adminSession.getRequest();
+    adapter.setClientRequest(this.adminClientRequest);
+  }
 
   @Request
   public void setUpMetadata()
   {
-    // TODO : If you move this call into the 'setupInTrans' method it exposes a
-    // bug in Runway which relates to transactions and MdAttributeLocalStructs
-    tearDownMetadata();
+    tearDownMetadata(); // will log us out if logged in
 
     setUpOrgsInTrans();
     setUpMetadataInTrans();
-
-    // TODO : Logging in inside of a request isn't good practice
-    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
-    adminClientRequest = adminSession.getRequest();
-    adapter.setClientRequest(this.adminClientRequest);
-
+    
+    setUpSessions(); // logs us in
+    
     RegistryService.getInstance().refreshMetadataCache();
     adapter.refreshMetadataCache();
 
     setUpClassRelationships();
     
-    Assert.assertTrue(Universal.getByKey("USATestDataState").getAllAncestors("com.runwaysdk.system.gis.geo.USATestDataAdminCodeMetadata").getAll().size() > 0);
-
     RegistryService.getInstance().refreshMetadataCache();
     adapter.refreshMetadataCache();
   }
-
+  
   public void setUpClassRelationships()
   {
 
@@ -250,12 +265,9 @@ abstract public class TestDataSet
   @Transaction
   protected void setUpTestInTrans()
   {
-    if (this.includeData)
+    for (TestGeoObjectInfo geo : managedGeoObjectInfos)
     {
-      for (TestGeoObjectInfo geo : managedGeoObjectInfos)
-      {
-        geo.apply(null);
-      }
+      geo.apply();
     }
   }
 
@@ -324,12 +336,9 @@ abstract public class TestDataSet
   @Transaction
   protected void cleanUpTestInTrans()
   {
-    if (this.includeData)
+    for (TestGeoObjectInfo go : managedGeoObjectInfos)
     {
-      for (TestGeoObjectInfo go : managedGeoObjectInfos)
-      {
-        go.delete();
-      }
+      go.delete();
     }
     for (TestGeoObjectInfo go : managedGeoObjectInfosExtras)
     {
@@ -414,7 +423,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(this, genKey, testUni);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni);
 
     info.delete();
 
@@ -425,7 +434,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(this, genKey, testUni, wkt, DefaultTerms.GeoObjectStatusTerm.PENDING.code, true);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, DefaultTerms.GeoObjectStatusTerm.PENDING.code, true);
 
     info.delete();
 
@@ -436,7 +445,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectTypeInfo newTestGeoObjectTypeInfo(String genKey, TestOrganizationInfo organization)
   {
-    TestGeoObjectTypeInfo info = new TestGeoObjectTypeInfo(this, genKey, organization);
+    TestGeoObjectTypeInfo info = new TestGeoObjectTypeInfo(genKey, organization);
 
     info.delete();
 
@@ -447,7 +456,7 @@ abstract public class TestDataSet
 
   public TestHierarchyTypeInfo newTestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
-    TestHierarchyTypeInfo info = new TestHierarchyTypeInfo(this, genKey, org);
+    TestHierarchyTypeInfo info = new TestHierarchyTypeInfo(genKey, org);
 
     info.delete();
 
@@ -457,13 +466,8 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void deleteGeoEntity(String key)
+  public static void deleteGeoEntity(String key)
   {
-    if (this.debugMode >= 1)
-    {
-      System.out.println("Deleting All GeoEntities by key [" + key + "].");
-    }
-
     GeoEntityQuery geq = new GeoEntityQuery(new QueryFactory());
     geq.WHERE(geq.getKeyName().EQ(key));
     OIterator<? extends GeoEntity> git = geq.getIterator();
@@ -473,11 +477,6 @@ abstract public class TestDataSet
       {
         GeoEntity ge = git.next();
 
-        if (this.debugMode >= 2)
-        {
-          System.out.println("Deleting GeoEntity with geoId [" + ge.getGeoId() + "].");
-        }
-
         ge.delete();
       }
     }
@@ -486,8 +485,39 @@ abstract public class TestDataSet
       git.close();
     }
   }
+  
+  public static Classifier getClassifierIfExist(String classifierId)
+  {
+    ClassifierQuery query = new ClassifierQuery(new QueryFactory());
+    query.WHERE(query.getClassifierId().EQ(classifierId));
+    OIterator<? extends Classifier> it = query.getIterator();
+    try
+    {
+      while (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
 
-  public MdClass getMdClassIfExist(String pack, String type)
+    return null;
+  }
+  
+  @Request
+  public static void deleteClassifier(String classifierId)
+  {
+    Classifier clazz = getClassifierIfExist(classifierId);
+
+    if (clazz != null)
+    {
+      clazz.delete();
+    }
+  }
+
+  public static MdClass getMdClassIfExist(String pack, String type)
   {
     MdClassQuery mbq = new MdClassQuery(new QueryFactory());
     mbq.WHERE(mbq.getPackageName().EQ(pack));
@@ -509,23 +539,18 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void deleteMdClass(String pack, String type)
+  public static void deleteMdClass(String pack, String type)
   {
     MdClass mdBiz = getMdClassIfExist(pack, type);
 
     if (mdBiz != null)
     {
-      if (this.debugMode >= 1)
-      {
-        System.out.println("Deleting MdClass [" + pack + "." + type + "].");
-      }
-
       mdBiz.delete();
     }
   }
 
   @Request
-  public Universal getUniversalIfExist(String universalId)
+  public static Universal getUniversalIfExist(String universalId)
   {
     UniversalQuery uq = new UniversalQuery(new QueryFactory());
     uq.WHERE(uq.getUniversalId().EQ(universalId));
@@ -546,17 +571,12 @@ abstract public class TestDataSet
   }
 
   @Request
-  public void deleteUniversal(String code)
+  public static void deleteUniversal(String code)
   {
     Universal uni = getUniversalIfExist(code);
 
     if (uni != null)
     {
-      if (this.debugMode >= 1)
-      {
-        System.out.println("Deleting Universal [" + code + "].");
-      }
-
       MasterList.deleteAll(uni);
 
       uni = Universal.get(uni.getOid());
@@ -593,5 +613,66 @@ abstract public class TestDataSet
 
       existingResources.add(resource);
     }
+  }
+  
+  @Request
+  public static void deleteExternalSystems(String systemId)
+  {
+    try
+    {
+      final MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(ExternalSystem.CLASS);
+      MdAttributeDAOIF attribute = mdVertex.definesAttribute(ExternalSystem.ID);
+
+      StringBuilder builder = new StringBuilder();
+      builder.append("SELECT FROM " + mdVertex.getDBClassName());
+
+      builder.append(" WHERE " + attribute.getColumnName() + " = :id");
+
+      final GraphQuery<ExternalSystem> query = new GraphQuery<ExternalSystem>(builder.toString());
+
+      query.setParameter("id", systemId);
+
+      List<ExternalSystem> list = query.getResults();
+      
+      for (ExternalSystem es : list)
+      {
+        es.delete(false);
+      }
+    }
+    catch (net.geoprism.registry.DataNotFoundException ex)
+    {
+      // Do nothing
+    }
+  }
+  
+  @Request
+  public static void refreshTerms(AttributeTermType attribute)
+  {
+    attribute.setRootTerm(new TermConverter(TermConverter.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
+  }
+  
+  public static TestAttributeTypeInfo createAttribute(String name, String label, TestGeoObjectTypeInfo got, String type)
+  {
+    AttributeType at = AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
+    
+    String attributeTypeJSON = at.toJSON().toString();
+    
+    at = got.getServerObject().createAttributeType(attributeTypeJSON);
+    
+    return new TestAttributeTypeInfo(at, got);
+  }
+  
+  public static TestAttributeTypeInfo createTermAttribute(String name, String label, TestGeoObjectTypeInfo got, Term attrRoot)
+  {
+    final String type = AttributeTermType.TYPE;
+    
+    AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
+    att.setRootTerm(attrRoot);
+    
+    String attributeTypeJSON = att.toJSON().toString();
+    
+    att = (AttributeTermType) got.getServerObject().createAttributeType(attributeTypeJSON);
+    
+    return new TestAttributeTypeInfo(att, got);
   }
 }

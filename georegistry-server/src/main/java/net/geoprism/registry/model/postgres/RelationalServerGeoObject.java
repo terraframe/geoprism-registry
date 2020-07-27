@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -55,6 +56,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -259,7 +261,10 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
           {
             String code = it.next();
 
-            String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
+            Term root = ( (AttributeTermType) attribute ).getRootTerm();
+            String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
+
+            String classifierKey = Classifier.buildKey(parent, code);
             Classifier classifier = Classifier.getByKey(classifierKey);
 
             this.business.setValue(attributeName, classifier.getOid());
@@ -311,7 +316,10 @@ public abstract class RelationalServerGeoObject extends AbstractServerGeoObject 
           {
             String code = it.next();
 
-            String classifierKey = Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, code);
+            Term root = ( (AttributeTermType) attribute ).getRootTerm();
+            String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
+
+            String classifierKey = Classifier.buildKey(parent, code);
             Classifier classifier = Classifier.getByKey(classifierKey);
 
             this.business.setValue(attributeName, classifier.getOid());

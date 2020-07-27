@@ -7,7 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GeoObjectType, MasterList, ScheduledJob, ImportError } from '../../../model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import Utils from '../../../utility/Utils'
 
 import { RegistryService } from '../../../service/registry.service';
@@ -72,7 +72,7 @@ export class ImportProblemWidgetComponent implements OnInit {
         }
 
         if(probType === "net.geoprism.registry.DataNotFoundException"){
-          return this.lService.decode( "scheduledjobs.job.problem.type.required.value.lookup" );
+          return this.lService.decode( "scheduledjobs.job.problem.type.datanotfound" );
         }
         
         if(
@@ -90,6 +90,7 @@ export class ImportProblemWidgetComponent implements OnInit {
         if(
           probType === "com.runwaysdk.dataaccess.DuplicateDataException"
           || probType === "net.geoprism.registry.DuplicateGeoObjectException"
+          || probType === "net.geoprism.registry.DuplicateGeoObjectCodeException"
           ){
           return this.lService.decode( "scheduledjobs.job.problem.type.duplicate.data.lookup" );
         }
@@ -106,10 +107,7 @@ export class ImportProblemWidgetComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

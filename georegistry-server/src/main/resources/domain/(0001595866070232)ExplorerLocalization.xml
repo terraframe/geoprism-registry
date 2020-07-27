@@ -1,0 +1,90 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  	<createOrUpdate>
+  
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.add.context.layers.modal.title">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="explorer.add.context.layers.modal.title" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Add Context Layers" />
+	        </attributeStruct>
+	      </object>
+	      
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.hierarchy.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="explorer.hierarchy.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Hierarchy" />
+	        </attributeStruct>
+	      </object>
+	      
+	     <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.hierarchy.branch.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="explorer.hierarchy.branch.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Hierarchy Branch" />
+	        </attributeStruct>
+	      </object>
+	      
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.base.layers.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="explorer.base.layers.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Base Layers" />
+	        </attributeStruct>
+	      </object>
+	      
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.context.layers.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="explorer.context.layers.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Context Layers" />
+	        </attributeStruct>
+	      </object>
+	      
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.date.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="explorer.date.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Date" />
+	        </attributeStruct>
+	      </object>
+	      
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.root.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="explorer.root.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Root" />
+	        </attributeStruct>
+	      </object>
+	      
+	</createOrUpdate>
+	
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

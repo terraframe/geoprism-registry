@@ -8,7 +8,7 @@ import { LocalizationService } from '../../../../shared/service/localization.ser
 
 import { SuccessModalComponent } from '../../../../shared/component/modals/success-modal.component';
 import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
-
+import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
 import { ImportConfiguration } from '../../../model/io';
 
 import { IOService } from '../../../service/io.service';
@@ -117,10 +117,7 @@ export class SpreadsheetModalComponent implements OnInit {
     }
 
     error( err: HttpErrorResponse ): void {
-        // Handle error
-        if ( err !== null ) {
-            this.message = ( err.error.localizedMessage || err.error.message || err.message );
-        }
+            this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

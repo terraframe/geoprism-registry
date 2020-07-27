@@ -41,12 +41,12 @@ import org.slf4j.LoggerFactory;
 
 public class ExcelContentHandler implements SheetHandler
 {
-  private static Logger        logger = LoggerFactory.getLogger(ExcelContentHandler.class);
+  private static Logger          logger = LoggerFactory.getLogger(ExcelContentHandler.class);
 
   /**
    * Handler which handles the view object once they have been created.
    */
-  private ObjectImporterIF   objectImporter;
+  private ObjectImporterIF       objectImporter;
 
   /**
    * Column index-Column Name Map for the current sheet
@@ -56,37 +56,37 @@ public class ExcelContentHandler implements SheetHandler
   /**
    * Current row number
    */
-  protected long                  rowNum;
+  protected long                 rowNum;
 
   /**
    * Current error row number
    */
-  private long                  errorNum;
+  private long                   errorNum;
 
   /**
    * Current view
    */
-  private Map<String, Object>  row;
+  private Map<String, Object>    row;
 
   /**
    * Format used for parsing and formatting dateTime fields
    */
-  private DateFormat           dateTimeFormat;
+  private DateFormat             dateTimeFormat;
 
-  boolean                      isFirstSheet;
-  
-  ImportStage stage;
-  
-  protected Long startIndex;
+  boolean                        isFirstSheet;
+
+  ImportStage                    stage;
+
+  protected Long                 startIndex;
 
   public ExcelContentHandler(ObjectImporterIF objectImporter, ImportStage stage, Long startIndex)
   {
     this.objectImporter = objectImporter;
-    
+
     this.stage = stage;
-    
+
     this.startIndex = startIndex;
-    
+
     this.isFirstSheet = true;
 
     this.map = new HashMap<Integer, String>();
@@ -134,7 +134,7 @@ public class ExcelContentHandler implements SheetHandler
           {
             this.objectImporter.importRow(new MapFeatureRow(this.row));
           }
-          
+
           this.row = new HashMap<String, Object>();
         }
       }

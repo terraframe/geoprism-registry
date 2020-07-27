@@ -20,6 +20,7 @@ package net.geoprism.registry.test;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,7 +46,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
@@ -58,11 +58,10 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.model.postgres.TreeServerGeoObject;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class TestGeoObjectInfo
 {
-  private final TestDataSet       testDataSet;
-
   private String                  code;
 
   private String                  displayLabel;
@@ -88,29 +87,33 @@ public class TestGeoObjectInfo
   private String                  statusCode;
 
   private Boolean                 isNew;
+  
+  private Date                    date;
+  
+  private HashMap<String, Object> defaultValues;
 
-  protected TestGeoObjectInfo(TestDataSet testDataSet, String genKey, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
+  protected TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
   {
-    this.testDataSet = testDataSet;
     initialize(genKey, testUni, statusCode, isNew);
     this.wkt = wkt;
   }
 
-  protected TestGeoObjectInfo(TestDataSet testDataSet, String genKey, TestGeoObjectTypeInfo testUni)
+  protected TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
   {
-    this.testDataSet = testDataSet;
     initialize(genKey, testUni, DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
   }
 
   private void initialize(String genKey, TestGeoObjectTypeInfo testUni, String statusCode, Boolean isNew)
   {
-    this.code = this.testDataSet.getTestDataKey() + genKey;
-    this.displayLabel = this.testDataSet.getTestDataKey() + " " + genKey;
+    this.code = genKey;
+    this.displayLabel = genKey;
     this.geoObjectType = testUni;
     this.children = new LinkedList<TestGeoObjectInfo>();
     this.parents = new LinkedList<TestGeoObjectInfo>();
     this.statusCode = statusCode;
     this.isNew = isNew;
+    this.date = new Date();
+    this.defaultValues = new HashMap<String, Object>();
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
     if (geom == GeometryType.POLYGON)
@@ -154,6 +157,16 @@ public class TestGeoObjectInfo
   public String getCode()
   {
     return code;
+  }
+  
+  public void setDefaultValue(String attr, Object value)
+  {
+    this.defaultValues.put(attr, value);
+  }
+  
+  public Object getDefaultValue(String attr)
+  {
+    return this.defaultValues.get(attr);
   }
 
   public String getDisplayLabel()
@@ -237,9 +250,10 @@ public class TestGeoObjectInfo
    * Constructs a new GeoObject and populates all attributes from the data
    * contained within this test wrapper.
    */
+  @Request
   public GeoObject asGeoObject()
   {
-    GeoObject geoObj = this.testDataSet.adapter.newGeoObjectInstance(this.geoObjectType.getCode());
+    GeoObject geoObj = ServiceFactory.getAdapter().newGeoObjectInstance(this.geoObjectType.getCode());
 
     geoObj.setWKTGeometry(this.getWkt());
     geoObj.setCode(this.getCode());
@@ -251,6 +265,11 @@ public class TestGeoObjectInfo
     {
       geoObj.setUid(registryId);
     }
+    
+    for (String attrName : this.defaultValues.keySet())
+    {
+      geoObj.setValue(attrName, this.defaultValues.get(attrName));
+    }
 
     return geoObj;
   }
@@ -259,9 +278,10 @@ public class TestGeoObjectInfo
    * Constructs a new GeoObject and populates all attributes from the data
    * contained within this test wrapper.
    */
+  @Request
   public GeoObjectOverTime asGeoObject(Date date)
   {
-    GeoObjectOverTime geoObj = this.testDataSet.adapter.newGeoObjectOverTimeInstance(this.geoObjectType.getCode());
+    GeoObjectOverTime geoObj = ServiceFactory.getAdapter().newGeoObjectOverTimeInstance(this.geoObjectType.getCode());
 
     final LocalizedValue label = new LocalizedValue(this.getDisplayLabel());
     label.setValue(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
@@ -276,6 +296,11 @@ public class TestGeoObjectInfo
     if (registryId != null)
     {
       geoObj.setUid(registryId);
+    }
+    
+    for (String attrName : this.defaultValues.keySet())
+    {
+      geoObj.setValue(attrName, this.defaultValues.get(attrName), date, ValueOverTime.INFINITY_END_DATE);
     }
 
     return geoObj;
@@ -440,7 +465,7 @@ public class TestGeoObjectInfo
    */
   public void assertEquals(GeoObject geoObj, DefaultTerms.GeoObjectStatusTerm status)
   {
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(this.testDataSet.adapter, geoObj.toJSON().toString()).toJSON().toString());
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(ServiceFactory.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
     Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
     Assert.assertEquals(this.getCode(), geoObj.getCode());
     Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
@@ -529,7 +554,7 @@ public class TestGeoObjectInfo
    * @postcondition The applied GeoObject's status will be equal to ACTIVE
    */
   @Request
-  public void apply(Date date)
+  public void apply()
   {
     ServerGeoObjectIF localServerGO = applyInTrans(date);
 
@@ -554,11 +579,6 @@ public class TestGeoObjectInfo
   @Transaction
   private ServerGeoObjectIF applyInTrans(Date date)
   {
-    if (this.testDataSet.debugMode >= 1)
-    {
-      System.out.println("Applying TestGeoObjectInfo [" + this.getCode() + "].");
-    }
-
     if (date == null)
     {
       return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.asGeoObject(), this.isNew, false);
@@ -609,11 +629,6 @@ public class TestGeoObjectInfo
   @Transaction
   private void deleteInTrans()
   {
-    if (this.testDataSet.debugMode >= 1)
-    {
-      System.out.println("Deleting TestGeoObjectInfo [" + this.getCode() + "].");
-    }
-
     // Make sure we delete the business first, otherwise when we delete the
     // geoEntity it nulls out the reference in the table.
     if (this.getGeoObjectType() != null && this.getGeoObjectType().getUniversal() != null)
@@ -628,11 +643,6 @@ public class TestGeoObjectInfo
         {
           Business biz = bit.next();
 
-          if (this.testDataSet.debugMode >= 2)
-          {
-            System.out.println("Deleting Business object with key [" + biz.getKey() + "].");
-          }
-
           biz.delete();
         }
       }
@@ -642,7 +652,7 @@ public class TestGeoObjectInfo
       }
     }
 
-    this.testDataSet.deleteGeoEntity(this.getCode());
+    TestDataSet.deleteGeoEntity(this.getCode());
 
     // if (this.serverGO instanceof CompositeServerGeoObject)
     // {

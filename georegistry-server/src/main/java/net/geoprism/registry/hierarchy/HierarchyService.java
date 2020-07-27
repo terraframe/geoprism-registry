@@ -57,11 +57,14 @@ public class HierarchyService
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
 
+    HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
+    SingleActorDAOIF user = Session.getCurrentSession().getUser();
+
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
       ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
-      if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), sType.getOrganization().getCode()))
+      if (pService.canRead(user, hierarchyType.getOrganizationCode()))
       {
         // Note: Ordered ancestors always includes self
         Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
@@ -106,12 +109,15 @@ public class HierarchyService
 
       for (HierarchyType hierarchyType : hierarchyTypes)
       {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", hierarchyType.getCode());
-        object.addProperty("label", hierarchyType.getLabel().getValue());
-        object.add("parents", new JsonArray());
+        if (pService.canRead(user, hierarchyType.getOrganizationCode()))
+        {
+          JsonObject object = new JsonObject();
+          object.addProperty("code", hierarchyType.getCode());
+          object.addProperty("label", hierarchyType.getLabel().getValue());
+          object.add("parents", new JsonArray());
 
-        hierarchies.add(object);
+          hierarchies.add(object);
+        }
       }
     }
 
@@ -249,11 +255,6 @@ public class HierarchyService
     ServiceFactory.getHierarchyPermissionService().enforceCanDelete(Session.getCurrentSession().getUser(), type.getOrganization().getCode());
 
     type.delete();
-
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    // No error at this point so the transaction completed successfully.
-    ServiceFactory.getAdapter().getMetadataCache().removeHierarchyType(code);
   }
 
   /**

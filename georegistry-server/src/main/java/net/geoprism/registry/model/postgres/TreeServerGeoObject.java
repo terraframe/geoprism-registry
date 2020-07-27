@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.model.postgres;
 
+import java.sql.Savepoint;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ import com.runwaysdk.constants.ElementInfo;
 import com.runwaysdk.dataaccess.AttributeIF;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.geometry.GeometryHelper;
 import com.runwaysdk.query.OIterator;
@@ -71,6 +73,7 @@ import com.vividsolutions.jts.geom.Point;
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
+import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
 import net.geoprism.registry.GeoObjectStatus;
@@ -79,7 +82,6 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -302,6 +304,7 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
   }
 
   @Override
+  @Transaction
   public void apply(boolean isImport)
   {
     boolean isNew = this.geoEntity.isNew();
@@ -310,6 +313,8 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
     {
       throw new GeometryUpdateException();
     }
+    
+    Savepoint sp = Database.setSavepoint();
 
     try
     {
@@ -323,11 +328,28 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
       }
       else if (e.getAttributes().size() == 1)
       {
-        DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
-        ex.setGeoObjectType(this.getType().getLabel().getValue());
-        ex.setValue(e.getValues().get(0));
-        ex.setAttributeName(this.getAttributeLabel(e.getAttributes().get(0)));
-        throw ex;
+        AttributeIF attr = e.getAttributes().get(0);
+        
+        if (this.isCodeAttribute(attr))
+        {
+          Database.rollbackSavepoint(sp);
+          
+          GeoEntity ge = GeoEntity.getByKey(this.getCode());
+          ServerGeoObjectType otherType = ServerGeoObjectType.get(ge.getUniversal());
+          
+          DuplicateGeoObjectCodeException ex = new DuplicateGeoObjectCodeException();
+          ex.setGeoObjectType(otherType.getLabel().getValue());
+          ex.setValue(e.getValues().get(0));
+          throw ex;
+        }
+        else
+        {
+          DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
+          ex.setGeoObjectType(this.getType().getLabel().getValue());
+          ex.setValue(e.getValues().get(0));
+          ex.setAttributeName(this.getAttributeLabel(attr));
+          throw ex;
+        }
       }
       else
       {
@@ -342,6 +364,10 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
         ex.setAttributeLabels(StringUtils.join(attrLabels, ", "));
         throw ex;
       }
+    }
+    finally
+    {
+      Database.releaseSavepoint(sp);
     }
 
     if (isNew)
@@ -376,9 +402,14 @@ public class TreeServerGeoObject extends RelationalServerGeoObject implements Se
     }
   }
 
+  private boolean isCodeAttribute(AttributeIF attr)
+  {
+    return attr.getName().equals(ElementInfo.KEY) || attr.getName().equals(ElementInfo.OID) || attr.getName().equals(GeoEntity.GEOID);
+  }
+
   public String getAttributeLabel(AttributeIF attr)
   {
-    if (attr.getName().equals(ElementInfo.KEY) || attr.getName().equals(ElementInfo.OID) || attr.getName().equals(GeoEntity.GEOID))
+    if (this.isCodeAttribute(attr))
     {
       return this.getType().getAttribute(DefaultAttribute.CODE.getName()).get().getLabel().getValue();
     }

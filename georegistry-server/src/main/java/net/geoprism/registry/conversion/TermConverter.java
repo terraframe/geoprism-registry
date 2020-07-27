@@ -22,17 +22,26 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.MdEntityDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
+import com.runwaysdk.dataaccess.metadata.MdEntityDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.geoobjecttype.GeoObjectTypePermissionServiceIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
 
 /**
  * Responsible for building {@link Term} objects from Runway {@link Classifier}
@@ -61,7 +70,7 @@ public class TermConverter
 
   private Term buildTermFromClassifier(Classifier classifier)
   {
-    LocalizedValue label = new AttributeTypeConverter().convert(classifier.getDisplayLabel());
+    LocalizedValue label = AttributeTypeConverter.convert(classifier.getDisplayLabel());
 
     Term term = new Term(classifier.getClassifierId(), label, new LocalizedValue(""));
 
@@ -75,18 +84,20 @@ public class TermConverter
   @Transaction
   public static Classifier createClassifierFromTerm(String parentTermCode, Term term)
   {
+    String parentClassifierKey = buildClassifierKeyFromTermCode(parentTermCode);
+
+    Classifier parent = Classifier.getByKey(parentClassifierKey);
+
+    enforceTermPermissions(parent, Operation.CREATE);
+
     Classifier classifier = new Classifier();
     classifier.setClassifierId(term.getCode());
-    classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    classifier.setClassifierPackage(parent.getKey());
     // This will set the value of the display label to the locale of the user
     // performing the action.
     LocalizedValueConverter.populate(classifier.getDisplayLabel(), term.getLabel());
 
     classifier.apply();
-
-    String parentClassifierKey = buildClassifierKeyFromTermCode(parentTermCode);
-
-    Classifier parent = Classifier.getByKey(parentClassifierKey);
 
     classifier.addLink(parent, ClassifierIsARelationship.CLASS);
 
@@ -94,9 +105,15 @@ public class TermConverter
   }
 
   @Transaction
-  public static Classifier updateClassifier(String termCode, LocalizedValue value)
+  public static Classifier updateClassifier(String parentTermCode, String termCode, LocalizedValue value)
   {
-    String classifierKey = buildClassifierKeyFromTermCode(termCode);
+    String parentClassifierKey = buildClassifierKeyFromTermCode(parentTermCode);
+
+    Classifier parent = Classifier.getByKey(parentClassifierKey);
+
+    enforceTermPermissions(parent, Operation.WRITE);
+
+    String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 
     Classifier classifier = Classifier.getByKey(classifierKey);
     classifier.lock();
@@ -268,5 +285,27 @@ public class TermConverter
   public static String buildClassifierKeyFromTermCode(String termCode)
   {
     return Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, termCode);
+  }
+
+  public static void enforceTermPermissions(Classifier parent, Operation op)
+  {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      GeoObjectTypePermissionServiceIF service = ServiceFactory.getGeoObjectTypePermissionService();
+      SingleActorDAOIF user = Session.getCurrentSession().getUser();
+
+      // Is this a root term for an {@link MdAttributeTerm}
+      try (OIterator<? extends MdAttributeTerm> attrTerm = parent.getAllClassifierTermAttributeRoots())
+      {
+        for (MdAttributeTerm mdAttributeTerm : attrTerm)
+        {
+          MdEntityDAOIF mdEntityDAOIF = MdEntityDAO.get(mdAttributeTerm.getDefiningMdClassId());
+          ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(mdEntityDAOIF.getTypeName());
+          Organization organization = geoObjectType.getOrganization();
+
+          service.enforceActorHasPermission(user, organization.getCode(), geoObjectType.getLabel().getValue(), op);
+        }
+      }
+    }
   }
 }

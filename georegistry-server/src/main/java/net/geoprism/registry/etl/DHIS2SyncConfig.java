@@ -18,32 +18,35 @@
  */
 package net.geoprism.registry.etl;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
+  public static final String ATTRIBUTES      = "attributes";
+  
   public static final String LEVELS          = "levels";
 
   public static final String GEO_OBJECT_TYPE = "geoObjectType";
 
   public static final String TYPE            = "type";
-
-  private List<SyncLevel>    levels;
-
-  public List<SyncLevel> getLevels()
+  
+  private SortedSet<SyncLevel>    levels;
+  
+  public SortedSet<SyncLevel> getLevels()
   {
     return levels;
   }
 
-  public void setLevels(List<SyncLevel> levels)
+  public void setLevels(SortedSet<SyncLevel> levels)
   {
     this.levels = levels;
   }
@@ -61,26 +64,8 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
     JsonObject json = config.getConfigurationJson();
 
-    LinkedList<SyncLevel> levels = new LinkedList<SyncLevel>();
-
-    JsonArray lArray = json.get(LEVELS).getAsJsonArray();
-
-    for (int i = 0; i < lArray.size(); i++)
-    {
-      JsonObject object = lArray.get(i).getAsJsonObject();
-
-      String typeCode = object.get(GEO_OBJECT_TYPE).getAsString();
-      String type = object.get(TYPE).getAsString();
-
-      SyncLevel level = new SyncLevel();
-      level.setGeoObjectType(ServerGeoObjectType.get(typeCode));
-      level.setSyncType(SyncLevel.Type.valueOf(type));
-      level.setLevel(i + 1);
-
-      levels.add(level);
-    }
-
-    this.setLevels(levels);
+    JsonArray jaLevels = json.get(LEVELS).getAsJsonArray();
+    this.levels =  new GsonBuilder().create().fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
   }
 
 }

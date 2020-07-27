@@ -18,15 +18,19 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -39,8 +43,11 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRMException;
+import net.geoprism.registry.TileCache;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
@@ -48,15 +55,12 @@ import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.etl.PublishMasterListJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
-import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
+import net.geoprism.registry.roles.CreateListPermissionException;
 
 public class MasterListService
 {
-  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
-
   @Request(RequestType.SESSION)
   public JsonArray listAll(String sessionId)
   {
@@ -291,7 +295,45 @@ public class MasterListService
     {
       // Do nothing
     }
+  }
 
+  @Request(RequestType.SESSION)
+  public JsonArray getAllVersions(String sessionId)
+  {
+    JsonArray response = new JsonArray();
+
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    try (OIterator<? extends MasterList> it = query.getIterator())
+    {
+      while (it.hasNext())
+      {
+        MasterList list = it.next();
+        final boolean isMember = Organization.isMember(list.getOrganization());
+
+        if (isMember || list.getVisibility().equals(MasterList.PUBLIC))
+        {
+          response.add(list.toJSON(MasterListVersion.PUBLISHED));
+        }
+      }
+    }
+
+    return response;
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream getTile(String sessionId, JSONObject object)
+  {
+    try
+    {
+      byte[] bytes = TileCache.getTile(object);
+      return new ByteArrayInputStream(bytes);
+    }
+    catch (JSONException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   private void enforceWritePermissions(MasterList masterList)
@@ -300,12 +342,12 @@ public class MasterListService
     {
       ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
       SingleActorDAOIF user = Session.getCurrentSession().getUser();
+      Organization organization = geoObjectType.getOrganization();
 
-      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, geoObjectType.getOrganization().getCode(), geoObjectType.getCode()))
+      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, organization.getCode(), geoObjectType.getCode()))
       {
-        OrganizationRMException ex = new OrganizationRMException("You do not have permissions to publish a masterlist.");
-        ex.setOrganizationLabel(masterList.getOrganization().getDisplayLabel().getValue());
-        ex.setGeoObjectTypeLabel(geoObjectType.getLabel().getValue());
+        CreateListPermissionException ex = new CreateListPermissionException();
+        ex.setOrganization(organization.getDisplayLabel().getValue());
         throw ex;
       }
     }

@@ -22,16 +22,12 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import net.geoprism.GeoprismUserDTO;
-import net.geoprism.registry.OrganizationAndRoleTest;
-import net.geoprism.registry.controller.RegistryAccountController;
-import net.geoprism.registry.test.TestDataSet;
-
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,7 +38,18 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+
+import net.geoprism.GeoprismUser;
+import net.geoprism.GeoprismUserDTO;
+import net.geoprism.GeoprismUserQuery;
+import net.geoprism.registry.UserInfo;
+import net.geoprism.registry.controller.RegistryAccountController;
+import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestOrganizationInfo;
 
 public class AccountServiceControllerTest
 {
@@ -55,17 +62,19 @@ public class AccountServiceControllerTest
   public static String                    TEST_USER_NAME     = "testRegistryUser";
 
   public static String                    TEST_USER_PASSWORD = "abc123";
-
-  public static String                    ORG_MOH            = "MOH";
-
-  public static String                    ORG_MOI            = "MOI";
-
-  public static String                    HEALTH_FACILITY    = "HealthFacility";
-
-  public static String                    DISTRICT           = "District";
-
-  public static String                    VILLAGE            = "Village";
-
+  
+  public static final String TEST_KEY = "AccountService";
+  
+  public static TestOrganizationInfo moiOrg = new TestOrganizationInfo(TEST_KEY + "MOI", TEST_KEY + "MOI");
+  
+  public static TestGeoObjectTypeInfo district = new TestGeoObjectTypeInfo(TEST_KEY+ "District", moiOrg);
+  
+  public static TestGeoObjectTypeInfo village = new TestGeoObjectTypeInfo(TEST_KEY + "Village", moiOrg);
+  
+  public static TestOrganizationInfo mohOrg = new TestOrganizationInfo(TEST_KEY + "MOH", TEST_KEY + "MOH");
+  
+  public static TestGeoObjectTypeInfo healthFacility = new TestGeoObjectTypeInfo(TEST_KEY + "HealthFacility", mohOrg);
+  
   @BeforeClass
   public static void classSetUp()
   {
@@ -87,12 +96,12 @@ public class AccountServiceControllerTest
   @Transaction
   public static void classSetUpTransaction()
   {
-    OrganizationAndRoleTest.createOrganization(ORG_MOI);
-    OrganizationAndRoleTest.createGeoObjectType(ORG_MOI, DISTRICT);
-    OrganizationAndRoleTest.createGeoObjectType(ORG_MOI, VILLAGE);
-
-    OrganizationAndRoleTest.createOrganization(ORG_MOH);
-    OrganizationAndRoleTest.createGeoObjectType(ORG_MOH, HEALTH_FACILITY);
+    moiOrg.apply();
+    district.apply();
+    village.apply();
+    
+    mohOrg.apply();
+    healthFacility.apply();
   }
 
   @AfterClass
@@ -112,12 +121,59 @@ public class AccountServiceControllerTest
   @Transaction
   public static void classTearDownTransaction()
   {
-    OrganizationAndRoleTest.deleteGeoObjectType(DISTRICT);
-    OrganizationAndRoleTest.deleteGeoObjectType(VILLAGE);
-    OrganizationAndRoleTest.deleteOrganization(ORG_MOI);
+    district.delete();
+    village.delete();
+    moiOrg.delete();
+    
+    healthFacility.delete();
+    mohOrg.delete();
+  }
+  
+  @Before
+  public void setUp()
+  {
+    deleteAllUsers();
+  }
+  
+  @Request
+  public void deleteAllUsers()
+  {
+    String[] usernames = new String[] {"johny@gmail.com", "sallyy@gmail.com", "franky@gmail.com", "beckyy@gmail.com", "jdoe6"};
+    
+    for (String username : usernames)
+    {
+      deleteUser(username);
+    }
+  }
+  
+  public void deleteUser(String username)
+  {
+    GeoprismUserQuery query = new GeoprismUserQuery(new QueryFactory());
+    
+    query.WHERE(query.getUsername().EQ(username));
+    
+    OIterator<? extends GeoprismUser> it = query.getIterator();
+    
+    try
+    {
+      if (it.hasNext())
+      {
+        GeoprismUser user = it.next();
+        
+        UserInfo info = UserInfo.getByUser(user);
 
-    OrganizationAndRoleTest.deleteGeoObjectType(HEALTH_FACILITY);
-    OrganizationAndRoleTest.deleteOrganization(ORG_MOH);
+        if (info != null)
+        {
+          info.delete();
+        }
+
+        user.delete();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
   }
 
   /**
@@ -127,61 +183,62 @@ public class AccountServiceControllerTest
   @Test
   public void queryUsers()
   {
-    String rmDistrictRole = RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT);
-    String rmVillageRole = RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE);
+    String rmDistrictRole = RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode());
+    String rmVillageRole = RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode());
 
-    String rcDistrictRole = RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT);
-    String rcVillageRole = RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE);
+    String rcDistrictRole = RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), district.getCode());
+    String rcVillageRole = RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode());
 
     JSONObject johny = createUser("johny@gmail.com", rmDistrictRole + "," + rmVillageRole);
     JSONObject sally = createUser("sallyy@gmail.com", rcDistrictRole + "," + rcVillageRole);
 
-    String rmHealthFacilityRole = RegistryRole.Type.getRM_RoleName(ORG_MOH, HEALTH_FACILITY);
-    String rcHealthFacilityRole = RegistryRole.Type.getRC_RoleName(ORG_MOH, HEALTH_FACILITY);
+    String rmHealthFacilityRole = RegistryRole.Type.getRM_RoleName(mohOrg.getCode(), healthFacility.getCode());
+    String rcHealthFacilityRole = RegistryRole.Type.getRC_RoleName(mohOrg.getCode(), healthFacility.getCode());
 
     JSONObject franky = createUser("franky@gmail.com", rmHealthFacilityRole);
     JSONObject becky = createUser("beckyy@gmail.com", rcHealthFacilityRole);
 
-    try
-    {
+//    try
+//    {
       JSONArray orgCodeArray = new JSONArray();
-      orgCodeArray.put(ORG_MOI);
-      // orgCodeArray.put(ORG_MOH);
+      orgCodeArray.put(moiOrg.getCode());
+      // orgCodeArray.put(mohOrg.getCode());
       // orgCodeArray.put("TEST1");
       // orgCodeArray.put("TEST2");
 
       RestBodyResponse response = (RestBodyResponse) controller.page(clientRequest, 1);
-    }
-    finally
-    {
-      controller.remove(clientRequest, johny.getString(GeoprismUserDTO.OID));
-      controller.remove(clientRequest, sally.getString(GeoprismUserDTO.OID));
-
-      controller.remove(clientRequest, franky.getString(GeoprismUserDTO.OID));
-      controller.remove(clientRequest, becky.getString(GeoprismUserDTO.OID));
-    }
+//    }
+//    finally
+//    {
+//      controller.remove(clientRequest, johny.getString(GeoprismUserDTO.OID));
+//      controller.remove(clientRequest, sally.getString(GeoprismUserDTO.OID));
+//
+//      controller.remove(clientRequest, franky.getString(GeoprismUserDTO.OID));
+//      controller.remove(clientRequest, becky.getString(GeoprismUserDTO.OID));
+//    }
   }
 
   private JSONObject createUser(String userName, String roleNames)
   {
-    RestResponse response = (RestResponse) controller.newInstance(clientRequest, ORG_MOI);
+    RestResponse response = (RestResponse) controller.newInstance(clientRequest, "[" + moiOrg.getCode() + "]");
     Pair userPair = (Pair) response.getAttribute("user");
-    JSONObject user = (JSONObject) userPair.getFirst();
+    GeoprismUserDTO user = (GeoprismUserDTO) userPair.getFirst();
 
     Pair rolesPair = (Pair) response.getAttribute("roles");
     JSONArray roleJSONArray = (JSONArray) rolesPair.getFirst();
 
-    user.put(GeoprismUserDTO.FIRSTNAME, "Some Firstname");
-    user.put(GeoprismUserDTO.LASTNAME, "Some Lastame");
-    user.put(GeoprismUserDTO.USERNAME, userName);
-    user.put(GeoprismUserDTO.EMAIL, userName);
-    user.put(GeoprismUserDTO.PASSWORD, "123456");
+    JSONObject jsonUser = new JSONObject();
+    jsonUser.put(GeoprismUserDTO.FIRSTNAME, "Some Firstname");
+    jsonUser.put(GeoprismUserDTO.LASTNAME, "Some Lastame");
+    jsonUser.put(GeoprismUserDTO.USERNAME, userName);
+    jsonUser.put(GeoprismUserDTO.EMAIL, userName);
+    jsonUser.put(GeoprismUserDTO.PASSWORD, "123456");
 
-    response = (RestResponse) controller.apply(clientRequest, user.toString(), roleNames);
+    response = (RestResponse) controller.apply(clientRequest, jsonUser.toString(), "[" + roleNames + "]");
     userPair = (Pair) response.getAttribute("user");
-    user = (JSONObject) userPair.getFirst();
+    jsonUser = (JSONObject) userPair.getFirst();
 
-    return user;
+    return jsonUser;
   }
 
   /**
@@ -193,109 +250,118 @@ public class AccountServiceControllerTest
   public void createAndApplyUserWithOrgRoles()
   {
     // New Instance
-    RestResponse response = (RestResponse) controller.newInstance(clientRequest, ORG_MOI);
+    RestResponse response = (RestResponse) controller.newInstance(clientRequest, "[" + moiOrg.getCode() + "]");
     Pair userPair = (Pair) response.getAttribute("user");
-    JSONObject user = (JSONObject) userPair.getFirst();
+    GeoprismUserDTO user = (GeoprismUserDTO) userPair.getFirst();
 
     Pair rolesPair = (Pair) response.getAttribute("roles");
     JSONArray roleJSONArray = (JSONArray) rolesPair.getFirst();
 
-    user.put(GeoprismUserDTO.FIRSTNAME, "John");
-    user.put(GeoprismUserDTO.LASTNAME, "Doe");
-    user.put(GeoprismUserDTO.USERNAME, "jdoe6");
-    user.put(GeoprismUserDTO.EMAIL, "john6@doe.com");
-    user.put(GeoprismUserDTO.PASSWORD, "123456");
+    JSONObject jsonUser = new JSONObject();
+    jsonUser.put(GeoprismUserDTO.FIRSTNAME, "John");
+    jsonUser.put(GeoprismUserDTO.LASTNAME, "Doe");
+    jsonUser.put(GeoprismUserDTO.USERNAME, "jdoe6");
+    jsonUser.put(GeoprismUserDTO.EMAIL, "john6@doe.com");
+    jsonUser.put(GeoprismUserDTO.PASSWORD, "123456");
+    
+//    user.setFirstName("John");
+//    user.setLastName("Doe");
+//    user.setUsername("jdoe6");
+//    user.setEmail("john6doe.com");
+//    user.setPassword("123456");
 
-    String rmDistrictRole = RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT);
-    String rmVillageRole = RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE);
+    String rmDistrictRole = RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode());
+    String rmVillageRole = RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode());
 
     // Apply
-    response = (RestResponse) controller.apply(clientRequest, user.toString(), rmDistrictRole + "," + rmVillageRole);
+    response = (RestResponse) controller.apply(clientRequest, jsonUser.toString(), "[" + rmDistrictRole + "," + rmVillageRole + "]");
     userPair = (Pair) response.getAttribute("user");
-    user = (JSONObject) userPair.getFirst();
+    jsonUser = (JSONObject) userPair.getFirst();
 
-    try
-    {
+//    try
+//    {
       Pair rolePair = (Pair) response.getAttribute("roles");
       roleJSONArray = (JSONArray) rolePair.getFirst();
-      Assert.assertEquals(7, roleJSONArray.length());
+      Assert.assertEquals(8, roleJSONArray.length());
 
       Set<String> rolesFoundSet = new HashSet<String>();
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
       this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, true);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
-      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
-      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(moiOrg.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), village.getCode()));
       this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
       // Edit
-      response = (RestResponse) controller.edit(clientRequest, user.getString(GeoprismUserDTO.OID));
+      response = (RestResponse) controller.edit(clientRequest, jsonUser.getString("oid"));
       userPair = (Pair) response.getAttribute("user");
-      user = (JSONObject) userPair.getFirst();
+      jsonUser = (JSONObject) userPair.getFirst();
 
       rolesPair = (Pair) response.getAttribute("roles");
       roleJSONArray = (JSONArray) rolesPair.getFirst();
-      Assert.assertEquals(7, roleJSONArray.length());
+      Assert.assertEquals(8, roleJSONArray.length());
 
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
       this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, true);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
-      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
-      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(moiOrg.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), village.getCode()));
 
       this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
       // Apply to change and roles
-      user.put(GeoprismUserDTO.LASTNAME, "Dwayne");
-      String rcVillageRole = RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE);
-      response = (RestResponse) controller.apply(clientRequest, user.toString(), rmDistrictRole + "," + rcVillageRole);
+//      user.put(GeoprismUserDTO.LASTNAME, "Dwayne");
+      user.setLastName("Dwayne");
+      
+      String rcVillageRole = RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode());
+      response = (RestResponse) controller.apply(clientRequest, jsonUser.toString(), "[" + rmDistrictRole + "," + rcVillageRole + "]");
 
       userPair = (Pair) response.getAttribute("user");
-      user = (JSONObject) userPair.getFirst();
-      Assert.assertEquals("Dwayne", user.getString(GeoprismUserDTO.LASTNAME));
+      jsonUser = (JSONObject) userPair.getFirst();
+      Assert.assertEquals("Dwayne", user.getLastName());
 
       rolePair = (Pair) response.getAttribute("roles");
       roleJSONArray = (JSONArray) rolePair.getFirst();
-      Assert.assertEquals(7, roleJSONArray.length());
+      Assert.assertEquals(8, roleJSONArray.length());
 
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode()));
       this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, true);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
       rolesFoundSet = new HashSet<String>();
-      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
-      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
-      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
-      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+      rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(moiOrg.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), district.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode()));
+      rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), village.getCode()));
 
       this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
       Assert.assertEquals("Not all related roles were returned from the server", 0, rolesFoundSet.size());
 
-    }
-    finally
-    {
-      controller.remove(clientRequest, user.getString(GeoprismUserDTO.OID));
-    }
+//    }
+//    finally
+//    {
+//      controller.remove(clientRequest, user.getOid());
+//    }
   }
 
   /**
@@ -306,7 +372,7 @@ public class AccountServiceControllerTest
   @SuppressWarnings("rawtypes")
   public void newInstaneWithOrgRoles()
   {
-    RestResponse response = (RestResponse) controller.newInstance(clientRequest, ORG_MOI);
+    RestResponse response = (RestResponse) controller.newInstance(clientRequest, "[" + moiOrg.getCode() + "]");
 
     Pair pair = (Pair) response.getAttribute("roles");
 
@@ -316,13 +382,13 @@ public class AccountServiceControllerTest
 
     Set<String> rolesFoundSet = new HashSet<String>();
 
-    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
-    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
-    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
-    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
-    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
-    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(moiOrg.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), district.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), district.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), village.getCode()));
 
     this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
 
@@ -336,7 +402,7 @@ public class AccountServiceControllerTest
   @Test
   public void newInstanceWithRolesEmptyOrgString()
   {
-    RestResponse response = (RestResponse) controller.newInstance(clientRequest, "");
+    RestResponse response = (RestResponse) controller.newInstance(clientRequest, "[]");
 
     createUserWithRoles(response);
   }
@@ -360,21 +426,21 @@ public class AccountServiceControllerTest
 
     JSONArray roleJSONArray = (JSONArray) pair.getFirst();
 
-    Assert.assertEquals(12, roleJSONArray.length());
+    Assert.assertEquals(37, roleJSONArray.length());
 
     Set<String> rolesFoundSet = new HashSet<String>();
     rolesFoundSet.add(RegistryRole.Type.getSRA_RoleName());
-    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOH));
-    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOH, HEALTH_FACILITY));
-    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOH, HEALTH_FACILITY));
-    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOH, HEALTH_FACILITY));
-    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(ORG_MOI));
-    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, DISTRICT));
-    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, DISTRICT));
-    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, DISTRICT));
-    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(ORG_MOI, VILLAGE));
-    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(ORG_MOI, VILLAGE));
-    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(ORG_MOI, VILLAGE));
+    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(mohOrg.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(mohOrg.getCode(), healthFacility.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(mohOrg.getCode(), healthFacility.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(mohOrg.getCode(), healthFacility.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRA_RoleName(moiOrg.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), district.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), district.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), district.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRM_RoleName(moiOrg.getCode(), village.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getRC_RoleName(moiOrg.getCode(), village.getCode()));
+    rolesFoundSet.add(RegistryRole.Type.getAC_RoleName(moiOrg.getCode(), village.getCode()));
 
     this.iterateOverReturnedRoles(roleJSONArray, rolesFoundSet, false);
 

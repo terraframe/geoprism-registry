@@ -82,6 +82,8 @@ import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
+import net.geoprism.registry.test.SchedulerTestUtils;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 public class ShapefileServiceTest
@@ -95,7 +97,7 @@ public class ShapefileServiceTest
   @Before
   public void setUp()
   {
-    this.testData = USATestData.newTestData(false);
+    this.testData = USATestData.newTestData();
 
     AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
     this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode(), testTerm.toJSON().toString());
@@ -143,7 +145,7 @@ public class ShapefileServiceTest
     {
       vpit.next().delete();
     }
-    
+
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     OIterator<? extends ImportError> ieit = ieq.getIterator();
     while (ieit.hasNext())
@@ -157,7 +159,7 @@ public class ShapefileServiceTest
     while (jhrs.hasNext())
     {
       JobHistoryRecord jhr = jhrs.next();
-      
+
       JobHistory hist = jhr.getChild();
       if (hist instanceof ImportHistory)
       {
@@ -314,42 +316,6 @@ public class ShapefileServiceTest
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
 
-  private void waitUntilStatus(JobHistory hist, AllJobStatus status) throws InterruptedException
-  {
-    int waitTime = 0;
-    while (true)
-    {
-      hist = JobHistory.get(hist.getOid());
-      if (hist.getStatus().get(0) == status)
-      {
-        break;
-      }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE)
-      {
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
-      }
-
-      Thread.sleep(10);
-
-      waitTime += 10;
-      if (waitTime > 20000000)
-      {
-//        String extra = "";
-//        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-//        {
-//          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 100, 1).toString();
-//
-//          extra = extra + " " + ( (ImportHistory) hist ).getValidationProblems();
-//        }
-
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
-        return;
-      }
-    }
-
-    Thread.sleep(100);
-  }
-
   @Test
   @Request
   public void testImportShapefile() throws InterruptedException
@@ -366,7 +332,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -398,7 +364,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
@@ -415,7 +381,7 @@ public class ShapefileServiceTest
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), config2.toString());
     Assert.assertNotSame(hist.getOid(), hist2.getOid());
 
-    this.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
 
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
@@ -450,7 +416,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -493,7 +459,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -540,7 +506,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
 
@@ -553,7 +519,8 @@ public class ShapefileServiceTest
     test.fromJSON(hist.getConfigJson(), false);
 
     // TODO
-//    Assert.assertEquals(config.getParentLookupType(), test.getParentLookupType());
+    // Assert.assertEquals(config.getParentLookupType(),
+    // test.getParentLookupType());
 
     String sessionId = this.testData.adminClientRequest.getSessionId();
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
@@ -594,7 +561,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -606,11 +573,12 @@ public class ShapefileServiceTest
     test.fromJSON(hist.getConfigJson(), false);
 
     // TODO
-//    Assert.assertEquals(config.getParentLookupType(), test.getParentLookupType());
-    
-//    JSONArray errors = new JSONArray(hist.getErrorJson());
-//
-//    Assert.assertEquals(0, errors.length());
+    // Assert.assertEquals(config.getParentLookupType(),
+    // test.getParentLookupType());
+
+    // JSONArray errors = new JSONArray(hist.getErrorJson());
+    //
+    // Assert.assertEquals(0, errors.length());
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
@@ -640,14 +608,14 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-    
+
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
@@ -675,14 +643,14 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
-    
+
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
@@ -702,7 +670,7 @@ public class ShapefileServiceTest
 
     try
     {
-      this.testData.refreshTerms(this.testTerm);
+      TestDataSet.refreshTerms(this.testTerm);
 
       InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -718,7 +686,7 @@ public class ShapefileServiceTest
 
       ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-      this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
       hist = ImportHistory.get(hist.getOid());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
@@ -733,9 +701,9 @@ public class ShapefileServiceTest
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(this.testData.adminClientRequest.getSessionId(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(this.testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
 
-      this.testData.refreshTerms(this.testTerm);
+      TestDataSet.refreshTerms(this.testTerm);
     }
   }
 
@@ -757,7 +725,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -802,13 +770,13 @@ public class ShapefileServiceTest
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.RUNNING);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.RUNNING);
 
     hist = ImportHistory.get(hist.getOid());
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertTrue("Expected status new or queued, but was [" + hist2.getStatus().get(0) + "]", hist2.getStatus().get(0).equals(AllJobStatus.NEW) || hist2.getStatus().get(0).equals(AllJobStatus.QUEUED));
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertTrue("Expected status running or queued, but was [" + hist2.getStatus().get(0) + "]", hist2.getStatus().get(0).equals(AllJobStatus.RUNNING) || hist2.getStatus().get(0).equals(AllJobStatus.QUEUED));
@@ -826,7 +794,7 @@ public class ShapefileServiceTest
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
     Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
 
-    this.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist2, AllJobStatus.SUCCESS);
 
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertEquals(new Long(56), hist2.getWorkTotal());
@@ -866,7 +834,7 @@ public class ShapefileServiceTest
 
     ImportHistory hist = importShapefile(this.testData.adminClientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -891,16 +859,16 @@ public class ShapefileServiceTest
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServerGeoObjectIF serverGo = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
-    
+
     JSONObject valRes = new JSONObject();
     valRes.put("validationProblemId", results.getJSONObject(0).getString("id"));
     valRes.put("resolution", ValidationResolution.SYNONYM);
     valRes.put("code", serverGo.getCode());
     valRes.put("typeCode", serverGo.getType().getCode());
     valRes.put("label", "00");
-    
+
     new ETLService().submitValidationProblemResolution(this.testData.adminClientRequest.getSessionId(), valRes.toString());
-    
+
     ValidationProblem vp = ValidationProblem.get(results.getJSONObject(0).getString("id"));
     Assert.assertEquals(ValidationResolution.SYNONYM.name(), vp.getResolution());
     Assert.assertEquals(ParentReferenceProblem.DEFAULT_SEVERITY, vp.getSeverity());
@@ -908,7 +876,7 @@ public class ShapefileServiceTest
     ImportHistory hist2 = importShapefile(this.testData.adminClientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
@@ -926,8 +894,7 @@ public class ShapefileServiceTest
     List<ParentTreeNode> parents = nodes.getParents();
 
     Assert.assertEquals(1, parents.size());
-    
-    
+
     JSONObject page2 = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results2 = page2.getJSONArray("results");
     Assert.assertEquals(0, results2.length());
@@ -969,7 +936,7 @@ public class ShapefileServiceTest
     config.setStartDate(new Date());
     config.setEndDate(new Date());
     config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
-    
+
     return config;
   }
 }

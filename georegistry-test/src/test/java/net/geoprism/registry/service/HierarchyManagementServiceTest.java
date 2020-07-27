@@ -29,6 +29,7 @@ import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
+import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -93,37 +94,41 @@ public class HierarchyManagementServiceTest
 
   private static TestGeoObjectTypeInfo VILLAGE;
 
-//  private static TestGeoObjectTypeInfo HOUSEHOLD;
-//
-//  private static TestGeoObjectTypeInfo RIVER;
+  // private static TestGeoObjectTypeInfo HOUSEHOLD;
+  //
+  // private static TestGeoObjectTypeInfo RIVER;
+
+  // private static TestHierarchyTypeInfo testData.HIER_ADMIN;
 
   private static TestHierarchyTypeInfo REPORTING_DIVISION;
-
-  private static TestHierarchyTypeInfo ADMINISTRATIVE_DIVISION;
 
   private final static String          ROOT_TEST_TERM_CLASSIFIER_ID = "TEST";
 
   private static String                ROOT_TEST_TERM_KEY           = null;
 
-  private static String                ORG_MOI                      = "MOI";
+  // private static String ORG_MOI = "MOI";
+
+  // public static final String TEST_KEY = "HiearchyManTest";
+
+  // public static TestOrganizationInfo moiOrg = new
+  // TestOrganizationInfo(TEST_KEY + "MOI", TEST_KEY + "MOI");
 
   protected static USATestData         testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestDataForClass();
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
 
     COUNTRY = testData.newTestGeoObjectTypeInfo("HMST_Country", testData.ORG_NPS);
     PROVINCE = testData.newTestGeoObjectTypeInfo("HMST_Province", testData.ORG_NPS);
     DISTRICT = testData.newTestGeoObjectTypeInfo("HMST_District", testData.ORG_NPS);
     VILLAGE = testData.newTestGeoObjectTypeInfo("HMST_Village", testData.ORG_NPS);
-//    HOUSEHOLD = testData.newTestGeoObjectTypeInfo("HMST_Household", testData.ORG_NPS);
-//    RIVER = testData.newTestGeoObjectTypeInfo("HMST_River", testData.ORG_NPS);
 
-    ADMINISTRATIVE_DIVISION = testData.newTestHierarchyTypeInfo("HMST_AdminDiv", testData.ORG_NPS);
-    REPORTING_DIVISION = testData.newTestHierarchyTypeInfo("HMST_ReportDiv", testData.ORG_NPS);
+    // REPORTING_DIVISION = testData.newTestHierarchyTypeInfo("HMST_ReportDiv",
+    // testData.ORG_NPS);
+    REPORTING_DIVISION = new TestHierarchyTypeInfo("HMST_ReportDiv", testData.ORG_NPS);
   }
 
   @AfterClass
@@ -142,10 +147,7 @@ public class HierarchyManagementServiceTest
     {
       testData.setUpInstanceData();
 
-      for (TestGeoObjectTypeInfo got : testData.getManagedGeoObjectTypeExtras())
-      {
-        got.delete();
-      }
+      deleteExtraMetadata();
     }
 
     setUpInRequest();
@@ -156,15 +158,26 @@ public class HierarchyManagementServiceTest
   {
     if (testData != null)
     {
-      for (TestHierarchyTypeInfo ht : testData.getManagedHierarchyTypeExtras())
-      {
-        ht.delete();
-      }
+      deleteExtraMetadata();
 
       testData.tearDownInstanceData();
     }
 
     tearDownInRequest();
+  }
+
+  private void deleteExtraMetadata()
+  {
+    // for (TestHierarchyTypeInfo ht : testData.getManagedHierarchyTypeExtras())
+    // {
+    // ht.delete();
+    // }
+    REPORTING_DIVISION.delete();
+
+    for (TestGeoObjectTypeInfo got : testData.getManagedGeoObjectTypeExtras())
+    {
+      got.delete();
+    }
   }
 
   @Request
@@ -287,7 +300,7 @@ public class HierarchyManagementServiceTest
       // try
       // {
       // MdTermRelationship mdTermRelationship =
-      // MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelUniversalKey(REPORTING_DIVISION_CODE));
+      // MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelUniversalKey(testData.HIER_ADMIN_CODE));
       // mdTermRelationship.delete();
       // }
       // catch (DataNotFoundException e)
@@ -297,7 +310,7 @@ public class HierarchyManagementServiceTest
       // try
       // {
       // MdTermRelationship mdTermRelationship =
-      // MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelGeoEntityKey(REPORTING_DIVISION_CODE));
+      // MdTermRelationship.getByKey(ServerHierarchyType.buildMdTermRelGeoEntityKey(testData.HIER_ADMIN_CODE));
       // mdTermRelationship.delete();
       // }
       // catch (DataNotFoundException e)
@@ -352,14 +365,14 @@ public class HierarchyManagementServiceTest
       catch (DataNotFoundException e)
       {
       }
-      try
-      {
-        Organization organization = Organization.getByKey(ORG_MOI);
-        organization.delete();
-      }
-      catch (DataNotFoundException e)
-      {
-      }
+      // try
+      // {
+      // Organization organization = Organization.getByKey(moiOrg.getCode());
+      // organization.delete();
+      // }
+      // catch (DataNotFoundException e)
+      // {
+      // }
     }
     catch (RuntimeException e)
     {
@@ -367,53 +380,73 @@ public class HierarchyManagementServiceTest
     }
   }
 
-  @Test
-  public void testCreateOganization()
-  {
-    OrganizationDTO orgDTOclient = this.createOrganization(ORG_MOI);
-    
-    try
-    {
-      OrganizationDTO[] orgs = service.getOrganizations(testData.adminSession.getSessionId(), new String[] { ORG_MOI });
+  // private OrganizationDTO createOrganization(String organizationCode)
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // OrganizationDTO orgDTOclient =
+  // MetadataFactory.newOrganization(organizationCode, new
+  // LocalizedValue("Ministry of Interior"), new LocalizedValue("Contact Joe
+  // at..."), registry);
+  //
+  // String gtJSON = orgDTOclient.toJSON().toString();
+  //
+  // service.createOrganization(testData.adminSession.getSessionId(), gtJSON);
+  //
+  // return orgDTOclient;
+  // }
 
-      Assert.assertEquals("Organization was not properly created", 1, orgs.length);
-
-      OrganizationDTO orgDTOserver = orgs[0];
-
-      Assert.assertEquals("Organization code was not correct", orgDTOclient.getCode(), orgDTOserver.getCode());
-      Assert.assertEquals("Organization label was not correct", orgDTOclient.getLabel().getValue(), orgDTOserver.getLabel().getValue());
-      Assert.assertEquals("Organization contact info was not correct", orgDTOclient.getContactInfo().getValue(), orgDTOserver.getContactInfo().getValue());
-    }
-    finally
-    {
-      this.deleteOrganization(ORG_MOI);
-    }
-  }
-  
-  private OrganizationDTO createOrganization(String organizationCode)
-  {
-    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-
-    OrganizationDTO orgDTOclient = MetadataFactory.newOrganization(organizationCode, new LocalizedValue("Ministry of Interior"), new LocalizedValue("Contact Joe at..."), registry);
-
-    String gtJSON = orgDTOclient.toJSON().toString();
-
-    service.createOrganization(testData.adminSession.getSessionId(), gtJSON);
-    
-    return orgDTOclient;
-  }
-  
-  private void deleteOrganization(String organizationCode)
-  {
-    service.deleteOrganization(testData.adminSession.getSessionId(), organizationCode);
-  }
+  // @Test
+  // public void testCreateOganization()
+  // {
+  // OrganizationDTO[] orgs =
+  // service.getOrganizations(testData.adminSession.getSessionId(), new String[]
+  // { moiOrg.getCode() });
+  //
+  // Assert.assertEquals("Organization was not properly created", 1,
+  // orgs.length);
+  //
+  // OrganizationDTO orgDTOserver = orgs[0];
+  //
+  // Assert.assertEquals("Organization code was not correct",
+  // orgDTOclient.getCode(), orgDTOserver.getCode());
+  // Assert.assertEquals("Organization label was not correct",
+  // orgDTOclient.getLabel().getValue(), orgDTOserver.getLabel().getValue());
+  // Assert.assertEquals("Organization contact info was not correct",
+  // orgDTOclient.getContactInfo().getValue(),
+  // orgDTOserver.getContactInfo().getValue());
+  // }
+  //
+  // private OrganizationDTO createOrganization(String organizationCode)
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // OrganizationDTO orgDTOclient =
+  // MetadataFactory.newOrganization(organizationCode, new
+  // LocalizedValue("Ministry of Interior"), new LocalizedValue("Contact Joe
+  // at..."), registry);
+  //
+  // String gtJSON = orgDTOclient.toJSON().toString();
+  //
+  // service.createOrganization(testData.adminSession.getSessionId(), gtJSON);
+  //
+  // return orgDTOclient;
+  // }
+  //
+  // private void deleteOrganization(String organizationCode)
+  // {
+  // service.deleteOrganization(testData.adminSession.getSessionId(),
+  // organizationCode);
+  // }
 
   @Test
   public void testCreateGeoObjectType()
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, registry);
 
@@ -424,44 +457,31 @@ public class HierarchyManagementServiceTest
     checkMdBusinessAttributes(PROVINCE.getCode());
     checkMdGraphAttributes(PROVINCE.getCode());
   }
-  
+
   @Test
   public void testCreateGeoObjectTypeWithOrganization()
   {
     GeoObjectType serverProvince = null;
-    
-    String organizationCode = ORG_MOI;
-    this.createOrganization(organizationCode);
-    
-    try
-    {
-      RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-      GeoObjectType clientProvince = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true,  organizationCode, registry);
+    String organizationCode = testData.ORG_NPS.getCode();
 
-      String gtJSON = clientProvince.toJSON().toString();
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-      serverProvince = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+    GeoObjectType clientProvince = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, registry);
 
-      Assert.assertEquals("Organization code was not properly returned from the server", organizationCode, serverProvince.getOrganizationCode());
-      
-      checkMdBusinessAttributes(PROVINCE.getCode());
-    }
-    finally
-    {
-      if (serverProvince != null)
-      {
-        service.deleteGeoObjectType(testData.adminSession.getSessionId(), PROVINCE.getCode());
-      }
- 
-      this.deleteOrganization(organizationCode);
-    }
+    String gtJSON = clientProvince.toJSON().toString();
+
+    serverProvince = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+
+    Assert.assertEquals("Organization code was not properly returned from the server", organizationCode, serverProvince.getOrganizationCode());
+
+    checkMdBusinessAttributes(PROVINCE.getCode());
   }
 
   @Request
   private void checkMdGraphAttributes(String code)
   {
-    MdGeoVertexDAOIF mdGraphClassDAOIF = (MdGeoVertexDAOIF)MdGeoVertexDAO.get(MdGeoVertexInfo.CLASS, GeoVertexType.buildMdGeoVertexKey(code));
+    MdGeoVertexDAOIF mdGraphClassDAOIF = (MdGeoVertexDAOIF) MdGeoVertexDAO.get(MdGeoVertexInfo.CLASS, GeoVertexType.buildMdGeoVertexKey(code));
 
     // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
     // the {@code GeoObject#OID};
@@ -514,7 +534,7 @@ public class HierarchyManagementServiceTest
       Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
     }
   }
-  
+
   @Request
   private void checkMdBusinessAttributes(String code)
   {
@@ -583,7 +603,7 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, registry);
 
@@ -616,7 +636,7 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, registry);
 
@@ -641,7 +661,7 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, registry);
 
@@ -666,7 +686,7 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, registry);
 
@@ -819,7 +839,7 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, registry);
 
@@ -870,14 +890,14 @@ public class HierarchyManagementServiceTest
     // Test updating the term
     childTerm2 = new Term("termValue2", new LocalizedValue("Term Value 2a"), new LocalizedValue(""));
 
-    service.updateTerm(testData.adminSession.getSessionId(), childTerm2.toJSON().toString());
+    service.updateTerm(testData.adminSession.getSessionId(), term.getCode(), childTerm2.toJSON().toString());
 
     province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() }, null)[0];
     AttributeTermType attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     checkTermsUpdate(attributeTermType3);
 
-    service.deleteTerm(testData.adminSession.getSessionId(), "termValue2");
+    service.deleteTerm(testData.adminSession.getSessionId(), rootTerm.getCode(), "termValue2");
 
     province = service.getGeoObjectTypes(testData.adminSession.getSessionId(), new String[] { PROVINCE.getCode() }, null)[0];
     attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
@@ -977,102 +997,126 @@ public class HierarchyManagementServiceTest
     return mdBusinessDAOIF.definesAttribute(attributeName);
   }
 
-// Heads up: clean up do we remove these tests?
-//  @Test
-//  public void testCreateGeoObjectTypePoint()
-//  {
-//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-//
-//    String organizationCode = null;
-//
-//    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(), GeometryType.POINT, new LocalizedValue("Village"), new LocalizedValue(""), true, organizationCode, registry);
-//
-//    String villageJSON = village.toJSON().toString();
-//
-//    service.createGeoObjectType(testData.adminSession.getSessionId(), villageJSON);
-//
-//    checkAttributePoint(VILLAGE.getCode());
-//  }
-//
-//  @Test
-//  public void testCreateGeoObjectTypeLine()
-//  {
-//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-//
-//    String organizationCode = null;
-//
-//    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(), GeometryType.LINE, new LocalizedValue("River"), new LocalizedValue(""), true, organizationCode, registry);
-//
-//    String riverJSON = river.toJSON().toString();
-//
-//    service.createGeoObjectType(testData.adminSession.getSessionId(), riverJSON);
-//
-//    checkAttributeLine(RIVER.getCode());
-//  }
-//
-//  @Test
-//  public void testCreateGeoObjectTypePolygon()
-//  {
-//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-//
-//    String organizationCode = null;
-//
-//    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT.getCode(), GeometryType.POLYGON, new LocalizedValue("District"), new LocalizedValue(""), true, organizationCode, registry);
-//
-//    String gtJSON = geoObjectType.toJSON().toString();
-//
-//    service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
-//
-//    checkAttributePolygon(DISTRICT.getCode());
-//  }
-//
-//  @Test
-//  public void testCreateGeoObjectTypeMultiPoint()
-//  {
-//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-//
-//    String organizationCode = null;
-//
-//    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(), GeometryType.MULTIPOINT, new LocalizedValue("Village"), new LocalizedValue(""), true, organizationCode, registry);
-//
-//    String villageJSON = village.toJSON().toString();
-//
-//    service.createGeoObjectType(testData.adminSession.getSessionId(), villageJSON);
-//
-//    checkAttributeMultiPoint(VILLAGE.getCode());
-//  }
-//
-//  @Test
-//  public void testCreateGeoObjectTypeMultiLine()
-//  {
-//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-//
-//    String organizationCode = null;
-//
-//    GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(), GeometryType.MULTILINE, new LocalizedValue("River"), new LocalizedValue(""),true, organizationCode, registry);
-//
-//    String riverJSON = river.toJSON().toString();
-//
-//    service.createGeoObjectType(testData.adminSession.getSessionId(), riverJSON);
-//
-//    checkAttributeMultiLine(RIVER.getCode());
-//  }
-//
-//  @Test
-//  public void testCreateGeoObjectTypeMultiPolygon()
-//  {
-//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-//
-//    String organizationCode = null;
-//
-//    GeoObjectType geoObjectType = MetadataFactory.newGeoObjectType(DISTRICT.getCode(), GeometryType.MULTIPOLYGON, new LocalizedValue("District"), new LocalizedValue(""), true, organizationCode, registry);
-//
-//    String gtJSON = geoObjectType.toJSON().toString();
-//
-//    service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
-//
-//    checkAttributeMultiPolygon(DISTRICT.getCode());
-//  }
+  // Heads up: clean up do we remove these tests?
+  // @Test
+  // public void testCreateGeoObjectTypePoint()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_NPS.getCode();
+  //
+  // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
+  // GeometryType.POINT, new LocalizedValue("Village"), new LocalizedValue(""),
+  // true, organizationCode, registry);
+  //
+  // String villageJSON = village.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // villageJSON);
+  //
+  // checkAttributePoint(VILLAGE.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeLine()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_NPS.getCode();
+  //
+  // GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(),
+  // GeometryType.LINE, new LocalizedValue("River"), new LocalizedValue(""),
+  // true, organizationCode, registry);
+  //
+  // String riverJSON = river.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // riverJSON);
+  //
+  // checkAttributeLine(RIVER.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypePolygon()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_NPS.getCode();
+  //
+  // GeoObjectType geoObjectType =
+  // MetadataFactory.newGeoObjectType(DISTRICT.getCode(), GeometryType.POLYGON,
+  // new LocalizedValue("District"), new LocalizedValue(""), true,
+  // organizationCode, registry);
+  //
+  // String gtJSON = geoObjectType.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+  //
+  // checkAttributePolygon(DISTRICT.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeMultiPoint()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_NPS.getCode();
+  //
+  // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
+  // GeometryType.MULTIPOINT, new LocalizedValue("Village"), new
+  // LocalizedValue(""), true, organizationCode, registry);
+  //
+  // String villageJSON = village.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // villageJSON);
+  //
+  // checkAttributeMultiPoint(VILLAGE.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeMultiLine()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_NPS.getCode();
+  //
+  // GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(),
+  // GeometryType.MULTILINE, new LocalizedValue("River"), new
+  // LocalizedValue(""),true, organizationCode, registry);
+  //
+  // String riverJSON = river.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // riverJSON);
+  //
+  // checkAttributeMultiLine(RIVER.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeMultiPolygon()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_NPS.getCode();
+  //
+  // GeoObjectType geoObjectType =
+  // MetadataFactory.newGeoObjectType(DISTRICT.getCode(),
+  // GeometryType.MULTIPOLYGON, new LocalizedValue("District"), new
+  // LocalizedValue(""), true, organizationCode, registry);
+  //
+  // String gtJSON = geoObjectType.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+  //
+  // checkAttributeMultiPolygon(DISTRICT.getCode());
+  // }
 
   @Request
   private void checkAttributePoint(String code)
@@ -1158,7 +1202,7 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, registry);
 
@@ -1180,7 +1224,6 @@ public class HierarchyManagementServiceTest
     Assert.assertEquals("Description  was not updated on a GeoObjectType", "Some Description 2", province.getDescription().getValue());
   }
 
-  
   @Test
   public void testCreateHierarchyType()
   {
@@ -1189,8 +1232,8 @@ public class HierarchyManagementServiceTest
     // newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "",
     // false, registry);
 
-    String organizationCode = null;
-    
+    String organizationCode = testData.ORG_NPS.getCode();
+
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
     String gtJSON = reportingDivision.toJSON().toString();
 
@@ -1215,71 +1258,64 @@ public class HierarchyManagementServiceTest
     String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
     Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
   }
-  
+
   @Test
   public void testCreateHierarchyTypeWithOrganization()
   {
     HierarchyType reportingDivision = null;
 
-    String organizationCode = ORG_MOI;
-    
-    this.createOrganization(organizationCode);
-    
-    try
-    {
-      RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-    
-      reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
-      String gtJSON = reportingDivision.toJSON().toString();
+    String organizationCode = testData.ORG_NPS.getCode();
 
-      ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-      HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
+    reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
+    String gtJSON = reportingDivision.toJSON().toString();
 
-      Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
+    ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
 
-      Assert.assertEquals("The wrong number of hierarchies were returned.", 1, hierarchies.length);
+    HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.adminSession.getSessionId(), new String[] { REPORTING_DIVISION.getCode() });
 
-      HierarchyType hierarchy = hierarchies[0];
+    Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
 
-      Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
-      
-      Assert.assertEquals(organizationCode, hierarchy.getOrganizationCode());
+    Assert.assertEquals("The wrong number of hierarchies were returned.", 1, hierarchies.length);
 
-      // test the types that were created
-      String mdTermRelUniversal = ServerHierarchyType.buildMdTermRelUniversalKey(reportingDivision.getCode());
-      String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
-      Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
+    HierarchyType hierarchy = hierarchies[0];
 
-      String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
-      String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
-      Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
-    }
-    finally
-    {
-      if (reportingDivision != null)
-      {
-        ServiceFactory.getHierarchyService().deleteHierarchyType(testData.adminSession.getSessionId(), REPORTING_DIVISION.getCode());
-      }
-      
-      this.deleteOrganization(organizationCode);
-    }
+    Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
+
+    Assert.assertEquals(organizationCode, hierarchy.getOrganizationCode());
+
+    // test the types that were created
+    String mdTermRelUniversal = ServerHierarchyType.buildMdTermRelUniversalKey(reportingDivision.getCode());
+    String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
+    Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
+
+    String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
+    String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
+    Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
   }
 
   @Test
   public void testUpdateHierarchyType()
   {
-    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+    // RegistryAdapterServer registry = new
+    // RegistryAdapterServer(RegistryIdService.getInstance());
 
     // newGeoObjectType(PROVINCE_CODE, GeometryType.POLYGON, "Province", "",
     // false, registry);
 
-    String organizationCode = null;
-    
-    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, registry);
+    // String organizationCode = testData.ORG_NPS.getCode();
+
+    HierarchyType reportingDivision = testData.HIER_ADMIN.toDTO();
+    // HierarchyType reportingDivision =
+    // MetadataFactory.newHierarchyType(testData.HIER_ADMIN.getCode(), new
+    // LocalizedValue("Reporting Division"), new LocalizedValue("The rporting
+    // division hieracy..."), organizationCode, registry);
     String gtJSON = reportingDivision.toJSON().toString();
 
-    reportingDivision = ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), gtJSON);
+    // reportingDivision =
+    // ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(),
+    // gtJSON);
 
     reportingDivision.setLabel(new LocalizedValue("Reporting Division 2"));
 
@@ -1299,223 +1335,175 @@ public class HierarchyManagementServiceTest
   {
     RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
 
-    String organizationCode = null;
+    String organizationCode = testData.ORG_NPS.getCode();
 
     GeoObjectType country = MetadataFactory.newGeoObjectType(COUNTRY.getCode(), GeometryType.POLYGON, new LocalizedValue("Country Test"), new LocalizedValue("Some Description"), true, organizationCode, registry);
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, registry);
+    // GeoObjectType province =
+    // MetadataFactory.newGeoObjectType(PROVINCE.getCode(),
+    // GeometryType.POLYGON, new LocalizedValue("Province Test"), new
+    // LocalizedValue("Some Description"), true, organizationCode, registry);
+    //
+    // GeoObjectType district =
+    // MetadataFactory.newGeoObjectType(DISTRICT.getCode(),
+    // GeometryType.POLYGON, new LocalizedValue("District Test"), new
+    // LocalizedValue("Some Description"), true, organizationCode, registry);
+    //
+    // GeoObjectType village =
+    // MetadataFactory.newGeoObjectType(VILLAGE.getCode(), GeometryType.POLYGON,
+    // new LocalizedValue("Village Test"), new LocalizedValue("Some
+    // Description"), true, organizationCode, registry);
 
-    GeoObjectType district = MetadataFactory.newGeoObjectType(DISTRICT.getCode(), GeometryType.POLYGON, new LocalizedValue("District Test"), new LocalizedValue("Some Description"), true, organizationCode, registry);
-
-    GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(), GeometryType.POLYGON, new LocalizedValue("Village Test"), new LocalizedValue("Some Description"), true, organizationCode, registry);
-
-    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The reporting division hieracy..."), organizationCode, registry);
-
-    HierarchyType administrativeDivision = MetadataFactory.newHierarchyType(ADMINISTRATIVE_DIVISION.getCode(), new LocalizedValue("Administrative Division"), new LocalizedValue("The administrative division hieracy..."), organizationCode, registry);
+    // HierarchyType adminHierarchy = testData.HIER_ADMIN.toDTO();
+    // HierarchyType reportingDivision =
+    // MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new
+    // LocalizedValue("Reporting Division"), new LocalizedValue("The reporting
+    // division hieracy..."), organizationCode, registry);
+    //
+    // HierarchyType administrativeDivision =
+    // MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new
+    // LocalizedValue("Administrative Division"), new LocalizedValue("The
+    // administrative division hieracy..."), organizationCode, registry);
 
     // Create the GeoObjectTypes
     String gtJSON = country.toJSON().toString();
     country = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
 
-    gtJSON = province.toJSON().toString();
-    province = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+    // gtJSON = province.toJSON().toString();
+    // province =
+    // service.createGeoObjectType(testData.adminSession.getSessionId(),
+    // gtJSON);
+    //
+    // gtJSON = district.toJSON().toString();
+    // district =
+    // service.createGeoObjectType(testData.adminSession.getSessionId(),
+    // gtJSON);
+    //
+    // gtJSON = village.toJSON().toString();
+    // village =
+    // service.createGeoObjectType(testData.adminSession.getSessionId(),
+    // gtJSON);
 
-    gtJSON = district.toJSON().toString();
-    district = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+    // String htJSON = adminHierarchy.toJSON().toString();
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(),
+    // htJSON);
 
-    gtJSON = village.toJSON().toString();
-    village = service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+    // String htJSON2 = administrativeDivision.toJSON().toString();
+    // administrativeDivision =
+    // ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(),
+    // htJSON2);
 
-    String htJSON = reportingDivision.toJSON().toString();
-    reportingDivision = ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), htJSON);
+    // Assert.assertEquals("HierarchyType \"" + testData.HIER_ADMIN.getCode() +
+    // "\" should not have any GeoObjectTypes in the hierarchy", 0,
+    // adminHierarchy.getRootGeoObjectTypes().size());
 
-    String htJSON2 = administrativeDivision.toJSON().toString();
-    administrativeDivision = ServiceFactory.getHierarchyService().createHierarchyType(testData.adminSession.getSessionId(), htJSON2);
+    HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), testData.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
 
-    Assert.assertEquals("HierarchyType \"" + REPORTING_DIVISION.getCode() + "\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
+    // Assert.assertEquals("HierarchyType \"" + testData.HIER_ADMIN.getCode() +
+    // "\" should have one root type", 2,
+    // adminHierarchy.getRootGeoObjectTypes().size());
 
-    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), Universal.ROOT, country.getCode());
+    List<HierarchyType.HierarchyNode> rootGots = adminHierarchy.getRootGeoObjectTypes();
 
-    Assert.assertEquals("HierarchyType \"" + REPORTING_DIVISION.getCode() + "\" should have one root type", 1, reportingDivision.getRootGeoObjectTypes().size());
+    for (HierarchyType.HierarchyNode node : rootGots)
+    {
+      if (node.getGeoObjectType().getCode().equals(country.getCode()))
+      {
+        return;
+      }
+    }
 
-    HierarchyType.HierarchyNode countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
-
-    Assert.assertEquals("HierarchyType \"" + REPORTING_DIVISION.getCode() + "\" should have root of type", COUNTRY.getCode(), countryNode.getGeoObjectType().getCode());
-
-    Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should have no child", 0, countryNode.getChildren().size());
-
-    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), country.getCode(), province.getCode());
-
-    countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
-
-    Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should have one child", 1, countryNode.getChildren().size());
-
-    HierarchyType.HierarchyNode provinceNode = countryNode.getChildren().get(0);
-
-    Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should have a child of type", PROVINCE.getCode(), provinceNode.getGeoObjectType().getCode());
-
-    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), province.getCode(), district.getCode());
-
-    countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
-    provinceNode = countryNode.getChildren().get(0);
-    HierarchyType.HierarchyNode districtNode = provinceNode.getChildren().get(0);
-
-    Assert.assertEquals("GeoObjectType \"" + PROVINCE.getCode() + "\" should have a child of type", DISTRICT.getCode(), districtNode.getGeoObjectType().getCode());
-
-    reportingDivision = ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), district.getCode(), village.getCode());
-
-    countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
-    provinceNode = countryNode.getChildren().get(0);
-    districtNode = provinceNode.getChildren().get(0);
-    HierarchyType.HierarchyNode villageNode = districtNode.getChildren().get(0);
-
-    Assert.assertEquals("GeoObjectType \"" + DISTRICT.getCode() + "\" should have a child of type", VILLAGE.getCode(), villageNode.getGeoObjectType().getCode());
-
-    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), district.getCode(), village.getCode());
-
-    countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
-    provinceNode = countryNode.getChildren().get(0);
-    districtNode = provinceNode.getChildren().get(0);
-
-    Assert.assertEquals("GeoObjectType \"" + DISTRICT.getCode() + "\" should have no child", 0, districtNode.getChildren().size());
-
-    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), province.getCode(), district.getCode());
-
-    countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
-    provinceNode = countryNode.getChildren().get(0);
-
-    Assert.assertEquals("GeoObjectType \"" + PROVINCE.getCode() + "\" should have no child", 0, provinceNode.getChildren().size());
-
-    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), country.getCode(), province.getCode());
-
-    countryNode = reportingDivision.getRootGeoObjectTypes().get(0);
-
-    Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should have no child", 0, countryNode.getChildren().size());
-
-    reportingDivision = ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(), reportingDivision.getCode(), Universal.ROOT, country.getCode());
-
-    Assert.assertEquals("HierarchyType \"" + REPORTING_DIVISION.getCode() + "\" should not have any GeoObjectTypes in the hierarchy", 0, reportingDivision.getRootGeoObjectTypes().size());
+    Assert.fail("We did not find the child we just added.");
+    //
+    // Assert.assertEquals("HierarchyType \"" + testData.HIER_ADMIN.getCode() +
+    // "\" should have root of type", COUNTRY.getCode(),
+    // countryNode.getGeoObjectType().getCode());
+    //
+    // Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should
+    // have no child", 0, countryNode.getChildren().size());
+    //
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(),
+    // adminHierarchy.getCode(), country.getCode(), province.getCode());
+    //
+    // countryNode = adminHierarchy.getRootGeoObjectTypes().get(0);
+    //
+    // Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should
+    // have one child", 1, countryNode.getChildren().size());
+    //
+    // HierarchyType.HierarchyNode provinceNode =
+    // countryNode.getChildren().get(0);
+    //
+    // Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should
+    // have a child of type", PROVINCE.getCode(),
+    // provinceNode.getGeoObjectType().getCode());
+    //
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(),
+    // adminHierarchy.getCode(), province.getCode(), district.getCode());
+    //
+    // countryNode = adminHierarchy.getRootGeoObjectTypes().get(0);
+    // provinceNode = countryNode.getChildren().get(0);
+    // HierarchyType.HierarchyNode districtNode =
+    // provinceNode.getChildren().get(0);
+    //
+    // Assert.assertEquals("GeoObjectType \"" + PROVINCE.getCode() + "\" should
+    // have a child of type", DISTRICT.getCode(),
+    // districtNode.getGeoObjectType().getCode());
+    //
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().addToHierarchy(testData.adminSession.getSessionId(),
+    // adminHierarchy.getCode(), district.getCode(), village.getCode());
+    //
+    // countryNode = adminHierarchy.getRootGeoObjectTypes().get(0);
+    // provinceNode = countryNode.getChildren().get(0);
+    // districtNode = provinceNode.getChildren().get(0);
+    // HierarchyType.HierarchyNode villageNode =
+    // districtNode.getChildren().get(0);
+    //
+    // Assert.assertEquals("GeoObjectType \"" + DISTRICT.getCode() + "\" should
+    // have a child of type", VILLAGE.getCode(),
+    // villageNode.getGeoObjectType().getCode());
+    //
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(),
+    // adminHierarchy.getCode(), district.getCode(), village.getCode());
+    //
+    // countryNode = adminHierarchy.getRootGeoObjectTypes().get(0);
+    // provinceNode = countryNode.getChildren().get(0);
+    // districtNode = provinceNode.getChildren().get(0);
+    //
+    // Assert.assertEquals("GeoObjectType \"" + DISTRICT.getCode() + "\" should
+    // have no child", 0, districtNode.getChildren().size());
+    //
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(),
+    // adminHierarchy.getCode(), province.getCode(), district.getCode());
+    //
+    // countryNode = adminHierarchy.getRootGeoObjectTypes().get(0);
+    // provinceNode = countryNode.getChildren().get(0);
+    //
+    // Assert.assertEquals("GeoObjectType \"" + PROVINCE.getCode() + "\" should
+    // have no child", 0, provinceNode.getChildren().size());
+    //
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(),
+    // adminHierarchy.getCode(), country.getCode(), province.getCode());
+    //
+    // countryNode = adminHierarchy.getRootGeoObjectTypes().get(0);
+    //
+    // Assert.assertEquals("GeoObjectType \"" + COUNTRY.getCode() + "\" should
+    // have no child", 0, countryNode.getChildren().size());
+    //
+    // adminHierarchy =
+    // ServiceFactory.getHierarchyService().removeFromHierarchy(testData.adminSession.getSessionId(),
+    // adminHierarchy.getCode(), Universal.ROOT, country.getCode());
+    //
+    // Assert.assertEquals("HierarchyType \"" + testData.HIER_ADMIN.getCode() +
+    // "\" should not have any GeoObjectTypes in the hierarchy", 0,
+    // adminHierarchy.getRootGeoObjectTypes().size());
   }
-
-  /**
-   * Leaf types cannot be parents in a hierarchy.
-   */
-  // Heads up: clean up
-  // @Test
-  // public void testAddToLeaf()
-  // {
-  // RegistryAdapterServer registry = new
-  // RegistryAdapterServer(RegistryIdService.getInstance());
-  //
-  // GeoObjectType province =
-  // MetadataFactory.newGeoObjectType(PROVINCE.getCode(), GeometryType.POLYGON,
-  // new LocalizedValue("Province Test"), new LocalizedValue("Some
-  // Description"), false, true, registry);
-  //
-  // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
-  // GeometryType.POINT, new LocalizedValue("Village Test"), new
-  // LocalizedValue("Some Description"), false, true, registry);
-  //
-  // GeoObjectType household =
-  // MetadataFactory.newGeoObjectType(HOUSEHOLD.getCode(), GeometryType.POINT,
-  // new LocalizedValue("Household Test"), new LocalizedValue("Some
-  // Description"), true, true, registry);
-  //
-  // HierarchyType reportingDivision =
-  // MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new
-  // LocalizedValue("Reporting Division"), new LocalizedValue("The reporting
-  // division hieracy..."), registry);
-  //
-  // // Create the GeoObjectTypes
-  // String gtJSON = province.toJSON().toString();
-  // province =
-  // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
-  //
-  // gtJSON = village.toJSON().toString();
-  // village = service.createGeoObjectType(testData.adminSession.getSessionId(),
-  // gtJSON);
-  //
-  // gtJSON = household.toJSON().toString();
-  // household =
-  // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
-  //
-  // String htJSON = reportingDivision.toJSON().toString();
-  // reportingDivision =
-  // service.createHierarchyType(testData.adminSession.getSessionId(), htJSON);
-  //
-  // reportingDivision =
-  // service.addToHierarchy(testData.adminSession.getSessionId(),
-  // reportingDivision.getCode(), Universal.ROOT, province.getCode());
-  //
-  // reportingDivision =
-  // service.addToHierarchy(testData.adminSession.getSessionId(),
-  // reportingDivision.getCode(), province.getCode(), household.getCode());
-  //
-  // try
-  // {
-  // reportingDivision =
-  // service.addToHierarchy(testData.adminSession.getSessionId(),
-  // reportingDivision.getCode(), household.getCode(), village.getCode());
-  // }
-  // catch (RuntimeException re)
-  // {
-  // String expectedMessage = "You cannot add [Village Test] to the hierarchy
-  // [Reporting Division] as a child to [Household Test] because [Village Test]
-  // is a Leaf Type.";
-  // String returnedMessage = re.getLocalizedMessage();
-  //
-  // Assert.assertEquals("Wrong error message returned when trying to add a
-  // GeoObjectType as a child to a Leaf GeoObjectType", expectedMessage,
-  // returnedMessage);
-  // }
-  // }
-  //
-  // /**
-  // * Leaf types cannot be parents in a hierarchy.
-  // */
-  // @Test
-  // public void testLeafReferenceAttributes()
-  // {
-  // RegistryAdapterServer registry = new
-  // RegistryAdapterServer(RegistryIdService.getInstance());
-  //
-  // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
-  // GeometryType.POINT, new LocalizedValue("Village Test"), new
-  // LocalizedValue("Some Description"), false, true, registry);
-  //
-  // GeoObjectType household =
-  // MetadataFactory.newGeoObjectType(HOUSEHOLD.getCode(), GeometryType.POINT,
-  // new LocalizedValue("Household Test"), new LocalizedValue("Some
-  // Description"), true, true, registry);
-  //
-  // HierarchyType reportingDivision =
-  // MetadataFactory.newHierarchyType(REPORTING_DIVISION.getCode(), new
-  // LocalizedValue("Reporting Division"), new LocalizedValue("The reporting
-  // division hieracy..."), registry);
-  //
-  // // Create the GeoObjectTypes
-  // String gtJSON = village.toJSON().toString();
-  // village = service.createGeoObjectType(testData.adminSession.getSessionId(),
-  // gtJSON);
-  //
-  // gtJSON = household.toJSON().toString();
-  // household =
-  // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
-  //
-  // String htJSON = reportingDivision.toJSON().toString();
-  // reportingDivision =
-  // service.createHierarchyType(testData.adminSession.getSessionId(), htJSON);
-  //
-  // reportingDivision =
-  // service.addToHierarchy(testData.adminSession.getSessionId(),
-  // reportingDivision.getCode(), Universal.ROOT, village.getCode());
-  // reportingDivision =
-  // service.addToHierarchy(testData.adminSession.getSessionId(),
-  // reportingDivision.getCode(), village.getCode(), household.getCode());
-  //
-  // this.checkReferenceAttribute(reportingDivision.getCode(),
-  // village.getCode(), household.getCode());
-  // }
 
   @Request
   private void checkReferenceAttribute(String hierarchyTypeCode, String parentCode, String childCode)

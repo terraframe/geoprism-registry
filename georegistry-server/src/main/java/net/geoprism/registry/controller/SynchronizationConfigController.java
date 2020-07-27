@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -40,6 +41,14 @@ public class SynchronizationConfigController
   public SynchronizationConfigController()
   {
     this.service = new SynchronizationConfigService();
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-custom-attr")
+  public ResponseIF getCustomAttributeConfiguration(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "externalId") String externalId)
+  {
+    JsonArray resp = this.service.getCustomAttributeConfiguration(request.getSessionId(), externalId, geoObjectTypeCode);
+    
+    return new RestBodyResponse(resp);
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")

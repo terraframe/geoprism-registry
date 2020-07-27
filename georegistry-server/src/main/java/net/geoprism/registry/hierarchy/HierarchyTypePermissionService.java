@@ -35,11 +35,7 @@ import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
 public class HierarchyTypePermissionService implements HierarchyTypePermissionServiceIF
 {
   /**
-   * Operation must be one of:
-   * - WRITE (Update)
-   * - READ
-   * - DELETE
-   * - CREATE
+   * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
    * 
    * @param actor
    * @param op
@@ -49,7 +45,7 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
     if (!doesActorHavePermission(actor, orgCode, op))
     {
       Organization org = Organization.getByCode(orgCode);
-      
+
       if (op.equals(Operation.WRITE))
       {
         UpdateHierarchyPermissionException ex = new UpdateHierarchyPermissionException();
@@ -76,49 +72,51 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
       }
     }
   }
-  
+
   protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
       return true;
     }
-    
+
     if (orgCode != null)
     {
       Set<RoleDAOIF> roles = actor.authorizedRoles();
-      
+
       for (RoleDAOIF role : roles)
       {
         String roleName = role.getRoleName();
-        
+
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
-          if ( RegistryRole.Type.isRA_Role(roleName) )
-          {
-            return orgCode.equals(roleOrgCode) || op.equals(Operation.READ);
-          }
-          else if ( RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ) )
+
+          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(roleOrgCode))
           {
             return true;
           }
-          else if ( (RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName)) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
+          else if (RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
+          {
+            return true;
+          }
+          else if ( ( RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
           {
             return true;
           }
         }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
+        // SRA only has the ability to see type and hierarchies, it does not
+        // have permissions to modify
+        else if (op.equals(Operation.READ) && RegistryRole.Type.isSRA_Role(roleName))
         {
           return true;
         }
       }
     }
-    
+
     return false;
   }
-  
+
   @Override
   public boolean canRead(SingleActorDAOIF actor, String orgCode)
   {
@@ -166,5 +164,5 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
   {
     this.enforceActorHasPermission(actor, orgCode, Operation.DELETE);
   }
-  
+
 }

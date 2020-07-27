@@ -65,7 +65,7 @@ public class PublishShapefileJobTest
   {
     setupOrg();
 
-    testData = USATestData.newTestDataForClass(true, new Date());
+    testData = USATestData.newTestData();
     testData.setUpMetadata();
 
     SchedulerManager.start();
@@ -183,7 +183,7 @@ public class PublishShapefileJobTest
   @Test
   public void testCreate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);

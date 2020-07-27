@@ -25,7 +25,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ConfirmModalComponent } from '../../shared/component/modals/confirm-modal.component';
 import { ErrorModalComponent } from '../../shared/component/modals/error-modal.component';
 import { LocalizationService } from '../../shared/service/localization.service';
-
+import { ErrorHandler } from '../../shared/component/error-handler/error-handler';
 import { AccountInviteComponent } from './account/account-invite.component';
 import { EmailComponent } from './email/email.component'
 import { OrganizationModalComponent } from './organization/organization-modal.component'
@@ -240,7 +240,7 @@ export class SettingsComponent implements OnInit {
 			backdrop: true,
 			ignoreBackdropClick: true,
 		});
-		bsModalRef.content.organizations = this.organizations;
+		bsModalRef.content.init(this.organizations);
 		bsModalRef.content.onSuccess.subscribe(data => {
 			this.onSystemPageChange(this.systems.pageNumber);
 		})
@@ -255,8 +255,7 @@ export class SettingsComponent implements OnInit {
 				backdrop: true,
 				ignoreBackdropClick: true,
 			});
-			bsModalRef.content.system = system;
-			bsModalRef.content.organizations = this.organizations;
+			bsModalRef.content.init(this.organizations, system);
 			bsModalRef.content.onSuccess.subscribe(data => {
 				this.onSystemPageChange(this.systems.pageNumber);
 			})
@@ -286,12 +285,8 @@ export class SettingsComponent implements OnInit {
 	/* ERROR HANDLING LOGIC */
 
 	public error(err: HttpErrorResponse): void {
-		// Handle error
-		if (err !== null) {
 			// TODO: add error modal
 			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-			this.bsModalRef.content.message = (err.error.localizedMessage || err.error.message || err.message);
-		}
-
+			this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 	}
 }

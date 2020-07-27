@@ -18,85 +18,74 @@
  */
 package net.geoprism.registry.test;
 
-import java.util.Date;
-import java.util.Locale;
-
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
-import com.runwaysdk.ClientSession;
-import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.service.RegistryService;
 
 public class USATestData extends TestDataSet
 {
   public final String                TEST_DATA_KEY    = "USATestData";
   
-  public final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(this, "NPS");
+  public final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(this.getTestDataKey() + "NPS");
   
-  public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(this, "Admin", ORG_NPS);
+  public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(this.getTestDataKey() +  "Admin", ORG_NPS);
   
-  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this, "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this, "State", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "State", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this, "County", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "County", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this, "Area", GeometryType.POLYGON, ORG_NPS);
+  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Area", GeometryType.POLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this, "District", GeometryType.POINT, ORG_NPS);
+  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "District", GeometryType.POINT, ORG_NPS);
 
-  public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(this, "USA", COUNTRY);
+  public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(this.getTestDataKey() +  "USA", COUNTRY);
 
-  public final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo(this, "Colorado", STATE);
+  public final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo(this.getTestDataKey() +  "Colorado", STATE);
 
-  public final TestGeoObjectInfo     CO_D_ONE         = new TestGeoObjectInfo(this, "ColoradoDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoDistrictOne", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo(this, "ColoradoDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoDistrictTwo", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(this, "ColoradoDistrictThree", DISTRICT, TestDataSet.WKT_DEFAULT_POINT, DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, true);
+  public final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoDistrictThree", DISTRICT, TestDataSet.WKT_DEFAULT_POINT, DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, true);
 
-  public final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(this, "ColoradoCountyOne", COUNTY);
+  public final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoCountyOne", COUNTY);
 
-  public final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(this, "ColoradoAreaOne", AREA);
+  public final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoAreaOne", AREA);
 
-  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this, "Washington", STATE, "MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))", DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
+  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this.getTestDataKey() +  "Washington", STATE, "MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))", DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
 
-  public final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(this, "WashingtonDistrictOne", DISTRICT);
+  public final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "WashingtonDistrictOne", DISTRICT);
 
-  public final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(this, "WashingtonDistrictTwo", DISTRICT);
+  public final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(this.getTestDataKey() +  "WashingtonDistrictTwo", DISTRICT);
 
-  public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(this, "CANADA", COUNTRY);
+  public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(this.getTestDataKey() +  "CANADA", COUNTRY);
 
   /**
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
 
-  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(this, "Mexico_City_GOT", ORG_NPS);
+  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Mexico_City_GOT", ORG_NPS);
 
-  public final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(this, "Mexico_State_GOT", ORG_NPS);
+  public final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Mexico_State_GOT", ORG_NPS);
 
-  public final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(this, "Mexico", COUNTRY);
+  public final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico", COUNTRY);
 
-  public final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(this, "Mexico City One", MEXICO_CITY_GOT);
+  public final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico City One", MEXICO_CITY_GOT);
 
-  public final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(this, "Mexico City Two", MEXICO_CITY_GOT);
+  public final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico City Two", MEXICO_CITY_GOT);
 
-  public final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(this, "Mexico State One", MEXICO_STATE);
+  public final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico State One", MEXICO_STATE);
 
-  public final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(this, "Mexico State Two", MEXICO_STATE);
-
-  private Date                       date;
+  public final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico State Two", MEXICO_STATE);
 
   {
     managedOrganizationInfos.add(ORG_NPS);
@@ -129,85 +118,11 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(MEXICO_STATE_ONE);
     managedGeoObjectInfos.add(MEXICO_STATE_TWO);
   }
-
-  public static USATestData newTestDataForClass()
-  {
-    return newTestDataForClass(true);
-  }
-
-  public static USATestData newTestDataForClass(Boolean includeData)
-  {
-    return newTestDataForClass(includeData, null);
-  }
-
-  public static USATestData newTestDataForClass(Boolean includeData, Date date)
-  {
-    LocalProperties.setSkipCodeGenAndCompile(true);
-    GeoserverFacade.setService(new NullGeoserverService());
-
-    TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
-
-    USATestData data = new USATestData(adapter, includeData, date);
-
-    return data;
-  }
-
+  
   public static USATestData newTestData()
   {
-    return USATestData.newTestData(true);
+    return new USATestData();
   }
-
-  @Request
-  public static USATestData newTestData(boolean includeData)
-  {
-    return USATestData.newTestData(includeData, null);
-  }
-
-  @Request
-  public static USATestData newTestData(boolean includeData, Date date)
-  {
-    LocalProperties.setSkipCodeGenAndCompile(true);
-    GeoserverFacade.setService(new NullGeoserverService());
-
-    TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
-
-    USATestData data = new USATestData(adapter, includeData, date);
-    // data.setDebugMode(2);
-    data.setUp();
-
-    RegistryService.getInstance().refreshMetadataCache();
-
-    adapter.setClientRequest(data.adminClientRequest);
-    adapter.refreshMetadataCache();
-
-    try
-    {
-      adapter.getIdService().populate(1000);
-    }
-    catch (Exception e)
-    {
-      throw new RuntimeException(e);
-    }
-
-    return data;
-  }
-
-  public USATestData(TestRegistryAdapterClient adapter, boolean includeData, Date date)
-  {
-    this.adapter = adapter;
-    this.includeData = includeData;
-    this.date = date;
-  }
-
-//  @Transaction
-//  @Override
-//  protected void setUpMetadataInTrans()
-//  {
-//    for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
-//    {
-//      uni.apply();
-//    }
-//  }
 
   @Transaction
   @Override
@@ -225,83 +140,30 @@ public class USATestData extends TestDataSet
 
   @Transaction
   @Override
-  protected void setUpTestInTrans()
-  {
-    if (this.includeData)
-    {
-      for (TestGeoObjectInfo geo : managedGeoObjectInfos)
-      {
-        geo.apply(this.date);
-      }
-    }
-
-    adminSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
-    adminClientRequest = adminSession.getRequest();
-  }
-
-  @Transaction
-  @Override
   public void setUpRelationships()
   {
-    if (this.includeData)
-    {
-      USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
+    USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
-      USA.addChild(COLORADO, HIER_ADMIN);
-      COLORADO.addChild(CO_D_ONE, HIER_ADMIN);
-      COLORADO.addChild(CO_D_TWO, HIER_ADMIN);
-      COLORADO.addChild(CO_D_THREE, HIER_ADMIN);
-      COLORADO.addChild(CO_C_ONE, HIER_ADMIN);
-      CO_C_ONE.addChild(CO_A_ONE, HIER_ADMIN);
+    USA.addChild(COLORADO, HIER_ADMIN);
+    COLORADO.addChild(CO_D_ONE, HIER_ADMIN);
+    COLORADO.addChild(CO_D_TWO, HIER_ADMIN);
+    COLORADO.addChild(CO_D_THREE, HIER_ADMIN);
+    COLORADO.addChild(CO_C_ONE, HIER_ADMIN);
+    CO_C_ONE.addChild(CO_A_ONE, HIER_ADMIN);
 
-      USA.addChild(WASHINGTON, HIER_ADMIN);
-      WASHINGTON.addChild(WA_D_ONE, HIER_ADMIN);
-      WASHINGTON.addChild(WA_D_TWO, HIER_ADMIN);
+    USA.addChild(WASHINGTON, HIER_ADMIN);
+    WASHINGTON.addChild(WA_D_ONE, HIER_ADMIN);
+    WASHINGTON.addChild(WA_D_TWO, HIER_ADMIN);
 
-      MEXICO.addChild(MEXICO_STATE_ONE, HIER_ADMIN);
-      MEXICO.addChild(MEXICO_STATE_TWO, HIER_ADMIN);
-      MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, HIER_ADMIN);
-      MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, HIER_ADMIN);
-    }
-  }
-
-  @Transaction
-  @Override
-  protected void setUpAfterApply()
-  {
-    if (this.includeData)
-    {
-      for (TestGeoObjectInfo geo : managedGeoObjectInfos)
-      {
-        geo.apply(this.date);
-      }
-    }
-  }
-
-  @Transaction
-  @Override
-  public void cleanUpClassInTrans()
-  {
-    // if (STATE.getUniversal() != null && DISTRICT.getUniversal() != null)
-    // {
-    // ServerHierarchyType hierarchyType =
-    // ServerHierarchyType.get(LocatedIn.class.getSimpleName());
-    // hierarchyType.removeParentReferenceToLeafType(STATE.getUniversal(),
-    // DISTRICT.getUniversal());
-    // }
-
-    super.cleanUpClassInTrans();
+    MEXICO.addChild(MEXICO_STATE_ONE, HIER_ADMIN);
+    MEXICO.addChild(MEXICO_STATE_TWO, HIER_ADMIN);
+    MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, HIER_ADMIN);
+    MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, HIER_ADMIN);
   }
 
   @Override
   public String getTestDataKey()
   {
     return TEST_DATA_KEY;
-  }
-
-  @Request
-  public void refreshTerms(AttributeTermType attribute)
-  {
-    attribute.setRootTerm(new TermConverter(TermConverter.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
   }
 }

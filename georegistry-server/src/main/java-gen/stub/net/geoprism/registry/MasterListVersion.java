@@ -582,6 +582,9 @@ public class MasterListVersion extends MasterListVersionBase
       job.delete();
     }
 
+    // Delete tile cache
+    TileCache.deleteTiles(this);
+
     MasterListAttributeGroup.deleteAll(this);
 
     MdBusiness mdTable = this.getMdBusiness();
@@ -665,6 +668,9 @@ public class MasterListVersion extends MasterListVersionBase
 
     try
     {
+      // Delete tile cache
+      TileCache.deleteTiles(this);
+
       MasterList masterlist = this.getMasterlist();
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
@@ -874,6 +880,9 @@ public class MasterListVersion extends MasterListVersionBase
   public void publishRecord(ServerGeoObjectIF object)
   {
     object.setDate(this.getForDate());
+
+    // Delete tile cache
+    TileCache.deleteTiles(this);
 
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();

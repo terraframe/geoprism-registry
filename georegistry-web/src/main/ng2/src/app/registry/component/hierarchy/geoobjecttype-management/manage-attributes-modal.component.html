@@ -1,5 +1,5 @@
 <div class="modal-body">
-    <error-message [message]="message"></error-message>
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
     <form #form="ngForm" *ngIf="geoObjectType" class="modal-form" (ngSubmit)="form.valid">
         <div class="heading">
