@@ -15,7 +15,7 @@
                 <ul class="breadcrumb">
                   <li *ngIf="current != null">
                     <!-- <i class="fa fa-angle-left breadcrumb-back-ico" aria-hidden="true"></i> -->
-                    <a (click)="back(null)" style="color: #007276;">Root</a>
+                    <a (click)="back(null)" style="color: #007276;"><localize key="explorer.root.label"></localize></a>
                   </li>
                   <li *ngFor="let entity of breadcrumbs; last as isLast" [ngClass]="{'active':isLast}">
                     <a *ngIf="!isLast" (click)="back(entity)" style="color: #007276;"> {{entity.properties.displayLabel.localizedValue}}</a>
@@ -30,7 +30,9 @@
             <div class="row">
               <div class="col-md-12">
                 <div class="location-management-widget-section">
-                  <label>Date</label>
+                  <label>
+                    <localize key="explorer.date.label"></localize>
+                  </label>
                   <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
                 </div>
               </div>
@@ -53,7 +55,9 @@
             <div class="row">
               <div class="col-md-12">
                 <div class="location-management-widget-section">
-                  <label>Hierarchy</label>
+                  <label>
+                    <localize key="explorer.hierarchy.label"></localize>
+                  </label>
                   <select id="hierarchy" name="hierarchy" class="select-area" [(ngModel)]="hierarchy" (change)="refresh()"  required>
                     <option></option>
                     <option *ngFor="let hierarchy of data.hierarchies" [value]="hierarchy.code">{{hierarchy.label.localizedValue}}</option>
@@ -65,7 +69,9 @@
             <div class="row">
               <div class="col-md-12">
                 <div class="location-management-widget-section">
-                  <label>Hierarchy Branch</label>
+                  <label>
+                    <localize key="explorer.hierarchy.branch.label"></localize>
+                  </label>
                   <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="childType" (change)="refresh()" required>
                     <option></option>
                     <option *ngFor="let type of data.types" [value]="type.code">{{type.label.localizedValue}}</option>
@@ -114,13 +120,15 @@
         <div class="row">
           
           <article class="base-layer-panel">
-            <div class="layer-toggle" (mouseenter)="baselayerIconHover = true" (mouseleave)="baselayerIconHover = true">
+            <div class="layer-toggle" (mouseenter)="baselayerIconHover = true" (mouseleave)="baselayerIconHover = false">
               
               <i class="fa fa-bars" *ngIf="!baselayerIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
               <div *ngIf="baselayerIconHover">
 
                 <div style="margin-bottom: 10px;">
-                  <h4>Base Layers</h4>
+                  <h4>
+                    <localize key="explorer.base.layers.label"></localize>
+                  </h4>
                   <div class="row-form" *ngFor="let baseLayer of baseLayers">
                     <input class="layer-toggle-input" type='radio' name='rtoggle' [value]='baseLayer.id' [checked]="baseLayer.selected" (change)="handleBasemapStyle(baseLayer)"> 
                     <label class="layer-toggle-label">{{baseLayer.label}}</label>
@@ -128,10 +136,12 @@
                 </div>
 
                 <div *ngIf="hasEnabledContextLayers()">
-                  <h4>Context Layers</h4>
+                  <h4>
+                    <localize key="explorer.context.layers.label"></localize>
+                  </h4>
                   <div class="list-group">
-                    <div *ngFor="let cLayerGroup of contextLayerGroups;" class="list-group-item" style="border:none;">
-                      <div *ngIf="groupHasEnabledContextLayers(cLayerGroup.oid)">
+                    <div *ngFor="let cLayerGroup of contextLayerGroups;" >
+                      <div *ngIf="groupHasEnabledContextLayers(cLayerGroup.oid)" class="list-group-item" style="border:none;">
                         <label>{{ cLayerGroup.displayLabel }}</label>
                         <div class="list-group">
                           <div *ngFor="let cLayer of cLayerGroup.contextLayers">

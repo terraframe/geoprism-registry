@@ -26,6 +26,17 @@ export class ContextLayerModalComponent {
         this.onSubmit = new Subject();
     }
 
+    groupHasContextLayers(group:string): boolean {
+		let hasCLayers = false;
+		this.contextLayerGroups.forEach(cLayerGroup => {
+			if(cLayerGroup.oid === group && cLayerGroup.contextLayers.length > 0){
+				hasCLayers = true;
+			}
+		});
+		
+		return hasCLayers;
+	}
+
     confirm(): void {
         this.onSubmit.next( this.contextLayerGroups );
         this.bsModalRef.hide();

@@ -1,7 +1,7 @@
 <div class="modal-body">
     <div class="heading">
         <h2>
-            <!-- <localize key="export-modal.title"></localize> -->
+            <localize key="explorer.add.context.layers.modal.title"></localize>
         </h2>
     </div>
 
@@ -10,14 +10,16 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="list-group">
-                        <div *ngFor="let cLayerGroup of contextLayerGroups;" class="list-group-item">
-                            {{ cLayerGroup.displayLabel }}
-                            <div class="list-group">
-                                <div *ngFor="let cLayer of cLayerGroup.contextLayers" class="list-group-item">
-                                    <input type="checkbox" [checked]="cLayer.enabled" (change)="cLayer.enabled = !cLayer.enabled" > {{ cLayer.displayLabel }}
-                                    
-                                    <!-- <boolean-field [(value)]="cLayer.enabled" [label]="cLayer.displayLabel"></boolean-field> -->
-                                    
+                        <div *ngFor="let cLayerGroup of contextLayerGroups;" >
+                            <div *ngIf="groupHasContextLayers(cLayerGroup.oid)" class="list-group-item" style="border: none;">
+                                <h4>{{ cLayerGroup.displayLabel }}</h4>
+                                <div class="list-group">
+                                    <div *ngFor="let cLayer of cLayerGroup.contextLayers">
+                                        <input type="checkbox" [checked]="cLayer.enabled" (change)="cLayer.enabled = !cLayer.enabled" style="margin-left: 10px;"> {{ cLayer.displayLabel }}
+                                        
+                                        <!-- <boolean-field [(value)]="cLayer.enabled" [label]="cLayer.displayLabel"></boolean-field> -->
+                                        
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -31,14 +33,12 @@
                         <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button"
                             aria-disabled="false">
                             <span>
-                                <!-- <localize key="modal.button.cancel"></localize> -->
-                                Cancel
+                                <localize key="modal.button.cancel"></localize>
                             </span>
                         </button>
                         <button type="button" (click)="confirm()" class="btn btn-primary" role="button">
                             <span>
-                                <!-- <localize key="modal.button.submit"></localize> -->
-                                Submit
+                                <localize key="modal.button.submit"></localize>
                             </span>
                         </button>
                     </div>
