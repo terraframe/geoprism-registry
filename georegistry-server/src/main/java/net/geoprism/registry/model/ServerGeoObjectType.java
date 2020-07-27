@@ -36,6 +36,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
@@ -700,13 +701,21 @@ public class ServerGeoObjectType
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
-        // Note: Ordered ancestors always includes self
-        Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, this.getUniversal(), sType.getUniversalType());
-
-        if (parents.size() > 1)
+        if (this.isRoot(sType))
         {
           hierarchies.add(sType);
         }
+        else
+        {
+          // Note: Ordered ancestors always includes self
+          Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, this.getUniversal(), sType.getUniversalType());
+
+          if (parents.size() > 1)
+          {
+            hierarchies.add(sType);
+          }
+        }
+
       }
 
     }
@@ -729,6 +738,25 @@ public class ServerGeoObjectType
     }
 
     return hierarchies;
+  }
+
+  public boolean isRoot(ServerHierarchyType sType)
+  {
+    HierarchyType ht = sType.getType();
+    List<HierarchyNode> nodes = ht.getRootGeoObjectTypes();
+
+    for (HierarchyNode node : nodes)
+    {
+      GeoObjectType root = node.getGeoObjectType();
+
+      if (root.getCode().equals(this.type.getCode()))
+      {
+        return true;
+      }
+    }
+
+    // TODO Auto-generated method stub
+    return false;
   }
 
   /**

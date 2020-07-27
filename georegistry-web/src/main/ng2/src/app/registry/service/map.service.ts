@@ -15,6 +15,9 @@ export class MapService {
 	}
 
 	roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
+
+		console.log(hierarchyCode);
+
 		let params: HttpParams = new HttpParams();
 
 		if (typeCode != null) {
@@ -22,7 +25,11 @@ export class MapService {
 		}
 
 		if (hierarchyCode != null) {
-			params = params.set('hierarchyCode', typeCode);
+			params = params.set('hierarchyCode', hierarchyCode);
+		}
+
+		if (date != null) {
+			params = params.set('date', date);
 		}
 
 		return this.http

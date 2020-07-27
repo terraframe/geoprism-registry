@@ -54,7 +54,8 @@
               <div class="col-md-12">
                 <div class="location-management-widget-section">
                   <label>Hierarchy</label>
-                  <select id="hierarchy" name="hierarchy" class="select-area" [(ngModel)]="data.hierarchy" required>
+                  <select id="hierarchy" name="hierarchy" class="select-area" [(ngModel)]="hierarchy" (change)="refresh()"  required>
+                    <option></option>
                     <option *ngFor="let hierarchy of data.hierarchies" [value]="hierarchy.code">{{hierarchy.label.localizedValue}}</option>
                   </select>
                 </div>
@@ -65,7 +66,8 @@
               <div class="col-md-12">
                 <div class="location-management-widget-section">
                   <label>Hierarchy Branch</label>
-                  <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="data.childType" required>
+                  <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="childType" (change)="refresh()" required>
+                    <option></option>
                     <option *ngFor="let type of data.types" [value]="type.code">{{type.label.localizedValue}}</option>
                   </select>
                 </div>

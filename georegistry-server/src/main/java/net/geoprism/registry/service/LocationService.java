@@ -228,18 +228,24 @@ public class LocationService
 
     if (nodes.size() > 0)
     {
+      /*
+       * If a typeCode is given and it is an option based on the hierarchy than
+       * use that type otherwise use the first type code
+       */
 
-      ServerGeoObjectType type = null;
+      HierarchyNode first = nodes.get(0);
 
-      if ( ( typeCode == null || typeCode.length() == 0 ) && nodes.size() > 0)
+      ServerGeoObjectType type = ServerGeoObjectType.get(first.getGeoObjectType());
+
+      if (typeCode != null && typeCode.length() > 0)
       {
-        HierarchyNode node = nodes.get(0);
-
-        type = ServerGeoObjectType.get(node.getGeoObjectType());
-      }
-      else
-      {
-        type = ServerGeoObjectType.get(typeCode);
+        for (HierarchyNode node : nodes)
+        {
+          if (node.getGeoObjectType().getCode().equals(typeCode))
+          {
+            type = ServerGeoObjectType.get(typeCode);
+          }
+        }
       }
 
       if (type != null)
@@ -288,13 +294,24 @@ public class LocationService
     List<ServerGeoObjectType> childTypes = type.getChildren(hierarchy);
     ServerGeoObjectType childType = null;
 
-    if ( ( childTypeCode == null || childTypeCode.length() == 0 ) && childTypes.size() > 0)
+    if (childTypes.size() > 0)
     {
+      /*
+       * If a typeCode is given and it is an option based on the hierarchy than
+       * use that type otherwise use the first type code
+       */
       childType = childTypes.get(0);
-    }
-    else if (! ( childTypeCode == null || childTypeCode.length() == 0 ))
-    {
-      childType = ServerGeoObjectType.get(childTypeCode);
+
+      if (childTypeCode != null && childTypeCode.length() > 0)
+      {
+        for (ServerGeoObjectType child : childTypes)
+        {
+          if (child.getCode().equals(childTypeCode))
+          {
+            childType = child;
+          }
+        }
+      }
     }
 
     if (childType != null)

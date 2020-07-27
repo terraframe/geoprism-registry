@@ -17,6 +17,7 @@ import { ContextLayerModalComponent } from './context-layer-modal.component';
 
 import { MapService } from '../../service/map.service';
 import { RegistryService } from '../../service/registry.service';
+import { timeout } from 'rxjs/operators';
 
 declare var acp: string;
 
@@ -35,8 +36,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	data: LocationInformation = {
 		types: [],
 		hierarchies: [],
-		geojson: { type: 'MultiPolygon', features: [] }
+		geojson: { type: 'MultiPolygon', features: [] },
 	};
+
+	childType: string = null;
+	hierarchy: string = null;
 
     /*
      * Date of data for explorer
@@ -80,7 +84,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			sprite: 'mapbox://sprites/mapbox/satellite-v9',
 			url: 'mapbox://mapbox.satellite',
 			selected: true
-		}, 
+		},
 		// {
 		// 	name: 'Streets',
 		// 	label: 'Streets',
@@ -106,7 +110,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
 	subject: Subject<MapboxEvent<MouseEvent | TouchEvent | WheelEvent>>;
 
-	constructor(private localizeService: LocalizationService, private modalService: BsModalService, private mapService: MapService, public service: RegistryService) {
+	constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService) {
 	}
 
 	ngOnInit(): void {
@@ -137,7 +141,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 					"mapbox": {
 						"type": "raster",
 						"url": layer.url,
-					    "tileSize": 256
+						"tileSize": 256
 					}
 				},
 				"sprite": layer.sprite,
@@ -162,12 +166,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	}
 
-	convertListsToContextLayers(lists: MasterList[]): void{
-		lists.forEach(list =>{
-			let thisList = {oid: list.oid, displayLabel:list.displayLabel.localizedValue, contextLayers:[]};
+	convertListsToContextLayers(lists: MasterList[]): void {
+		lists.forEach(list => {
+			let thisList = { oid: list.oid, displayLabel: list.displayLabel.localizedValue, contextLayers: [] };
 			this.contextLayerGroups.push(thisList);
 			list.versions.forEach(version => {
-				let thisContextLayer = {oid: version.oid, displayLabel: version.forDate, active: false, enabled: false};
+				let thisContextLayer = { oid: version.oid, displayLabel: version.forDate, active: false, enabled: false };
 				thisList.contextLayers.push(thisContextLayer);
 			});
 		});
@@ -190,7 +194,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.refresh();
 
 		// Add zoom and rotation controls to the map.
-		this.map.addControl(new NavigationControl({'visualizePitch': true}));
+		this.map.addControl(new NavigationControl({ 'visualizePitch': true }));
 		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
 
 		this.map.on('dblclick', 'children-points', (event: any) => {
@@ -268,7 +272,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		this.contextLayerGroups.forEach(cLayerGroup => {
 			cLayerGroup.contextLayers.forEach(cLayer => {
-				if(cLayer.enabled){
+				if (cLayer.enabled) {
 					this.addVectorLayer(cLayer.oid);
 				}
 			});
@@ -277,21 +281,24 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	refresh(): void {
+		console.log(this.hierarchy);
 
 		if (this.current == null) {
-			this.mapService.roots(null, null, this.dateStr).then(data => {
+			this.mapService.roots(this.childType, this.hierarchy, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
-				this.data = data;
+				this.setData(data);
 			});
 		} else {
-			this.mapService.select(this.current.properties.code, this.current.properties.type, this.data.childType, this.data.hierarchy, this.dateStr).then(data => {
+			this.mapService.select(this.current.properties.code, this.current.properties.type, this.childType, this.hierarchy, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
-				this.data = data;
+
+				this.setData(data);
 			});
 		}
-
+		this.hierarchy = null;
+		this.childType = null;
 	}
 
 	handleBasemapStyle(layer: any): void {
@@ -371,15 +378,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	// }
 
 	addContextLayerModal(): void {
-		this.bsModalRef = this.modalService.show( ContextLayerModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-            'class': 'context-layer-modal'
-		} );
+		this.bsModalRef = this.modalService.show(ContextLayerModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+			'class': 'context-layer-modal'
+		});
 		this.bsModalRef.content.contextLayerGroups = this.contextLayerGroups;
 
-        ( <ContextLayerModalComponent>this.bsModalRef.content ).onSubmit.subscribe( cLayerGroups => {
+		(<ContextLayerModalComponent>this.bsModalRef.content).onSubmit.subscribe(cLayerGroups => {
 
 			// cLayerGroups.forEach(cLayerGroup => {
 			// 	cLayerGroup.contextLayers.forEach(cLayer => {
@@ -387,7 +394,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			// 	});
 			// })
 
-        });
+		});
 	}
 
 	highlightMapFeature(id: string): void {
@@ -480,15 +487,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 
 	drillDown(node: GeoObject): void {
-		this.mapService.select(node.properties.code, node.properties.type, null, null, this.dateStr).then(data => {
+		this.mapService.select(node.properties.code, node.properties.type, null, this.hierarchy, this.dateStr).then(data => {
 			this.current = node;
 
 			this.addBreadcrumb(node);
 
 			(<any>this.map.getSource('children')).setData(data.geojson);
 
-			this.data = data;
+			this.setData(data);
 		});
+
+		this.hierarchy = null;
+		this.childType = null;
 	}
 
 	addBreadcrumb(node: GeoObject): void {
@@ -501,7 +511,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	back(node: GeoObject): void {
 
 		if (node != null) {
-			this.mapService.select(node.properties.code, node.properties.type, null, this.data.hierarchy, this.dateStr).then(data => {
+			this.mapService.select(node.properties.code, node.properties.type, null, this.hierarchy, this.dateStr).then(data => {
 				var indexOf = this.breadcrumbs.findIndex(i => i.properties.code === node.properties.code);
 
 				this.current = node;
@@ -509,19 +519,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
-				this.data = data;
+				this.setData(data);
 			});
 		}
 		else if (this.breadcrumbs.length > 0) {
 			this.mapService.roots(null, null, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
-				this.data = data;
+				this.setData(data);
 
 				this.current = null;
 				this.breadcrumbs = [];
 			});
 		}
+
+		this.hierarchy = null;
+		this.childType = null;
 	}
 
 	expand(node: GeoObject) {
@@ -536,19 +549,26 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		})
 	}
 
+	setData(data: LocationInformation): void {
+		this.data = data;
 
-	groupHasEnabledContextLayers(group:string): boolean {
+		this.hierarchy = data.hierarchy;
+		this.childType = data.childType;
+	}
+
+
+	groupHasEnabledContextLayers(group: string): boolean {
 		let hasEnabled = false;
 		this.contextLayerGroups.forEach(cLayerGroup => {
-			if(cLayerGroup.oid === group){
+			if (cLayerGroup.oid === group) {
 				cLayerGroup.contextLayers.forEach(cLayer => {
-					if(cLayer.enabled){
+					if (cLayer.enabled) {
 						hasEnabled = true;
 					}
 				});
 			}
 		});
-		
+
 		return hasEnabled;
 	}
 
@@ -556,12 +576,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		let hasEnabled = false;
 		this.contextLayerGroups.forEach(cLayerGroup => {
 			cLayerGroup.contextLayers.forEach(cLayer => {
-				if(cLayer.enabled){
+				if (cLayer.enabled) {
 					hasEnabled = true;
 				}
 			});
 		});
-		
+
 		return hasEnabled;
 	}
 
@@ -582,14 +602,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		this.contextLayerGroups.forEach(cLayerGroup => {
 			cLayerGroup.contextLayers.forEach(cLayer => {
-				if(cLayer.oid === source){
+				if (cLayer.oid === source) {
 
 					// WARNING: the boolean component returns the value already switched (false --> true). 
 					// I'm reversing that value here so the logic below is more intuitive.
 					// cLayer.active = !cLayer.active 
 					//
 
-					if(cLayer.active){
+					if (cLayer.active) {
 						this.map.removeLayer(source + "-points");
 						this.map.removeLayer(source + "-polygon");
 						this.map.removeLayer(source + "-label");
@@ -597,9 +617,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 						cLayer.active = false;
 					}
-					else{
+					else {
 						this.addVectorLayer(source);
-						
+
 						cLayer.active = true;
 					}
 				}
@@ -609,7 +629,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	addVectorLayer(source: string): void {
 		const prevLayer = 'children-points';
-		
+
 		// console.log(navigator.language.toLowerCase());
 
 		var protocol = window.location.protocol;
