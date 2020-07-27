@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -664,39 +664,9 @@ public class MasterList extends MasterListBase
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-      Set<RoleDAOIF> roles = actor.authorizedRoles();
-
-      Organization organization = this.getOrganization();
       ServerGeoObjectType type = this.getGeoObjectType();
 
-      String thisOrgCode = organization.getCode();
-
-      String rmRoleName = RegistryRole.Type.getRM_RoleName(thisOrgCode, type.getCode());
-
-      for (RoleDAOIF role : roles)
-      {
-        String roleName = role.getRoleName();
-
-        if (RegistryRole.Type.isRA_Role(roleName))
-        {
-          String orgCode = RegistryRole.Type.parseOrgCode(roleName);
-
-          if (orgCode.equals(thisOrgCode))
-          {
-            return true;
-          }
-        }
-        else if (RegistryRole.Type.isSRA_Role(roleName))
-        {
-          return true;
-        }
-        else if (rmRoleName.equals(roleName))
-        {
-          return true;
-        }
-      }
-
-      return false;
+      return ServiceFactory.getGeoObjectPermissionService().canWrite(actor, type.getOrganization().getCode(), type.getCode());
     }
 
     return true;
