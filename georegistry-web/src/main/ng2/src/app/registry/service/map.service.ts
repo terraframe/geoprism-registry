@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
+import * as mapboxgl from 'mapbox-gl';
 
 import { LocationInformation } from '../model/location-manager';
+import { EventService } from '../../shared/service/event.service';
 
-import * as mapboxgl from 'mapbox-gl';
 
 declare var acp: any;
 
 @Injectable()
 export class MapService {
 
-	constructor(private http: HttpClient) {
+	constructor(private http: HttpClient, private eventService: EventService) {
 		(mapboxgl as any).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNWE5bWkwazYwNGFtb3loOGxsbjR1In0.ZNEwT-pBnGookEb-BF_jQQ';
 	}
 
 	roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
-
-		console.log(hierarchyCode);
 
 		let params: HttpParams = new HttpParams();
 
@@ -32,8 +32,13 @@ export class MapService {
 			params = params.set('date', date);
 		}
 
+		this.eventService.start();
+
 		return this.http
 			.get<LocationInformation>(acp + '/registrylocation/roots', { params: params })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
 			.toPromise();
 	}
 
@@ -54,8 +59,13 @@ export class MapService {
 			params = params.set('hierarchyCode', hierarchyCode);
 		}
 
+		this.eventService.start();
+
 		return this.http
 			.get<LocationInformation>(acp + '/registrylocation/select', { params: params })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
 			.toPromise();
 	}
 
