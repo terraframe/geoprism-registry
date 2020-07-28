@@ -45,11 +45,6 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
 
         this.registryService.getOrganizations().then(orgs => {
         
-          if (orgs.length === 1)
-          {
-            this.geoObjectType.organizationCode = orgs[0].code;
-          }
-          
           // Filter out organizations they're not RA's of
           this.organizations = [];
           
@@ -59,6 +54,11 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
             {
               this.organizations.push(orgs[i]);
             }
+          }
+          
+          if (this.organizations.length === 1)
+          {
+            this.geoObjectType.organizationCode = this.organizations[0].code;
           }
           
         }).catch((err: HttpErrorResponse) => {

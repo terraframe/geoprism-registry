@@ -31,11 +31,13 @@
         <label for="organization">
           <localize key="attribute.organization.label"></localize>
         </label>
-        <select [disabled]="edit || readOnly" class="select-area" name="organization"
+        <select *ngIf="!edit && organizations.length > 1" [disabled]="edit || readOnly" class="select-area" name="organization"
           [(ngModel)]="hierarchyType.organizationCode" required>
           <option></option>
           <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
         </select>
+        <span *ngIf="!edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
+        <span *ngIf="edit" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
       </div>
 
       <div class="row">
