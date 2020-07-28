@@ -50,7 +50,7 @@ public class CambodiaTestDataset extends TestDataSet
   
   public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo("AdminDivisions", "Administrative Divisions", ORG_CENTRAL);
   
-  public final TestHierarchyTypeInfo HIER_MOH       = new TestHierarchyTypeInfo("MinistryOfHealth", "Ministry Of Health", ORG_CENTRAL);
+  public final TestHierarchyTypeInfo HIER_MOH       = new TestHierarchyTypeInfo("MinistryOfHealth", "Ministry Of Health", ORG_MOH);
   
   public final TestGeoObjectTypeInfo GOT_Country          = new TestGeoObjectTypeInfo("Country", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
 
@@ -180,7 +180,7 @@ public class CambodiaTestDataset extends TestDataSet
     
     Classifier cBuddhism = new Classifier();
     cBuddhism.setClassifierId("Buddhism");
-    cBuddhism.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cBuddhism.setClassifierPackage(cReligion.getKey());
     cBuddhism.getDisplayLabel().setDefaultValue("Buddhism");
     cBuddhism.apply();
     
@@ -190,7 +190,7 @@ public class CambodiaTestDataset extends TestDataSet
     
     Classifier cIslam = new Classifier();
     cIslam.setClassifierId("Islam");
-    cIslam.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cIslam.setClassifierPackage(cReligion.getKey());
     cIslam.getDisplayLabel().setDefaultValue("Islam");
     cIslam.apply();
     
@@ -200,7 +200,7 @@ public class CambodiaTestDataset extends TestDataSet
     
     Classifier cChristianity = new Classifier();
     cChristianity.setClassifierId("Christianity");
-    cChristianity.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cChristianity.setClassifierPackage(cReligion.getKey());
     cChristianity.getDisplayLabel().setDefaultValue("Christianity");
     cChristianity.apply();
     
@@ -210,7 +210,7 @@ public class CambodiaTestDataset extends TestDataSet
     
     Classifier cOther = new Classifier();
     cOther.setClassifierId("Other");
-    cOther.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    cOther.setClassifierPackage(cReligion.getKey());
     cOther.getDisplayLabel().setDefaultValue("Other");
     cOther.apply();
     

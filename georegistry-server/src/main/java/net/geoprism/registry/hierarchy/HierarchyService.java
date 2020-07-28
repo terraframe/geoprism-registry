@@ -140,7 +140,6 @@ public class HierarchyService
 
     for (ServerHierarchyType hierarchy : hierarchies)
     {
-      // TODO : This only makes sense for the GeoObjectEditor usecase
       Organization organization = hierarchy.getOrganization();
 
       if (!service.canViewChild(actor, organization.getCode(), null, geoObject.getType().getCode()))

@@ -79,9 +79,9 @@ public class GeoObjectRelationshipPermissionService implements GeoObjectRelation
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-          if (RegistryRole.Type.isRA_Role(roleName))
+          if (RegistryRole.Type.isRA_Role(roleName) && (orgCode.equals(roleOrgCode) || op.equals(Operation.READ_CHILD)))
           {
-            return orgCode.equals(roleOrgCode) || op.equals(Operation.READ_CHILD);
+            return true;
           }
           else if (RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(roleOrgCode))
           {
