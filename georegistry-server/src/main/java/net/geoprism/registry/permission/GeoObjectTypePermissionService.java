@@ -95,9 +95,9 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-          if (RegistryRole.Type.isRA_Role(roleName))
+          if (RegistryRole.Type.isRA_Role(roleName) && (orgCode.equals(roleOrgCode) || op.equals(Operation.READ)))
           {
-            return orgCode.equals(roleOrgCode) || op.equals(Operation.READ);
+            return true;
           }
           else if (op.equals(Operation.READ))
           {
@@ -105,7 +105,10 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
             {
               if (context != null && context.equals(PermissionContext.WRITE))
               {
-                return orgCode.equals(roleOrgCode);
+                if (orgCode.equals(roleOrgCode))
+                {
+                  return true;
+                }
               }
               else
               {

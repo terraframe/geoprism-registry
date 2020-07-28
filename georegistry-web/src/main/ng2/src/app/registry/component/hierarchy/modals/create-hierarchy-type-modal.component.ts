@@ -45,11 +45,6 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
         
         this.registryService.getOrganizations().then(orgs => {
         
-          if (!this.edit && orgs.length === 1)
-          {
-            this.hierarchyType.organizationCode = orgs[0].code;
-          }
-          
           // Filter out organizations they're not RA's of, unless we're readOnly.
           if (!this.readOnly)
           {
@@ -66,6 +61,11 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
           else
           {
             this.organizations = orgs;
+          }
+          
+          if (!this.edit && this.organizations.length === 1)
+          {
+            this.hierarchyType.organizationCode = this.organizations[0].code;
           }
           
         }).catch((err: HttpErrorResponse) => {
