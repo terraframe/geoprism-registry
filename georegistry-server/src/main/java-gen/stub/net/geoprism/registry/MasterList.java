@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -383,12 +383,14 @@ public class MasterList extends MasterListBase
 
       object.addProperty(MasterList.OID, this.getOid());
       object.addProperty(MasterList.ORGANIZATION, org.getOid());
-      object.addProperty("admin", this.doesActorHavePermission());
+      object.addProperty("admin", this.doesActorHaveWritePermission());
+      object.addProperty("read", this.doesActorHaveReadPermission());
     }
     else
     {
       object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
       object.addProperty("admin", false);
+      object.addProperty("read", false);
     }
 
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
@@ -642,7 +644,7 @@ public class MasterList extends MasterListBase
 
   public void enforceActorHasPermission(Operation op)
   {
-    if (!doesActorHavePermission())
+    if (!doesActorHaveWritePermission())
     {
       if (op.equals(Operation.CREATE))
       {
@@ -659,7 +661,7 @@ public class MasterList extends MasterListBase
     }
   }
 
-  public boolean doesActorHavePermission()
+  public boolean doesActorHaveWritePermission()
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
@@ -667,6 +669,19 @@ public class MasterList extends MasterListBase
       ServerGeoObjectType type = this.getGeoObjectType();
 
       return ServiceFactory.getGeoObjectPermissionService().canWrite(actor, type.getOrganization().getCode(), type.getCode());
+    }
+
+    return true;
+  }
+
+  public boolean doesActorHaveReadPermission()
+  {
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+      ServerGeoObjectType type = this.getGeoObjectType();
+
+      return ServiceFactory.getGeoObjectPermissionService().canRead(actor, type.getOrganization().getCode(), type.getCode());
     }
 
     return true;
