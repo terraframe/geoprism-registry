@@ -24,7 +24,7 @@ NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem
 
 ### REST API Documentation
 The CGR implements the CGR REST API specification which is a supporting opensrouce project.
-* <a href="https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/" target="_blank">CGR REST Specification Docs</a>
+* <a href="https://terraframe.github.io/common-geo-registry-specification-rest-api-documentation/" target="_blank">CGR REST Specification Docs</a>
 
 ## Contributing 
 For information about contributing (tickets or code) to this project see the [contributing section](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md)
