@@ -53,6 +53,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
+import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -546,9 +547,8 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
-  public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_HIERARCHIES) String hierarchies)
+  public ResponseIF getGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_TYPES) String types, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_GET_ALL_PARAM_HIERARCHIES) String hierarchies, @RequestParamter(name = "context") String context)
   {
-
     String[] aTypes = null;
     if (types != null)
     {
@@ -573,7 +573,9 @@ public class RegistryController
       }
     }
 
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes, aHierarchies);
+    PermissionContext pContext = PermissionContext.get(context);
+
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes, aHierarchies, pContext);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray jarray = new JsonArray();
@@ -598,7 +600,7 @@ public class RegistryController
   // Heads up: Cleanup includeLeafTypes parameter
   public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeLeafTypes") Boolean includeLeafTypes)
   {
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null);
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.WRITE);
 
     Arrays.sort(gots, new Comparator<GeoObjectType>()
     {
@@ -687,7 +689,7 @@ public class RegistryController
    *          retrieved.
    */
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_GET_ALL)
-  public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String types)
+  public ResponseIF getHierarchyTypes(ClientRequestIF request, @RequestParamter(name = "types") String types, @RequestParamter(name = "context") String context)
   {
     String[] aTypes = null;
     if (types != null)
@@ -701,7 +703,9 @@ public class RegistryController
       }
     }
 
-    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), aTypes);
+    PermissionContext pContext = PermissionContext.get(context);
+
+    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), aTypes, pContext);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray jarray = new JsonArray();
@@ -888,8 +892,8 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "init")
   public ResponseIF init(ClientRequestIF request)
   {
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null);
-    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null);
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.READ);
+    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray types = new JsonArray();

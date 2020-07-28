@@ -33,12 +33,10 @@ import org.junit.Test;
 
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.constants.CommonProperties;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.conversion.RegistryRoleConverter;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;

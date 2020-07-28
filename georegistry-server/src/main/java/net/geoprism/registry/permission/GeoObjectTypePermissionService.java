@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.geoobjecttype;
+package net.geoprism.registry.permission;
 
 import java.util.Set;
 
@@ -42,7 +42,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
    */
   public void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotLabel, Operation op)
   {
-    if (!this.doesActorHavePermission(actor, orgCode, op))
+    if (!this.doesActorHavePermission(actor, orgCode, op, null))
     {
       Organization org = Organization.getByCode(orgCode);
 
@@ -76,7 +76,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
     }
   }
 
-  protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op)
+  protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op, PermissionContext context)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
@@ -99,9 +99,19 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
           {
             return orgCode.equals(roleOrgCode) || op.equals(Operation.READ);
           }
-          else if (op.equals(Operation.READ) && orgCode.equals(roleOrgCode) && ( RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isRM_Role(roleName) ))
+          else if (op.equals(Operation.READ))
           {
-            return true;
+            if ( ( RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ))
+            {
+              if (context != null && context.equals(PermissionContext.WRITE))
+              {
+                return orgCode.equals(roleOrgCode);
+              }
+              else
+              {
+                return true;
+              }
+            }
           }
         }
         // SRA only has the ability to see type and hierarchies, it does not
@@ -117,9 +127,9 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   }
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, String orgCode)
+  public boolean canRead(SingleActorDAOIF actor, String orgCode, PermissionContext context)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.READ);
+    return this.doesActorHavePermission(actor, orgCode, Operation.READ, context);
   }
 
   @Override
@@ -131,7 +141,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   @Override
   public boolean canWrite(SingleActorDAOIF actor, String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.WRITE);
+    return this.doesActorHavePermission(actor, orgCode, Operation.WRITE, null);
   }
 
   @Override
@@ -143,7 +153,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   @Override
   public boolean canCreate(SingleActorDAOIF actor, String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.CREATE);
+    return this.doesActorHavePermission(actor, orgCode, Operation.CREATE, null);
   }
 
   @Override
@@ -155,7 +165,7 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   @Override
   public boolean canDelete(SingleActorDAOIF actor, String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.DELETE);
+    return this.doesActorHavePermission(actor, orgCode, Operation.DELETE, null);
   }
 
   @Override

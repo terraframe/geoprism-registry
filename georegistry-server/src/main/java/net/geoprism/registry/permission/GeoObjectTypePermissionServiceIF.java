@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.geoobjecttype;
+package net.geoprism.registry.permission;
 
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
@@ -24,7 +24,7 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 public interface GeoObjectTypePermissionServiceIF
 {
 
-  public boolean canRead(SingleActorDAOIF actor, String orgCode);
+  public boolean canRead(SingleActorDAOIF actor, String orgCode, PermissionContext context);
 
   public void enforceCanRead(SingleActorDAOIF actor, String orgCode, String gotLabel);
 

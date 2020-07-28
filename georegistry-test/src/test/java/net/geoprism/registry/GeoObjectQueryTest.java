@@ -20,16 +20,6 @@ package net.geoprism.registry;
 
 import java.util.List;
 
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.query.postgres.CodeRestriction;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.LookupRestriction;
-import net.geoprism.registry.query.postgres.OidRestrction;
-import net.geoprism.registry.query.postgres.SynonymRestriction;
-import net.geoprism.registry.query.postgres.UidRestriction;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.test.USATestData;
-
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.junit.After;
@@ -43,6 +33,16 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Synonym;
+
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.query.postgres.CodeRestriction;
+import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.postgres.LookupRestriction;
+import net.geoprism.registry.query.postgres.OidRestrction;
+import net.geoprism.registry.query.postgres.SynonymRestriction;
+import net.geoprism.registry.query.postgres.UidRestriction;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectQueryTest
 {

@@ -39,8 +39,8 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.geoobjecttype.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**

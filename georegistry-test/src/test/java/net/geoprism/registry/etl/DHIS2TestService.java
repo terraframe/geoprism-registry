@@ -24,7 +24,6 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
-import net.geoprism.dhis2.dhis2adapter.response.model.Option;
 import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
 
 public class DHIS2TestService implements DHIS2ServiceIF

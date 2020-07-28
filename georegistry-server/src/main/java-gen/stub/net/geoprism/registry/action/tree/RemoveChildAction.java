@@ -29,12 +29,12 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.geoobject.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class RemoveChildAction extends RemoveChildActionBase

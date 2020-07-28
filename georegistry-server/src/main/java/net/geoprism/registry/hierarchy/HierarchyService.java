@@ -38,10 +38,12 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.geoobject.GeoObjectRelationshipPermissionServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.GeoObjectRelationshipPermissionServiceIF;
+import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -64,7 +66,7 @@ public class HierarchyService
     {
       ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
-      if (pService.canRead(user, hierarchyType.getOrganizationCode()))
+      if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
       {
         // Note: Ordered ancestors always includes self
         Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
@@ -109,7 +111,7 @@ public class HierarchyService
 
       for (HierarchyType hierarchyType : hierarchyTypes)
       {
-        if (pService.canRead(user, hierarchyType.getOrganizationCode()))
+        if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
         {
           JsonObject object = new JsonObject();
           object.addProperty("code", hierarchyType.getCode());
@@ -157,11 +159,12 @@ public class HierarchyService
    * @param sessionId
    * @param codes
    *          codes of the {@link HierarchyType}s.
+   * @param context
    * @return the {@link HierarchyType}s with the given codes or all
    *         {@link HierarchyType}s if no codes are provided.
    */
   @Request(RequestType.SESSION)
-  public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes)
+  public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes, PermissionContext context)
   {
     List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
 
@@ -192,7 +195,7 @@ public class HierarchyService
 
       Organization org = Organization.getByCode(ht.getOrganizationCode());
 
-      if (!ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode()))
+      if (!ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), context))
       {
         it.remove();
       }

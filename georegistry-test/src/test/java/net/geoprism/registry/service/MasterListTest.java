@@ -44,7 +44,6 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.Roles;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;

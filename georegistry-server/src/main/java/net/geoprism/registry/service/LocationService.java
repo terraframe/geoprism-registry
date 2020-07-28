@@ -30,13 +30,14 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.controller.GeoObjectEditorControllerNoOverTime;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.view.LocationInformation;
 
 public class LocationService
@@ -211,7 +212,7 @@ public class LocationService
     LocationInformation information = new LocationInformation();
 
     HierarchyService hService = ServiceFactory.getHierarchyService();
-    HierarchyType[] hierarchies = hService.getHierarchyTypes(sessionId, null);
+    HierarchyType[] hierarchies = hService.getHierarchyTypes(sessionId, null, PermissionContext.READ);
 
     ServerHierarchyType hierarchy = null;
 

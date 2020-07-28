@@ -22,19 +22,20 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 
 import net.geoprism.registry.AdapterUtilities;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
-import net.geoprism.registry.geoobject.GeoObjectPermissionServiceIF;
-import net.geoprism.registry.geoobject.GeoObjectRelationshipPermissionService;
-import net.geoprism.registry.geoobject.GeoObjectRelationshipPermissionServiceIF;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.geoobjecttype.GeoObjectTypePermissionService;
-import net.geoprism.registry.geoobjecttype.GeoObjectTypePermissionServiceIF;
-import net.geoprism.registry.geoobjecttype.GeoObjectTypeRelationshipPermissionService;
-import net.geoprism.registry.geoobjecttype.GeoObjectTypeRelationshipPermissionServiceIF;
 import net.geoprism.registry.hierarchy.HierarchyService;
-import net.geoprism.registry.hierarchy.HierarchyTypePermissionService;
-import net.geoprism.registry.hierarchy.HierarchyTypePermissionServiceIF;
-import net.geoprism.registry.organization.OrganizationPermissionService;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.permission.GeoObjectRelationshipPermissionService;
+import net.geoprism.registry.permission.GeoObjectRelationshipPermissionServiceIF;
+import net.geoprism.registry.permission.GeoObjectTypePermissionService;
+import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
+import net.geoprism.registry.permission.GeoObjectTypeRelationshipPermissionService;
+import net.geoprism.registry.permission.GeoObjectTypeRelationshipPermissionServiceIF;
+import net.geoprism.registry.permission.HierarchyTypePermissionService;
+import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.permission.OrganizationPermissionService;
+import net.geoprism.registry.permission.RolePermissionService;
 
 public class ServiceFactory
 {

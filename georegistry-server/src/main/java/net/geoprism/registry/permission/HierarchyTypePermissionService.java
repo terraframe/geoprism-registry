@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.hierarchy;
+package net.geoprism.registry.permission;
 
 import java.util.Set;
 
@@ -40,9 +40,9 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
    * @param actor
    * @param op
    */
-  protected void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, Operation op)
+  public void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, Operation op)
   {
-    if (!doesActorHavePermission(actor, orgCode, op))
+    if (!doesActorHavePermission(actor, orgCode, op, null))
     {
       Organization org = Organization.getByCode(orgCode);
 
@@ -73,7 +73,7 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
     }
   }
 
-  protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op)
+  public boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op, PermissionContext context)
   {
     if (actor == null) // null actor is assumed to be SYSTEM
     {
@@ -96,13 +96,19 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
           {
             return true;
           }
-          else if (RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
+          else if (op.equals(Operation.READ))
           {
-            return true;
-          }
-          else if ( ( RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ) && orgCode.equals(roleOrgCode) && op.equals(Operation.READ))
-          {
-            return true;
+            if ( ( RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ))
+            {
+              if (context != null && context.equals(PermissionContext.WRITE))
+              {
+                return orgCode.equals(roleOrgCode);
+              }
+              else
+              {
+                return true;
+              }
+            }
           }
         }
         // SRA only has the ability to see type and hierarchies, it does not
@@ -118,9 +124,9 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
   }
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, String orgCode)
+  public boolean canRead(SingleActorDAOIF actor, String orgCode, PermissionContext context)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.READ);
+    return this.doesActorHavePermission(actor, orgCode, Operation.READ, context);
   }
 
   @Override
@@ -132,7 +138,7 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
   @Override
   public boolean canWrite(SingleActorDAOIF actor, String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.WRITE);
+    return this.doesActorHavePermission(actor, orgCode, Operation.WRITE, null);
   }
 
   @Override
@@ -144,7 +150,7 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
   @Override
   public boolean canCreate(SingleActorDAOIF actor, String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.CREATE);
+    return this.doesActorHavePermission(actor, orgCode, Operation.CREATE, null);
   }
 
   @Override
@@ -156,7 +162,7 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
   @Override
   public boolean canDelete(SingleActorDAOIF actor, String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.DELETE);
+    return this.doesActorHavePermission(actor, orgCode, Operation.DELETE, null);
   }
 
   @Override

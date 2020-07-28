@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -63,9 +63,10 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.hierarchy.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType
@@ -191,7 +192,7 @@ public class ServerHierarchyType
   public void delete()
   {
     deleteInTrans();
-    
+
     if (Session.getCurrentSession() != null)
     {
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -200,18 +201,18 @@ public class ServerHierarchyType
     // No error at this point so the transaction completed successfully.
     ServiceFactory.getAdapter().getMetadataCache().removeHierarchyType(this.getCode());
   }
-  
+
   @Transaction
   private void deleteInTrans()
   {
- // They can't delete it if there's existing data
+    // They can't delete it if there's existing data
     Universal root = Universal.getRoot();
     OIterator<? extends Business> it = root.getChildren(this.getUniversalRelationship().definesType());
     if (it.hasNext())
     {
       throw new ObjectHasDataException();
     }
-    
+
     Universal.getStrategy().shutdown(this.universalRelationship.definesType());
 
     AttributeHierarchy.deleteByRelationship(this.universalRelationship);
@@ -398,12 +399,12 @@ public class ServerHierarchyType
   private void removeFromHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     ServerGeoObjectType parentType = null;
-    
+
     if (parentGeoObjectTypeCode != null)
     {
       parentType = ServerGeoObjectType.get(parentGeoObjectTypeCode);
     }
-    
+
     ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
     ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
@@ -419,7 +420,7 @@ public class ServerHierarchyType
 
     // Universal child = childType.getUniversal();
     Universal parent = null;
-    
+
     if (parentGeoObjectTypeCode != null)
     {
       parent = parentType.getUniversal();
@@ -646,7 +647,7 @@ public class ServerHierarchyType
     // Filter out what they're not allowed to see
 
     lHt.forEach(ht -> {
-      if (service.canRead(Session.getCurrentSession().getUser(), organization.getCode()))
+      if (service.canRead(Session.getCurrentSession().getUser(), organization.getCode(), PermissionContext.WRITE))
       {
         list.add(ServerHierarchyType.get(ht));
       }

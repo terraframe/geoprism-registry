@@ -77,7 +77,6 @@ import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.geoobject.GeoObjectPermissionService;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
 import net.geoprism.registry.model.GeoObjectMetadata;
@@ -86,6 +85,8 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
@@ -446,13 +447,15 @@ public class RegistryService
    * @param sessionId
    * @param codes
    *          codes of the {@link GeoObjectType}s.
+   * @param context
+   *          TODO
    * @return the {@link GeoObjectType}s with the given codes or all
    *         {@link GeoObjectType}s if no codes are provided.
    */
   @Request(RequestType.SESSION)
-  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, String[] hierarchies)
+  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, String[] hierarchies, PermissionContext context)
   {
-    List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes, hierarchies);
+    List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes, hierarchies, context);
 
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }
