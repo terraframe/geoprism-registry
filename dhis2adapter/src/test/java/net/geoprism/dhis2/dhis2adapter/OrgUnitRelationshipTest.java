@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -41,19 +42,13 @@ public class OrgUnitRelationshipTest
 {
   private DHIS2Bridge facade;
   
-  @Before
-  public void setUp()
-  {
-    HTTPConnector connector = new HTTPConnector();
-    connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
-    connector.setServerUrl(Constants.DHIS2_URL);
-    
-    facade = new DHIS2Bridge(connector, Constants.API_VERSION);
-  }
-  
   @Test
   public void testMetadataPost() throws Exception
   {
+    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/2.31.9/metadataPost-OrgUnitChangeParent.json"), "UTF-8");
+    
+    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    
     // This payload changes the parent of OU_559 (Ngelehun CHC) from Badjia (OU_539) to Baoma (OU_540)
     final String payload = "{\n" + 
         "  \"organisationUnits\": [\n" + 
