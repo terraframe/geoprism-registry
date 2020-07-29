@@ -13,7 +13,8 @@
 		"noImplicitAny": false,
 		"suppressImplicitAnyIndexErrors": true,
 		"types": [
-			"node"
+			"node",
+			"jasmine"
 		],
 		"typeRoots": [
 			"./node_modules/@types"
@@ -21,7 +22,6 @@
 	},
 	"exclude": [
 		"node_modules/*",
-		"aot/*",
-		"app/*-aot.ts"
+		"aot/*"
 	]
 }

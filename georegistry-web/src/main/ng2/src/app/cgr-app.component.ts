@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 
-declare var acp: any;
-
 @Component({
   
   selector: 'cgr-app',
