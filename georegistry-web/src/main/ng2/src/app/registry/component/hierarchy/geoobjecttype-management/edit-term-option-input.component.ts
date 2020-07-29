@@ -77,7 +77,14 @@ export class EditTermOptionInputComponent implements OnInit {
 	handleOnSubmit(): void {
 
 		this.registryService.updateAttributeTermTypeOption(this.attribute.rootTerm.code, this.termOption).then(data => {
-			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageTermOption, "attribute": this.attribute, "termOption": data })
+			// Update the term definition on the attribute
+			const index = this.attribute.rootTerm.children.findIndex(t => t.code === data.code);
+
+			if (index !== -1) {
+				this.attribute.rootTerm.children[index] = data;
+			}
+
+			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageTermOption, "attribute": this.attribute, "termOption": null })
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -95,11 +102,11 @@ export class EditTermOptionInputComponent implements OnInit {
 	}
 
 	cancel(): void {
-		this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute": this.attribute, "termOption": "" })
+		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageTermOption, "attribute": this.attribute, "termOption": null })
 	}
 
-    error( err: HttpErrorResponse ): void {
-            this.message = ErrorHandler.getMessageFromError(err);
-    }
+	error(err: HttpErrorResponse): void {
+		this.message = ErrorHandler.getMessageFromError(err);
+	}
 
 }

@@ -319,7 +319,8 @@ export class MasterList {
 	frequency: string;
 	isMaster: boolean;
 	visibility: string;
-	admin: boolean;
+	admin?: boolean;
+	read?: boolean;
 	versions?: MasterListVersion[]
 }
 
