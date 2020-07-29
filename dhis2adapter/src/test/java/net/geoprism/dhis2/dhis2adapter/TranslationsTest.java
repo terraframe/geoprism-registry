@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -45,21 +46,14 @@ import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
  */
 public class TranslationsTest
 {
-  private DHIS2Bridge facade;
-  
-  @Before
-  public void setUp()
-  {
-    HTTPConnector connector = new HTTPConnector();
-    connector.setCredentials(Constants.USERNAME, Constants.PASSWORD);
-    connector.setServerUrl(Constants.DHIS2_URL);
-    
-    facade = new DHIS2Bridge(connector, Constants.API_VERSION);
-  }
-  
   @Test
   public void testMetadataPost() throws Exception
   {
+    String file = "{\"importParams\":{\"userOverrideMode\":\"NONE\",\"importMode\":\"VALIDATE\",\"identifier\":\"UID\",\"preheatMode\":\"REFERENCE\",\"importStrategy\":\"CREATE_AND_UPDATE\",\"atomicMode\":\"ALL\",\"mergeMode\":\"REPLACE\",\"flushMode\":\"AUTO\",\"skipSharing\":false,\"skipTranslation\":false,\"skipValidation\":false,\"metadataSyncImport\":false,\"username\":\"admin\"},\"status\":\"OK\",\"typeReports\":[{\"klass\":\"org.hisp.dhis.organisationunit.OrganisationUnit\",\"stats\":{\"created\":0,\"updated\":1,\"deleted\":0,\"ignored\":0,\"total\":1}}],\"stats\":{\"created\":0,\"updated\":1,\"deleted\":0,\"ignored\":0,\"total\":1}}";
+    
+    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    
+    
     // Change some localization of Sierra Leone using the meatadata api.
     final String payload = "{\n" + 
         "  \"organisationUnits\": [\n" + 
@@ -88,7 +82,5 @@ public class TranslationsTest
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
     MetadataImportResponse resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
-    
-    System.out.println(resp.getResponse());
   }
 }

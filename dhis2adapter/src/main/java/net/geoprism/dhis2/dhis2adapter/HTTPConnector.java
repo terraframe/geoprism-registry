@@ -67,10 +67,9 @@ import org.slf4j.LoggerFactory;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
-public class HTTPConnector
+public class HTTPConnector implements ConnectorIF
 {
   CloseableHttpClient client;
   

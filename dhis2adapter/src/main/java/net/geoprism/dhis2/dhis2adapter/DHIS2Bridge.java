@@ -43,11 +43,11 @@ public class DHIS2Bridge
 {
   private String version;
   
-  private HTTPConnector connector;
+  private ConnectorIF connector;
   
   Dhis2IdCache idCache;
   
-  public DHIS2Bridge(HTTPConnector connector, String version)
+  public DHIS2Bridge(ConnectorIF connector, String version)
   {
     this.connector = connector;
     this.version = version;
@@ -204,7 +204,7 @@ public class DHIS2Bridge
       url = url + ".json";
     }
     
-    return new DHIS2ImportResponse(connector.httpPut("api/" + version + "/" + url, params, body));
+    return new DHIS2ImportResponse(connector.httpPost("api/" + version + "/" + url, params, body));
   }
   
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
