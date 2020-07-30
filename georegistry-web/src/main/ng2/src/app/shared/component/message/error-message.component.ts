@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 
 @Component( {
     selector: 'error-message',

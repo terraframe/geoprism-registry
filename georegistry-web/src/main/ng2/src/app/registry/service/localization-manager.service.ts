@@ -21,7 +21,7 @@ import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 // import 'rxjs/add/operator/toPromise';
 
-import { EventService } from '@shared/service/event.service';
+import { EventService } from '@shared/service';
 
 import { AllLocaleInfo } from '@registry/model/localization-manager';
 

@@ -23,11 +23,10 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { Application } from '@shared/model/application';
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { SessionService } from '@shared/service/session.service';
+import { SessionService } from '@shared/service';
 import { HubService } from '@core/service/hub.service';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 import { LoginHeaderComponent } from './login-header.component';
 

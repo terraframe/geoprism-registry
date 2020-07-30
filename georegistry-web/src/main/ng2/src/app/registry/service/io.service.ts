@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { ImportConfiguration, Synonym, Location, Term } from '@registry/model/io';
-import { EventService } from '@shared/service/event.service';
+import { EventService } from '@shared/service';
 
 declare var acp: string;
 

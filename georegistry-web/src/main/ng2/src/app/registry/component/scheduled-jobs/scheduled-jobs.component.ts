@@ -3,17 +3,15 @@ import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
+import { interval } from 'rxjs';
 
-import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
 
 import { RegistryService, IOService  } from '@registry/service';
-import { LocalizationService } from '@shared/service/localization.service';
-import { AuthService } from '@shared/service/auth.service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { ScheduledJob, ScheduledJobOverview, PaginationPage } from '@registry/model/registry';
-import { ModalTypes } from '@shared/model/modal';
 
-import { interval } from 'rxjs';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
+import { ModalTypes } from '@shared/model/modal';
 
 @Component({
 	selector: 'scheduled-jobs',

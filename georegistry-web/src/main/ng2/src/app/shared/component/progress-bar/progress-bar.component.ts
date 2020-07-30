@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Progress } from '@shared/model/progress';
-import { ProgressService, IProgressListener } from '@shared/service/progress.service';
+import { ProgressService, IProgressListener } from '@shared/service';
 
 @Component({
   

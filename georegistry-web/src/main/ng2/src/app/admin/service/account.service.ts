@@ -23,7 +23,7 @@ import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 // import 'rxjs/add/operator/toPromise';
 import { finalize } from 'rxjs/operators';
 
-import { EventService } from '@shared/service/event.service'
+import { EventService } from '@shared/service'
 
 import { Account, User, UserInvite } from '@admin/model/account';
 

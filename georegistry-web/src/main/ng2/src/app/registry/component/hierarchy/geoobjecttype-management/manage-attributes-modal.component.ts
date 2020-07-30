@@ -3,11 +3,10 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+
 import { StepConfig,ModalTypes } from '@shared/model/modal';
-import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
-import { ModalStepIndicatorService } from '@shared/service/modal-step-indicator.service';
-import { LocalizationService } from '@shared/service/localization.service';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
+import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
 
 import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '@registry/model/registry';
 import { RegistryService, GeoObjectTypeManagementService, HierarchyService } from '@registry/service';

@@ -3,14 +3,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
 import { ChangeRequest, AbstractAction, AddChildAction, SetParentAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from '@registry/model/crtable';
 
 import { ChangeRequestService } from '@registry/service';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 @Component( {
 

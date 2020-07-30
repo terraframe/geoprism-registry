@@ -3,7 +3,7 @@ import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 
 import { ChangeRequest, AbstractAction } from '@registry/model/crtable';
-import { EventService } from '@shared/service/event.service';
+import { EventService } from '@shared/service';
 import { GeoObject } from '@registry/model/registry';
 
 declare var acp: any;

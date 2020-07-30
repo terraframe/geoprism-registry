@@ -23,13 +23,13 @@ import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 
 import { Observable } from 'rxjs';
 
 
-import { EventService } from '@shared/service/event.service';
+import { EventService } from '@shared/service';
 import { SystemLogoService } from '@admin/service/system-logo.service';
 import { SystemLogo } from '@admin/model/system-logo';
 

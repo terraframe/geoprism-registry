@@ -23,7 +23,7 @@ import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 import { Email } from '@admin/model/email';
 import { EmailService } from '@admin/service/email.service';
 

@@ -4,13 +4,9 @@ import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
-import { AuthService } from '@shared/service/auth.service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-import { SuccessModalComponent } from '@shared/component/modals/success-modal.component';
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-
-import { LocalizationService } from '@shared/service/localization.service';
+import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
 
 declare var acp: string;
 

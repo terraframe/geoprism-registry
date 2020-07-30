@@ -3,10 +3,9 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 
-import { LocalizationService } from '@shared/service/localization.service';
 import { ModalTypes } from '@shared/model/modal';
-import { EventService } from '@shared/service/event.service'
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { LocalizationService, EventService } from '@shared/service';
+import { ErrorHandler } from '@shared/component';
 
 import { ScheduledJob } from '@registry/model/registry';
 

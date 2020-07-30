@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 
 @Component({
 	selector: 'success-modal',

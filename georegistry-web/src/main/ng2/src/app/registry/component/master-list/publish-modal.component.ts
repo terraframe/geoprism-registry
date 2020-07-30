@@ -4,11 +4,10 @@ import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListByOrg } from '@registry/model/registry';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
-
 import { RegistryService, IOService } from '@registry/service';
-import { AuthService } from '@shared/service/auth.service';
-import { LocalizationService } from '@shared/service/localization.service';
+
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
 
 @Component({
 	selector: 'publish-modal',

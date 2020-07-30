@@ -12,9 +12,9 @@ import {
 import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from '@registry/model/registry';
 
 import { RegistryService, IOService } from '@registry/service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-import { LocalizationService } from '@shared/service/localization.service';
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService } from '@shared/service';
 
 import Utils from '../../utility/Utils';
 

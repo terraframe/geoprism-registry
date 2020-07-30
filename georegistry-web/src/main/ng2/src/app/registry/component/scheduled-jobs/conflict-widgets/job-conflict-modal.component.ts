@@ -3,12 +3,12 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { ScheduledJobOverview } from '@registry/model/registry';
 
 import { RegistryService, IOService } from '@registry/service';
 
-import { LocalizationService } from '@shared/service/localization.service';
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService } from '@shared/service';
 
 @Component( {
     selector: 'job-conflict-modal',

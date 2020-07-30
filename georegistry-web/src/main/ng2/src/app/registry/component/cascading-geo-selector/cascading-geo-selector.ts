@@ -8,8 +8,7 @@ import { HierarchyOverTime } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
 import { ManageParentVersionsModalComponent } from './manage-parent-versions-modal.component';
 
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 @Component( {
 

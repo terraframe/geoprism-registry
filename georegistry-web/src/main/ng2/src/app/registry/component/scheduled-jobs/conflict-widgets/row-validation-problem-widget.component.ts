@@ -1,19 +1,18 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+
 import { GeoObjectType, MasterList, ScheduledJob } from '@registry/model/registry';
-
+import { RegistryService, IOService } from '@registry/service';
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
-
 import Utils from '../../../utility/Utils'
 
-import { RegistryService, IOService } from '@registry/service';
-import { LocalizationService } from '@shared/service/localization.service';
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService } from '@shared/service';
 
 @Component( {
     selector: 'row-validation-problem-widget',

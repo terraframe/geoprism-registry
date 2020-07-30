@@ -4,7 +4,7 @@ import { Subscription, interval } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PageResult } from '@shared/model/core'
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 
 import { SynchronizationConfig, ExportScheduledJob } from '@registry/model/registry';
 import { SynchronizationConfigService } from '@registry/service';

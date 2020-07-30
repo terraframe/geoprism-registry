@@ -7,11 +7,10 @@ import {
 } from '@angular/animations'
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 import { StepConfig } from '@shared/model/modal';
-import { ModalStepIndicatorService } from '@shared/service/modal-step-indicator.service';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
+import { ErrorHandler } from '@shared/component';
 
 import { GeoObjectType, AttributeTerm, Term, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '@registry/model/registry';
 import { RegistryService, GeoObjectTypeManagementService } from '@registry/service';

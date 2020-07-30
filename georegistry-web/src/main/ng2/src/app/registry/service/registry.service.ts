@@ -30,8 +30,9 @@ import {
 
 import { HierarchyType } from '@registry/model/hierarchy';
 import { Progress } from '@shared/model/progress';
-import { EventService } from '@shared/service/event.service';
+
 import { Organization } from '@shared/model/core';
+import { EventService } from '@shared/service';
 
 declare var acp: any;
 

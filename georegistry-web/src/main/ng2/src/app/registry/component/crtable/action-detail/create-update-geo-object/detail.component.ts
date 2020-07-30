@@ -10,10 +10,9 @@ import { AbstractAction } from '@registry/model/crtable';
 
 import { RegistryService, ChangeRequestService } from '@registry/service';
 
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { ComponentCanDeactivate } from "@shared/service/pending-changes-guard";
+import { ComponentCanDeactivate } from "@shared/service";
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 import { ActionDetailComponent } from '../action-detail-modal.component';
 

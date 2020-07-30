@@ -22,10 +22,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { LocalizationService } from '@shared/service/localization.service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { AccountInviteComponent } from './account/account-invite.component';
 import { EmailComponent } from './email/email.component'
 import { OrganizationModalComponent } from './organization/organization-modal.component'
@@ -33,15 +29,13 @@ import { ExternalSystemModalComponent } from './external-system/external-system-
 import { NewLocaleModalComponent } from './localization-manager/new-locale-modal.component';
 import { ImportLocalizationModalComponent } from './localization-manager/import-localization-modal.component';
 
-import { ExternalSystemService } from '@shared/service/external-system.service';
-import { OrganizationService } from '@shared/service/organization.service';
 import { Settings } from '@admin/model/settings';
-import { PageResult, Organization, ExternalSystem } from '@shared/model/core';
 import { Locale } from '@admin/model/localization-manager';
 
-import { AuthService } from '@shared/service/auth.service';
+import { PageResult, Organization, ExternalSystem } from '@shared/model/core';
 import { ModalTypes } from '@shared/model/modal';
-
+import { ErrorHandler, ConfirmModalComponent, ErrorModalComponent } from '@shared/component';
+import { LocalizationService, AuthService, ExternalSystemService, OrganizationService } from '@shared/service';
 
 declare let acp: string;
 

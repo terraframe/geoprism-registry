@@ -8,7 +8,7 @@ import { AllGeoJSON } from '@turf/helpers'
 import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 
 import { GeoObject, MasterList, ContextLayer, ContextLayerGroup } from '@registry/model/registry';
 import { LocationInformation } from '@registry/model/location-manager';

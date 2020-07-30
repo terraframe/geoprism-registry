@@ -3,11 +3,9 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { AuthService } from '@shared/service/auth.service';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService, AuthService } from '@shared/service';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 declare var acp: string;
 

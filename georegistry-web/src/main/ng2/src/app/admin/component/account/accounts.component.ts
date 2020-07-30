@@ -22,8 +22,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+
 import { PageResult } from '@shared/model/core';
 
 import { User, Account } from '@admin/model/account';

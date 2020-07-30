@@ -3,10 +3,8 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { EventService } from '@shared/service/event.service';
-import { LocalizationService } from '@shared/service/localization.service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { LocalizationService, EventService } from '@shared/service';
 
 declare var acp: any;
 

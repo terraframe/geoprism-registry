@@ -4,11 +4,10 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 import { RegistryService } from '@registry/service';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService, AuthService } from '@shared/service';
 
 
 import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, ParentTreeNode, ImportError } from '@registry/model/registry';
@@ -16,8 +15,6 @@ import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, ParentTreeNode, Im
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-
-import { AuthService } from '@shared/service/auth.service';
 
 
 @Component( {

@@ -22,7 +22,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 import { Account, UserInvite } from '@admin/model/account';
 import { Organization } from '@shared/model/core';
 

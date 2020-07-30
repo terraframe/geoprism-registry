@@ -21,7 +21,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 
 import { ForgotPasswordService } from '@core/service/forgotpassword.service';
 

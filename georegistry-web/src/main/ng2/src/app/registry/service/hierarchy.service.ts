@@ -24,7 +24,7 @@ import { finalize } from 'rxjs/operators';
 
 import { HierarchyType } from '@registry/model/hierarchy';
 import { TreeEntity } from '@registry/model/registry';
-import { EventService } from '@shared/service/event.service';
+import { EventService } from '@shared/service';
 
 declare var acp: any;
 

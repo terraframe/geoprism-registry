@@ -4,8 +4,7 @@ import { finalize } from 'rxjs/operators';
 import * as mapboxgl from 'mapbox-gl';
 
 import { LocationInformation } from '@registry/model/location-manager';
-import { EventService } from '@shared/service/event.service';
-
+import { EventService } from '@shared/service';
 
 declare var acp: any;
 

@@ -5,13 +5,13 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { PageResult } from '@shared/model/core'
-import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 import { ModalTypes } from '@shared/model/modal';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
+
 import { SynchronizationConfig } from '@registry/model/registry';
-import { SynchronizationConfigModalComponent } from './synchronization-config-modal.component';
 import { SynchronizationConfigService } from '@registry/service';
+import { SynchronizationConfigModalComponent } from './synchronization-config-modal.component';
 
 @Component({
 	selector: 'synchronization-config-manager',

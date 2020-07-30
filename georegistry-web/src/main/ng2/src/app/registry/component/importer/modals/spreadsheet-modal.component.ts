@@ -4,13 +4,10 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Router } from '@angular/router';
 
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
+import { ErrorHandler, SuccessModalComponent, ConfirmModalComponent } from '@shared/component';
 
-import { SuccessModalComponent } from '@shared/component/modals/success-modal.component';
-import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { ImportConfiguration } from '@registry/model/io';
-
 import { IOService } from '@registry/service';
 
 @Component( {

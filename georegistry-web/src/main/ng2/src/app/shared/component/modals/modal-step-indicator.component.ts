@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { LocalizationService } from '@shared/service/localization.service';
-import { ModalStepIndicatorService} from '@shared/service/modal-step-indicator.service'
+import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
 
 import { Step, StepConfig } from '@shared/model/modal';
 import { Subscription } from 'rxjs';

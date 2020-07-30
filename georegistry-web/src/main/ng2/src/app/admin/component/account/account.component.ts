@@ -28,10 +28,9 @@ import { Subject } from 'rxjs';
 
 import { Account, User, Role } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
-import { LocalizationService } from '@shared/service/localization.service';
-import { AuthService } from '@shared/service/auth.service';
+import { LocalizationService, AuthService } from '@shared/service';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 
 @Component( {
     selector: 'account',

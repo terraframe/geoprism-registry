@@ -4,7 +4,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { DatePipe } from '@angular/common';
 
 import { LocalizedValue } from '@shared/model/core';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
 

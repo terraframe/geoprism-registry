@@ -10,10 +10,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '@registry/model/registry';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 import { StepConfig } from '@shared/model/modal';
-import { ModalStepIndicatorService } from '@shared/service/modal-step-indicator.service';
-import { LocalizationService } from '@shared/service/localization.service';
+
+import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
 
 import { RegistryService, GeoObjectTypeManagementService } from '@registry/service';
 

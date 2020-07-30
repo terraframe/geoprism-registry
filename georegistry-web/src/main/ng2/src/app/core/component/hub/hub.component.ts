@@ -23,7 +23,8 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { Application } from '@shared/model/application';
-import { AuthService } from '@shared/service/auth.service';
+
+import { AuthService } from '@shared/service';
 
 import { HubService } from '@core/service/hub.service';
 

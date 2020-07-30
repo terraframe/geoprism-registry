@@ -1,25 +1,20 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-
 import { interval, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { MasterListVersion } from '@registry/model/registry';
-
-import { ExportFormatModalComponent } from './export-format-modal.component';
-
 import { RegistryService } from '@registry/service';
-import { ProgressService } from '@shared/service/progress.service';
-import { LocalizationService } from '@shared/service/localization.service';
-
+import { ExportFormatModalComponent } from './export-format-modal.component';
 import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
 
-import { AuthService } from '@shared/service/auth.service';
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, AuthService, ProgressService } from '@shared/service';
+
 
 declare var acp: string;
 
@@ -43,7 +38,7 @@ export class MasterListComponent implements OnInit {
 	};
 	sort = { attribute: 'code', order: 'ASC' };
 	isPublished: boolean = true;
-	
+
 	isRefreshing: boolean = false;
 
     /*
@@ -72,7 +67,7 @@ export class MasterListComponent implements OnInit {
 		const oid = this.route.snapshot.paramMap.get('oid');
 		this.isPublished = (this.route.snapshot.paramMap.get('published') == "true");
 
-		this.service.getMasterListVersion(oid).then( version => {
+		this.service.getMasterListVersion(oid).then(version => {
 			this.list = version;
 			this.list.attributes.forEach(attribute => {
 				attribute.isCollapsed = true;
@@ -243,7 +238,7 @@ export class MasterListComponent implements OnInit {
 
 	onPublish(): void {
 		this.message = null;
-		
+
 		this.isRefreshing = true;
 
 		let subscription = interval(1000).subscribe(() => {
@@ -259,7 +254,7 @@ export class MasterListComponent implements OnInit {
 				this.pService.complete();
 			})).toPromise()
 			.then(list => {
-			  this.isRefreshing = false;
+				this.isRefreshing = false;
 				this.list = list;
 				this.list.attributes.forEach(attribute => {
 					attribute.isCollapsed = true;
@@ -303,7 +298,7 @@ export class MasterListComponent implements OnInit {
 
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

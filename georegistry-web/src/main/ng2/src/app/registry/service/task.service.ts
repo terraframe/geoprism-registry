@@ -20,12 +20,11 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-// import 'rxjs/add/operator/toPromise';
 import { finalize } from 'rxjs/operators';
 
 import { Task } from '@registry/model/registry';
 import { Progress } from '@shared/model/progress';
-import { EventService } from '@shared/service/event.service';
+import { EventService } from '@shared/service';
 
 declare var acp: any;
 

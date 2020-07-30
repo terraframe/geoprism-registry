@@ -2,14 +2,12 @@ import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angula
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 import { GeoObjectType } from '@registry/model/registry';
 
 import { RegistryService } from '@registry/service';
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService, AuthService } from '@shared/service';
 import { Organization } from '@shared/model/core';
-import { AuthService } from '@shared/service/auth.service';
-
 
 @Component( {
     selector: 'create-geoobjtype-modal',

@@ -9,9 +9,9 @@ import { HierarchyOverTime, PRESENT } from '@registry/model/registry';
 
 import { IOService, RegistryService } from '@registry/service';
 
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
 
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 
 @Component( {
     selector: 'manage-parent-versions-modal',

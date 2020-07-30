@@ -3,11 +3,11 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizationService } from '@shared/service';
+import { ErrorHandler } from '@shared/component';
 
 import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from '@registry/model/registry';
 import { SynchronizationConfigService, RegistryService } from '@registry/service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { CustomAttributeConfig } from '@registry/model/sync';
 
 export interface LevelRow {

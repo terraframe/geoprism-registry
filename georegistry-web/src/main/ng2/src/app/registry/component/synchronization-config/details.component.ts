@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { interval } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { RegistryService, IOService } from '@registry/service';
-import { LocalizationService } from '@shared/service/localization.service';
-import { AuthService } from '@shared/service/auth.service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
-import { ScheduledJob } from '@registry/model/registry';
+import { LocalizationService, AuthService } from '@shared/service';
+import { ErrorHandler } from '@shared/component';
 import { ModalTypes } from '@shared/model/modal';
 
-import { interval } from 'rxjs';
+import { RegistryService, IOService } from '@registry/service';
+import { ScheduledJob } from '@registry/model/registry';
 
 @Component({
   selector: 'job',

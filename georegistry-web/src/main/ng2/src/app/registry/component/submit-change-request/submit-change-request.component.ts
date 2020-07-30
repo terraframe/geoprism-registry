@@ -1,27 +1,20 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { HttpErrorResponse } from '@angular/common/http';
-
-import { SuccessModalComponent } from '@shared/component/modals/success-modal.component';
-
-import { DatePipe } from '@angular/common';
-
-import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
-import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
-
-import { LocalizationService } from '@shared/service/localization.service';
-import { AuthService } from '@shared/service/auth.service';
-
-import { IOService, RegistryService, HierarchyService, ChangeRequestService } from '@registry/service';
-import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '@registry/model/registry';
-
-import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
-
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { mergeMap } from 'rxjs/operators';
+
+import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
+
+import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
+import { IOService, RegistryService, HierarchyService, ChangeRequestService } from '@registry/service';
+import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '@registry/model/registry';
+
+
 
 declare var acp: string;
 
@@ -71,7 +64,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     constructor( private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
         private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private date: DatePipe, private toEpochDateTimePipe: ToEpochDateTimePipe, private localizeService: LocalizationService,
+        private date: DatePipe, private localizeService: LocalizationService,
         private authService: AuthService ) {
 
         this.dataSource = Observable.create(( observer: any ) => {

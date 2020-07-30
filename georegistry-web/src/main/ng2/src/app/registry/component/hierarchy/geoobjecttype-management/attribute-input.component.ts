@@ -10,7 +10,7 @@ import { NgControl, Validators, FormBuilder } from '@angular/forms';
 
 import { GeoObjectType, Attribute } from '@registry/model/registry';
 import { HierarchyService } from '@registry/service';
-import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component';
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 
 
