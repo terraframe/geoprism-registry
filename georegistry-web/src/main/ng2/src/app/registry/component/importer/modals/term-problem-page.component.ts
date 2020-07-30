@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
-import { ImportConfiguration, TermProblem } from '../../../model/io';
+import { ImportConfiguration, TermProblem } from '@registry/model/io';
 
 @Component( {
 

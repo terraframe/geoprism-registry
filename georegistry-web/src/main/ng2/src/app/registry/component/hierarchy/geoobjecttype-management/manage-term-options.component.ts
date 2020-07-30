@@ -9,15 +9,15 @@ import {
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
-import { StepConfig, ModalTypes } from '../../../../shared/model/modal';
-import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
-import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
-import { LocalizationService } from '../../../../shared/service/localization.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { StepConfig, ModalTypes } from '@shared/model/modal';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
+import { ModalStepIndicatorService } from '@shared/service/modal-step-indicator.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
-import { RegistryService } from '../../../service/registry.service';
-import { GeoObjectType, AttributeTerm, Term, GeoObjectTypeModalStates } from '../../../model/registry';
+import { RegistryService, GeoObjectTypeManagementService } from '@registry/service';
+
+import { GeoObjectType, AttributeTerm, Term, GeoObjectTypeModalStates } from '@registry/model/registry';
 
 @Component({
 	selector: 'manage-term-options',

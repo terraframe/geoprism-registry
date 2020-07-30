@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
 
-import { Step, StepConfig } from '../model/modal';
+import { Step, StepConfig } from '@shared/model/modal';
 
 
 declare var acp: string;

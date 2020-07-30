@@ -22,10 +22,10 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { Application } from '../../../shared/model/application';
-import { AuthService } from '../../../shared/service/auth.service';
+import { Application } from '@shared/model/application';
+import { AuthService } from '@shared/service/auth.service';
 
-import { HubService } from '../../service/hub.service';
+import { HubService } from '@core/service/hub.service';
 
 declare var acp: any;
 

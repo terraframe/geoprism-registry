@@ -22,12 +22,12 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { Account, UserInvite } from '../../model/account';
-import { Organization } from '../../../shared/model/core';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { Account, UserInvite } from '@admin/model/account';
+import { Organization } from '@shared/model/core';
 
-import { SettingsService } from '../../service/settings.service'
-import { AccountService } from '../../service/account.service';
+import { SettingsService } from '@admin/service/settings.service'
+import { AccountService } from '@admin/service/account.service';
 
 
 @Component({

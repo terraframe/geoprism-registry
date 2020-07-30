@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
-import { ManageGeoObjectTypeModalState } from '../model/registry';
+import { ManageGeoObjectTypeModalState } from '@registry/model/registry';
 
 @Injectable()
 export class GeoObjectTypeManagementService {

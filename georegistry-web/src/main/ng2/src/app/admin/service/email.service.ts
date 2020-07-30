@@ -22,9 +22,9 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 
 import { finalize } from 'rxjs/operators';
 
-import { EventService } from '../../shared/service/event.service'
+import { EventService } from '@shared/service/event.service'
 
-import { Email } from '../model/email';
+import { Email } from '@admin/model/email';
 
 declare var acp: any;
 

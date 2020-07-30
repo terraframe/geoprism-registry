@@ -22,9 +22,9 @@ import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/comm
 // import 'rxjs/add/operator/toPromise';
 import { finalize } from 'rxjs/operators';
 
-import { HierarchyType } from '../model/hierarchy';
-import { TreeEntity } from '../model/registry';
-import { EventService } from '../../shared/service/event.service';
+import { HierarchyType } from '@registry/model/hierarchy';
+import { TreeEntity } from '@registry/model/registry';
+import { EventService } from '@shared/service/event.service';
 
 declare var acp: any;
 

@@ -26,12 +26,12 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
 
-import { Account, User, Role } from '../../model/account';
-import { AccountService } from '../../service/account.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
+import { Account, User, Role } from '@admin/model/account';
+import { AccountService } from '@admin/service/account.service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
 
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 @Component( {
     selector: 'account',

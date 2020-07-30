@@ -4,14 +4,14 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterListByOrg } from '../../model/registry';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { MasterListByOrg } from '@registry/model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { PublishModalComponent } from './publish-modal.component';
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
 
-import { RegistryService } from '../../service/registry.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
+import { RegistryService } from '@registry/service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
 
 @Component({
 	selector: 'master-list-manager',

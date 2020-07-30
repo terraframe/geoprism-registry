@@ -8,18 +8,18 @@ import { interval, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { MasterListVersion } from '../../model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { MasterListVersion } from '@registry/model/registry';
 
 import { ExportFormatModalComponent } from './export-format-modal.component';
 
-import { RegistryService } from '../../service/registry.service';
-import { ProgressService } from '../../../shared/service/progress.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { RegistryService } from '@registry/service';
+import { ProgressService } from '@shared/service/progress.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
 import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
 
-import { AuthService } from '../../../shared/service/auth.service';
+import { AuthService } from '@shared/service/auth.service';
 
 declare var acp: string;
 

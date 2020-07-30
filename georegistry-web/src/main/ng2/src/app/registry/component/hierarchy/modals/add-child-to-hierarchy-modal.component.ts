@@ -3,10 +3,10 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { TreeNode } from 'angular-tree-component';
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
-import { HierarchyType, HierarchyNode } from '../../../model/hierarchy';
-import { GeoObjectType } from '../../../model/registry';
-import { HierarchyService } from '../../../service/hierarchy.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { HierarchyType, HierarchyNode } from '@registry/model/hierarchy';
+import { GeoObjectType } from '@registry/model/registry';
+import { HierarchyService } from '@registry/service';
 
 
 @Component( {

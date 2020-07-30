@@ -3,22 +3,19 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';
+import { SuccessModalComponent } from '@shared/component/modals/success-modal.component';
 
 import { DatePipe } from '@angular/common';
 
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
 import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
-import { ChangeRequestService } from '../../service/change-request.service';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-import { HierarchyService } from '../../service/hierarchy.service';
-import { RegistryService } from '../../service/registry.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
 
-import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '../../model/registry';
+import { IOService, RegistryService, HierarchyService, ChangeRequestService } from '@registry/service';
+import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '@registry/model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 

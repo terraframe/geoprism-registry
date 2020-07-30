@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { LocalizedValue } from '../model/core';
+import { LocalizedValue } from '@shared/model/core';
 
 declare var Globalize: any;
 declare var com: any

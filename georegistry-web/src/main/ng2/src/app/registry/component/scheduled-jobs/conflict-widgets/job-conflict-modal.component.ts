@@ -1,18 +1,14 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ParentReferenceProblemWidgetComponent } from './parent-reference-problem-widget.component'
-import { TermReferenceProblemWidgetComponent } from './term-reference-problem-widget.component'
-import { RowValidationProblemWidgetComponent } from './row-validation-problem-widget.component'
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
-import { GeoObjectType, MasterList, ScheduledJob, ScheduledJobOverview } from '../../../model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ScheduledJobOverview } from '@registry/model/registry';
 
-import { RegistryService } from '../../../service/registry.service';
+import { RegistryService, IOService } from '@registry/service';
 
-import { IOService } from '../../../service/io.service';
-import { LocalizationService } from '../../../../shared/service/localization.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
 @Component( {
     selector: 'job-conflict-modal',

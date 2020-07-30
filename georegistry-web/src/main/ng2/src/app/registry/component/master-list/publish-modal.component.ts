@@ -3,13 +3,12 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterList, MasterListByOrg } from '../../model/registry';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { RegistryService } from '../../service/registry.service';
+import { MasterList, MasterListByOrg } from '@registry/model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-import { IOService } from '../../service/io.service';
-import { AuthService } from '../../../shared/service/auth.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { RegistryService, IOService } from '@registry/service';
+import { AuthService } from '@shared/service/auth.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
 @Component({
 	selector: 'publish-modal',

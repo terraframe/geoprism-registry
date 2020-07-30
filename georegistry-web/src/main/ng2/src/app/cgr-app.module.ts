@@ -17,19 +17,19 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CgrAppComponent } from './cgr-app.component';
 import { CgrAppRoutingModule, routedComponents } from './cgr-app-routing.module';
 
-import { LoginComponent } from './core/component/login/login.component';
-import { LoginHeaderComponent } from './core/component/login/login-header.component';
-import { HubComponent } from './core/component/hub/hub.component';
-import { ForgotPasswordComponent } from './core/component/forgotpassword/forgotpassword.component';
-import { ForgotPasswordCompleteComponent } from './core/component/forgotpassword-complete/forgotpassword-complete.component';
+import { LoginComponent } from '@core/component/login/login.component';
+import { LoginHeaderComponent } from '@core/component/login/login-header.component';
+import { HubComponent } from '@core/component/hub/hub.component';
+import { ForgotPasswordComponent } from '@core/component/forgotpassword/forgotpassword.component';
+import { ForgotPasswordCompleteComponent } from '@core/component/forgotpassword-complete/forgotpassword-complete.component';
 
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpErrorInterceptor } from './core/service/http-error.interceptor';
+import { HttpErrorInterceptor } from '@core/service/http-error.interceptor';
 
-import { ForgotPasswordService } from './core/service/forgotpassword.service';
-import { HubService } from './core/service/hub.service';
+import { ForgotPasswordService } from '@core/service/forgotpassword.service';
+import { HubService } from '@core/service/hub.service';
 
-import { SharedModule } from './shared/shared.module';
+import { SharedModule } from '@shared/shared.module';
 
 import './rxjs-extensions';
 

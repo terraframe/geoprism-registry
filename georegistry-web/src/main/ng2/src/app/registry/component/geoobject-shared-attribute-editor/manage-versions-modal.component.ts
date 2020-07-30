@@ -9,13 +9,12 @@ import {
     transition,
 } from '@angular/animations';
 
-import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from '../../model/registry';
+import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from '@registry/model/registry';
 
-import { RegistryService } from '../../service/registry.service';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { RegistryService, IOService } from '@registry/service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-import { IOService } from '../../service/io.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
 import Utils from '../../utility/Utils';
 

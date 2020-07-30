@@ -5,18 +5,18 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { SuccessModalComponent } from '@shared/component/modals/success-modal.component';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 import { ShapefileModalComponent } from './modals/shapefile-modal.component';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { IOService } from '../../service/io.service';
-import { EventService } from '../../../shared/service/event.service';
-import { AuthService } from '../../../shared/service/auth.service';
-import { ExternalSystemService } from '../../../shared/service/external-system.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { ImportStrategy } from '../../model/registry';
-import { ExternalSystem } from '../../../shared/model/core';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { IOService } from '@registry/service';
+import { EventService } from '@shared/service/event.service';
+import { AuthService } from '@shared/service/auth.service';
+import { ExternalSystemService } from '@shared/service/external-system.service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { ImportStrategy } from '@registry/model/registry';
+import { ExternalSystem } from '@shared/model/core';
 
 declare var acp: string;
 

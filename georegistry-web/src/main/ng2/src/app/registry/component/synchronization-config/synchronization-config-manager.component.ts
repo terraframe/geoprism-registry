@@ -4,14 +4,14 @@ import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { PageResult } from '../../../shared/model/core'
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { ModalTypes } from '../../../shared/model/modal';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { SynchronizationConfig } from '../../model/registry';
+import { PageResult } from '@shared/model/core'
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { ModalTypes } from '@shared/model/modal';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { SynchronizationConfig } from '@registry/model/registry';
 import { SynchronizationConfigModalComponent } from './synchronization-config-modal.component';
-import { SynchronizationConfigService } from '../../service/synchronization-config.service';
+import { SynchronizationConfigService } from '@registry/service';
 
 @Component({
 	selector: 'synchronization-config-manager',

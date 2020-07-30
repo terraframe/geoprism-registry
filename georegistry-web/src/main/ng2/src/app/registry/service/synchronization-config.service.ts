@@ -22,11 +22,11 @@ import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 
 import { finalize } from 'rxjs/operators';
 
-import { EventService } from '../../shared/service/event.service'
+import { EventService } from '@shared/service/event.service'
 
-import { PageResult } from '../../shared/model/core'
-import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from '../model/registry'
-import { CustomAttributeConfig } from '../model/sync'
+import { PageResult } from '@shared/model/core'
+import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from '@registry/model/registry'
+import { CustomAttributeConfig } from '@registry/model/sync'
 
 declare var acp: any;
 

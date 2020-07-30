@@ -8,9 +8,9 @@ import {
 } from '@angular/animations'
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, Term} from '../../../model/registry';
-import { HierarchyService } from '../../../service/hierarchy.service';
-import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
+import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, Term} from '@registry/model/registry';
+import { HierarchyService } from '@registry/service/hierarchy.service';
+import { GeoObjectTypeManagementService } from '@registry/service/geoobjecttype-management.service'
 
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 

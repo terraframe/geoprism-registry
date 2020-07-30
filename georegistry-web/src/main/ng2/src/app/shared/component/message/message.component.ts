@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { EventService, IEventListener } from '../../service/event.service';
+import { EventService, IEventListener } from '@shared/service/event.service';
 
 @Component({
   

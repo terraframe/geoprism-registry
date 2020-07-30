@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, SimpleChanges, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { RegistryService } from '../../service/registry.service';
+import { RegistryService } from '@registry/service';
 
 import { Map, LngLatBounds, NavigationControl } from 'mapbox-gl';
 import * as MapboxDraw from '@mapbox/mapbox-gl-draw';

@@ -23,9 +23,9 @@ import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { Email } from '../../model/email';
-import { EmailService } from '../../service/email.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { Email } from '@admin/model/email';
+import { EmailService } from '@admin/service/email.service';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 

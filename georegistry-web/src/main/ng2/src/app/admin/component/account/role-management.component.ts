@@ -19,13 +19,13 @@
 
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { AuthService } from '../../../shared/service/auth.service';
+import { AuthService } from '@shared/service/auth.service';
 
-import { Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '../../model/account';
-import { RegistryRoleType } from '../../../shared/model/core';
+import { Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '@admin/model/account';
+import { RegistryRoleType } from '@shared/model/core';
 
 @Component({
 	selector: 'role-management',

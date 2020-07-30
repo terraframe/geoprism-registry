@@ -3,11 +3,11 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-import { IOService } from '../../service/io.service';
-import { AuthService } from '../../../shared/service/auth.service';
+import { IOService } from '@registry/service';
+import { AuthService } from '@shared/service/auth.service';
 
 declare var acp: string;
 

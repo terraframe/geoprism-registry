@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-// import 'rxjs/add/operator/toPromise';
+import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 
-import { ChangeRequest, AbstractAction } from '../model/crtable';
-import { EventService } from '../../shared/service/event.service';
-import { GeoObject } from '../model/registry';
+import { ChangeRequest, AbstractAction } from '@registry/model/crtable';
+import { EventService } from '@shared/service/event.service';
+import { GeoObject } from '@registry/model/registry';
 
 declare var acp: any;
 

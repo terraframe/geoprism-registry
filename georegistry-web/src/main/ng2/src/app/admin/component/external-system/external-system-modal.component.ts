@@ -23,11 +23,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { ExternalSystem, Organization } from '../../../shared/model/core';
-import { ExternalSystemService } from '../../../shared/service/external-system.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ExternalSystem, Organization } from '@shared/model/core';
+import { ExternalSystemService } from '@shared/service/external-system.service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 @Component({
 	selector: 'external-system-modal',

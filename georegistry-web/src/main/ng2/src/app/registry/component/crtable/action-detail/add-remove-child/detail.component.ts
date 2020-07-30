@@ -5,13 +5,13 @@ import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ErrorModalComponent } from '../../../../../shared/component/modals/error-modal.component';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
 
-import { AddChildAction } from '../../../../model/crtable';
-import { ChangeRequestService } from '../../../../service/change-request.service';
-import { ComponentCanDeactivate } from "../../../../../shared/service/pending-changes-guard";
+import { AddChildAction } from '@registry/model/crtable';
+import { ChangeRequestService } from '@registry/service';
+import { ComponentCanDeactivate } from "@shared/service/pending-changes-guard";
 
-import { ErrorHandler } from '../../../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import { ActionDetailComponent } from '../action-detail-modal.component';
 
 declare var acp: any;

@@ -3,13 +3,12 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
-import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '../../../model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import {  GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, GeoObjectType } from '@registry/model/registry';
 
-import { HierarchyService } from '../../../service/hierarchy.service';
-import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
+import { HierarchyService, GeoObjectTypeManagementService } from '@registry/service';
 
 
 @Component( {

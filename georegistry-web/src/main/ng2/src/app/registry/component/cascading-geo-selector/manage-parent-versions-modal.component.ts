@@ -5,14 +5,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
-import { HierarchyOverTime, PRESENT } from '../../model/registry';
+import { HierarchyOverTime, PRESENT } from '@registry/model/registry';
 
-import { RegistryService } from '../../service/registry.service';
+import { IOService, RegistryService } from '@registry/service';
 
-import { IOService } from '../../service/io.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 @Component( {
     selector: 'manage-parent-versions-modal',

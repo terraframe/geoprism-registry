@@ -1,19 +1,21 @@
 import { Component, Input, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
-import { LocalizationService } from '../../../../shared/service/localization.service';
-import { ModalTypes } from '../../../../shared/model/modal';
-import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
-import { EventService } from '../../../../shared/service/event.service'
-import { ScheduledJob } from '../../../model/registry';
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
+import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
+
+import { LocalizationService } from '@shared/service/localization.service';
+import { ModalTypes } from '@shared/model/modal';
+import { EventService } from '@shared/service/event.service'
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+
+import { ScheduledJob } from '@registry/model/registry';
 
 declare var acp: any;
 
 @Component( {
     selector: 'reupload-modal',
     templateUrl: './reupload-modal.component.html',
-    styleUrls: ['../../../../shared/component/modals/modal.css']
+    styleUrls: []
 } )
 export class ReuploadModalComponent {
   @Input() title: string = this.localizeService.decode("reuploadmodal.title");

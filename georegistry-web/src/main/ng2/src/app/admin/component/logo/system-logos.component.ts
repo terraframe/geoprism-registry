@@ -25,15 +25,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
+import { LocalizationService } from '@shared/service/localization.service';
 
 import { SystemLogoComponent } from './system-logo.component'
 
-import { SystemLogo } from '../../model/system-logo';
-import { SystemLogoService } from '../../service/system-logo.service';
+import { SystemLogo } from '@admin/model/system-logo';
+import { SystemLogoService } from '@admin/service/system-logo.service';
 
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 declare let acp: string;
 

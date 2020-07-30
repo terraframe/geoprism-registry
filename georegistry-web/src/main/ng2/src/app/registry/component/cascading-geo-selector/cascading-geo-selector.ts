@@ -1,17 +1,15 @@
-import { Component, OnInit, Input, EventEmitter, Output, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, EventEmitter, Output, ViewChild, SimpleChanges } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
+
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { ParentTreeNode, GeoObject, HierarchyOverTime } from '../../model/registry';
-import { RegistryService } from '../../service/registry.service';
 
+import { HierarchyOverTime } from '@registry/model/registry';
+import { RegistryService } from '@registry/service';
 import { ManageParentVersionsModalComponent } from './manage-parent-versions-modal.component';
 
-import { LocalizedValue } from '../../../shared/model/core';
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 @Component( {
 

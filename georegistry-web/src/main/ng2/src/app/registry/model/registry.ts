@@ -1,5 +1,5 @@
-import { LocalizedValue, Organization } from '../../shared/model/core';
-import { LocalizationService } from '../../shared/service/localization.service';
+import { LocalizedValue, Organization } from '@shared/model/core';
+import { LocalizationService } from '@shared/service/localization.service';
 import { ImportConfiguration } from './io';
 
 export const PRESENT: string = '5000-12-31'

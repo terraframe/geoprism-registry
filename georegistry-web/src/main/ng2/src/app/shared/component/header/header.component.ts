@@ -6,11 +6,11 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ProfileComponent } from '../profile/profile.component';
 
-import { AuthService } from '../../service/auth.service';
-import { SessionService } from '../../service/session.service';
-import { ProfileService } from '../../service/profile.service';
+import { AuthService } from '@shared/service/auth.service';
+import { SessionService } from '@shared/service/session.service';
+import { ProfileService } from '@shared/service/profile.service';
 
-import { RegistryRoleType } from '../../model/core';
+import { RegistryRoleType } from '@shared/model/core';
 
 declare var acp: string;
 

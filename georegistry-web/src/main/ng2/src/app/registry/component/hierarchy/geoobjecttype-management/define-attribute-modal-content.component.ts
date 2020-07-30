@@ -8,14 +8,13 @@ import {
 } from '@angular/animations'
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
-import { StepConfig } from '../../../../shared/model/modal';
-import { ModalStepIndicatorService } from '../../../../shared/service/modal-step-indicator.service';
-import { LocalizationService } from '../../../../shared/service/localization.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { StepConfig } from '@shared/model/modal';
+import { ModalStepIndicatorService } from '@shared/service/modal-step-indicator.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '../../../model/registry';
-import { RegistryService } from '../../../service/registry.service';
-import { GeoObjectTypeManagementService } from '../../../service/geoobjecttype-management.service'
+import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '@registry/model/registry';
+import { RegistryService, GeoObjectTypeManagementService } from '@registry/service';
 import { AttributeInputComponent} from '../geoobjecttype-management/attribute-input.component';
  
 

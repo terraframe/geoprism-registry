@@ -17,66 +17,60 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { Observable } from 'rxjs';
+import { User } from '@admin/model/account';
+import { AccountService } from '@admin/service/account.service';
 
-
-import { User, Account } from '../../model/account';
-import { PageResult } from '../../../shared/model/core';
-import { AccountService } from '../../service/account.service';
-
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 declare let acp: string;
 
 @Component({
-  selector: 'account-invite-complete',
-  templateUrl: './account-invite-complete.component.html',
-  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+	selector: 'account-invite-complete',
+	templateUrl: './account-invite-complete.component.html',
+	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
 })
 export class AccountInviteCompleteComponent implements OnInit {
-  user:User;
-  private sub: any;
-  token: string;
-  message: string = null;
-  
-  constructor(
-    private service:AccountService,
-    private route:ActivatedRoute,
-    private location:Location) {
-  }
+	user: User;
+	private sub: any;
+	token: string;
+	message: string = null;
 
-  ngOnInit(): void {
-    this.service.newUserInstance().then((user:User) => {
-      this.user = user;
-    })
-    .catch(( err: HttpErrorResponse ) => {
-      this.error( err );
-    } );
-    
-    this.sub = this.route.params.subscribe(params => {
-       this.token = params['token'];
-    });
-  }
-  
-  cancel(): void {
-    window.location.href = acp;
-  } 
-  
-  onSubmit(): void {
-    this.service.inviteComplete(this.user, this.token).then(response => {
-      window.location.href = acp;
-    })
-    .catch(( err: HttpErrorResponse ) => {
-      this.error( err );
-    } );
-  }  
-  
-  error( err: HttpErrorResponse ): void {
-      this.message = ErrorHandler.getMessageFromError(err);
-  }
+	constructor(
+		private service: AccountService,
+		private route: ActivatedRoute) {
+	}
+
+	ngOnInit(): void {
+		this.service.newUserInstance().then((user: User) => {
+			this.user = user;
+		})
+			.catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+
+		this.sub = this.route.params.subscribe(params => {
+			this.token = params['token'];
+		});
+	}
+
+	cancel(): void {
+		window.location.href = acp;
+	}
+
+	onSubmit(): void {
+		this.service.inviteComplete(this.user, this.token).then(response => {
+			window.location.href = acp;
+		})
+			.catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+	}
+
+	error(err: HttpErrorResponse): void {
+		this.message = ErrorHandler.getMessageFromError(err);
+	}
 }

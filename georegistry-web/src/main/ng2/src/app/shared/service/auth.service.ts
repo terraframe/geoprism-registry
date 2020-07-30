@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { User } from '../model/user';
-import { RoleBuilder, RegistryRole, RegistryRoleType } from '../model/core';
+import { User } from '@shared/model/user';
+import { RoleBuilder, RegistryRole, RegistryRoleType } from '@shared/model/core';
 
 @Injectable()
 export class AuthService {

@@ -3,17 +3,14 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { DatePipe } from '@angular/common';
 
-import { LocalizedValue } from '../../../shared/model/core';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { LocalizedValue } from '@shared/model/core';
+import { LocalizationService } from '@shared/service/localization.service';
 
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
 
-import { RegistryService } from '../../service/registry.service';
-import { ChangeRequestService } from '../../service/change-request.service';
+import { RegistryService, ChangeRequestService, IOService } from '@registry/service';
 
-
-import { IOService } from '../../service/io.service';
-import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, PRESENT } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term, PRESENT } from '@registry/model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 

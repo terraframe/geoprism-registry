@@ -2,8 +2,8 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
 
-import { ImportConfiguration, LocationProblem } from '../../../model/io';
-import { IOService } from '../../../service/io.service';
+import { ImportConfiguration, LocationProblem } from '@registry/model/io';
+import { IOService } from '@registry/service';
 
 @Component( {
 

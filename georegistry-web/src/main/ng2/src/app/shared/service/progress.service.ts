@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
-import { Progress } from '../model/progress';
+import { Progress } from '@shared/model/progress';
 
 export interface IProgressListener {
   start(): void;

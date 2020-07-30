@@ -5,16 +5,15 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 
-import { HierarchyOverTime } from '../../../../model/registry';
-import { AbstractAction } from '../../../../model/crtable';
+import { HierarchyOverTime } from '@registry/model/registry';
+import { AbstractAction } from '@registry/model/crtable';
 
-import { RegistryService } from '../../../../service/registry.service';
-import { ChangeRequestService } from '../../../../service/change-request.service';
+import { RegistryService, ChangeRequestService } from '@registry/service';
 
-import { ErrorModalComponent } from '../../../../../shared/component/modals/error-modal.component';
-import { ComponentCanDeactivate } from "../../../../../shared/service/pending-changes-guard";
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
+import { ComponentCanDeactivate } from "@shared/service/pending-changes-guard";
 
-import { ErrorHandler } from '../../../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 import { ActionDetailComponent } from '../action-detail-modal.component';
 

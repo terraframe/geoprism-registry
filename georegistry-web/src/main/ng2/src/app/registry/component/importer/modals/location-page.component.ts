@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, Directive } from '@angular/core';
 
-import { ImportConfiguration } from '../../../model/io';
+import { ImportConfiguration } from '@registry/model/io';
 
-import { IOService } from '../../../service/io.service';
+import { IOService } from '@registry/service';
 
 @Component( {
 

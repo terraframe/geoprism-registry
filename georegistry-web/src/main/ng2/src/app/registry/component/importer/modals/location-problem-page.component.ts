@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
-import { ImportConfiguration, LocationProblem } from '../../../model/io';
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
+import { ImportConfiguration, LocationProblem } from '@registry/model/io';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 @Component( {
 

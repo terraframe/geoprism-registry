@@ -23,11 +23,11 @@ import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 // import 'rxjs/add/operator/toPromise';
 import { finalize } from 'rxjs/operators';
 
-import { EventService } from '../../shared/service/event.service'
+import { EventService } from '@shared/service/event.service'
 
-import { Account, User, UserInvite } from '../model/account';
+import { Account, User, UserInvite } from '@admin/model/account';
 
-import { PageResult } from '../../shared/model/core'
+import { PageResult } from '@shared/model/core'
 
 declare var acp: any;
 

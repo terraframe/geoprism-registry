@@ -3,8 +3,8 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { ImportConfiguration, TermProblem } from '../../../model/io';
-import { IOService } from '../../../service/io.service';
+import { ImportConfiguration, TermProblem } from '@registry/model/io';
+import { IOService } from '@registry/service';
 
 @Component( {
 

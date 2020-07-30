@@ -22,11 +22,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { Organization } from '../../../shared/model/core';
-import { OrganizationService } from '../../../shared/service/organization.service';
-import { SettingsService } from '../../service/settings.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { Organization } from '@shared/model/core';
+import { OrganizationService } from '@shared/service/organization.service';
+import { SettingsService } from '@admin/service/settings.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
 @Component({
 	selector: 'organization-modal',

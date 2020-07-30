@@ -6,10 +6,10 @@ import { Subscription, interval } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PublishModalComponent } from './publish-modal.component';
-import { MasterList, MasterListVersion } from '../../model/registry';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { RegistryService } from '../../service/registry.service';
-import { AuthService } from '../../../shared/service/auth.service';
+import { MasterList, MasterListVersion } from '@registry/model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { RegistryService } from '@registry/service';
+import { AuthService } from '@shared/service/auth.service';
 
 declare var acp: any;
 

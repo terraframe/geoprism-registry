@@ -5,16 +5,15 @@ import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
-import { GeoObjectType, MasterList, ScheduledJob } from '../../../model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { GeoObjectType, MasterList, ScheduledJob } from '@registry/model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
 
 import Utils from '../../../utility/Utils'
 
-import { RegistryService } from '../../../service/registry.service';
-import { IOService } from '../../../service/io.service';
-import { LocalizationService } from '../../../../shared/service/localization.service';
+import { RegistryService, IOService } from '@registry/service';
+import { LocalizationService } from '@shared/service/localization.service';
 
 @Component( {
     selector: 'term-reference-problem-widget',

@@ -26,7 +26,7 @@ import { finalize } from 'rxjs/operators';
 import { EventService } from './event.service';
 
 import { AuthService } from './auth.service';
-import { User } from '../model/user';
+import { User } from '@shared/model/user';
 
 declare var acp: any;
 

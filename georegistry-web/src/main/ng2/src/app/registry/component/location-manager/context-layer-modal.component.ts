@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { MasterList, ContextLayer, ContextLayerGroup } from '../../model/registry';
+import { MasterList, ContextLayer, ContextLayerGroup } from '@registry/model/registry';
 
 
 @Component( {

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { Step, StepConfig } from '../../model/registry';
+import { Step, StepConfig } from '@registry/model/registry';
 
 
 @Component( { 

@@ -3,12 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { PageResult } from '../../../shared/model/core'
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { PageResult } from '@shared/model/core'
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { SynchronizationConfig, ExportScheduledJob } from '../../model/registry';
-import { SynchronizationConfigService } from '../../service/synchronization-config.service';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { SynchronizationConfig, ExportScheduledJob } from '@registry/model/registry';
+import { SynchronizationConfigService } from '@registry/service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 declare var acp: any;
 

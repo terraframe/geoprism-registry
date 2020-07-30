@@ -26,11 +26,12 @@ import { finalize } from 'rxjs/operators';
 import {
 	GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode,
 	ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage, MasterListByOrg
-} from '../model/registry';
-import { HierarchyType } from '../model/hierarchy';
-import { Progress } from '../../shared/model/progress';
-import { EventService } from '../../shared/service/event.service';
-import { Organization } from '../../shared/model/core';
+} from '@registry/model/registry';
+
+import { HierarchyType } from '@registry/model/hierarchy';
+import { Progress } from '@shared/model/progress';
+import { EventService } from '@shared/service/event.service';
+import { Organization } from '@shared/model/core';
 
 declare var acp: any;
 

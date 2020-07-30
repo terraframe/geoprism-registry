@@ -4,14 +4,13 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
 
-import { RegistryService } from '../../service/registry.service';
-import { TaskService } from '../../service/task.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
+import { RegistryService, TaskService } from '@registry/service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
 
-import { GeoObjectType, GeoObjectOverTime, Task, PaginationPage } from '../../model/registry';
+import { GeoObjectType, GeoObjectOverTime, Task, PaginationPage } from '@registry/model/registry';
 
 import { ToEpochDateTimePipe } from '../../pipe/to-epoch-date-time.pipe';
 

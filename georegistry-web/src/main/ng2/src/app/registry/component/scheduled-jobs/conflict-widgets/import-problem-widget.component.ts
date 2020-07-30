@@ -4,15 +4,14 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { GeoObjectType, MasterList, ScheduledJob, ImportError } from '../../../model/registry';
+import { GeoObjectType, MasterList, ScheduledJob, ImportError } from '@registry/model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 import Utils from '../../../utility/Utils'
 
-import { RegistryService } from '../../../service/registry.service';
-import { IOService } from '../../../service/io.service';
-import { LocalizationService } from '../../../../shared/service/localization.service';
+import { RegistryService, IOService } from '@registry/service';
+import { LocalizationService } from '@shared/service/localization.service';
 
 @Component( {
     selector: 'import-problem-widget',

@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { MasterList } from '../../model/registry';
-import { RegistryService } from '../../service/registry.service';
+import { MasterList } from '@registry/model/registry';
+import { RegistryService } from '@registry/service';
 import { PublishModalComponent } from './publish-modal.component';
 
 @Component({

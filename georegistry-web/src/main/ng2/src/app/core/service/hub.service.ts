@@ -20,23 +20,23 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 
-import { Application } from '../../shared/model/application';
+import { Application } from '@shared/model/application';
 
 declare var acp: any;
 
 @Injectable()
 export class HubService {
-  
-  constructor(private http: HttpClient) {}
-  
-  applications(): Promise<Application[]> {
 
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });  
-  
-    return this.http
-      .post<Application[]>(acp + '/menu/applications', {headers: headers})
-      .toPromise();
-  }  
+	constructor(private http: HttpClient) { }
+
+	applications(): Promise<Application[]> {
+
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
+
+		return this.http
+			.post<Application[]>(acp + '/menu/applications', { headers: headers })
+			.toPromise();
+	}
 }

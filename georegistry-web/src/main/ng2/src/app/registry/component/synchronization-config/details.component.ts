@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { RegistryService } from '../../service/registry.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { ScheduledJob } from '../../model/registry';
-import { ModalTypes } from '../../../shared/model/modal';
-import { IOService } from '../../service/io.service';
+import { RegistryService, IOService } from '@registry/service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ScheduledJob } from '@registry/model/registry';
+import { ModalTypes } from '@shared/model/modal';
 
 import { interval } from 'rxjs';
 

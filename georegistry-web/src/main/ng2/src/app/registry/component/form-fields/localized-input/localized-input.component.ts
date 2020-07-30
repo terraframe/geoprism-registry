@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { LocalizedValue } from '../../../../shared/model/core';
+import { LocalizedValue } from '@shared/model/core';
 
 @Component( {
     selector: 'localized-input',

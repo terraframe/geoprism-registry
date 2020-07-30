@@ -6,15 +6,15 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { MasterList, MasterListVersion } from '../../model/registry';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
+import { MasterList, MasterListVersion } from '@registry/model/registry';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
 import { PublishModalComponent } from './publish-modal.component';
 
-import { RegistryService } from '../../service/registry.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { RegistryService } from '@registry/service';
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { AuthService } from '../../../shared/service/auth.service';
+import { AuthService } from '@shared/service/auth.service';
 
 @Component({
 	selector: 'master-list-history',

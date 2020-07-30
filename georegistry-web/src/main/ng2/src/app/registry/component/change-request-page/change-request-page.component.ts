@@ -1,16 +1,13 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { SuccessModalComponent } from '../../../shared/component/modals/success-modal.component';
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { AuthService } from '../../../shared/service/auth.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
+import { AuthService } from '@shared/service/auth.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 declare var acp: string;
 

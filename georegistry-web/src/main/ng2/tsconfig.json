@@ -18,7 +18,22 @@
 		],
 		"typeRoots": [
 			"./node_modules/@types"
-		]
+		],
+		"baseUrl": "src",
+		"paths": {
+			"@shared/*": [
+				"app/shared/*"
+			],
+			"@registry/*": [
+				"app/registry/*"
+			],
+			"@core/*": [
+				"app/core/*"
+			],
+			"@admin/*": [
+				"app/admin/*"
+			]
+		}
 	},
 	"exclude": [
 		"node_modules/*",

@@ -4,15 +4,14 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
 
-import { RegistryService } from '../../service/registry.service';
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
-import { IOService } from '../../service/io.service';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
-import { ScheduledJob, ScheduledJobOverview, PaginationPage } from '../../model/registry';
-import { ModalTypes } from '../../../shared/model/modal';
+import { RegistryService, IOService  } from '@registry/service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { ScheduledJob, ScheduledJobOverview, PaginationPage } from '@registry/model/registry';
+import { ModalTypes } from '@shared/model/modal';
 
 import { interval } from 'rxjs';
 

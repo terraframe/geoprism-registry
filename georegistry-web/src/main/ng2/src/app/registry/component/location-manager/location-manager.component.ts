@@ -8,15 +8,14 @@ import { AllGeoJSON } from '@turf/helpers'
 import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
-import { LocalizationService } from '../../../shared/service/localization.service';
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { GeoObject, MasterList, ContextLayer, ContextLayerGroup } from '../../model/registry';
-import { LocationInformation } from '../../model/location-manager';
+import { GeoObject, MasterList, ContextLayer, ContextLayerGroup } from '@registry/model/registry';
+import { LocationInformation } from '@registry/model/location-manager';
 
 import { ContextLayerModalComponent } from './context-layer-modal.component';
 
-import { MapService } from '../../service/map.service';
-import { RegistryService } from '../../service/registry.service';
+import { MapService, RegistryService } from '@registry/service';
 import { timeout } from 'rxjs/operators';
 
 declare var acp: string;

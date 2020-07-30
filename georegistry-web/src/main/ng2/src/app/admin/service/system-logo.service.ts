@@ -22,9 +22,9 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 
 import { finalize } from 'rxjs/operators';
 
-import { EventService } from '../../shared/service/event.service'
+import { EventService } from '@shared/service/event.service'
 
-import { SystemLogo } from '../model/system-logo';
+import { SystemLogo } from '@admin/model/system-logo';
 
 declare var acp: any;
 

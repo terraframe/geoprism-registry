@@ -22,9 +22,9 @@ import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 
 import { finalize } from 'rxjs/operators';
 
-import { EventService } from '../../shared/service/event.service'
+import { EventService } from '@shared/service/event.service'
 
-import { ExternalSystem, PageResult } from '../model/core'
+import { ExternalSystem, PageResult } from '@shared/model/core'
 
 declare var acp: any;
 

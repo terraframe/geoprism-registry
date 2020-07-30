@@ -21,9 +21,9 @@ import { Component, OnInit, Input} from '@angular/core';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { Profile } from '../../model/profile';
-import { ProfileService } from '../../service/profile.service';
-import { AuthService } from '../../service/auth.service';
+import { Profile } from '@shared/model/profile';
+import { ProfileService } from '@shared/service/profile.service';
+import { AuthService } from '@shared/service/auth.service';
 import { Role } from '../../../admin/model/account';
 
 

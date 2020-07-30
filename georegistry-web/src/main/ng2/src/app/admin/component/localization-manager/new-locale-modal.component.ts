@@ -3,11 +3,11 @@ import { Subject } from 'rxjs';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { LocalizationManagerService } from '../../service/localization-manager.service';
-import { EventService } from '../../../shared/service/event.service';
-import { AllLocaleInfo } from '../../model/localization-manager';
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { LocalizationManagerService } from '@admin/service/localization-manager.service';
+import { EventService } from '@shared/service/event.service';
+import { AllLocaleInfo } from '@admin/model/localization-manager';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 @Component({
   selector: 'new-locale-modal',

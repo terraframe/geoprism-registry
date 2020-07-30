@@ -23,9 +23,9 @@ import { Observable } from 'rxjs';
 // import 'rxjs/add/operator/toPromise';
 import { finalize } from 'rxjs/operators';
 
-import { Task } from '../model/registry';
-import { Progress } from '../../shared/model/progress';
-import { EventService } from '../../shared/service/event.service';
+import { Task } from '@registry/model/registry';
+import { Progress } from '@shared/model/progress';
+import { EventService } from '@shared/service/event.service';
 
 declare var acp: any;
 

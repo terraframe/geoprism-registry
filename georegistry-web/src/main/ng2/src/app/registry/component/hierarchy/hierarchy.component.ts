@@ -11,19 +11,18 @@ import { CreateHierarchyTypeModalComponent } from './modals/create-hierarchy-typ
 import { AddChildToHierarchyModalComponent } from './modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
 import { ManageGeoObjectTypeModalComponent } from './modals/manage-geoobjecttype-modal.component';
-import { ConfirmModalComponent } from '../../../shared/component/modals/confirm-modal.component';
-import { ErrorModalComponent } from '../../../shared/component/modals/error-modal.component';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
+import { ErrorModalComponent } from '@shared/component/modals/error-modal.component';
 
-import { LocalizationService } from '../../../shared/service/localization.service';
-import { AuthService } from '../../../shared/service/auth.service';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service/auth.service';
 
-import { HierarchyType, HierarchyNode } from '../../model/hierarchy';
-import { GeoObjectType } from '../../model/registry';
-import { ModalTypes } from '../../../shared/model/modal'
+import { HierarchyType, HierarchyNode } from '@registry/model/hierarchy';
+import { GeoObjectType } from '@registry/model/registry';
+import { ModalTypes } from '@shared/model/modal'
 
-import { HierarchyService } from '../../service/hierarchy.service';
-import { RegistryService } from '../../service/registry.service';
-import { ErrorHandler } from '../../../shared/component/error-handler/error-handler';
+import { RegistryService, HierarchyService } from '@registry/service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
 class Instance {
     active: boolean;

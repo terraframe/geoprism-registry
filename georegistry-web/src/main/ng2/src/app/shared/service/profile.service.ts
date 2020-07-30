@@ -24,7 +24,7 @@ import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/comm
 
 import { EventService } from './event.service';
 
-import { Profile } from '../model/profile';
+import { Profile } from '@shared/model/profile';
 
 declare var acp: any;
 

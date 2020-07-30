@@ -4,14 +4,14 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 import { Router } from '@angular/router';
 
-import { LocalizationService } from '../../../../shared/service/localization.service';
-import { ErrorHandler } from '../../../../shared/component/error-handler/error-handler';
-import { SuccessModalComponent } from '../../../../shared/component/modals/success-modal.component';
-import { ConfirmModalComponent } from '../../../../shared/component/modals/confirm-modal.component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { SuccessModalComponent } from '@shared/component/modals/success-modal.component';
+import { ConfirmModalComponent } from '@shared/component/modals/confirm-modal.component';
 
-import { ImportConfiguration } from '../../../model/io';
+import { ImportConfiguration } from '@registry/model/io';
 
-import { IOService } from '../../../service/io.service';
+import { IOService } from '@registry/service';
 
 @Component( {
     selector: 'shapefile-modal',
