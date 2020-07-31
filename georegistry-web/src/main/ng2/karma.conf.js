@@ -13,6 +13,7 @@ module.exports = (config) => {
 		  fixWebpackSourcePaths: true
 	  },
 	  files: [
+		  'test/global.js',
 		  'test/test.ts'
 		],
 		 
